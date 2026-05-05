@@ -21,6 +21,7 @@ import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
 import { ajv } from "@spacebar/schemas";
 import { BigNumber } from "bignumber.js";
+import { getValidationErrorField } from "./ValidationErrors";
 
 const ignoredRequestSchemas = [
     // skip validation for settings proto JSON updates - TODO: figure out if this even possible to fix?
@@ -113,6 +114,7 @@ export function bigNumberToString(obj1: unknown) {
         }
     }
 }
+
 export function route(opts: RouteOptions) {
     let validate: AnyValidateFunction | undefined;
     if (opts.requestBody) {
@@ -161,7 +163,7 @@ export function route(opts: RouteOptions) {
                 const fields: Record<string, { code?: string; message: string }> = {};
                 validate.errors?.forEach(
                     (x) =>
-                        (fields[x.instancePath.slice(1)] = {
+                        (fields[getValidationErrorField(x)] = {
                             code: x.keyword,
                             message: x.message || "",
                         }),
