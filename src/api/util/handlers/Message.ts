@@ -50,6 +50,7 @@ import {
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
+import { shouldIncrementMentionCount } from "../utility/MessageNotifications";
 import {
     ActionRowComponent,
     ButtonStyle,
@@ -579,6 +580,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         }
         return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id }).save()));
     }
+    const incrementMentionCount = shouldIncrementMentionCount(opts);
     if (ephermal) {
         const id = message.interaction_metadata?.user_id;
         if (id) {
@@ -589,7 +591,10 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                 //stuff
             }
         }
-    } else if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+    } else if (
+        incrementMentionCount &&
+        ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM)
+    ) {
         if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
             if (channel.recipients) {
                 await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
@@ -615,7 +620,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
             const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
             (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
         }
-        if (users.size) {
+        if (incrementMentionCount && users.size) {
             const repository = ReadState.getRepository();
             const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
 
@@ -722,6 +727,7 @@ interface MessageOptions extends MessageCreateSchema {
     timestamp?: Date;
     username?: string;
     avatar_url?: string;
+    suppress_notifications?: boolean;
 }
 
 // Makes for concise code, inspired by Nix' lib.trace
