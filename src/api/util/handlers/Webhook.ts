@@ -1,4 +1,4 @@
-import { handleMessage, postHandleMessage } from "@spacebar/api";
+import { handleMessage, messageToResponse, postHandleMessage } from "@spacebar/api";
 import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, Snowflake, uploadFile, ValidateName, Webhook } from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
@@ -140,6 +140,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     // no await as it shouldnt block the message send function and silently catch error
     postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
-    if (wait) res.json(message);
+    if (wait) res.json(messageToResponse(message, req));
     return;
 };
