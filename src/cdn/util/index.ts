@@ -17,5 +17,7 @@
 */
 
 export * from "./FileStorage";
+export * from "./ImageRoute";
+export * from "./ImageRouteHelpers";
 export * from "./multer";
 export * from "./Storage";
