@@ -31,6 +31,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { arrayRemove } from "@spacebar/util";
+import { createTemplateRoleIdMap, remapTemplateChannelPermissionOverwrites } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -401,6 +402,8 @@ export class Guild extends BaseClass {
             flags: 0, // TODO?
         }).save();
 
+        const roleIdMap = createTemplateRoleIdMap(body.roles ?? [], body.source_guild_id, guild_id, Snowflake.generate);
+
         // create custom roles if provided
         if (body.roles && body.roles.length) {
             await Promise.all(
@@ -410,9 +413,8 @@ export class Guild extends BaseClass {
                             Role.create({
                                 ...role,
                                 guild_id,
-                                id:
-                                    // role.id === body.template_guild_id indicates that this is the @everyone role
-                                    role.id === body.source_guild_id || role.id == "0" ? guild_id : Snowflake.generate(),
+                                // role.id === body.source_guild_id indicates that this is the @everyone role
+                                id: role.id ? (roleIdMap.get(role.id) ?? Snowflake.generate()) : Snowflake.generate(),
                             })
                                 .save()
                                 .then(resolve);
@@ -421,19 +423,18 @@ export class Guild extends BaseClass {
             );
         }
 
-        if (!body.channels || !body.channels.length) {
-            body.channels = [{ id: "01", type: 0, name: "general", nsfw: false }];
-        }
+        const templateChannels = body.channels?.length ? body.channels : [{ id: "01", type: 0, name: "general", nsfw: false }];
+        const channels = remapTemplateChannelPermissionOverwrites(templateChannels, roleIdMap);
 
         const ids = new Map();
 
-        body.channels.forEach((x) => {
+        channels.forEach((x) => {
             if (x.id) {
                 ids.set(x.id, Snowflake.generate());
             }
         });
 
-        for (const channel of body.channels.sort((a) => (a.parent_id ? 1 : -1))) {
+        for (const channel of channels.sort((a) => (a.parent_id ? 1 : -1))) {
             const id = ids.get(channel.id) || Snowflake.generate();
 
             const parent_id = ids.get(channel.parent_id);
