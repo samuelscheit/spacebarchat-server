@@ -52,4 +52,5 @@ export interface WebSocket extends WS {
     large_threshold: number;
     qos?: QoSPayload;
     session?: Session;
+    closeCleanup?: Promise<unknown>;
 }

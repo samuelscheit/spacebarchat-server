@@ -25,17 +25,20 @@ import http from "node:http";
 import { cleanupOnStartup } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
+import { waitForGatewayClientClose } from "./util/Shutdown";
 
 export class Server {
     public ws: ws.Server;
     public port: number;
     public server: http.Server;
     public production: boolean;
+    private ownsServer: boolean;
 
     constructor({ port, server, production }: { port: number; server?: http.Server; production?: boolean }) {
         this.port = port;
         this.production = production || false;
 
+        this.ownsServer = !server;
         if (server) this.server = server;
         else {
             const elu = [1, 5, 15].map(() => performance.eventLoopUtilization());
@@ -180,11 +183,22 @@ export class Server {
     }
 
     async stop() {
-        this.ws.clients.forEach((x) => x.close());
-        this.ws.close(() => {
-            this.server.close(() => {
-                closeDatabase();
+        const clients = Array.from(this.ws.clients);
+        await Promise.all(clients.map((client) => waitForGatewayClientClose(client)));
+        await new Promise<void>((resolve, reject) => {
+            this.ws.close((error) => {
+                if (error) reject(error);
+                else resolve();
             });
         });
+        if (this.ownsServer) {
+            await new Promise<void>((resolve, reject) => {
+                this.server.close((error) => {
+                    if (error) reject(error);
+                    else resolve();
+                });
+            });
+            await closeDatabase();
+        }
     }
 }

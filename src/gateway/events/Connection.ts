@@ -77,8 +77,11 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
     socket.session_id = "TEMP_" + genSessionId(); //Set the session of the WebSocket object
 
     try {
-        // @ts-ignore
-        socket.on("close", Close);
+        socket.on("close", (code: number, reason: Buffer) => {
+            socket.closeCleanup = Close.call(socket, code, reason).catch((error) => {
+                console.error("[WebSocket] Close cleanup failed", code, error);
+            });
+        });
         // @ts-ignore
         socket.on("message", Message);
 
