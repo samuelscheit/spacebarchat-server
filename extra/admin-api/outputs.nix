@@ -20,7 +20,9 @@ nixpkgs.lib.recursiveUpdate (
         inherit system;
       };
       lib = pkgs.lib;
-      buildSpacebarDotnetModule = import ../../nix/lib/buildSpacebarDotnetModule.nix { inherit pkgs rVersion; };
+      buildSpacebarDotnetModule = import ../../nix/lib/buildSpacebarDotnetModule.nix {
+        inherit pkgs rVersion;
+      };
       proj = self.packages.${system};
     in
     {
@@ -195,16 +197,24 @@ nixpkgs.lib.recursiveUpdate (
             proj.Spacebar-Models-Generic
           ];
         };
-        # Spacebar-AdminApi-TestClient = buildSpacebarDotnetModule {
-        #   name = "Spacebar.AdminApi.TestClient";
-        #   projectFile = "Utilities/Spacebar.AdminApi.TestClient/Spacebar.AdminApi.TestClient.csproj";
-        #   nugetDeps = Utilities/Spacebar.AdminApi.TestClient/deps.json;
-        #   projectReferences = [
-        #     proj.Spacebar-AdminApi-Models
-        #   ];
-        ##  runtimeId = "browser-wasm";
-        ##  useAppHost = false;
-        # };
+        Spacebar-AdminApi-TestClient = buildSpacebarDotnetModule {
+          name = "Spacebar.AdminApi.TestClient";
+          projectFile = "Spacebar.AdminApi.TestClient.csproj";
+          nugetDeps = Utilities/Spacebar.AdminApi.TestClient/deps.json;
+          srcRoot = Utilities/Spacebar.AdminApi.TestClient;
+          packNupkg = false;
+          runtimeId = "browser-wasm";
+          useAppHost = false;
+          projectReferences = [
+            proj.Spacebar-Models-AdminApi
+            proj.Spacebar-Models-Config
+          ];
+
+          postInstall = ''
+            mkdir -p $out/share/spacebar-admin-ui
+            cp -r $out/lib/Spacebar.AdminApi.TestClient/wwwroot/. $out/share/spacebar-admin-ui/
+          '';
+        };
       };
 
       containers.docker.admin-api = pkgs.dockerTools.buildLayeredImage {
