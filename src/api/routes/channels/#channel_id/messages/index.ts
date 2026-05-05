@@ -488,9 +488,9 @@ router.post(
         }
 
         let read_state = await ReadState.findOne({
-            where: { user_id: req.user_id, channel_id },
+            where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
         });
-        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id });
+        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
         read_state.last_message_id = message.id;
         //It's a little more complicated than this but this'll do
         read_state.mention_count = 0;
@@ -531,10 +531,9 @@ router.delete(
         const { channel_id } = req.params as { [key: string]: string }; // not really a channel id if read_state_type != CHANNEL
         const body = req.body as AcknowledgeDeleteSchema;
         if (body.version != 2) return res.status(204).send();
-        // TODO: handle other read state types
-        if (body.read_state_type != ReadStateType.CHANNEL) return res.status(204).send();
+        const read_state_type = body.read_state_type ?? ReadStateType.CHANNEL;
 
-        const readState = await ReadState.findOne({ where: { channel_id, user_id: req.user_id } });
+        const readState = await ReadState.findOne({ where: { channel_id, user_id: req.user_id, read_state_type } });
         if (readState) {
             await readState.remove();
         }

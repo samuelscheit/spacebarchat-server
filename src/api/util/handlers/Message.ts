@@ -571,13 +571,14 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         const states = await ReadState.findBy({
             user_id: Or(...ids.map((id) => Equal(id))),
             channel_id: channel.id,
+            read_state_type: ReadStateType.CHANNEL,
         });
         const users = new Set(ids);
         states.forEach((state) => users.delete(state.user_id));
         if (!users.size) {
             return;
         }
-        return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id }).save()));
+        return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id, read_state_type: ReadStateType.CHANNEL }).save()));
     }
     if (ephermal) {
         const id = message.interaction_metadata?.user_id;

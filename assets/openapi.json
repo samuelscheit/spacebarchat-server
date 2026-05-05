@@ -205,6 +205,89 @@
                     "type"
                 ]
             },
+            "MessageAcknowledgeSchema": {
+                "type": "object",
+                "properties": {
+                    "manual": {
+                        "type": "boolean"
+                    },
+                    "mention_count": {
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    "last_viewed": {
+                        "type": "integer"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AckBulkSchema": {
+                "type": "object",
+                "properties": {
+                    "read_states": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "channel_id": {
+                                    "type": "string"
+                                },
+                                "message_id": {
+                                    "type": "string"
+                                },
+                                "read_state_type": {
+                                    "enum": [
+                                        0,
+                                        1,
+                                        2,
+                                        3,
+                                        4,
+                                        5
+                                    ],
+                                    "type": "number"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "channel_id",
+                                "message_id"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "read_states"
+                ]
+            },
+            "AcknowledgeDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "read_state_type": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5
+                        ],
+                        "type": "number"
+                    },
+                    "version": {
+                        "type": "integer"
+                    }
+                }
+            },
             "RouteResponse": {
                 "type": "object",
                 "properties": {
@@ -5400,82 +5483,6 @@
                 "required": [
                     "nick"
                 ]
-            },
-            "MessageAcknowledgeSchema": {
-                "type": "object",
-                "properties": {
-                    "manual": {
-                        "type": "boolean"
-                    },
-                    "mention_count": {
-                        "type": "integer"
-                    },
-                    "flags": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            4
-                        ],
-                        "type": "number"
-                    },
-                    "last_viewed": {
-                        "type": "integer"
-                    },
-                    "token": {
-                        "type": "string"
-                    }
-                }
-            },
-            "AckBulkSchema": {
-                "type": "object",
-                "properties": {
-                    "read_states": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "channel_id": {
-                                    "type": "string"
-                                },
-                                "message_id": {
-                                    "type": "string"
-                                },
-                                "read_state_type": {
-                                    "$ref": "#/components/schemas/ReadStateType"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "channel_id",
-                                "message_id",
-                                "read_state_type"
-                            ]
-                        }
-                    }
-                },
-                "required": [
-                    "read_states"
-                ]
-            },
-            "AcknowledgeDeleteSchema": {
-                "type": "object",
-                "properties": {
-                    "read_state_type": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                        ],
-                        "type": "number"
-                    },
-                    "version": {
-                        "type": "integer"
-                    }
-                }
             },
             "MessageCreateSchema": {
                 "type": "object",

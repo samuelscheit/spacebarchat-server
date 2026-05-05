@@ -254,7 +254,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         timePromise(() =>
             ReadState.find({
                 where: { user_id: this.user_id },
-                select: { id: true, channel_id: true, last_message_id: true, last_pin_timestamp: true, mention_count: true },
+                select: { id: true, channel_id: true, last_message_id: true, last_pin_timestamp: true, mention_count: true, read_state_type: true },
             }),
         ),
         timePromise(() =>
