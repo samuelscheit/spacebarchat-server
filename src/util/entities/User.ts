@@ -19,7 +19,7 @@
 import { Request } from "express";
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
-import { Random } from "../util";
+import { Random, bigintNumberTransformer } from "../util";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
 import { Member } from "./Member";
@@ -124,15 +124,15 @@ export class User extends BaseClass {
     @Column({ nullable: true, select: false })
     email?: string; // email of the user
 
-    @Column({ type: "bigint" })
+    @Column({ type: "bigint", transformer: bigintNumberTransformer })
     @JsonNumber
     flags: number = 0; // UserFlags // TODO: generate
 
-    @Column({ type: "bigint" })
+    @Column({ type: "bigint", transformer: bigintNumberTransformer })
     @JsonNumber
     public_flags: number = 0;
 
-    @Column({ type: "bigint" })
+    @Column({ type: "bigint", transformer: bigintNumberTransformer })
     @JsonNumber
     purchased_flags: number = 0;
 
