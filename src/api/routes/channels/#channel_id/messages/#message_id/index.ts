@@ -34,7 +34,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, postHandleMessage, route } from "@spacebar/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -86,6 +86,8 @@ router.patch(
                 // guild admins can only suppress embeds of other messages, no such restriction imposed to instance-wide admins
             }
         } else rights.hasThrow("SELF_EDIT_MESSAGES");
+
+        assertMessagePayloadPermissions(permissions, body);
 
         // no longer necessary, somehow resolved by updating the type of `attachments`...?
         // //@ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
@@ -186,6 +188,8 @@ router.put(
         if (exists) {
             throw SpacebarApiErrors.CANNOT_REPLACE_BY_BACKFILL;
         }
+
+        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: req.file ? 1 : 0 });
 
         if (req.file) {
             try {

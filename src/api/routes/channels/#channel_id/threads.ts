@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
 import {
     Channel,
     emitEvent,
@@ -87,6 +87,13 @@ router.post(
                 req.permission?.hasThrow("MANAGE_THREADS");
             }
         }
+        if (body.message) {
+            const files = (req.files as Express.Multer.File[]) ?? [];
+            const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
+            const messagePermission = await getPermission(req.user_id, channel.guild_id, channel);
+            assertMessagePayloadPermissions(messagePermission, { ...body.message, attachments, uploadedFileCount: files.length });
+        }
+
         const user = await User.findOneOrFail({ where: { id: req.user_id } });
 
         const thread = await Channel.createChannel(
@@ -139,6 +146,7 @@ router.post(
         if (body.message) {
             const files = (req.files as Express.Multer.File[]) ?? [];
             const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
+
             for (const currFile of files) {
                 try {
                     const file = await uploadFile(`/attachments/${channel.id}/${thread.id}`, currFile);

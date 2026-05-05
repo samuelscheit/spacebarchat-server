@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, postHandleMessage, route } from "@spacebar/api";
 import {
     Attachment,
     Channel,
@@ -407,6 +407,8 @@ router.post(
         }
 
         const files = (req.files as Express.Multer.File[]) ?? [];
+        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });
+
         for (const currFile of files) {
             try {
                 const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, currFile);
