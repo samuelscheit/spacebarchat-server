@@ -5093,7 +5093,10 @@
                         "$ref": "#/components/schemas/PublicUser"
                     },
                     "connected_accounts": {
-                        "$ref": "#/components/schemas/PublicConnectedAccount"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicConnectedAccount"
+                        }
                     },
                     "premium_guild_since": {
                         "type": "string",
@@ -5139,13 +5142,20 @@
                     "badges": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Badge"
+                            "$ref": "#/components/schemas/ProfileBadge"
+                        }
+                    },
+                    "guild_badges": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProfileBadge"
                         }
                     }
                 },
                 "required": [
                     "badges",
                     "connected_accounts",
+                    "guild_badges",
                     "mutual_guilds",
                     "premium_type",
                     "profile_themes_experiment_bucket",
@@ -14406,39 +14416,48 @@
             "UserProfile": {
                 "type": "object",
                 "properties": {
-                    "banner": {
-                        "type": "string"
-                    },
                     "bio": {
-                        "type": "string"
-                    },
-                    "theme_colors": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "pronouns": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "accent_color": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "banner": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "pronouns": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "theme_colors": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
-                },
-                "required": [
-                    "bio"
-                ]
+                }
             },
             "PublicMemberProfile": {
                 "type": "object",
                 "properties": {
-                    "guild_id": {
-                        "type": "string"
-                    },
                     "banner": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "bio": {
+                        "type": "string"
+                    },
+                    "guild_id": {
                         "type": "string"
                     },
                     "accent_color": {
@@ -14447,12 +14466,10 @@
                 },
                 "required": [
                     "accent_color",
-                    "banner",
-                    "bio",
-                    "guild_id"
+                    "bio"
                 ]
             },
-            "Badge": {
+            "ProfileBadge": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -14465,7 +14482,8 @@
                         "type": "string"
                     },
                     "link": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "required": [

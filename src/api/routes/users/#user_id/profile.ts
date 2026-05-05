@@ -108,7 +108,7 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
         guild_id,
     };
 
-    const badges = await Badge.find();
+    const badges = user.badge_ids?.length ? await Badge.find({ where: { id: In(user.badge_ids) } }) : [];
 
     let mutual_friends: PublicUser[] = [];
     let mutual_friends_count = 0;
@@ -158,7 +158,8 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
         user_profile: userProfile,
         guild_member: { ...guild_member?.toPublicMember(), user: user.toPublicUser() },
         guild_member_profile: guild_id && guildMemberProfile,
-        badges: badges.filter((x) => user.badge_ids?.includes(x.id)),
+        badges,
+        guild_badges: [],
     });
 });
 

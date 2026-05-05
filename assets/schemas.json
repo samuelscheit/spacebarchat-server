@@ -5405,7 +5405,10 @@
                 "$ref": "#/definitions/PublicUser"
             },
             "connected_accounts": {
-                "$ref": "#/definitions/PublicConnectedAccount"
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PublicConnectedAccount"
+                }
             },
             "premium_guild_since": {
                 "type": "string",
@@ -5451,7 +5454,13 @@
             "badges": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Badge"
+                    "$ref": "#/definitions/ProfileBadge"
+                }
+            },
+            "guild_badges": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ProfileBadge"
                 }
             }
         },
@@ -5459,6 +5468,7 @@
         "required": [
             "badges",
             "connected_accounts",
+            "guild_badges",
             "mutual_guilds",
             "premium_type",
             "profile_themes_experiment_bucket",
@@ -15406,57 +15416,74 @@
     "UserProfile": {
         "type": "object",
         "properties": {
-            "banner": {
-                "type": "string"
-            },
             "bio": {
-                "type": "string"
-            },
-            "theme_colors": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                }
-            },
-            "pronouns": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "accent_color": {
-                "type": "integer"
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "pronouns": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "theme_colors": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
-        "required": [
-            "bio"
-        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PublicMemberProfile": {
-        "additionalProperties": false,
         "type": "object",
         "properties": {
-            "guild_id": {
-                "type": "string"
-            },
             "banner": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "bio": {
+                "type": "string"
+            },
+            "guild_id": {
                 "type": "string"
             },
             "accent_color": {
                 "type": "null"
             }
         },
+        "additionalProperties": false,
         "required": [
             "accent_color",
-            "banner",
-            "bio",
-            "guild_id"
+            "bio"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "Badge": {
+    "ProfileBadge": {
         "type": "object",
         "properties": {
             "id": {
@@ -15469,7 +15496,10 @@
                 "type": "string"
             },
             "link": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             }
         },
         "additionalProperties": false,
