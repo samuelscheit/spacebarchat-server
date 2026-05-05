@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, getPermission, listenEvent, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition, getMostRelevantSession } from "@spacebar/util";
-import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send } from "@spacebar/gateway";
+import { getDatabase, getPermission, listenEvent, Member, Session, User, Presence, Channel, Permissions, getMostRelevantSession } from "@spacebar/util";
+import { WebSocket, Payload, handlePresenceUpdate, OPCODES, Send, buildLazyMemberListOperations } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
@@ -26,11 +26,7 @@ import { LazyRequestSchema } from "@spacebar/schemas";
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
 // TODO: rewrite typeorm
 
-async function getMembers(guild_id: string, range: [number, number]) {
-    if (!Array.isArray(range) || range.length !== 2) {
-        throw new Error("range is not a valid array");
-    }
-
+async function getMembers(guild_id: string) {
     let members: Member[] = [];
     try {
         members =
@@ -46,105 +42,22 @@ async function getMembers(guild_id: string, range: [number, number]) {
                 .orderBy("_status", "DESC")
                 .addOrderBy("role.position", "DESC")
                 .addOrderBy("user.username", "ASC")
-                .offset(Number(range[0]) || 0)
-                .limit(Number(range[1]) || 100)
                 .getMany()) ?? [];
     } catch (e) {
         console.error(`LazyRequest`, e);
     }
 
-    if (!members || !members.length) {
-        return {
-            items: [],
-            groups: [],
-            range: [],
-            members: [],
-        };
-    }
+    return members ?? [];
+}
 
-    const groups = [];
-    const items = [];
-    const member_roles = [
-        ...new Map(
-            members
-                .map((m) => m.roles)
-                .flat()
-                .map((role) => [role.id, role] as [string, Role]),
-        ).values(),
-    ];
-    member_roles.push(
-        member_roles.splice(
-            member_roles.findIndex((x) => x.id === x.guild_id),
-            1,
-        )[0],
-    );
-
-    const offlineItems = [];
-
-    for (const role of member_roles) {
-        const [role_members, other_members] = arrayPartition(members, (m: Member) => !!m.roles.find((r) => r.id === role.id));
-        const group = {
-            count: role_members.length,
-            id: role.id === guild_id ? "online" : role.id,
-        };
-
-        items.push({ group });
-        groups.push(group);
-
-        for (const member of role_members) {
-            const roles = member.roles.filter((x: Role) => x.id !== guild_id).map((x: Role) => x.id);
-
-            const session: Session | undefined = getMostRelevantSession(member.user.sessions);
-
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (session?.status == "unknown") {
-                session.status = member?.user?.settings?.status || "online";
-            }
-
-            const item = {
-                member: {
-                    ...member,
-                    roles,
-                    user: member.user.toPublicUser(),
-                    presence: {
-                        activities: session?.activities || [],
-                        user: { id: member.user.id },
-                        client_status: session?.client_status,
-                        status: session?.status,
-                    },
-                },
-            };
-
-            if (!session || session.status == "invisible" || session.status == "offline") {
-                item.member.presence.status = "offline";
-                offlineItems.push(item);
-                group.count--;
-                continue;
-            }
-
-            items.push(item);
+function getRequestedRanges(ranges: unknown[]): [number, number][] {
+    return ranges.map((range) => {
+        if (!Array.isArray(range) || range.length !== 2) {
+            throw new Error("range is not a valid array");
         }
-        members = other_members;
-    }
 
-    if (offlineItems.length) {
-        const group = {
-            count: offlineItems.length,
-            id: "offline",
-        };
-        items.push({ group });
-        groups.push(group);
-
-        items.push(...offlineItems);
-    }
-
-    return {
-        items,
-        groups,
-        range,
-        members: items.map((x) => ("member" in x ? { ...x.member, settings: undefined } : undefined)).filter((x) => !!x),
-    };
+        return range as [number, number];
+    });
 }
 
 async function subscribeToMemberEvents(this: WebSocket, user_id: string) {
@@ -208,8 +121,9 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const ranges = channels[channel_id];
     if (!Array.isArray(ranges)) throw new Error("Not a valid Array");
 
-    const member_count = await Member.count({ where: { guild_id } });
-    const ops = await Promise.all(ranges.map((x) => getMembers(guild_id, x as [number, number])));
+    const requestedRanges = getRequestedRanges(ranges);
+    const [member_count, guildMembers] = await Promise.all([Member.count({ where: { guild_id } }), getMembers(guild_id)]);
+    const memberList = buildLazyMemberListOperations(guildMembers, guild_id, requestedRanges);
 
     let list_id = "everyone";
 
@@ -233,30 +147,28 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 
     // TODO: unsubscribe member_events that are not in op.members
 
-    ops.forEach((op) => {
+    memberList.ops.forEach((op) => {
         op.members.forEach(async (member) => {
             if (!member?.user.id) return;
             return subscribeToMemberEvents.call(this, member.user.id);
         });
     });
 
-    const groups = [...new Set(ops.map((x) => x.groups).flat())];
-
     await Send(this, {
         op: OPCODES.Dispatch,
         s: this.sequence++,
         t: "GUILD_MEMBER_LIST_UPDATE",
         d: {
-            ops: ops.map((x) => ({
+            ops: memberList.ops.map((x) => ({
                 items: x.items,
                 op: "SYNC",
                 range: x.range,
             })),
-            online_count: member_count - (groups.find((x) => x.id == "offline")?.count ?? 0),
+            online_count: memberList.online_count,
             member_count,
             id: list_id,
             guild_id,
-            groups,
+            groups: memberList.groups,
         },
     });
 
