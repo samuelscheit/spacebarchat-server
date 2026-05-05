@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, CloudAttachment, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "@spacebar/util";
+import { Attachment, Config, CloudAttachment, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import imageSize from "image-size";
 import { HTTPError } from "lambert-server";
@@ -24,10 +24,41 @@ import { multer } from "../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
+import { attachmentStoragePath, legacyAttachmentStoragePath } from "../util/AttachmentStorage";
 
 const router = Router({ mergeParams: true });
 
 const SANITIZED_CONTENT_TYPE = ["text/html", "text/mhtml", "multipart/related", "application/xhtml+xml"];
+
+const getAttachmentFile = async (channelId: string, messageId: string, filename: string) => {
+    const path = attachmentStoragePath({ channelId, messageId, filename });
+    const file = await storage.get(path);
+    if (file) return file;
+
+    const attachment = await Attachment.findOne({
+        where: {
+            channel_id: channelId,
+            message_id: messageId,
+            filename,
+        },
+        select: {
+            id: true,
+        },
+    });
+    if (!attachment) return null;
+
+    const legacyPath = legacyAttachmentStoragePath({
+        channelId,
+        attachmentId: attachment.id,
+        filename,
+    });
+    if (!(await storage.exists(legacyPath))) return null;
+
+    console.log(`[CDN/Attachments] Migrating legacy attachment path ${legacyPath} to ${path}`);
+    await storage.move(legacyPath, path);
+
+    return storage.get(path);
+};
 
 router.post("/:channel_id/:message_id", multer.single("file"), async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature)
@@ -38,7 +69,7 @@ router.post("/:channel_id/:message_id", multer.single("file"), async (req: Reque
     const { buffer, mimetype, size, originalname } = req.file;
     const { channel_id, message_id } = req.params as { [key: string]: string };
     const filename = originalname.replaceAll(" ", "_").replace(/[^a-zA-Z0-9._]+/g, "");
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
+    const path = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
 
     const endpoint = Config.get()?.cdn.endpointPublic;
 
@@ -75,8 +106,6 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     const { channel_id, message_id, filename } = req.params as { [key: string]: string };
     // const { format } = req.query;
 
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
-
     const fullUrl = (req.headers["x-forwarded-proto"] ?? req.protocol) + "://" + (req.headers["x-forwarded-host"] ?? req.hostname) + req.originalUrl;
 
     let hasValidAuth = false;
@@ -97,7 +126,7 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
 
     if (!hasValidAuth) return res.status(404).send("This content is no longer available.");
 
-    const file = await storage.get(path);
+    const file = await getAttachmentFile(channel_id, message_id, filename);
     if (!file) throw new HTTPError("File not found");
     const type = await fileTypeFromBuffer(file);
     let content_type = type?.mime || "application/octet-stream";
@@ -115,7 +144,7 @@ router.delete("/:channel_id/:message_id/:filename", async (req: Request, res: Re
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
 
     const { channel_id, message_id, filename } = req.params as { [key: string]: string };
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
+    const path = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
 
     await storage.delete(path);
 
@@ -209,7 +238,7 @@ router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:m
 
     const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
     const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-    const newPath = `attachments/${channel_id}/${message_id}/${filename}`;
+    const newPath = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
 
     const att = await CloudAttachment.findOne({
         where: {
