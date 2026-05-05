@@ -23,6 +23,7 @@ import { DataSource } from "typeorm";
 // noinspection ES6PreferShortImport
 import { ConfigEntity } from "../entities/Config";
 import fs from "node:fs";
+import { missingDatabaseEnvironmentMessage } from "./DatabaseDiagnostics";
 
 // UUID extension option is only supported with postgres
 // We want to generate all id's with Snowflakes that's why we have our own BaseEntity class
@@ -38,11 +39,7 @@ if (!process.env) {
 if (process.argv[1]?.endsWith("scripts/openapi.js")) isHeadlessProcess = true;
 
 if (!process.env.DATABASE && !isHeadlessProcess) {
-    console.log(
-        red(
-            "DATABASE environment variable not set! Please set it to your database connection string.\n" + "Example for postgres: postgres://user:password@localhost:5432/database",
-        ),
-    );
+    console.log(red(missingDatabaseEnvironmentMessage()));
     process.exit(1);
 }
 
