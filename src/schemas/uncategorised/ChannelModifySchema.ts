@@ -22,6 +22,10 @@ export interface ChannelModifySchema {
     name?: string;
     type?: ChannelType;
     topic?: string;
+    /**
+     * @maxLength 500
+     */
+    status?: string | null;
     icon?: string | null;
     bitrate?: number;
     user_limit?: number;

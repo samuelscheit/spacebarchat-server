@@ -624,6 +624,13 @@
             "topic": {
                 "type": "string"
             },
+            "status": {
+                "maxLength": 500,
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "icon": {
                 "type": [
                     "null",
@@ -7736,6 +7743,13 @@
                 "items": {
                     "type": "string"
                 }
+            },
+            "status": {
+                "maxLength": 500,
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "position": {
                 "type": "integer"

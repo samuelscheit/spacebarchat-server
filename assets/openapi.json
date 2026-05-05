@@ -611,6 +611,11 @@
                     "topic": {
                         "type": "string"
                     },
+                    "status": {
+                        "maxLength": 500,
+                        "type": "string",
+                        "nullable": true
+                    },
                     "icon": {
                         "type": "string",
                         "nullable": true
@@ -7270,6 +7275,11 @@
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "status": {
+                        "maxLength": 500,
+                        "type": "string",
+                        "nullable": true
                     },
                     "position": {
                         "type": "integer"
