@@ -43,7 +43,7 @@ import {
     PartialUser,
     InteractionType,
 } from "@spacebar/schemas";
-import { MessageFlags } from "@spacebar/util";
+import { MessageFlags, serializeMessageRoleMentions } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -282,7 +282,7 @@ export class Message extends BaseClass {
                 return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
             }),
 
-            mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
+            mention_roles: serializeMessageRoleMentions(this.mention_roles),
             mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
             attachments: this.attachments?.map((att) => att.toJSON()) ?? [],
 
@@ -337,7 +337,7 @@ export class Message extends BaseClass {
                 edited_timestamp: this.edited_timestamp,
                 embeds: this.embeds,
                 flags: this.flags,
-                mention_roles: this.mention_roles?.map((x) => x.id),
+                mention_roles: serializeMessageRoleMentions(this.mention_roles),
                 mentions: this.mentions.map((x) => x.toPublicUser() as unknown as PartialUser), // TODO: write a proper method for this
                 timestamp: this.timestamp,
                 type: this.type,
@@ -351,6 +351,7 @@ export class Message extends BaseClass {
         }
         return {
             ...this,
+            mention_roles: serializeMessageRoleMentions(this.mention_roles),
             attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
             components: this.components
                 ? this.components.map((comp) => {

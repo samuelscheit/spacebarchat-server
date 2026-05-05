@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@spacebar/util";
+import { Channel, FieldErrors, Member, Message, Snowflake, getPermission, serializeMessageRoleMentions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThan, Like, MoreThan } from "typeorm";
@@ -180,7 +180,7 @@ router.get(
                 attachments: x.attachments,
                 embeds: x.embeds,
                 mentions: x.mentions,
-                mention_roles: x.mention_roles,
+                mention_roles: serializeMessageRoleMentions(x.mention_roles),
                 pinned: x.pinned,
                 mention_everyone: x.mention_everyone,
                 tts: x.tts,

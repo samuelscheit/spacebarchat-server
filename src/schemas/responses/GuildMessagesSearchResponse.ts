@@ -16,9 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove dependency on entities
-import { Role } from "@spacebar/util";
-import { BaseMessageComponents, Embed, MessageType, Poll, PublicUser } from "@spacebar/schemas";
+import { BaseMessageComponents, Embed, MessageType, Poll, PublicUser, Snowflake } from "@spacebar/schemas";
 import { PublicAttachment } from "../api/messages/Attachments";
 
 export interface GuildMessagesSearchMessage {
@@ -30,7 +28,7 @@ export interface GuildMessagesSearchMessage {
     attachments: PublicAttachment[];
     embeds: Embed[];
     mentions: PublicUser[];
-    mention_roles: Role[];
+    mention_roles: Snowflake[];
     pinned: boolean;
     mention_everyone?: boolean;
     tts: boolean;

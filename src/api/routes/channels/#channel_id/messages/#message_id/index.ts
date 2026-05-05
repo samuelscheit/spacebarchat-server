@@ -28,6 +28,7 @@ import {
     emitEvent,
     getPermission,
     getRights,
+    serializeMessageRoleMentions,
     uploadFile,
     NewUrlUserSignatureData,
 } from "@spacebar/util";
@@ -122,8 +123,8 @@ router.patch(
             author: new_message.author?.toPublicUser(),
             attachments: new_message.attachments,
             embeds: new_message.embeds,
-            mentions: new_message.embeds,
-            mention_roles: new_message.mention_roles,
+            mentions: new_message.mentions,
+            mention_roles: serializeMessageRoleMentions(new_message.mention_roles),
             mention_everyone: new_message.mention_everyone,
             pinned: new_message.pinned,
             timestamp: new_message.timestamp,
