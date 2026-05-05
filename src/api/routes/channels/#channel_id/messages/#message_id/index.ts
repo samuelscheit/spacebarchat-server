@@ -122,7 +122,6 @@ router.patch(
             author: new_message.author?.toPublicUser(),
             attachments: new_message.attachments,
             embeds: new_message.embeds,
-            mentions: new_message.embeds,
             mention_roles: new_message.mention_roles,
             mention_everyone: new_message.mention_everyone,
             pinned: new_message.pinned,
