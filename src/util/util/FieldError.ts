@@ -24,9 +24,12 @@ export interface FieldErrorResponse {
     errors: ErrorList;
 }
 
-export type ErrorList = Record<string, ObjectErrorContent>;
+export interface ErrorList {
+    _errors?: ErrorContent[];
+    [key: string]: ErrorContent[] | ErrorList | undefined;
+}
 export type ErrorContent = { code: string; message: string };
-export type ObjectErrorContent = { _errors: ErrorContent[] };
+export type ObjectErrorContent = ErrorList & { _errors: ErrorContent[] };
 
 export function makeObjectErrorContent(code: string, message: string): ObjectErrorContent {
     return { _errors: [{ code, message }] };

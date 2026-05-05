@@ -1431,41 +1431,29 @@
                 "type": "string"
             },
             "errors": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {
-                        "_errors": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "message": {
-                                        "type": "string"
-                                    },
-                                    "code": {
-                                        "type": "string"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "code",
-                                    "message"
-                                ]
-                            }
-                        }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "_errors"
-                    ]
-                }
+                "$ref": "#/definitions/APIErrorResponseErrorTree"
             }
         },
         "additionalProperties": false,
         "required": [
             "code",
-            "errors",
+            "message"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "APIErrorResponseFieldError": {
+        "type": "object",
+        "properties": {
+            "message": {
+                "type": "string"
+            },
+            "code": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "code",
             "message"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -8108,7 +8096,53 @@
     },
     "ErrorList": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/ErrorList"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "code",
+                            "message"
+                        ]
+                    }
+                }
+            ]
+        },
+        "properties": {
+            "_errors": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "string"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "code",
+                        "message"
+                    ]
+                }
+            }
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Status": {

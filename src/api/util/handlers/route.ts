@@ -16,11 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { DiscordApiErrors, EVENT, FieldErrors, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "@spacebar/util";
+import { DiscordApiErrors, EVENT, FieldError, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "@spacebar/util";
 import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
 import { ajv } from "@spacebar/schemas";
 import { BigNumber } from "bignumber.js";
+import { ajvErrorsToFieldErrors } from "../utility/AjvErrorFields";
 
 const ignoredRequestSchemas = [
     // skip validation for settings proto JSON updates - TODO: figure out if this even possible to fix?
@@ -158,16 +159,9 @@ export function route(opts: RouteOptions) {
 
             const valid = validate(req.body);
             if (!valid) {
-                const fields: Record<string, { code?: string; message: string }> = {};
-                validate.errors?.forEach(
-                    (x) =>
-                        (fields[x.instancePath.slice(1)] = {
-                            code: x.keyword,
-                            message: x.message || "",
-                        }),
-                );
+                const errors = ajvErrorsToFieldErrors(validate.errors ?? []);
                 if (process.env.LOG_VALIDATION_ERRORS) console.log(`[VALIDATION ERROR] ${req.method} ${req.originalUrl} - SCHEMA='${opts.requestBody}' -`, validate?.errors);
-                throw FieldErrors(fields, validate.errors!);
+                throw new FieldError(50035, "Invalid Form Body", errors, validate.errors!);
             }
         }
         next();

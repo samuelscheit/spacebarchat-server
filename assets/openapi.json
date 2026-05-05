@@ -1355,40 +1355,26 @@
                         "type": "string"
                     },
                     "errors": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                                "_errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "message": {
-                                                "type": "string"
-                                            },
-                                            "code": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "additionalProperties": false,
-                                        "required": [
-                                            "code",
-                                            "message"
-                                        ]
-                                    }
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "_errors"
-                            ]
-                        }
+                        "$ref": "#/components/schemas/APIErrorResponseErrorTree"
                     }
                 },
                 "required": [
                     "code",
-                    "errors",
+                    "message"
+                ]
+            },
+            "APIErrorResponseFieldError": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
                     "message"
                 ]
             },
@@ -7612,7 +7598,28 @@
                 ]
             },
             "ErrorList": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                    "_errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "code",
+                                "message"
+                            ]
+                        }
+                    }
+                }
             },
             "Status": {
                 "enum": [
