@@ -28,6 +28,7 @@ export interface UserModifySchema {
      * @TJS-format image-data-uri
      */
     avatar?: string | null;
+    avatar_description?: string | null;
     bio?: string;
     accent_color?: number;
     /**

@@ -33,6 +33,7 @@ import {
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
+import { removeAvatarDescription } from "@spacebar/api/util";
 import { Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
@@ -73,7 +74,7 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        const body = req.body as UserModifySchema;
+        const body = removeAvatarDescription(req.body as UserModifySchema);
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
