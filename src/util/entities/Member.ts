@@ -49,6 +49,9 @@ export const MemberPrivateProjection: (keyof Member)[] = [
     "theme_colors",
     "pronouns",
     "communication_disabled_until",
+    "avatar_decoration_data",
+    "display_name_styles",
+    "collectibles",
     "flags",
 ];
 

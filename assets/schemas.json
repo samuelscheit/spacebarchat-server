@@ -4566,6 +4566,15 @@
             "pronouns": {
                 "type": "string"
             },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
             "username": {
                 "type": "string"
             },
@@ -4589,15 +4598,6 @@
                 "items": {
                     "type": "string"
                 }
-            },
-            "avatar_decoration_data": {
-                "$ref": "#/definitions/AvatarDecorationData"
-            },
-            "display_name_styles": {
-                "$ref": "#/definitions/DisplayNameStyle"
-            },
-            "collectibles": {
-                "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
                 "$ref": "#/definitions/PrimaryGuild"
@@ -4654,6 +4654,15 @@
             "pronouns": {
                 "type": "string"
             },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
             "username": {
                 "type": "string"
             },
@@ -4677,15 +4686,6 @@
                 "items": {
                     "type": "string"
                 }
-            },
-            "avatar_decoration_data": {
-                "$ref": "#/definitions/AvatarDecorationData"
-            },
-            "display_name_styles": {
-                "$ref": "#/definitions/DisplayNameStyle"
-            },
-            "collectibles": {
-                "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
                 "$ref": "#/definitions/PrimaryGuild"
@@ -4798,6 +4798,15 @@
             "pronouns": {
                 "type": "string"
             },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
             "username": {
                 "type": "string"
             },
@@ -4821,15 +4830,6 @@
                 "items": {
                     "type": "string"
                 }
-            },
-            "avatar_decoration_data": {
-                "$ref": "#/definitions/AvatarDecorationData"
-            },
-            "display_name_styles": {
-                "$ref": "#/definitions/DisplayNameStyle"
-            },
-            "collectibles": {
-                "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
                 "$ref": "#/definitions/PrimaryGuild"
@@ -5074,6 +5074,15 @@
                         "type": "null"
                     }
                 ]
+            },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
             },
             "user": {
                 "$ref": "#/definitions/PublicUser"
@@ -14129,6 +14138,15 @@
             "pronouns": {
                 "type": "string"
             },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
             "username": {
                 "type": "string"
             },
@@ -14152,15 +14170,6 @@
                 "items": {
                     "type": "string"
                 }
-            },
-            "avatar_decoration_data": {
-                "$ref": "#/definitions/AvatarDecorationData"
-            },
-            "display_name_styles": {
-                "$ref": "#/definitions/DisplayNameStyle"
-            },
-            "collectibles": {
-                "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
                 "$ref": "#/definitions/PrimaryGuild"
@@ -14829,6 +14838,15 @@
                         "type": "null"
                     }
                 ]
+            },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
             },
             "user": {
                 "$ref": "#/definitions/PublicUser"
