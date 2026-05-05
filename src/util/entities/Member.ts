@@ -21,7 +21,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTabl
 import { Ban, Channel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
-import { Config, emitEvent, DiscordApiErrors } from "../util";
+import { Config, emitEvent, DiscordApiErrors, serializeMemberRoleIds } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
@@ -462,7 +462,7 @@ export class Member extends BaseClassWithoutId {
             member[x] = this[x];
         });
 
-        if (this.roles) member.roles = this.roles.map((x: Role) => x.id);
+        if (this.roles) member.roles = serializeMemberRoleIds(this.roles);
         if (this.user) member.user = this.user.toPublicUser();
 
         return member as PublicMember;

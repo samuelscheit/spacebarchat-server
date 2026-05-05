@@ -275,6 +275,7 @@ export class Message extends BaseClass {
 
             author_id: undefined,
             member_id: undefined,
+            member: this.member?.toPublicMember(),
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
             mentions: this.mentions?.map((user) => {
@@ -351,6 +352,7 @@ export class Message extends BaseClass {
         }
         return {
             ...this,
+            member: this.member?.toPublicMember(),
             attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
             components: this.components
                 ? this.components.map((comp) => {
