@@ -23,6 +23,7 @@ import crypto from "node:crypto";
 import { yellow } from "picocolors";
 import probe from "probe-image-size";
 import { FindOptionsWhere, In } from "typeorm";
+import { selectLinkEmbedUrls } from "./LinkEmbeds";
 
 export function getDefaultFetchOptions(): RequestInit {
     return {
@@ -529,14 +530,6 @@ export const EmbedHandlers: {
     },
 };
 
-const LINK_REGEX = /<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)>?/g;
-
-export function getMessageContentUrls(message: Message) {
-    const content = message.content?.replace(/ *`[^)]*` */g, ""); // remove markdown
-
-    return content?.match(LINK_REGEX) ?? [];
-}
-
 export async function dropDuplicateCacheEntries(entries: EmbedCache[]): Promise<EmbedCache[]> {
     const grouped = Array.from(arrayGroupBy(entries, (e) => e.url).values()).map((g) =>
         g.toSorted((e1, e2) => {
@@ -650,14 +643,10 @@ async function generateEmbedSingle(link: string, cb?: (url: string, embeds: Embe
 }
 
 export async function fillMessageUrlEmbeds(message: Message) {
-    const linkMatches = getMessageContentUrls(message).filter((l) => !l.startsWith("<") && !l.endsWith(">"));
-
     // Filter out embeds that could be links, start from scratch
     message.embeds = message.embeds.filter((embed) => embed.type === "rich");
 
-    if (linkMatches.length == 0) return message;
-
-    const uniqueLinks: string[] = arrayDistinctBy(linkMatches, normalizeUrl);
+    const uniqueLinks = selectLinkEmbedUrls(message.content, Config.get().embeds.maxLinkEmbeds);
 
     if (uniqueLinks.length === 0) {
         // No valid unique links found, update message to remove old embeds

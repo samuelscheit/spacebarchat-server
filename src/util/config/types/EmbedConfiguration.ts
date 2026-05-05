@@ -18,6 +18,7 @@
 
 export class EmbedConfiguration {
     defaultUserAgent: string | null = null;
+    maxLinkEmbeds: number = 5;
 
     youtube = new YoutubeEmbedConfiguration();
 }
