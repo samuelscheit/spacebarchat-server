@@ -509,7 +509,8 @@ router.post(
         // no await as it shouldnt block the message send function and silently catch error
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
         return res.json(
-            message.withSignedAttachments(
+            Message.prototype.withSignedAttachments.call(
+                message.toJSON(),
                 new NewUrlUserSignatureData({
                     ip: req.ip,
                     userAgent: req.headers["user-agent"] as string,

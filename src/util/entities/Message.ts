@@ -40,11 +40,11 @@ import {
     PublicMessage,
     Reaction,
     UnfurledMediaItem,
-    PartialUser,
     InteractionType,
 } from "@spacebar/schemas";
 import { MessageFlags } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
+import { toMessageMentionUser } from "../util/MessageMentions";
 
 @Entity({
     name: "messages",
@@ -277,10 +277,7 @@ export class Message extends BaseClass {
             member_id: undefined,
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
-            mentions: this.mentions?.map((user) => {
-                if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
-                return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
-            }),
+            mentions: this.mentions?.map((user) => toMessageMentionUser(user)),
 
             mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
             mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
@@ -338,34 +335,39 @@ export class Message extends BaseClass {
                 embeds: this.embeds,
                 flags: this.flags,
                 mention_roles: this.mention_roles?.map((x) => x.id),
-                mentions: this.mentions.map((x) => x.toPublicUser() as unknown as PartialUser), // TODO: write a proper method for this
+                mentions: this.mentions.map((x) => toMessageMentionUser(x)),
                 timestamp: this.timestamp,
                 type: this.type,
             },
         };
     }
 
-    withSignedAttachments(data: NewUrlUserSignatureData) {
+    withSignedAttachments(this: Message | PublicMessage, data: NewUrlUserSignatureData): PublicMessage {
+        const message = this as PublicMessage & {
+            attachments?: unknown[];
+            components?: BaseMessageComponents[];
+        };
         function signMedia(media: UnfurledMediaItem) {
             Object.assign(media, Attachment.prototype.signUrls.call(media, data));
         }
         return {
-            ...this,
-            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
-            components: this.components
-                ? this.components.map((comp) => {
-                      comp = structuredClone(comp);
-                      if (comp.type === MessageComponentType.Section) {
-                          const accessory = comp.accessory;
+            ...message,
+            attachments: message.attachments?.map((attachment) => Attachment.prototype.signUrls.call(attachment, data)),
+            components: message.components
+                ? message.components.map((comp) => {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const component = structuredClone(comp) as any;
+                      if (component.type === MessageComponentType.Section) {
+                          const accessory = component.accessory;
                           if (accessory.type === MessageComponentType.Thumbnail) {
                               signMedia(accessory.media);
                           }
-                      } else if (comp.type === MessageComponentType.MediaGallery) {
-                          comp.items.forEach(({ media }) => signMedia(media));
-                      } else if (comp.type === MessageComponentType.File) {
-                          signMedia(comp.file);
-                      } else if (comp.type === MessageComponentType.Container) {
-                          for (const elm of comp.components) {
+                      } else if (component.type === MessageComponentType.MediaGallery) {
+                          component.items.forEach(({ media }: { media: UnfurledMediaItem }) => signMedia(media));
+                      } else if (component.type === MessageComponentType.File) {
+                          signMedia(component.file);
+                      } else if (component.type === MessageComponentType.Container) {
+                          for (const elm of component.components) {
                               switch (elm.type) {
                                   case MessageComponentType.Separator:
                                   case MessageComponentType.TextDisplay:
@@ -379,7 +381,7 @@ export class Message extends BaseClass {
                                       break;
                                   }
                                   case MessageComponentType.MediaGallery:
-                                      elm.items.forEach(({ media }) => signMedia(media));
+                                      elm.items.forEach(({ media }: { media: UnfurledMediaItem }) => signMedia(media));
                                       break;
                                   case MessageComponentType.File: {
                                       signMedia(elm.file);
@@ -387,14 +389,14 @@ export class Message extends BaseClass {
                                   }
 
                                   default:
-                                      elm satisfies never;
+                                      break;
                               }
                           }
                       }
-                      return comp;
+                      return component;
                   })
-                : this.components,
-        };
+                : message.components,
+        } as PublicMessage;
     }
 
     static async createWithDefaults(opts: Partial<Message>): Promise<Message> {

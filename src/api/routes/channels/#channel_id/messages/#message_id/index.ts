@@ -233,7 +233,8 @@ router.put(
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
 
         return res.json(
-            message.withSignedAttachments(
+            Message.prototype.withSignedAttachments.call(
+                message.toJSON(),
                 new NewUrlUserSignatureData({
                     ip: req.ip,
                     userAgent: req.headers["user-agent"] as string,
