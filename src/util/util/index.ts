@@ -34,6 +34,7 @@ export * from "./InvisibleCharacters";
 export * from "./JSON";
 export * from "./KittyLogo";
 export * from "./Logo";
+export * from "./MessageAttachmentInputs";
 export * from "./MessageFlags";
 export * from "./networking";
 export * from "./Permissions";

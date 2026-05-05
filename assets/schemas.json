@@ -5907,6 +5907,33 @@
                     "filename"
                 ]
             },
+            "files": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "file": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "filename": {
+                            "type": "string"
+                        },
+                        "uploaded_filename": {
+                            "type": "string"
+                        },
+                        "original_content_type": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
             "attachments": {
                 "type": "array",
                 "items": {
@@ -6181,6 +6208,33 @@
             },
             "payload_json": {
                 "type": "string"
+            },
+            "files": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "file": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "filename": {
+                            "type": "string"
+                        },
+                        "uploaded_filename": {
+                            "type": "string"
+                        },
+                        "original_content_type": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false
+                }
             },
             "attachments": {
                 "type": "array",

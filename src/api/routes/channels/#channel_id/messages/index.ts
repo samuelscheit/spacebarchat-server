@@ -25,8 +25,10 @@ import {
     DmChannelDTO,
     emitEvent,
     FieldErrors,
+    getAttachmentFilename,
     getPermission,
     getUrlSignature,
+    normalizeMessageAttachmentInputs,
     Member,
     Message,
     MessageCreateEvent,
@@ -51,7 +53,6 @@ import { URL } from "node:url";
 import {
     AcknowledgeDeleteSchema,
     isTextChannel,
-    MessageCreateAttachment,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
     PartialUser,
@@ -303,7 +304,8 @@ router.post(
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
         const messageId = Snowflake.generate();
-        const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        const { cloudAttachments, uploadMetadata } = normalizeMessageAttachmentInputs(body.attachments, body.files);
+        const attachments: (Attachment | MessageCreateCloudAttachment)[] = [...cloudAttachments];
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -407,9 +409,10 @@ router.post(
         }
 
         const files = (req.files as Express.Multer.File[]) ?? [];
-        for (const currFile of files) {
+        for (const [index, currFile] of files.entries()) {
             try {
-                const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, currFile);
+                const originalname = getAttachmentFilename(uploadMetadata[index]) ?? currFile.originalname;
+                const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, { ...currFile, originalname });
                 attachments.push(Attachment.create(file));
             } catch (error) {
                 return res.status(400).json({ message: error?.toString() });

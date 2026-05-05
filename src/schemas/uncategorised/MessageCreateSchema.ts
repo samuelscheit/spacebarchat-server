@@ -31,6 +31,15 @@ export type MessageCreateCloudAttachment = {
     original_content_type?: string;
 };
 
+export type MessageCreateFile = {
+    id?: string;
+    file?: string;
+    name?: string;
+    filename?: string;
+    uploaded_filename?: string;
+    original_content_type?: string;
+};
+
 export interface MessageCreateSchema {
     type?: number;
     content?: string;
@@ -46,6 +55,7 @@ export interface MessageCreateSchema {
     message_reference?: MessageReference | null;
     payload_json?: string;
     file?: { filename: string };
+    files?: MessageCreateFile[];
     // TODO: we should create an interface for attachments
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
     sticker_ids?: string[] | null; // null check: fixes Discord-Go
