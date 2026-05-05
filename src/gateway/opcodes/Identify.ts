@@ -53,6 +53,7 @@ import {
     timePromise,
     TraceNode,
     TraceRoot,
+    userSelectFromKeys,
     UserSettings,
     UserSettingsProtos,
     VoiceState,
@@ -90,7 +91,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         checkToken(identify.token, {
             // relations: {"relationships", "relationships.to", "settings"],
             // select: [...PrivateUserProjection, "relationships", "rights"],
-            select: [...PrivateUserProjection, "rights"],
+            select: userSelectFromKeys([...PrivateUserProjection, "rights"]),
         }),
     );
 

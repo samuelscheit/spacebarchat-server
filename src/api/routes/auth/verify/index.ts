@@ -17,7 +17,7 @@
 */
 
 import { route, verifyCaptcha } from "@spacebar/api";
-import { checkToken, Config, FieldErrors, generateToken, User } from "@spacebar/util";
+import { checkToken, Config, FieldErrors, generateToken, User, userSelectFromKeys } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
@@ -76,6 +76,7 @@ router.post(
 
         try {
             const userTokenData = await checkToken(token, {
+                select: userSelectFromKeys(["verified"]),
                 fingerprint: req.fingerprint,
                 ipAddress: req.ip,
             });

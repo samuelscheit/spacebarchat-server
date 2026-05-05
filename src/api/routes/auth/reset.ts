@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { checkToken, Email, FieldErrors, generateToken, User } from "@spacebar/util";
+import { checkToken, Email, FieldErrors, generateToken, User, userSelectFromKeys } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { PasswordResetSchema } from "@spacebar/schemas";
@@ -44,7 +44,7 @@ router.post(
         let user;
         try {
             const userTokenData = await checkToken(token, {
-                select: ["email"],
+                select: userSelectFromKeys(["email"]),
                 fingerprint: req.fingerprint,
                 ipAddress: req.ip,
             });
