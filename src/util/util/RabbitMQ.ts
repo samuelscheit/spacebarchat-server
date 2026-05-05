@@ -31,6 +31,7 @@ export class RabbitMQ {
     private static isReconnecting = false;
     private static reconnectAttempts = 0;
     private static readonly BASE_RECONNECT_DELAY_MS = 500; // reconnect after 500 milliseconds delay
+    private static reconnectTimer: NodeJS.Timeout | null = null;
 
     // Track if event listeners have been set up (to avoid duplicates)
     private static connectionListenersAttached = false;
@@ -80,7 +81,7 @@ export class RabbitMQ {
             this.events.emit("reconnected");
         } catch (error) {
             console.error("[RabbitMQ] Connection failed:", error);
-            await this.scheduleReconnect(host);
+            this.scheduleReconnect(host);
         }
     }
 
@@ -102,11 +103,11 @@ export class RabbitMQ {
             this.events.emit("disconnected");
 
             // Schedule reconnection
-            this.scheduleReconnect(host).catch((e) => console.error("[RabbitMQ] Failed to schedule reconnection:", e));
+            this.scheduleReconnect(host);
         });
     }
 
-    private static async scheduleReconnect(host: string): Promise<void> {
+    private static scheduleReconnect(host: string): void {
         if (this.isReconnecting) {
             console.log("[RabbitMQ] Reconnection already in progress, skipping");
             return;
@@ -117,14 +118,13 @@ export class RabbitMQ {
 
         console.log(`[RabbitMQ] Scheduling reconnection attempt ${this.reconnectAttempts} in ${this.BASE_RECONNECT_DELAY_MS}ms`);
 
-        await new Promise((resolve) => void setTimeout(resolve, this.BASE_RECONNECT_DELAY_MS));
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = null;
+            this.isReconnecting = false;
 
-        try {
-            await this.connect(host);
-        } catch {
-            // connect() will schedule another reconnect on failure
-            console.log("[RabbitMQ] Reconnection attempt failed, will retry");
-        }
+            this.connect(host).catch((e) => console.error("[RabbitMQ] Reconnection attempt failed:", e));
+        }, this.BASE_RECONNECT_DELAY_MS);
+        this.reconnectTimer.unref?.();
     }
 
     static async getSafeChannel(): Promise<Channel> {
