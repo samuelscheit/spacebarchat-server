@@ -16,7 +16,20 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes, getDatabase, getRevInfoOrFail } from "@spacebar/util";
+import {
+    Config,
+    ConnectionConfig,
+    ConnectionLoader,
+    Email,
+    JSONReplacer,
+    WebAuthn,
+    initDatabase,
+    initEvent,
+    registerRoutes,
+    getDatabase,
+    getRevInfoOrFail,
+    getConfiguredImageUploadBodyLimit,
+} from "@spacebar/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
@@ -78,7 +91,7 @@ export class SpacebarServer extends Server {
         if (trustedProxies) this.app.set("trust proxy", trustedProxies);
 
         this.app.use(CORS);
-        this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
+        this.app.use(BodyParser({ inflate: true, limit: getConfiguredImageUploadBodyLimit(Config.get().cdn) }));
 
         const app = this.app;
         const api = Router({ mergeParams: true });

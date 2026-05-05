@@ -18,7 +18,9 @@
 
 import FormData from "form-data";
 import { HTTPError } from "lambert-server";
+import { ApiError } from "./ApiError";
 import { Attachment } from "../entities";
+import { assertCdnFileSizeLimit } from "./CdnFileLimits";
 import { Config } from "./Config";
 
 export async function uploadFile(
@@ -53,6 +55,7 @@ export async function handleFile(path: string, body?: string): Promise<string | 
     try {
         const mimetype = body.split(":")[1].split(";")[0];
         const buffer = Buffer.from(body.split(",")[1], "base64");
+        assertCdnFileSizeLimit(path, buffer.length, Config.get().cdn);
 
         const { id } = await uploadFile(path, {
             buffer,
@@ -61,6 +64,7 @@ export async function handleFile(path: string, body?: string): Promise<string | 
         });
         return id;
     } catch (error) {
+        if (error instanceof ApiError) throw error;
         console.error(error);
         throw new HTTPError("Invalid " + path);
     }

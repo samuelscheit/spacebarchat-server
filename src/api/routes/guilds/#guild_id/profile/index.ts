@@ -65,7 +65,7 @@ router.patch(
             relations: { roles: true, user: true },
         });
 
-        if (body.banner) body.banner = await handleFile(`/guilds/${guild_id}/users/${member_id}/avatars`, body.banner as string);
+        if (body.banner) body.banner = await handleFile(`/guilds/${guild_id}/users/${member_id}/banners`, body.banner as string);
 
         member = await OrmUtils.mergeDeep(member, body);
 
