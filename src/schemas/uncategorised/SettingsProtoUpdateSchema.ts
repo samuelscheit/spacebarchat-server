@@ -16,8 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: better alternative?
-import { JsonValue } from "@protobuf-ts/runtime";
+import { JsonValue } from "./JsonValue";
 
 export interface SettingsProtoUpdateSchema {
     settings: string;

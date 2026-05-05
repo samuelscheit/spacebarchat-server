@@ -14298,166 +14298,15 @@
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "JsonValue": {
-        "description": "Represents any possible JSON value:\n- number\n- string\n- boolean\n- null\n- object (with any JSON value as property)\n- array (with any JSON value as element)",
         "anyOf": [
             {
-                "description": "Represents a JSON object.",
-                "type": "object",
-                "additionalProperties": {
-                    "$ref": "#/definitions/JsonValue"
-                }
+                "$ref": "#/definitions/JsonObject"
             },
             {
-                "type": "object",
-                "additionalProperties": false,
-                "patternProperties": {
-                    "^[0-9]+$": {
-                        "$ref": "#/definitions/JsonValue"
-                    }
-                },
-                "properties": {
-                    "length": {
-                        "type": "integer"
-                    },
-                    "__@unscopables@698": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "patternProperties": {
-                            "^[0-9]+$": {
-                                "type": "boolean"
-                            }
-                        },
-                        "properties": {
-                            "length": {
-                                "type": "boolean"
-                            },
-                            "toString": {
-                                "type": "boolean"
-                            },
-                            "toLocaleString": {
-                                "type": "boolean"
-                            },
-                            "pop": {
-                                "type": "boolean"
-                            },
-                            "push": {
-                                "type": "boolean"
-                            },
-                            "concat": {
-                                "type": "boolean"
-                            },
-                            "join": {
-                                "type": "boolean"
-                            },
-                            "reverse": {
-                                "type": "boolean"
-                            },
-                            "shift": {
-                                "type": "boolean"
-                            },
-                            "slice": {
-                                "type": "boolean"
-                            },
-                            "sort": {
-                                "type": "boolean"
-                            },
-                            "splice": {
-                                "type": "boolean"
-                            },
-                            "unshift": {
-                                "type": "boolean"
-                            },
-                            "indexOf": {
-                                "type": "boolean"
-                            },
-                            "lastIndexOf": {
-                                "type": "boolean"
-                            },
-                            "every": {
-                                "type": "boolean"
-                            },
-                            "some": {
-                                "type": "boolean"
-                            },
-                            "forEach": {
-                                "type": "boolean"
-                            },
-                            "map": {
-                                "type": "boolean"
-                            },
-                            "filter": {
-                                "type": "boolean"
-                            },
-                            "reduce": {
-                                "type": "boolean"
-                            },
-                            "reduceRight": {
-                                "type": "boolean"
-                            },
-                            "find": {
-                                "type": "boolean"
-                            },
-                            "findIndex": {
-                                "type": "boolean"
-                            },
-                            "fill": {
-                                "type": "boolean"
-                            },
-                            "copyWithin": {
-                                "type": "boolean"
-                            },
-                            "entries": {
-                                "type": "boolean"
-                            },
-                            "keys": {
-                                "type": "boolean"
-                            },
-                            "values": {
-                                "type": "boolean"
-                            },
-                            "includes": {
-                                "type": "boolean"
-                            },
-                            "flatMap": {
-                                "type": "boolean"
-                            },
-                            "flat": {
-                                "type": "boolean"
-                            },
-                            "at": {
-                                "type": "boolean"
-                            },
-                            "findLast": {
-                                "type": "boolean"
-                            },
-                            "findLastIndex": {
-                                "type": "boolean"
-                            },
-                            "toReversed": {
-                                "type": "boolean"
-                            },
-                            "toSorted": {
-                                "type": "boolean"
-                            },
-                            "toSpliced": {
-                                "type": "boolean"
-                            },
-                            "with": {
-                                "type": "boolean"
-                            },
-                            "__@iterator@696": {
-                                "type": "boolean"
-                            },
-                            "__@unscopables@698": {
-                                "type": "boolean"
-                            }
-                        }
-                    }
-                },
-                "required": [
-                    "__@unscopables@698",
-                    "length"
-                ]
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonValue"
+                }
             },
             {
                 "type": [
@@ -14468,6 +14317,13 @@
                 ]
             }
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "JsonObject": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/JsonValue"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "BackupCode": {

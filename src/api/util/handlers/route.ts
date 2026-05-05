@@ -22,11 +22,6 @@ import { NextFunction, Request, Response } from "express";
 import { ajv } from "@spacebar/schemas";
 import { BigNumber } from "bignumber.js";
 
-const ignoredRequestSchemas = [
-    // skip validation for settings proto JSON updates - TODO: figure out if this even possible to fix?
-    "SettingsProtoUpdateJsonSchema",
-];
-
 declare global {
     // TODO: fix this
     // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -150,7 +145,7 @@ export function route(opts: RouteOptions) {
         }
         bigNumberToString(req.body);
 
-        if (validate && !ignoredRequestSchemas.includes(opts.requestBody!)) {
+        if (validate) {
             if (opts.stripNulls) {
                 if (opts.stripNulls === true) stripNull(req.body);
                 else followNullPath(req.body, opts.stripNulls);
