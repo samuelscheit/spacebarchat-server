@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, CloudAttachment, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "@spacebar/util";
+import { Config, CloudAttachment, Snowflake } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import imageSize from "image-size";
 import { HTTPError } from "lambert-server";
@@ -24,6 +24,7 @@ import { multer } from "../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
+import { hasValidAttachmentRequestAuth } from "../util/AttachmentAuth";
 
 const router = Router({ mergeParams: true });
 
@@ -78,21 +79,21 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     const path = `attachments/${channel_id}/${message_id}/${filename}`;
 
     const fullUrl = (req.headers["x-forwarded-proto"] ?? req.protocol) + "://" + (req.headers["x-forwarded-host"] ?? req.hostname) + req.originalUrl;
+    res.vary("signature");
 
-    let hasValidAuth = false;
-    if (req.headers.signature) {
-        hasValidAuth = req.headers.signature !== Config.get().security.requestSignature;
-        if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid signature header");
-    } else if (!Config.get().security.cdnSignUrls) hasValidAuth = true;
-    else {
-        hasValidAuth = hasValidSignature(
-            new NewUrlUserSignatureData({
-                ip: req.ip,
-                userAgent: req.headers["user-agent"] as string,
-            }),
-            UrlSignResult.fromUrl(fullUrl),
-        );
-        if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid attachment URL signature");
+    const userAgent = Array.isArray(req.headers["user-agent"]) ? req.headers["user-agent"][0] : req.headers["user-agent"];
+    const hasValidAuth = hasValidAttachmentRequestAuth({
+        signatureHeader: req.headers.signature,
+        requestSignature: Config.get().security.requestSignature,
+        cdnSignUrls: Config.get().security.cdnSignUrls,
+        fullUrl,
+        ip: req.ip,
+        userAgent,
+    });
+
+    if (!hasValidAuth) {
+        if (req.headers.signature !== undefined) console.warn("[CDN/Attachments] Client sent invalid signature header");
+        else console.warn("[CDN/Attachments] Client sent invalid attachment URL signature");
     }
 
     if (!hasValidAuth) return res.status(404).send("This content is no longer available.");
