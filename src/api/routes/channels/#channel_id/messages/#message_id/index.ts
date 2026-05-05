@@ -28,6 +28,7 @@ import {
     emitEvent,
     getPermission,
     getRights,
+    preserveEditedMessageReactions,
     uploadFile,
     NewUrlUserSignatureData,
 } from "@spacebar/util";
@@ -35,10 +36,14 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { handleMessage, postHandleMessage, route } from "@spacebar/api";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
+import { ChannelType, MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, Reaction } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: message content/embed string length limit
+
+type MessageEditBody = MessageEditSchema & {
+    reactions?: Reaction[] | null;
+};
 
 const messageUpload = multer({
     limits: {
@@ -68,7 +73,7 @@ router.patch(
     }),
     async (req: Request, res: Response) => {
         const { message_id, channel_id } = req.params as { [key: string]: string };
-        let body = req.body as MessageEditSchema;
+        let body = req.body as MessageEditBody;
 
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
@@ -97,6 +102,7 @@ router.patch(
             author_id: message.author_id,
             channel_id,
             id: message_id,
+            reactions: preserveEditedMessageReactions(message.reactions, body.reactions),
             edited_timestamp: new Date(),
         });
 
