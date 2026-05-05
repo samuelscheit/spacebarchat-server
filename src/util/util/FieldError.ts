@@ -48,9 +48,6 @@ export function FieldErrors(fields: Record<string, { code?: string; message: str
     return new FieldError(50035, "Invalid Form Body", errorObj, errors);
 }
 
-// TODO: implement Image data type: Data URI scheme that supports JPG, GIF, and PNG formats. An example Data URI format is: data:image/jpeg;base64,BASE64_ENCODED_JPEG_IMAGE_DATA
-// Ensure you use the proper content type (image/jpeg, image/png, image/gif) that matches the image data being provided.
-
 export class FieldError extends Error {
     constructor(
         public code: string | number,

@@ -22,6 +22,9 @@ export interface ChannelModifySchema {
     name?: string;
     type?: ChannelType;
     topic?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string | null;
     bitrate?: number;
     user_limit?: number;

@@ -20,6 +20,7 @@ import FormData from "form-data";
 import { HTTPError } from "lambert-server";
 import { Attachment } from "../entities";
 import { Config } from "./Config";
+import { parseImageDataUri } from "../../schemas/ImageData";
 
 export async function uploadFile(
     path: string,
@@ -51,12 +52,12 @@ export async function uploadFile(
 export async function handleFile(path: string, body?: string): Promise<string | undefined> {
     if (!body || !body.startsWith("data:")) return undefined;
     try {
-        const mimetype = body.split(":")[1].split(";")[0];
-        const buffer = Buffer.from(body.split(",")[1], "base64");
+        const image = parseImageDataUri(body);
+        if (!image) throw new Error("Invalid image data URI");
 
         const { id } = await uploadFile(path, {
-            buffer,
-            mimetype,
+            buffer: image.buffer,
+            mimetype: image.mimetype,
             originalname: "banner",
         });
         return id;

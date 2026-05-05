@@ -24,6 +24,9 @@ export interface GuildCreateSchema {
      */
     name?: string;
     region?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string | null;
     channels?: ChannelCreateSchema[];
     system_channel_id?: string;
