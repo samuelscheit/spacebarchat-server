@@ -17,7 +17,18 @@
 */
 
 import { WebSocket } from "@spacebar/gateway";
-import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent, distributePresenceUpdate } from "@spacebar/util";
+import {
+    emitEvent,
+    Member,
+    PresenceUpdateEvent,
+    Session,
+    SessionsReplace,
+    User,
+    VoiceState,
+    VoiceStateUpdateEvent,
+    distributePresenceUpdate,
+    serializePrivateGatewaySessions,
+} from "@spacebar/util";
 import { randomString } from "@spacebar/api";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
@@ -107,7 +118,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
         await emitEvent({
             event: "SESSIONS_REPLACE",
             user_id: this.user_id,
-            data: sessions.map((x) => x.toPrivateGatewayDeviceInfo()),
+            data: serializePrivateGatewaySessions(sessions),
         } as SessionsReplace);
         const session = sessions[0] || {
             activities: [],
