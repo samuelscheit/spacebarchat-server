@@ -17,12 +17,13 @@
 */
 
 import { route, verifyCaptcha } from "@spacebar/api";
-import { Config, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, TimeSpan } from "@spacebar/util";
+import { Config, DiscordApiErrors, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, TimeSpan } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
+import { isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -303,7 +304,7 @@ router.post(
             });
         }
 
-        if (!regTokenUsed && !body.invite && (register.requireInvite || (register.guestsRequireInvite && !register.email))) {
+        if (!regTokenUsed && registrationRequiresInvite(register, body)) {
             // require invite to register -> e.g. for organizations to send invites to their employees
             throw FieldErrors({
                 email: {
@@ -311,6 +312,13 @@ router.post(
                     message: req.t("auth:register.INVITE_ONLY"),
                 },
             });
+        }
+
+        if (body.invite) {
+            const invite = await Invite.findOne({ where: { code: body.invite } });
+            if (!isRegistrationInviteUsable(invite)) {
+                throw DiscordApiErrors.UNKNOWN_INVITE;
+            }
         }
 
         if (
