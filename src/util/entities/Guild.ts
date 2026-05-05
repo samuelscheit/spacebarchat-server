@@ -30,7 +30,7 @@ import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import { arrayRemove } from "@spacebar/util";
+import { insertInGuildChannelOrdering } from "../util/GuildChannelOrdering";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -295,7 +295,7 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     premium_progress_bar_enabled: boolean = false;
 
-    @Column({ select: false, type: "int8", array: true })
+    @Column({ select: false, type: "int8", array: true, default: () => "ARRAY[]::int8[]" })
     channel_ordering: string[];
 
     @Column()
@@ -462,13 +462,7 @@ export class Guild extends BaseClass {
                 select: { channel_ordering: true },
             });
 
-        let position;
-        if (typeof insertPoint == "string") position = guild.channel_ordering.indexOf(insertPoint) + 1;
-        else position = insertPoint;
-
-        arrayRemove(guild.channel_ordering, channel_id);
-
-        guild.channel_ordering.splice(position, 0, channel_id);
+        const position = insertInGuildChannelOrdering(guild, channel_id, insertPoint);
         await Guild.update({ id: guild_id }, { channel_ordering: guild.channel_ordering });
         return position;
     }
