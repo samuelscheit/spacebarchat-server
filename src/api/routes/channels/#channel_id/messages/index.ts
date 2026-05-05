@@ -54,6 +54,7 @@ import {
     MessageCreateAttachment,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
+    normalizeMessageCreateSchema,
     PartialUser,
     PublicMessage,
     Reaction,
@@ -278,6 +279,7 @@ router.post(
             req.body = JSON.parse(req.body.payload_json);
         }
 
+        normalizeMessageCreateSchema(req.body);
         next();
     },
     route({
@@ -416,15 +418,13 @@ router.post(
             }
         }
 
-        const embeds = body.embeds || [];
-        if (body.embed) embeds.push(body.embed);
         const message = await handleMessage({
             ...body,
             id: messageId,
             type: 0,
             pinned: false,
             author_id: req.user_id,
-            embeds,
+            embeds: body.embeds || [],
             channel_id,
             attachments,
             timestamp: new Date(),

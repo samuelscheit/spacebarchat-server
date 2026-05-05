@@ -32,7 +32,6 @@ export type MessageCreateCloudAttachment = {
 };
 
 export interface MessageCreateSchema {
-    type?: number;
     content?: string;
     mobile_network_type?: string;
     nonce?: string;
@@ -40,8 +39,6 @@ export interface MessageCreateSchema {
     tts?: boolean;
     flags?: number;
     embeds?: Embed[] | null;
-    embed?: Embed | null;
-    // TODO: ^ embed is deprecated in favor of embeds (https://discord.com/developers/docs/resources/channel#message-object)
     allowed_mentions?: AllowedMentions | null;
     message_reference?: MessageReference | null;
     payload_json?: string;
@@ -83,4 +80,11 @@ interface MessageInteractionSchema {
     triggering_interaction_metadata?: MessageInteractionSchema;
     target_user?: PublicUser;
     target_message_id?: Snowflake;
+}
+
+export function normalizeMessageCreateSchema(body: MessageCreateSchema & { type?: number; embed?: Embed | null }): MessageCreateSchema {
+    if (body.embed) body.embeds = [...(body.embeds ?? []), body.embed];
+    delete body.embed;
+    delete body.type;
+    return body;
 }

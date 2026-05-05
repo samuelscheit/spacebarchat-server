@@ -35,7 +35,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { handleMessage, postHandleMessage, route } from "@spacebar/api";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
+import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: message content/embed string length limit
@@ -144,6 +144,7 @@ router.put(
             req.body = JSON.parse(req.body.payload_json);
         }
 
+        normalizeMessageCreateSchema(req.body);
         next();
     },
     route({
@@ -200,15 +201,13 @@ router.put(
             relations: { recipients: { user: true } },
         });
 
-        const embeds = body.embeds || [];
-        if (body.embed) embeds.push(body.embed);
         const message = await handleMessage({
             ...body,
             type: 0,
             pinned: false,
             author_id: req.user_id,
             id: message_id,
-            embeds,
+            embeds: body.embeds || [],
             channel_id: channel_id!,
             attachments,
             edited_timestamp: undefined,

@@ -5828,9 +5828,6 @@
     "MessageCreateSchema": {
         "type": "object",
         "properties": {
-            "type": {
-                "type": "integer"
-            },
             "content": {
                 "type": "string"
             },
@@ -5856,16 +5853,6 @@
                         "items": {
                             "$ref": "#/definitions/Embed"
                         }
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "embed": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Embed"
                     },
                     {
                         "type": "null"
@@ -6100,16 +6087,6 @@
     "MessageEditSchema": {
         "type": "object",
         "properties": {
-            "embed": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Embed"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
             "file": {
                 "type": "object",
                 "properties": {
