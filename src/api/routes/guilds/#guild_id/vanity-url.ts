@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Guild, Invite } from "@spacebar/util";
+import { Channel, Guild, Invite, setVanityUrlFeature } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ChannelType, VanityUrlSchema } from "@spacebar/schemas";
@@ -87,7 +87,6 @@ router.patch(
         const code = body.code?.replace(InviteRegex, "");
 
         const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
-        if (!guild.features.includes("VANITY_URL")) throw new HTTPError("Your guild doesn't support vanity urls");
 
         if (!code || code.length === 0) throw new HTTPError("Code cannot be null or empty");
 
@@ -114,6 +113,8 @@ router.patch(
             channel_id: id,
             flags: 0,
         }).save();
+        guild.features = setVanityUrlFeature(guild.features, true);
+        await guild.save();
 
         return res.json({ code });
     },

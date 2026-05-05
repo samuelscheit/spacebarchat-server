@@ -49,6 +49,7 @@ export * from "./TraverseDirectory";
 export * from "./WebAuthn";
 export * from "./ChannelFlags";
 export * from "./Gifs";
+export * from "./GuildFeatures";
 export * from "./Application";
 export * from "./NameValidation";
 export * from "../../schemas/HelperTypes";

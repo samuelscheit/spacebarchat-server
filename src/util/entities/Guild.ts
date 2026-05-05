@@ -31,6 +31,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { arrayRemove } from "@spacebar/util";
+import { setVanityUrlFeature } from "../util/GuildFeatures";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -376,7 +377,7 @@ export class Guild extends BaseClass {
             afk_timeout: Config.get().defaults.guild.afkTimeout,
             default_message_notifications: Config.get().defaults.guild.defaultMessageNotifications,
             explicit_content_filter: Config.get().defaults.guild.explicitContentFilter,
-            features: Config.get().guild.defaultFeatures,
+            features: setVanityUrlFeature(Config.get().guild.defaultFeatures, false),
             max_members: Config.get().limits.guild.maxMembers,
             max_presences: Config.get().defaults.guild.maxPresences,
             max_video_channel_users: Config.get().defaults.guild.maxVideoChannelUsers,
