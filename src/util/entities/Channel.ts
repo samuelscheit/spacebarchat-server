@@ -18,7 +18,7 @@
 
 import { HTTPError } from "lambert-server";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { DmChannelDTO } from "../dtos";
+import { DmChannelDTO, getCreateDMChannelResponse, getGroupDMOwnerAfterRecipientRemoval } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
 import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util";
 import { BaseClass } from "./BaseClass";
@@ -503,8 +503,7 @@ export class Channel extends BaseClass {
             });
         }
 
-        if (recipients.length === 1) return channel_dto;
-        else return channel_dto.excludedRecipients([creator_user_id]);
+        return getCreateDMChannelResponse(channel_dto, creator_user_id);
     }
 
     static async removeRecipientFromChannel(channel: Channel, user_id: string) {
@@ -527,9 +526,9 @@ export class Channel extends BaseClass {
             user_id: user_id,
         });
 
-        //If the owner leave the server user is the new owner
-        if (channel.owner_id === user_id) {
-            channel.owner_id = "1"; // The channel is now owned by the server user
+        const nextOwnerId = getGroupDMOwnerAfterRecipientRemoval(channel.owner_id, user_id, channel.recipients?.map((recipient) => recipient.user_id) ?? []);
+        if (channel.owner_id !== nextOwnerId) {
+            channel.owner_id = nextOwnerId;
             await emitEvent({
                 event: "CHANNEL_UPDATE",
                 data: await DmChannelDTO.from(channel, [user_id]),
