@@ -31,6 +31,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { arrayRemove } from "@spacebar/util";
+import { getTemplateChannelInsertPoint, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -433,7 +434,9 @@ export class Guild extends BaseClass {
             }
         });
 
-        for (const channel of body.channels.sort((a) => (a.parent_id ? 1 : -1))) {
+        const lastChildByParent = new Map<string, string>();
+
+        for (const channel of sortTemplateChannelsForCreation(body.channels)) {
             const id = ids.get(channel.id) || Snowflake.generate();
 
             const parent_id = ids.get(channel.parent_id);
@@ -445,7 +448,9 @@ export class Guild extends BaseClass {
                 skipEventEmit: true,
             });
 
-            await Guild.insertChannelInOrder(guild.id, saved.id, parent_id ?? channel.position ?? 0, guild);
+            const insertPoint = getTemplateChannelInsertPoint(channel, parent_id, lastChildByParent);
+            await Guild.insertChannelInOrder(guild.id, saved.id, insertPoint, guild);
+            if (parent_id) lastChildByParent.set(parent_id, saved.id);
         }
 
         return guild;
