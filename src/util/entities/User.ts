@@ -18,7 +18,7 @@
 
 import { Request } from "express";
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
-import { Channel, Config, Email, FieldErrors, Snowflake, trimSpecial } from "..";
+import { Channel, Config, Email, FieldErrors, Snowflake, getDefaultUserRights, trimSpecial } from "..";
 import { Random } from "../util";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
@@ -331,7 +331,7 @@ export class User extends BaseClass {
             settings: settings,
 
             premium_since: Config.get().defaults.user.premium ? new Date() : undefined,
-            rights: Config.get().register.defaultRights,
+            rights: getDefaultUserRights(bot, Config.get().register),
             premium: Config.get().defaults.user.premium ?? false,
             premium_type: Config.get().defaults.user.premiumType ?? 0,
             verified: Config.get().defaults.user.verified ?? true,

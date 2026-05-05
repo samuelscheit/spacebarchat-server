@@ -34,6 +34,7 @@ export class RegisterConfiguration {
     blockAbuseIpDbAboveScore: number = 75; // 0 to disable
     incrementingDiscriminators: boolean = false; // random otherwise
     defaultRights: string = "875069521787904"; // See `npm run generate:rights`
+    defaultBotRights: string = "875069521787904"; // See `npm run generate:rights`
     enableAbuseIpDb: boolean = false;
     enableIpData: boolean = false;
 }
