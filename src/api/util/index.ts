@@ -17,6 +17,7 @@
 */
 
 export * from "./utility/Base64";
+export * from "./utility/AttachmentRefresh";
 export * from "./utility/ipAddress";
 export * from "./handlers/Message";
 export * from "./utility/passwordStrength";

@@ -16,9 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { getUrlSignature, NewUrlSignatureData } from "@spacebar/util";
+import { refreshAttachmentUrls, route } from "@spacebar/api";
+import { Config, getUrlSignature, NewUrlSignatureData } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { HTTPError } from "lambert-server";
 import { RefreshUrlsRequestSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
@@ -35,20 +36,22 @@ router.post(
             },
         },
     }),
-    (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
         const { attachment_urls } = req.body as RefreshUrlsRequestSchema;
 
-        const refreshed_urls = attachment_urls.map((url) =>
-            getUrlSignature(
-                new NewUrlSignatureData({
-                    url: url,
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"] as string,
-                }),
-            )
-                .applyToUrl(url)
-                .toString(),
-        );
+        let refreshed_urls;
+        try {
+            refreshed_urls = await refreshAttachmentUrls({
+                attachmentUrls: attachment_urls,
+                discordBotToken: Config.get().external.discordAttachmentRefreshBotToken,
+                ip: req.ip,
+                localCdnEndpoint: Config.get().cdn.endpointPublic,
+                signer: (data) => getUrlSignature(new NewUrlSignatureData(data)),
+                userAgent: req.headers["user-agent"] as string,
+            });
+        } catch (error) {
+            throw new HTTPError((error as Error).message, 400);
+        }
 
         return res.status(200).json({
             refreshed_urls,

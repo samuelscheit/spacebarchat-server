@@ -17,5 +17,6 @@
 */
 
 export class ExternalTokensConfiguration {
+    discordAttachmentRefreshBotToken: string | null = null;
     twitter: string | null = null;
 }
