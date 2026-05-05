@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile, Config, FieldError, ErrorList, makeObjectErrorContent } from "@spacebar/util";
+import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Config, ErrorList, FieldError, Guild, Recipient, emitEvent, handleFile, makeObjectErrorContent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 
@@ -216,6 +216,12 @@ router.patch(
         }
 
         channel.assign(payload);
+        if (channel.guild_id && payload.position !== undefined) {
+            channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, payload.position);
+        } else if (channel.guild_id && payload.parent_id) {
+            channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, payload.parent_id);
+        }
+
         if (channel.thread_metadata) {
             if (payload.archived !== undefined) {
                 channel.thread_metadata.archived = payload.archived;
