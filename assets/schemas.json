@@ -6949,6 +6949,16 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserInviteCreateSchema": {
+        "type": "object",
+        "properties": {
+            "code": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserModifySchema": {
         "type": "object",
         "properties": {
