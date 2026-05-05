@@ -17,7 +17,7 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { Config, GuildWelcomeScreen, Snowflake, handleFile } from "..";
+import { Config, GuildWelcomeScreen, Snowflake, assertChannelNamePresent, handleFile, normalizeGuildChannelName } from "..";
 import { Ban } from "./Ban";
 import { BaseClass } from "./BaseClass";
 import { Channel } from "./Channel";
@@ -352,6 +352,15 @@ export class Guild extends BaseClass {
         source_guild_id: string | null;
     }) {
         const guild_id = Snowflake.generate();
+        const defaultFeatures = Config.get().guild.defaultFeatures;
+
+        if (body.channels?.length) {
+            body.channels = body.channels.map((channel) => ({
+                ...channel,
+                name: normalizeGuildChannelName(channel.name, channel.type, defaultFeatures),
+            }));
+            body.channels.forEach((channel) => assertChannelNamePresent(channel.name, defaultFeatures));
+        }
 
         const guild = await Guild.create({
             id: guild_id,
@@ -376,7 +385,7 @@ export class Guild extends BaseClass {
             afk_timeout: Config.get().defaults.guild.afkTimeout,
             default_message_notifications: Config.get().defaults.guild.defaultMessageNotifications,
             explicit_content_filter: Config.get().defaults.guild.explicitContentFilter,
-            features: Config.get().guild.defaultFeatures,
+            features: defaultFeatures,
             max_members: Config.get().limits.guild.maxMembers,
             max_presences: Config.get().defaults.guild.maxPresences,
             max_video_channel_users: Config.get().defaults.guild.maxVideoChannelUsers,

@@ -31,6 +31,7 @@ export * from "./Event";
 export * from "./FieldError";
 export * from "./Intents";
 export * from "./InvisibleCharacters";
+export * from "./ChannelName";
 export * from "./JSON";
 export * from "./KittyLogo";
 export * from "./Logo";
