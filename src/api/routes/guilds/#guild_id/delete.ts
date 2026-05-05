@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Guild, GuildDeleteEvent, emitEvent } from "@spacebar/util";
+import { assertMfaCode, route } from "@spacebar/api";
+import { BackupCode, Guild, GuildDeleteEvent, User, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { GuildDeleteSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -28,6 +29,7 @@ const router = Router({ mergeParams: true });
 router.post(
     "/",
     route({
+        requestBody: "GuildDeleteSchema",
         responses: {
             204: {},
             401: {
@@ -40,12 +42,36 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
+        const { code } = (req.body ?? {}) as GuildDeleteSchema;
 
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
             select: { owner_id: true },
         });
         if (guild.owner_id !== req.user_id) throw new HTTPError("You are not the owner of this guild", 401);
+
+        const user = await User.findOneOrFail({
+            where: { id: req.user_id },
+            select: { id: true, mfa_enabled: true, totp_secret: true },
+        });
+
+        await assertMfaCode({
+            code,
+            mfa_enabled: user.mfa_enabled,
+            totp_secret: user.totp_secret,
+            invalidCodeError: () => new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008),
+            findBackupCode: (code) =>
+                BackupCode.findOne({
+                    where: {
+                        code,
+                        expired: false,
+                        consumed: false,
+                        user: {
+                            id: req.user_id,
+                        },
+                    },
+                }),
+        });
 
         await Promise.all([
             Guild.delete({ id: guild_id }), // this will also delete all guild related data

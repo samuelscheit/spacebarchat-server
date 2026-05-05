@@ -1111,6 +1111,14 @@
                     }
                 }
             },
+            "GuildDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    }
+                }
+            },
             "GuildSubscriptionsBulkSchema": {
                 "type": "object",
                 "properties": {
@@ -22486,6 +22494,16 @@
                         "bearer": []
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GuildDeleteSchema"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "204": {
                         "description": "No description available"
