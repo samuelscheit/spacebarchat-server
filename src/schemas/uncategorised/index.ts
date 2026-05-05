@@ -40,6 +40,7 @@ export * from "./EmojiModifySchema";
 export * from "./ForgotPasswordSchema";
 export * from "./GreetRequestSchema";
 export * from "./GuildCreateSchema";
+export * from "./GuildDiscoveryMetadataUpdateSchema";
 export * from "./GuildSubscriptionsBulkSchema";
 export * from "./GuildTemplateCreateSchema";
 export * from "./GuildUpdateSchema";

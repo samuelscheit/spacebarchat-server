@@ -1163,6 +1163,55 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildDiscoveryMetadataUpdateSchema": {
+        "type": "object",
+        "properties": {
+            "primary_category_id": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "category_ids": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "keywords": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "emoji_discoverability_enabled": {
+                "type": "boolean"
+            },
+            "is_published": {
+                "type": "boolean"
+            },
+            "reasons_to_join": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "social_links": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "about": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildSubscriptionsBulkSchema": {
         "type": "object",
         "properties": {
@@ -2002,6 +2051,83 @@
             "nsfw",
             "welcome_screen",
             "widget_enabled"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildDiscoveryMetadataResponse": {
+        "type": "object",
+        "properties": {
+            "guild_id": {
+                "type": "string"
+            },
+            "primary_category_id": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "category_ids": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "keywords": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "emoji_discoverability_enabled": {
+                "type": "boolean"
+            },
+            "partner_actioned_timestamp": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "partner_application_timestamp": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "is_published": {
+                "type": "boolean"
+            },
+            "reasons_to_join": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "social_links": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "about": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "about",
+            "category_ids",
+            "emoji_discoverability_enabled",
+            "guild_id",
+            "is_published",
+            "keywords",
+            "partner_actioned_timestamp",
+            "partner_application_timestamp",
+            "primary_category_id",
+            "reasons_to_join",
+            "social_links"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
