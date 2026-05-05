@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { clearRecentMfaCookie, createMfaRequiredResponse, generateMfaTicket, hasRecentMfaToken, route } from "@spacebar/api";
 import { User, generateMfaBackupCodes, generateToken } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
@@ -35,7 +35,7 @@ router.post(
                 body: "TokenWithBackupCodesResponse",
             },
             400: {
-                body: "APIErrorResponse",
+                body: "MfaRequiredResponse",
             },
             404: {
                 body: "APIErrorResponse",
@@ -52,8 +52,17 @@ router.post(
 
         // TODO: Are guests allowed to enable 2fa?
         if (user.data.hash) {
-            if (!(await bcrypt.compare(body.password, user.data.hash))) {
-                throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
+            const hasRecentMfa = await hasRecentMfaToken(req.headers, user.id);
+            if (!hasRecentMfa) {
+                if (!body.password) {
+                    const ticket = await generateMfaTicket(user.id);
+                    res.setHeader("Set-Cookie", clearRecentMfaCookie());
+                    return res.status(400).json(createMfaRequiredResponse(ticket));
+                }
+
+                if (!(await bcrypt.compare(body.password, user.data.hash))) {
+                    throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
+                }
             }
         }
 

@@ -2481,6 +2481,52 @@
                     "stickers"
                 ]
             },
+            "MfaRequiredResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "integer",
+                        "const": 60003
+                    },
+                    "mfa": {
+                        "type": "object",
+                        "properties": {
+                            "ticket": {
+                                "type": "string"
+                            },
+                            "methods": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "const": "password"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "type"
+                                    ]
+                                }
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "methods",
+                            "ticket"
+                        ]
+                    }
+                },
+                "required": [
+                    "code",
+                    "message",
+                    "mfa"
+                ]
+            },
             "OAuthAuthorizeResponse": {
                 "type": "object",
                 "properties": {
@@ -5935,6 +5981,29 @@
                     "password"
                 ]
             },
+            "MfaFinishSchema": {
+                "type": "object",
+                "properties": {
+                    "ticket": {
+                        "type": "string"
+                    },
+                    "mfa_type": {
+                        "enum": [
+                            "password",
+                            "totp"
+                        ],
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "data",
+                    "mfa_type",
+                    "ticket"
+                ]
+            },
             "ModifyGuildStickerSchema": {
                 "type": "object",
                 "properties": {
@@ -6427,10 +6496,7 @@
                     "secret": {
                         "type": "string"
                     }
-                },
-                "required": [
-                    "password"
-                ]
+                }
             },
             "TotpSchema": {
                 "type": "object",
@@ -14597,6 +14663,9 @@
             "name": "invites"
         },
         {
+            "name": "mfa"
+        },
+        {
             "name": "oauth2"
         },
         {
@@ -15984,7 +16053,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                    "$ref": "#/components/schemas/MfaRequiredResponse"
                                 }
                             }
                         }
@@ -19020,6 +19089,55 @@
                 },
                 "tags": [
                     "oauth2"
+                ]
+            }
+        },
+        "/mfa/finish/": {
+            "post": {
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/MfaFinishSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenOnlyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "mfa"
                 ]
             }
         },

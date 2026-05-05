@@ -48,6 +48,7 @@ export * from "./InstancePingResponse";
 export * from "./InstanceStatsResponse";
 export * from "./LocationMetadataResponse";
 export * from "./MemberJoinGuildResponse";
+export * from "./MfaRequiredResponse";
 export * from "./OAuthAuthorizeResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PreloadMessagesResponseSchema";

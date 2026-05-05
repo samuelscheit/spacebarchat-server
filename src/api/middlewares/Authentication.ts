@@ -26,6 +26,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "POST /auth/register",
     "GET /auth/location-metadata",
     "POST /auth/mfa/",
+    "POST /mfa/finish",
     "POST /auth/verify",
     "POST /auth/forgot",
     "POST /auth/reset",
