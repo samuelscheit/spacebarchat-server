@@ -16,7 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
+import { Column, Entity, In, JoinColumn, ManyToOne, PrimaryColumn, RelationId, type EntityManager } from "typeorm";
+import type { GuildUpdateEvent, InviteDeleteEvent } from "../interfaces";
+import { emitEvent, getDatabase, getVanityUrlFeatureState } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
@@ -111,13 +113,86 @@ export class Invite extends BaseClassWithoutId {
         };
     }
 
+    static async syncGuildVanityUrlFeature(guild_id: string, entityManager: EntityManager) {
+        const guild = await entityManager.findOne(Guild, { where: { id: guild_id } });
+        if (!guild) return null;
+
+        const vanityInviteCount = await entityManager.count(Invite, {
+            where: { guild_id, vanity_url: true },
+        });
+        const state = getVanityUrlFeatureState(guild.features, vanityInviteCount > 0);
+        if (!state.changed) return null;
+
+        guild.features = state.features;
+        await entityManager.save(guild);
+
+        return guild;
+    }
+
+    static async syncGuildVanityUrlFeatures(guildIds: string[], entityManager: EntityManager) {
+        const updatedGuilds: Guild[] = [];
+
+        for (const guild_id of [...new Set(guildIds.filter(Boolean))]) {
+            const updatedGuild = await Invite.syncGuildVanityUrlFeature(guild_id, entityManager);
+            if (updatedGuild) updatedGuilds.push(updatedGuild);
+        }
+
+        return updatedGuilds;
+    }
+
+    static async deleteInvitesAndSyncVanityUrlFeatures(invites: Invite[], entityManager: EntityManager) {
+        if (invites.length === 0) return [];
+
+        const vanityGuildIds = invites.filter((invite) => invite.vanity_url && invite.guild_id).map((invite) => invite.guild_id);
+        await entityManager.delete(Invite, { code: In(invites.map((invite) => invite.code)) });
+
+        return Invite.syncGuildVanityUrlFeatures(vanityGuildIds, entityManager);
+    }
+
+    static async emitGuildUpdate(guild: Guild) {
+        await emitEvent({
+            event: "GUILD_UPDATE",
+            data: guild.toGuildUpdateEventData(),
+            guild_id: guild.id,
+        } satisfies GuildUpdateEvent);
+    }
+
+    static async deleteWithVanityUrlFeatureSync(invites: Invite | Invite[], opts: { emitDeleteEvents?: boolean } = {}) {
+        const inviteList = Array.isArray(invites) ? invites : [invites];
+        if (inviteList.length === 0) return [];
+
+        const database = getDatabase();
+        if (!database) throw new Error("Tried to delete invites before the database was initialised");
+
+        const updatedGuilds = await database.transaction((entityManager) => Invite.deleteInvitesAndSyncVanityUrlFeatures(inviteList, entityManager));
+
+        await Promise.all([
+            ...(opts.emitDeleteEvents
+                ? inviteList.map((invite) =>
+                      emitEvent({
+                          event: "INVITE_DELETE",
+                          guild_id: invite.guild_id,
+                          data: {
+                              channel_id: invite.channel_id,
+                              guild_id: invite.guild_id,
+                              code: invite.code,
+                          },
+                      } satisfies InviteDeleteEvent),
+                  )
+                : []),
+            ...updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild)),
+        ]);
+
+        return updatedGuilds;
+    }
+
     static async joinGuild(user_id: string, code: string) {
         const invite = await Invite.findOneOrFail({ where: { code } });
         if (invite.isExpired()) {
-            await Invite.delete({ code });
+            await Invite.deleteWithVanityUrlFeatureSync(invite);
             throw new Error("Invite is expired");
         }
-        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) await Invite.delete({ code });
+        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) await Invite.deleteWithVanityUrlFeatureSync(invite);
         else await invite.save();
 
         await Member.addToGuild(user_id, invite.guild_id);

@@ -33,7 +33,7 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { GuildCreateResponse, GuildUpdateSchema } from "@spacebar/schemas";
+import { GuildUpdateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -203,24 +203,13 @@ router.patch(
             });
         }
 
-        const data = guild.toJSON();
-        // TODO: guild hashes
-        // TODO: fix vanity_url_code, template_id
-        // delete data.vanity_url_code;
-        delete data.template_id;
+        const data = guild.toGuildUpdateEventData();
 
         await Promise.all([
             guild.save(),
             emitEvent({
                 event: "GUILD_UPDATE",
-                data: {
-                    ...data,
-                    // TODO: did i do this right?
-                    afk_channel_id: data.afk_channel_id ?? undefined,
-                    public_updates_channel_id: data.public_updates_channel_id ?? undefined,
-                    rules_channel_id: data.rules_channel_id ?? undefined,
-                    system_channel_id: data.system_channel_id ?? undefined,
-                } satisfies GuildCreateResponse, // apparently we dont have a separate schema for this
+                data,
                 guild_id,
             } satisfies GuildUpdateEvent),
         ]);

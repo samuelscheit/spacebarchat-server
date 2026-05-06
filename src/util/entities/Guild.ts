@@ -32,6 +32,7 @@ import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { arrayRemove } from "@spacebar/util";
 import { setVanityUrlFeature } from "../util/GuildFeatures";
+import type { GuildCreateResponse } from "@spacebar/schemas";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -342,6 +343,20 @@ export class Guild extends BaseClass {
             is_published: false,
             reasons_to_join: [],
         };
+    }
+
+    toGuildUpdateEventData(): GuildCreateResponse {
+        const data = this.toJSON();
+        delete data.template_id;
+
+        return {
+            ...data,
+            // TODO: did i do this right?
+            afk_channel_id: data.afk_channel_id ?? undefined,
+            public_updates_channel_id: data.public_updates_channel_id ?? undefined,
+            rules_channel_id: data.rules_channel_id ?? undefined,
+            system_channel_id: data.system_channel_id ?? undefined,
+        } satisfies GuildCreateResponse;
     }
 
     static async createGuild(body: {

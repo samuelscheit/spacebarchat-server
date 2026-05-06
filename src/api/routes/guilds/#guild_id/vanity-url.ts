@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Guild, Invite, setVanityUrlFeature } from "@spacebar/util";
+import { Channel, Guild, Invite, getDatabase } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ChannelType, VanityUrlSchema } from "@spacebar/schemas";
@@ -86,35 +86,43 @@ router.patch(
         const body = req.body as VanityUrlSchema;
         const code = body.code?.replace(InviteRegex, "");
 
-        const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
-
         if (!code || code.length === 0) throw new HTTPError("Code cannot be null or empty");
-
-        const invite = await Invite.findOne({ where: { code } });
-        if (invite) throw new HTTPError("Invite already exists");
 
         const { id } = await Channel.findOneOrFail({
             where: { guild_id, type: ChannelType.GUILD_TEXT },
         });
 
-        if (!guild.features.includes("ALIASABLE_NAMES")) {
-            await Invite.delete({ guild_id, vanity_url: true });
-        }
+        const database = getDatabase();
+        if (!database) throw new Error("Tried to create a vanity URL before the database was initialised");
 
-        await Invite.create({
-            vanity_url: true,
-            code,
-            temporary: false,
-            uses: 0,
-            max_uses: 0,
-            max_age: 0,
-            created_at: new Date(),
-            guild_id: guild_id,
-            channel_id: id,
-            flags: 0,
-        }).save();
-        guild.features = setVanityUrlFeature(guild.features, true);
-        await guild.save();
+        const updatedGuild = await database.transaction(async (entityManager) => {
+            const guild = await entityManager.findOneOrFail(Guild, { where: { id: guild_id } });
+            const invite = await entityManager.findOne(Invite, { where: { code } });
+            if (invite) throw new HTTPError("Invite already exists");
+
+            if (!guild.features.includes("ALIASABLE_NAMES")) {
+                await entityManager.delete(Invite, { guild_id, vanity_url: true });
+            }
+
+            await entityManager.save(
+                entityManager.create(Invite, {
+                    vanity_url: true,
+                    code,
+                    temporary: false,
+                    uses: 0,
+                    max_uses: 0,
+                    max_age: 0,
+                    created_at: new Date(),
+                    guild_id: guild_id,
+                    channel_id: id,
+                    flags: 0,
+                }),
+            );
+
+            return Invite.syncGuildVanityUrlFeature(guild_id, entityManager);
+        });
+
+        if (updatedGuild) await Invite.emitGuildUpdate(updatedGuild);
 
         return res.json({ code });
     },

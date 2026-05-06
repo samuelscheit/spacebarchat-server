@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Ban, Config, DiscordApiErrors, emitEvent, getPermission, Guild, Invite, InviteDeleteEvent, PublicInviteRelation } from "@spacebar/util";
+import { Ban, Config, DiscordApiErrors, getPermission, Guild, Invite, PublicInviteRelation } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { UserFlags } from "@spacebar/schemas";
@@ -136,18 +136,7 @@ router.delete(
 
         if (!permission.has("MANAGE_GUILD") && !permission.has("MANAGE_CHANNELS")) throw new HTTPError("You missing the MANAGE_GUILD or MANAGE_CHANNELS permission", 401);
 
-        await Promise.all([
-            Invite.delete({ code: invite_code }),
-            emitEvent({
-                event: "INVITE_DELETE",
-                guild_id: guild_id,
-                data: {
-                    channel_id: channel_id,
-                    guild_id: guild_id,
-                    code: invite_code,
-                },
-            } satisfies InviteDeleteEvent),
-        ]);
+        await Invite.deleteWithVanityUrlFeatureSync(invite, { emitDeleteEvents: true });
 
         res.json({ invite: invite });
     },
