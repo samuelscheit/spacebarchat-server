@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import http, { type RequestListener } from "node:http";
+import net from "node:net";
 import { describe, test } from "node:test";
 import express from "express";
 import { collectPrometheusMetrics, formatPrometheusMetrics, getProcessMetricSamples, registerPrometheusMetricsRoute, writePrometheusMetricsResponse } from "./Metrics";
@@ -144,6 +145,24 @@ describe("Prometheus metrics", () => {
         }
     });
 
+    test("standalone WebRTC metrics endpoint ignores malformed Host headers", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1:5432/spacebar";
+        const { Server } = await import("../../webrtc/Server.js");
+        const webrtc = new Server({ port: 0 });
+        const server = await listen(webrtc.server);
+
+        try {
+            const response = await requestWithMalformedHost(server.port, "/-/metrics");
+
+            assert.match(response, /^HTTP\/1\.1 200 OK\r\n/);
+            assert.match(response, /content-type: text\/plain; version=0\.0\.4; charset=utf-8/i);
+            assert.match(response, /spacebar_webrtc_websocket_clients\{service="webrtc"\} /);
+        } finally {
+            webrtc.ws.close();
+            await close(server.server);
+        }
+    });
+
     test("standalone gateway metrics endpoint is scrape-only", async () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1:5432/spacebar";
         const { Server } = await import("../../gateway/Server.js");
@@ -158,6 +177,25 @@ describe("Prometheus metrics", () => {
             assert.equal(response.headers.get("set-cookie"), null);
             assert.match(response.headers.get("content-type") ?? "", /^text\/plain; version=0\.0\.4/);
             assert.match(body, /spacebar_gateway_websocket_clients\{service="gateway"\} /);
+        } finally {
+            gateway.ws.close();
+            await close(server.server);
+        }
+    });
+
+    test("standalone gateway metrics endpoint ignores malformed Host headers", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1:5432/spacebar";
+        const { Server } = await import("../../gateway/Server.js");
+        const gateway = new Server({ port: 0 });
+        const server = await listen(gateway.server);
+
+        try {
+            const response = await requestWithMalformedHost(server.port, "/-/metrics");
+
+            assert.match(response, /^HTTP\/1\.1 200 OK\r\n/);
+            assert.doesNotMatch(response, /^set-cookie:/im);
+            assert.match(response, /content-type: text\/plain; version=0\.0\.4; charset=utf-8/i);
+            assert.match(response, /spacebar_gateway_websocket_clients\{service="gateway"\} /);
         } finally {
             gateway.ws.close();
             await close(server.server);
@@ -188,5 +226,18 @@ function close(server: http.Server): Promise<void> {
             if (error) reject(error);
             else resolve();
         });
+    });
+}
+
+function requestWithMalformedHost(port: number, path: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const socket = net.createConnection({ host: "127.0.0.1", port }, () => {
+            socket.write(`GET ${path} HTTP/1.1\r\nHost: exa mple\r\nConnection: close\r\n\r\n`);
+        });
+        const chunks: Buffer[] = [];
+
+        socket.on("data", (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+        socket.on("error", reject);
+        socket.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
     });
 }

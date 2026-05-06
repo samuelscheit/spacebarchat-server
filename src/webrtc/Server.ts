@@ -17,7 +17,18 @@
 */
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { closeDatabase, Config, getProcessMetricSamples, initDatabase, initEvent, type MetricSample, Session, TimeSpan, writePrometheusMetricsResponse } from "@spacebar/util";
+import {
+    closeDatabase,
+    Config,
+    getProcessMetricSamples,
+    initDatabase,
+    initEvent,
+    type MetricSample,
+    parseHttpRequestUrl,
+    Session,
+    TimeSpan,
+    writePrometheusMetricsResponse,
+} from "@spacebar/util";
 import http from "node:http";
 import ws from "ws";
 import { Connection } from "./events/Connection";
@@ -37,7 +48,7 @@ export class Server {
         if (server) this.server = server;
         else {
             this.server = http.createServer((req, res) => {
-                const requestUrl = new URL(`http://${req.headers.host}${req.url}`);
+                const requestUrl = parseHttpRequestUrl(req.url);
                 if (requestUrl.pathname === "/-/metrics") {
                     writePrometheusMetricsResponse(res, () => this.getMetricSamples());
                     return;

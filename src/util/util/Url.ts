@@ -39,3 +39,9 @@ export function normalizeUrl(input: string): string {
         return input;
     }
 }
+
+const httpRequestUrlBase = "http://spacebar.invalid";
+
+export function parseHttpRequestUrl(requestUrl: string | undefined): URL {
+    return new URL(requestUrl ?? "/", httpRequestUrlBase);
+}

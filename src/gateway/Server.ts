@@ -18,7 +18,18 @@
 
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { checkToken, closeDatabase, Config, getProcessMetricSamples, initDatabase, initEvent, type MetricSample, Rights, writePrometheusMetricsResponse } from "@spacebar/util";
+import {
+    checkToken,
+    closeDatabase,
+    Config,
+    getProcessMetricSamples,
+    initDatabase,
+    initEvent,
+    type MetricSample,
+    parseHttpRequestUrl,
+    Rights,
+    writePrometheusMetricsResponse,
+} from "@spacebar/util";
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "node:http";
@@ -64,7 +75,7 @@ export class Server {
             statsInterval.unref();
 
             this.server = http.createServer(async (req, res) => {
-                const requestUrl = new URL(`http://${req.headers.host}${req.url}`);
+                const requestUrl = parseHttpRequestUrl(req.url);
                 if (requestUrl.pathname === "/-/metrics") {
                     writePrometheusMetricsResponse(res, () => this.getMetricSamples());
                     return;
