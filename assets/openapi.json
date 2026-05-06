@@ -175,15 +175,17 @@
                         "type": "string"
                     },
                     "data": {
-                        "$ref": "#/components/schemas/InteractionData"
-                    },
-                    "files": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SendableApplicationCommandDataSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/SendableMessageComponentDataSchema"
+                            },
+                            {
+                                "$ref": "#/components/schemas/SendableModalSubmitDataSchema"
+                            }
+                        ]
                     },
                     "nonce": {
                         "type": "string"
@@ -201,7 +203,6 @@
                 "required": [
                     "application_id",
                     "channel_id",
-                    "data",
                     "type"
                 ]
             },
@@ -7542,49 +7543,6 @@
                     3,
                     4,
                     5
-                ]
-            },
-            "InteractionData": {
-                "type": "object",
-                "properties": {
-                    "application_command": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "attachments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/UploadAttachmentRequestSchema"
-                        }
-                    },
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "options": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationCommandOption"
-                        }
-                    },
-                    "type": {
-                        "type": "integer"
-                    },
-                    "version": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "application_command",
-                    "attachments",
-                    "id",
-                    "name",
-                    "options",
-                    "type",
-                    "version"
                 ]
             },
             "UploadAttachmentRequest": {

@@ -94,7 +94,7 @@ router.post(
                     // webhook_id: interaction.applicationId, // This one requires a webhook to be created first
                     interaction: {
                         id: interactionId,
-                        name: interaction.commandName,
+                        name: interaction.commandName ?? "",
                         type: 2,
                         user,
                     },
@@ -106,7 +106,7 @@ router.post(
                         authorizing_integration_owners: {
                             "1": interaction.userId,
                         },
-                        name: interaction.commandName,
+                        name: interaction.commandName ?? "",
                         command_type: interaction.commandType,
                     },
                 });

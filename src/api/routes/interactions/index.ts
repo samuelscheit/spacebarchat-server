@@ -55,7 +55,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         attachment_size_limit: Config.get().cdn.maxAttachmentSize,
     };
 
-    if (body.type === InteractionType.ApplicationCommand || body.type === InteractionType.MessageComponent || body.type === InteractionType.ModalSubmit) {
+    if ((body.type === InteractionType.ApplicationCommand || body.type === InteractionType.MessageComponent || body.type === InteractionType.ModalSubmit) && body.data) {
         interactionData.data = body.data;
     }
 
@@ -90,7 +90,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         }
     }
 
-    if (body.type === InteractionType.MessageComponent || body.data.type === InteractionType.ModalSubmit) {
+    if (body.type === InteractionType.MessageComponent || body.type === InteractionType.ModalSubmit) {
         interactionData.message = await Message.findOneOrFail({
             where: { id: body.message_id, flags: undefined },
             relations: {
@@ -141,8 +141,8 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         guildId: body.guild_id,
         channelId: body.channel_id,
         type: body.type,
-        commandType: body.data.type,
-        commandName: body.data.name,
+        commandType: body.data && "type" in body.data ? body.data.type : undefined,
+        commandName: body.data && "name" in body.data ? body.data.name : undefined,
         messageId: body.message_id,
     });
 

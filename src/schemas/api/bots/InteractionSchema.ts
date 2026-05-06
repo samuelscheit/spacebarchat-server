@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { AllowedMentions, ApplicationCommandOption, Embed, Snowflake, UploadAttachmentRequestSchema } from "@spacebar/schemas";
+import { AllowedMentions, Embed, SendableApplicationCommandDataSchema, SendableMessageComponentDataSchema, SendableModalSubmitDataSchema, Snowflake } from "@spacebar/schemas";
 
 export interface InteractionSchema {
     type: InteractionType;
@@ -26,28 +26,19 @@ export interface InteractionSchema {
     message_id?: Snowflake;
     message_flags?: number;
     session_id?: string;
-    data: InteractionData;
-    files?: object[]; // idk the type
+    data?: InteractionData;
     nonce?: string;
     analytics_location?: string;
     section_name?: string;
     source?: string;
 }
 
-interface InteractionData {
-    application_command: object;
-    attachments: UploadAttachmentRequestSchema[];
-    id: string;
-    name: string;
-    options: ApplicationCommandOption[];
-    type: number;
-    version: string;
-}
+export type InteractionData = SendableApplicationCommandDataSchema | SendableMessageComponentDataSchema | SendableModalSubmitDataSchema;
 
 export interface Interaction {
     id: string;
     type: InteractionType;
-    data?: object; // TODO typing
+    data?: InteractionData;
     guild_id: string;
     channel_id: string;
     member_id: string;

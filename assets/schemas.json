@@ -154,15 +154,17 @@
                 "type": "string"
             },
             "data": {
-                "$ref": "#/definitions/InteractionData"
-            },
-            "files": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/SendableApplicationCommandDataSchema"
+                    },
+                    {
+                        "$ref": "#/definitions/SendableMessageComponentDataSchema"
+                    },
+                    {
+                        "$ref": "#/definitions/SendableModalSubmitDataSchema"
+                    }
+                ]
             },
             "nonce": {
                 "type": "string"
@@ -181,7 +183,6 @@
         "required": [
             "application_id",
             "channel_id",
-            "data",
             "type"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -8032,51 +8033,6 @@
             3,
             4,
             5
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InteractionData": {
-        "type": "object",
-        "properties": {
-            "application_command": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true
-            },
-            "attachments": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/UploadAttachmentRequestSchema"
-                }
-            },
-            "id": {
-                "type": "string"
-            },
-            "name": {
-                "type": "string"
-            },
-            "options": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/ApplicationCommandOption"
-                }
-            },
-            "type": {
-                "type": "integer"
-            },
-            "version": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "application_command",
-            "attachments",
-            "id",
-            "name",
-            "options",
-            "type",
-            "version"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
