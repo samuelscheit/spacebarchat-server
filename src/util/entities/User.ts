@@ -109,7 +109,7 @@ export class User extends BaseClass {
     @Column()
     created_at: Date; // registration date
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: Date })
     premium_since?: Date | null; // premium date
 
     @Column({ select: false })
