@@ -2,6 +2,8 @@ export interface RoleMentionLike {
     id: string;
 }
 
-export function serializeMessageRoleMentions(roles: RoleMentionLike[] | null | undefined) {
-    return (roles ?? []).map((role) => role.id);
+export type SerializableRoleMention = RoleMentionLike | string;
+
+export function serializeMessageRoleMentions(roles: SerializableRoleMention[] | null | undefined) {
+    return (roles ?? []).map((role) => (typeof role === "string" ? role : role.id));
 }
