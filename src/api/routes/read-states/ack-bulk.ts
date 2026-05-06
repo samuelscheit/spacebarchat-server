@@ -17,10 +17,9 @@
 */
 
 import { route } from "@spacebar/api";
-import { ReadState } from "@spacebar/util";
+import { applyAckBulkReadStateUpdate, getReadStateIdentity, ReadState } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { AckBulkSchema } from "@spacebar/schemas";
-import { applyAckBulkReadStateUpdate, getReadStateIdentity } from "../../util/handlers/ReadState";
 const router = Router({ mergeParams: true });
 
 router.post(

@@ -137,9 +137,6 @@ public partial class Channel
     public virtual Channel? Parent { get; set; }
 
     [InverseProperty("Channel")]
-    public virtual ICollection<ReadState> ReadStates { get; set; } = new List<ReadState>();
-
-    [InverseProperty("Channel")]
     public virtual ICollection<Recipient> Recipients { get; set; } = new List<Recipient>();
 
     [InverseProperty("Channel")]

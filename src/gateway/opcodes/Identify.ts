@@ -56,6 +56,8 @@ import {
     UserSettings,
     UserSettingsProtos,
     VoiceState,
+    getReadyReadStateWhere,
+    READY_READ_STATE_SELECT,
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { In, Not } from "typeorm";
@@ -253,8 +255,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         ),
         timePromise(() =>
             ReadState.find({
-                where: { user_id: this.user_id },
-                select: { id: true, channel_id: true, last_message_id: true, last_pin_timestamp: true, mention_count: true, read_state_type: true },
+                where: getReadyReadStateWhere(this.user_id, this.capabilities!.has(Capabilities.FLAGS.NON_CHANNEL_READ_STATES)),
+                select: READY_READ_STATE_SELECT,
             }),
         ),
         timePromise(() =>

@@ -85,7 +85,7 @@ router.delete(
             await Channel.removeRecipientFromChannel(channel, req.user_id);
         } else if (channel.isThread()) {
             await Promise.all([
-                Channel.delete({ id: channel_id }),
+                Channel.deleteChannel(channel),
                 emitEvent({
                     event: "THREAD_DELETE",
                     data: {

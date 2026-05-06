@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { ReadStateType } from "../../../schemas/uncategorised/MessageAcknowledgeSchema";
-import { applyAckBulkReadStateUpdate, getReadStateIdentity } from "./ReadState";
+import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
+import { applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity } from "./ReadState";
 
 describe("read state helpers", () => {
     test("defaults bulk acknowledgements to channel read states", () => {
@@ -33,24 +33,53 @@ describe("read state helpers", () => {
         );
     });
 
-    test("only clears channel mention counts when applying bulk acknowledgements", () => {
+    test("writes channel bulk acknowledgements to channel read-state fields", () => {
         const channelState = applyAckBulkReadStateUpdate(
-            { last_message_id: "old-message-id", mention_count: 4, read_state_type: ReadStateType.CHANNEL },
+            {
+                last_message_id: "old-message-id",
+                last_acked_id: "old-acked-id",
+                mention_count: 4,
+                badge_count: 7,
+                read_state_type: ReadStateType.CHANNEL,
+            },
             { channel_id: "channel-id", message_id: "new-message-id" },
         );
         assert.equal(channelState.last_message_id, "new-message-id");
+        assert.equal(channelState.last_acked_id, "old-acked-id");
         assert.equal(channelState.mention_count, 0);
+        assert.equal(channelState.badge_count, 7);
+        assert.equal(channelState.read_state_type, ReadStateType.CHANNEL);
+    });
 
+    test("writes non-channel bulk acknowledgements to non-channel read-state fields", () => {
         const eventState = applyAckBulkReadStateUpdate(
-            { last_message_id: "old-event-id", mention_count: 4, read_state_type: ReadStateType.GUILD_EVENT },
+            {
+                last_message_id: "old-message-id",
+                last_acked_id: "old-event-id",
+                mention_count: 4,
+                badge_count: 7,
+                read_state_type: ReadStateType.GUILD_EVENT,
+            },
             {
                 channel_id: "guild-id",
                 message_id: "new-event-id",
                 read_state_type: ReadStateType.GUILD_EVENT,
             },
         );
-        assert.equal(eventState.last_message_id, "new-event-id");
+        assert.equal(eventState.last_acked_id, "new-event-id");
+        assert.equal(eventState.last_message_id, null);
         assert.equal(eventState.mention_count, 4);
+        assert.equal(eventState.badge_count, 0);
         assert.equal(eventState.read_state_type, ReadStateType.GUILD_EVENT);
+    });
+
+    test("filters READY read states by capability", () => {
+        assert.deepEqual(getReadyReadStateWhere("user-id", false), {
+            user_id: "user-id",
+            read_state_type: ReadStateType.CHANNEL,
+        });
+        assert.deepEqual(getReadyReadStateWhere("user-id", true), {
+            user_id: "user-id",
+        });
     });
 });
