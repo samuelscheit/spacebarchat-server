@@ -45,6 +45,7 @@ import {
 } from "@spacebar/schemas";
 import { MessageFlags } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
+import { messageToPublicMessage } from "../util/MessagePublic";
 
 @Entity({
     name: "messages",
@@ -264,53 +265,7 @@ export class Message extends BaseClass {
     }
 
     toJSON(shallow = false): PublicMessage {
-        // this.clean_data();
-        return {
-            ...this,
-            channel_id: this.channel_id ?? this.channel.id,
-            channel: undefined,
-
-            timestamp: this.timestamp.toISOString(),
-            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
-
-            author_id: undefined,
-            member_id: undefined,
-            webhook_id: this.webhook_id ?? undefined,
-            application_id: undefined,
-            mentions: this.mentions?.map((user) => {
-                if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
-                return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
-            }),
-
-            mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
-            mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
-            attachments: this.attachments?.map((att) => att.toJSON()) ?? [],
-
-            nonce: this.nonce ?? undefined,
-            tts: this.tts ?? false,
-            guild: this.guild ?? undefined,
-            webhook: this.webhook ?? undefined,
-            interaction: this.interaction ?? undefined,
-            interaction_metadata: this.interaction_metadata ?? undefined,
-            reactions: this.reactions ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
-            message_reference: this.message_reference ?? undefined,
-            mention_everyone: this.mention_everyone ?? false,
-            author: {
-                ...(this.author?.toPublicUser() ?? undefined),
-                // Webhooks
-                username: this.username ?? this.author?.username ?? null,
-                avatar: this.avatar ?? this.author?.avatar ?? null,
-            },
-            activity: this.activity ?? undefined,
-            application: this.application ?? undefined,
-            components: this.components ?? [],
-            poll: this.poll ?? undefined,
-            content: this.content ?? "",
-            pinned: this.pinned,
-            thread: this.thread ? this.thread.toJSON() : this.thread,
-            referenced_message: this.referenced_message && !shallow ? this.referenced_message.toJSON(true) : undefined,
-        };
+        return messageToPublicMessage(this, shallow);
     }
 
     toPartialMessage(): PartialMessage {
