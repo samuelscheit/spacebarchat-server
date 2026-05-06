@@ -164,8 +164,8 @@ router.patch(
         }
         if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
 
-        if (body.name) {
-            ValidateWebhookName(body.name);
+        if (body.name !== undefined) {
+            body.name = ValidateWebhookName(body.name);
         }
 
         webhook.assign(body);

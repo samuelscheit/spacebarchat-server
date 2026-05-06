@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateWebhookName, Application } from "@spacebar/util";
+import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, ValidateWebhookName, Application } from "@spacebar/util";
 import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -82,12 +82,7 @@ router.post(
         if (maxWebhooks && webhook_count > maxWebhooks) throw DiscordApiErrors.MAXIMUM_WEBHOOKS.withParams(maxWebhooks);
 
         let { avatar, name } = req.body as WebhookCreateSchema;
-        name = trimSpecial(name);
-
-        // TODO: move this
-        if (name) {
-            ValidateWebhookName(name);
-        }
+        name = ValidateWebhookName(name);
 
         if (avatar) avatar = await handleFile(`/avatars/${channel_id}`, avatar);
 

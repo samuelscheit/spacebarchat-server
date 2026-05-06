@@ -40,7 +40,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
     }
 
     if (body.username) {
-        ValidateWebhookName(body.username);
+        body.username = ValidateWebhookName(body.username);
     }
 
     // ensure one of content, embeds, components, or file is present
