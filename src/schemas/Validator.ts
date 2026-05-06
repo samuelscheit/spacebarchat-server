@@ -20,7 +20,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import fs from "node:fs";
 import path from "node:path";
-import { ImageDataUriFormat, isImageDataUri } from "./ImageData";
+import { ImageDataUriFormat, ImageDataUriOrAssetHashFormat, isImageDataUri, isImageDataUriOrAssetHash } from "./ImageData";
 
 const SchemaPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
 const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", ""));
@@ -56,6 +56,10 @@ addFormats(ajv);
 ajv.addFormat(ImageDataUriFormat, {
     type: "string",
     validate: isImageDataUri,
+});
+ajv.addFormat(ImageDataUriOrAssetHashFormat, {
+    type: "string",
+    validate: isImageDataUriOrAssetHash,
 });
 
 export function validateSchema<G extends object>(schema: string, data: G): G {

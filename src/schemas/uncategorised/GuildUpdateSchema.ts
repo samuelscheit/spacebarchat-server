@@ -18,13 +18,17 @@
 
 import { GuildCreateSchema } from "@spacebar/schemas";
 
-export interface GuildUpdateSchema extends Omit<GuildCreateSchema, "channels"> {
+export interface GuildUpdateSchema extends Omit<GuildCreateSchema, "channels" | "icon"> {
     /**
-     * @TJS-format image-data-uri
+     * @TJS-format image-data-uri-or-asset-hash
+     */
+    icon?: string | null;
+    /**
+     * @TJS-format image-data-uri-or-asset-hash
      */
     banner?: string | null;
     /**
-     * @TJS-format image-data-uri
+     * @TJS-format image-data-uri-or-asset-hash
      */
     splash?: string | null;
     description?: string;
@@ -39,7 +43,7 @@ export interface GuildUpdateSchema extends Omit<GuildCreateSchema, "channels"> {
     preferred_locale?: string;
     premium_progress_bar_enabled?: boolean;
     /**
-     * @TJS-format image-data-uri
+     * @TJS-format image-data-uri-or-asset-hash
      */
     discovery_splash?: string;
     safety_alerts_channel_id?: string | null;

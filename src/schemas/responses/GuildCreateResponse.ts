@@ -18,9 +18,8 @@
 
 // TODO: remove import from util
 import { GuildWelcomeScreen } from "@spacebar/util";
-import { GuildUpdateSchema } from "@spacebar/schemas";
 
-export interface GuildCreateResponse extends Omit<GuildUpdateSchema, "name"> {
+export interface GuildCreateResponse {
     id: string;
     name: string;
     large?: boolean;
@@ -39,4 +38,25 @@ export interface GuildCreateResponse extends Omit<GuildUpdateSchema, "name"> {
     nsfw_level?: number;
     nsfw: boolean;
     parent?: string;
+    region?: string;
+    icon?: string | null;
+    system_channel_id?: string;
+    rules_channel_id?: string;
+    guild_template_code?: string;
+    staff_only?: boolean;
+    banner?: string | null;
+    splash?: string | null;
+    description?: string;
+    features?: string[];
+    verification_level?: number;
+    default_message_notifications?: number;
+    system_channel_flags?: number;
+    explicit_content_filter?: number;
+    public_updates_channel_id?: string;
+    afk_timeout?: number;
+    afk_channel_id?: string;
+    preferred_locale?: string;
+    premium_progress_bar_enabled?: boolean;
+    discovery_splash?: string;
+    safety_alerts_channel_id?: string | null;
 }

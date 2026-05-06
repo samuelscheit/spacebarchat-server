@@ -119,6 +119,7 @@ router.patch(
         if (app.owner.id != req.user_id) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
         if (body.avatar) body.avatar = await handleFile(`/avatars/${app.id}`, body.avatar as string);
+        if (body.banner) body.banner = await handleFile(`/banners/${app.id}`, body.banner as string);
 
         app.bot.assign(body);
 
