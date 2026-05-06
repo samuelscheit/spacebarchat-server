@@ -21,6 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { ajv } from "../Validator";
+import { toDiscoverableGuild } from "./DiscoverableGuildsResponse";
 
 const assetsPath = path.join(process.cwd(), "assets");
 
@@ -35,6 +36,108 @@ interface JsonShape {
 function readAssetJson<T>(name: string): T {
     return JSON.parse(fs.readFileSync(path.join(assetsPath, name), "utf8")) as T;
 }
+
+test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
+    const guild = {
+        id: "100",
+        name: "Discoverable guild",
+        icon: undefined,
+        banner: "banner-hash",
+        splash: null,
+        description: undefined,
+        features: ["DISCOVERABLE"],
+        preferred_locale: "en-US",
+        premium_subscription_count: 2,
+        member_count: 42,
+        verification_level: 1,
+        default_message_notifications: 1,
+        explicit_content_filter: 2,
+        mfa_level: 1,
+        large: false,
+        max_members: 5000,
+        max_presences: 1000,
+        max_video_channel_users: 25,
+        owner_id: "200",
+        premium_tier: 1,
+        region: "deprecated",
+        system_channel_id: null,
+        rules_channel_id: "300",
+        public_updates_channel_id: null,
+        afk_channel_id: "400",
+        afk_timeout: 300,
+        system_channel_flags: 4,
+        widget_channel_id: null,
+        widget_enabled: true,
+        welcome_screen: {
+            enabled: true,
+            description: "Welcome!",
+            welcome_channels: [
+                {
+                    description: "Read the rules",
+                    emoji_name: "👋",
+                    channel_id: "300",
+                    internal_note: "not public",
+                },
+            ],
+            internal_flag: true,
+        },
+        nsfw_level: 0,
+        premium_progress_bar_enabled: false,
+        unavailable: false,
+        discovery_weight: 999,
+        discovery_excluded: false,
+        discovery_splash: "internal-splash",
+        channel_ordering: ["300"],
+        primary_category_id: "gaming",
+        nsfw: false,
+        presence_count: 5,
+    } as unknown as Parameters<typeof toDiscoverableGuild>[0] & Record<string, unknown>;
+
+    assert.deepEqual(toDiscoverableGuild(guild), {
+        id: "100",
+        name: "Discoverable guild",
+        icon: null,
+        banner: "banner-hash",
+        splash: null,
+        description: null,
+        features: ["DISCOVERABLE"],
+        preferred_locale: "en-US",
+        premium_subscription_count: 2,
+        member_count: 42,
+        verification_level: 1,
+        default_message_notifications: 1,
+        explicit_content_filter: 2,
+        mfa_level: 1,
+        large: false,
+        max_members: 5000,
+        max_presences: 1000,
+        max_video_channel_users: 25,
+        owner_id: "200",
+        premium_tier: 1,
+        region: "deprecated",
+        system_channel_id: null,
+        rules_channel_id: "300",
+        public_updates_channel_id: null,
+        afk_channel_id: "400",
+        afk_timeout: 300,
+        system_channel_flags: 4,
+        widget_channel_id: null,
+        widget_enabled: true,
+        welcome_screen: {
+            enabled: true,
+            description: "Welcome!",
+            welcome_channels: [
+                {
+                    description: "Read the rules",
+                    emoji_name: "👋",
+                    channel_id: "300",
+                },
+            ],
+        },
+        nsfw_level: 0,
+        premium_progress_bar_enabled: false,
+    });
+});
 
 test("DiscoverableGuildsResponse uses discoverable DTOs instead of Guild entities", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");

@@ -1958,13 +1958,13 @@
                     "type": "string"
                 }
             },
+            "preferred_locale": {
+                "type": "string"
+            },
             "verification_level": {
                 "type": "integer"
             },
             "default_message_notifications": {
-                "type": "integer"
-            },
-            "system_channel_flags": {
                 "type": "integer"
             },
             "explicit_content_filter": {
@@ -1973,14 +1973,14 @@
             "public_updates_channel_id": {
                 "type": "string"
             },
-            "afk_timeout": {
-                "type": "integer"
-            },
             "afk_channel_id": {
                 "type": "string"
             },
-            "preferred_locale": {
-                "type": "string"
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "system_channel_flags": {
+                "type": "integer"
             },
             "premium_progress_bar_enabled": {
                 "type": "boolean"
@@ -4342,11 +4342,27 @@
             "description": {
                 "type": "string"
             },
+            "unavailable": {
+                "type": "boolean"
+            },
+            "welcome_screen": {
+                "$ref": "#/definitions/GuildWelcomeScreen",
+                "description": "DEPRECATED: Look at the new Guild onboarding screens."
+            },
             "features": {
                 "type": "array",
                 "items": {
                     "type": "string"
                 }
+            },
+            "preferred_locale": {
+                "type": "string"
+            },
+            "premium_subscription_count": {
+                "type": "integer"
+            },
+            "member_count": {
+                "type": "integer"
             },
             "verification_level": {
                 "type": "integer"
@@ -4354,10 +4370,28 @@
             "default_message_notifications": {
                 "type": "integer"
             },
-            "system_channel_flags": {
+            "explicit_content_filter": {
                 "type": "integer"
             },
-            "explicit_content_filter": {
+            "mfa_level": {
+                "type": "integer"
+            },
+            "large": {
+                "type": "boolean"
+            },
+            "max_members": {
+                "type": "integer"
+            },
+            "max_presences": {
+                "type": "integer"
+            },
+            "max_video_channel_users": {
+                "type": "integer"
+            },
+            "owner_id": {
+                "type": "string"
+            },
+            "premium_tier": {
                 "type": "integer"
             },
             "public_updates_channel_id": {
@@ -4366,17 +4400,26 @@
                     "string"
                 ]
             },
-            "afk_timeout": {
-                "type": "integer"
-            },
             "afk_channel_id": {
                 "type": [
                     "null",
                     "string"
                 ]
             },
-            "preferred_locale": {
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "system_channel_flags": {
+                "type": "integer"
+            },
+            "widget_channel_id": {
                 "type": "string"
+            },
+            "widget_enabled": {
+                "type": "boolean"
+            },
+            "nsfw_level": {
+                "type": "integer"
             },
             "premium_progress_bar_enabled": {
                 "type": "boolean"
@@ -4391,9 +4434,6 @@
                 }
             },
             "parent": {
-                "type": "string"
-            },
-            "owner_id": {
                 "type": "string"
             },
             "nsfw": {
@@ -4417,9 +4457,6 @@
                     "$ref": "#/definitions/Webhook"
                 }
             },
-            "member_count": {
-                "type": "integer"
-            },
             "get_annotations": {
                 "type": "object",
                 "additionalProperties": false
@@ -4436,18 +4473,6 @@
             },
             "primary_category_id": {
                 "type": "string"
-            },
-            "large": {
-                "type": "boolean"
-            },
-            "max_members": {
-                "type": "integer"
-            },
-            "max_presences": {
-                "type": "integer"
-            },
-            "max_video_channel_users": {
-                "type": "integer"
             },
             "presence_count": {
                 "type": "integer"
@@ -4466,31 +4491,6 @@
                 "items": {
                     "$ref": "#/definitions/Sticker"
                 }
-            },
-            "mfa_level": {
-                "type": "integer"
-            },
-            "premium_subscription_count": {
-                "type": "integer"
-            },
-            "premium_tier": {
-                "type": "integer"
-            },
-            "unavailable": {
-                "type": "boolean"
-            },
-            "welcome_screen": {
-                "$ref": "#/definitions/GuildWelcomeScreen",
-                "description": "DEPRECATED: Look at the new Guild onboarding screens."
-            },
-            "widget_channel_id": {
-                "type": "string"
-            },
-            "widget_enabled": {
-                "type": "boolean"
-            },
-            "nsfw_level": {
-                "type": "integer"
             },
             "permissions": {
                 "type": "integer"
@@ -5203,13 +5203,13 @@
                     "type": "string"
                 }
             },
+            "preferred_locale": {
+                "type": "string"
+            },
             "verification_level": {
                 "type": "integer"
             },
             "default_message_notifications": {
-                "type": "integer"
-            },
-            "system_channel_flags": {
                 "type": "integer"
             },
             "explicit_content_filter": {
@@ -5218,14 +5218,14 @@
             "public_updates_channel_id": {
                 "type": "string"
             },
-            "afk_timeout": {
-                "type": "integer"
-            },
             "afk_channel_id": {
                 "type": "string"
             },
-            "preferred_locale": {
-                "type": "string"
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "system_channel_flags": {
+                "type": "integer"
             },
             "premium_progress_bar_enabled": {
                 "type": "boolean"
