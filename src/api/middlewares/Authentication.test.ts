@@ -43,8 +43,16 @@ describe("Authentication webhook bypass routes", () => {
         assert.equal(skipsAuthentication("DELETE", "/webhooks/123/-abc_DEF/messages/456"), true);
     });
 
-    it("bounds webhook token segments before the next slash or end of URL", () => {
+    it("allows unauthenticated webhook requests with query strings after the token route", () => {
+        assert.equal(skipsAuthentication("POST", "/webhooks/123/-abc_DEF?wait=true"), true);
+        assert.equal(skipsAuthentication("GET", "/webhooks/123/-abc_DEF/messages/456?thread_id=789"), true);
+        assert.equal(skipsAuthentication("PATCH", "/webhooks/123/-abc_DEF/messages/456?thread_id=789"), true);
+        assert.equal(skipsAuthentication("DELETE", "/webhooks/123/-abc_DEF/messages/456?thread_id=789"), true);
+    });
+
+    it("bounds webhook token segments before the next slash, query string, or end of URL", () => {
         assert.equal(skipsAuthentication("GET", "/webhooks/123/abc_DEF"), true);
         assert.equal(skipsAuthentication("GET", "/webhooks/123/abc.DEF/messages/456"), false);
+        assert.equal(skipsAuthentication("POST", "/webhooks/123/abc.DEF?wait=true"), false);
     });
 });
