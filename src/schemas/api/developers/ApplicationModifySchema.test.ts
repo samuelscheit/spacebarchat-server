@@ -43,8 +43,10 @@ function readAssetJson<T>(name: string): T {
 
 test("ApplicationModifySchema exposes install params validation", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
+    const nullableInstallParamsRef = [{ $ref: "#/definitions/ApplicationInstallParams" }, { type: "null" }];
 
-    assert.deepEqual(schemas.ApplicationModifySchema.properties?.install_params?.anyOf, [{ $ref: "#/definitions/ApplicationInstallParams" }, { type: "null" }]);
+    assert.deepEqual(schemas.ApplicationModifySchema.properties?.install_params?.anyOf, nullableInstallParamsRef);
+    assert.deepEqual(schemas.Application.properties?.install_params?.anyOf, nullableInstallParamsRef);
     assert.deepEqual(schemas.ApplicationInstallParams.required, ["permissions", "scopes"]);
     assert.equal(schemas.ApplicationInstallParams.properties?.permissions?.type, "string");
     assert.equal(schemas.ApplicationInstallParams.properties?.permissions?.pattern, "^(?:0|[1-9][0-9]*)$");
