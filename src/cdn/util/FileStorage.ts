@@ -19,7 +19,7 @@
 import { Storage } from "./Storage";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
-import { join, dirname } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import ExifTransformer from "exif-be-gone";
@@ -27,10 +27,11 @@ import ExifTransformer from "exif-be-gone";
 export class FileStorage implements Storage {
     getFsPath(path: string): string {
         // STORAGE_LOCATION has a default value in start.ts
-        const root = process.env.STORAGE_LOCATION || "../";
-        const filename = join(root, path);
+        const root = resolve(process.env.STORAGE_LOCATION || "../");
+        const filename = resolve(root, path);
+        const relativePath = relative(root, filename);
 
-        if (path.indexOf("\0") !== -1 || !filename.startsWith(root)) throw new Error("invalid path");
+        if (path.indexOf("\0") !== -1 || relativePath === ".." || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) throw new Error("invalid path");
         return filename;
     }
     isFile(path: string): Promise<boolean> {

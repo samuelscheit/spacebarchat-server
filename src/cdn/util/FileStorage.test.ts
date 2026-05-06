@@ -33,4 +33,25 @@ describe("FileStorage", () => {
             assert.deepEqual(await storage.get(key), data);
         });
     });
+
+    it("rejects paths that escape to storage-root sibling directories", async () => {
+        await withStorage(async (storage, dir) => {
+            const sibling = `${path.basename(dir)}-escape`;
+
+            assert.throws(() => storage.getFsPath(`../${sibling}/file.bin`), /invalid path/);
+            assert.throws(() => storage.getFsPath(`nested/../../${sibling}/file.bin`), /invalid path/);
+        });
+    });
+
+    it("rejects null bytes in storage paths", async () => {
+        await withStorage(async (storage) => {
+            assert.throws(() => storage.getFsPath("attachments/channel/message/\0file.bin"), /invalid path/);
+        });
+    });
+
+    it("allows paths with leading-dot names that stay inside the storage root", async () => {
+        await withStorage(async (storage, dir) => {
+            assert.equal(storage.getFsPath("attachments/..visible-file.bin"), path.join(dir, "attachments", "..visible-file.bin"));
+        });
+    });
 });
