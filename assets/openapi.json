@@ -6349,7 +6349,7 @@
                 "type": "object",
                 "properties": {
                     "settings": {
-                        "$ref": "#/components/schemas/JsonValue"
+                        "$ref": "#/components/schemas/JsonObject"
                     },
                     "required_data_version": {
                         "type": "integer"
@@ -13395,7 +13395,7 @@
                         "type": [
                             "null",
                             "string",
-                            "integer",
+                            "number",
                             "boolean"
                         ]
                     }

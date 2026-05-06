@@ -6736,7 +6736,7 @@
         "type": "object",
         "properties": {
             "settings": {
-                "$ref": "#/definitions/JsonValue"
+                "$ref": "#/definitions/JsonObject"
             },
             "required_data_version": {
                 "type": "integer"
@@ -14312,7 +14312,7 @@
                 "type": [
                     "null",
                     "string",
-                    "integer",
+                    "number",
                     "boolean"
                 ]
             }

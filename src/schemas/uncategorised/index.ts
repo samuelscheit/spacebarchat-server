@@ -46,6 +46,7 @@ export * from "./GuildUpdateSchema";
 export * from "./GuildUpdateWelcomeScreenSchema";
 export * from "./HubWaitlistSignupSchema";
 export * from "./InviteCreateSchema";
+export * from "./JsonValue";
 export * from "./LoginResponse";
 export * from "./LoginSchema";
 export * from "./MemberChangeProfileSchema";

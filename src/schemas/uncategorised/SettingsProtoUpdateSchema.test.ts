@@ -9,10 +9,11 @@ describe("SettingsProtoUpdateJsonSchema", () => {
         const schemas = JSON.parse(fs.readFileSync("assets/schemas.json", "utf8"));
         const jsonValue = JSON.stringify(schemas.JsonValue);
 
-        assert.equal(schemas.SettingsProtoUpdateJsonSchema.properties.settings.$ref, "#/definitions/JsonValue");
+        assert.equal(schemas.SettingsProtoUpdateJsonSchema.properties.settings.$ref, "#/definitions/JsonObject");
         assert.ok(!jsonValue.includes("__@unscopables"));
         assert.ok(!jsonValue.includes("toString"));
         assert.ok(!jsonValue.includes("push"));
+        assert.ok(jsonValue.includes('"number"'));
     });
 
     test("validates arbitrary JSON settings objects", () => {
@@ -31,12 +32,17 @@ describe("SettingsProtoUpdateJsonSchema", () => {
         const validate = ajv.getSchema("SettingsProtoUpdateJsonSchema");
         assert.ok(validate);
 
-        assert.equal(validate({ settings: [] }), true);
+        assert.equal(validate({ settings: [] }), false);
+        assert.equal(validate({ settings: null }), false);
+        assert.equal(validate({ settings: 1 }), false);
+        assert.equal(validate({ settings: "settings" }), false);
+        assert.equal(validate({ settings: true }), false);
         assert.equal(
             validate({
                 settings: {
                     versions: { dataVersion: 1 },
                     sections: ["privacy", "notifications", null],
+                    audio: { volume: 0.5 },
                     flags: { compactMode: true, guildPositions: [1, 2, 3] },
                 },
                 required_data_version: 1,

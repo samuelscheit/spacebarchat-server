@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { JsonValue } from "./JsonValue";
+import { JsonObject } from "./JsonValue";
 
 export interface SettingsProtoUpdateSchema {
     settings: string;
@@ -24,7 +24,7 @@ export interface SettingsProtoUpdateSchema {
 }
 
 export interface SettingsProtoUpdateJsonSchema {
-    settings: JsonValue;
+    settings: JsonObject;
     required_data_version?: number;
 }
 
