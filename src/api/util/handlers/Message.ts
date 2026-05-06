@@ -591,41 +591,40 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
                 //stuff
             }
         }
-    } else if (
-        incrementMentionCount &&
-        ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM)
-    ) {
-        if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
-            if (channel.recipients) {
-                await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
+    } else if (incrementMentionCount) {
+        if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+            if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+                if (channel.recipients) {
+                    await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
+                }
+            } else {
+                await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
             }
-        } else {
-            await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
-        }
-        const repository = ReadState.getRepository();
-        const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-        await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
-        await repository.increment(condition, "mention_count", 1);
-    } else {
-        const users = new Set<string>([
-            ...(message.mention_roles.length
-                ? await Member.find({
-                      where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
-                  })
-                : []
-            ).map((member) => member.id),
-            ...message.mentions.map((user) => user.id),
-        ]);
-        if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
-            const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
-            (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
-        }
-        if (incrementMentionCount && users.size) {
             const repository = ReadState.getRepository();
-            const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-
-            await fillInMissingIDs([...users]);
+            const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
+            await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
             await repository.increment(condition, "mention_count", 1);
+        } else {
+            const users = new Set<string>([
+                ...(message.mention_roles.length
+                    ? await Member.find({
+                          where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
+                      })
+                    : []
+                ).map((member) => member.id),
+                ...message.mentions.map((user) => user.id),
+            ]);
+            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
+                const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
+                (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
+            }
+            if (users.size) {
+                const repository = ReadState.getRepository();
+                const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
+
+                await fillInMissingIDs([...users]);
+                await repository.increment(condition, "mention_count", 1);
+            }
         }
     }
 
