@@ -25,11 +25,16 @@ import { ajv } from "../../Validator";
 const assetsPath = path.join(process.cwd(), "assets");
 
 interface JsonShape {
+    anyOf?: JsonShape[];
     $ref?: string;
+    enum?: unknown[];
     items?: JsonShape;
+    minItems?: number;
+    pattern?: string;
     properties?: Record<string, JsonShape>;
     required?: string[];
     type?: string | string[];
+    uniqueItems?: boolean;
 }
 
 function readAssetJson<T>(name: string): T {
@@ -39,12 +44,18 @@ function readAssetJson<T>(name: string): T {
 test("ApplicationModifySchema exposes install params validation", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
 
-    assert.equal(schemas.ApplicationModifySchema.properties?.install_params?.$ref, "#/definitions/ApplicationInstallParams");
+    assert.deepEqual(schemas.ApplicationModifySchema.properties?.install_params?.anyOf, [{ $ref: "#/definitions/ApplicationInstallParams" }, { type: "null" }]);
     assert.deepEqual(schemas.ApplicationInstallParams.required, ["permissions", "scopes"]);
     assert.equal(schemas.ApplicationInstallParams.properties?.permissions?.type, "string");
+    assert.equal(schemas.ApplicationInstallParams.properties?.permissions?.pattern, "^(?:0|[1-9][0-9]*)$");
     assert.deepEqual(schemas.ApplicationInstallParams.properties?.scopes, {
         type: "array",
-        items: { type: "string" },
+        items: {
+            enum: ["applications.commands", "bot"],
+            type: "string",
+        },
+        minItems: 1,
+        uniqueItems: true,
     });
 });
 
@@ -61,8 +72,55 @@ test("ApplicationModifySchema validates install params", () => {
 
     assert.equal(
         ajv.validate("ApplicationModifySchema", {
+            install_params: null,
+        }),
+        true,
+    );
+
+    assert.equal(
+        ajv.validate("ApplicationModifySchema", {
             install_params: {
                 scopes: ["bot"],
+            },
+        }),
+        false,
+    );
+
+    assert.equal(
+        ajv.validate("ApplicationModifySchema", {
+            install_params: {
+                scopes: [],
+                permissions: "0",
+            },
+        }),
+        false,
+    );
+
+    assert.equal(
+        ajv.validate("ApplicationModifySchema", {
+            install_params: {
+                scopes: ["bot", "bot"],
+                permissions: "0",
+            },
+        }),
+        false,
+    );
+
+    assert.equal(
+        ajv.validate("ApplicationModifySchema", {
+            install_params: {
+                scopes: ["identify"],
+                permissions: "0",
+            },
+        }),
+        false,
+    );
+
+    assert.equal(
+        ajv.validate("ApplicationModifySchema", {
+            install_params: {
+                scopes: ["bot"],
+                permissions: "not-a-permission-bitset",
             },
         }),
         false,

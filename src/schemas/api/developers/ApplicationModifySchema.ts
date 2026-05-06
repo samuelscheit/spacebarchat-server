@@ -17,7 +17,14 @@
 */
 
 export interface ApplicationInstallParams {
-    scopes: string[];
+    /**
+     * @minItems 1
+     * @uniqueItems true
+     */
+    scopes: ("applications.commands" | "bot")[];
+    /**
+     * @pattern ^(?:0|[1-9][0-9]*)$
+     */
     permissions: string;
 }
 
@@ -37,5 +44,5 @@ export interface ApplicationModifySchema {
     flags?: number;
     custom_install_url?: string;
     guild_id?: string;
-    install_params?: ApplicationInstallParams;
+    install_params?: ApplicationInstallParams | null;
 }
