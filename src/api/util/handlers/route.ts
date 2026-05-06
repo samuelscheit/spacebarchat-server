@@ -21,6 +21,7 @@ import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
 import { ajv } from "@spacebar/schemas";
 import { BigNumber } from "bignumber.js";
+import { findNumericStrictStringField } from "../utility/StrictStringFields";
 
 const ignoredRequestSchemas = [
     // skip validation for settings proto JSON updates - TODO: figure out if this even possible to fix?
@@ -54,6 +55,8 @@ export interface RouteOptions {
         };
     };
     stripNulls?: stripNulls | true;
+    /** Body field paths that must be raw JSON strings, even though AJV globally coerces scalar types. */
+    strictStringFields?: string[];
     event?: EVENT | EVENT[];
     summary?: string;
     description?: string;
@@ -149,6 +152,16 @@ export function route(opts: RouteOptions) {
             }
         }
         bigNumberToString(req.body);
+
+        const numericStrictStringField = opts.strictStringFields && findNumericStrictStringField(req.body, opts.strictStringFields);
+        if (numericStrictStringField) {
+            throw FieldErrors({
+                [numericStrictStringField]: {
+                    code: "BASE_TYPE_STRING",
+                    message: "This field must be a string",
+                },
+            });
+        }
 
         if (validate && !ignoredRequestSchemas.includes(opts.requestBody!)) {
             if (opts.stripNulls) {

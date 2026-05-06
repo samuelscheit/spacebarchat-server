@@ -79,18 +79,6 @@ test("ApplicationModifySchema validates install params", () => {
         true,
     );
 
-    const numericPermissions = {
-        install_params: {
-            scopes: ["bot"],
-            permissions: 0,
-        },
-    };
-
-    // Route validation enables AJV coerceTypes globally, so numeric bitsets
-    // keep the schema's persisted string shape by being coerced to strings.
-    assert.equal(ajv.validate("ApplicationModifySchema", numericPermissions), true);
-    assert.equal(numericPermissions.install_params.permissions, "0");
-
     assert.equal(
         ajv.validate("ApplicationModifySchema", {
             install_params: {

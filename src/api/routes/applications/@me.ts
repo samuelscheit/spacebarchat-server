@@ -51,6 +51,7 @@ router.patch(
     "/",
     route({
         requestBody: "ApplicationModifySchema",
+        strictStringFields: ["install_params.permissions"],
         responses: {
             200: {
                 body: "Application",
