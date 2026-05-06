@@ -16,8 +16,6 @@ const DEFAULT_GATEWAY_MESSAGE_LIMITS: GatewayMessageLimits = {
     rateLimitWindow: 60_000,
 };
 
-export const GATEWAY_TRANSPORT_MAX_PAYLOAD = 100 * 1024 * 1024;
-
 const messageTimestamps = new WeakMap<WebSocket, number[]>();
 
 export function getGatewayRawDataByteLength(data: RawData | string): number {
@@ -33,6 +31,10 @@ export function normalizeGatewayMessageLimits(limits?: Partial<GatewayMessageLim
         rateLimitCount: limits?.rateLimitCount ?? DEFAULT_GATEWAY_MESSAGE_LIMITS.rateLimitCount,
         rateLimitWindow: limits?.rateLimitWindow ?? DEFAULT_GATEWAY_MESSAGE_LIMITS.rateLimitWindow,
     };
+}
+
+export function getGatewayTransportMaxPayload(limits?: Partial<GatewayMessageLimits>) {
+    return normalizeGatewayMessageLimits(limits).maxMessageSize;
 }
 
 export function createGatewayMessageGuard(limits?: Partial<GatewayMessageLimits>) {

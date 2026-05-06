@@ -22,12 +22,12 @@ import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } fr
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "node:http";
-import { cleanupOnStartup, GATEWAY_TRANSPORT_MAX_PAYLOAD } from "./util";
+import { cleanupOnStartup, getGatewayTransportMaxPayload } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
 
 export class Server {
-    public ws: ws.Server;
+    public ws?: ws.Server;
     public port: number;
     public server: http.Server;
     public production: boolean;
@@ -153,13 +153,22 @@ export class Server {
         }
 
         this.server.on("upgrade", (request, socket, head) => {
-            this.ws.handleUpgrade(request, socket, head, (socket) => {
-                this.ws.emit("connection", socket, request);
+            if (!this.ws) {
+                socket.destroy();
+                return;
+            }
+
+            const wsServer = this.ws;
+            wsServer.handleUpgrade(request, socket, head, (socket) => {
+                wsServer.emit("connection", socket, request);
             });
         });
+    }
 
+    private initializeWebSocketServer() {
+        if (this.ws) return;
         this.ws = new ws.Server({
-            maxPayload: GATEWAY_TRANSPORT_MAX_PAYLOAD,
+            maxPayload: getGatewayTransportMaxPayload(Config.get().limits.gateway),
             noServer: true,
         });
         this.ws.on("connection", Connection);
@@ -170,6 +179,7 @@ export class Server {
         await initDatabase();
         await Config.init();
         await initEvent();
+        this.initializeWebSocketServer();
         // temporary fix
         await cleanupOnStartup();
 
@@ -180,11 +190,15 @@ export class Server {
     }
 
     async stop() {
-        this.ws.clients.forEach((x) => x.close());
-        this.ws.close(() => {
+        const closeServer = () => {
             this.server.close(() => {
                 closeDatabase();
             });
-        });
+        };
+
+        if (!this.ws) return closeServer();
+
+        this.ws.clients.forEach((x) => x.close());
+        this.ws.close(closeServer);
     }
 }

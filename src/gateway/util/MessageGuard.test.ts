@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { CLOSECODES } from "./Constants";
-import { createGatewayMessageGuard, createGatewayMessageHandler, getGatewayRawDataByteLength, normalizeGatewayMessageLimits } from "./MessageGuard";
+import { createGatewayMessageGuard, createGatewayMessageHandler, getGatewayRawDataByteLength, getGatewayTransportMaxPayload, normalizeGatewayMessageLimits } from "./MessageGuard";
 import type { WebSocket } from "./WebSocket";
 
 function createSocket() {
@@ -23,6 +23,12 @@ describe("GatewayMessageGuard", () => {
             rateLimitCount: 1,
             rateLimitWindow: 60_000,
         });
+    });
+
+    it("uses the normalized gateway message size as the transport cap", () => {
+        assert.equal(getGatewayTransportMaxPayload(), 15 * 1024);
+        assert.equal(getGatewayTransportMaxPayload({ maxMessageSize: 4096 }), 4096);
+        assert.equal(getGatewayTransportMaxPayload({ rateLimitCount: 1 }), 15 * 1024);
     });
 
     it("calculates raw message sizes", () => {
