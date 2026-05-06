@@ -70,7 +70,7 @@ declare global {
             user_id: string;
             user_bot: boolean;
             tokenData: UserTokenData;
-            token: { id: string; iat: number; ver?: number; did?: string };
+            token: { id: string; iat: number; typ: "access"; ver?: number; did?: string };
             user: User;
             session?: Session;
             rights: Rights;

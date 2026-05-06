@@ -18,35 +18,31 @@
 
 import jwt from "jsonwebtoken";
 import { Config } from "./Config";
-import { InstanceBan, Session, User } from "../entities";
+import { AuthActionToken, InstanceBan, Session, User } from "../entities";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 // TODO: dont use deprecated APIs lol
-import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
+import { FindOptionsRelationByString, FindOptionsSelectByString, IsNull, MoreThan } from "typeorm";
 import { randomUpperString } from "@spacebar/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
 import path from "node:path";
-
-/// Change history:
-/// 1 - Initial version with HS256
-/// 2 - Switched to ES512
-/// 3 - Add version, device id to token payload
-export const CurrentTokenFormatVersion: number = 3;
+import {
+    assertConsumableEmailActionTokenRecord,
+    EmailActionTokenPayload,
+    EmailActionTokenPurpose,
+    getEmailActionTokenExpiresAt,
+    hashEmailActionToken,
+    isEmailActionTokenPayload,
+} from "./EmailActionToken";
+import { AccessTokenPayload, CurrentTokenFormatVersion, isAccessTokenPayload } from "./AuthTokenPayload";
 
 export type UserTokenData = {
     user: User;
     session?: Session;
     tokenVersion: number;
-    decoded: {
-        id: string;
-        iat: number;
-        // token format version
-        ver?: number;
-        // device id
-        did?: string;
-    };
+    decoded: AccessTokenPayload;
 };
 
 function logAuth(text: string) {
@@ -80,6 +76,14 @@ export const checkToken = (
                 logAuth("validateUser rejected: " + err);
                 return rejectAndLog(reject, 401, "Invalid Token meow " + err);
             }
+            if (isEmailActionTokenPayload(decoded)) {
+                logAuth("validateUser rejected: email action token");
+                return rejectAndLog(reject, 401, "Invalid Token");
+            }
+            if (!isAccessTokenPayload(decoded)) {
+                logAuth("validateUser rejected: not an access token");
+                return rejectAndLog(reject, 401, "Invalid Token");
+            }
 
             // eslint-disable-next-line prefer-const
             let [user, session] = await Promise.all([
@@ -94,6 +98,11 @@ export const checkToken = (
             if (!user) {
                 logAuth("validateUser rejected: User not found");
                 return rejectAndLog(reject, 401, "User not found");
+            }
+
+            if (!session) {
+                logAuth("validateUser rejected: Session not found");
+                return rejectAndLog(reject, 401, "Invalid Token");
             }
 
             // we need to round it to seconds as it saved as seconds in jwt iat and valid_tokens_since is stored in milliseconds
@@ -175,7 +184,7 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
     await newSession.save();
 
     return new Promise((res, rej) => {
-        const payload = { id, iat, kid: keyPair.fingerprint, ver: CurrentTokenFormatVersion, did: newSession.session_id } as UserTokenData["decoded"];
+        const payload = { id, iat, kid: keyPair.fingerprint, typ: "access", ver: CurrentTokenFormatVersion, did: newSession.session_id } as UserTokenData["decoded"];
         jwt.sign(
             payload,
             keyPair.privateKey,
@@ -188,6 +197,108 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
             },
         );
     });
+}
+
+function signJwt<T extends object>(payload: T, privateKey: crypto.KeyObject): Promise<string> {
+    return new Promise((res, rej) => {
+        jwt.sign(
+            payload,
+            privateKey,
+            {
+                algorithm: "ES512",
+            },
+            (err, token) => {
+                if (err) return rej(err);
+                return res(token!);
+            },
+        );
+    });
+}
+
+export async function generateEmailActionToken(id: string, purpose: EmailActionTokenPurpose, email?: string): Promise<string> {
+    const issuedAt = new Date();
+    const iat = Math.floor(issuedAt.getTime() / 1000);
+    const expiresAt = getEmailActionTokenExpiresAt(purpose, issuedAt);
+    const keyPair = await loadOrGenerateKeypair();
+
+    const payload: EmailActionTokenPayload = {
+        id,
+        iat,
+        exp: Math.floor(expiresAt.getTime() / 1000),
+        kid: keyPair.fingerprint,
+        typ: "email_action",
+        purpose,
+        nonce: crypto.randomBytes(32).toString("base64url"),
+        email,
+        ver: 1,
+    };
+
+    const token = await signJwt(payload, keyPair.privateKey);
+    await AuthActionToken.update({ user_id: id, purpose, consumed_at: IsNull() }, { consumed_at: issuedAt });
+    await AuthActionToken.insert({
+        token_hash: hashEmailActionToken(token),
+        user_id: id,
+        purpose,
+        email: email ?? null,
+        expires_at: expiresAt,
+        consumed_at: null,
+    });
+
+    return token;
+}
+
+async function verifySignedEmailActionToken(token: string, purpose: EmailActionTokenPurpose): Promise<EmailActionTokenPayload> {
+    token = token.replace("Bearer ", "");
+
+    const dec = jwt.decode(token, { complete: true });
+    if (!dec) throw new HTTPError("Invalid email action token", 401);
+    if (dec.header.alg !== "ES512") throw new HTTPError("Unsupported token algorithm: " + dec.header.alg, 400);
+
+    const keyPair = await loadOrGenerateKeypair();
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, keyPair.publicKey, { algorithms: ["ES512"] }, (err, out) => {
+            if (err || !isEmailActionTokenPayload(out)) return reject(new HTTPError("Invalid email action token", 401));
+            if (out.purpose !== purpose) return reject(new HTTPError("Invalid email action token purpose", 401));
+            return resolve(out);
+        });
+    });
+}
+
+export async function verifyEmailActionToken(token: string, purpose: EmailActionTokenPurpose): Promise<User> {
+    token = token.replace("Bearer ", "");
+    const decoded = await verifySignedEmailActionToken(token, purpose);
+    const now = new Date();
+    const tokenHash = hashEmailActionToken(token);
+    const tokenRecord = await AuthActionToken.findOne({
+        where: {
+            token_hash: tokenHash,
+            user_id: decoded.id,
+            purpose,
+            consumed_at: IsNull(),
+            expires_at: MoreThan(now),
+        },
+    });
+    assertConsumableEmailActionTokenRecord(tokenRecord, purpose, token, now, decoded.email);
+
+    const user = await User.findOne({
+        where: { id: decoded.id },
+        select: ["id", "email", "verified", "disabled", "deleted", "data"],
+    });
+
+    if (!user || user.disabled || user.deleted) throw new HTTPError("Invalid email action token", 401);
+    if (tokenRecord?.email && tokenRecord.email !== user.email) throw new HTTPError("Invalid email action token", 401);
+
+    const consumed = await AuthActionToken.update(
+        {
+            token_hash: tokenHash,
+            consumed_at: IsNull(),
+            expires_at: MoreThan(now),
+        },
+        { consumed_at: now },
+    );
+    if (consumed.affected !== 1) throw new HTTPError("Invalid email action token", 401);
+
+    return user;
 }
 
 let lastFsCheck: number;
