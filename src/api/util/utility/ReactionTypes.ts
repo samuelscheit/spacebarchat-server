@@ -1,5 +1,8 @@
-import { ReactionType } from "@spacebar/util";
-import { PartialEmoji, Reaction, StoredReaction } from "@spacebar/schemas";
+import { ReactionType } from "@spacebar/util/interfaces/Event";
+import { normalizeStoredReaction, toPublicReaction, toPublicReactions } from "@spacebar/util/util/Reactions";
+import type { PartialEmoji, StoredReaction } from "@spacebar/schemas";
+
+export { normalizeStoredReaction, toPublicReaction, toPublicReactions };
 
 export function parseReactionTypeParam(value: unknown): ReactionType | null {
     if (value === String(ReactionType.normal)) return ReactionType.normal;
@@ -20,17 +23,13 @@ export function findReaction(reactions: StoredReaction[], emoji: PartialEmoji): 
     return reactions.find((reaction) => reactionEmojiEquals(reaction.emoji, emoji));
 }
 
-export function normalizeStoredReaction(reaction: StoredReaction): StoredReaction {
-    reaction.user_ids = [...new Set(reaction.user_ids ?? [])];
-    reaction.burst_user_ids = [...new Set(reaction.burst_user_ids ?? [])];
-    reaction.burst_colors ??= [];
-    updateReactionCounts(reaction);
-    return reaction;
-}
-
 export function getReactionUserIds(reaction: StoredReaction, type: ReactionType): string[] {
     normalizeStoredReaction(reaction);
     return [...getMutableReactionUserIds(reaction, type)];
+}
+
+export function hasReactionUsers(reaction: StoredReaction | undefined, type: ReactionType): boolean {
+    return Boolean(reaction && getMutableReactionUserIds(reaction, type).length);
 }
 
 export function addReactionUser(
@@ -58,7 +57,7 @@ export function addReactionUser(
     if (users.includes(userId)) return { reaction, created, changed: false };
 
     users.push(userId);
-    updateReactionCounts(reaction);
+    updateReactionCountsFromUsers(reaction);
 
     return { reaction, created, changed: true };
 }
@@ -69,26 +68,9 @@ export function removeReactionUser(reaction: StoredReaction, userId: string, typ
     if (index === -1) return false;
 
     users.splice(index, 1);
-    updateReactionCounts(reaction);
+    updateReactionCountsFromUsers(reaction);
 
     return true;
-}
-
-export function toPublicReaction(reaction: StoredReaction, userId: string): Reaction {
-    normalizeStoredReaction(reaction);
-
-    return {
-        count: reaction.count,
-        count_details: { ...reaction.count_details! },
-        me: reaction.user_ids.includes(userId),
-        me_burst: reaction.burst_user_ids!.includes(userId),
-        emoji: reaction.emoji,
-        burst_colors: [...reaction.burst_colors!],
-    };
-}
-
-export function toPublicReactions(reactions: StoredReaction[] | undefined, userId: string): Reaction[] {
-    return (reactions ?? []).map((reaction) => toPublicReaction(reaction, userId));
 }
 
 export function reactionEventTypeData(type: ReactionType): { type: ReactionType; burst: boolean } {
@@ -110,10 +92,6 @@ function getMutableReactionUserIds(reaction: StoredReaction, type: ReactionType)
     return type === ReactionType.burst ? reaction.burst_user_ids! : reaction.user_ids;
 }
 
-function updateReactionCounts(reaction: StoredReaction) {
-    const normal = reaction.user_ids.length;
-    const burst = reaction.burst_user_ids?.length ?? 0;
-
-    reaction.count_details = { normal, burst };
-    reaction.count = normal + burst;
+function updateReactionCountsFromUsers(reaction: StoredReaction) {
+    normalizeStoredReaction(reaction);
 }

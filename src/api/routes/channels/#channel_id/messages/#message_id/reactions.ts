@@ -16,7 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import {
+    addReactionUser,
+    findReaction,
+    getReactionUserIds,
+    hasReactionUsers,
+    parseOptionalReactionTypeParam,
+    parseReactionTypeParam,
+    reactionEventTypeData,
+    reactionRemoveEventUserData,
+    removeReactionUser,
+    route,
+} from "@spacebar/api";
 import {
     Channel,
     emitEvent,
@@ -36,16 +47,6 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
 import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
-import {
-    addReactionUser,
-    findReaction,
-    getReactionUserIds,
-    parseOptionalReactionTypeParam,
-    parseReactionTypeParam,
-    reactionEventTypeData,
-    reactionRemoveEventUserData,
-    removeReactionUser,
-} from "@spacebar/api/util/utility/ReactionTypes";
 
 const router = Router({ mergeParams: true });
 // TODO: check if emoji is really an unicode emoji or a properly encoded external emoji
@@ -173,33 +174,25 @@ router.get(
             403: {},
         },
     }),
-    async (req: Request, res: Response) => {
-        const { message_id, channel_id } = req.params as { [key: string]: string };
-        const limit = req.query.limit ? Number(req.query.limit) : 25;
-        const type = parseOptionalReactionTypeParam(req.query.type);
-        if (type === null) throw new HTTPError("Invalid reaction type", 400);
-        const emoji = getEmoji(req.params.emoji as string);
+    async (req: Request, res: Response) => getReactionUsers(req, res, parseOptionalRouteReactionType(req.query.type)),
+);
 
-        const message = await Message.findOneOrFail({
-            where: { id: message_id, channel_id },
-        });
-        const reaction = findReaction(message.reactions, emoji);
-        if (!reaction) throw new HTTPError("Reaction not found", 404);
-        const userIds = getReactionUserIds(reaction, type);
-        if (!userIds.length) return res.json([]);
-
-        const users = (
-            await User.find({
-                where: {
-                    id: In(userIds),
-                },
-                select: PublicUserProjection,
-                take: limit,
-            })
-        ).map((user) => user.toPublicUser());
-
-        res.json(users);
-    },
+router.get(
+    "/:emoji/:type",
+    route({
+        permission: "VIEW_CHANNEL",
+        responses: {
+            200: {
+                body: "PublicUser",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            404: {},
+            403: {},
+        },
+    }),
+    async (req: Request, res: Response) => getReactionUsers(req, res, parseRouteReactionType(req.params.type as string)),
 );
 
 async function addReaction(req: Request, res: Response, type: ReactionType) {
@@ -214,14 +207,15 @@ async function addReaction(req: Request, res: Response, type: ReactionType) {
         where: { id: message_id, channel_id },
     });
     const already_added = findReaction(message.reactions, emoji);
+    const already_added_for_type = hasReactionUsers(already_added, type);
 
-    if (!already_added) req.permission?.hasThrow("ADD_REACTIONS");
+    if (!already_added_for_type) req.permission?.hasThrow("ADD_REACTIONS");
 
     if (emoji.id) {
         const external_emoji = await Emoji.findOneOrFail({
             where: { id: emoji.id },
         });
-        if (!already_added && channel.guild_id != external_emoji.guild_id) req.permission?.hasThrow("USE_EXTERNAL_EMOJIS");
+        if (!already_added_for_type && channel.guild_id != external_emoji.guild_id) req.permission?.hasThrow("USE_EXTERNAL_EMOJIS");
         emoji.animated = external_emoji.animated;
         emoji.name = external_emoji.name;
     }
@@ -339,6 +333,38 @@ async function removeReaction(req: Request, res: Response, type: ReactionType) {
     } satisfies MessageReactionRemoveEvent);
 
     res.sendStatus(204);
+}
+
+function parseOptionalRouteReactionType(value: unknown): ReactionType {
+    const type = parseOptionalReactionTypeParam(value);
+    if (type === null) throw new HTTPError("Invalid reaction type", 400);
+    return type;
+}
+
+async function getReactionUsers(req: Request, res: Response, type: ReactionType) {
+    const { message_id, channel_id } = req.params as { [key: string]: string };
+    const limit = req.query.limit ? Number(req.query.limit) : 25;
+    const emoji = getEmoji(req.params.emoji as string);
+
+    const message = await Message.findOneOrFail({
+        where: { id: message_id, channel_id },
+    });
+    const reaction = findReaction(message.reactions, emoji);
+    if (!reaction) throw new HTTPError("Reaction not found", 404);
+    const userIds = getReactionUserIds(reaction, type);
+    if (!userIds.length) return res.json([]);
+
+    const users = (
+        await User.find({
+            where: {
+                id: In(userIds),
+            },
+            select: PublicUserProjection,
+            take: limit,
+        })
+    ).map((user) => user.toPublicUser());
+
+    res.json(users);
 }
 
 router.delete(

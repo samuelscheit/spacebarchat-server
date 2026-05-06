@@ -44,6 +44,7 @@ import {
     InteractionType,
 } from "@spacebar/schemas";
 import { MessageFlags } from "@spacebar/util";
+import { toPublicReactions } from "../util/Reactions";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 @Entity({
@@ -292,7 +293,7 @@ export class Message extends BaseClass {
             webhook: this.webhook ?? undefined,
             interaction: this.interaction ?? undefined,
             interaction_metadata: this.interaction_metadata ?? undefined,
-            reactions: this.reactions ?? undefined,
+            reactions: this.reactions ? toPublicReactions(this.reactions) : undefined,
             sticker_items: this.sticker_items ?? undefined,
             message_reference: this.message_reference ?? undefined,
             mention_everyone: this.mention_everyone ?? false,
