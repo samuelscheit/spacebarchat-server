@@ -20,6 +20,14 @@ export function getCloudAttachmentLookupChannelId(destinationChannelId: string, 
     return uploadChannelId ?? destinationChannelId;
 }
 
+export function getCloudAttachmentCloneUrl(endpointPrivate: string | null, uploadedFilename: string, destinationMessageId: string, destinationChannelId: string): string {
+    const params = new URLSearchParams({
+        destination_channel_id: destinationChannelId,
+    });
+
+    return `${endpointPrivate}/attachments/${uploadedFilename}/clone_to_message/${destinationMessageId}?${params}`;
+}
+
 export async function findCloudAttachmentForChannel<TCloudAttachment>(
     repository: CloudAttachmentChannelRepository<TCloudAttachment>,
     uploadedFilename: string,

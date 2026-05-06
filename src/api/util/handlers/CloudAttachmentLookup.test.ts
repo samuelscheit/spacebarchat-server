@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { findCloudAttachmentForChannel, getCloudAttachmentChannelLookup, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
+import { findCloudAttachmentForChannel, getCloudAttachmentChannelLookup, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 
 describe("getCloudAttachmentChannelLookup", () => {
     test("scopes cloud attachments by uploaded filename and expected upload channel", () => {
@@ -18,6 +18,15 @@ describe("getCloudAttachmentLookupChannelId", () => {
 
     test("allows thread starter messages to look up parent-channel pre-uploads", () => {
         assert.equal(getCloudAttachmentLookupChannelId("new-thread-channel", "parent-channel"), "parent-channel");
+    });
+});
+
+describe("getCloudAttachmentCloneUrl", () => {
+    test("passes the destination message channel to the internal CDN clone endpoint", () => {
+        assert.equal(
+            getCloudAttachmentCloneUrl("http://cdn.internal", "parent-channel/CLOUD_batch/0/image.png", "message-id", "thread-channel"),
+            "http://cdn.internal/attachments/parent-channel/CLOUD_batch/0/image.png/clone_to_message/message-id?destination_channel_id=thread-channel",
+        );
     });
 });
 

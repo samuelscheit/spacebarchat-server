@@ -67,7 +67,7 @@ import {
     BaseMessageComponents,
     v1CompTypes,
 } from "@spacebar/schemas";
-import { findCloudAttachmentForChannel, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
+import { findCloudAttachmentForChannel, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -150,7 +150,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
         delWhenDone = true;
     }
 
-    const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${messageId}`, {
+    const cloneResponse = await fetch(getCloudAttachmentCloneUrl(Config.get().cdn.endpointPrivate, attEnt.uploadFilename, messageId, channel.id), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
@@ -773,7 +773,7 @@ export async function convertCloudAttachmentToAttachment(
         cloudAttachmentLookupChannelId,
     );
 
-    const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${destinationMessageId}`, {
+    const cloneResponse = await fetch(getCloudAttachmentCloneUrl(Config.get().cdn.endpointPrivate, attEnt.uploadFilename, destinationMessageId, destinationChannelId), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
