@@ -1,12 +1,12 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { findCloudAttachmentForDestination, getCloudAttachmentDestinationLookup, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
+import { findCloudAttachmentForChannel, getCloudAttachmentChannelLookup, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 
-describe("getCloudAttachmentDestinationLookup", () => {
-    test("scopes cloud attachments by uploaded filename and destination channel", () => {
-        assert.deepEqual(getCloudAttachmentDestinationLookup("attachments/source/CLOUD_batch/0/image.png", "destination-channel"), {
+describe("getCloudAttachmentChannelLookup", () => {
+    test("scopes cloud attachments by uploaded filename and expected upload channel", () => {
+        assert.deepEqual(getCloudAttachmentChannelLookup("attachments/source/CLOUD_batch/0/image.png", "upload-channel"), {
             uploadFilename: "attachments/source/CLOUD_batch/0/image.png",
-            channelId: "destination-channel",
+            channelId: "upload-channel",
         });
     });
 });
@@ -21,25 +21,25 @@ describe("getCloudAttachmentLookupChannelId", () => {
     });
 });
 
-describe("findCloudAttachmentForDestination", () => {
-    test("returns repository matches scoped to the destination channel", async () => {
+describe("findCloudAttachmentForChannel", () => {
+    test("returns repository matches scoped to the expected upload channel", async () => {
         const storedAttachment = { id: "cloud-attachment" };
         const calls: unknown[] = [];
         const repository = {
-            async findOne(options: { where: ReturnType<typeof getCloudAttachmentDestinationLookup> }) {
+            async findOne(options: { where: ReturnType<typeof getCloudAttachmentChannelLookup> }) {
                 calls.push(options);
                 return storedAttachment;
             },
         };
 
-        const result = await findCloudAttachmentForDestination(repository, "attachments/source/CLOUD_batch/0/image.png", "destination-channel");
+        const result = await findCloudAttachmentForChannel(repository, "attachments/source/CLOUD_batch/0/image.png", "upload-channel");
 
         assert.equal(result, storedAttachment);
         assert.deepEqual(calls, [
             {
                 where: {
                     uploadFilename: "attachments/source/CLOUD_batch/0/image.png",
-                    channelId: "destination-channel",
+                    channelId: "upload-channel",
                 },
             },
         ]);
@@ -48,14 +48,14 @@ describe("findCloudAttachmentForDestination", () => {
     test("rejects missing or foreign-channel descriptors before cloning", async () => {
         let lookup: unknown;
         const repository = {
-            async findOne(options: { where: ReturnType<typeof getCloudAttachmentDestinationLookup> }) {
+            async findOne(options: { where: ReturnType<typeof getCloudAttachmentChannelLookup> }) {
                 lookup = options;
                 return null;
             },
         };
 
         await assert.rejects(
-            () => findCloudAttachmentForDestination(repository, "attachments/source/CLOUD_batch/0/image.png", "destination-channel"),
+            () => findCloudAttachmentForChannel(repository, "attachments/source/CLOUD_batch/0/image.png", "upload-channel"),
             (error) => {
                 assert(error instanceof Error);
                 assert.equal((error as { code?: number }).code, 400);
@@ -66,7 +66,7 @@ describe("findCloudAttachmentForDestination", () => {
         assert.deepEqual(lookup, {
             where: {
                 uploadFilename: "attachments/source/CLOUD_batch/0/image.png",
-                channelId: "destination-channel",
+                channelId: "upload-channel",
             },
         });
     });

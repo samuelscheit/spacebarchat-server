@@ -67,7 +67,7 @@ import {
     BaseMessageComponents,
     v1CompTypes,
 } from "@spacebar/schemas";
-import { findCloudAttachmentForDestination, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
+import { findCloudAttachmentForChannel, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -765,7 +765,7 @@ export async function convertCloudAttachmentToAttachment(
     destinationChannelId: string,
     destinationMessageId: string,
 ) {
-    const attEnt = await findCloudAttachmentForDestination(
+    const attEnt = await findCloudAttachmentForChannel(
         {
             findOne: (options) => CloudAttachment.findOne(options),
         },

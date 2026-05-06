@@ -1,18 +1,18 @@
 import { HTTPError } from "lambert-server";
 
-export type CloudAttachmentDestinationLookup = {
+export type CloudAttachmentChannelLookup = {
     uploadFilename: string;
     channelId: string;
 };
 
-export type CloudAttachmentDestinationRepository<TCloudAttachment> = {
-    findOne(options: { where: CloudAttachmentDestinationLookup }): Promise<TCloudAttachment | null>;
+export type CloudAttachmentChannelRepository<TCloudAttachment> = {
+    findOne(options: { where: CloudAttachmentChannelLookup }): Promise<TCloudAttachment | null>;
 };
 
-export function getCloudAttachmentDestinationLookup(uploadedFilename: string, destinationChannelId: string): CloudAttachmentDestinationLookup {
+export function getCloudAttachmentChannelLookup(uploadedFilename: string, channelId: string): CloudAttachmentChannelLookup {
     return {
         uploadFilename: uploadedFilename,
-        channelId: destinationChannelId,
+        channelId: channelId,
     };
 }
 
@@ -20,13 +20,13 @@ export function getCloudAttachmentLookupChannelId(destinationChannelId: string, 
     return uploadChannelId ?? destinationChannelId;
 }
 
-export async function findCloudAttachmentForDestination<TCloudAttachment>(
-    repository: CloudAttachmentDestinationRepository<TCloudAttachment>,
+export async function findCloudAttachmentForChannel<TCloudAttachment>(
+    repository: CloudAttachmentChannelRepository<TCloudAttachment>,
     uploadedFilename: string,
-    destinationChannelId: string,
+    channelId: string,
 ): Promise<TCloudAttachment> {
     const attachment = await repository.findOne({
-        where: getCloudAttachmentDestinationLookup(uploadedFilename, destinationChannelId),
+        where: getCloudAttachmentChannelLookup(uploadedFilename, channelId),
     });
 
     if (!attachment) {
