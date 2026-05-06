@@ -167,6 +167,7 @@ router.post(
                 channel_id: thread.id,
                 attachments,
                 attachment_user_id: req.user_id,
+                attachment_channel_ids: [channel.id, thread.id],
                 timestamp: new Date(),
             });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment

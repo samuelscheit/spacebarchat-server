@@ -89,8 +89,10 @@ export function getUploadInputForMultipartFile(file: MultipartUploadFile, inputs
     return uploadInputs[0];
 }
 
-export function getCloudAttachmentAccessError(attachment: CloudAttachmentAccessMetadata, destinationChannelId: string, expectedUserId?: string) {
-    if (attachment.channelId !== destinationChannelId) {
+export function getCloudAttachmentAccessError(attachment: CloudAttachmentAccessMetadata, allowedChannelIds: string | string[], expectedUserId?: string) {
+    const allowedChannels = Array.isArray(allowedChannelIds) ? allowedChannelIds : [allowedChannelIds];
+
+    if (!attachment.channelId || !allowedChannels.includes(attachment.channelId)) {
         return { message: "Attachment does not belong to this channel", status: 400 };
     }
 

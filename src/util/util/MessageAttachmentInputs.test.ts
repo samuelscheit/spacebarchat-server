@@ -97,7 +97,8 @@ describe("Message attachment input helpers", () => {
 
     test("validates cloud attachment channel and user ownership", () => {
         assert.equal(getCloudAttachmentAccessError({ channelId: "10", userId: "20" }, "10", "20"), undefined);
-        assert.deepEqual(getCloudAttachmentAccessError({ channelId: "11", userId: "20" }, "10", "20"), {
+        assert.equal(getCloudAttachmentAccessError({ channelId: "11", userId: "20" }, ["10", "11"], "20"), undefined);
+        assert.deepEqual(getCloudAttachmentAccessError({ channelId: "12", userId: "20" }, ["10", "11"], "20"), {
             message: "Attachment does not belong to this channel",
             status: 400,
         });

@@ -720,6 +720,7 @@ interface MessageOptions extends MessageCreateSchema {
     channel_id?: string;
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
     attachment_user_id?: string;
+    attachment_channel_ids?: string[];
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;
@@ -739,7 +740,7 @@ export async function processMessageOptionAttachments(source: MessageOptions, de
         if (src instanceof Attachment) return logPassthru(src, logp, `Got Attachment instance`);
         if (isCloudAttachment(src))
             return logPassthru(
-                await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id, source.attachment_user_id),
+                await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id, source.attachment_channel_ids, source.attachment_user_id),
                 logp,
                 "Got MessageCreateCloudAttachment contents",
             );
@@ -756,7 +757,13 @@ export function isCloudAttachment(attachment: MessageOptionAttachment) {
     return "uploaded_filename" in attachment;
 }
 
-export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateCloudAttachment, destinationChannelId: string, destinationMessageId: string, expectedUserId?: string) {
+export async function convertCloudAttachmentToAttachment(
+    cAtt: MessageCreateCloudAttachment,
+    destinationChannelId: string,
+    destinationMessageId: string,
+    sourceChannelIds: string[] = [destinationChannelId],
+    expectedUserId?: string,
+) {
     const attEnt = await CloudAttachment.findOne({
         where: {
             uploadFilename: cAtt.uploaded_filename,
@@ -764,7 +771,7 @@ export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateClou
     });
 
     if (!attEnt) throw new HTTPError("Unknown attachment", 400);
-    const accessError = getCloudAttachmentAccessError(attEnt, destinationChannelId, expectedUserId);
+    const accessError = getCloudAttachmentAccessError(attEnt, sourceChannelIds, expectedUserId);
     if (accessError) throw new HTTPError(accessError.message, accessError.status);
 
     const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${destinationMessageId}`, {
