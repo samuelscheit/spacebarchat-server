@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { assertMessagePayloadPermissions } from "../utility/MessagePayloadPermissions";
+import { MessageComponentType } from "@spacebar/schemas";
+import { assertMessagePayloadPermissions, type MessagePayloadPermissionOptions } from "../utility/MessagePayloadPermissions";
 
 function permissions(...allowed: ("EMBED_LINKS" | "ATTACH_FILES")[]) {
     return {
@@ -79,6 +80,87 @@ describe("assertMessagePayloadPermissions", () => {
                 uploadedFileCount: 1,
             });
         }, /ATTACH_FILES/);
+    });
+
+    test("requires ATTACH_FILES for component media galleries", () => {
+        const payload: MessagePayloadPermissionOptions = {
+            components: [
+                {
+                    type: MessageComponentType.MediaGallery,
+                    items: [{ media: { url: "https://example.com/image.png" } }],
+                },
+            ],
+        };
+
+        assert.throws(() => {
+            assertMessagePayloadPermissions(permissions(), payload);
+        }, /ATTACH_FILES/);
+
+        assert.doesNotThrow(() => {
+            assertMessagePayloadPermissions(permissions("ATTACH_FILES"), payload);
+        });
+    });
+
+    test("requires ATTACH_FILES for section thumbnail media", () => {
+        assert.throws(() => {
+            assertMessagePayloadPermissions(permissions(), {
+                components: [
+                    {
+                        type: MessageComponentType.Section,
+                        components: [{ type: MessageComponentType.TextDisplay, content: "caption" }],
+                        accessory: {
+                            type: MessageComponentType.Thumbnail,
+                            media: { url: "attachment://thumbnail.png" },
+                        },
+                    },
+                ],
+            });
+        }, /ATTACH_FILES/);
+    });
+
+    test("requires ATTACH_FILES for file component media", () => {
+        assert.throws(() => {
+            assertMessagePayloadPermissions(permissions(), {
+                components: [
+                    {
+                        type: MessageComponentType.File,
+                        file: { url: "https://example.com/report.pdf" },
+                        spoiler: false,
+                        name: "report.pdf",
+                        size: 123,
+                    },
+                ],
+            });
+        }, /ATTACH_FILES/);
+    });
+
+    test("requires ATTACH_FILES for nested container file media", () => {
+        assert.throws(() => {
+            assertMessagePayloadPermissions(permissions(), {
+                components: [
+                    {
+                        type: MessageComponentType.Container,
+                        components: [
+                            {
+                                type: MessageComponentType.File,
+                                file: { url: "https://example.com/report.pdf" },
+                                spoiler: false,
+                                name: "report.pdf",
+                                size: 123,
+                            },
+                        ],
+                    },
+                ],
+            });
+        }, /ATTACH_FILES/);
+    });
+
+    test("allows non-media components without ATTACH_FILES", () => {
+        assert.doesNotThrow(() => {
+            assertMessagePayloadPermissions(permissions(), {
+                components: [{ type: MessageComponentType.TextDisplay, content: "no media here" }],
+            });
+        });
     });
 
     test("allows clearing attachments without ATTACH_FILES", () => {

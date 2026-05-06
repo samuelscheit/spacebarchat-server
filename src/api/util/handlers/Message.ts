@@ -67,6 +67,7 @@ import {
     BaseMessageComponents,
     v1CompTypes,
 } from "@spacebar/schemas";
+import { collectMessageComponentMedia } from "../utility/MessagePayloadPermissions";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -210,20 +211,15 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         const bad = components.reduce((bad, comp) => bad || !v1CompTypes.has(comp.type), false);
         if (bad) throw new HTTPError("Must be comp v2");
     }
-    const medias: UnfurledMediaItem[] = [];
     for (const comp of components || []) {
         if (comp.type === MessageComponentType.ActionRow) {
             checkActionRow(comp, knownComponentIds, errors, components!.indexOf(comp));
         } else if (comp.type === MessageComponentType.Section) {
-            const accessory = comp.accessory;
             if (comp.components.length < 1 || comp.components.length > actionRowLimit) {
                 errors[`data.components[${components!.indexOf(comp)}].components`] = {
                     code: "TOO_LONG",
                     message: "Component list is too long",
                 };
-            }
-            if (accessory.type === MessageComponentType.Thumbnail) {
-                medias.push(accessory.media);
             }
         } else if (comp.type === MessageComponentType.TextDisplay) {
             //Here to make sure everything is checked
@@ -234,9 +230,8 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
                     message: "Media list is too long",
                 };
             }
-            medias.push(...comp.items.map(({ media }) => media));
         } else if (comp.type === MessageComponentType.File) {
-            medias.push(comp.file);
+            //Here to make sure everything is checked
         } else if (comp.type === MessageComponentType.Separator) {
             //Here to make sure everything is checked
         } else if (comp.type === MessageComponentType.Container) {
@@ -246,15 +241,11 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
                     case MessageComponentType.TextDisplay:
                         break;
                     case MessageComponentType.Section: {
-                        const accessory = elm.accessory;
                         if (elm.components.length < 1 || elm.components.length > actionRowLimit) {
                             errors[`data.components[${components!.indexOf(comp)}].components[${comp.components!.indexOf(elm)}].components`] = {
                                 code: "TOO_LONG",
                                 message: "Component list is too long",
                             };
-                        }
-                        if (accessory.type === MessageComponentType.Thumbnail) {
-                            medias.push(accessory.media);
                         }
                         break;
                     }
@@ -265,10 +256,8 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
                                 message: "Media list is too long",
                             };
                         }
-                        medias.push(...elm.items.map(({ media }) => media));
                         break;
                     case MessageComponentType.File: {
-                        medias.push(elm.file);
                         break;
                     }
                     case MessageComponentType.ActionRow:
@@ -286,6 +275,7 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
     if (Object.keys(errors).length > 0) {
         throw FieldErrors(errors);
     }
+    const medias = collectMessageComponentMedia(components);
     return async (messageId: string, user: User, channel: Channel) => {
         const batchId = `CLOUD_compUploads_${randomString(128)}`;
         (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
