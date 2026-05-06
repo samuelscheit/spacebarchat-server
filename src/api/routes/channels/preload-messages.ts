@@ -28,7 +28,7 @@ router.post(
         requestBody: "PreloadMessagesRequestSchema",
         responses: {
             200: {
-                body: "PreloadMessagesResponse",
+                body: "PreloadMessagesResponseSchema",
             },
             400: {
                 body: "APIErrorResponse",

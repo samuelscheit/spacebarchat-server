@@ -45,6 +45,7 @@ import {
 } from "@spacebar/schemas";
 import { MessageFlags } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
+import { serializePublicMember } from "../util/MemberRoles";
 
 @Entity({
     name: "messages",
@@ -275,7 +276,7 @@ export class Message extends BaseClass {
 
             author_id: undefined,
             member_id: undefined,
-            member: this.member?.toPublicMember(),
+            member: serializePublicMember(this.member),
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
             mentions: this.mentions?.map((user) => {
@@ -350,10 +351,11 @@ export class Message extends BaseClass {
         function signMedia(media: UnfurledMediaItem) {
             Object.assign(media, Attachment.prototype.signUrls.call(media, data));
         }
+        const message = typeof this.toJSON === "function" ? this.toJSON() : this;
         return {
-            ...this,
-            member: this.member?.toPublicMember(),
-            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
+            ...message,
+            member: serializePublicMember(message.member ?? this.member),
+            attachments: this.attachments ? this.attachments.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)) : message.attachments,
             components: this.components
                 ? this.components.map((comp) => {
                       comp = structuredClone(comp);
@@ -395,7 +397,7 @@ export class Message extends BaseClass {
                       }
                       return comp;
                   })
-                : this.components,
+                : message.components,
         };
     }
 

@@ -19,6 +19,7 @@
 // TODO: remove entity import
 import { Sticker } from "@spacebar/util";
 import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
 
 export enum MessageType {
@@ -163,11 +164,16 @@ export interface MessageSnapshot {
     };
 }
 
+export type PublicMessageMember = Omit<PublicMember, "user"> & {
+    user?: PublicMember["user"];
+};
+
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;
     lobby_id?: Snowflake;
     author: PartialUser;
+    member?: PublicMessageMember;
     content: string;
     timestamp: string;
     edited_timestamp: string | null;

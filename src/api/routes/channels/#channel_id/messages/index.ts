@@ -290,7 +290,7 @@ router.post(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
