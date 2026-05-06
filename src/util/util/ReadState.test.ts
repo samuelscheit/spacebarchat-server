@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, test } from "node:test";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity } from "./ReadState";
@@ -81,5 +83,12 @@ describe("read state helpers", () => {
         assert.deepEqual(getReadyReadStateWhere("user-id", true), {
             user_id: "user-id",
         });
+    });
+
+    test("declares explicit database types for nullable cursor columns", () => {
+        const source = readFileSync(resolve(process.cwd(), "src/util/entities/ReadState.ts"), "utf8");
+
+        assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_message_id\?: string \| null;/);
+        assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_acked_id\?: string \| null;/);
     });
 });

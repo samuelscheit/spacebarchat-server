@@ -43,10 +43,10 @@ export class ReadState extends BaseClass {
     })
     user: User;
 
-    @Column({ nullable: true })
+    @Column({ type: "varchar", nullable: true })
     last_message_id?: string | null;
 
-    @Column({ nullable: true })
+    @Column({ type: "varchar", nullable: true })
     last_acked_id?: string | null;
 
     @Column({ nullable: true })
