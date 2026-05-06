@@ -16,26 +16,15 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-    InteractionContextType,
-    PublicMember,
-    PublicUser,
-    SendableApplicationCommandDataSchema,
-    SendableMessageComponentDataSchema,
-    SendableModalSubmitDataSchema,
-    Snowflake,
-    InteractionType,
-} from "@spacebar/schemas";
+import { InteractionContextType, MessageComponentType, PublicMember, PublicUser, Snowflake } from "@spacebar/schemas";
 // TODO: remove entity imports
 import { Channel, Message } from "@spacebar/util";
 
-export interface InteractionCreateSchema {
+interface InteractionCreateBase {
     version: 1;
     id: Snowflake;
     application_id: Snowflake;
-    type: InteractionType;
     token: string;
-    data?: InteractionCreateData;
     guild?: InteractionGuild;
     guild_id?: Snowflake;
     guild_locale?: string;
@@ -53,7 +42,163 @@ export interface InteractionCreateSchema {
     attachment_size_limit: number;
 }
 
-export type InteractionCreateData = SendableApplicationCommandDataSchema | SendableMessageComponentDataSchema | SendableModalSubmitDataSchema;
+export type InteractionCreateSchema =
+    | PingInteractionCreateSchema
+    | ApplicationCommandInteractionCreateSchema
+    | ApplicationCommandAutocompleteInteractionCreateSchema
+    | MessageComponentInteractionCreateSchema
+    | ModalSubmitInteractionCreateSchema;
+
+export interface PingInteractionCreateSchema extends InteractionCreateBase {
+    type: 1;
+    data?: undefined;
+}
+
+export interface ApplicationCommandInteractionCreateSchema extends InteractionCreateBase {
+    type: 2;
+    data: InteractionApplicationCommandData;
+}
+
+export interface ApplicationCommandAutocompleteInteractionCreateSchema extends InteractionCreateBase {
+    type: 4;
+    data: InteractionApplicationCommandData;
+}
+
+export interface MessageComponentInteractionCreateSchema extends InteractionCreateBase {
+    type: 3;
+    data: InteractionMessageComponentData;
+}
+
+export interface ModalSubmitInteractionCreateSchema extends InteractionCreateBase {
+    type: 5;
+    data: InteractionModalSubmitData;
+}
+
+export type InteractionCreateData = InteractionApplicationCommandData | InteractionMessageComponentData | InteractionModalSubmitData;
+
+export interface InteractionApplicationCommandData {
+    id: Snowflake;
+    name: string;
+    type: number;
+    version?: Snowflake;
+    resolved?: InteractionResolvedData;
+    options?: InteractionApplicationCommandDataOption[];
+    guild_id?: Snowflake;
+    target_id?: Snowflake;
+}
+
+export interface InteractionApplicationCommandDataOption {
+    name: string;
+    type: number;
+    value?: string | number | boolean;
+    options?: InteractionApplicationCommandDataOption[];
+    focused?: boolean;
+}
+
+export interface InteractionMessageComponentData {
+    custom_id: string;
+    component_type: MessageComponentType;
+    values?: string[];
+    resolved?: InteractionResolvedData;
+}
+
+export interface InteractionModalSubmitData {
+    custom_id: string;
+    components: InteractionModalSubmitTopLevelComponentData[];
+    resolved?: InteractionResolvedData;
+    attachments?: object[];
+}
+
+export type InteractionModalSubmitTopLevelComponentData =
+    | InteractionModalSubmitActionRowComponentData
+    | InteractionModalSubmitLabelComponentData
+    | InteractionModalSubmitTextDisplayComponentData;
+
+export interface InteractionModalSubmitActionRowComponentData {
+    type: MessageComponentType.ActionRow;
+    id?: number;
+    components: InteractionModalSubmitComponentData[];
+}
+
+export interface InteractionModalSubmitLabelComponentData {
+    type: MessageComponentType.Label;
+    id?: number;
+    component: InteractionModalSubmitComponentData;
+}
+
+export interface InteractionModalSubmitTextDisplayComponentData {
+    type: MessageComponentType.TextDisplay;
+    id?: number;
+    content: string;
+}
+
+export type InteractionModalSubmitComponentData =
+    | InteractionModalSubmitTextInputComponentData
+    | InteractionModalSubmitSelectComponentData
+    | InteractionModalSubmitFileUploadComponentData
+    | InteractionModalSubmitRadioGroupComponentData
+    | InteractionModalSubmitCheckboxGroupComponentData
+    | InteractionModalSubmitCheckboxComponentData;
+
+export interface InteractionModalSubmitTextInputComponentData {
+    type: MessageComponentType.TextInput;
+    id?: number;
+    custom_id: string;
+    value: string;
+}
+
+export interface InteractionModalSubmitSelectComponentData {
+    type:
+        | MessageComponentType.StringSelect
+        | MessageComponentType.UserSelect
+        | MessageComponentType.RoleSelect
+        | MessageComponentType.MentionableSelect
+        | MessageComponentType.ChannelSelect;
+    id?: number;
+    custom_id: string;
+    values: string[];
+}
+
+export interface InteractionModalSubmitFileUploadComponentData {
+    type: MessageComponentType.FileUpload;
+    id?: number;
+    custom_id: string;
+    values: Snowflake[];
+}
+
+export interface InteractionModalSubmitRadioGroupComponentData {
+    type: MessageComponentType.RadioGroup;
+    id?: number;
+    custom_id: string;
+    value?: string | null;
+}
+
+export interface InteractionModalSubmitCheckboxGroupComponentData {
+    type: MessageComponentType.CheckboxGroup;
+    id?: number;
+    custom_id: string;
+    values: string[];
+}
+
+export interface InteractionModalSubmitCheckboxComponentData {
+    type: MessageComponentType.Checkbox;
+    id?: number;
+    custom_id: string;
+    value: boolean;
+}
+
+export interface InteractionResolvedData {
+    users?: InteractionResolvedObjectMap;
+    members?: InteractionResolvedObjectMap;
+    roles?: InteractionResolvedObjectMap;
+    channels?: InteractionResolvedObjectMap;
+    messages?: InteractionResolvedObjectMap;
+    attachments?: InteractionResolvedObjectMap;
+}
+
+export interface InteractionResolvedObjectMap {
+    [id: string]: object;
+}
 
 export enum EntitlementType {
     PURCHASE = 1,
@@ -64,6 +209,11 @@ export enum EntitlementType {
     USER_GIFT = 6,
     PREMIUM_PURCHASE = 7,
     APPLICATION_SUBSCRIPTION = 8,
+    FREE_STAFF_PURCHASE = 9,
+    QUEST_REWARD = 10,
+    FRACTIONAL_REDEMPTION = 11,
+    VIRTUAL_CURRENCY_REDEMPTION = 12,
+    GUILD_POWERUP = 13,
 }
 
 export interface InteractionEntitlement {
@@ -77,11 +227,52 @@ export interface InteractionEntitlement {
     ends_at?: string | null;
     guild_id?: Snowflake;
     consumed?: boolean;
+    user?: object;
+    parent_id?: Snowflake;
+    branches?: Snowflake[];
+    promotion_id?: Snowflake | null;
+    subscription_id?: Snowflake | null;
+    gift_code_flags?: number;
+    gift_code_batch_id?: Snowflake;
+    gifter_user_id?: Snowflake;
+    gift_style?: number;
+    fulfillment_status?: number;
+    fulfilled_at?: string | null;
+    source_type?: number;
+    tenant_metadata?: object;
+    sku?: object;
+    subscription_plan?: object;
 }
 
-export interface AuthorizingIntegrationOwners {
-    0?: Snowflake;
+export type AuthorizingIntegrationOwners = GuildInstallAuthorizingIntegrationOwners | UserInstallAuthorizingIntegrationOwners;
+
+export interface GuildInstallAuthorizingIntegrationOwners {
+    0: Snowflake;
     1?: Snowflake;
+}
+
+export interface UserInstallAuthorizingIntegrationOwners {
+    0?: Snowflake;
+    1: Snowflake;
+}
+
+export interface AuthorizingIntegrationOwnersContext {
+    application_id: Snowflake;
+    channel_id?: Snowflake;
+    guild_id?: Snowflake;
+    user_id: Snowflake;
+}
+
+export function getAuthorizingIntegrationOwners({ application_id, channel_id, guild_id, user_id }: AuthorizingIntegrationOwnersContext): AuthorizingIntegrationOwners {
+    if (guild_id) {
+        return { "0": guild_id };
+    }
+
+    if (channel_id === application_id) {
+        return { "0": "0" };
+    }
+
+    return { "1": user_id };
 }
 
 interface InteractionGuild {
