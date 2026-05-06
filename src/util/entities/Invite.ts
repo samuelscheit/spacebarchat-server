@@ -16,11 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
+import { Column, Entity, EntityManager, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
+import { DiscordApiErrors } from "../util/Constants";
+import { consumeInviteUse } from "../util/InviteUsage";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
-import { Member } from "./Member";
+import { Member, type DeferredMemberEvent } from "./Member";
 import { User } from "./User";
 
 export const PublicInviteRelation = ["inviter", "guild", "channel"];
@@ -111,16 +113,28 @@ export class Invite extends BaseClassWithoutId {
         };
     }
 
-    static async joinGuild(user_id: string, code: string) {
-        const invite = await Invite.findOneOrFail({ where: { code } });
-        if (invite.isExpired()) {
-            await Invite.delete({ code });
-            throw new Error("Invite is expired");
-        }
-        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) await Invite.delete({ code });
-        else await invite.save();
+    static async joinGuild(user_id: string, code: string, options?: { manager?: EntityManager; invite?: Invite; deferredEvents?: DeferredMemberEvent[] }): Promise<Invite> {
+        const inviteRepository = options?.manager?.getRepository(Invite) ?? Invite.getRepository();
+        const invite =
+            options?.invite ??
+            (await inviteRepository.findOne({
+                where: { code },
+                lock: options?.manager ? { mode: "pessimistic_write" } : undefined,
+            }));
 
-        await Member.addToGuild(user_id, invite.guild_id);
+        if (!invite) {
+            throw DiscordApiErrors.UNKNOWN_INVITE;
+        }
+
+        if (invite.isExpired()) {
+            await inviteRepository.delete({ code });
+            throw DiscordApiErrors.UNKNOWN_INVITE;
+        }
+
+        if (consumeInviteUse(invite)) await inviteRepository.delete({ code });
+        else await inviteRepository.save(invite);
+
+        await Member.addToGuild(user_id, invite.guild_id, { manager: options?.manager, deferredEvents: options?.deferredEvents });
         return invite;
     }
 }

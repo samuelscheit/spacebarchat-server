@@ -17,10 +17,10 @@
 */
 
 import { HTTPError } from "lambert-server";
-import { BeforeInsert, BeforeUpdate, Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, EntityManager, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { Ban, Channel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
-import { GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
+import { type Event, GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
 import { Config, emitEvent, DiscordApiErrors } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
@@ -51,6 +51,8 @@ export const MemberPrivateProjection: (keyof Member)[] = [
     "communication_disabled_until",
     "flags",
 ];
+
+export type DeferredMemberEvent = Omit<Event, "created_at">;
 
 @Entity({
     name: "members",
@@ -304,19 +306,32 @@ export class Member extends BaseClassWithoutId {
         ]);
     }
 
-    static async addToGuild(user_id: string, guild_id: string) {
-        const user = await User.getPublicUser(user_id);
-        const isBanned = await Ban.count({ where: { guild_id, user_id } });
+    static async addToGuild(user_id: string, guild_id: string, options?: { manager?: EntityManager; deferredEvents?: DeferredMemberEvent[] }) {
+        const channelRepository = options?.manager?.getRepository(Channel) ?? Channel.getRepository();
+        const guildRepository = options?.manager?.getRepository(Guild) ?? Guild.getRepository();
+        const memberRepository = options?.manager?.getRepository(Member) ?? Member.getRepository();
+        const messageRepository = options?.manager?.getRepository(Message) ?? Message.getRepository();
+        const dispatchEvent = async (payload: DeferredMemberEvent) => {
+            if (options?.deferredEvents) {
+                options.deferredEvents.push(payload);
+                return;
+            }
+
+            await emitEvent(payload);
+        };
+
+        const user = await User.getPublicUser(user_id, options?.manager);
+        const isBanned = await (options?.manager?.getRepository(Ban) ?? Ban.getRepository()).count({ where: { guild_id, user_id } });
         if (isBanned) {
             throw DiscordApiErrors.USER_BANNED;
         }
         const { maxGuilds } = Config.get().limits.user;
-        const guild_count = await Member.count({ where: { id: user_id } });
+        const guild_count = await memberRepository.count({ where: { id: user_id } });
         if (guild_count >= maxGuilds) {
             throw new HTTPError(`You are at the ${maxGuilds} server limit.`, 403);
         }
 
-        const guild = await Guild.findOneOrFail({
+        const guild = await guildRepository.findOneOrFail({
             where: {
                 id: guild_id,
             },
@@ -325,13 +340,13 @@ export class Member extends BaseClassWithoutId {
         });
 
         for await (const channel of guild.channels) {
-            channel.position = await Channel.calculatePosition(channel.id, guild_id);
+            channel.position = await Channel.calculatePosition(channel.id, guild_id, guild);
         }
 
-        const memberCount = await Member.count({ where: { guild_id } });
+        const memberCount = await memberRepository.count({ where: { guild_id } });
 
         const memberPreview = (
-            await Member.find({
+            await memberRepository.find({
                 where: {
                     guild_id,
                     user: {
@@ -346,8 +361,8 @@ export class Member extends BaseClassWithoutId {
         ).map((member) => member.toPublicMember());
 
         if (
-            await Member.count({
-                where: { id: user.id, guild: { id: guild_id } },
+            await memberRepository.count({
+                where: { id: user.id, guild_id },
             })
         )
             throw new HTTPError("You are already a member of this guild", 400);
@@ -364,7 +379,7 @@ export class Member extends BaseClassWithoutId {
             bio: "",
         };
 
-        const newMember = Member.create({
+        const newMember = memberRepository.create({
             ...member,
             roles: [Role.create({ id: guild_id })],
             // read_state: {},
@@ -387,9 +402,9 @@ export class Member extends BaseClassWithoutId {
         });
 
         await Promise.all([
-            newMember.save(),
-            Guild.increment({ id: guild_id }, "member_count", 1),
-            emitEvent({
+            memberRepository.save(newMember),
+            guildRepository.increment({ id: guild_id }, "member_count", 1),
+            dispatchEvent({
                 event: "GUILD_MEMBER_ADD",
                 data: {
                     ...newMember.toPublicMember(),
@@ -399,7 +414,7 @@ export class Member extends BaseClassWithoutId {
                 guild_id,
                 origin: "util/entities/Member.ts:377/addToGuild(user_id, guild_id)",
             } satisfies GuildMemberAddEvent),
-            emitEvent({
+            dispatchEvent({
                 event: "GUILD_CREATE",
                 data: {
                     ...new ReadyGuildDTO(guild).toJSON(),
@@ -419,11 +434,11 @@ export class Member extends BaseClassWithoutId {
         ]);
 
         if (guild.system_channel_id) {
-            const channel = await Channel.findOneOrFail({
+            const channel = await channelRepository.findOneOrFail({
                 where: { id: guild.system_channel_id },
             });
             // Send a welcome message
-            const message = Message.create({
+            const message = messageRepository.create({
                 type: 7,
                 guild_id: guild.id,
                 channel_id: guild.system_channel_id,
@@ -442,15 +457,15 @@ export class Member extends BaseClassWithoutId {
 
             channel.last_message_id = message.id;
 
-            await message.save();
+            await messageRepository.save(message);
             const publicMsg = message.toJSON();
             await Promise.all([
-                emitEvent({
+                dispatchEvent({
                     event: "MESSAGE_CREATE",
                     channel_id: message.channel_id,
                     data: publicMsg,
                 } satisfies MessageCreateEvent),
-                channel.save(),
+                channelRepository.save(channel),
             ]);
         }
     }

@@ -17,12 +17,26 @@
 */
 
 import { route, verifyCaptcha } from "@spacebar/api";
-import { Config, DiscordApiErrors, FieldErrors, Invite, User, ValidRegistrationToken, generateToken, IpDataClient, AbuseIpDbClient, TimeSpan } from "@spacebar/util";
+import {
+    Config,
+    DiscordApiErrors,
+    FieldErrors,
+    Invite,
+    User,
+    ValidRegistrationToken,
+    generateToken,
+    IpDataClient,
+    AbuseIpDbClient,
+    TimeSpan,
+    getDatabase,
+    emitEvent,
+} from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
+import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
 import { isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
 
 const router: Router = Router({ mergeParams: true });
@@ -314,13 +328,6 @@ router.post(
             });
         }
 
-        if (body.invite) {
-            const invite = await Invite.findOne({ where: { code: body.invite } });
-            if (!isRegistrationInviteUsable(invite)) {
-                throw DiscordApiErrors.UNKNOWN_INVITE;
-            }
-        }
-
         if (
             !regTokenUsed &&
             limits.absoluteRate.register.enabled &&
@@ -349,11 +356,43 @@ router.post(
             });
         }
 
-        const user = await User.register({ ...body, req });
-
+        let user: User;
         if (body.invite) {
-            // await to fail if the invite doesn't exist (necessary for requireInvite to work properly) (username only signups are possible)
-            await Invite.joinGuild(user.id, body.invite);
+            const inviteCode = body.invite;
+            const deferredEvents: Parameters<typeof emitEvent>[0][] = [];
+            user = await getDatabase()!.transaction(async (manager) => {
+                const inviteRepository = manager.getRepository(Invite);
+                const invite = await inviteRepository.findOne({
+                    where: { code: inviteCode },
+                    lock: { mode: "pessimistic_write" },
+                });
+
+                if (!isRegistrationInviteUsable(invite)) {
+                    throw DiscordApiErrors.UNKNOWN_INVITE;
+                }
+
+                const newUser = await User.register({ ...body, req, manager, emitSideEffects: false });
+                await assertInviteAcceptanceAllowed({
+                    guildId: invite.guild_id,
+                    userId: newUser.id,
+                    ip,
+                    publicFlags: newUser.public_flags,
+                    manager,
+                });
+                await Invite.joinGuild(newUser.id, inviteCode, { manager, invite, deferredEvents });
+
+                return newUser;
+            });
+            await Promise.all(
+                deferredEvents.map((event) =>
+                    emitEvent(event).catch((error) => {
+                        console.error("[Register] Failed to emit deferred invite registration event", error);
+                    }),
+                ),
+            );
+            await User.runRegistrationSideEffects(user, { email });
+        } else {
+            user = await User.register({ ...body, req });
         }
 
         return res.json({ token: await generateToken(user.id) });

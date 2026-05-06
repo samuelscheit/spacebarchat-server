@@ -17,10 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { Ban, Config, DiscordApiErrors, emitEvent, getPermission, Guild, Invite, InviteDeleteEvent, PublicInviteRelation } from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, getPermission, Invite, InviteDeleteEvent, PublicInviteRelation } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { UserFlags } from "@spacebar/schemas";
+import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -71,39 +71,10 @@ router.post(
         if (req.user_bot && !Config.get().user.botsCanUseInvites) throw DiscordApiErrors.BOT_PROHIBITED_ENDPOINT;
 
         const { invite_code } = req.params as { [key: string]: string };
-        const { public_flags } = req.user;
         const { guild_id } = await Invite.findOneOrFail({
             where: { code: invite_code },
         });
-        const { features } = await Guild.findOneOrFail({
-            where: { id: guild_id },
-        });
-        const ban = await Ban.findOne({
-            where: [
-                { guild_id: guild_id, user_id: req.user_id },
-                { guild_id: guild_id, ip: req.ip },
-            ],
-        });
-
-        if (ban) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but is banned by ${ban.user_id === req.user_id ? "User ID" : "IP address"}.`);
-            throw DiscordApiErrors.USER_BANNED;
-        }
-
-        if ((BigInt(public_flags) & UserFlags.FLAGS.QUARANTINED) === UserFlags.FLAGS.QUARANTINED) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but is quarantined.`);
-            throw DiscordApiErrors.UNKNOWN_INVITE;
-        }
-
-        if (features.includes("INTERNAL_EMPLOYEE_ONLY") && (public_flags & 1) !== 1) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but is not staff.`);
-            throw new HTTPError("Only intended for the staff of this instance.", 401);
-        }
-
-        if (features.includes("INVITES_DISABLED")) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but joins are closed.`);
-            throw new HTTPError("Sorry, this guild has joins closed.", 403);
-        }
+        await assertInviteAcceptanceAllowed({ guildId: guild_id, userId: req.user_id, ip: req.ip, publicFlags: req.user.public_flags });
 
         const invite = await Invite.joinGuild(req.user_id, invite_code);
 
