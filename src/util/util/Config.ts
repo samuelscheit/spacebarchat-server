@@ -23,6 +23,7 @@ import { ConfigValue } from "../config";
 import { ConfigEntity } from "../entities";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
+import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";
 
 // TODO: yaml instead of json
 const overridePath = process.env.CONFIG_PATH ?? "";
@@ -60,7 +61,7 @@ export class Config {
         // If a config doesn't exist, create it.
         if (Object.keys(config).length == 0) config = new ConfigValue();
 
-        config = OrmUtils.mergeDeep({}, { ...new ConfigValue() }, config);
+        config = normalizeConfig(mergeConfigDefaults(new ConfigValue(), config));
 
         // TODO: factor this out someday
         if (process.env.CDN_SIGNATURE_PATH) config.security.cdnSignatureKey = await Config.readSecret("CDN_SIGNATURE_PATH");
