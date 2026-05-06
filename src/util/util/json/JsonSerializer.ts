@@ -4,6 +4,13 @@ import { join } from "node:path";
 import os from "node:os";
 import { ReadStream, WriteStream } from "node:fs";
 
+type JsonArrayStreamState = "awaitArrayStart" | "awaitValueOrEnd" | "readValue" | "done";
+type JsonStreamParsedValue<T> = { hasValue: false } | { hasValue: true; value: T };
+
+function isJsonWhitespace(char: string): boolean {
+    return char === " " || char === "\n" || char === "\r" || char === "\t";
+}
+
 // const worker = new Worker(join(process.cwd(), 'dist', 'util', 'util', 'json', 'jsonWorker.js'));
 const workerPool: Worker[] = [];
 const numWorkers = process.env.JSON_WORKERS ? parseInt(process.env.JSON_WORKERS) : os.cpus().length;
@@ -104,16 +111,258 @@ export class JsonSerializer {
     }
 
     private static async *DeserializeAsyncEnumerableReadableStream<T>(json: ReadableStream, opts?: JsonSerializerOptions) {
-        const arr = await this.DeserializeAsync<T[]>(json, opts);
-        for (const item of arr) {
-            yield item;
-        }
+        yield* this.DeserializeAsyncEnumerableFromChunks<T>(this.DecodeJsonStreamChunks(this.ReadReadableStreamChunks(json)), opts);
     }
 
     private static async *DeserializeAsyncEnumerableReadStream<T>(json: ReadStream, opts?: JsonSerializerOptions) {
-        const arr = await this.DeserializeAsync<T[]>(json, opts);
-        for (const item of arr) {
-            yield item;
+        yield* this.DeserializeAsyncEnumerableFromChunks<T>(this.DecodeJsonStreamChunks(json as AsyncIterable<unknown>), opts);
+    }
+
+    private static async *ReadReadableStreamChunks(json: ReadableStream): AsyncGenerator<unknown, void, unknown> {
+        const reader = json.getReader();
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                yield value;
+            }
+        } finally {
+            reader.releaseLock();
+        }
+    }
+
+    private static async *DecodeJsonStreamChunks(chunks: AsyncIterable<unknown>): AsyncGenerator<string, void, unknown> {
+        const decoder = new TextDecoder();
+
+        for await (const chunk of chunks) {
+            if (typeof chunk === "string") {
+                const pending = decoder.decode();
+                if (pending) yield pending;
+
+                yield chunk;
+                continue;
+            }
+
+            if (chunk instanceof Uint8Array) {
+                const text = decoder.decode(chunk, { stream: true });
+                if (text) yield text;
+                continue;
+            }
+
+            if (chunk instanceof ArrayBuffer) {
+                const text = decoder.decode(chunk, { stream: true });
+                if (text) yield text;
+                continue;
+            }
+
+            throw new TypeError("JSON streams must yield string, Uint8Array, or ArrayBuffer chunks.");
+        }
+
+        const pending = decoder.decode();
+        if (pending) yield pending;
+    }
+
+    private static async *DeserializeAsyncEnumerableFromChunks<T>(chunks: AsyncIterable<string>, opts?: JsonSerializerOptions): AsyncGenerator<T, void, unknown> {
+        let state: JsonArrayStreamState = "awaitArrayStart";
+        let currentValue = "";
+        let depth = 0;
+        let inString = false;
+        let escaped = false;
+        let valueComplete = false;
+        let canEndArray = true;
+
+        const noValue = { hasValue: false } as const;
+        const resetValue = () => {
+            currentValue = "";
+            depth = 0;
+            inString = false;
+            escaped = false;
+            valueComplete = false;
+        };
+        const parseValue = () => {
+            const json = currentValue.trim();
+            if (!json) {
+                throw new SyntaxError("Expected JSON value in array.");
+            }
+
+            const value = this.Deserialize<T>(json, opts);
+            resetValue();
+            return value;
+        };
+        const processValueChar = (char: string): JsonStreamParsedValue<T> => {
+            if (valueComplete) {
+                if (isJsonWhitespace(char)) {
+                    return noValue;
+                }
+
+                if (char === ",") {
+                    const value = parseValue();
+                    state = "awaitValueOrEnd";
+                    canEndArray = false;
+                    return { hasValue: true, value };
+                }
+
+                if (char === "]") {
+                    const value = parseValue();
+                    state = "done";
+                    return { hasValue: true, value };
+                }
+
+                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+            }
+
+            if (inString) {
+                currentValue += char;
+
+                if (escaped) {
+                    escaped = false;
+                } else if (char === "\\") {
+                    escaped = true;
+                } else if (char === '"') {
+                    inString = false;
+                    if (depth === 0) {
+                        valueComplete = true;
+                    }
+                }
+
+                return noValue;
+            }
+
+            if (char === '"') {
+                currentValue += char;
+                inString = true;
+                return noValue;
+            }
+
+            if (char === "{" || char === "[") {
+                currentValue += char;
+                depth++;
+                return noValue;
+            }
+
+            if (char === "}" || char === "]") {
+                if (depth > 0) {
+                    currentValue += char;
+                    depth--;
+                    if (depth === 0) {
+                        valueComplete = true;
+                    }
+
+                    return noValue;
+                }
+
+                if (char === "]") {
+                    const value = parseValue();
+                    state = "done";
+                    return { hasValue: true, value };
+                }
+
+                throw new SyntaxError("Unexpected '}' in JSON array.");
+            }
+
+            if (char === ",") {
+                if (depth > 0) {
+                    currentValue += char;
+                    return noValue;
+                }
+
+                const value = parseValue();
+                state = "awaitValueOrEnd";
+                canEndArray = false;
+                return { hasValue: true, value };
+            }
+
+            if (isJsonWhitespace(char)) {
+                if (depth > 0) {
+                    currentValue += char;
+                    return noValue;
+                }
+
+                valueComplete = true;
+                return noValue;
+            }
+
+            currentValue += char;
+            return noValue;
+        };
+
+        for await (const chunk of chunks) {
+            for (const char of chunk) {
+                if (state === "done") {
+                    if (!isJsonWhitespace(char)) {
+                        throw new SyntaxError("Unexpected non-whitespace data after JSON array.");
+                    }
+
+                    continue;
+                }
+
+                if (state === "awaitArrayStart") {
+                    if (isJsonWhitespace(char)) {
+                        continue;
+                    }
+
+                    if (char !== "[") {
+                        throw new SyntaxError("Expected JSON array.");
+                    }
+
+                    state = "awaitValueOrEnd";
+                    canEndArray = true;
+                    continue;
+                }
+
+                if (state === "awaitValueOrEnd") {
+                    if (isJsonWhitespace(char)) {
+                        continue;
+                    }
+
+                    if (char === "]") {
+                        if (!canEndArray) {
+                            throw new SyntaxError("Trailing comma in JSON array.");
+                        }
+
+                        state = "done";
+                        continue;
+                    }
+
+                    if (char === ",") {
+                        throw new SyntaxError("Unexpected comma in JSON array.");
+                    }
+
+                    resetValue();
+                    state = "readValue";
+                }
+
+                const result = processValueChar(char);
+                if (result.hasValue) {
+                    yield result.value;
+                }
+            }
+        }
+
+        if (state === "awaitArrayStart") {
+            throw new SyntaxError("Expected JSON array.");
+        }
+
+        if (state === "awaitValueOrEnd") {
+            throw new SyntaxError("Unexpected end of JSON array.");
+        }
+
+        if (state === "readValue") {
+            if (inString) {
+                throw new SyntaxError("Unterminated string in JSON array item.");
+            }
+
+            if (depth > 0) {
+                throw new SyntaxError("Unterminated JSON array item.");
+            }
+
+            if (valueComplete) {
+                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+            }
+
+            throw new SyntaxError("Unexpected end of JSON array item.");
         }
     }
 
