@@ -97,6 +97,7 @@ router.patch(
             author_id: message.author_id,
             channel_id,
             id: message_id,
+            attachment_user_id: req.user_id,
             edited_timestamp: new Date(),
         });
 
@@ -211,6 +212,7 @@ router.put(
             embeds,
             channel_id: channel_id!,
             attachments,
+            attachment_user_id: req.user_id,
             edited_timestamp: undefined,
             timestamp: new Date(snowflake.timestamp),
         });

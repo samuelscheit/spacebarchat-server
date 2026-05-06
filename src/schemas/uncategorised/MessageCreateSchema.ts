@@ -21,7 +21,9 @@ import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandT
 
 export type MessageCreateAttachment = {
     id: string;
-    filename: string;
+    filename?: string;
+    name?: string;
+    file?: string;
 };
 
 export type MessageCreateCloudAttachment = {
@@ -36,8 +38,6 @@ export type MessageCreateFile = {
     file?: string;
     name?: string;
     filename?: string;
-    uploaded_filename?: string;
-    original_content_type?: string;
 };
 
 export interface MessageCreateSchema {

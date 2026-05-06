@@ -26,8 +26,10 @@ import {
     emitEvent,
     FieldErrors,
     getAttachmentFilename,
+    getUploadInputForMultipartFile,
     getPermission,
     getUrlSignature,
+    MessageAttachmentUploadInput,
     normalizeMessageAttachmentInputs,
     Member,
     Message,
@@ -304,8 +306,10 @@ router.post(
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
         const messageId = Snowflake.generate();
-        const { cloudAttachments, uploadMetadata } = normalizeMessageAttachmentInputs(body.attachments, body.files);
-        const attachments: (Attachment | MessageCreateCloudAttachment)[] = [...cloudAttachments];
+        const attachmentInputs = normalizeMessageAttachmentInputs(body.attachments, body.files);
+        const uploadedAttachments = new Map<MessageAttachmentUploadInput, Attachment>();
+        const consumedUploadInputs = new Set<MessageAttachmentUploadInput>();
+        const unmatchedUploadedAttachments: Attachment[] = [];
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -409,15 +413,35 @@ router.post(
         }
 
         const files = (req.files as Express.Multer.File[]) ?? [];
-        for (const [index, currFile] of files.entries()) {
+        for (const currFile of files) {
             try {
-                const originalname = getAttachmentFilename(uploadMetadata[index]) ?? currFile.originalname;
+                const uploadInput = getUploadInputForMultipartFile(currFile, attachmentInputs, consumedUploadInputs);
+                const originalname = getAttachmentFilename(uploadInput?.metadata) ?? currFile.originalname;
                 const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, { ...currFile, originalname });
-                attachments.push(Attachment.create(file));
+                const attachment = Attachment.create(file);
+
+                if (uploadInput) {
+                    consumedUploadInputs.add(uploadInput);
+                    uploadedAttachments.set(uploadInput, attachment);
+                } else {
+                    unmatchedUploadedAttachments.push(attachment);
+                }
             } catch (error) {
                 return res.status(400).json({ message: error?.toString() });
             }
         }
+
+        const attachments: (Attachment | MessageCreateCloudAttachment)[] = [];
+        for (const input of attachmentInputs) {
+            if (input.type === "cloud") {
+                attachments.push(input.metadata);
+                continue;
+            }
+
+            const uploadedAttachment = uploadedAttachments.get(input);
+            if (uploadedAttachment) attachments.push(uploadedAttachment);
+        }
+        attachments.push(...unmatchedUploadedAttachments);
 
         const embeds = body.embeds || [];
         if (body.embed) embeds.push(body.embed);
@@ -430,6 +454,7 @@ router.post(
             embeds,
             channel_id,
             attachments,
+            attachment_user_id: req.user_id,
             timestamp: new Date(),
         });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment

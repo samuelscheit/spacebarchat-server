@@ -18,4 +18,4 @@
 
 import { MessageCreateSchema } from "./MessageCreateSchema";
 
-export type MessageEditSchema = Omit<MessageCreateSchema, "type">;
+export type MessageEditSchema = Omit<MessageCreateSchema, "type" | "file" | "files" | "payload_json">;
