@@ -25,20 +25,24 @@ import http from "node:http";
 import { cleanupOnStartup } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
-import { waitForGatewayClientClose } from "./util/Shutdown";
+import { Duplex } from "node:stream";
+import { closeGatewayServer } from "./util/Shutdown";
 
 export class Server {
     public ws: ws.Server;
     public port: number;
     public server: http.Server;
     public production: boolean;
-    private ownsServer: boolean;
+    private ownsHttpServer: boolean;
+    private stopping = false;
+    private stopPromise?: Promise<void>;
+    private readonly upgradeHandler: (request: http.IncomingMessage, socket: Duplex, head: Buffer) => void;
 
     constructor({ port, server, production }: { port: number; server?: http.Server; production?: boolean }) {
         this.port = port;
         this.production = production || false;
 
-        this.ownsServer = !server;
+        this.ownsHttpServer = !server;
         if (server) this.server = server;
         else {
             const elu = [1, 5, 15].map(() => performance.eventLoopUtilization());
@@ -155,18 +159,34 @@ export class Server {
             });
         }
 
-        this.server.on("upgrade", (request, socket, head) => {
-            this.ws.handleUpgrade(request, socket, head, (socket) => {
-                this.ws.emit("connection", socket, request);
-            });
-        });
-
         this.ws = new ws.Server({
             maxPayload: 4096,
             noServer: true,
         });
         this.ws.on("connection", Connection);
         this.ws.on("error", console.error);
+
+        this.upgradeHandler = (request, socket, head) => {
+            if (this.stopping) {
+                socket.destroy();
+                return;
+            }
+
+            try {
+                this.ws.handleUpgrade(request, socket, head, (websocket) => {
+                    if (this.stopping) {
+                        websocket.close(1001, "Gateway shutdown");
+                        return;
+                    }
+
+                    this.ws.emit("connection", websocket, request);
+                });
+            } catch (error) {
+                if (!this.stopping) console.error("[Gateway] WebSocket upgrade failed", error);
+                socket.destroy();
+            }
+        };
+        this.server.on("upgrade", this.upgradeHandler);
     }
 
     async start(): Promise<void> {
@@ -177,28 +197,50 @@ export class Server {
         await cleanupOnStartup();
 
         if (!this.server.listening) {
-            this.server.listen(this.port);
+            await listenHttpServer(this.server, this.port);
+            this.ownsHttpServer = true;
             console.log(`[Gateway] online on 0.0.0.0:${this.port}`);
         }
     }
 
     async stop() {
-        const clients = Array.from(this.ws.clients);
-        await Promise.all(clients.map((client) => waitForGatewayClientClose(client)));
-        await new Promise<void>((resolve, reject) => {
-            this.ws.close((error) => {
-                if (error) reject(error);
-                else resolve();
-            });
-        });
-        if (this.ownsServer) {
-            await new Promise<void>((resolve, reject) => {
-                this.server.close((error) => {
-                    if (error) reject(error);
-                    else resolve();
-                });
-            });
+        this.stopPromise ??= this.stopGateway();
+        await this.stopPromise;
+    }
+
+    private async stopGateway() {
+        this.stopping = true;
+        this.server.off("upgrade", this.upgradeHandler);
+
+        await closeGatewayServer(this.ws);
+
+        if (this.ownsHttpServer) {
+            if (this.server.listening) await closeHttpServer(this.server);
             await closeDatabase();
         }
     }
+}
+
+function listenHttpServer(server: http.Server, port: number) {
+    return new Promise<void>((resolve, reject) => {
+        const onError = (error: Error) => {
+            server.off("error", onError);
+            reject(error);
+        };
+
+        server.once("error", onError);
+        server.listen(port, () => {
+            server.off("error", onError);
+            resolve();
+        });
+    });
+}
+
+function closeHttpServer(server: http.Server) {
+    return new Promise<void>((resolve, reject) => {
+        server.close((error) => {
+            if (error) reject(error);
+            else resolve();
+        });
+    });
 }

@@ -19,6 +19,7 @@
 import { WebSocket } from "@spacebar/gateway";
 import { emitEvent, Member, PresenceUpdateEvent, Session, SessionsReplace, User, VoiceState, VoiceStateUpdateEvent, distributePresenceUpdate } from "@spacebar/util";
 import { randomString } from "@spacebar/api";
+import { runDelayedGatewayCloseCleanup } from "../util/Shutdown";
 
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
     console.log("[WebSocket] closed", code, reason.toString());
@@ -28,13 +29,15 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     this.inflate?.close();
     this.removeAllListeners();
 
+    let delayedSessionCleanup: Promise<void> | undefined;
+
     if (this.session_id) {
         const authSessionId = this.session?.session_id;
         const closedAt = Date.now();
 
-        setTimeout(async () => {
-            console.log("Handling presence update after disconnect");
+        delayedSessionCleanup = runDelayedGatewayCloseCleanup(async () => {
             try {
+                console.log("Handling presence update after disconnect");
                 if (authSessionId && this.user_id) {
                     const s = await Session.findOne({
                         where: { user_id: this.user_id, session_id: authSessionId },
@@ -61,7 +64,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
             } catch (e) {
                 console.error("[WebSocket] Close session cleanup failed", code, e);
             }
-        }, 10_000);
+        });
 
         const voiceState = await VoiceState.findOne({
             where: { user_id: this.user_id },
@@ -130,4 +133,6 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                 },
             } satisfies PresenceUpdateEvent);
     }
+
+    await delayedSessionCleanup;
 }
