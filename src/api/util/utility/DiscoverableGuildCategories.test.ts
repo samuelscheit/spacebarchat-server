@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { FindOperator } from "typeorm";
 import { createDiscoverableGuildCategoryFilter, parseDiscoverableGuildCategoryIds } from "./DiscoverableGuildCategories";
@@ -8,6 +9,7 @@ test("parseDiscoverableGuildCategoryIds supports repeated and comma-separated va
     assert.deepEqual(parseDiscoverableGuildCategoryIds("1"), ["1"]);
     assert.deepEqual(parseDiscoverableGuildCategoryIds("1,2, 3 "), ["1", "2", "3"]);
     assert.deepEqual(parseDiscoverableGuildCategoryIds(["1", "2,3", " 2 "]), ["1", "2", "3"]);
+    assert.deepEqual(parseDiscoverableGuildCategoryIds([" 1 ", "1", "2,, "]), ["1", "2"]);
     assert.deepEqual(parseDiscoverableGuildCategoryIds({ category: "1" }), []);
 });
 
@@ -28,4 +30,16 @@ test("createDiscoverableGuildCategoryFilter uses IN for multiple categories", ()
     assert.equal(filter.type, "in");
     assert.deepEqual(filter.value, ["1", "2", "3"]);
     assert.equal(filter.multipleParameters, true);
+});
+
+test("discoverable guild category query parameters are documented in OpenAPI", async () => {
+    const openapi = JSON.parse(await readFile("assets/openapi.json", "utf8")) as {
+        paths: Record<string, Record<string, { parameters?: { name: string; in: string; description?: string }[] }>>;
+    };
+
+    const parameters = openapi.paths["/discoverable-guilds/"]?.get?.parameters ?? [];
+
+    assert.ok(parameters.some((parameter) => parameter.in === "query" && parameter.name === "offset"));
+    assert.ok(parameters.some((parameter) => parameter.in === "query" && parameter.name === "limit"));
+    assert.ok(parameters.some((parameter) => parameter.in === "query" && parameter.name === "categories" && parameter.description?.includes("repeated or comma-separated")));
 });

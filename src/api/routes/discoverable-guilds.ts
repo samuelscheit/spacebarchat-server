@@ -18,16 +18,29 @@
 
 import { Config, Guild, Member } from "@spacebar/util";
 
-import { route } from "@spacebar/api";
+import { createDiscoverableGuildCategoryFilter, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ArrayContains, In, Not } from "typeorm";
-import { createDiscoverableGuildCategoryFilter } from "../util/utility/DiscoverableGuildCategories";
 
 const router = Router({ mergeParams: true });
 
 router.get(
     "/",
     route({
+        query: {
+            offset: {
+                type: "number",
+                description: "The number of discoverable guilds to skip before returning results.",
+            },
+            limit: {
+                type: "number",
+                description: "The maximum number of discoverable guilds to return.",
+            },
+            categories: {
+                type: "string",
+                description: "Filter by one or more primary category IDs. May be repeated or comma-separated.",
+            },
+        },
         responses: {
             200: {
                 body: "DiscoverableGuildsResponse",
