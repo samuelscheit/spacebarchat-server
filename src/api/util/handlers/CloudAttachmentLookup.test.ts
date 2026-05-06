@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { findCloudAttachmentForDestination, getCloudAttachmentDestinationLookup } from "./CloudAttachmentLookup";
+import { findCloudAttachmentForDestination, getCloudAttachmentDestinationLookup, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 
 describe("getCloudAttachmentDestinationLookup", () => {
     test("scopes cloud attachments by uploaded filename and destination channel", () => {
@@ -8,6 +8,16 @@ describe("getCloudAttachmentDestinationLookup", () => {
             uploadFilename: "attachments/source/CLOUD_batch/0/image.png",
             channelId: "destination-channel",
         });
+    });
+});
+
+describe("getCloudAttachmentLookupChannelId", () => {
+    test("defaults the upload lookup channel to the destination channel", () => {
+        assert.equal(getCloudAttachmentLookupChannelId("message-channel"), "message-channel");
+    });
+
+    test("allows thread starter messages to look up parent-channel pre-uploads", () => {
+        assert.equal(getCloudAttachmentLookupChannelId("new-thread-channel", "parent-channel"), "parent-channel");
     });
 });
 

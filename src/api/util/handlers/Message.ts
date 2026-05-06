@@ -67,7 +67,7 @@ import {
     BaseMessageComponents,
     v1CompTypes,
 } from "@spacebar/schemas";
-import { findCloudAttachmentForDestination } from "./CloudAttachmentLookup";
+import { findCloudAttachmentForDestination, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -295,6 +295,8 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
 export async function handleMessage(opts: MessageOptions): Promise<Message> {
     const conf = Config.get();
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
+    const messageOptions = { ...opts };
+    delete messageOptions.cloud_attachment_upload_channel_id;
 
     const channel = await Channel.findOneOrFail({
         where: { id: opts.channel_id },
@@ -320,7 +322,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     const stickers = opts.sticker_ids ? await Sticker.find({ where: { id: In(opts.sticker_ids) } }) : undefined;
 
     const message = Message.create({
-        ...opts,
+        ...messageOptions,
         message_reference: opts.message_reference ?? undefined,
         poll: opts.poll,
         sticker_items: stickers,
@@ -719,6 +721,7 @@ interface MessageOptions extends MessageCreateSchema {
     reactions?: Reaction[];
     channel_id?: string;
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
+    cloud_attachment_upload_channel_id?: string;
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;
@@ -734,10 +737,15 @@ export async function processMessageOptionAttachments(source: MessageOptions, de
     if (!source.attachments || source.attachments.length == 0) return;
     const logp = `[Message/${destination.id}/Attachments]`;
     console.log("[Message] Processing attachments for message", source.id, "->", source.attachments);
+    const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(destination.channel_id!, source.cloud_attachment_upload_channel_id);
     const tasks = source.attachments?.map(async (src): Promise<Attachment> => {
         if (src instanceof Attachment) return logPassthru(src, logp, `Got Attachment instance`);
         if (isCloudAttachment(src))
-            return logPassthru(await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id), logp, "Got MessageCreateCloudAttachment contents");
+            return logPassthru(
+                await convertCloudAttachmentToAttachment(src, cloudAttachmentLookupChannelId, destination.channel_id!, destination.id),
+                logp,
+                "Got MessageCreateCloudAttachment contents",
+            );
         throw new Error(logp + " Unhandled attachment: " + JSON.stringify(src));
     });
 
@@ -751,13 +759,18 @@ export function isCloudAttachment(attachment: MessageOptionAttachment) {
     return "uploaded_filename" in attachment;
 }
 
-export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateCloudAttachment, destinationChannelId: string, destinationMessageId: string) {
+export async function convertCloudAttachmentToAttachment(
+    cAtt: MessageCreateCloudAttachment,
+    cloudAttachmentLookupChannelId: string,
+    destinationChannelId: string,
+    destinationMessageId: string,
+) {
     const attEnt = await findCloudAttachmentForDestination(
         {
             findOne: (options) => CloudAttachment.findOne(options),
         },
         cAtt.uploaded_filename,
-        destinationChannelId,
+        cloudAttachmentLookupChannelId,
     );
 
     const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${destinationMessageId}`, {

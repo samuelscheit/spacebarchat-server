@@ -165,6 +165,7 @@ router.post(
                 author_id: req.user_id,
                 embeds,
                 channel_id: thread.id,
+                cloud_attachment_upload_channel_id: channel.id,
                 attachments,
                 timestamp: new Date(),
             });

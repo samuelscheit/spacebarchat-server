@@ -16,6 +16,10 @@ export function getCloudAttachmentDestinationLookup(uploadedFilename: string, de
     };
 }
 
+export function getCloudAttachmentLookupChannelId(destinationChannelId: string, uploadChannelId?: string): string {
+    return uploadChannelId ?? destinationChannelId;
+}
+
 export async function findCloudAttachmentForDestination<TCloudAttachment>(
     repository: CloudAttachmentDestinationRepository<TCloudAttachment>,
     uploadedFilename: string,
