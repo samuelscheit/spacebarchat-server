@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import { afterEach, describe, test } from "node:test";
 import { createRequire } from "node:module";
 
-type ChannelEntity = import("./Channel").Channel;
-type GuildEntity = import("./Guild").Guild;
-type SnowflakeClass = typeof import("../util/Snowflake").Snowflake;
-type ChannelClass = typeof import("./Channel").Channel;
-type GuildClass = typeof import("./Guild").Guild;
-type ThreadMemberClass = typeof import("./ThreadMember").ThreadMember;
+type ChannelEntity = import("../entities/Channel").Channel;
+type GuildEntity = import("../entities/Guild").Guild;
+type SnowflakeClass = typeof import("./Snowflake").Snowflake;
+type ChannelClass = typeof import("../entities/Channel").Channel;
+type GuildClass = typeof import("../entities/Guild").Guild;
+type ThreadMemberClass = typeof import("../entities/ThreadMember").ThreadMember;
 
 type FindOneOptionsWithId = {
     where?: {
@@ -62,7 +62,7 @@ const schemasMock = new Proxy(
     exports: schemasMock,
 };
 
-const { Snowflake } = localRequire("../util/Snowflake") as { Snowflake: SnowflakeClass };
+const { Snowflake } = localRequire("./Snowflake") as { Snowflake: SnowflakeClass };
 
 const utilMock = {
     Config: {
@@ -91,15 +91,15 @@ const utilMock = {
     trimSpecial: (value?: string) => value,
 };
 
-for (const path of [localRequire.resolve("../util"), localRequire.resolve("..")]) {
+for (const path of [localRequire.resolve("."), localRequire.resolve("..")]) {
     (localRequire.cache as Record<string, { exports: unknown } | undefined>)[path] = {
         exports: utilMock,
     };
 }
 
-const { Channel } = localRequire("./Channel") as { Channel: ChannelClass };
-const { Guild } = localRequire("./Guild") as { Guild: GuildClass };
-const { ThreadMember } = localRequire("./ThreadMember") as { ThreadMember: ThreadMemberClass };
+const { Channel } = localRequire("../entities/Channel") as { Channel: ChannelClass };
+const { Guild } = localRequire("../entities/Guild") as { Guild: GuildClass };
+const { ThreadMember } = localRequire("../entities/ThreadMember") as { ThreadMember: ThreadMemberClass };
 
 const originals = {
     channelFindOne: Channel.findOne,
