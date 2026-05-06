@@ -16,11 +16,26 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { GuildMessagesSearchMessage, PublicUser } from "@spacebar/schemas";
+import type { GuildMessagesSearchMessage, PublicAttachment, PublicUser } from "@spacebar/schemas";
 import type { Attachment, Message, User } from "@spacebar/util";
 
 function toPublicUser(user: User): PublicUser {
     return user.toPublicUser?.() ?? (user as unknown as PublicUser);
+}
+
+function toPublicAttachment(attachment: Attachment): PublicAttachment {
+    const publicAttachment = attachment.toJSON();
+
+    return {
+        id: publicAttachment.id,
+        filename: publicAttachment.filename,
+        size: publicAttachment.size,
+        ...(publicAttachment.height != null ? { height: publicAttachment.height } : {}),
+        ...(publicAttachment.width != null ? { width: publicAttachment.width } : {}),
+        ...(publicAttachment.content_type != null ? { content_type: publicAttachment.content_type } : {}),
+        url: publicAttachment.url,
+        proxy_url: publicAttachment.proxy_url,
+    };
 }
 
 export function toGuildMessagesSearchMessage(message: Message): GuildMessagesSearchMessage {
@@ -30,7 +45,7 @@ export function toGuildMessagesSearchMessage(message: Message): GuildMessagesSea
         content: message.content ?? "",
         channel_id: message.channel_id ?? message.channel.id,
         author: toPublicUser(message.author!),
-        attachments: message.attachments?.map((attachment: Attachment) => attachment.toJSON()) ?? [],
+        attachments: message.attachments?.map(toPublicAttachment) ?? [],
         embeds: message.embeds ?? [],
         mentions: message.mentions?.map(toPublicUser) ?? [],
         mention_roles: message.mention_roles?.map((role) => role.id) ?? [],

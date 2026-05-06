@@ -72,7 +72,15 @@ test("GuildMessagesSearchResponse validates grouped search hits", () => {
                         premium_since: "2026-01-01T00:00:00.000Z",
                         premium_type: 0,
                     },
-                    attachments: [],
+                    attachments: [
+                        {
+                            id: "400",
+                            filename: "file.txt",
+                            size: 10,
+                            url: "https://cdn.example/file.txt",
+                            proxy_url: "https://cdn.example/file.txt",
+                        },
+                    ],
                     embeds: [],
                     mentions: [],
                     mention_roles: ["500"],
@@ -94,6 +102,25 @@ test("GuildMessagesSearchResponse validates grouped search hits", () => {
         ajv.validate("GuildMessagesSearchResponse", {
             ...response,
             messages: [{ ...response.messages[0][0], mention_roles: [{ id: "500" }] }],
+        }),
+        false,
+    );
+    assert.equal(
+        ajv.validate("GuildMessagesSearchResponse", {
+            ...response,
+            messages: [
+                [
+                    {
+                        ...response.messages[0][0],
+                        attachments: [
+                            {
+                                ...response.messages[0][0].attachments[0],
+                                message_id: "200",
+                            },
+                        ],
+                    },
+                ],
+            ],
         }),
         false,
     );

@@ -53,7 +53,19 @@ test("toGuildMessagesSearchResult serializes public search messages", () => {
         content: undefined,
         channel_id: "300",
         author,
-        attachments: [{ toJSON: () => ({ id: "400", filename: "file.txt", size: 10, url: "https://cdn.example/file.txt", proxy_url: "https://cdn.example/file.txt" }) }],
+        attachments: [
+            {
+                toJSON: () => ({
+                    id: "400",
+                    filename: "file.txt",
+                    size: 10,
+                    message_id: "200",
+                    channel_id: "300",
+                    url: "https://cdn.example/file.txt",
+                    proxy_url: "https://cdn.example/file.txt",
+                }),
+            },
+        ],
         embeds: [],
         mentions: [mentionedUser],
         mention_roles: [{ id: "500", name: "role" }],
