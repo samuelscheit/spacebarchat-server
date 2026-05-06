@@ -21,6 +21,7 @@ import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from 
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThan, Like, MoreThan } from "typeorm";
+import { toGuildMessagesSearchResult } from "../../../../util/MessageSearch";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -163,35 +164,7 @@ router.get(
         delete query.take;
         const total_results = await Message.count(query);
 
-        const messagesDto = messages.map((x) => [
-            {
-                id: x.id,
-                type: x.type,
-                content: x.content,
-                channel_id: x.channel_id,
-                author: {
-                    id: x.author?.id,
-                    username: x.author?.username,
-                    avatar: x.author?.avatar,
-                    avatar_decoration: null,
-                    discriminator: x.author?.discriminator,
-                    public_flags: x.author?.public_flags,
-                },
-                attachments: x.attachments,
-                embeds: x.embeds,
-                mentions: x.mentions,
-                mention_roles: x.mention_roles,
-                pinned: x.pinned,
-                mention_everyone: x.mention_everyone,
-                tts: x.tts,
-                timestamp: x.timestamp,
-                edited_timestamp: x.edited_timestamp,
-                flags: x.flags,
-                components: x.components,
-                poll: x.poll,
-                hit: true,
-            },
-        ]);
+        const messagesDto = messages.map(toGuildMessagesSearchResult);
 
         return res.json({
             messages: messagesDto,
