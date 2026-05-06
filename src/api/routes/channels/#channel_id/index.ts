@@ -17,7 +17,21 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Recipient, emitEvent, handleFile, Config, FieldError, ErrorList, makeObjectErrorContent } from "@spacebar/util";
+import {
+    Channel,
+    ChannelDeleteEvent,
+    ChannelUpdateEvent,
+    Recipient,
+    emitEvent,
+    handleFile,
+    Config,
+    FieldError,
+    ErrorList,
+    makeObjectErrorContent,
+    Guild,
+    normalizeChannelName,
+    assertChannelNamePresent,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 
@@ -205,7 +219,17 @@ router.patch(
         const channelLimits = Config.get().limits.channel;
 
         const errors: ErrorList = {};
-        if (payload.name && (payload.name.length < 1 || payload.name.length > channelLimits.maxName))
+        let allowUnnamedChannels = false;
+        if (payload.name !== undefined && channel.guild_id) {
+            const guild = await Guild.findOneOrFail({
+                where: { id: channel.guild_id },
+                select: { features: true },
+            });
+            allowUnnamedChannels = guild.features.includes("ALLOW_UNNAMED_CHANNELS");
+            payload.name = normalizeChannelName(payload.name, payload.type ?? channel.type, guild.features);
+            assertChannelNamePresent(payload.name, guild.features);
+        }
+        if (payload.name !== undefined && ((Boolean(channel.guild_id) && !allowUnnamedChannels && payload.name.length < 1) || payload.name.length > channelLimits.maxName))
             errors["name"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel name must be between 1 and ${channelLimits.maxName} characters`);
         if (payload.topic !== undefined && payload.topic.length > channelLimits.maxTopic)
             errors["topic"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel topic must be less than ${channelLimits.maxTopic} characters`);

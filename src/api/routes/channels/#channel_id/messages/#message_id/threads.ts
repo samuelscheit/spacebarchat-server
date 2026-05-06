@@ -74,7 +74,7 @@ router.post(
                 },
             },
             void 0,
-            { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
+            { skipPermissionCheck: true, keepId: true, skipEventEmit: true },
         );
 
         message.thread = thread;

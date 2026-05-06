@@ -17,7 +17,7 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { Config, GuildWelcomeScreen, Snowflake, assertChannelNamePresent, handleFile, normalizeGuildChannelName } from "..";
+import { Config, GuildWelcomeScreen, Snowflake, assertChannelNamePresent, handleFile, normalizeChannelName } from "..";
 import { Ban } from "./Ban";
 import { BaseClass } from "./BaseClass";
 import { Channel } from "./Channel";
@@ -357,7 +357,7 @@ export class Guild extends BaseClass {
         if (body.channels?.length) {
             body.channels = body.channels.map((channel) => ({
                 ...channel,
-                name: normalizeGuildChannelName(channel.name, channel.type, defaultFeatures),
+                name: normalizeChannelName(channel.name, channel.type, defaultFeatures),
             }));
             body.channels.forEach((channel) => assertChannelNamePresent(channel.name, defaultFeatures));
         }

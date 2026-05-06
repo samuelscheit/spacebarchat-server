@@ -28,7 +28,7 @@ import {
     Permissions,
     Config,
     DiscordApiErrors,
-    normalizeGuildChannelName,
+    normalizeChannelName,
     normalizeThreadName,
     assertChannelNamePresent,
 } from "../util";
@@ -228,7 +228,7 @@ export class Channel extends BaseClass {
         });
 
         if (!opts?.skipNameChecks) {
-            channel.name = normalizeGuildChannelName(channel.name, channel.type, guild.features);
+            channel.name = normalizeChannelName(channel.name, channel.type, guild.features);
             assertChannelNamePresent(channel.name, guild.features);
         }
 
