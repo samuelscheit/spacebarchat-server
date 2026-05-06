@@ -26,7 +26,7 @@ import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 // TODO: dont use deprecated APIs lol
 import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
-import { randomUpperString } from "@spacebar/api";
+import { randomUpperString } from "./Random";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
 import path from "node:path";
@@ -35,6 +35,7 @@ import path from "node:path";
 /// 1 - Initial version with HS256
 /// 2 - Switched to ES512
 /// 3 - Add version, device id to token payload
+export const FirstTokenFormatVersionWithDeviceId: number = 3;
 export const CurrentTokenFormatVersion: number = 3;
 
 export type UserTokenData = {
@@ -99,7 +100,7 @@ export const checkToken = (
             }
 
             const tokenVersion = decoded.ver ?? legacyVersion ?? 2;
-            if (tokenVersion >= CurrentTokenFormatVersion && !decoded.did) {
+            if (tokenVersion >= FirstTokenFormatVersionWithDeviceId && !decoded.did) {
                 logAuth("validateUser rejected: Session-bound token missing device id");
                 return rejectAndLog(reject, 401, "Invalid Token");
             }

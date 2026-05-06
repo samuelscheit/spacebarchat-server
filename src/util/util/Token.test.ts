@@ -1,15 +1,60 @@
 import { afterEach, beforeEach, describe, test } from "node:test";
 import assert from "node:assert/strict";
+import Module from "node:module";
 import jwt from "jsonwebtoken";
 import { HTTPError } from "lambert-server";
-import { checkToken, Config, CurrentTokenFormatVersion, InstanceBan, Session, User } from "@spacebar/util";
 
 const TEST_JWT_SECRET = "test-secret";
+
+type ModuleLoad = (this: unknown, request: string, parent: { filename?: string } | null, isMain: boolean) => unknown;
+type TestUser = {
+    id: string;
+    bot: boolean;
+    disabled: boolean;
+    deleted: boolean;
+    rights: string;
+    data: { valid_tokens_since: Date };
+};
+type TestSession = {
+    session_id: string;
+    user_id: string;
+    last_seen?: Date;
+    last_seen_ip?: string;
+    updateIpInfo?: () => Promise<void>;
+    save?: () => Promise<void>;
+};
+
+const Config = {
+    get: () => ({ security: { jwtSecret: TEST_JWT_SECRET } }),
+};
+const User: { findOne: (options: unknown) => Promise<TestUser | null> } = {
+    findOne: () => Promise.resolve(null),
+};
+const Session: { findOne: (options: unknown) => Promise<TestSession | null> } = {
+    findOne: () => Promise.resolve(null),
+};
+const InstanceBan: { findInstanceBans: (options: unknown) => Promise<string[]> } = {
+    findInstanceBans: () => Promise.resolve([]),
+};
+
+const moduleLoader = Module as typeof Module & { _load: ModuleLoad };
+const originalModuleLoad = moduleLoader._load;
+moduleLoader._load = function (this: unknown, request: string, parent: { filename?: string } | null, isMain: boolean): unknown {
+    const isTokenImport =
+        parent?.filename?.endsWith("/Token.js") || parent?.filename?.endsWith("\\Token.js") || parent?.filename?.endsWith("/Token.ts") || parent?.filename?.endsWith("\\Token.ts");
+    if (isTokenImport) {
+        if (request === "./Config") return { Config };
+        if (request === "../entities/InstanceBan") return { InstanceBan };
+        if (request === "../entities/Session") return { Session };
+        if (request === "../entities/User") return { User };
+    }
+
+    return originalModuleLoad.apply(this, [request, parent, isMain]);
+};
+const { checkToken, CurrentTokenFormatVersion, FirstTokenFormatVersionWithDeviceId } = require("./Token") as typeof import("./Token");
+moduleLoader._load = originalModuleLoad;
+
 const originalConsoleError = console.error;
-const originalConfigGet = Config.get;
-const originalUserFindOne = User.findOne;
-const originalSessionFindOne = Session.findOne;
-const originalFindInstanceBans = InstanceBan.findInstanceBans;
 
 function signToken(payload: { id: string; iat: number; ver?: number; did?: string }) {
     return jwt.sign(payload, TEST_JWT_SECRET, { algorithm: "HS256" });
@@ -36,13 +81,13 @@ describe("checkToken session revocation", () => {
 
     afterEach(() => {
         console.error = originalConsoleError;
-        Config.get = originalConfigGet;
-        User.findOne = originalUserFindOne;
-        Session.findOne = originalSessionFindOne;
-        InstanceBan.findInstanceBans = originalFindInstanceBans;
+        Config.get = () => ({ security: { jwtSecret: TEST_JWT_SECRET } });
+        User.findOne = () => Promise.resolve(null);
+        Session.findOne = () => Promise.resolve(null);
+        InstanceBan.findInstanceBans = () => Promise.resolve([]);
     });
 
-    test("rejects a current token when its session row was removed", async () => {
+    test("rejects a session-bound token when its session row was removed", async () => {
         stubActiveUser();
         let banLookupCount = 0;
         InstanceBan.findInstanceBans = (() => {
@@ -58,7 +103,7 @@ describe("checkToken session revocation", () => {
         const token = signToken({
             id: "user_id",
             iat: Math.floor(Date.now() / 1000),
-            ver: CurrentTokenFormatVersion,
+            ver: FirstTokenFormatVersionWithDeviceId,
             did: "SESSION1",
         });
 
@@ -74,7 +119,7 @@ describe("checkToken session revocation", () => {
         assert.equal(banLookupCount, 0);
     });
 
-    test("rejects a current token without a session id", async () => {
+    test("rejects the first session-bound token format without a session id", async () => {
         stubActiveUser();
         let sessionLookupCount = 0;
         Session.findOne = (() => {
@@ -85,7 +130,7 @@ describe("checkToken session revocation", () => {
         const token = signToken({
             id: "user_id",
             iat: Math.floor(Date.now() / 1000),
-            ver: CurrentTokenFormatVersion,
+            ver: FirstTokenFormatVersionWithDeviceId,
         });
 
         await assert.rejects(() => checkToken(token), HTTPError);
