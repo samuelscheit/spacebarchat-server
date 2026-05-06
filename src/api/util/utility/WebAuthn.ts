@@ -35,16 +35,11 @@ export function toArrayBuffer(buf: Buffer) {
     return ab;
 }
 
-function firstHeaderValue(value: string | string[] | undefined) {
-    const header = Array.isArray(value) ? value[0] : value;
-    return header?.split(",")[0].trim();
-}
-
 export function getWebAuthnExpectedOrigin(req: Request, configuredEndpoint?: string | null) {
     if (configuredEndpoint) return new URL(configuredEndpoint).origin;
 
-    const protocol = firstHeaderValue(req.headers["x-forwarded-proto"]) || req.protocol;
-    const host = firstHeaderValue(req.headers["x-forwarded-host"]) || req.get("host") || req.hostname;
+    const protocol = req.protocol;
+    const host = req.get("host") || req.hostname;
 
     return new URL(`${protocol}://${host}`).origin;
 }
@@ -82,7 +77,13 @@ export function buildWebAuthnTicketPayload(
 }
 
 export function isWebAuthnTicketForUser(payload: WebAuthnTicketPayload, userId: string, purpose: WebAuthnTicketPurpose) {
-    return payload.user_id === userId && payload.purpose === purpose && typeof payload.origin === "string" && typeof payload.rpId === "string";
+    return (
+        payload.user_id === userId &&
+        payload.purpose === purpose &&
+        typeof payload.origin === "string" &&
+        typeof payload.rpId === "string" &&
+        (purpose !== "login_mfa" || Array.isArray(payload.allowCredentialIds))
+    );
 }
 
 export function parseWebAuthnCredentialResponse(serializedCredential: string) {
@@ -111,6 +112,16 @@ export function webAuthnAllowCredentials(keyIds: string[] | undefined) {
         id: toArrayBuffer(Buffer.from(keyId, "base64")),
         type: "public-key" as const,
     }));
+}
+
+export function isWebAuthnCredentialAllowed(payload: WebAuthnTicketPayload, keyId: string) {
+    return Array.isArray(payload.allowCredentialIds) && payload.allowCredentialIds.includes(keyId);
+}
+
+export function webAuthnLoginMfaSecurityKeyLookup(payload: WebAuthnTicketPayload, userId: string, keyId: string) {
+    if (!isWebAuthnTicketForUser(payload, userId, "login_mfa") || !isWebAuthnCredentialAllowed(payload, keyId)) return null;
+
+    return webAuthnSecurityKeyLookup(userId, keyId);
 }
 
 export function buildWebAuthnAssertionExpectations(payload: WebAuthnTicketPayload, securityKey: WebAuthnAssertionSecurityKey): ExpectedAssertionResult {

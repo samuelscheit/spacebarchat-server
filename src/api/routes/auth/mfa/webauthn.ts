@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { buildWebAuthnAssertionExpectations, isWebAuthnTicketForUser, parseWebAuthnCredentialResponse, route, webAuthnSecurityKeyLookup } from "@spacebar/api";
+import { buildWebAuthnAssertionExpectations, isWebAuthnTicketForUser, parseWebAuthnCredentialResponse, route, webAuthnLoginMfaSecurityKeyLookup } from "@spacebar/api";
 import { generateToken, isWebAuthnTicketPayload, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -63,8 +63,13 @@ router.post(
         const parsedCredential = parseWebAuthnCredentialResponse(code);
         if (!parsedCredential) throw new HTTPError("Missing rawId", 400);
 
+        const securityKeyLookup = webAuthnLoginMfaSecurityKeyLookup(verified, user.id, parsedCredential.keyId);
+        if (!securityKeyLookup) {
+            throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        }
+
         const securityKey = await SecurityKey.findOneOrFail({
-            where: webAuthnSecurityKeyLookup(user.id, parsedCredential.keyId),
+            where: securityKeyLookup,
         });
 
         const authnResult = await WebAuthn.fido2.assertionResult(parsedCredential.credential, buildWebAuthnAssertionExpectations(verified, securityKey));
