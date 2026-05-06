@@ -31,7 +31,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { arrayRemove } from "@spacebar/util";
-import { getTemplateChannelInsertPoint, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
+import { mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -426,7 +426,8 @@ export class Guild extends BaseClass {
             body.channels = [{ id: "01", type: 0, name: "general", nsfw: false }];
         }
 
-        const ids = new Map();
+        const ids = new Map<string, string>();
+        const createdChannelIds = new Map<Partial<Channel>, string>();
 
         body.channels.forEach((x) => {
             if (x.id) {
@@ -434,24 +435,24 @@ export class Guild extends BaseClass {
             }
         });
 
-        const lastChildByParent = new Map<string, string>();
-
         for (const channel of sortTemplateChannelsForCreation(body.channels)) {
-            const id = ids.get(channel.id) || Snowflake.generate();
+            const id = channel.id ? ids.get(channel.id) || Snowflake.generate() : Snowflake.generate();
 
-            const parent_id = ids.get(channel.parent_id);
+            const parent_id = channel.parent_id ? ids.get(channel.parent_id) : undefined;
 
             const saved = await Channel.createChannel({ ...channel, guild_id, id, parent_id }, body.owner_id, {
                 keepId: true,
                 skipExistsCheck: true,
                 skipPermissionCheck: true,
                 skipEventEmit: true,
+                skipOrdering: true,
             });
 
-            const insertPoint = getTemplateChannelInsertPoint(channel, parent_id, lastChildByParent);
-            await Guild.insertChannelInOrder(guild.id, saved.id, insertPoint, guild);
-            if (parent_id) lastChildByParent.set(parent_id, saved.id);
+            createdChannelIds.set(channel, saved.id);
         }
+
+        guild.channel_ordering = mapTemplateChannelOrdering(body.channels, (channel) => createdChannelIds.get(channel));
+        await Guild.update({ id: guild.id }, { channel_ordering: guild.channel_ordering });
 
         return guild;
     }

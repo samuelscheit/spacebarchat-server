@@ -1,36 +1,48 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { getTemplateChannelInsertPoint, sortChannelsByChannelOrdering, sortTemplateChannelsForCreation } from "./GuildChannelOrdering";
+import { mapTemplateChannelOrdering, sortChannelsByChannelOrdering, sortTemplateChannelsForCreation } from "./GuildChannelOrdering";
 
 describe("template channel ordering", () => {
-    test("creates parent channels before children while preserving sibling positions", () => {
+    test("creates channels in template order when parents already precede children", () => {
         const channels = sortTemplateChannelsForCreation([
-            { id: "child-2", parent_id: "category", position: 1 },
-            { id: "text", position: 1 },
-            { id: "child-1", parent_id: "category", position: 0 },
-            { id: "category", position: 0 },
+            { id: "category", position: 3 },
+            { id: "child-1", parent_id: "category", position: 999 },
+            { id: "child-2", parent_id: "category", position: 0 },
+            { id: "text", position: 0 },
         ]);
 
         assert.deepEqual(
             channels.map((channel) => channel.id),
-            ["category", "text", "child-1", "child-2"],
+            ["category", "child-1", "child-2", "text"],
         );
     });
 
-    test("inserts later category children after earlier siblings", () => {
-        const ordering = ["category"];
-        const lastChildByParent = new Map<string, string>();
+    test("creates parent channels before children when template input is malformed", () => {
+        const channels = sortTemplateChannelsForCreation([
+            { id: "child", parent_id: "category", position: 0 },
+            { id: "category", position: 1 },
+            { id: "text", position: 2 },
+        ]);
 
-        let insertPoint = getTemplateChannelInsertPoint({ id: "child-1", parent_id: "category", position: 0 }, "category", lastChildByParent);
-        assert.equal(insertPoint, "category");
-        ordering.splice(ordering.indexOf(insertPoint) + 1, 0, "child-1");
-        lastChildByParent.set("category", "child-1");
+        assert.deepEqual(
+            channels.map((channel) => channel.id),
+            ["category", "child", "text"],
+        );
+    });
 
-        insertPoint = getTemplateChannelInsertPoint({ id: "child-2", parent_id: "category", position: 1 }, "category", lastChildByParent);
-        assert.equal(insertPoint, "child-1");
-        ordering.splice(ordering.indexOf(insertPoint) + 1, 0, "child-2");
+    test("maps imported guild ordering from serialized template order instead of stale positions", () => {
+        const serializedChannels = [
+            { id: "category", position: 3 },
+            { id: "child-1", parent_id: "category", position: 999 },
+            { id: "child-2", parent_id: "category", position: 0 },
+            { id: "text", position: 0 },
+        ];
+        const createdIds = new Map(serializedChannels.map((channel) => [channel, `new-${channel.id}`]));
 
-        assert.deepEqual(ordering, ["category", "child-1", "child-2"]);
+        assert.deepEqual(
+            mapTemplateChannelOrdering(serializedChannels, (channel) => createdIds.get(channel)),
+            ["new-category", "new-child-1", "new-child-2", "new-text"],
+        );
     });
 
     test("serializes template channels in stored guild ordering", () => {

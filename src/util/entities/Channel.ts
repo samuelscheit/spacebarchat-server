@@ -199,6 +199,7 @@ export class Channel extends BaseClass {
             skipPermissionCheck?: boolean;
             skipEventEmit?: boolean;
             skipNameChecks?: boolean;
+            skipOrdering?: boolean;
         },
     ): Promise<Channel> {
         if (!opts?.skipPermissionCheck) {
@@ -296,7 +297,7 @@ export class Channel extends BaseClass {
                       guild_id: channel.guild_id,
                   } satisfies ChannelCreateEvent)
                 : Promise.resolve(),
-            Guild.insertChannelInOrder(guild.id, ret.id, position, guild),
+            opts?.skipOrdering ? Promise.resolve() : Guild.insertChannelInOrder(guild.id, ret.id, position, guild),
         ]);
 
         return ret;

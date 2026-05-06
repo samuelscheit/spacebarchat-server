@@ -5,18 +5,28 @@ export type TemplateChannelOrderLike = {
 };
 
 export function sortTemplateChannelsForCreation<T extends TemplateChannelOrderLike>(channels: T[]): T[] {
-    return channels.toSorted((a, b) => {
-        const parentSort = Number(Boolean(a.parent_id)) - Number(Boolean(b.parent_id));
-        if (parentSort !== 0) return parentSort;
+    const channelsById = new Map(channels.filter((channel) => channel.id).map((channel) => [channel.id as string, channel]));
+    const sorted: T[] = [];
+    const visited = new Set<T>();
+    const visiting = new Set<T>();
 
-        return (a.position ?? 0) - (b.position ?? 0);
-    });
-}
+    const visit = (channel: T) => {
+        if (visited.has(channel)) return;
+        if (visiting.has(channel)) return;
 
-export function getTemplateChannelInsertPoint<T extends TemplateChannelOrderLike>(channel: T, parentId: string | undefined, lastChildByParent: Map<string, string>) {
-    if (!parentId) return channel.position ?? 0;
+        visiting.add(channel);
 
-    return lastChildByParent.get(parentId) ?? parentId;
+        const parent = channel.parent_id ? channelsById.get(channel.parent_id) : undefined;
+        if (parent) visit(parent);
+
+        visiting.delete(channel);
+        visited.add(channel);
+        sorted.push(channel);
+    };
+
+    channels.forEach(visit);
+
+    return sorted;
 }
 
 export function sortChannelsByChannelOrdering<T extends { id?: string | null }>(channels: T[], channelOrdering: string[] | undefined): T[] {
@@ -28,4 +38,8 @@ export function sortChannelsByChannelOrdering<T extends { id?: string | null }>(
 
         return (aPosition ?? Number.MAX_SAFE_INTEGER) - (bPosition ?? Number.MAX_SAFE_INTEGER);
     });
+}
+
+export function mapTemplateChannelOrdering<T extends TemplateChannelOrderLike>(channels: T[], resolveCreatedId: (channel: T) => string | undefined): string[] {
+    return channels.map(resolveCreatedId).filter((id): id is string => Boolean(id));
 }
