@@ -1,5 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
+import { getMetadataArgsStorage } from "typeorm";
 import { bigintNumberTransformer } from "./DatabaseTransformers";
 
 describe("database transformers", () => {
@@ -15,5 +16,18 @@ describe("database transformers", () => {
         assert.equal(bigintNumberTransformer.from(null), null);
         assert.equal(bigintNumberTransformer.from(undefined), undefined);
         assert.equal(bigintNumberTransformer.to(64), 64);
+    });
+
+    test("applies bigint number conversion to hydrated user flag columns", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+        const { User } = await import("../entities/User.js");
+        const userColumns = getMetadataArgsStorage().columns.filter((column) => column.target === User);
+
+        for (const propertyName of ["flags", "public_flags", "purchased_flags"]) {
+            const column = userColumns.find((column) => column.propertyName === propertyName);
+
+            assert.equal(column?.options.type, "bigint");
+            assert.equal(column?.options.transformer, bigintNumberTransformer);
+        }
     });
 });
