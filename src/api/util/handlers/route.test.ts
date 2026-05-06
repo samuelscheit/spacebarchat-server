@@ -26,11 +26,11 @@ async function getApplicationModifyRoute() {
 
     return route({
         requestBody: "ApplicationModifySchema",
-        strictStringFields: ["install_params.permissions"],
+        coerceRequestBody: false,
     });
 }
 
-test("route rejects numeric strict string fields before AJV can coerce them", async () => {
+test("route rejects numeric install param permissions without mutating them", async () => {
     const middleware = await getApplicationModifyRoute();
     const req = {
         body: {
@@ -43,16 +43,39 @@ test("route rejects numeric strict string fields before AJV can coerce them", as
 
     await assert.rejects(
         () => middleware(req, {} as Response, assert.fail as NextFunction),
-        (error: { code?: number; errors?: Record<string, { _errors: { code: string }[] }> }) => {
+        (error: { code?: number; _ajvErrors?: { instancePath: string; keyword: string }[] }) => {
             assert.equal(error.code, 50035);
-            assert.equal(error.errors?.["install_params.permissions"]?._errors[0]?.code, "BASE_TYPE_STRING");
+            assert.equal(
+                error._ajvErrors?.some((ajvError) => ajvError.instancePath === "/install_params/permissions" && ajvError.keyword === "type"),
+                true,
+            );
             return true;
         },
     );
     assert.equal(typeof req.body.install_params.permissions, "number");
 });
 
-test("route allows strict string fields that are already strings", async () => {
+test("route rejects scalar install params instead of coercing them to null", async () => {
+    const middleware = await getApplicationModifyRoute();
+    for (const body of [{ install_params: 0 }, { install_params: false }, { install_params: "" }]) {
+        const req = { body } as Request;
+
+        await assert.rejects(
+            () => middleware(req, {} as Response, assert.fail as NextFunction),
+            (error: { code?: number; _ajvErrors?: { instancePath: string; keyword: string }[] }) => {
+                assert.equal(error.code, 50035);
+                assert.equal(
+                    error._ajvErrors?.some((ajvError) => ajvError.instancePath === "/install_params" && ajvError.keyword === "anyOf"),
+                    true,
+                );
+                return true;
+            },
+        );
+        assert.notEqual(req.body.install_params, null);
+    }
+});
+
+test("route allows install param permissions that are already strings", async () => {
     const middleware = await getApplicationModifyRoute();
     const req = {
         body: {
@@ -70,7 +93,7 @@ test("route allows strict string fields that are already strings", async () => {
     assert.equal(req.body.install_params.permissions, "9007199254740993");
 });
 
-test("route strict string fields ignore omitted and null paths", async () => {
+test("route allows omitted and null install params", async () => {
     const middleware = await getApplicationModifyRoute();
     for (const body of [{}, { install_params: null }]) {
         const req = { body } as Request;

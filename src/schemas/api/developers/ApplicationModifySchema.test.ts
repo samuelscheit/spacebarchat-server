@@ -20,7 +20,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { ajv } from "../../Validator";
+import { ajv, nonCoercingAjv } from "../../Validator";
 
 const assetsPath = path.join(process.cwd(), "assets");
 
@@ -138,4 +138,35 @@ test("ApplicationModifySchema validates install params", () => {
         }),
         false,
     );
+});
+
+test("non-coercing ApplicationModifySchema rejects numeric permissions and scalar install params", () => {
+    const numericPermissions = {
+        install_params: {
+            scopes: ["bot"],
+            permissions: 9007199254740992,
+        },
+    };
+
+    assert.equal(nonCoercingAjv.validate("ApplicationModifySchema", numericPermissions), false);
+    assert.equal(typeof numericPermissions.install_params.permissions, "number");
+
+    assert.equal(
+        nonCoercingAjv.validate("ApplicationModifySchema", {
+            install_params: {
+                scopes: ["bot"],
+                permissions: "9007199254740993",
+            },
+        }),
+        true,
+    );
+
+    for (const install_params of [0, false, ""]) {
+        assert.equal(
+            nonCoercingAjv.validate("ApplicationModifySchema", {
+                install_params,
+            }),
+            false,
+        );
+    }
 });

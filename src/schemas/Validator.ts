@@ -39,19 +39,26 @@ const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).rep
 // 	}
 // }
 
-export const ajv = new Ajv({
-    allErrors: true,
-    parseDate: true,
-    allowDate: true,
-    schemas: schemas,
-    coerceTypes: true,
-    messages: true,
-    strict: true,
-    strictRequired: true,
-    allowUnionTypes: true,
-});
+function createAjv(coerceTypes: boolean) {
+    const validator = new Ajv({
+        allErrors: true,
+        parseDate: true,
+        allowDate: true,
+        schemas: schemas,
+        coerceTypes,
+        messages: true,
+        strict: true,
+        strictRequired: true,
+        allowUnionTypes: true,
+    });
 
-addFormats(ajv);
+    addFormats(validator);
+
+    return validator;
+}
+
+export const ajv = createAjv(true);
+export const nonCoercingAjv = createAjv(false);
 
 export function validateSchema<G extends object>(schema: string, data: G): G {
     const valid = ajv.validate(schema, data);

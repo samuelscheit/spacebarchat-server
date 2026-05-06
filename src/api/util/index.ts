@@ -23,7 +23,6 @@ export * from "./utility/passwordStrength";
 export * from "./utility/RandomInviteID";
 export * from "./handlers/route";
 export * from "./utility/String";
-export * from "./utility/StrictStringFields";
 export * from "./handlers/Voice";
 export * from "./utility/captcha";
 export * from "./utility/EmbedHandlers";
