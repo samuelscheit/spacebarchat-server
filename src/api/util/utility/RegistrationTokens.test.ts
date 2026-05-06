@@ -1,5 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
+import { DataSource } from "typeorm";
+import { ValidRegistrationToken } from "../../../util/entities/ValidRegistrationTokens";
 import { createRegistrationTokens } from "./RegistrationTokens";
 
 describe("createRegistrationTokens", () => {
@@ -11,6 +13,32 @@ describe("createRegistrationTokens", () => {
             assert.strictEqual(token.token, "xxxxxxxxxxxx");
             assert.ok(token.expires_at instanceof Date);
             assert.strictEqual(token.expires_at.getTime(), Date.UTC(2026, 0, 1) + 60_000);
+        }
+    });
+
+    test("passes Date expirations to TypeORM insert parameters", async () => {
+        const now = Date.UTC(2026, 0, 1);
+        const expirationMs = 60_000;
+        const [token] = createRegistrationTokens(1, 12, expirationMs, (length) => "x".repeat(length), now);
+        const dataSource = new DataSource({
+            type: "postgres",
+            entities: [ValidRegistrationToken],
+        });
+
+        await (dataSource as unknown as { buildMetadatas(): Promise<void> }).buildMetadatas();
+
+        try {
+            ValidRegistrationToken.useDataSource(dataSource);
+
+            const [, parameters] = dataSource.getRepository(ValidRegistrationToken).createQueryBuilder().insert().values(token).getQueryAndParameters();
+
+            assert.ok(
+                parameters.some((parameter) => parameter instanceof Date && parameter.getTime() === now + expirationMs),
+                "expected the registration token expiration insert parameter to be a Date",
+            );
+            assert.ok(!parameters.includes(now + expirationMs), "expected no numeric epoch expiration insert parameter");
+        } finally {
+            ValidRegistrationToken.useDataSource(null);
         }
     });
 });
