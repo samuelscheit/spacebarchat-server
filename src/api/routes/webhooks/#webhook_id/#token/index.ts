@@ -1,5 +1,5 @@
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateName, Webhook, WebhooksUpdateEvent } from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateWebhookName, Webhook, WebhooksUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
@@ -165,7 +165,7 @@ router.patch(
         if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
 
         if (body.name) {
-            ValidateName(body.name);
+            ValidateWebhookName(body.name);
         }
 
         webhook.assign(body);

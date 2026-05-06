@@ -51,6 +51,7 @@ export * from "./ChannelFlags";
 export * from "./Gifs";
 export * from "./Application";
 export * from "./NameValidation";
+export * from "./WebhookNamePatterns";
 export * from "../../schemas/HelperTypes";
 export * from "./extensions";
 export * from "./Random";

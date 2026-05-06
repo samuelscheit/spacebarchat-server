@@ -19,6 +19,7 @@
 import { Config } from "./Config";
 import { FieldErrors } from "./FieldError";
 import { HTTPError } from "lambert-server";
+import { findBlockedWebhookNamePattern } from "./WebhookNamePatterns";
 
 export function ValidateName(name: string) {
     const check_username = name.replace(/\s/g, "");
@@ -53,5 +54,14 @@ export function ValidateName(name: string) {
             throw new HTTPError(`Username cannot be "${word}"`, 400);
         }
     }
+    return name;
+}
+
+export function ValidateWebhookName(name: string, blockedNameRegexPatterns = Config.get().webhook.blockedNameRegexPatterns) {
+    ValidateName(name);
+
+    const blockedPattern = findBlockedWebhookNamePattern(name, blockedNameRegexPatterns);
+    if (blockedPattern) throw new HTTPError(`Webhook name is blocked by pattern "${blockedPattern}"`, 400);
+
     return name;
 }

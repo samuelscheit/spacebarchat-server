@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "@spacebar/util";
+import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateWebhookName, Application } from "@spacebar/util";
 import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -86,7 +86,7 @@ router.post(
 
         // TODO: move this
         if (name) {
-            ValidateName(name);
+            ValidateWebhookName(name);
         }
 
         if (avatar) avatar = await handleFile(`/avatars/${channel_id}`, avatar);

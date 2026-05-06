@@ -1,5 +1,18 @@
 import { handleMessage, postHandleMessage } from "@spacebar/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, Snowflake, uploadFile, ValidateName, Webhook } from "@spacebar/util";
+import {
+    Attachment,
+    Channel,
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    FieldErrors,
+    Message,
+    MessageCreateEvent,
+    Snowflake,
+    uploadFile,
+    ValidateWebhookName,
+    Webhook,
+} from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
@@ -27,7 +40,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
     }
 
     if (body.username) {
-        ValidateName(body.username);
+        ValidateWebhookName(body.username);
     }
 
     // ensure one of content, embeds, components, or file is present
