@@ -1,4 +1,18 @@
-export function moveChannelInOrder(channel_ordering: string[], channel_id: string, insertPoint: string | number) {
+export type ChannelOrderInsertPoint = string | number;
+
+export type ChannelOrderingPatch = {
+    position?: number;
+    parent_id?: string | null;
+};
+
+export function getChannelOrderInsertPoint(payload: ChannelOrderingPatch, isThread: boolean): ChannelOrderInsertPoint | undefined {
+    if (isThread) return undefined;
+    if (payload.position !== undefined) return payload.position;
+    if (payload.parent_id !== undefined && payload.parent_id !== null) return payload.parent_id;
+    return undefined;
+}
+
+export function moveChannelInOrder(channel_ordering: string[], channel_id: string, insertPoint: ChannelOrderInsertPoint) {
     const ordering = channel_ordering.filter((id) => id !== channel_id);
     const unclampedPosition = typeof insertPoint == "string" ? ordering.indexOf(insertPoint) + 1 : insertPoint;
     const position = Math.max(0, Math.min(unclampedPosition, ordering.length));

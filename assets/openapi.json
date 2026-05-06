@@ -664,7 +664,8 @@
                         }
                     },
                     "parent_id": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "id": {
                         "type": "string"
@@ -7212,7 +7213,8 @@
                         "nullable": true
                     },
                     "parent_id": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "default_auto_archive_duration": {
                         "type": "integer"

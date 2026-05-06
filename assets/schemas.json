@@ -679,7 +679,10 @@
                 }
             },
             "parent_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "id": {
                 "type": "string"
@@ -7678,7 +7681,10 @@
                 ]
             },
             "parent_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "default_auto_archive_duration": {
                 "type": "integer"

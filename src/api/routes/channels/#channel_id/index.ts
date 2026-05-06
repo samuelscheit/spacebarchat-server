@@ -17,7 +17,20 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Config, ErrorList, FieldError, Guild, Recipient, emitEvent, handleFile, makeObjectErrorContent } from "@spacebar/util";
+import {
+    Channel,
+    ChannelDeleteEvent,
+    ChannelUpdateEvent,
+    Config,
+    ErrorList,
+    FieldError,
+    Guild,
+    Recipient,
+    emitEvent,
+    getChannelOrderInsertPoint,
+    handleFile,
+    makeObjectErrorContent,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 
@@ -152,8 +165,9 @@ router.patch(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
+        const isThread = channel.isThread();
 
-        if (channel.isThread()) {
+        if (isThread) {
             if (channel.owner_id !== req.user.id) {
                 req.permission!.hasThrow("MANAGE_THREADS");
             }
@@ -215,12 +229,8 @@ router.patch(
             throw new FieldError(400, "Invalid form body", errors);
         }
 
+        const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);
-        if (channel.guild_id && payload.position !== undefined) {
-            channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, payload.position);
-        } else if (channel.guild_id && payload.parent_id) {
-            channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, payload.parent_id);
-        }
 
         if (channel.thread_metadata) {
             if (payload.archived !== undefined) {
@@ -236,14 +246,16 @@ router.patch(
             }
         }
 
-        await Promise.all([
-            channel.save(),
-            emitEvent({
-                event: "CHANNEL_UPDATE",
-                data: channel.toJSON(),
-                channel_id,
-            } satisfies ChannelUpdateEvent),
-        ]);
+        await channel.save();
+        if (channel.guild_id && orderInsertPoint !== undefined) {
+            channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, orderInsertPoint);
+        }
+
+        await emitEvent({
+            event: "CHANNEL_UPDATE",
+            data: channel.toJSON(),
+            channel_id,
+        } satisfies ChannelUpdateEvent);
 
         res.send(channel);
     },
