@@ -18,4 +18,4 @@
 
 import { ChannelModifySchema } from "./ChannelModifySchema";
 
-export type ChannelCreateSchema = Omit<ChannelModifySchema, "available_tags">;
+export type ChannelCreateSchema = Omit<ChannelModifySchema, "available_tags" | "status">;

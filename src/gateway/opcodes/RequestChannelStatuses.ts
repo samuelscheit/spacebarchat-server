@@ -17,7 +17,7 @@
 */
 
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
-import { Channel, Config } from "@spacebar/util";
+import { Channel, Config, getPermission } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { And, IsNull, Not } from "typeorm";
 
@@ -26,7 +26,10 @@ export type ChannelStatus = {
     status: string;
 };
 
-export async function getChannelStatuses(guild_id: string): Promise<ChannelStatus[]> {
+export async function getChannelStatuses(guild_id: string, user_id: string): Promise<ChannelStatus[]> {
+    const permissions = await getPermission(user_id, guild_id);
+    permissions.hasThrow("VIEW_CHANNEL");
+
     const channels = await Channel.find({
         where: {
             guild_id,
@@ -36,16 +39,19 @@ export async function getChannelStatuses(guild_id: string): Promise<ChannelStatu
         select: {
             id: true,
             status: true,
+            permission_overwrites: true,
         },
         order: {
             id: "ASC",
         },
     });
 
-    return channels.map((channel) => ({
-        id: channel.id,
-        status: channel.status!,
-    }));
+    return channels
+        .filter((channel) => permissions.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL"))
+        .map((channel) => ({
+            id: channel.id,
+            status: channel.status!,
+        }));
 }
 
 export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) {
@@ -56,7 +62,7 @@ export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) 
         return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.channelStatusesUrl!, d);
     }
 
-    const channels = await getChannelStatuses(d.guild_id);
+    const channels = await getChannelStatuses(d.guild_id, this.user_id);
 
     await Send(this, {
         op: OPCODES.Dispatch,
