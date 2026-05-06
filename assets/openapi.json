@@ -1378,6 +1378,17 @@
                     "message"
                 ]
             },
+            "APIErrorResponseErrorTree": {
+                "type": "object",
+                "properties": {
+                    "_errors": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/APIErrorResponseFieldError"
+                        }
+                    }
+                }
+            },
             "CaptchaRequiredResponse": {
                 "type": "object",
                 "properties": {

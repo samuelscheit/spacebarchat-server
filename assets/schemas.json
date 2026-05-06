@@ -1458,6 +1458,31 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "APIErrorResponseErrorTree": {
+        "type": "object",
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/APIErrorResponseErrorTree"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/APIErrorResponseFieldError"
+                    }
+                }
+            ]
+        },
+        "properties": {
+            "_errors": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/APIErrorResponseFieldError"
+                }
+            }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CaptchaRequiredResponse": {
         "type": "object",
         "properties": {

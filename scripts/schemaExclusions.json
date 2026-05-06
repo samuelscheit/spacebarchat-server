@@ -416,10 +416,6 @@
         {
             "value": "UserResponse",
             "reason": "Schema with only uppercase properties"
-        },
-        {
-            "value": "APIErrorResponseErrorTree",
-            "reason": "Self-reference only schema"
         }
     ]
 }

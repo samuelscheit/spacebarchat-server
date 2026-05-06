@@ -92,4 +92,93 @@ describe("AJV field error formatting", () => {
             },
         );
     });
+
+    test("maps additional property errors to the unexpected field", () => {
+        assert.deepEqual(
+            ajvErrorsToFieldErrors([
+                {
+                    instancePath: "/metadata",
+                    keyword: "additionalProperties",
+                    message: "must NOT have additional properties",
+                    params: { additionalProperty: "unexpected" },
+                    schemaPath: "#/properties/metadata/additionalProperties",
+                } as ErrorObject,
+            ]),
+            {
+                metadata: {
+                    unexpected: {
+                        _errors: [
+                            {
+                                code: "additionalProperties",
+                                message: "must NOT have additional properties",
+                            },
+                        ],
+                    },
+                },
+            },
+        );
+    });
+
+    test("decodes JSON pointer segments and keeps array indices in field paths", () => {
+        assert.deepEqual(
+            ajvErrorsToFieldErrors([
+                {
+                    instancePath: "/items/0/weird~1name~0key",
+                    keyword: "minLength",
+                    message: "must NOT have fewer than 2 characters",
+                    params: { limit: 2 },
+                    schemaPath: "#/properties/items/items/properties/weird~1name~0key/minLength",
+                } as ErrorObject,
+            ]),
+            {
+                items: {
+                    "0": {
+                        "weird/name~key": {
+                            _errors: [
+                                {
+                                    code: "BASE_TYPE_BAD_LENGTH",
+                                    message: "must NOT have fewer than 2 characters",
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        );
+    });
+
+    test("appends multiple validation errors on the same field", () => {
+        assert.deepEqual(
+            ajvErrorsToFieldErrors([
+                {
+                    instancePath: "/username",
+                    keyword: "type",
+                    message: "must be string",
+                    params: { type: "string" },
+                    schemaPath: "#/properties/username/type",
+                } as ErrorObject,
+                {
+                    instancePath: "/username",
+                    keyword: "minLength",
+                    message: "must NOT have fewer than 2 characters",
+                    params: { limit: 2 },
+                    schemaPath: "#/properties/username/minLength",
+                } as ErrorObject,
+            ]),
+            {
+                username: {
+                    _errors: [
+                        {
+                            code: "BASE_TYPE_INVALID",
+                            message: "must be string",
+                        },
+                        {
+                            code: "BASE_TYPE_BAD_LENGTH",
+                            message: "must NOT have fewer than 2 characters",
+                        },
+                    ],
+                },
+            },
+        );
+    });
 });
