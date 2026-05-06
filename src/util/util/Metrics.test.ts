@@ -163,6 +163,23 @@ describe("Prometheus metrics", () => {
         }
     });
 
+    test("standalone WebRTC server handles malformed absolute-form request targets", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1:5432/spacebar";
+        const { Server } = await import("../../webrtc/Server.js");
+        const webrtc = new Server({ port: 0 });
+        const server = await listen(webrtc.server);
+
+        try {
+            const response = await requestRaw(server.port, "GET http://[::1 HTTP/1.1\r\nHost: example.test\r\nConnection: close\r\n\r\n");
+
+            assert.match(response, /^HTTP\/1\.1 200 OK\r\n/);
+            assert.match(response, /Online/);
+        } finally {
+            webrtc.ws.close();
+            await close(server.server);
+        }
+    });
+
     test("standalone gateway metrics endpoint is scrape-only", async () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1:5432/spacebar";
         const { Server } = await import("../../gateway/Server.js");
@@ -201,6 +218,23 @@ describe("Prometheus metrics", () => {
             await close(server.server);
         }
     });
+
+    test("standalone gateway server handles malformed absolute-form request targets", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1:5432/spacebar";
+        const { Server } = await import("../../gateway/Server.js");
+        const gateway = new Server({ port: 0 });
+        const server = await listen(gateway.server);
+
+        try {
+            const response = await requestRaw(server.port, "GET http://[::1 HTTP/1.1\r\nHost: example.test\r\nConnection: close\r\n\r\n");
+
+            assert.match(response, /^HTTP\/1\.1 200 OK\r\n/);
+            assert.match(response, /Online/);
+        } finally {
+            gateway.ws.close();
+            await close(server.server);
+        }
+    });
 });
 
 type ListeningServer = {
@@ -230,9 +264,13 @@ function close(server: http.Server): Promise<void> {
 }
 
 function requestWithMalformedHost(port: number, path: string): Promise<string> {
+    return requestRaw(port, `GET ${path} HTTP/1.1\r\nHost: exa mple\r\nConnection: close\r\n\r\n`);
+}
+
+function requestRaw(port: number, request: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const socket = net.createConnection({ host: "127.0.0.1", port }, () => {
-            socket.write(`GET ${path} HTTP/1.1\r\nHost: exa mple\r\nConnection: close\r\n\r\n`);
+            socket.write(request);
         });
         const chunks: Buffer[] = [];
 
