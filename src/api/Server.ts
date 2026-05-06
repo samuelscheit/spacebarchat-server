@@ -25,6 +25,7 @@ import path from "node:path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
 import { route } from "./util";
+import { startUpdateChecker } from "./util/UpdateChecker";
 
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
@@ -204,6 +205,8 @@ export class SpacebarServer extends Server {
 
         if (logRequests) console.log(red(`Warning: Request logging is enabled! This will spam your console!\nTo disable this, unset the 'LOG_REQUESTS' environment variable!`));
 
-        return super.start();
+        const started = await super.start();
+        startUpdateChecker();
+        return started;
     }
 }
