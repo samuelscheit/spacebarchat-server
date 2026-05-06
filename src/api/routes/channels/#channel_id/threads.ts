@@ -110,7 +110,7 @@ router.post(
                 create_timestamp: new Date().toISOString(),
             },
             req.user_id,
-            { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
+            { skipPermissionCheck: true, skipEventEmit: true, skipNameChecks: true },
         );
 
         await Promise.all([

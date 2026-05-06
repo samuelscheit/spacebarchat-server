@@ -318,11 +318,13 @@ export class Channel extends BaseClass {
             skipNameChecks?: boolean;
         },
     ): Promise<Channel> {
+        const threadId = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
+
         channel = {
             // set the default type to private
             type: ChannelType.GUILD_PRIVATE_THREAD,
             ...channel,
-            ...(!opts?.keepId && { id: Snowflake.generate() }),
+            id: threadId,
             created_at: new Date(),
             position: 0, // TODO:
             message_count: 0,
