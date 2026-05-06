@@ -9,7 +9,7 @@ export function missingDatabaseEnvironmentMessage() {
         "3. Copy config.example.json to config.json, then adjust public endpoints as needed.",
         "4. Run npm run build before npm run start.",
         "",
-        "Database setup: https://docs.spacebar.chat/setup/server/database/",
+        "Database setup: https://docs.spacebar.chat/setup/server/installation/generic/database/",
         "More details: https://docs.spacebar.chat/setup/server/configuration/env/",
     ].join("\n");
 }

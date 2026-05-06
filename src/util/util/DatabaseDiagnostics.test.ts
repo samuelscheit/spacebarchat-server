@@ -12,5 +12,6 @@ describe("missingDatabaseEnvironmentMessage", () => {
         assert.match(message, /config\.example\.json/);
         assert.match(message, /createdb -U postgres spacebar/);
         assert.match(message, /npm run build/);
+        assert.match(message, /https:\/\/docs\.spacebar\.chat\/setup\/server\/installation\/generic\/database\//);
     });
 });
