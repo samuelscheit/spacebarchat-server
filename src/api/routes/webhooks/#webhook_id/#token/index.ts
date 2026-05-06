@@ -1,11 +1,11 @@
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateName, Webhook, WebhooksUpdateEvent } from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateName, Webhook } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { executeWebhook } from "../../../../util/handlers/Webhook";
 import { WebhookUpdateSchema } from "@spacebar/schemas";
-import { buildWebhooksUpdateEventData } from "../../../../util/utility/WebhookEvents";
+import { buildWebhooksUpdateEvent } from "../../../../util/utility/WebhookEvents";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -119,14 +119,11 @@ router.delete(
         if (webhook.token !== token) {
             throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
         }
-        const channel_id = webhook.channel_id;
+
         await Webhook.delete({ id: webhook_id });
 
-        await emitEvent({
-            event: "WEBHOOKS_UPDATE",
-            channel_id,
-            data: buildWebhooksUpdateEventData(webhook),
-        } satisfies WebhooksUpdateEvent);
+        const webhooksUpdateEvent = buildWebhooksUpdateEvent(webhook);
+        if (webhooksUpdateEvent) await emitEvent(webhooksUpdateEvent);
 
         res.sendStatus(204);
     },
@@ -148,35 +145,43 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        // noinspection JSUnusedLocalSymbols - TODO: shouldnt token be checked?
         const { webhook_id, token } = req.params as { [key: string]: string };
         const body = req.body as WebhookUpdateSchema;
 
-        const webhook = await Webhook.findOneOrFail({
-            where: { id: webhook_id },
+        const webhook = await Webhook.findOne({
+            where: {
+                id: webhook_id,
+            },
             relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
         });
-        const channel_id = webhook.channel_id;
-        if (!body.name && !body.avatar) {
+
+        if (!webhook) {
+            throw DiscordApiErrors.UNKNOWN_WEBHOOK;
+        }
+
+        if (webhook.token !== token) {
+            throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
+        }
+
+        const { channel_id: _channel_id, ...webhookUpdate } = body;
+
+        if (!webhookUpdate.name && !webhookUpdate.avatar) {
             throw new HTTPError("Empty webhook updates are not allowed", 50006);
         }
-        if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
+        if (webhookUpdate.avatar) webhookUpdate.avatar = await handleFile(`/avatars/${webhook_id}`, webhookUpdate.avatar as string);
 
-        if (body.name) {
-            ValidateName(body.name);
+        if (webhookUpdate.name) {
+            ValidateName(webhookUpdate.name);
         }
 
-        webhook.assign(body);
+        webhook.assign(webhookUpdate);
 
-        await Promise.all([
-            webhook.save(),
-            emitEvent({
-                event: "WEBHOOKS_UPDATE",
-                channel_id,
-                data: buildWebhooksUpdateEventData(webhook),
-            } satisfies WebhooksUpdateEvent),
-        ]);
-        res.status(204);
+        const webhooksUpdateEvent = buildWebhooksUpdateEvent(webhook);
+
+        await webhook.save();
+        if (webhooksUpdateEvent) await emitEvent(webhooksUpdateEvent);
+
+        res.sendStatus(204);
     },
 );
 

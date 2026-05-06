@@ -36,6 +36,7 @@ import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicMember, RelationshipType } from "@spacebar/schemas";
 import { bgRedBright } from "picocolors";
+import { getEventPermissionLookupId } from "../util/EventPermissions";
 
 // TODO: close connection on Invalidated Token
 // TODO: check intent
@@ -198,7 +199,8 @@ export async function setupListener(this: WebSocket) {
 async function consume(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
     const id = data.id as string;
-    const permission = this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
+    const permissionLookupId = getEventPermissionLookupId(event, data);
+    const permission = (permissionLookupId && this.permissions[permissionLookupId]) || new Permissions("ADMINISTRATOR"); // default permission for dm
 
     const consumer = consume.bind(this);
     const listenOpts = opts as ListenEventOpts;
