@@ -5,13 +5,11 @@ describe("Guild.createGuild", () => {
     test("persists imported template channel ordering from serialized channel order", async () => {
         process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
 
-        const [guildModule, channelModule, roleModule, snowflakeModule, configModule] = await Promise.all([
-            import("./Guild.js"),
-            import("./Channel.js"),
-            import("./Role.js"),
-            import("../util/Snowflake.js"),
-            import("../util/Config.js"),
-        ] as const);
+        const guildModule = await import("./Guild.js");
+        const channelModule = await import("./Channel.js");
+        const roleModule = await import("./Role.js");
+        const snowflakeModule = await import("../util/Snowflake.js");
+        const configModule = await import("../util/Config.js");
         const { Guild } = guildModule;
         const { Channel } = channelModule;
         const { Role } = roleModule;
