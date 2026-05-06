@@ -1,4 +1,3 @@
-using ArcaneLibs.Extensions.Streams;
 using Microsoft.AspNetCore.Mvc;
 using Spacebar.Cdn.Services;
 using Spacebar.Interop.Cdn.Abstractions;
@@ -9,12 +8,20 @@ namespace Spacebar.Cdn.Controllers;
 public class AttachmentsController(IFileSource fs, CdnAttachmentAccessService accessService) : ControllerBase {
     [HttpGet("/attachments/{channelId:required}/{messageId:required}/{filename:required}")]
     public async Task<IActionResult> GetAttachment(string channelId, string messageId, string filename) {
-        return await GetAttachmentFile($"attachments/{channelId}/{messageId}/{filename}", filename);
+        if (!AttachmentPath.TryBuildAttachment(channelId, messageId, filename, out var path)) {
+            return BadRequest("Invalid attachment path.");
+        }
+
+        return await GetAttachmentFile(path, filename);
     }
 
     [HttpGet("/ephemeral-attachments/{applicationId:required}/{attachmentId:required}/{filename:required}")]
     public async Task<IActionResult> GetEphemeralAttachment(string applicationId, string attachmentId, string filename) {
-        return await GetAttachmentFile($"ephemeral-attachments/{applicationId}/{attachmentId}/{filename}", filename);
+        if (!AttachmentPath.TryBuildEphemeralAttachment(applicationId, attachmentId, filename, out var path)) {
+            return BadRequest("Invalid attachment path.");
+        }
+
+        return await GetAttachmentFile(path, filename);
     }
 
     private async Task<IActionResult> GetAttachmentFile(string path, string filename) {
@@ -22,7 +29,8 @@ public class AttachmentsController(IFileSource fs, CdnAttachmentAccessService ac
             return NotFound("This content is no longer available.");
         }
 
-        await using var file = await fs.GetFile(path);
-        return new FileContentResult(file.Stream.ReadToEnd().ToArray(), AttachmentContentType.FromFilename(filename));
+        var file = await fs.GetFile(path);
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(file.Stream, AttachmentContentType.FromFilename(filename));
     }
 }

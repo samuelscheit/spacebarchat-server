@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Spacebar.Interop.Cdn.Signing;
 
@@ -6,8 +8,9 @@ namespace Spacebar.Cdn.Services;
 
 public class CdnAttachmentAccessService(CdnAttachmentSecurityOptions options, CdnSigningService signingService) {
     public bool HasAccess(HttpRequest request, PathString path) {
-        if (request.Headers.TryGetValue("signature", out var signatureHeader)) {
-            return signatureHeader.ToString() == options.RequestSignature;
+        if (request.Headers.TryGetValue("signature", out var signatureHeader) &&
+            HasMatchingInternalRequestSignature(signatureHeader.ToString())) {
+            return true;
         }
 
         if (!options.CdnSignUrls) {
@@ -22,6 +25,17 @@ public class CdnAttachmentAccessService(CdnAttachmentSecurityOptions options, Cd
         signature.UserAgent = request.Headers.UserAgent.ToString();
 
         return signingService.Verify(signature);
+    }
+
+    private bool HasMatchingInternalRequestSignature(string signatureHeader) {
+        if (string.IsNullOrEmpty(options.RequestSignature) || string.IsNullOrEmpty(signatureHeader)) {
+            return false;
+        }
+
+        var expected = Encoding.UTF8.GetBytes(options.RequestSignature);
+        var actual = Encoding.UTF8.GetBytes(signatureHeader);
+
+        return expected.Length == actual.Length && CryptographicOperations.FixedTimeEquals(expected, actual);
     }
 
     private static bool TryReadSignature(HttpRequest request, PathString path, out CdnSignatureResult signature) {
@@ -57,15 +71,16 @@ public class CdnAttachmentAccessService(CdnAttachmentSecurityOptions options, Cd
             return false;
         }
 
-        value = DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
-        return true;
+        try {
+            value = DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+            return true;
+        }
+        catch (ArgumentOutOfRangeException) {
+            return false;
+        }
     }
 
     private static string? GetClientIp(HttpRequest request) {
-        if (request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor) && !string.IsNullOrWhiteSpace(forwardedFor)) {
-            return forwardedFor.ToString().Split(',')[0].Trim();
-        }
-
         return request.HttpContext.Connection.RemoteIpAddress?.ToString();
     }
 }

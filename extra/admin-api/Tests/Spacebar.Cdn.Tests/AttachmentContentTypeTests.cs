@@ -14,7 +14,11 @@ public class AttachmentContentTypeTests {
     [Theory]
     [InlineData("index.html")]
     [InlineData("archive.mhtml")]
+    [InlineData("style.css")]
+    [InlineData("script.js")]
+    [InlineData("vector.svg")]
     [InlineData("page.xhtml")]
+    [InlineData("feed.xml")]
     public void FromFilename_SanitizesBrowserExecutableTypes(string filename) {
         Assert.Equal("application/octet-stream", AttachmentContentType.FromFilename(filename));
     }

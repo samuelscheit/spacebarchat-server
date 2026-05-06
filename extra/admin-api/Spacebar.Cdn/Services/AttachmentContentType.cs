@@ -28,8 +28,12 @@ public static class AttachmentContentType {
 
     private static readonly HashSet<string> SanitizedMimeTypes = new(StringComparer.OrdinalIgnoreCase) {
         "application/xhtml+xml",
+        "application/xml",
+        "image/svg+xml",
         "multipart/related",
+        "text/css",
         "text/html",
+        "text/javascript",
         "text/mhtml",
     };
 

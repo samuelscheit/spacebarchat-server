@@ -18,6 +18,15 @@ public class CdnAttachmentAccessServiceTests {
     }
 
     [Fact]
+    public void HasAccess_IgnoresWrongInternalSignatureWhenSigningDisabled() {
+        var service = NewAccessService(cdnSignUrls: false);
+        var context = NewContext("/attachments/1/2/file.png");
+        context.Request.Headers["signature"] = "wrong-secret";
+
+        Assert.True(service.HasAccess(context.Request, context.Request.Path));
+    }
+
+    [Fact]
     public void HasAccess_AllowsInternalRequestSignature() {
         var service = NewAccessService(cdnSignUrls: true);
         var context = NewContext("/attachments/1/2/file.png");
@@ -31,6 +40,15 @@ public class CdnAttachmentAccessServiceTests {
         var service = NewAccessService(cdnSignUrls: true);
         var context = NewContext("/attachments/1/2/file.png");
         context.Request.Headers["signature"] = "wrong-secret";
+
+        Assert.False(service.HasAccess(context.Request, context.Request.Path));
+    }
+
+    [Fact]
+    public void HasAccess_DoesNotAllowEmptyInternalRequestSignatureBypass() {
+        var service = NewAccessService(cdnSignUrls: true, requestSignature: string.Empty);
+        var context = NewContext("/attachments/1/2/file.png");
+        context.Request.Headers["signature"] = string.Empty;
 
         Assert.False(service.HasAccess(context.Request, context.Request.Path));
     }
@@ -52,6 +70,32 @@ public class CdnAttachmentAccessServiceTests {
     }
 
     [Fact]
+    public void HasAccess_IgnoresSpoofedForwardedForWhenValidatingSignedAttachmentUrl() {
+        var signingService = NewSigningService();
+        var service = NewAccessService(cdnSignUrls: true, signingService);
+        var context = NewContext("/attachments/1/2/file.png");
+        var signature = signingService.Sign(new CdnSignature {
+            Path = context.Request.Path,
+            IpAddress = "127.0.0.1",
+            UserAgent = "test-agent",
+        });
+
+        context.Request.Headers["X-Forwarded-For"] = "203.0.113.1";
+        context.Request.QueryString = new QueryString($"?is={signature.CreatedAt.ToUnixTimeMilliseconds():x}&ex={signature.ExpiresAt.ToUnixTimeMilliseconds():x}&hm={signature.Signature}");
+
+        Assert.True(service.HasAccess(context.Request, context.Request.Path));
+    }
+
+    [Fact]
+    public void HasAccess_RejectsOutOfRangeSignedAttachmentTimestamp() {
+        var service = NewAccessService(cdnSignUrls: true);
+        var context = NewContext("/attachments/1/2/file.png");
+        context.Request.QueryString = new QueryString("?is=7fffffffffffffff&ex=7fffffffffffffff&hm=abc");
+
+        Assert.False(service.HasAccess(context.Request, context.Request.Path));
+    }
+
+    [Fact]
     public void HasAccess_RejectsMissingSignedAttachmentUrl() {
         var service = NewAccessService(cdnSignUrls: true);
         var context = NewContext("/attachments/1/2/file.png");
@@ -59,10 +103,10 @@ public class CdnAttachmentAccessServiceTests {
         Assert.False(service.HasAccess(context.Request, context.Request.Path));
     }
 
-    private static CdnAttachmentAccessService NewAccessService(bool cdnSignUrls, CdnSigningService? signingService = null) {
+    private static CdnAttachmentAccessService NewAccessService(bool cdnSignUrls, CdnSigningService? signingService = null, string requestSignature = "internal-secret") {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> {
-                ["Spacebar:Security:RequestSignature"] = "internal-secret",
+                ["Spacebar:Security:RequestSignature"] = requestSignature,
                 ["Spacebar:Security:CdnSignUrls"] = cdnSignUrls.ToString(),
                 ["Spacebar:Security:CdnSignatureKey"] = "test-secret",
                 ["Spacebar:Security:CdnSignatureIncludeIp"] = "true",
