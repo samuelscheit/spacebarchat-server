@@ -1,8 +1,10 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+const verifyPagePath = path.resolve(__dirname, "../../../../assets/public/verify.html");
 const verifyResponsePath = path.resolve(__dirname, "../../../../assets/public/verify-response.js");
 
 async function loadParser() {
@@ -11,6 +13,14 @@ async function loadParser() {
 }
 
 describe("verify page response parser", () => {
+    test("verify page loads the parser helper and treats 204 success sentinel as verified", async () => {
+        const verifyPage = await fs.readFile(verifyPagePath, "utf-8");
+
+        assert.match(verifyPage, /<script src="\/verify-response\.js"><\/script>/);
+        assert.match(verifyPage, /parseVerificationResponse\(response\)/);
+        assert.match(verifyPage, /if \(data === null\) {\s+title\.innerText = "Email Verified";\s+subtitle\.innerText = "You can now login\.";\s+return;\s+}/);
+    });
+
     test("treats 204 verification responses as success without parsing JSON", async () => {
         const parseVerificationResponse = await loadParser();
 
