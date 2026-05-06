@@ -5,6 +5,15 @@ export type ChannelOrderingPatch = {
     parent_id?: string | null;
 };
 
+export function getInvalidThreadChannelOrderFields(payload: ChannelOrderingPatch, isThread: boolean): (keyof ChannelOrderingPatch)[] {
+    if (!isThread) return [];
+
+    const invalidFields: (keyof ChannelOrderingPatch)[] = [];
+    if (payload.position !== undefined) invalidFields.push("position");
+    if (payload.parent_id !== undefined) invalidFields.push("parent_id");
+    return invalidFields;
+}
+
 export function getChannelOrderInsertPoint(payload: ChannelOrderingPatch, isThread: boolean): ChannelOrderInsertPoint | undefined {
     if (isThread) return undefined;
     if (payload.position !== undefined) return payload.position;

@@ -28,6 +28,7 @@ import {
     Recipient,
     emitEvent,
     getChannelOrderInsertPoint,
+    getInvalidThreadChannelOrderFields,
     handleFile,
     makeObjectErrorContent,
 } from "@spacebar/util";
@@ -224,6 +225,9 @@ router.patch(
         if (payload.topic !== undefined && payload.topic.length > channelLimits.maxTopic)
             errors["topic"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel topic must be less than ${channelLimits.maxTopic} characters`);
         if (payload.user_limit !== undefined && payload.user_limit < 0) errors["user_limit"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "User limit must be 0 or higher");
+        for (const field of getInvalidThreadChannelOrderFields(payload, isThread)) {
+            errors[field] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", `Threads cannot update ${field}`);
+        }
 
         if (Object.keys(errors).length) {
             throw new FieldError(400, "Invalid form body", errors);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { getChannelOrderInsertPoint, moveChannelInOrder } from "./ChannelOrdering";
+import { getChannelOrderInsertPoint, getInvalidThreadChannelOrderFields, moveChannelInOrder } from "./ChannelOrdering";
 
 describe("channel ordering", () => {
     test("moves an existing channel to a numeric position", () => {
@@ -38,5 +38,21 @@ describe("channel ordering", () => {
 
     test("does not create guild ordering updates for thread patches", () => {
         assert.equal(getChannelOrderInsertPoint({ position: 0, parent_id: "category" }, true), undefined);
+    });
+
+    test("rejects position updates for thread patches", () => {
+        assert.deepEqual(getInvalidThreadChannelOrderFields({ position: 0 }, true), ["position"]);
+    });
+
+    test("rejects parent removal for thread patches", () => {
+        assert.deepEqual(getInvalidThreadChannelOrderFields({ parent_id: null }, true), ["parent_id"]);
+    });
+
+    test("rejects parent id updates for thread patches", () => {
+        assert.deepEqual(getInvalidThreadChannelOrderFields({ parent_id: "category" }, true), ["parent_id"]);
+    });
+
+    test("does not reject ordering fields for non-thread patches", () => {
+        assert.deepEqual(getInvalidThreadChannelOrderFields({ position: 0, parent_id: null }, false), []);
     });
 });
