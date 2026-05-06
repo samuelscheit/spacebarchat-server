@@ -1,4 +1,5 @@
-import type { InstanceConfigResponse } from "../../../schemas/responses/InstanceConfigResponse";
+import type { ConfigValue } from "../../../util/config/Config";
+import type { InstanceConfigResponse, PublicInstanceConfigResponse } from "../../../schemas/responses/InstanceConfigResponse";
 
 interface InstanceConfigSource {
     limits: {
@@ -48,7 +49,7 @@ interface InstanceConfigSource {
     };
 }
 
-export function getPublicInstanceConfigResponse(general: InstanceConfigSource): InstanceConfigResponse {
+export function getPublicInstanceConfigResponse(general: InstanceConfigSource): PublicInstanceConfigResponse {
     return {
         limits_user_maxGuilds: general.limits.user.maxGuilds,
         limits_user_maxBio: general.limits.user.maxBio,
@@ -69,4 +70,8 @@ export function getPublicInstanceConfigResponse(general: InstanceConfigSource): 
         register_email_required: general.register.email.required,
         can_recover_account: general.email.provider != null && general.general.frontPage != null,
     };
+}
+
+export function getInstanceConfigResponse(general: ConfigValue, isOperator: boolean): InstanceConfigResponse {
+    return isOperator ? general : getPublicInstanceConfigResponse(general);
 }

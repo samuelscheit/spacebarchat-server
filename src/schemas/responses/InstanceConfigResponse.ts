@@ -16,7 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export interface InstanceConfigResponse {
+import type { ConfigValue } from "../../util/config/Config";
+
+export interface PublicInstanceConfigResponse {
     limits_user_maxGuilds: number;
     limits_user_maxBio: number;
     limits_guild_maxEmojis: number;
@@ -36,3 +38,7 @@ export interface InstanceConfigResponse {
     register_email_required: boolean;
     can_recover_account: boolean;
 }
+
+export type FullInstanceConfigResponse = ConfigValue;
+
+export type InstanceConfigResponse = PublicInstanceConfigResponse | FullInstanceConfigResponse;

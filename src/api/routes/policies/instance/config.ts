@@ -18,7 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Config } from "@spacebar/util";
-import { getPublicInstanceConfigResponse } from "../../../util/responses/InstanceConfig";
+import { getInstanceConfigResponse } from "../../../util/responses/InstanceConfig";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
@@ -36,7 +36,7 @@ router.get(
     async (req: Request, res: Response) => {
         const general = Config.get();
 
-        res.json(getPublicInstanceConfigResponse(general));
+        res.json(getInstanceConfigResponse(general, req.rights?.has("OPERATOR") === true));
     },
 );
 
