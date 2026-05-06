@@ -28,7 +28,7 @@ import {
     emitEvent,
     Emoji,
     EVENTEnum,
-    generateToken,
+    generateTokenForSession,
     getDatabase,
     Guild,
     GuildOrUnavailable,
@@ -140,6 +140,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
               }),
               isNewSession: true,
           };
+    const shouldRefreshAuthToken = tokenData.tokenVersion != CurrentTokenFormatVersion || tokenData.decoded.did !== session.session_id;
 
     if (isNewSession)
         console.warn(
@@ -728,8 +729,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             }) satisfies ReadyEventData,
     );
 
-    if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && tokenData.tokenVersion != CurrentTokenFormatVersion) {
-        d.auth_token = this.accessToken = (await generateToken(this.user_id))!;
+    if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && shouldRefreshAuthToken) {
+        d.auth_token = this.accessToken = (await generateTokenForSession(this.user_id, this.session!))!;
     }
     // const buildReadyEventDataTime = taskSw.getElapsedAndReset();
 
