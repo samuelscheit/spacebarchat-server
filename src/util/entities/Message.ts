@@ -26,7 +26,7 @@ import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Webhook } from "./Webhook";
 import { Sticker } from "./Sticker";
-import { Attachment } from "./Attachment";
+import { Attachment, signAttachmentUrls } from "./Attachment";
 import { NewUrlUserSignatureData } from "../Signing";
 import {
     ApplicationCommandType,
@@ -41,10 +41,11 @@ import {
     Reaction,
     UnfurledMediaItem,
     InteractionType,
+    GuildMessagesSearchMessage,
 } from "@spacebar/schemas";
 import { MessageFlags } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
-import { toMessageMentionUser } from "../util/MessageMentions";
+import { toMessageMentionUsers } from "../util/MessageMentions";
 
 @Entity({
     name: "messages",
@@ -277,7 +278,7 @@ export class Message extends BaseClass {
             member_id: undefined,
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
-            mentions: this.mentions?.map((user) => toMessageMentionUser(user)),
+            mentions: toMessageMentionUsers(this.mentions),
 
             mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
             mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
@@ -325,6 +326,13 @@ export class Message extends BaseClass {
         };
     }
 
+    toSearchResult(): GuildMessagesSearchMessage {
+        return {
+            ...this.toJSON(),
+            hit: true,
+        };
+    }
+
     toSnapshot(): MessageSnapshot {
         return {
             message: {
@@ -335,7 +343,7 @@ export class Message extends BaseClass {
                 embeds: this.embeds,
                 flags: this.flags,
                 mention_roles: this.mention_roles?.map((x) => x.id),
-                mentions: this.mentions.map((x) => toMessageMentionUser(x)),
+                mentions: toMessageMentionUsers(this.mentions),
                 timestamp: this.timestamp,
                 type: this.type,
             },
@@ -347,12 +355,19 @@ export class Message extends BaseClass {
             attachments?: unknown[];
             components?: BaseMessageComponents[];
         };
+        function hasPublicUrls(value: unknown): value is { url: string; proxy_url?: string } {
+            return typeof value === "object" && value !== null && typeof (value as { url?: unknown }).url === "string";
+        }
+        function signAttachment(attachment: unknown) {
+            if (hasPublicUrls(attachment)) return signAttachmentUrls(attachment, data);
+            return Attachment.prototype.signUrls.call(attachment, data);
+        }
         function signMedia(media: UnfurledMediaItem) {
-            Object.assign(media, Attachment.prototype.signUrls.call(media, data));
+            Object.assign(media, signAttachmentUrls(media, data));
         }
         return {
             ...message,
-            attachments: message.attachments?.map((attachment) => Attachment.prototype.signUrls.call(attachment, data)),
+            attachments: message.attachments?.map((attachment) => signAttachment(attachment)),
             components: message.components
                 ? message.components.map((comp) => {
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any

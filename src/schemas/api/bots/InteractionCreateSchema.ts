@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicMember, PublicUser, Snowflake, InteractionType } from "@spacebar/schemas";
+import { PublicMember, PublicMessage, PublicUser, Snowflake, InteractionType } from "@spacebar/schemas";
 // TODO: remove entity imports
-import { Channel, Message } from "@spacebar/util";
+import { Channel } from "@spacebar/util";
 
 export interface InteractionCreateSchema {
     version: number; // TODO: types?
@@ -35,7 +35,7 @@ export interface InteractionCreateSchema {
     member?: PublicMember;
     user?: PublicUser;
     locale?: string;
-    message?: Message;
+    message?: PublicMessage;
     app_permissions: string;
     entitlements?: object[]; // TODO: types?
     entitlement_sku_ids?: Snowflake[]; // DEPRECATED

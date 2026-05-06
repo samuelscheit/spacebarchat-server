@@ -22,6 +22,25 @@ import { BaseClass } from "./BaseClass";
 import { getUrlSignature, NewUrlUserSignatureData, NewUrlSignatureData } from "../Signing";
 import { PublicAttachment } from "../../schemas/api/messages/Attachments";
 
+type AttachmentUrlFields = {
+    url: string;
+    proxy_url?: string;
+};
+
+function signUrl(url: string, data: NewUrlUserSignatureData): string {
+    return getUrlSignature(new NewUrlSignatureData({ ...data, url }))
+        .applyToUrl(url)
+        .toString();
+}
+
+export function signAttachmentUrls<T extends AttachmentUrlFields>(attachment: T, data: NewUrlUserSignatureData): T {
+    return {
+        ...attachment,
+        url: signUrl(attachment.url, data),
+        proxy_url: attachment.proxy_url ? signUrl(attachment.proxy_url, data) : attachment.proxy_url,
+    } as T;
+}
+
 @Entity({
     name: "attachments",
 })
@@ -77,16 +96,6 @@ export class Attachment extends BaseClass {
     }
     signUrls(data: NewUrlUserSignatureData): PublicAttachment {
         const att = Attachment.prototype.toJSON.apply(this);
-        return {
-            ...att,
-            url: getUrlSignature(new NewUrlSignatureData({ ...data, url: att.url }))
-                .applyToUrl(att.url)
-                .toString(),
-            proxy_url: att.proxy_url
-                ? getUrlSignature(new NewUrlSignatureData({ ...data, url: att.proxy_url }))
-                      .applyToUrl(att.proxy_url)
-                      .toString()
-                : att.proxy_url,
-        };
+        return signAttachmentUrls(att, data);
     }
 }

@@ -31,3 +31,7 @@ export function toMessageMentionUser(user: object): PartialUser {
 
     return partialUser;
 }
+
+export function toMessageMentionUsers(users: object[] | null | undefined): PartialUser[] {
+    return users?.map((user) => toMessageMentionUser(user)) ?? [];
+}
