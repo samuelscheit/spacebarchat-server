@@ -101,7 +101,7 @@ test("GuildMessagesSearchResponse validates grouped search hits", () => {
     assert.equal(
         ajv.validate("GuildMessagesSearchResponse", {
             ...response,
-            messages: [{ ...response.messages[0][0], mention_roles: [{ id: "500" }] }],
+            messages: [[{ ...response.messages[0][0], mention_roles: [{ id: "500" }] }]],
         }),
         false,
     );

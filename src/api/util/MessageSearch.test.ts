@@ -102,3 +102,44 @@ test("toGuildMessagesSearchResult serializes public search messages", () => {
         },
     ]);
 });
+
+test("toGuildMessagesSearchResult serializes webhook messages without a loaded author relation", () => {
+    const message = {
+        id: "201",
+        type: 0,
+        content: "webhook result",
+        channel_id: "301",
+        author: undefined,
+        author_id: undefined,
+        webhook_id: "901",
+        username: "Webhook Override",
+        avatar: "webhook-avatar",
+        webhook: {
+            id: "901",
+            name: "Webhook Default",
+            avatar: "default-avatar",
+        },
+        attachments: [],
+        embeds: [],
+        mentions: [],
+        mention_roles: [],
+        pinned: false,
+        mention_everyone: false,
+        tts: false,
+        timestamp: new Date("2026-01-03T03:04:05.000Z"),
+        edited_timestamp: null,
+        flags: 0,
+    } as unknown as Message;
+
+    assert.deepEqual(toGuildMessagesSearchResult(message)[0].author, {
+        id: "901",
+        username: "Webhook Override",
+        discriminator: "0000",
+        public_flags: 0,
+        bio: "",
+        bot: true,
+        premium_since: new Date(0),
+        premium_type: 0,
+        avatar: "webhook-avatar",
+    });
+});

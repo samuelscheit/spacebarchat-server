@@ -23,6 +23,33 @@ function toPublicUser(user: User): PublicUser {
     return user.toPublicUser?.() ?? (user as unknown as PublicUser);
 }
 
+function toMessageAuthor(message: Message): PublicUser {
+    if (message.author) {
+        const author = toPublicUser(message.author);
+
+        return {
+            ...author,
+            username: message.username ?? author.username,
+            ...(message.avatar != null ? { avatar: message.avatar } : {}),
+        };
+    }
+
+    const fallbackAuthorId = message.author_id ?? message.webhook_id;
+    if (!fallbackAuthorId) throw new Error(`Cannot serialize message ${message.id} without an author or webhook`);
+
+    return {
+        id: fallbackAuthorId,
+        username: message.username ?? message.webhook?.name ?? "",
+        discriminator: "0000",
+        public_flags: 0,
+        bio: "",
+        bot: Boolean(message.webhook_id),
+        premium_since: new Date(0),
+        premium_type: 0,
+        ...((message.avatar ?? message.webhook?.avatar) ? { avatar: message.avatar ?? message.webhook?.avatar } : {}),
+    };
+}
+
 function toPublicAttachment(attachment: Attachment): PublicAttachment {
     const publicAttachment = attachment.toJSON();
 
@@ -44,7 +71,7 @@ export function toGuildMessagesSearchMessage(message: Message): GuildMessagesSea
         type: message.type,
         content: message.content ?? "",
         channel_id: message.channel_id ?? message.channel.id,
-        author: toPublicUser(message.author!),
+        author: toMessageAuthor(message),
         attachments: message.attachments?.map(toPublicAttachment) ?? [],
         embeds: message.embeds ?? [],
         mentions: message.mentions?.map(toPublicUser) ?? [],
