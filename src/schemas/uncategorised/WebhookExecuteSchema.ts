@@ -17,7 +17,7 @@
 */
 
 import { Embed } from "@spacebar/schemas";
-import { MessageCreateAttachment, PollCreationSchema } from "./MessageCreateSchema";
+import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "./MessageCreateSchema";
 
 export interface WebhookExecuteSchema {
     content?: string;
@@ -35,8 +35,7 @@ export interface WebhookExecuteSchema {
     components?: any[];
     file?: { filename: string };
     payload_json?: string;
-    // TODO: we should create an interface for attachments
-    attachments?: MessageCreateAttachment[];
+    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
     flags?: number;
     thread_name?: string;
     applied_tags?: string[];

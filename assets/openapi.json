@@ -6864,19 +6864,45 @@
                     "attachments": {
                         "type": "array",
                         "items": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
+                            "anyOf": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "filename": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "filename",
+                                        "id"
+                                    ]
                                 },
-                                "filename": {
-                                    "type": "string"
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "filename": {
+                                            "type": "string"
+                                        },
+                                        "uploaded_filename": {
+                                            "type": "string"
+                                        },
+                                        "original_content_type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "filename",
+                                        "uploaded_filename"
+                                    ]
                                 }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "filename",
-                                "id"
                             ]
                         }
                     },
