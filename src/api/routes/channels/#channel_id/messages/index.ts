@@ -356,7 +356,8 @@ router.post(
             throw new HTTPError(`Cannot send messages to channel of type ${channel.type}`, 400);
         }
 
-        // handle blocked users in dms
+        // Handle blocked users in DMs, and prevent direct channel-id sends from reopening a closed
+        // one-to-one DM after the recipient restricted server DMs.
         if (channel.recipients?.length == 2) {
             const otherUser = channel.recipients.find((r) => r.user_id != req.user_id)?.user;
             if (otherUser) {
@@ -372,6 +373,7 @@ router.post(
                 }
             }
         }
+        await Channel.checkServerDmReopenPrivacy(channel, req.user_id);
 
         if (body.nonce) {
             const existing = await Message.findOne({

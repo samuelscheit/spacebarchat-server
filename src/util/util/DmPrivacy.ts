@@ -10,6 +10,15 @@ export interface ServerDmPrivacyCheck {
     sharedGuildIds: string[];
 }
 
+export interface ServerDmPrivacyGate {
+    recipientCount: number;
+    existingCreatorRecipientClosed?: boolean | null;
+}
+
+export function shouldCheckServerDmPrivacy({ recipientCount, existingCreatorRecipientClosed }: ServerDmPrivacyGate) {
+    return recipientCount === 1 && existingCreatorRecipientClosed !== false;
+}
+
 export function canCreateServerDm({ isBlocked, isFriend, recipientSettings, sharedGuildIds }: ServerDmPrivacyCheck) {
     if (isBlocked) return false;
     if (isFriend) return true;

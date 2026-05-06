@@ -20,7 +20,18 @@ import { HTTPError } from "lambert-server";
 import { Column, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { DmChannelDTO } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors, canCreateServerDm } from "../util";
+import {
+    InvisibleCharacters,
+    Snowflake,
+    emitEvent,
+    getPermission,
+    trimSpecial,
+    Permissions,
+    Config,
+    DiscordApiErrors,
+    canCreateServerDm,
+    shouldCheckServerDmPrivacy,
+} from "../util";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
@@ -443,6 +454,7 @@ export class Channel extends BaseClass {
 
         let channel = null;
         let needsTx = true;
+        let creatorRecipient: Recipient | null = null;
 
         const channelRecipients = [...recipients, creator_user_id];
 
@@ -458,14 +470,20 @@ export class Channel extends BaseClass {
                 if (channelRecipients.every((_) => re.includes(_))) {
                     if (channel == null) {
                         channel = ur.channel;
+                        creatorRecipient = ur;
                         if (!ur.closed) needsTx = false;
-                        await ur.assign({ closed: false }).save();
                     }
                 }
             }
         }
 
-        if (type === ChannelType.DM && recipients.length === 1 && channel == null) {
+        if (
+            type === ChannelType.DM &&
+            shouldCheckServerDmPrivacy({
+                recipientCount: recipients.length,
+                existingCreatorRecipientClosed: creatorRecipient?.closed,
+            })
+        ) {
             await Channel.checkServerDmPrivacy(creator_user_id, recipients[0]);
         }
 
@@ -486,6 +504,10 @@ export class Channel extends BaseClass {
                 ),
                 nsfw: false,
             }).save();
+        }
+
+        if (creatorRecipient?.closed) {
+            await creatorRecipient.assign({ closed: false }).save();
         }
 
         const channel_dto = await DmChannelDTO.from(channel);
@@ -512,7 +534,26 @@ export class Channel extends BaseClass {
         else return channel_dto.excludedRecipients([creator_user_id]);
     }
 
-    private static async checkServerDmPrivacy(creatorUserId: string, recipientUserId: string) {
+    static async checkServerDmReopenPrivacy(channel: Channel, creatorUserId: string) {
+        if (channel.type !== ChannelType.DM) return;
+
+        const recipients = channel.recipients ?? (await Recipient.find({ where: { channel_id: channel.id } }));
+        const creatorRecipient = recipients.find((recipient) => recipient.user_id === creatorUserId);
+        const recipient = recipients.find((recipient) => recipient.user_id !== creatorUserId);
+
+        if (
+            creatorRecipient &&
+            recipient &&
+            shouldCheckServerDmPrivacy({
+                recipientCount: recipients.length - 1,
+                existingCreatorRecipientClosed: creatorRecipient.closed,
+            })
+        ) {
+            await Channel.checkServerDmPrivacy(creatorUserId, recipient.user_id);
+        }
+    }
+
+    static async checkServerDmPrivacy(creatorUserId: string, recipientUserId: string) {
         const [relationships, recipient, members] = await Promise.all([
             Relationship.find({
                 where: [
