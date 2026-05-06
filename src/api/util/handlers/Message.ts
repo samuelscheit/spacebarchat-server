@@ -67,6 +67,7 @@ import {
     BaseMessageComponents,
     v1CompTypes,
 } from "@spacebar/schemas";
+import { findCloudAttachmentForDestination } from "./CloudAttachmentLookup";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -751,11 +752,13 @@ export function isCloudAttachment(attachment: MessageOptionAttachment) {
 }
 
 export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateCloudAttachment, destinationChannelId: string, destinationMessageId: string) {
-    const attEnt = await CloudAttachment.findOneOrFail({
-        where: {
-            uploadFilename: cAtt.uploaded_filename,
+    const attEnt = await findCloudAttachmentForDestination(
+        {
+            findOne: (options) => CloudAttachment.findOne(options),
         },
-    });
+        cAtt.uploaded_filename,
+        destinationChannelId,
+    );
 
     const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${destinationMessageId}`, {
         method: "POST",
