@@ -1,6 +1,31 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { getGuildChannelOrdering, insertInGuildChannelOrdering } from "./GuildChannelOrdering";
+import { getGuildChannelOrdering, getGuildChannelOrderingColumnOptions, getGuildChannelPosition, insertInGuildChannelOrdering } from "./GuildChannelOrdering";
+
+describe("getGuildChannelOrderingColumnOptions", () => {
+    test("uses native Postgres arrays with a driver-normalised default", () => {
+        assert.deepEqual(getGuildChannelOrderingColumnOptions("postgres"), {
+            select: false,
+            type: "int8",
+            array: true,
+            default: [],
+        });
+    });
+
+    test("uses simple arrays for SQLite compatibility", () => {
+        assert.deepEqual(getGuildChannelOrderingColumnOptions("sqlite"), {
+            select: false,
+            type: "simple-array",
+            default: "",
+        });
+
+        assert.deepEqual(getGuildChannelOrderingColumnOptions("better-sqlite3"), {
+            select: false,
+            type: "simple-array",
+            default: "",
+        });
+    });
+});
 
 describe("getGuildChannelOrdering", () => {
     test("returns existing channel ordering arrays", () => {
@@ -27,6 +52,21 @@ describe("getGuildChannelOrdering", () => {
 
         assert.deepEqual(ordering, []);
         assert.equal(guild.channel_ordering, ordering);
+    });
+});
+
+describe("getGuildChannelPosition", () => {
+    test("returns positions from existing ordering arrays", () => {
+        const guild = { channel_ordering: ["a", "b"] };
+
+        assert.equal(getGuildChannelPosition(guild, "b"), 1);
+    });
+
+    test("repairs null ordering before looking up positions", () => {
+        const guild = { channel_ordering: null };
+
+        assert.equal(getGuildChannelPosition(guild, "missing"), -1);
+        assert.deepEqual(guild.channel_ordering, []);
     });
 });
 

@@ -30,7 +30,7 @@ import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import { insertInGuildChannelOrdering } from "../util/GuildChannelOrdering";
+import { getGuildChannelOrderingColumnOptions, insertInGuildChannelOrdering } from "../util/GuildChannelOrdering";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -295,7 +295,7 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     premium_progress_bar_enabled: boolean = false;
 
-    @Column({ select: false, type: "int8", array: true, default: () => "ARRAY[]::int8[]" })
+    @Column(getGuildChannelOrderingColumnOptions())
     channel_ordering: string[];
 
     @Column()

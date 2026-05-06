@@ -30,6 +30,7 @@ import {
     EVENTEnum,
     generateToken,
     getDatabase,
+    getGuildChannelPosition,
     Guild,
     GuildOrUnavailable,
     Intents,
@@ -517,9 +518,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
 				return perms.has("VIEW_CHANNEL");
 			})
-   			*/
+            */
             .map((channel) => {
-                channel.position = member.guild.channel_ordering.indexOf(channel.id);
+                channel.position = getGuildChannelPosition(member.guild, channel.id);
                 return channel;
             })
             .sort((a, b) => a.position - b.position);
