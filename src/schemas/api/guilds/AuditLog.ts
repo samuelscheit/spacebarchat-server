@@ -129,12 +129,26 @@ export interface AuditLogEntry {
     reason?: string;
 }
 
-export type AuditLogChange = AuditLogGenericChange | AuditLogPartialRoleChange;
+export type AuditLogChange = AuditLogGenericChange | AuditLogPartialRoleChange | AuditLogApplicationCommandPermissionChange;
+
+/**
+ * Discord reserves "$add" and "$remove" for role changes, and numeric keys for
+ * application command permission changes. Keep those out of the generic branch
+ * so they validate against their stricter value shapes.
+ *
+ * @TJS-pattern ^(?!(?:\$add|\$remove|\d+)$).+$
+ */
+export type AuditLogGenericChangeKey = string;
+
+/**
+ * @TJS-pattern ^\d+$
+ */
+export type AuditLogApplicationCommandPermissionKey = string;
 
 export interface AuditLogGenericChange {
-    new_value?: AuditLogChangeValue;
-    old_value?: AuditLogChangeValue;
-    key: string;
+    new_value?: AuditLogGenericChangeValue;
+    old_value?: AuditLogGenericChangeValue;
+    key: AuditLogGenericChangeKey;
 }
 
 export interface AuditLogPartialRoleChange {
@@ -143,7 +157,15 @@ export interface AuditLogPartialRoleChange {
     old_value?: AuditLogPartialRole[];
 }
 
-export type AuditLogChangeValue = string | number | boolean | null | Snowflake[] | AuditLogApplicationCommandPermissionValue | AuditLogPartialRole[] | ChannelPermissionOverwrite[];
+export interface AuditLogApplicationCommandPermissionChange {
+    key: AuditLogApplicationCommandPermissionKey;
+    new_value?: AuditLogApplicationCommandPermissionValue;
+    old_value?: AuditLogApplicationCommandPermissionValue;
+}
+
+export type AuditLogGenericChangeValue = string | number | boolean | null | Snowflake[] | ChannelPermissionOverwrite[] | AuditLogJsonValue;
+
+export type AuditLogJsonValue = string | number | boolean | null | AuditLogJsonValue[] | { [key: string]: AuditLogJsonValue };
 
 export interface AuditLogPartialRole {
     id: Snowflake;

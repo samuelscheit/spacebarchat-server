@@ -25,6 +25,9 @@ import { ajv } from "../../Validator";
 interface JsonShape {
     anyOf?: JsonShape[];
     items?: JsonShape;
+    additionalProperties?: JsonShape | boolean;
+    enum?: string[];
+    pattern?: string;
     properties?: Record<string, JsonShape>;
     required?: string[];
     $ref?: string;
@@ -40,100 +43,108 @@ function resolveRef(schemas: Record<string, JsonShape>, shape: JsonShape | undef
     return schemas[shape.$ref.slice("#/definitions/".length)];
 }
 
+function collectRefs(shape: JsonShape | undefined): string[] {
+    if (!shape) return [];
+
+    return [
+        ...(shape.$ref ? [shape.$ref] : []),
+        ...collectRefs(shape.items),
+        ...(typeof shape.additionalProperties === "object" ? collectRefs(shape.additionalProperties) : []),
+        ...(shape.anyOf ?? []).flatMap((child) => collectRefs(child)),
+    ];
+}
+
+function responseWithChanges(changes: object[]): object {
+    return {
+        application_commands: [],
+        audit_log_entries: [
+            {
+                id: "100",
+                action_type: 1,
+                changes,
+            },
+        ],
+        guild_scheduled_events: [],
+        integrations: [],
+        threads: [],
+        users: [],
+        webhooks: [],
+        auto_moderation_rules: [],
+    };
+}
+
 test("AuditLogChange exposes changed values directly", () => {
     const schemas = readSchemas();
     const auditLogChange = resolveRef(schemas, schemas.AuditLogEntry.properties?.changes?.items);
-    const auditLogChangeValue = resolveRef(schemas, resolveRef(schemas, auditLogChange?.anyOf?.[0])?.properties?.new_value);
-    const changeValueRefs = (auditLogChangeValue?.anyOf ?? [])
-        .map((shape) => resolveRef(schemas, shape.items)?.$ref ?? shape.items?.$ref ?? shape.$ref)
-        .filter(Boolean)
-        .sort();
+    const changeBranches = (auditLogChange?.anyOf ?? []).map((shape) => resolveRef(schemas, shape));
+    const genericChange = changeBranches.find((shape) => shape?.properties?.key?.pattern?.includes("$add"));
+    const partialRoleChange = changeBranches.find((shape) => shape?.properties?.key?.enum?.includes("$add"));
+    const permissionChange = changeBranches.find((shape) => shape?.properties?.key?.pattern === "^\\d+$");
+    const genericValueRefs = collectRefs(genericChange?.properties?.new_value);
 
     assert.deepEqual(schemas.AuditLogPartialRole.required, ["id", "name"]);
-    assert.ok(changeValueRefs.includes("#/definitions/AuditLogPartialRole"));
-    assert.ok(changeValueRefs.includes("#/definitions/AuditLogApplicationCommandPermissionValue"));
-    assert.ok(changeValueRefs.includes("#/definitions/ChannelPermissionOverwrite"));
+    assert.equal(genericChange?.properties?.key?.pattern, "^(?!(?:\\$add|\\$remove|\\d+)$).+$");
+    assert.deepEqual(partialRoleChange?.properties?.key?.enum, ["$add", "$remove"]);
+    assert.equal(partialRoleChange?.properties?.new_value?.items?.$ref, "#/definitions/AuditLogPartialRole");
+    assert.equal(permissionChange?.properties?.key?.pattern, "^\\d+$");
+    assert.equal(permissionChange?.properties?.new_value?.$ref, "#/definitions/AuditLogApplicationCommandPermissionValue");
+    assert.ok(genericValueRefs.includes("#/definitions/ChannelPermissionOverwrite"));
 });
 
 test("AuditLogChange validates scalar and partial-role values", () => {
     assert.equal(
-        ajv.validate("AuditLogResponse", {
-            application_commands: [],
-            audit_log_entries: [
+        ajv.validate(
+            "AuditLogResponse",
+            responseWithChanges([
+                { key: "name", old_value: "old", new_value: "new" },
+                { key: "position", old_value: 1, new_value: 2 },
+                { key: "metadata", new_value: { nested: ["value"], count: 1 } },
+                { key: "$add", new_value: [{ id: "123", name: "moderator" }] },
+                { key: "$remove", new_value: [{ id: "123", name: "moderator" }] },
                 {
-                    id: "100",
-                    action_type: 1,
-                    changes: [
-                        { key: "name", old_value: "old", new_value: "new" },
-                        { key: "position", old_value: 1, new_value: 2 },
-                        { key: "$add", new_value: [{ id: "123", name: "moderator" }] },
-                        { key: "$remove", new_value: [{ id: "123", name: "moderator" }] },
-                        {
-                            key: "456",
-                            old_value: { id: "456", type: 1, permission: true },
-                            new_value: { id: "456", type: 1, permission: false },
-                        },
-                    ],
+                    key: "456",
+                    old_value: { id: "456", type: 1, permission: true },
+                    new_value: { id: "456", type: 1, permission: false },
                 },
-            ],
-            guild_scheduled_events: [],
-            integrations: [],
-            threads: [],
-            users: [],
-            webhooks: [],
-            auto_moderation_rules: [],
-        }),
+            ]),
+        ),
         true,
     );
 });
 
-test("AuditLogChange rejects legacy nested role-change values", () => {
-    assert.equal(
-        ajv.validate("AuditLogResponse", {
-            application_commands: [],
-            audit_log_entries: [
-                {
-                    id: "100",
-                    action_type: 1,
-                    changes: [
-                        {
-                            key: "$add",
-                            new_value: { $add: [{ id: "123", name: "moderator" }] },
-                        },
-                    ],
-                },
-            ],
-            guild_scheduled_events: [],
-            integrations: [],
-            threads: [],
-            users: [],
-            webhooks: [],
-            auto_moderation_rules: [],
-        }),
-        false,
-    );
-    assert.equal(
-        ajv.validate("AuditLogResponse", {
-            application_commands: [],
-            audit_log_entries: [
-                {
-                    id: "100",
-                    action_type: 1,
-                    changes: [
-                        {
-                            key: "$remove",
-                            new_value: [{ id: "123" }],
-                        },
-                    ],
-                },
-            ],
-            guild_scheduled_events: [],
-            integrations: [],
-            threads: [],
-            users: [],
-            webhooks: [],
-            auto_moderation_rules: [],
-        }),
-        false,
-    );
+test("AuditLogChange rejects invalid special-key values", () => {
+    for (const changes of [
+        [
+            {
+                key: "$add",
+                new_value: { $add: [{ id: "123", name: "moderator" }] },
+            },
+        ],
+        [
+            {
+                key: "$remove",
+                new_value: [{ id: "123" }],
+            },
+        ],
+        [
+            {
+                key: "$add",
+                new_value: "moderator",
+            },
+        ],
+        [
+            {
+                key: "456",
+                new_value: "permission",
+            },
+        ],
+        [
+            {
+                key: "456",
+                new_value: { id: "456", type: 1 },
+            },
+        ],
+    ]) {
+        assert.equal(ajv.validate("AuditLogResponse", responseWithChanges(changes)), false, JSON.stringify(ajv.errors));
+    }
 });
