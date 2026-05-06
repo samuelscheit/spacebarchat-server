@@ -14036,6 +14036,12 @@
                             "$ref": "#/components/schemas/MessageComponent"
                         }
                     },
+                    "sticker_items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Sticker"
+                        }
+                    },
                     "stickers": {
                         "type": "array",
                         "items": {

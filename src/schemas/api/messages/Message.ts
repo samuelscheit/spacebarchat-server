@@ -199,7 +199,7 @@ export interface PublicMessage {
     // purchase_notification?: MessagePurchaseNotification;
     // gift_info?: MessageGiftInfo;
     components: MessageComponent[];
-    // sticker_items?: StickerItem[]; // TODO: ???
+    sticker_items?: Sticker[];
     stickers?: Sticker[]; // TODO: dont use db entity
     poll?: Poll;
     changelog_id?: Snowflake;

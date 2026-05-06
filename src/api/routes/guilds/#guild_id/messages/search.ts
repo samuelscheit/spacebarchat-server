@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { publicMessageRelations, route } from "@spacebar/api";
 import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -156,7 +156,7 @@ router.get(
                       },
                   ]
                 : where,
-            relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
+            relations: publicMessageRelations,
         };
 
         const messages: Message[] = await Message.find({ ...query, take: parsedLimit || 0, skip: offset ? Number(offset) : 0 });

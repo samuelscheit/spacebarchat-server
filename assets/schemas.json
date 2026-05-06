@@ -14996,6 +14996,12 @@
                     "$ref": "#/definitions/MessageComponent"
                 }
             },
+            "sticker_items": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Sticker"
+                }
+            },
             "stickers": {
                 "type": "array",
                 "items": {

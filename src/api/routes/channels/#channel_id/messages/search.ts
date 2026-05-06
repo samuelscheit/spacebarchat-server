@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { route } from "@spacebar/api";
+import { publicMessageRelations, route } from "@spacebar/api";
 import { Channel, FieldErrors, Message, getPermission } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -87,7 +87,7 @@ router.get(
                     id: channel_id,
                 },
             },
-            relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
+            relations: publicMessageRelations,
             skip: offset ? Number(offset) : 0,
         };
         //@ts-ignore

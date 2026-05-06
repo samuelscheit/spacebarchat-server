@@ -46,6 +46,35 @@ function readAssetJson<T>(name: string): T {
     return JSON.parse(fs.readFileSync(path.join(assetsPath, name), "utf8")) as T;
 }
 
+function createSerializedFirstMessage() {
+    return {
+        id: "300",
+        channel_id: "400",
+        author: {
+            id: "200",
+            username: "spacebar",
+            discriminator: "0001",
+            avatar: null,
+        },
+        content: "starter message",
+        timestamp: "2026-01-02T03:04:05.000Z",
+        edited_timestamp: null,
+        tts: false,
+        mention_everyone: false,
+        mentions: [],
+        mention_roles: [],
+        mention_channels: [],
+        attachments: [],
+        embeds: [],
+        pinned: false,
+        type: 0,
+        flags: 0,
+        components: [],
+        reactions: [],
+        sticker_items: [],
+    };
+}
+
 test("thread search route uses ThreadSearchResponse", () => {
     const openapi = readAssetJson<OpenApiShape>("openapi.json");
     const responseSchema = openapi.paths["/channels/{channel_id}/threads/search"]?.get?.responses?.["200"]?.content?.["application/json"]?.schema;
@@ -76,12 +105,26 @@ test("ThreadSearchResponse validates first message search payloads", () => {
                 muted: false,
             },
         ],
-        first_messages: [],
+        first_messages: [createSerializedFirstMessage()],
         total_results: 1,
         has_more: false,
     };
 
     assert.equal(ajv.validate("ThreadSearchResponse", response), true);
+    assert.equal(
+        ajv.validate("ThreadSearchResponse", {
+            ...response,
+            members: [{ ...response.members[0], member_idx: "1" }],
+        }),
+        false,
+    );
+    assert.equal(
+        ajv.validate("ThreadSearchResponse", {
+            ...response,
+            members: [{ ...response.members[0], index: "1" }],
+        }),
+        false,
+    );
     assert.equal(
         ajv.validate("ThreadSearchResponse", {
             threads: [],

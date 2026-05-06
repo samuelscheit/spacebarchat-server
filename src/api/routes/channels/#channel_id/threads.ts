@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
+import { createPublicMessageFindOptions, handleMessage, postHandleMessage, route, sendMessage, serializeThreadSearchMember } from "@spacebar/api";
 import {
     Channel,
     emitEvent,
@@ -33,15 +33,7 @@ import {
     ChannelFlags,
     Snowflake,
 } from "@spacebar/util";
-import {
-    ChannelType,
-    MessageType,
-    ThreadCreationSchema,
-    MessageCreateAttachment,
-    MessageCreateCloudAttachment,
-    type ThreadSearchMember,
-    type ThreadSearchResponse,
-} from "@spacebar/schemas";
+import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -303,27 +295,9 @@ router.get(
             },
         });
 
-        const messages = Message.find({
-            where: {
-                id: In(threads.map(({ id }) => id)),
-            },
-        });
+        const messages = Message.find(createPublicMessageFindOptions(threads.map(({ id }) => id)));
 
-        const threadMembers = (await members).map(
-            (threadMember): ThreadSearchMember => ({
-                id: threadMember.id,
-                user_id: req.user_id,
-                join_timestamp: threadMember.join_timestamp.toISOString(),
-                flags: threadMember.flags,
-                muted: threadMember.muted,
-                mute_config: threadMember.mute_config
-                    ? {
-                          ...threadMember.mute_config,
-                          end_time: threadMember.mute_config.end_time?.toISOString(),
-                      }
-                    : undefined,
-            }),
-        );
+        const threadMembers = (await members).map((threadMember) => serializeThreadSearchMember(threadMember, req.user_id));
 
         const left = total_results - threads.length - +(offset || 0);
         const response = {
