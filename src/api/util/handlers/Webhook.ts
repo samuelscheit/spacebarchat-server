@@ -19,16 +19,20 @@ import {
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
-import { WebhookExecuteSchema, WebhookUpdateSchema } from "@spacebar/schemas";
+import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
-    const body = req.body as WebhookUpdateSchema;
+    const body = req.body as WebhookTokenUpdateSchema;
 
-    const webhook = await Webhook.findOneOrFail({
+    const webhook = await Webhook.findOne({
         where: { id: webhook_id },
         relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
     });
+    if (!webhook) {
+        throw DiscordApiErrors.UNKNOWN_WEBHOOK;
+    }
+
     if (!isValidWebhookToken(webhook.token, token)) {
         throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
     }
@@ -37,13 +41,15 @@ export async function updateWebhookWithToken(req: Request, res: Response) {
     if (!body.name && !body.avatar) {
         throw new HTTPError("Empty webhook updates are not allowed", 50006);
     }
-    if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
+    const update: Partial<Pick<Webhook, "name" | "avatar">> = {};
+    if (body.avatar) update.avatar = (await handleFile(`/avatars/${webhook_id}`, body.avatar)) as string;
 
     if (body.name) {
         ValidateName(body.name);
+        update.name = body.name;
     }
 
-    webhook.assign(body);
+    webhook.assign(update);
 
     await Promise.all([
         webhook.save(),
@@ -56,7 +62,11 @@ export async function updateWebhookWithToken(req: Request, res: Response) {
             },
         } satisfies WebhooksUpdateEvent),
     ]);
-    res.status(204);
+
+    res.json({
+        ...webhook,
+        url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
+    });
 }
 
 export const executeWebhook = async (req: Request, res: Response) => {

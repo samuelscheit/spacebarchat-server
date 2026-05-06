@@ -88,6 +88,7 @@ export * from "./VoiceStateUpdateSchema";
 export * from "./WebAuthnSchema";
 export * from "./WebhookCreateSchema";
 export * from "./WebhookExecuteSchema";
+export * from "./WebhookTokenUpdateSchema";
 export * from "./WebhookUpdateSchema";
 export * from "./WidgetModifySchema";
 export * from "./MessageThreadCreationSchema";

@@ -6930,6 +6930,17 @@
                     }
                 }
             },
+            "WebhookTokenUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    }
+                }
+            },
             "WebhookUpdateSchema": {
                 "type": "object",
                 "properties": {
@@ -14803,11 +14814,6 @@
         },
         "/webhooks/{webhook_id}/{token}/": {
             "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
                 "description": "Returns a webhook object for the given id and token.",
                 "responses": {
                     "200": {
@@ -14849,11 +14855,6 @@
                 ]
             },
             "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -14925,11 +14926,6 @@
                 ]
             },
             "delete": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
                 "responses": {
                     "204": {
                         "description": "No description available"
@@ -14973,17 +14969,12 @@
                 ]
             },
             "patch": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/WebhookUpdateSchema"
+                                "$ref": "#/components/schemas/WebhookTokenUpdateSchema"
                             }
                         }
                     }
@@ -14994,7 +14985,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Message"
+                                    "$ref": "#/components/schemas/Webhook"
                                 }
                             }
                         }
@@ -15043,11 +15034,6 @@
         },
         "/webhooks/{webhook_id}/{token}/github/": {
             "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
                 "requestBody": {
                     "required": true,
                     "content": {

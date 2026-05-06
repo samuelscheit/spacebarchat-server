@@ -13,4 +13,8 @@ describe("authentication route exemptions", () => {
     test("does not partially match webhook token routes", () => {
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/123/abc-DEF_123/extra"), false);
     });
+
+    test("allows generated OpenAPI webhook token route templates", () => {
+        assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/{webhook_id}/{token}/"), true);
+    });
 });

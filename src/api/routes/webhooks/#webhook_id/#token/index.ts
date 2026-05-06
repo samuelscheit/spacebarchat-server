@@ -135,10 +135,10 @@ router.delete(
 router.patch(
     "/",
     route({
-        requestBody: "WebhookUpdateSchema",
+        requestBody: "WebhookTokenUpdateSchema",
         responses: {
             200: {
-                body: "Message",
+                body: "Webhook",
             },
             400: {
                 body: "APIErrorResponse",
