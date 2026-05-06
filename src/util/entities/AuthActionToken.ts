@@ -29,7 +29,7 @@ export class AuthActionToken extends BaseEntity {
     @Column()
     purpose: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: String })
     email?: string | null;
 
     @CreateDateColumn({ type: Date })
