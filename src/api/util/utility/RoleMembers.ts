@@ -8,6 +8,8 @@ export type RoleMemberChanges = {
     removeMemberIds: string[];
 };
 
+export type RoleMemberUpdateMode = "add" | "replace";
+
 function memberHasRole(member: RoleMember, roleId: string) {
     return member.roles.some((role) => role.id === roleId);
 }
@@ -38,4 +40,8 @@ export function calculateRoleMemberReplacement(members: RoleMember[], memberIds:
     }
 
     return changes;
+}
+
+export function calculateRoleMemberChanges(members: RoleMember[], memberIds: string[], roleId: string, mode: RoleMemberUpdateMode): RoleMemberChanges {
+    return mode === "replace" ? calculateRoleMemberReplacement(members, memberIds, roleId) : calculateRoleMemberAdditions(members, memberIds, roleId);
 }

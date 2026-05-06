@@ -19,10 +19,9 @@
 import { Router, Request, Response } from "express";
 import { RoleMembersUpdateSchema } from "@spacebar/schemas";
 import { DiscordApiErrors, Member } from "@spacebar/util";
-import { calculateRoleMemberAdditions, calculateRoleMemberReplacement, route } from "@spacebar/api";
+import { calculateRoleMemberChanges, RoleMemberUpdateMode, route } from "@spacebar/api";
 
 const router = Router({ mergeParams: true });
-type RoleMemberUpdateMode = "add" | "replace";
 
 const routeOptions = route({
     permission: "MANAGE_ROLES",
@@ -48,8 +47,7 @@ async function updateRoleMembers(req: Request, res: Response, mode: RoleMemberUp
         relations: { roles: true },
     });
 
-    const { addMemberIds, removeMemberIds } =
-        mode === "replace" ? calculateRoleMemberReplacement(members, member_ids, role_id) : calculateRoleMemberAdditions(members, member_ids, role_id);
+    const { addMemberIds, removeMemberIds } = calculateRoleMemberChanges(members, member_ids, role_id, mode);
 
     // TODO (erkin): have a bulk add/remove function that adds the roles in a single txn
     await Promise.all([
