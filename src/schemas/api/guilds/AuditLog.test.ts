@@ -26,12 +26,17 @@ interface JsonShape {
     anyOf?: JsonShape[];
     items?: JsonShape;
     additionalProperties?: JsonShape | boolean;
-    enum?: string[];
+    enum?: (number | string)[];
     pattern?: string;
     properties?: Record<string, JsonShape>;
     required?: string[];
     $ref?: string;
 }
+
+const DISCORD_AUDIT_LOG_EVENT_TYPES = [
+    1, 10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 31, 32, 40, 41, 42, 50, 51, 52, 60, 61, 62, 72, 73, 74, 75, 80, 81, 82, 83, 84, 85, 90, 91, 92, 100, 101,
+    102, 110, 111, 112, 121, 130, 131, 132, 140, 141, 142, 143, 144, 145, 146, 150, 151, 163, 164, 165, 166, 167, 190, 191, 192, 193,
+] as const;
 
 function readSchemas(): Record<string, JsonShape> {
     return JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonShape>;
@@ -54,13 +59,13 @@ function collectRefs(shape: JsonShape | undefined): string[] {
     ];
 }
 
-function responseWithChanges(changes: object[]): object {
+function responseWithChanges(changes: object[], action_type = 1): object {
     return {
         application_commands: [],
         audit_log_entries: [
             {
                 id: "100",
-                action_type: 1,
+                action_type,
                 changes,
             },
         ],
@@ -72,6 +77,20 @@ function responseWithChanges(changes: object[]): object {
         auto_moderation_rules: [],
     };
 }
+
+test("AuditLogResponse validates current Discord audit-log action types", () => {
+    const schemas = readSchemas();
+    const actionTypeEnum = resolveRef(schemas, schemas.AuditLogEntry.properties?.action_type)?.enum ?? [];
+
+    assert.equal(actionTypeEnum.length, new Set(actionTypeEnum).size, "AuditLogEvents schema must not contain duplicate values");
+
+    for (const actionType of DISCORD_AUDIT_LOG_EVENT_TYPES) {
+        assert.ok(actionTypeEnum.includes(actionType), `AuditLogEvents schema is missing ${actionType}`);
+        assert.equal(ajv.validate("AuditLogResponse", responseWithChanges([], actionType)), true, `${actionType}: ${JSON.stringify(ajv.errors)}`);
+    }
+
+    assert.equal(ajv.validate("AuditLogResponse", responseWithChanges([], 999)), false, "unknown audit-log action_type should be rejected");
+});
 
 test("AuditLogChange exposes changed values directly", () => {
     const schemas = readSchemas();

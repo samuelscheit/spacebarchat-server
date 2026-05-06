@@ -87,17 +87,43 @@ export enum AuditLogEvents {
     STICKER_UPDATE = 91,
     STICKER_DELETE = 92,
     STICKER_SWAP = 93,
+    // guild scheduled events
+    GUILD_SCHEDULED_EVENT_CREATE = 100,
+    GUILD_SCHEDULED_EVENT_UPDATE = 101,
+    GUILD_SCHEDULED_EVENT_DELETE = 102,
     // threads
     THREAD_CREATE = 110,
     THREAD_UPDATE = 111,
     THREAD_DELETE = 112,
     // application commands
     APPLICATION_COMMAND_PERMISSION_UPDATE = 121,
-    // automod
+    // soundboard
+    SOUNDBOARD_SOUND_CREATE = 130,
+    SOUNDBOARD_SOUND_UPDATE = 131,
+    SOUNDBOARD_SOUND_DELETE = 132,
+    // automod; Spacebar policy names mirror Discord auto moderation rule/block events
     POLICY_CREATE = 140,
     POLICY_UPDATE = 141,
     POLICY_DELETE = 142,
     MESSAGE_BLOCKED_BY_POLICIES = 143, // in spacebar, blocked messages are stealth-dropped
+    AUTO_MODERATION_FLAG_TO_CHANNEL = 144,
+    AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145,
+    AUTO_MODERATION_QUARANTINE_USER = 146,
+    // creator monetization
+    CREATOR_MONETIZATION_REQUEST_CREATED = 150,
+    CREATOR_MONETIZATION_TERMS_ACCEPTED = 151,
+    // onboarding
+    ONBOARDING_PROMPT_CREATE = 163,
+    ONBOARDING_PROMPT_UPDATE = 164,
+    ONBOARDING_PROMPT_DELETE = 165,
+    ONBOARDING_CREATE = 166,
+    ONBOARDING_UPDATE = 167,
+    // server guide
+    HOME_SETTINGS_CREATE = 190,
+    HOME_SETTINGS_UPDATE = 191,
+    // voice channel status
+    VOICE_CHANNEL_STATUS_UPDATE = 192,
+    VOICE_CHANNEL_STATUS_DELETE = 193,
     // instance policies affecting the guild
     GUILD_AFFECTED_BY_POLICIES = 216,
     // message moves
