@@ -16,17 +16,26 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicMember, PublicUser, Snowflake, InteractionType } from "@spacebar/schemas";
+import {
+    InteractionContextType,
+    PublicMember,
+    PublicUser,
+    SendableApplicationCommandDataSchema,
+    SendableMessageComponentDataSchema,
+    SendableModalSubmitDataSchema,
+    Snowflake,
+    InteractionType,
+} from "@spacebar/schemas";
 // TODO: remove entity imports
 import { Channel, Message } from "@spacebar/util";
 
 export interface InteractionCreateSchema {
-    version: number; // TODO: types?
+    version: 1;
     id: Snowflake;
     application_id: Snowflake;
     type: InteractionType;
     token: string;
-    data?: object; // TODO: types?
+    data?: InteractionCreateData;
     guild?: InteractionGuild;
     guild_id?: Snowflake;
     guild_locale?: string;
@@ -37,11 +46,42 @@ export interface InteractionCreateSchema {
     locale?: string;
     message?: Message;
     app_permissions: string;
-    entitlements?: object[]; // TODO: types?
+    entitlements: InteractionEntitlement[];
     entitlement_sku_ids?: Snowflake[]; // DEPRECATED
-    authorizing_integration_owners?: Record<number, Snowflake>; // TODO: types?
-    context?: number;
+    authorizing_integration_owners: AuthorizingIntegrationOwners;
+    context?: InteractionContextType;
     attachment_size_limit: number;
+}
+
+export type InteractionCreateData = SendableApplicationCommandDataSchema | SendableMessageComponentDataSchema | SendableModalSubmitDataSchema;
+
+export enum EntitlementType {
+    PURCHASE = 1,
+    PREMIUM_SUBSCRIPTION = 2,
+    DEVELOPER_GIFT = 3,
+    TEST_MODE_PURCHASE = 4,
+    FREE_PURCHASE = 5,
+    USER_GIFT = 6,
+    PREMIUM_PURCHASE = 7,
+    APPLICATION_SUBSCRIPTION = 8,
+}
+
+export interface InteractionEntitlement {
+    id: Snowflake;
+    sku_id: Snowflake;
+    application_id: Snowflake;
+    user_id?: Snowflake;
+    type: EntitlementType;
+    deleted: boolean;
+    starts_at?: string | null;
+    ends_at?: string | null;
+    guild_id?: Snowflake;
+    consumed?: boolean;
+}
+
+export interface AuthorizingIntegrationOwners {
+    0?: Snowflake;
+    1?: Snowflake;
 }
 
 interface InteractionGuild {

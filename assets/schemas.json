@@ -3042,7 +3042,8 @@
         "type": "object",
         "properties": {
             "version": {
-                "type": "integer"
+                "type": "integer",
+                "const": 1
             },
             "id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -3059,9 +3060,17 @@
                 "type": "string"
             },
             "data": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/SendableApplicationCommandDataSchema"
+                    },
+                    {
+                        "$ref": "#/definitions/SendableMessageComponentDataSchema"
+                    },
+                    {
+                        "$ref": "#/definitions/SendableModalSubmitDataSchema"
+                    }
+                ]
             },
             "guild": {
                 "$ref": "#/definitions/InteractionGuild"
@@ -3098,9 +3107,7 @@
             "entitlements": {
                 "type": "array",
                 "items": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
+                    "$ref": "#/definitions/InteractionEntitlement"
                 }
             },
             "entitlement_sku_ids": {
@@ -3110,16 +3117,15 @@
                 }
             },
             "authorizing_integration_owners": {
-                "type": "object",
-                "additionalProperties": false,
-                "patternProperties": {
-                    "^[0-9]+$": {
-                        "type": "string"
-                    }
-                }
+                "$ref": "#/definitions/AuthorizingIntegrationOwners"
             },
             "context": {
-                "type": "integer"
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "type": "number"
             },
             "attachment_size_limit": {
                 "type": "integer"
@@ -3130,6 +3136,8 @@
             "app_permissions",
             "application_id",
             "attachment_size_limit",
+            "authorizing_integration_owners",
+            "entitlements",
             "id",
             "token",
             "type",
@@ -14854,6 +14862,90 @@
             "roles",
             "user"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionEntitlement": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "sku_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/EntitlementType"
+            },
+            "deleted": {
+                "type": "boolean"
+            },
+            "starts_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "ends_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "consumed": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "deleted",
+            "id",
+            "sku_id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EntitlementType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuthorizingIntegrationOwners": {
+        "type": "object",
+        "properties": {
+            "0": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "1": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "InstanceUserDeleteSchemaContent": {
