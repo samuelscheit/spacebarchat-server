@@ -28,6 +28,7 @@ import { Webhook } from "./Webhook";
 import { Sticker } from "./Sticker";
 import { Attachment } from "./Attachment";
 import { getUrlSignature, NewUrlSignatureData, NewUrlUserSignatureData } from "../Signing";
+import { Config } from "../util";
 import {
     ApplicationCommandType,
     BaseMessageComponents,
@@ -361,8 +362,26 @@ export class Message extends BaseClass {
             return signed;
         }
 
+        function signCdnUrlFields<T extends { url: string; proxy_url?: string | null }>(value: T): T {
+            const signed = structuredClone(value);
+            if (isCdnUrl(signed.url)) signed.url = signUrl(signed.url);
+            if (signed.proxy_url && isCdnUrl(signed.proxy_url)) signed.proxy_url = signUrl(signed.proxy_url);
+            return signed;
+        }
+
+        function isCdnUrl(url: string) {
+            const endpointPublic = Config.get().cdn.endpointPublic;
+            if (!endpointPublic) return false;
+
+            try {
+                return new URL(url).origin === new URL(endpointPublic).origin;
+            } catch {
+                return false;
+            }
+        }
+
         function signMedia(media: UnfurledMediaItem) {
-            Object.assign(media, signUrlFields(media));
+            Object.assign(media, signCdnUrlFields(media));
         }
 
         return {

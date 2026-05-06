@@ -14,14 +14,16 @@ function assertSignedUrl(signedUrl: string, originalUrl: string) {
 }
 
 describe("messageToResponse", () => {
-    test("preserves the public message DTO shape while signing response media urls", async () => {
+    test("preserves the public message DTO shape while signing response media urls", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
         const { messageToResponse } = await import("./MessageResponse.js");
         const { Message } = await import("../../../util/entities/Message.js");
+        const { Config } = await import("../../../util/util/Config.js");
 
         const attachmentUrl = "https://cdn.example/attachments/channel-id/message-id/file.png";
-        const componentUrl = "https://cdn.example/attachments/channel-id/message-id/component.png";
+        const componentUrl = "https://remote.example/media/component.png?token=keep";
         const componentProxyUrl = "https://cdn.example/attachments/channel-id/message-id/component-proxy.png";
+        const localComponentUrl = "https://cdn.example/attachments/channel-id/message-id/component-local.png";
         const message = new Message();
         const components = [
             {
@@ -34,9 +36,23 @@ describe("messageToResponse", () => {
                             width: 123,
                         },
                     },
+                    {
+                        media: {
+                            url: localComponentUrl,
+                        },
+                    },
                 ],
             },
         ];
+        const config = Config.get();
+
+        t.mock.method(Config, "get", () => ({
+            ...config,
+            cdn: {
+                ...config.cdn,
+                endpointPublic: "https://cdn.example",
+            },
+        }));
 
         Object.assign(message, {
             id: "message-id",
@@ -131,10 +147,12 @@ describe("messageToResponse", () => {
         const responseComponents = response.components as unknown as typeof components;
         const responseMedia = responseComponents[0].items[0].media;
         assert.equal(responseMedia.width, 123);
-        assertSignedUrl(responseMedia.url, componentUrl);
+        assert.equal(responseMedia.url, componentUrl);
         assertSignedUrl(responseMedia.proxy_url, componentProxyUrl);
+        assertSignedUrl(responseComponents[0].items[1].media.url, localComponentUrl);
         assert.equal(components[0].items[0].media.url, componentUrl);
         assert.equal(components[0].items[0].media.proxy_url, componentProxyUrl);
+        assert.equal(components[0].items[1].media.url, localComponentUrl);
     });
 
     test("normalizes request user-agent headers for signature data", async () => {
