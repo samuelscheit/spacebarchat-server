@@ -129,7 +129,9 @@ describe("CDN attachment request authentication", () => {
 
             const fullUrl = "https://cdn.example.test/attachments/1/2/file.png";
             const userAuth = { ip: "127.0.0.1", userAgent: "test-agent" };
-            const signedUrl = getUrlSignature(new NewUrlSignatureData({ ...userAuth, url: fullUrl })).applyToUrl(fullUrl).toString();
+            const signedUrl = getUrlSignature(new NewUrlSignatureData({ ...userAuth, url: fullUrl }))
+                .applyToUrl(fullUrl)
+                .toString();
 
             assert.equal(validateAttachmentSignedUrl({ ...userAuth, fullUrl: signedUrl }), true);
             assert.equal(validateAttachmentSignedUrl({ ...userAuth, ip: "127.0.0.2", fullUrl: signedUrl }), false);
