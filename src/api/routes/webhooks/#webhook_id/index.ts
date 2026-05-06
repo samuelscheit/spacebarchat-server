@@ -16,6 +16,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { WebhookUpdateSchema } from "@spacebar/schemas";
 import { In } from "typeorm";
+import { buildWebhooksUpdateEventData } from "../../../util/utility/WebhookEvents";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -98,10 +99,7 @@ router.delete(
         await emitEvent({
             event: "WEBHOOKS_UPDATE",
             channel_id,
-            data: {
-                channel_id,
-                guild_id: webhook.guild_id!, // TODO: is this even the right fix?
-            },
+            data: buildWebhooksUpdateEventData(webhook),
         } satisfies WebhooksUpdateEvent);
 
         res.sendStatus(204);
@@ -163,10 +161,7 @@ router.patch(
             emitEvent({
                 event: "WEBHOOKS_UPDATE",
                 channel_id,
-                data: {
-                    channel_id,
-                    guild_id: webhook.guild_id!, //TODO: is this even the right fix?
-                },
+                data: buildWebhooksUpdateEventData({ ...webhook, channel_id }),
             } satisfies WebhooksUpdateEvent),
         ]);
 

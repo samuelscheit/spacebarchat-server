@@ -5,6 +5,7 @@ import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { executeWebhook } from "../../../../util/handlers/Webhook";
 import { WebhookUpdateSchema } from "@spacebar/schemas";
+import { buildWebhooksUpdateEventData } from "../../../../util/utility/WebhookEvents";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -124,10 +125,7 @@ router.delete(
         await emitEvent({
             event: "WEBHOOKS_UPDATE",
             channel_id,
-            data: {
-                channel_id,
-                guild_id: webhook.guild_id!, // TODO: is this even the right fix?
-            },
+            data: buildWebhooksUpdateEventData(webhook),
         } satisfies WebhooksUpdateEvent);
 
         res.sendStatus(204);
@@ -175,10 +173,7 @@ router.patch(
             emitEvent({
                 event: "WEBHOOKS_UPDATE",
                 channel_id,
-                data: {
-                    channel_id,
-                    guild_id: webhook.guild_id!, //TODO: is this even the right fix?
-                },
+                data: buildWebhooksUpdateEventData(webhook),
             } satisfies WebhooksUpdateEvent),
         ]);
         res.status(204);
