@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { ErrorObject } from "ajv";
+import Ajv, { ErrorObject } from "ajv";
 import { getValidationErrorField } from "./ValidationErrors";
 
 describe("getValidationErrorField", () => {
@@ -57,5 +57,36 @@ describe("getValidationErrorField", () => {
         } as ErrorObject;
 
         assert.equal(getValidationErrorField(error), "metadata/foo/bar/name");
+    });
+
+    test("derives missing required fields from actual AJV errors", () => {
+        const ajv = new Ajv({ allErrors: true });
+        const validate = ajv.compile({
+            type: "object",
+            required: ["username", "profile", "items"],
+            properties: {
+                username: { type: "string" },
+                profile: {
+                    type: "object",
+                    required: ["display_name"],
+                    properties: {
+                        display_name: { type: "string" },
+                    },
+                },
+                items: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        required: ["id"],
+                        properties: {
+                            id: { type: "string" },
+                        },
+                    },
+                },
+            },
+        });
+
+        assert.equal(validate({ profile: {}, items: [{}] }), false);
+        assert.deepEqual(validate.errors?.filter((error) => error.keyword === "required").map(getValidationErrorField), ["username", "profile/display_name", "items/0/id"]);
     });
 });
