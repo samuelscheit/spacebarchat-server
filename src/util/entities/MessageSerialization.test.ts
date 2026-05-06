@@ -5,6 +5,7 @@ import type { NewUrlUserSignatureData as NewUrlUserSignatureDataType } from "../
 import type { Member as MemberType } from "./Member";
 import type { Message as MessageType } from "./Message";
 import type { Role } from "./Role";
+import type { User } from "./User";
 
 let Member: typeof import("./Member").Member;
 let Message: typeof import("./Message").Message;
@@ -55,6 +56,23 @@ function createMessageWithMember(member: MemberType) {
     return message;
 }
 
+function createAuthor(id = "user-a", username = "alice") {
+    return {
+        id,
+        username,
+        discriminator: "0001",
+        avatar: null,
+        toPublicUser() {
+            return {
+                id,
+                username,
+                discriminator: "0001",
+                avatar: null,
+            };
+        },
+    } as unknown as User;
+}
+
 describe("message member serialization", () => {
     test("Member.toPublicMember serializes loaded role entities to role ids", () => {
         const member = createMemberWithRoles([{ id: "role-a" }, { id: "role-b" }]);
@@ -78,6 +96,24 @@ describe("message member serialization", () => {
         assert.notStrictEqual(json.member, member);
         assert.deepEqual(json.member?.roles, ["role-a", "role-b"]);
         assert.equal(typeof json.member?.roles[0], "string");
+    });
+
+    test("Message.toJSON includes hydrated authors for route-created messages", () => {
+        const member = createMemberWithRoles([{ id: "role-a" }, { id: "role-b" }]);
+        const message = createMessageWithMember(member);
+        message.author = createAuthor();
+        message.referenced_message = createMessageWithMember(createMemberWithRoles([]));
+        message.referenced_message.author = createAuthor("user-b", "bob");
+
+        const json = message.toJSON();
+
+        assert.equal(json.author.id, "user-a");
+        assert.equal(json.author.username, "alice");
+        assert.equal(json.author.discriminator, "0001");
+        assert.equal(json.author.avatar, null);
+        assert.deepEqual(json.member?.roles, ["role-a", "role-b"]);
+        assert.equal(json.referenced_message?.author.id, "user-b");
+        assert.equal(json.referenced_message?.author.username, "bob");
     });
 
     test("withSignedAttachments serializes member role entities on message instances", () => {
