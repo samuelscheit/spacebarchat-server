@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Application, DiscordApiErrors, FieldErrors, Guild, handleFile, User } from "@spacebar/util";
+import { Application, DiscordApiErrors, FieldErrors, Guild, User, applyApplicationModifySchema, handleFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";
@@ -102,7 +102,7 @@ router.patch(
             await app.bot.save();
         }
 
-        app.assign(body);
+        applyApplicationModifySchema(app, body);
 
         await app.save();
 

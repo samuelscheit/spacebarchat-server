@@ -50,6 +50,7 @@ export * from "./WebAuthn";
 export * from "./ChannelFlags";
 export * from "./Gifs";
 export * from "./Application";
+export * from "./ApplicationModify";
 export * from "./NameValidation";
 export * from "../../schemas/HelperTypes";
 export * from "./extensions";
