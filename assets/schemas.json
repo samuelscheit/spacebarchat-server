@@ -5405,11 +5405,13 @@
                 "$ref": "#/definitions/PublicUser"
             },
             "connected_accounts": {
-                "$ref": "#/definitions/PublicConnectedAccount"
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialConnectedAccountResponse"
+                }
             },
             "premium_guild_since": {
-                "type": "string",
-                "format": "date-time"
+                "type": "integer"
             },
             "premium_since": {
                 "type": "string",
@@ -5424,7 +5426,10 @@
                             "type": "string"
                         },
                         "nick": {
-                            "type": "string"
+                            "type": [
+                                "null",
+                                "string"
+                            ]
                         }
                     },
                     "additionalProperties": false,
@@ -5432,6 +5437,15 @@
                         "id"
                     ]
                 }
+            },
+            "mutual_friends": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PublicUser"
+                }
+            },
+            "mutual_friends_count": {
+                "type": "integer"
             },
             "premium_type": {
                 "type": "integer"
@@ -5451,7 +5465,7 @@
             "badges": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Badge"
+                    "$ref": "#/definitions/ProfileBadge"
                 }
             }
         },
@@ -5459,7 +5473,6 @@
         "required": [
             "badges",
             "connected_accounts",
-            "mutual_guilds",
             "premium_type",
             "profile_themes_experiment_bucket",
             "user",
@@ -15383,46 +15396,45 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "PublicConnectedAccount": {
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string"
-            },
-            "type": {
-                "type": "string"
-            },
-            "verified": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "name",
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "UserProfile": {
         "type": "object",
         "properties": {
-            "banner": {
-                "type": "string"
-            },
             "bio": {
-                "type": "string"
-            },
-            "theme_colors": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                }
-            },
-            "pronouns": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "accent_color": {
-                "type": "integer"
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "pronouns": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "theme_colors": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
@@ -15432,22 +15444,28 @@
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PublicMemberProfile": {
-        "additionalProperties": false,
         "type": "object",
         "properties": {
-            "guild_id": {
-                "type": "string"
+            "accent_color": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
             },
             "banner": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "bio": {
                 "type": "string"
             },
-            "accent_color": {
-                "type": "null"
+            "guild_id": {
+                "type": "string"
             }
         },
+        "additionalProperties": false,
         "required": [
             "accent_color",
             "banner",
@@ -15456,7 +15474,7 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "Badge": {
+    "ProfileBadge": {
         "type": "object",
         "properties": {
             "id": {

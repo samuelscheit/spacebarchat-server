@@ -20,7 +20,15 @@ import { route } from "@spacebar/api";
 import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, Relationship, User, UserUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { PartialConnectedAccountResponse, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, UserProfileModifySchema } from "@spacebar/schemas";
+import {
+    PartialConnectedAccountResponse,
+    PrivateUserProjection,
+    PublicUser,
+    PublicUserProjection,
+    RelationshipType,
+    type UserProfileResponse,
+    UserProfileModifySchema,
+} from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -49,7 +57,7 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
         },
     });
 
-    const mutual_guilds: object[] = [];
+    const mutual_guilds: UserProfileResponse["mutual_guilds"] = [];
     let premium_guild_since;
 
     if (with_mutual_guilds == "true") {
@@ -101,12 +109,14 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
         theme_colors: user.theme_colors?.map((t) => Number(t)), // these are strings for some reason, they should be numbers
     };
 
-    const guildMemberProfile = {
-        accent_color: null,
-        banner: guild_member?.banner || null,
-        bio: guild_member?.bio || "",
-        guild_id,
-    };
+    const guildMemberProfile: UserProfileResponse["guild_member_profile"] | undefined = guild_member
+        ? {
+              accent_color: null,
+              banner: guild_member?.banner || null,
+              bio: guild_member?.bio || "",
+              guild_id: guild_member.guild_id,
+          }
+        : undefined;
 
     const badges = await Badge.find();
 
@@ -145,7 +155,7 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
             publicUserConnections.push(publicUserConnection);
         });
 
-    res.json({
+    const response = {
         connected_accounts: publicUserConnections,
         premium_guild_since: premium_guild_since, // TODO
         premium_since: user.premium_since, // TODO
@@ -156,10 +166,12 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
         premium_type: user.premium_type,
         profile_themes_experiment_bucket: 4, // TODO: This doesn't make it available, for some reason?
         user_profile: userProfile,
-        guild_member: { ...guild_member?.toPublicMember(), user: user.toPublicUser() },
-        guild_member_profile: guild_id && guildMemberProfile,
+        guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
+        guild_member_profile: guildMemberProfile,
         badges: badges.filter((x) => user.badge_ids?.includes(x.id)),
-    });
+    } satisfies UserProfileResponse;
+
+    res.json(response);
 });
 
 router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req: Request, res: Response) => {

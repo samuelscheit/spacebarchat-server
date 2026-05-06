@@ -5093,11 +5093,13 @@
                         "$ref": "#/components/schemas/PublicUser"
                     },
                     "connected_accounts": {
-                        "$ref": "#/components/schemas/PublicConnectedAccount"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartialConnectedAccountResponse"
+                        }
                     },
                     "premium_guild_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "type": "integer"
                     },
                     "premium_since": {
                         "type": "string",
@@ -5112,7 +5114,10 @@
                                     "type": "string"
                                 },
                                 "nick": {
-                                    "type": "string"
+                                    "type": [
+                                        "null",
+                                        "string"
+                                    ]
                                 }
                             },
                             "additionalProperties": false,
@@ -5120,6 +5125,15 @@
                                 "id"
                             ]
                         }
+                    },
+                    "mutual_friends": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicUser"
+                        }
+                    },
+                    "mutual_friends_count": {
+                        "type": "integer"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -5139,14 +5153,13 @@
                     "badges": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Badge"
+                            "$ref": "#/components/schemas/ProfileBadge"
                         }
                     }
                 },
                 "required": [
                     "badges",
                     "connected_accounts",
-                    "mutual_guilds",
                     "premium_type",
                     "profile_themes_experiment_bucket",
                     "user",
@@ -14385,44 +14398,37 @@
                     "window"
                 ]
             },
-            "PublicConnectedAccount": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "verified": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "name",
-                    "type"
-                ]
-            },
             "UserProfile": {
                 "type": "object",
                 "properties": {
-                    "banner": {
-                        "type": "string"
-                    },
                     "bio": {
-                        "type": "string"
-                    },
-                    "theme_colors": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "pronouns": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "accent_color": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "banner": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "pronouns": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "theme_colors": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -14432,17 +14438,19 @@
             "PublicMemberProfile": {
                 "type": "object",
                 "properties": {
-                    "guild_id": {
-                        "type": "string"
+                    "accent_color": {
+                        "type": "integer",
+                        "nullable": true
                     },
                     "banner": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "bio": {
                         "type": "string"
                     },
-                    "accent_color": {
-                        "type": "null"
+                    "guild_id": {
+                        "type": "string"
                     }
                 },
                 "required": [
@@ -14452,7 +14460,7 @@
                     "guild_id"
                 ]
             },
-            "Badge": {
+            "ProfileBadge": {
                 "type": "object",
                 "properties": {
                     "id": {
