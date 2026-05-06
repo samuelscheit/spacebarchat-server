@@ -1,3 +1,6 @@
+import type { Application } from "express";
+import type { ServerResponse } from "node:http";
+
 export type MetricType = "counter" | "gauge";
 
 export type MetricSample = {
@@ -8,7 +11,26 @@ export type MetricSample = {
     labels?: Record<string, string | number | boolean>;
 };
 
+export type MetricCollector = () => MetricSample[];
+
 export const PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8";
+
+const prometheusRouteStateKey = "__spacebarPrometheusRouteState";
+
+type PrometheusRouteState = {
+    collectors: MetricCollector[];
+    registered: boolean;
+};
+
+type MetricsApplication = Pick<Application, "get" | "locals"> & {
+    locals: Application["locals"] & {
+        [prometheusRouteStateKey]?: PrometheusRouteState;
+    };
+};
+
+function escapeHelp(value: string) {
+    return value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n");
+}
 
 function escapeLabelValue(value: string) {
     return value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/"/g, '\\"');
@@ -34,7 +56,7 @@ export function formatPrometheusMetrics(samples: MetricSample[]) {
 
         if (!emittedMetadata.has(sample.name)) {
             emittedMetadata.add(sample.name);
-            lines.push(`# HELP ${sample.name} ${sample.help}`);
+            lines.push(`# HELP ${sample.name} ${escapeHelp(sample.help)}`);
             lines.push(`# TYPE ${sample.name} ${sample.type}`);
         }
 
@@ -91,4 +113,29 @@ export function getProcessMetricSamples(service: string, extraSamples: MetricSam
 
 export function collectPrometheusMetrics(service: string, extraSamples: MetricSample[] = []) {
     return formatPrometheusMetrics(getProcessMetricSamples(service, extraSamples));
+}
+
+export function writePrometheusMetricsResponse(res: ServerResponse, collector: MetricCollector) {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", PROMETHEUS_CONTENT_TYPE);
+    res.end(formatPrometheusMetrics(collector()));
+}
+
+function getPrometheusRouteState(app: MetricsApplication): PrometheusRouteState {
+    const existing = app.locals[prometheusRouteStateKey];
+    if (existing) return existing;
+
+    const state: PrometheusRouteState = { collectors: [], registered: false };
+    app.locals[prometheusRouteStateKey] = state;
+    return state;
+}
+
+export function registerPrometheusMetricsRoute(app: MetricsApplication, collector: MetricCollector) {
+    const state = getPrometheusRouteState(app);
+    state.collectors.push(collector);
+
+    if (state.registered) return;
+    state.registered = true;
+
+    app.get("/-/metrics", (req, res) => writePrometheusMetricsResponse(res, () => state.collectors.flatMap((collect) => collect())));
 }

@@ -28,8 +28,9 @@ import {
     registerRoutes,
     getDatabase,
     getRevInfoOrFail,
-    collectPrometheusMetrics,
-    PROMETHEUS_CONTENT_TYPE,
+    getProcessMetricSamples,
+    type MetricSample,
+    registerPrometheusMetricsRoute,
 } from "@spacebar/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
@@ -43,7 +44,9 @@ import { route } from "./util";
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
 
-export type SpacebarServerOptions = ServerOptions;
+export type SpacebarServerOptions = ServerOptions & {
+    registerMetricsEndpoint?: boolean;
+};
 
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -61,6 +64,22 @@ export class SpacebarServer extends Server {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         super(opts);
+    }
+
+    getExtraMetricSamples(): MetricSample[] {
+        return [
+            {
+                name: "spacebar_database_ready",
+                help: "Whether the API process has an initialized database connection.",
+                type: "gauge",
+                value: getDatabase() ? 1 : 0,
+                labels: { service: "api" },
+            },
+        ];
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("api", this.getExtraMetricSamples());
     }
 
     async start() {
@@ -162,20 +181,9 @@ export class SpacebarServer extends Server {
             });
         });
 
-        app.get("/-/metrics", (req, res) => {
-            res.set("Content-Type", PROMETHEUS_CONTENT_TYPE);
-            return res.send(
-                collectPrometheusMetrics("api", [
-                    {
-                        name: "spacebar_database_ready",
-                        help: "Whether the API process has an initialized database connection.",
-                        type: "gauge",
-                        value: getDatabase() ? 1 : 0,
-                        labels: { service: "api" },
-                    },
-                ]),
-            );
-        });
+        if (this.options.registerMetricsEndpoint !== false) {
+            registerPrometheusMetricsRoute(app, () => this.getMetricSamples());
+        }
 
         // current well-known location
         app.get("/.well-known/spacebar", (req, res) => {

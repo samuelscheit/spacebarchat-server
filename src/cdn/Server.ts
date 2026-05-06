@@ -17,20 +17,26 @@
 */
 
 import { Server, ServerOptions } from "lambert-server";
-import { Attachment, Config, PROMETHEUS_CONTENT_TYPE, collectPrometheusMetrics, initDatabase, registerRoutes } from "@spacebar/util";
+import { Attachment, Config, getProcessMetricSamples, initDatabase, type MetricSample, registerPrometheusMetricsRoute, registerRoutes } from "@spacebar/util";
 import { CORS, BodyParser } from "@spacebar/api";
 import path from "node:path";
 import guildProfilesRoute from "./routes/guild-profiles";
 import morgan from "morgan";
 import { storage } from "./util";
 
-export type CDNServerOptions = ServerOptions;
+export type CDNServerOptions = ServerOptions & {
+    registerMetricsEndpoint?: boolean;
+};
 
 export class CDNServer extends Server {
     declare public options: CDNServerOptions;
 
     constructor(options?: Partial<CDNServerOptions>) {
         super(options);
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("cdn");
     }
 
     async start() {
@@ -65,10 +71,9 @@ export class CDNServer extends Server {
 
         await registerRoutes(this, path.join(__dirname, "routes/"));
 
-        this.app.get("/-/metrics", (req, res) => {
-            res.set("Content-Type", PROMETHEUS_CONTENT_TYPE);
-            return res.send(collectPrometheusMetrics("cdn"));
-        });
+        if (this.options.registerMetricsEndpoint !== false) {
+            registerPrometheusMetricsRoute(this.app, () => this.getMetricSamples());
+        }
 
         this.app.use("/guilds/:guild_id/users/:user_id/avatars", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/avatars registered");

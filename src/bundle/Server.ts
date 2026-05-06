@@ -28,7 +28,7 @@ import * as Webrtc from "@spacebar/webrtc";
 import { CDNServer } from "@spacebar/cdn";
 import express from "express";
 import { green, bold } from "picocolors";
-import { Config, initDatabase } from "@spacebar/util";
+import { Config, getProcessMetricSamples, initDatabase, registerPrometheusMetricsRoute } from "@spacebar/util";
 import fs from "node:fs";
 import cluster from "node:cluster";
 
@@ -39,14 +39,17 @@ const wrtcWsPort = Number(process.env.WRTC_WS_PORT) || 3004;
 const production = process.env.NODE_ENV == "development" ? false : true;
 server.on("request", app);
 
-const api = new Api.SpacebarServer({ server, port, production, app });
-const cdn = new CDNServer({ server, port, production, app });
+const api = new Api.SpacebarServer({ server, port, production, app, registerMetricsEndpoint: false });
+const cdn = new CDNServer({ server, port, production, app, registerMetricsEndpoint: false });
 const gateway = new Gateway.Server({ server, port, production });
 const webrtc = new Webrtc.Server({
     server: undefined,
     port: wrtcWsPort,
     production,
 });
+registerPrometheusMetricsRoute(app, () =>
+    getProcessMetricSamples("bundle", [...api.getExtraMetricSamples(), ...gateway.getExtraMetricSamples(), ...webrtc.getExtraMetricSamples()]),
+);
 
 process.on("SIGTERM", async () => {
     console.log("Shutting down due to SIGTERM");
