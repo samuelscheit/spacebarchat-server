@@ -17,11 +17,12 @@
 */
 
 // TODO: remove dependency on entities
-import { BackupCode, UserSettings } from "@spacebar/util";
+import { BackupCode } from "@spacebar/util";
+import { UserSettingsSchema } from "../api/users/UserSettings";
 
 export interface TokenResponse {
     token: string;
-    settings: UserSettings;
+    settings: UserSettingsSchema;
 }
 
 export interface TokenOnlyResponse {

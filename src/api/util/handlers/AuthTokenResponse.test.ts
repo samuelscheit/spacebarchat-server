@@ -18,6 +18,7 @@
 
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
+import { DefaultUserSettings } from "../../../schemas/api/users/UserSettings";
 import { serializeTokenResponseSettings } from "./AuthTokenResponseSettings";
 
 describe("serializeTokenResponseSettings", () => {
@@ -26,7 +27,7 @@ describe("serializeTokenResponseSettings", () => {
             index: "42",
             locale: "de",
             theme: "light",
-        };
+        } as const;
 
         const serialized = serializeTokenResponseSettings(settings);
 
@@ -35,11 +36,27 @@ describe("serializeTokenResponseSettings", () => {
         assert.equal("index" in serialized, false);
     });
 
-    test("returns default settings when a user has no settings row", () => {
+    test("fills missing persisted settings with public defaults", () => {
+        const serialized = serializeTokenResponseSettings({
+            index: "42",
+            locale: "de",
+            theme: "light",
+        } as const);
+
+        assert.deepEqual(Object.keys(serialized).sort(), Object.keys(DefaultUserSettings).sort());
+        assert.equal(serialized.afk_timeout, DefaultUserSettings.afk_timeout);
+        assert.equal(serialized.friend_source_flags.all, DefaultUserSettings.friend_source_flags.all);
+        assert.deepEqual(serialized.guild_folders, DefaultUserSettings.guild_folders);
+        assert.deepEqual(serialized.guild_positions, DefaultUserSettings.guild_positions);
+        assert.equal(serialized.locale, "de");
+        assert.equal(serialized.theme, "light");
+        assert.equal("index" in serialized, false);
+    });
+
+    test("returns complete default settings when a user has no settings row", () => {
         const serialized = serializeTokenResponseSettings(null);
 
-        assert.equal(serialized.locale, "en-US");
-        assert.equal(serialized.theme, "dark");
+        assert.deepEqual(serialized, DefaultUserSettings);
         assert.equal("index" in serialized, false);
     });
 });

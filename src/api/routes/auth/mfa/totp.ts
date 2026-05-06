@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { BackupCode, User, generateToken } from "@spacebar/util";
+import { createTokenResponse, route } from "@spacebar/api";
+import { BackupCode, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { verifyToken } from "node-2fa";
@@ -47,7 +47,6 @@ router.post(
                 totp_last_ticket: ticket,
             },
             select: { id: true, totp_secret: true },
-            relations: { settings: true },
         });
 
         const backup = await BackupCode.findOne({
@@ -69,10 +68,7 @@ router.post(
 
         await User.update({ id: user.id }, { totp_last_ticket: "" });
 
-        return res.json({
-            token: await generateToken(user.id),
-            settings: { ...user.settings, index: undefined },
-        });
+        return res.json(await createTokenResponse(user.id));
     },
 );
 

@@ -16,12 +16,22 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { TokenResponse } from "@spacebar/schemas";
+import { DefaultUserSettings, UserSettingsSchema } from "../../../schemas/api/users/UserSettings";
 
-type TokenSettings = object & { index?: string };
+type TokenSettings = Partial<UserSettingsSchema> & { index?: string };
 
-export function serializeTokenResponseSettings(settings?: TokenSettings | null): TokenResponse["settings"] {
-    const serialized = { ...(settings ?? { locale: "en-US", theme: "dark" }) };
+function createDefaultTokenResponseSettings(): UserSettingsSchema {
+    return {
+        ...DefaultUserSettings,
+        friend_source_flags: { ...DefaultUserSettings.friend_source_flags },
+        guild_folders: [...DefaultUserSettings.guild_folders],
+        guild_positions: [...DefaultUserSettings.guild_positions],
+        restricted_guilds: [...DefaultUserSettings.restricted_guilds],
+    };
+}
+
+export function serializeTokenResponseSettings(settings?: TokenSettings | null): UserSettingsSchema {
+    const serialized = { ...createDefaultTokenResponseSettings(), ...(settings ?? {}) };
     delete (serialized as Partial<TokenSettings>).index;
-    return serialized as unknown as TokenResponse["settings"];
+    return serialized as UserSettingsSchema;
 }

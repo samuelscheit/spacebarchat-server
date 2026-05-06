@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { generateToken, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import { createTokenResponse, route } from "@spacebar/api";
+import { SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ExpectedAssertionResult } from "fido2-lib";
 import { HTTPError } from "lambert-server";
@@ -56,7 +56,6 @@ router.post(
                 totp_last_ticket: ticket,
             },
             select: { id: true },
-            relations: { settings: true },
         });
 
         const ret = await verifyWebAuthnToken(ticket);
@@ -92,10 +91,7 @@ router.post(
 
         await securityKey.save();
 
-        return res.json({
-            token: await generateToken(user.id),
-            user_settings: user.settings,
-        });
+        return res.json(await createTokenResponse(user.id));
     },
 );
 

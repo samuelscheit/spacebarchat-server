@@ -220,6 +220,303 @@
                     }
                 }
             },
+            "UserSettingsUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "afk_timeout": {
+                        "type": "integer"
+                    },
+                    "allow_accessibility_detection": {
+                        "type": "boolean"
+                    },
+                    "animate_emoji": {
+                        "type": "boolean"
+                    },
+                    "animate_stickers": {
+                        "type": "integer"
+                    },
+                    "contact_sync_enabled": {
+                        "type": "boolean"
+                    },
+                    "convert_emoticons": {
+                        "type": "boolean"
+                    },
+                    "custom_status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomStatus"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "default_guilds_restricted": {
+                        "type": "boolean"
+                    },
+                    "detect_platform_accounts": {
+                        "type": "boolean"
+                    },
+                    "developer_mode": {
+                        "type": "boolean"
+                    },
+                    "disable_games_tab": {
+                        "type": "boolean"
+                    },
+                    "enable_tts_command": {
+                        "type": "boolean"
+                    },
+                    "explicit_content_filter": {
+                        "type": "integer"
+                    },
+                    "friend_discovery_flags": {
+                        "type": "integer"
+                    },
+                    "friend_source_flags": {
+                        "$ref": "#/components/schemas/FriendSourceFlags"
+                    },
+                    "gateway_connected": {
+                        "type": "boolean"
+                    },
+                    "gif_auto_play": {
+                        "type": "boolean"
+                    },
+                    "guild_folders": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildFolder"
+                        }
+                    },
+                    "guild_positions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "inline_attachment_media": {
+                        "type": "boolean"
+                    },
+                    "inline_embed_media": {
+                        "type": "boolean"
+                    },
+                    "locale": {
+                        "type": "string"
+                    },
+                    "message_display_compact": {
+                        "type": "boolean"
+                    },
+                    "native_phone_integration_enabled": {
+                        "type": "boolean"
+                    },
+                    "render_embeds": {
+                        "type": "boolean"
+                    },
+                    "render_reactions": {
+                        "type": "boolean"
+                    },
+                    "restricted_guilds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "show_current_game": {
+                        "type": "boolean"
+                    },
+                    "status": {
+                        "enum": [
+                            "dnd",
+                            "idle",
+                            "invisible",
+                            "offline",
+                            "online"
+                        ],
+                        "type": "string"
+                    },
+                    "stream_notifications_enabled": {
+                        "type": "boolean"
+                    },
+                    "theme": {
+                        "enum": [
+                            "dark",
+                            "light"
+                        ],
+                        "type": "string"
+                    },
+                    "timezone_offset": {
+                        "type": "integer"
+                    },
+                    "view_nsfw_guilds": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UserSettingsSchema": {
+                "type": "object",
+                "properties": {
+                    "afk_timeout": {
+                        "type": "integer"
+                    },
+                    "allow_accessibility_detection": {
+                        "type": "boolean"
+                    },
+                    "animate_emoji": {
+                        "type": "boolean"
+                    },
+                    "animate_stickers": {
+                        "type": "integer"
+                    },
+                    "contact_sync_enabled": {
+                        "type": "boolean"
+                    },
+                    "convert_emoticons": {
+                        "type": "boolean"
+                    },
+                    "custom_status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomStatus"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "default_guilds_restricted": {
+                        "type": "boolean"
+                    },
+                    "detect_platform_accounts": {
+                        "type": "boolean"
+                    },
+                    "developer_mode": {
+                        "type": "boolean"
+                    },
+                    "disable_games_tab": {
+                        "type": "boolean"
+                    },
+                    "enable_tts_command": {
+                        "type": "boolean"
+                    },
+                    "explicit_content_filter": {
+                        "type": "integer"
+                    },
+                    "friend_discovery_flags": {
+                        "type": "integer"
+                    },
+                    "friend_source_flags": {
+                        "$ref": "#/components/schemas/FriendSourceFlags"
+                    },
+                    "gateway_connected": {
+                        "type": "boolean"
+                    },
+                    "gif_auto_play": {
+                        "type": "boolean"
+                    },
+                    "guild_folders": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildFolder"
+                        }
+                    },
+                    "guild_positions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "inline_attachment_media": {
+                        "type": "boolean"
+                    },
+                    "inline_embed_media": {
+                        "type": "boolean"
+                    },
+                    "locale": {
+                        "type": "string"
+                    },
+                    "message_display_compact": {
+                        "type": "boolean"
+                    },
+                    "native_phone_integration_enabled": {
+                        "type": "boolean"
+                    },
+                    "render_embeds": {
+                        "type": "boolean"
+                    },
+                    "render_reactions": {
+                        "type": "boolean"
+                    },
+                    "restricted_guilds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "show_current_game": {
+                        "type": "boolean"
+                    },
+                    "status": {
+                        "enum": [
+                            "dnd",
+                            "idle",
+                            "invisible",
+                            "offline",
+                            "online"
+                        ],
+                        "type": "string"
+                    },
+                    "stream_notifications_enabled": {
+                        "type": "boolean"
+                    },
+                    "theme": {
+                        "enum": [
+                            "dark",
+                            "light"
+                        ],
+                        "type": "string"
+                    },
+                    "timezone_offset": {
+                        "type": "integer"
+                    },
+                    "view_nsfw_guilds": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "afk_timeout",
+                    "allow_accessibility_detection",
+                    "animate_emoji",
+                    "animate_stickers",
+                    "contact_sync_enabled",
+                    "convert_emoticons",
+                    "custom_status",
+                    "default_guilds_restricted",
+                    "detect_platform_accounts",
+                    "developer_mode",
+                    "disable_games_tab",
+                    "enable_tts_command",
+                    "explicit_content_filter",
+                    "friend_discovery_flags",
+                    "friend_source_flags",
+                    "gateway_connected",
+                    "gif_auto_play",
+                    "guild_folders",
+                    "guild_positions",
+                    "inline_attachment_media",
+                    "inline_embed_media",
+                    "locale",
+                    "message_display_compact",
+                    "native_phone_integration_enabled",
+                    "render_embeds",
+                    "render_reactions",
+                    "restricted_guilds",
+                    "show_current_game",
+                    "status",
+                    "stream_notifications_enabled",
+                    "theme",
+                    "timezone_offset",
+                    "view_nsfw_guilds"
+                ]
+            },
             "FieldErrorResponse": {
                 "type": "object",
                 "properties": {
@@ -2699,7 +2996,7 @@
                         "type": "string"
                     },
                     "settings": {
-                        "$ref": "#/components/schemas/UserSettings"
+                        "$ref": "#/components/schemas/UserSettingsSchema"
                     }
                 },
                 "required": [
@@ -3145,303 +3442,6 @@
             },
             "InstanceUserDeleteSchema": {
                 "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
-            },
-            "UserSettingsUpdateSchema": {
-                "type": "object",
-                "properties": {
-                    "afk_timeout": {
-                        "type": "integer"
-                    },
-                    "allow_accessibility_detection": {
-                        "type": "boolean"
-                    },
-                    "animate_emoji": {
-                        "type": "boolean"
-                    },
-                    "animate_stickers": {
-                        "type": "integer"
-                    },
-                    "contact_sync_enabled": {
-                        "type": "boolean"
-                    },
-                    "convert_emoticons": {
-                        "type": "boolean"
-                    },
-                    "custom_status": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/CustomStatus"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "default_guilds_restricted": {
-                        "type": "boolean"
-                    },
-                    "detect_platform_accounts": {
-                        "type": "boolean"
-                    },
-                    "developer_mode": {
-                        "type": "boolean"
-                    },
-                    "disable_games_tab": {
-                        "type": "boolean"
-                    },
-                    "enable_tts_command": {
-                        "type": "boolean"
-                    },
-                    "explicit_content_filter": {
-                        "type": "integer"
-                    },
-                    "friend_discovery_flags": {
-                        "type": "integer"
-                    },
-                    "friend_source_flags": {
-                        "$ref": "#/components/schemas/FriendSourceFlags"
-                    },
-                    "gateway_connected": {
-                        "type": "boolean"
-                    },
-                    "gif_auto_play": {
-                        "type": "boolean"
-                    },
-                    "guild_folders": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/GuildFolder"
-                        }
-                    },
-                    "guild_positions": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "inline_attachment_media": {
-                        "type": "boolean"
-                    },
-                    "inline_embed_media": {
-                        "type": "boolean"
-                    },
-                    "locale": {
-                        "type": "string"
-                    },
-                    "message_display_compact": {
-                        "type": "boolean"
-                    },
-                    "native_phone_integration_enabled": {
-                        "type": "boolean"
-                    },
-                    "render_embeds": {
-                        "type": "boolean"
-                    },
-                    "render_reactions": {
-                        "type": "boolean"
-                    },
-                    "restricted_guilds": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "show_current_game": {
-                        "type": "boolean"
-                    },
-                    "status": {
-                        "enum": [
-                            "dnd",
-                            "idle",
-                            "invisible",
-                            "offline",
-                            "online"
-                        ],
-                        "type": "string"
-                    },
-                    "stream_notifications_enabled": {
-                        "type": "boolean"
-                    },
-                    "theme": {
-                        "enum": [
-                            "dark",
-                            "light"
-                        ],
-                        "type": "string"
-                    },
-                    "timezone_offset": {
-                        "type": "integer"
-                    },
-                    "view_nsfw_guilds": {
-                        "type": "boolean"
-                    }
-                }
-            },
-            "UserSettingsSchema": {
-                "type": "object",
-                "properties": {
-                    "afk_timeout": {
-                        "type": "integer"
-                    },
-                    "allow_accessibility_detection": {
-                        "type": "boolean"
-                    },
-                    "animate_emoji": {
-                        "type": "boolean"
-                    },
-                    "animate_stickers": {
-                        "type": "integer"
-                    },
-                    "contact_sync_enabled": {
-                        "type": "boolean"
-                    },
-                    "convert_emoticons": {
-                        "type": "boolean"
-                    },
-                    "custom_status": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/CustomStatus"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "default_guilds_restricted": {
-                        "type": "boolean"
-                    },
-                    "detect_platform_accounts": {
-                        "type": "boolean"
-                    },
-                    "developer_mode": {
-                        "type": "boolean"
-                    },
-                    "disable_games_tab": {
-                        "type": "boolean"
-                    },
-                    "enable_tts_command": {
-                        "type": "boolean"
-                    },
-                    "explicit_content_filter": {
-                        "type": "integer"
-                    },
-                    "friend_discovery_flags": {
-                        "type": "integer"
-                    },
-                    "friend_source_flags": {
-                        "$ref": "#/components/schemas/FriendSourceFlags"
-                    },
-                    "gateway_connected": {
-                        "type": "boolean"
-                    },
-                    "gif_auto_play": {
-                        "type": "boolean"
-                    },
-                    "guild_folders": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/GuildFolder"
-                        }
-                    },
-                    "guild_positions": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "inline_attachment_media": {
-                        "type": "boolean"
-                    },
-                    "inline_embed_media": {
-                        "type": "boolean"
-                    },
-                    "locale": {
-                        "type": "string"
-                    },
-                    "message_display_compact": {
-                        "type": "boolean"
-                    },
-                    "native_phone_integration_enabled": {
-                        "type": "boolean"
-                    },
-                    "render_embeds": {
-                        "type": "boolean"
-                    },
-                    "render_reactions": {
-                        "type": "boolean"
-                    },
-                    "restricted_guilds": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "show_current_game": {
-                        "type": "boolean"
-                    },
-                    "status": {
-                        "enum": [
-                            "dnd",
-                            "idle",
-                            "invisible",
-                            "offline",
-                            "online"
-                        ],
-                        "type": "string"
-                    },
-                    "stream_notifications_enabled": {
-                        "type": "boolean"
-                    },
-                    "theme": {
-                        "enum": [
-                            "dark",
-                            "light"
-                        ],
-                        "type": "string"
-                    },
-                    "timezone_offset": {
-                        "type": "integer"
-                    },
-                    "view_nsfw_guilds": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "afk_timeout",
-                    "allow_accessibility_detection",
-                    "animate_emoji",
-                    "animate_stickers",
-                    "contact_sync_enabled",
-                    "convert_emoticons",
-                    "custom_status",
-                    "default_guilds_restricted",
-                    "detect_platform_accounts",
-                    "developer_mode",
-                    "disable_games_tab",
-                    "enable_tts_command",
-                    "explicit_content_filter",
-                    "friend_discovery_flags",
-                    "friend_source_flags",
-                    "gateway_connected",
-                    "gif_auto_play",
-                    "guild_folders",
-                    "guild_positions",
-                    "inline_attachment_media",
-                    "inline_embed_media",
-                    "locale",
-                    "message_display_compact",
-                    "native_phone_integration_enabled",
-                    "render_embeds",
-                    "render_reactions",
-                    "restricted_guilds",
-                    "show_current_game",
-                    "status",
-                    "stream_notifications_enabled",
-                    "theme",
-                    "timezone_offset",
-                    "view_nsfw_guilds"
-                ]
             },
             "GuildProfileResponse": {
                 "type": "object",
@@ -7611,6 +7611,60 @@
                     "filename"
                 ]
             },
+            "CustomStatus": {
+                "type": "object",
+                "properties": {
+                    "emoji_id": {
+                        "type": "string"
+                    },
+                    "emoji_name": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": "integer"
+                    },
+                    "text": {
+                        "type": "string"
+                    }
+                }
+            },
+            "FriendSourceFlags": {
+                "type": "object",
+                "properties": {
+                    "all": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "all"
+                ]
+            },
+            "GuildFolder": {
+                "type": "object",
+                "properties": {
+                    "color": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "guild_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "guild_ids"
+                ]
+            },
             "ErrorList": {
                 "type": "object"
             },
@@ -9913,60 +9967,6 @@
                     "theme",
                     "timezone_offset",
                     "view_nsfw_guilds"
-                ]
-            },
-            "CustomStatus": {
-                "type": "object",
-                "properties": {
-                    "emoji_id": {
-                        "type": "string"
-                    },
-                    "emoji_name": {
-                        "type": "string"
-                    },
-                    "expires_at": {
-                        "type": "integer"
-                    },
-                    "text": {
-                        "type": "string"
-                    }
-                }
-            },
-            "FriendSourceFlags": {
-                "type": "object",
-                "properties": {
-                    "all": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "all"
-                ]
-            },
-            "GuildFolder": {
-                "type": "object",
-                "properties": {
-                    "color": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "guild_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "id": {
-                        "type": "integer",
-                        "nullable": true
-                    },
-                    "name": {
-                        "type": "string",
-                        "nullable": true
-                    }
-                },
-                "required": [
-                    "guild_ids"
                 ]
             },
             "SecurityKey": {
