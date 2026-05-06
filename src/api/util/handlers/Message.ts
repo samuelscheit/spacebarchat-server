@@ -50,7 +50,7 @@ import {
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
-import { shouldIncrementMentionCount } from "../utility/MessageNotifications";
+import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
 import {
     ActionRowComponent,
     ButtonStyle,
@@ -292,7 +292,7 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
     };
 }
-export async function handleMessage(opts: MessageOptions): Promise<Message> {
+export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     const conf = Config.get();
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
 
@@ -580,7 +580,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         }
         return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id }).save()));
     }
-    const incrementMentionCount = shouldIncrementMentionCount(opts);
+    const incrementMentionCount = shouldIncrementMentionCount(notificationOptions);
     if (ephermal) {
         const id = message.interaction_metadata?.user_id;
         if (id) {
@@ -727,7 +727,6 @@ interface MessageOptions extends MessageCreateSchema {
     timestamp?: Date;
     username?: string;
     avatar_url?: string;
-    suppress_notifications?: boolean;
 }
 
 // Makes for concise code, inspired by Nix' lib.trace
