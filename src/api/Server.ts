@@ -16,7 +16,21 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, ConnectionConfig, ConnectionLoader, Email, JSONReplacer, WebAuthn, initDatabase, initEvent, registerRoutes, getDatabase, getRevInfoOrFail } from "@spacebar/util";
+import {
+    Config,
+    ConnectionConfig,
+    ConnectionLoader,
+    Email,
+    JSONReplacer,
+    WebAuthn,
+    initDatabase,
+    initEvent,
+    registerRoutes,
+    getDatabase,
+    getRevInfoOrFail,
+    collectPrometheusMetrics,
+    PROMETHEUS_CONTENT_TYPE,
+} from "@spacebar/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
@@ -146,6 +160,21 @@ export class SpacebarServer extends Server {
                 implementation: "spacebar-server-ts",
                 version: getRevInfoOrFail(),
             });
+        });
+
+        app.get("/-/metrics", (req, res) => {
+            res.set("Content-Type", PROMETHEUS_CONTENT_TYPE);
+            return res.send(
+                collectPrometheusMetrics("api", [
+                    {
+                        name: "spacebar_database_ready",
+                        help: "Whether the API process has an initialized database connection.",
+                        type: "gauge",
+                        value: getDatabase() ? 1 : 0,
+                        labels: { service: "api" },
+                    },
+                ]),
+            );
         });
 
         // current well-known location

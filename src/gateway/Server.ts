@@ -18,7 +18,7 @@
 
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } from "@spacebar/util";
+import { checkToken, closeDatabase, Config, PROMETHEUS_CONTENT_TYPE, Rights, collectPrometheusMetrics, initDatabase, initEvent } from "@spacebar/util";
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "node:http";
@@ -67,6 +67,29 @@ export class Server {
                     res.setHeader("Set-Cookie", `__sb_sessid=${randomString(32)}; Secure; HttpOnly; SameSite=None; Path=/`);
                 }
                 const requestUrl = new URL(`http://${req.headers.host}${req.url}`);
+                if (requestUrl.pathname === "/-/metrics") {
+                    res.setHeader("Content-Type", PROMETHEUS_CONTENT_TYPE);
+                    res.writeHead(200).end(
+                        collectPrometheusMetrics("gateway", [
+                            {
+                                name: "spacebar_gateway_open_connections",
+                                help: "Number of authenticated gateway connection records.",
+                                type: "gauge",
+                                value: openConnections.length,
+                                labels: { service: "gateway" },
+                            },
+                            {
+                                name: "spacebar_gateway_websocket_clients",
+                                help: "Number of websocket clients attached to the gateway server.",
+                                type: "gauge",
+                                value: this.ws?.clients.size ?? 0,
+                                labels: { service: "gateway" },
+                            },
+                        ]),
+                    );
+                    return;
+                }
+
                 if (requestUrl.pathname === "/_spacebar/gateway/admin/introspect") {
                     if (!req.headers.authorization) {
                         return res.writeHead(401).end("Unauthorized");
