@@ -23624,6 +23624,11 @@
         },
         "/gateway/bot/": {
             "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -26620,6 +26625,11 @@
         },
         "/auth/verify/view-backup-codes-challenge/": {
             "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -26660,6 +26670,11 @@
         "/auth/verify/resend/": {
             "post": {
                 "x-right-required": "RESEND_VERIFICATION_EMAIL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
                 "responses": {
                     "204": {
                         "description": "No description available"
