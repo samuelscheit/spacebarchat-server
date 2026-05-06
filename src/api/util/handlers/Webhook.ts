@@ -1,9 +1,63 @@
 import { handleMessage, postHandleMessage } from "@spacebar/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, Snowflake, uploadFile, ValidateName, Webhook } from "@spacebar/util";
+import {
+    Attachment,
+    Channel,
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    FieldErrors,
+    handleFile,
+    isValidWebhookToken,
+    Message,
+    MessageCreateEvent,
+    Snowflake,
+    uploadFile,
+    ValidateName,
+    Webhook,
+    WebhooksUpdateEvent,
+} from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
-import { WebhookExecuteSchema } from "@spacebar/schemas";
+import { WebhookExecuteSchema, WebhookUpdateSchema } from "@spacebar/schemas";
+
+export async function updateWebhookWithToken(req: Request, res: Response) {
+    const { webhook_id, token } = req.params as { [key: string]: string };
+    const body = req.body as WebhookUpdateSchema;
+
+    const webhook = await Webhook.findOneOrFail({
+        where: { id: webhook_id },
+        relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
+    });
+    if (!isValidWebhookToken(webhook.token, token)) {
+        throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
+    }
+
+    const channel_id = webhook.channel_id;
+    if (!body.name && !body.avatar) {
+        throw new HTTPError("Empty webhook updates are not allowed", 50006);
+    }
+    if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
+
+    if (body.name) {
+        ValidateName(body.name);
+    }
+
+    webhook.assign(body);
+
+    await Promise.all([
+        webhook.save(),
+        emitEvent({
+            event: "WEBHOOKS_UPDATE",
+            channel_id,
+            data: {
+                channel_id,
+                guild_id: webhook.guild_id!, //TODO: is this even the right fix?
+            },
+        } satisfies WebhooksUpdateEvent),
+    ]);
+    res.status(204);
+}
 
 export const executeWebhook = async (req: Request, res: Response) => {
     const body = req.body as WebhookExecuteSchema;
@@ -22,7 +76,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
         throw DiscordApiErrors.UNKNOWN_WEBHOOK;
     }
 
-    if (webhook.token !== token) {
+    if (!isValidWebhookToken(webhook.token, token)) {
         throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
     }
 

@@ -46,6 +46,7 @@ export * from "./String";
 export * from "./Timespan";
 export * from "./Token";
 export * from "./TraverseDirectory";
+export * from "./WebhookToken";
 export * from "./WebAuthn";
 export * from "./ChannelFlags";
 export * from "./Gifs";
