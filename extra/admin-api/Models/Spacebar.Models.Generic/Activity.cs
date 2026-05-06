@@ -19,8 +19,8 @@ public class Activity {
     public ActivityTimestamps? Timestamps { get; set; }
 
     [JsonPropertyName("application_id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString)]
-    public long? ApplicationId { get; set; }
+    [JsonConverter(typeof(StringifiedJsonValueConverter))]
+    public string? ApplicationId { get; set; }
 
     [JsonPropertyName("details"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Details { get; set; }
@@ -81,8 +81,8 @@ public class ActivityEmoji {
     public required string Name { get; set; }
 
     [JsonPropertyName("id"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString)]
-    public long? Id { get; set; }
+    [JsonConverter(typeof(StringifiedJsonValueConverter))]
+    public string? Id { get; set; }
 
     [JsonPropertyName("animated")]
     public bool Animated { get; set; }

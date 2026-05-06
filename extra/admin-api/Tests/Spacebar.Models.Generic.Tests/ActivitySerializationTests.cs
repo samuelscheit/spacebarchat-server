@@ -48,8 +48,8 @@ public class ActivitySerializationTests {
         Assert.Equal(1710000000123, activity.CreatedAt);
         Assert.Equal(1710000000000, activity.Timestamps?.Start);
         Assert.Equal(1710000300000, activity.Timestamps?.End);
-        Assert.Equal(123456789012345678, activity.ApplicationId);
-        Assert.Equal(234567890123456789, activity.Emoji?.Id);
+        Assert.Equal("123456789012345678", activity.ApplicationId);
+        Assert.Equal("234567890123456789", activity.Emoji?.Id);
         Assert.Equal([1, 5], activity.Party?.Size);
         Assert.Equal("album", activity.Assets?.LargeImage);
         Assert.Equal("match-secret", activity.Secrets?.Match);
@@ -76,7 +76,7 @@ public class ActivitySerializationTests {
                 new Activity {
                     Name = "Spacebar",
                     Type = ActivityType.Game,
-                    ApplicationId = 333333333333333333,
+                    ApplicationId = "333333333333333333",
                     Assets = new ActivityAssets {
                         LargeImage = "large",
                         SmallText = "small text",
@@ -92,7 +92,7 @@ public class ActivitySerializationTests {
                     Type = ActivityType.Custom,
                     Emoji = new ActivityEmoji {
                         Name = "wave",
-                        Id = 444444444444444444,
+                        Id = "444444444444444444",
                     },
                 }
             ],
@@ -109,6 +109,38 @@ public class ActivitySerializationTests {
         Assert.Equal("https://spacebar.chat", node["activities"]![0]!["metadata"]!["button_urls"]![0]!.GetValue<string>());
         Assert.Equal("444444444444444444", node["hidden_activities"]![0]!["emoji"]!["id"]!.GetValue<string>());
         Assert.Null(node["activities"]![0]!["url"]);
+    }
+
+    [Fact]
+    public void DeserializeActivityStringIdsPreservesArbitraryAndNumericValues() {
+        const string json = """
+                            [
+                                {
+                                    "name": "Custom status",
+                                    "type": 4,
+                                    "application_id": "client-defined-activity",
+                                    "emoji": { "name": "spacebar", "id": "custom-emoji-id", "animated": true }
+                                },
+                                {
+                                    "name": "Oversized snowflakes",
+                                    "type": 0,
+                                    "application_id": 9223372036854775808,
+                                    "emoji": { "name": "snowflake", "id": 18446744073709551615, "animated": false }
+                                }
+                            ]
+                            """;
+
+        var activities = JsonSerializer.Deserialize<Activity[]>(json);
+
+        Assert.NotNull(activities);
+        Assert.Equal("client-defined-activity", activities[0].ApplicationId);
+        Assert.Equal("custom-emoji-id", activities[0].Emoji?.Id);
+        Assert.Equal("9223372036854775808", activities[1].ApplicationId);
+        Assert.Equal("18446744073709551615", activities[1].Emoji?.Id);
+
+        var node = JsonNode.Parse(JsonSerializer.Serialize(activities[1]))!;
+        Assert.Equal("9223372036854775808", node["application_id"]!.GetValue<string>());
+        Assert.Equal("18446744073709551615", node["emoji"]!["id"]!.GetValue<string>());
     }
 
     [Fact]
