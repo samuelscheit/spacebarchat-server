@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertGuildMember, filterViewableChannels, route } from "@spacebar/api";
 import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelCreateSchema, ChannelReorderSchema } from "@spacebar/schemas";
@@ -26,17 +26,29 @@ router.get(
     "/",
     route({
         responses: {
-            201: {
+            200: {
                 body: "APIChannelArray",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
-        const channels = await Channel.find({ where: { guild_id } });
+        const guild = await Guild.findOneOrFail({
+            where: { id: guild_id },
+            select: { channel_ordering: true },
+        });
+        await assertGuildMember(req.user_id, guild_id);
 
-        for await (const channel of channels) {
-            channel.position = await Channel.calculatePosition(channel.id, guild_id, channel.guild);
+        const channels = await filterViewableChannels(req.user_id, await Channel.find({ where: { guild_id } }));
+
+        for (const channel of channels) {
+            channel.position = guild.channel_ordering.indexOf(channel.id);
         }
         channels.sort((a, b) => a.position - b.position);
 

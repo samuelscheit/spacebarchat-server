@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { getChannelIdSetWithPermissions, preloadAuthorizedMessages, route } from "@spacebar/api";
 import { Config, Message } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@spacebar/schemas";
@@ -44,23 +44,17 @@ router.post(
                 message: `Cannot preload more than ${Config.get().limits.message.maxPreloadCount} channels at once.`,
             });
 
-        const messages = (
-            await Promise.all(
-                body.channels.map((channelId) =>
-                    Message.findOne({
-                        where: { channel_id: channelId },
-                        order: { timestamp: "DESC" },
-                    }),
-                ),
-            )
-        ).filter((x) => x !== null) as Message[];
-
-        const filteredMessages = messages.map((message) => {
-            const x = message.toJSON();
-            // https://docs.discord.food/resources/message#preload-messages - reactions are not included in the response
-            x.reactions = undefined;
-            return x;
-        }) as unknown as PreloadMessagesResponseSchema;
+        const filteredMessages = (await preloadAuthorizedMessages(body.channels, {
+            getAuthorizedChannelIds: (channelIds) =>
+                getChannelIdSetWithPermissions(req.user_id, channelIds, {
+                    requiredPermissions: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
+                }),
+            findLatestMessage: (channelId) =>
+                Message.findOne({
+                    where: { channel_id: channelId },
+                    order: { timestamp: "DESC" },
+                }),
+        })) as unknown as PreloadMessagesResponseSchema;
 
         return res.status(200).send(filteredMessages);
     },
