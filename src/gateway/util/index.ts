@@ -23,3 +23,5 @@ export * from "./Heartbeat";
 export * from "./WebSocket";
 export * from "./Capabilities";
 export * from "./Utils";
+export * from "./Reconnect";
+export * from "./ReconnectPayload";

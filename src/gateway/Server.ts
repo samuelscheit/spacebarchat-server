@@ -25,6 +25,8 @@ import http from "node:http";
 import { cleanupOnStartup } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
+import { broadcastReconnect } from "./util/Reconnect";
+import { WebSocket } from "./util/WebSocket";
 
 export class Server {
     public ws: ws.Server;
@@ -180,6 +182,7 @@ export class Server {
     }
 
     async stop() {
+        await broadcastReconnect(this.ws.clients as Iterable<WebSocket>);
         this.ws.clients.forEach((x) => x.close());
         this.ws.close(() => {
             this.server.close(() => {
