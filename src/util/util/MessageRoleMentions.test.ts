@@ -41,11 +41,9 @@ describe("Message role mentions serializer", () => {
             mentions: [rawUser],
             mention_roles: [{ id: "role-id", name: "role name" }],
             mention_channels: [],
-            attachments: [],
             embeds: [],
             reactions: [],
             sticker_items: [],
-            components: [],
             type: 0,
             flags: 0,
             content: "hello <@&role-id>",
@@ -60,6 +58,8 @@ describe("Message role mentions serializer", () => {
         assert.equal(signedMessage.author_id, undefined);
         assert.deepEqual(signedMessage.mention_roles, ["role-id"]);
         assert.deepEqual(signedMessage.mentions, [publicUser]);
+        assert.deepEqual(signedMessage.attachments, []);
+        assert.deepEqual(signedMessage.components, []);
     });
 
     test("signed attachment responses support gateway public message objects", async () => {

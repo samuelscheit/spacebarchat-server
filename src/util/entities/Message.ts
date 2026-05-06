@@ -357,7 +357,7 @@ export class Message extends BaseClass {
         const publicMessage = typeof this.toJSON === "function" ? this.toJSON() : { ...this, mention_roles: serializeMessageRoleMentions(this.mention_roles) };
         return {
             ...publicMessage,
-            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
+            attachments: this.attachments ? this.attachments.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)) : publicMessage.attachments,
             components: this.components
                 ? this.components.map((comp) => {
                       comp = structuredClone(comp);
@@ -399,7 +399,7 @@ export class Message extends BaseClass {
                       }
                       return comp;
                   })
-                : this.components,
+                : publicMessage.components,
         };
     }
 
