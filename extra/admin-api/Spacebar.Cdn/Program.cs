@@ -1,9 +1,11 @@
 using ArcaneLibs;
 using ImageMagick;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using Spacebar.AdminApi.TestClient.Services.Services;
 using Spacebar.Cdn.Services;
 using Spacebar.Interop.Cdn.Abstractions;
+using Spacebar.Interop.Cdn.Signing;
 using Spacebar.Models.Db.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +23,18 @@ builder.Services.AddSingleton<LruFileCache>(sp =>
 builder.Services.AddSingleton<PixelArtDetectionService>();
 builder.Services.AddSingleton<SpacebarCdnWorkerConfiguration>();
 builder.Services.AddSingleton<CdnWorkerService>();
+builder.Services.AddSingleton<CdnAttachmentSecurityOptions>();
+builder.Services.AddSingleton<CdnSigningService>(sp => {
+    var options = sp.GetRequiredService<CdnAttachmentSecurityOptions>();
+    return new CdnSigningService(
+        sp.GetRequiredService<ILogger<CdnSigningService>>(),
+        Encoding.UTF8.GetBytes(options.CdnSignatureKey),
+        options.CdnSignatureIncludeUserAgent,
+        options.CdnSignatureIncludeIp,
+        TimeSpan.Zero
+    );
+});
+builder.Services.AddSingleton<CdnAttachmentAccessService>();
 
 builder.Services.AddDbContextPool<SpacebarDbContext>(options => {
     options
