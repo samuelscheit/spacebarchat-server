@@ -33,9 +33,19 @@ function uploadReservationCommandData() {
             {
                 files: [
                     {
-                        id: "wrong-shape",
+                        id: "0",
                         filename: "reservation.txt",
                         file_size: 1,
+                    },
+                ],
+            },
+            {
+                files: [
+                    {
+                        filename: "image.png",
+                        file_size: 4096,
+                        is_clip: false,
+                        original_content_type: "image/png",
                     },
                 ],
             },
@@ -43,7 +53,7 @@ function uploadReservationCommandData() {
     };
 }
 
-function validCommandData() {
+function messageDescriptorCommandData() {
     return {
         id: "100000000000000001",
         name: "upload",
@@ -68,22 +78,27 @@ function validCommandData() {
 }
 
 describe("SendableApplicationCommandDataSchema", () => {
-    test("reuses the message create attachment descriptor schema", () => {
-        assert.deepEqual(schemaProperty(sendableApplicationCommandDataSchema, "attachments"), schemaProperty(schemas.MessageCreateSchema, "attachments"));
+    test("reuses the upload attachment reservation schema", () => {
+        assert.deepEqual(schemaProperty(sendableApplicationCommandDataSchema, "attachments"), schemaProperty(schemas.InteractionData, "attachments"));
+        assert.deepEqual(schemaProperty(sendableApplicationCommandDataSchema, "attachments"), schemaProperty(schemas.SendableModalSubmitDataSchema, "attachments"));
     });
 
-    test("accepts typed message attachment descriptors", () => {
+    test("accepts upload attachment reservations", () => {
         const validate = compileCommandDataSchema();
 
-        assert.equal(validate(validCommandData()), true, JSON.stringify(validate.errors));
+        assert.equal(validate(uploadReservationCommandData()), true, JSON.stringify(validate.errors));
     });
 
-    test("rejects untyped attachment objects", () => {
+    test("rejects arbitrary attachment objects and message descriptors", () => {
         const validate = compileCommandDataSchema();
 
-        assert.equal(validate({ ...validCommandData(), attachments: [{}] }), false);
-        assert.equal(validate({ ...validCommandData(), attachments: [{ id: "0", filename: "report.txt", file_size: 1 }] }), false);
-        assert.equal(validate({ ...validCommandData(), attachments: [{ filename: "image.png", uploaded_filename: "cloud/path.png", file_size: 1 }] }), false);
-        assert.equal(validate(uploadReservationCommandData()), false);
+        assert.equal(validate({ ...uploadReservationCommandData(), attachments: [{}] }), false);
+        assert.equal(validate(messageDescriptorCommandData()), false);
+        assert.equal(validate({ ...uploadReservationCommandData(), attachments: [{ files: [{ filename: "missing-size.txt" }] }] }), false);
+        assert.equal(
+            validate({ ...uploadReservationCommandData(), attachments: [{ files: [{ filename: "extra.txt", file_size: 1, uploaded_filename: "cloud/path.txt" }] }] }),
+            false,
+        );
+        assert.equal(validate({ ...uploadReservationCommandData(), attachments: [{ files: [{ filename: "extra.txt", file_size: 1 }], unexpected: true }] }), false);
     });
 });

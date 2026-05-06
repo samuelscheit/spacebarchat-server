@@ -17,7 +17,7 @@
 */
 
 import { Snowflake } from "../../Identifiers";
-import { MessageCreateAttachment, MessageCreateCloudAttachment } from "../../uncategorised";
+import { UploadAttachmentRequestSchema } from "../../uncategorised";
 import { ApplicationCommandOption } from "../developers";
 import { ApplicationCommandType } from "./ApplicationCommandSchema";
 
@@ -29,5 +29,5 @@ export interface SendableApplicationCommandDataSchema {
     application_command?: object;
     options?: ApplicationCommandOption[];
     target_id?: Snowflake;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
+    attachments?: UploadAttachmentRequestSchema[];
 }
