@@ -25,12 +25,12 @@ import path from "node:path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
 import { route } from "./util";
+import { registerPublicAssetRoutes } from "./util/PublicAssetRoutes";
 
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
 
 export type SpacebarServerOptions = ServerOptions;
-
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Express {
@@ -118,20 +118,7 @@ export class SpacebarServer extends Server {
 
         app.use("/imageproxy/:hash/:size/:url", ImageProxy);
 
-        app.get("/", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "index.html"));
-        });
-
-        app.get("/verify-email", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "verify.html"));
-        });
-
-        app.get("/widget", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "widget.html"));
-        });
+        registerPublicAssetRoutes(app, PUBLIC_ASSETS_FOLDER);
 
         app.get("/_spacebar/api/schemas.json", (req, res) => {
             res.sendFile(path.join(ASSETS_FOLDER, "schemas.json"));
