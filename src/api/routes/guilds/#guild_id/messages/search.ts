@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { messageToSearchResult, route } from "@spacebar/api";
 import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -163,35 +163,7 @@ router.get(
         delete query.take;
         const total_results = await Message.count(query);
 
-        const messagesDto = messages.map((x) => [
-            {
-                id: x.id,
-                type: x.type,
-                content: x.content,
-                channel_id: x.channel_id,
-                author: {
-                    id: x.author?.id,
-                    username: x.author?.username,
-                    avatar: x.author?.avatar,
-                    avatar_decoration: null,
-                    discriminator: x.author?.discriminator,
-                    public_flags: x.author?.public_flags,
-                },
-                attachments: x.attachments,
-                embeds: x.embeds,
-                mentions: x.mentions,
-                mention_roles: x.mention_roles,
-                pinned: x.pinned,
-                mention_everyone: x.mention_everyone,
-                tts: x.tts,
-                timestamp: x.timestamp,
-                edited_timestamp: x.edited_timestamp,
-                flags: x.flags,
-                components: x.components,
-                poll: x.poll,
-                hit: true,
-            },
-        ]);
+        const messagesDto = messages.map((x) => [messageToSearchResult(x)]);
 
         return res.json({
             messages: messagesDto,

@@ -342,13 +342,25 @@ export class Message extends BaseClass {
         };
     }
 
-    withSignedAttachments(data: NewUrlUserSignatureData) {
+    withSignedAttachments(data: NewUrlUserSignatureData): PublicMessage {
         function signMedia(media: UnfurledMediaItem) {
             Object.assign(media, Attachment.prototype.signUrls.call(media, data));
         }
+        const message = this as unknown as Partial<Message> & Partial<PublicMessage> & { toJSON?: () => PublicMessage };
+        const publicMessage =
+            typeof message.toJSON === "function"
+                ? message.toJSON()
+                : ({
+                      ...message,
+                      mentions: serializeMessageMentions(message.mentions) as PartialUser[],
+                      mention_roles: message.mention_roles?.map((role) => (typeof role === "object" && role && "id" in role ? role.id : role)) ?? [],
+                      mention_channels: message.mention_channels?.map((channel) => (typeof channel?.toJSON === "function" ? channel.toJSON() : channel)),
+                      attachments: message.attachments ?? [],
+                      components: message.components ?? [],
+                  } as PublicMessage);
         return {
-            ...this,
-            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
+            ...publicMessage,
+            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)) ?? publicMessage.attachments,
             components: this.components
                 ? this.components.map((comp) => {
                       comp = structuredClone(comp);
@@ -390,7 +402,7 @@ export class Message extends BaseClass {
                       }
                       return comp;
                   })
-                : this.components,
+                : publicMessage.components,
         };
     }
 
