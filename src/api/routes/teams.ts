@@ -21,6 +21,7 @@ import { route } from "@spacebar/api";
 import { Team, TeamMember, User } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { TeamCreateSchema, TeamMemberRole, TeamMemberState } from "@spacebar/schemas";
+import { serializeTeamListResponse } from "../util/handlers/Team";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -47,7 +48,7 @@ router.get(
             relations: { members: true },
         });
 
-        res.send(teams);
+        res.send(serializeTeamListResponse(teams));
     },
 );
 

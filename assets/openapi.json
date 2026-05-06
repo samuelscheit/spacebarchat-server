@@ -2593,7 +2593,7 @@
             "TeamListResponse": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/components/schemas/Team"
+                    "$ref": "#/components/schemas/TeamListTeam"
                 }
             },
             "TenorGifResponse": {
@@ -13550,6 +13550,70 @@
                             "boolean"
                         ]
                     }
+                ]
+            },
+            "TeamListTeam": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TeamListTeamMember"
+                        }
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "owner_user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "members",
+                    "name",
+                    "owner_user_id"
+                ]
+            },
+            "TeamListTeamMember": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "membership_state": {
+                        "$ref": "#/components/schemas/TeamMemberState"
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/TeamMemberRole"
+                    },
+                    "team_id": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "membership_state",
+                    "permissions",
+                    "role",
+                    "team_id",
+                    "user_id"
                 ]
             },
             "BackupCode": {
