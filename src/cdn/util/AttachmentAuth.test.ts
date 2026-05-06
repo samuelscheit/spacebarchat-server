@@ -1,5 +1,9 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { Config, getUrlSignature, NewUrlSignatureData } from "@spacebar/util";
 import { hasMatchingRequestSignature, hasValidAttachmentRequestAuth, validateAttachmentSignedUrl } from "./AttachmentAuth";
 
 describe("CDN attachment request authentication", () => {
@@ -93,6 +97,50 @@ describe("CDN attachment request authentication", () => {
             }),
             false,
         );
+    });
+
+    test("validates attachment URLs signed with the configured CDN signature key", async () => {
+        const oldConfigPath = process.env.CONFIG_PATH;
+        const oldConfigReadonly = process.env.CONFIG_READONLY;
+        const configDir = await mkdtemp(join(tmpdir(), "spacebar-cdn-auth-"));
+        const configPath = join(configDir, "config.json");
+
+        process.env.CONFIG_PATH = configPath;
+        process.env.CONFIG_READONLY = "1";
+
+        try {
+            await writeFile(
+                configPath,
+                JSON.stringify({
+                    api: { endpointPublic: "http://localhost:3001/api/v9" },
+                    cdn: { endpointPublic: "http://localhost:3001", endpointPrivate: "http://localhost:3001" },
+                    gateway: { endpointPublic: "ws://localhost:3001" },
+                    general: { serverName: "http://localhost:3001" },
+                    security: {
+                        cdnSignUrls: true,
+                        cdnSignatureDuration: "24h",
+                        cdnSignatureIncludeIp: true,
+                        cdnSignatureIncludeUserAgent: true,
+                        cdnSignatureKey: "test-cdn-signature-key",
+                    },
+                }),
+            );
+            await Config.init(true);
+
+            const fullUrl = "https://cdn.example.test/attachments/1/2/file.png";
+            const userAuth = { ip: "127.0.0.1", userAgent: "test-agent" };
+            const signedUrl = getUrlSignature(new NewUrlSignatureData({ ...userAuth, url: fullUrl })).applyToUrl(fullUrl).toString();
+
+            assert.equal(validateAttachmentSignedUrl({ ...userAuth, fullUrl: signedUrl }), true);
+            assert.equal(validateAttachmentSignedUrl({ ...userAuth, ip: "127.0.0.2", fullUrl: signedUrl }), false);
+        } finally {
+            if (oldConfigPath === undefined) delete process.env.CONFIG_PATH;
+            else process.env.CONFIG_PATH = oldConfigPath;
+            if (oldConfigReadonly === undefined) delete process.env.CONFIG_READONLY;
+            else process.env.CONFIG_READONLY = oldConfigReadonly;
+
+            await rm(configDir, { recursive: true, force: true });
+        }
     });
 
     test("denies malformed URLs when signed URL auth is required", () => {
