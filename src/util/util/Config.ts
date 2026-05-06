@@ -25,8 +25,6 @@ import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
 
 // TODO: yaml instead of json
-const overridePath = process.env.CONFIG_PATH ?? "";
-
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
@@ -49,9 +47,10 @@ export class Config {
             pairs = await validateConfig();
             config = pairsToConfig(pairs);
         } else {
-            console.log(`[Config] Using CONFIG_PATH rather than database:`, process.env.CONFIG_PATH);
-            if (existsSync(process.env.CONFIG_PATH)) {
-                const file = JSON.parse((await fs.readFile(process.env.CONFIG_PATH)).toString());
+            const configPath = process.env.CONFIG_PATH;
+            console.log(`[Config] Using CONFIG_PATH rather than database:`, configPath);
+            if (existsSync(configPath)) {
+                const file = JSON.parse((await fs.readFile(configPath)).toString());
                 config = file;
             } else config = new ConfigValue();
             pairs = generatePairs(config);
@@ -104,7 +103,7 @@ export class Config {
     }
     public static set(val: Partial<ConfigValue>) {
         if (!config || !val) return;
-        config = OrmUtils.mergeDeep(config);
+        config = OrmUtils.mergeDeep(config, val);
 
         return applyConfig(config);
     }
@@ -128,8 +127,9 @@ const generatePairs = (obj: object | null, key = ""): ConfigEntity[] => {
 };
 
 async function applyConfig(val: ConfigValue) {
-    if (process.env.CONFIG_PATH)
-        if (!process.env.CONFIG_READONLY) await fs.writeFile(overridePath, JSON.stringify(val, null, 4));
+    const configPath = process.env.CONFIG_PATH;
+    if (configPath)
+        if (!process.env.CONFIG_READONLY) await fs.writeFile(configPath, JSON.stringify(val, null, 4));
         else console.log("[WARNING] JSON config file in use, and writing is disabled! Programmatic config changes will not be persisted, and your config will not get updated!");
     else {
         const pairs = generatePairs(val);

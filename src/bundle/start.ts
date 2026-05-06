@@ -27,11 +27,19 @@ import { initStats } from "./stats";
 import { config } from "dotenv";
 
 config({ quiet: true });
-import { centerString, getRevInfoOrFail, Logo } from "@spacebar/util";
+import { centerString, getRevInfoOrFail, getUpdateCheckerWorkerEnv, Logo, UpdateCheckerWorkerElection } from "@spacebar/util";
 
 const cores = process.env.THREADS ? parseInt(process.env.THREADS) : 1;
 
 if (cluster.isPrimary) {
+    const updateCheckerElection = new UpdateCheckerWorkerElection();
+
+    function forkWorker(runUpdateChecker: boolean) {
+        const worker = cluster.fork(getUpdateCheckerWorkerEnv(runUpdateChecker));
+        updateCheckerElection.recordForkedWorker(worker.id, runUpdateChecker);
+        return worker;
+    }
+
     const revInfo = getRevInfoOrFail();
     Logo.printLogo().then(() => {
         const unformatted = `spacebar-server | !! Pre-release build !!`;
@@ -64,7 +72,7 @@ if (cluster.isPrimary) {
 
             // Fork workers.
             for (let i = 0; i < cores; i++) {
-                cluster.fork();
+                forkWorker(updateCheckerElection.shouldRunInitialWorker(i));
                 console.log(`[Process] Worker ${cyan(i)} started.`);
             }
 
@@ -78,7 +86,7 @@ if (cluster.isPrimary) {
 
             cluster.on("exit", (worker) => {
                 console.log(`[Worker] ${red(`PID ${worker.process.pid} died, restarting ...`)}`);
-                cluster.fork();
+                forkWorker(updateCheckerElection.shouldRunReplacementForExitedWorker(worker.id));
             });
         }
     });

@@ -23,6 +23,19 @@ export interface CompareCommit {
     };
 }
 
+export type CommitComparisonStatus = "ahead" | "behind" | "diverged" | "identical";
+
+export interface CommitComparison {
+    html_url: string | null;
+    status: CommitComparisonStatus | null;
+    commits: CompareCommit[];
+}
+
+export interface NotificationDeliveryResult {
+    attempted: number;
+    sent: number;
+}
+
 export interface UpdateNotification {
     repository: string;
     branch: string;
@@ -32,10 +45,24 @@ export interface UpdateNotification {
     commits: CompareCommit[];
 }
 
-export function shouldNotifyUpdate(currentCommit: string | null, latestCommit: string | null, lastNotifiedCommit: string | null): boolean {
+export function shouldFetchUpdateComparison(currentCommit: string | null, latestCommit: string | null, lastNotifiedCommit: string | null): boolean {
     if (!currentCommit || !latestCommit) return false;
     if (currentCommit === latestCommit) return false;
     return latestCommit !== lastNotifiedCommit;
+}
+
+export function shouldNotifyUpdate(
+    currentCommit: string | null,
+    latestCommit: string | null,
+    lastNotifiedCommit: string | null,
+    comparisonStatus: CommitComparisonStatus | null,
+): boolean {
+    if (!shouldFetchUpdateComparison(currentCommit, latestCommit, lastNotifiedCommit)) return false;
+    return comparisonStatus === "ahead";
+}
+
+export function shouldRecordNotificationDelivery(result: NotificationDeliveryResult): boolean {
+    return result.attempted > 0 && result.sent === result.attempted;
 }
 
 export function summarizeCommitMessages(commits: CompareCommit[], limit = 8): string {
@@ -55,21 +82,21 @@ export function buildUpdateNotificationMessage(notification: UpdateNotification)
     const compareLine = notification.compareUrl ? `\n\nCompare changes: ${notification.compareUrl}` : "";
 
     return {
-        content: `A new Spacebar server update is available for ${notification.repository}@${notification.branch}.`,
+        content: `✨ A new Spacebar server update is available for ${notification.repository}@${notification.branch}.`,
         embeds: [
             {
                 type: "rich",
-                title: "Spacebar update available",
+                title: "✨ Spacebar update available",
                 description: `Your instance is running \`${shortCurrent}\`, and \`${shortLatest}\` is now available.${compareLine}`,
                 color: 0x5865f2,
                 fields: [
                     {
-                        name: "What changed",
+                        name: "✨ What changed",
                         value: summarizeCommitMessages(notification.commits),
                         inline: false,
                     },
                     {
-                        name: "Next step",
+                        name: "🚀 Next step",
                         value: "Pull the latest server changes, rebuild, and restart this instance when you are ready.",
                         inline: false,
                     },
