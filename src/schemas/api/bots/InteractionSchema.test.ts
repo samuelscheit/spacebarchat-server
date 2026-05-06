@@ -16,7 +16,6 @@ function compileInteractionSchema() {
 
 function baseInteraction() {
     return {
-        type: 1,
         application_id: "100000000000000001",
         channel_id: "100000000000000002",
     };
@@ -26,7 +25,7 @@ describe("InteractionSchema", () => {
     test("accepts ping interactions without data", () => {
         const validate = compileInteractionSchema();
 
-        assert.equal(validate(baseInteraction()), true, JSON.stringify(validate.errors));
+        assert.equal(validate({ ...baseInteraction(), type: 1 }), true, JSON.stringify(validate.errors));
     });
 
     test("accepts typed interaction data variants", () => {
@@ -49,7 +48,22 @@ describe("InteractionSchema", () => {
         assert.equal(
             validate({
                 ...baseInteraction(),
+                type: 4,
+                data: {
+                    id: "100000000000000006",
+                    name: "autocomplete",
+                    version: "100000000000000007",
+                },
+            }),
+            true,
+            JSON.stringify(validate.errors),
+        );
+
+        assert.equal(
+            validate({
+                ...baseInteraction(),
                 type: 3,
+                message_id: "100000000000000008",
                 data: {
                     custom_id: "confirm",
                     component_type: 2,
@@ -76,7 +90,86 @@ describe("InteractionSchema", () => {
     test("rejects non-Discord root files field and untyped data", () => {
         const validate = compileInteractionSchema();
 
-        assert.equal(validate({ ...baseInteraction(), files: [] }), false);
+        assert.equal(validate({ ...baseInteraction(), type: 1, files: [] }), false);
+        assert.equal(
+            validate({
+                ...baseInteraction(),
+                type: 1,
+                data: {
+                    id: "100000000000000010",
+                    name: "ping",
+                    version: "100000000000000011",
+                },
+            }),
+            false,
+        );
         assert.equal(validate({ ...baseInteraction(), type: 2, data: {} }), false);
+    });
+
+    test("rejects data payloads that do not match the interaction type", () => {
+        const validate = compileInteractionSchema();
+
+        assert.equal(
+            validate({
+                ...baseInteraction(),
+                type: 2,
+                data: {
+                    custom_id: "confirm",
+                    component_type: 2,
+                },
+            }),
+            false,
+        );
+
+        assert.equal(
+            validate({
+                ...baseInteraction(),
+                type: 3,
+                message_id: "100000000000000012",
+                data: {
+                    id: "100000000000000013",
+                    name: "ping",
+                    version: "100000000000000014",
+                },
+            }),
+            false,
+        );
+
+        assert.equal(
+            validate({
+                ...baseInteraction(),
+                type: 5,
+                data: {
+                    custom_id: "confirm",
+                    component_type: 2,
+                },
+            }),
+            false,
+        );
+    });
+
+    test("requires data for non-ping interactions", () => {
+        const validate = compileInteractionSchema();
+
+        assert.equal(validate({ ...baseInteraction(), type: 2 }), false);
+        assert.equal(validate({ ...baseInteraction(), type: 3, message_id: "100000000000000009" }), false);
+        assert.equal(validate({ ...baseInteraction(), type: 4 }), false);
+        assert.equal(validate({ ...baseInteraction(), type: 5 }), false);
+    });
+
+    test("requires message_id for message component interactions", () => {
+        const validate = compileInteractionSchema();
+
+        assert.equal(
+            validate({
+                ...baseInteraction(),
+                type: 3,
+                data: {
+                    custom_id: "confirm",
+                    component_type: 2,
+                },
+            }),
+            false,
+        );
     });
 });

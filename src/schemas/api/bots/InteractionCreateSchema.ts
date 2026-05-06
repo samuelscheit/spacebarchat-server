@@ -17,6 +17,7 @@
 */
 
 import { PublicMember, PublicUser, Snowflake, InteractionType } from "@spacebar/schemas";
+import { InteractionData } from "./InteractionSchema";
 // TODO: remove entity imports
 import { Channel, Message } from "@spacebar/util";
 
@@ -26,7 +27,7 @@ export interface InteractionCreateSchema {
     application_id: Snowflake;
     type: InteractionType;
     token: string;
-    data?: object; // TODO: types?
+    data?: InteractionData;
     guild?: InteractionGuild;
     guild_id?: Snowflake;
     guild_locale?: string;
