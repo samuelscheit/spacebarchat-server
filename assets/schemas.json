@@ -2802,13 +2802,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "StageInstancesResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/StageInstanceResponse"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "TeamListResponse": {
         "type": "array",
         "items": {
@@ -6174,14 +6167,14 @@
             "flags": {
                 "type": "integer"
             },
+            "channel_id": {
+                "type": "string"
+            },
             "applied_tags": {
                 "type": "array",
                 "items": {
                     "type": "string"
                 }
-            },
-            "channel_id": {
-                "type": "string"
             },
             "content": {
                 "type": "string"
@@ -6795,6 +6788,52 @@
         "required": [
             "settings"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StageInstanceCreateSchema": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "topic": {
+                "type": "string"
+            },
+            "privacy_level": {
+                "enum": [
+                    1,
+                    2
+                ],
+                "type": "number"
+            },
+            "send_start_notification": {
+                "type": "boolean"
+            },
+            "guild_scheduled_event_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "topic"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StageInstanceModifySchema": {
+        "type": "object",
+        "properties": {
+            "privacy_level": {
+                "enum": [
+                    1,
+                    2
+                ],
+                "type": "number"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "TeamCreateSchema": {
@@ -7720,6 +7759,9 @@
             "flags": {
                 "type": "integer"
             },
+            "topic": {
+                "type": "string"
+            },
             "icon": {
                 "type": [
                     "null",
@@ -7773,9 +7815,6 @@
             },
             "rate_limit_per_user": {
                 "type": "integer"
-            },
-            "topic": {
-                "type": "string"
             },
             "default_thread_rate_limit_per_user": {
                 "type": "integer"

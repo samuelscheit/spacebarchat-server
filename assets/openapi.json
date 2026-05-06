@@ -75,8 +75,10 @@
                         }
                     },
                     "name_localized": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "description": {
                         "type": "string"
@@ -88,8 +90,10 @@
                         }
                     },
                     "description_localized": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "options": {
                         "type": "array",
@@ -98,8 +102,10 @@
                         }
                     },
                     "default_member_permissions": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "dm_permission": {
                         "type": "boolean"
@@ -612,8 +618,10 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "bitrate": {
                         "type": "integer"
@@ -679,8 +687,10 @@
                         "type": "integer"
                     },
                     "default_reaction_emoji": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "flags": {
                         "type": "integer"
@@ -997,8 +1007,10 @@
                         "type": "string"
                     },
                     "require_colons": {
-                        "type": "boolean",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "boolean"
+                        ]
                     },
                     "roles": {
                         "type": "array",
@@ -1088,8 +1100,10 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "channels": {
                         "type": "array",
@@ -1172,8 +1186,10 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -1184,12 +1200,16 @@
                 "type": "object",
                 "properties": {
                     "banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "splash": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "description": {
                         "type": "string"
@@ -1231,8 +1251,10 @@
                         "type": "string"
                     },
                     "safety_alerts_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "name": {
                         "maxLength": 100,
@@ -1242,8 +1264,10 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "system_channel_id": {
                         "type": "string"
@@ -1709,8 +1733,10 @@
                 "type": "object",
                 "properties": {
                     "reason": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "user": {
                         "type": "object",
@@ -1810,8 +1836,10 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "system_channel_id": {
                         "type": "string"
@@ -1826,12 +1854,16 @@
                         "type": "boolean"
                     },
                     "banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "splash": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "description": {
                         "type": "string"
@@ -1873,8 +1905,10 @@
                         "type": "string"
                     },
                     "safety_alerts_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -2244,8 +2278,10 @@
                         "type": "boolean"
                     },
                     "channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -2615,8 +2651,10 @@
                         "type": "boolean"
                     },
                     "guild_scheduled_event_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -2627,12 +2665,6 @@
                     "privacy_level",
                     "topic"
                 ]
-            },
-            "StageInstancesResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/StageInstanceResponse"
-                }
             },
             "TeamListResponse": {
                 "type": "array",
@@ -3021,8 +3053,10 @@
                         "type": "string"
                     },
                     "max_participants": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     },
                     "name": {
                         "type": "string"
@@ -3497,8 +3531,10 @@
                         "type": "string"
                     },
                     "icon_hash": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "member_count": {
                         "type": "integer"
@@ -3513,8 +3549,10 @@
                         "type": "string"
                     },
                     "banner_hash": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "game_application_ids": {
                         "type": "array",
@@ -3529,8 +3567,10 @@
                         }
                     },
                     "tag": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "badge": {
                         "$ref": "#/components/schemas/GuildBadgeType"
@@ -3560,8 +3600,10 @@
                         "$ref": "#/components/schemas/GuildVisibilityLevel"
                     },
                     "custom_banner_hash": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "premium_subscription_count": {
                         "type": "integer"
@@ -3631,8 +3673,10 @@
                         "type": "string"
                     },
                     "description": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "tags": {
                         "type": "string"
@@ -4128,12 +4172,16 @@
                         "type": "string"
                     },
                     "system_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "rules_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "banner": {
                         "type": "string"
@@ -4163,15 +4211,19 @@
                         "type": "integer"
                     },
                     "public_updates_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "afk_timeout": {
                         "type": "integer"
                     },
                     "afk_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "preferred_locale": {
                         "type": "string"
@@ -4716,32 +4768,46 @@
                         "type": "string"
                     },
                     "serverName": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "instanceDescription": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "frontPage": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "tosPage": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "correspondenceEmail": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "correspondenceUserID": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "image": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "instanceId": {
                         "type": "string"
@@ -4924,8 +4990,10 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "system_channel_id": {
                         "type": "string"
@@ -4940,12 +5008,16 @@
                         "type": "boolean"
                     },
                     "banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "splash": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "description": {
                         "type": "string"
@@ -4987,8 +5059,10 @@
                         "type": "string"
                     },
                     "safety_alerts_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -5065,8 +5139,10 @@
                         "type": "string"
                     },
                     "notes": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -5382,8 +5458,10 @@
                 "type": "object",
                 "properties": {
                     "banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "nick": {
                         "type": "string"
@@ -5422,15 +5500,19 @@
                         "type": "string"
                     },
                     "avatar": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "bio": {
                         "type": "string"
                     },
                     "communication_disabled_until": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 }
             },
@@ -5815,14 +5897,14 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "channel_id": {
+                        "type": "string"
+                    },
                     "applied_tags": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
-                    },
-                    "channel_id": {
-                        "type": "string"
                     },
                     "content": {
                         "type": "string"
@@ -6403,6 +6485,48 @@
                     "settings"
                 ]
             },
+            "StageInstanceCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "topic": {
+                        "type": "string"
+                    },
+                    "privacy_level": {
+                        "enum": [
+                            1,
+                            2
+                        ],
+                        "type": "number"
+                    },
+                    "send_start_notification": {
+                        "type": "boolean"
+                    },
+                    "guild_scheduled_event_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "topic"
+                ]
+            },
+            "StageInstanceModifySchema": {
+                "type": "object",
+                "properties": {
+                    "privacy_level": {
+                        "enum": [
+                            1,
+                            2
+                        ],
+                        "type": "number"
+                    }
+                }
+            },
             "TeamCreateSchema": {
                 "type": "object",
                 "properties": {
@@ -6486,12 +6610,16 @@
                         "type": "string"
                     },
                     "gift_code_sku_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "login_source": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -6562,8 +6690,10 @@
                         "type": "boolean"
                     },
                     "guild_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "flags": {
                         "type": "integer"
@@ -6588,8 +6718,10 @@
                         "type": "string"
                     },
                     "avatar": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "bio": {
                         "type": "string"
@@ -6598,8 +6730,10 @@
                         "type": "integer"
                     },
                     "banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "password": {
                         "minLength": 1,
@@ -6681,12 +6815,16 @@
                         "type": "string"
                     },
                     "accent_color": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     },
                     "banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "pronouns": {
                         "type": "string"
@@ -6720,8 +6858,10 @@
                 "type": "object",
                 "properties": {
                     "captcha_key": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "token": {
                         "type": "string"
@@ -7198,16 +7338,22 @@
                         "type": "string"
                     },
                     "moderated": {
-                        "type": "boolean",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "boolean"
+                        ]
                     },
                     "emoji_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "emoji_name": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -7251,9 +7397,14 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "topic": {
+                        "type": "string"
+                    },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "parent_id": {
                         "type": "string"
@@ -7303,9 +7454,6 @@
                     "rate_limit_per_user": {
                         "type": "integer"
                     },
-                    "topic": {
-                        "type": "string"
-                    },
                     "default_thread_rate_limit_per_user": {
                         "type": "integer"
                     },
@@ -7325,8 +7473,10 @@
                         "type": "string"
                     },
                     "default_reaction_emoji": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "auto_archive_duration": {
                         "type": "integer"
@@ -7349,12 +7499,16 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "name": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "roles": {
                         "type": "array",
@@ -8192,8 +8346,10 @@
                         "type": "string"
                     },
                     "unpublished_at": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "styles": {
                         "$ref": "#/components/schemas/CollectiblesCategoryStyle"
@@ -8215,36 +8371,52 @@
                         ]
                     },
                     "mobile_bg": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "pdp_bg": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "success_modal_bg": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "mobile_banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "featured_block": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "hero_banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "wide_banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "hero_logo": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "products": {
                         "type": "array",
@@ -8327,8 +8499,10 @@
                         "type": "string"
                     },
                     "unpublished_at": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "styles": {
                         "$ref": "#/components/schemas/CollectiblesCategoryStyle"
@@ -8482,8 +8656,10 @@
                         "type": "string"
                     },
                     "unpublished_at": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "styles": {
                         "$ref": "#/components/schemas/CollectiblesCategoryStyle"
@@ -8559,8 +8735,10 @@
                 "type": "object",
                 "properties": {
                     "animated": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "static": {
                         "type": "string"
@@ -8630,8 +8808,10 @@
                         "type": "string"
                     },
                     "unpublished_at": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "summary": {
                         "type": "string"
@@ -8687,19 +8867,25 @@
                         "type": "string"
                     },
                     "unpublished_at": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "banner_url": {
                         "type": "string"
                     },
                     "body_text": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "banner_text_color": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     }
                 },
                 "required": [
@@ -8765,8 +8951,10 @@
                 "type": "object",
                 "properties": {
                     "afk_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "afk_channel": {
                         "$ref": "#/components/schemas/Channel"
@@ -8903,15 +9091,19 @@
                         "type": "integer"
                     },
                     "public_updates_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "public_updates_channel": {
                         "$ref": "#/components/schemas/Channel"
                     },
                     "rules_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "rules_channel": {
                         "type": "string"
@@ -8923,8 +9115,10 @@
                         "type": "string"
                     },
                     "system_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "system_channel": {
                         "$ref": "#/components/schemas/Channel"
@@ -9024,8 +9218,10 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "type": {
                         "$ref": "#/components/schemas/ChannelType"
@@ -9052,8 +9248,10 @@
                         "$ref": "#/components/schemas/Guild"
                     },
                     "parent_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "parent": {
                         "$ref": "#/components/schemas/Channel"
@@ -9169,8 +9367,10 @@
                         }
                     },
                     "status": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "position": {
                         "description": "Must be calculated Channel.calculatePosition",
@@ -9991,8 +10191,10 @@
                 "type": "object",
                 "properties": {
                     "color": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     },
                     "guild_ids": {
                         "type": "array",
@@ -10001,12 +10203,16 @@
                         }
                     },
                     "id": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     },
                     "name": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -10059,8 +10265,10 @@
                         "type": "string"
                     },
                     "expires_at": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -10126,8 +10334,10 @@
                         "type": "string"
                     },
                     "expires_at": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     }
                 },
                 "required": [
@@ -10142,20 +10352,28 @@
                 "type": "object",
                 "properties": {
                     "identity_enabled": {
-                        "type": "boolean",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "boolean"
+                        ]
                     },
                     "identity_guild_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "tag": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "badge": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -10460,8 +10678,10 @@
                         "type": "integer"
                     },
                     "guild_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "flags": {
                         "type": "integer"
@@ -10506,8 +10726,10 @@
                         "type": "boolean"
                     },
                     "channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     }
                 },
                 "required": [
@@ -12466,12 +12688,16 @@
                         "type": "string"
                     },
                     "global_name": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "avatar": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "avatar_decoration_data": {
                         "anyOf": [
@@ -12520,12 +12746,16 @@
                         "type": "boolean"
                     },
                     "banner": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "accent_color": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     },
                     "public_flags": {
                         "type": "integer"
@@ -13090,12 +13320,16 @@
                         "type": "string"
                     },
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "description": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "features": {
                         "type": "array",
@@ -13200,8 +13434,10 @@
                         "type": "string"
                     },
                     "edited_timestamp": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "flags": {
                         "type": "integer"
@@ -14025,12 +14261,16 @@
                 "type": "object",
                 "properties": {
                     "emoji_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "emoji_name": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "emoji_animated": {
                         "type": "boolean"
@@ -14062,23 +14302,31 @@
                 "type": "object",
                 "properties": {
                     "icon": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "id": {
                         "type": "string"
                     },
                     "last_message_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "name": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "origin_channel_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "owner_id": {
                         "type": "string"
@@ -14107,8 +14355,10 @@
                 "type": "object",
                 "properties": {
                     "avatar": {
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "discriminator": {
                         "type": "string"
@@ -17766,7 +18016,72 @@
             }
         },
         "/stage-instances/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StageInstanceCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StageInstanceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "stage-instances"
+                ]
+            }
+        },
+        "/stage-instances/{channel_id}/": {
             "get": {
+                "x-permission-required": "VIEW_CHANNEL",
                 "security": [
                     {
                         "bearer": []
@@ -17778,12 +18093,152 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/StageInstancesResponse"
+                                    "$ref": "#/components/schemas/StageInstanceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }
                     }
                 },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "stage-instances"
+                ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StageInstanceModifySchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StageInstanceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "stage-instances"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
                 "tags": [
                     "stage-instances"
                 ]

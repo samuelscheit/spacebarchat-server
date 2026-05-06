@@ -53,7 +53,7 @@ export * from "./PartialConnectedAccountResponse";
 export * from "./PreloadMessagesResponseSchema";
 export * from "./RefreshUrlsResponse";
 export * from "./SettingsProtoUpdateResponse";
-export * from "./StageInstancesResponse";
+export * from "./StageInstanceResponse";
 export * from "./TeamListResponse";
 export * from "./Tenor";
 export * from "./TokenResponse";

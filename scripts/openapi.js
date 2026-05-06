@@ -100,17 +100,6 @@ function combineSchemas(schemas) {
         delete definitions[key].additionalProperties;
         delete definitions[key].$schema;
         const definition = definitions[key];
-
-        if (typeof definition.properties === "object") {
-            for (const property of Object.values(definition.properties)) {
-                if (Array.isArray(property.type)) {
-                    if (property.type.includes("null")) {
-                        property.type = property.type.find((x) => x !== "null");
-                        property.nullable = true;
-                    }
-                }
-            }
-        }
     }
 
     return definitions;
