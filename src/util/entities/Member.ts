@@ -27,33 +27,11 @@ import { Guild } from "./Guild";
 import { Message } from "./Message";
 import { Role } from "./Role";
 import { User } from "./User";
-import { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicMember, PublicMemberProjection, UserGuildSettings } from "@spacebar/schemas";
+import type { PublicMember, UserGuildSettings } from "../../schemas/api/users/Member";
+import type { AvatarDecorationData, Collectibles, DisplayNameStyle } from "../../schemas/api/users/User";
+import { memberToPublicMember } from "./MemberPublic";
 
-export const MemberPrivateProjection: (keyof Member)[] = [
-    "id",
-    "guild",
-    "guild_id",
-    "deaf",
-    "joined_at",
-    "last_message_id",
-    "mute",
-    "nick",
-    "pending",
-    "premium_since",
-    "roles",
-    "settings",
-    "user",
-    "avatar",
-    "banner",
-    "bio",
-    "theme_colors",
-    "pronouns",
-    "communication_disabled_until",
-    "avatar_decoration_data",
-    "display_name_styles",
-    "collectibles",
-    "flags",
-];
+export { MemberPrivateProjection } from "./MemberProjection";
 
 @Entity({
     name: "members",
@@ -458,16 +436,7 @@ export class Member extends BaseClassWithoutId {
         }
     }
 
-    toPublicMember() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const member: any = {};
-        PublicMemberProjection.forEach((x) => {
-            member[x] = this[x];
-        });
-
-        if (this.roles) member.roles = this.roles.map((x: Role) => x.id);
-        if (this.user) member.user = this.user.toPublicUser();
-
-        return member as PublicMember;
+    toPublicMember(): PublicMember {
+        return memberToPublicMember(this);
     }
 }

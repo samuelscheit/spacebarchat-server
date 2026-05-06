@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicUser } from "@spacebar/schemas";
+import type { PublicUser } from "@spacebar/schemas";
 // TODO: remove entity import
-import { Member } from "@spacebar/util";
+import type { Member } from "@spacebar/util";
 
 export interface ChannelOverride {
     message_notifications: number;
