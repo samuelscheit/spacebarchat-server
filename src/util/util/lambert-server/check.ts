@@ -10,6 +10,15 @@ export class Tuple {
     }
 }
 
+export class ExactArray {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    public types: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    constructor(...types: any[]) {
+        this.types = types;
+    }
+}
+
 export class Email {
     constructor(public email: string) {}
     check() {
@@ -19,7 +28,7 @@ export class Email {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function instanceOf(type: any, value: any, { path = "", optional = false }: { path?: string; optional?: boolean } = {}): boolean {
-    if (!type) return true; // no type was specified
+    if (type == null) return true; // no type was specified
 
     if (value == null) {
         if (optional) return true;
@@ -75,6 +84,12 @@ export function instanceOf(type: any, value: any, { path = "", optional = false 
                     return true;
                 }
                 throw `${path} must be one of ${type.types}`;
+            }
+            if (type instanceof ExactArray) {
+                if (!Array.isArray(value)) throw `${path} must be an array`;
+                if (value.length !== type.types.length) throw `${path} must have exactly ${type.types.length} items`;
+
+                return (<ExactArray>type).types.every((x, i) => instanceOf(x, value[i], { path: `${path}[${i}]`, optional }));
             }
             if (type instanceof Email) {
                 if ((<Email>type).check()) return true;

@@ -18,6 +18,7 @@
 
 // TODO: remove entity imports
 import { Activity, Status } from "@spacebar/util";
+import { ExactArray, Tuple } from "lambert-server";
 
 export const ActivitySchema = {
     $afk: Boolean,
@@ -25,7 +26,7 @@ export const ActivitySchema = {
     $activities: [
         {
             name: String,
-            type: Number,
+            type: new Tuple(0, 1, 2, 3, 4, 5),
             $url: String,
             $created_at: Date,
             $timestamps: {
@@ -42,7 +43,7 @@ export const ActivitySchema = {
             },
             $party: {
                 $id: String,
-                $size: [Number, Number],
+                $size: new ExactArray(Number, Number),
             },
             $assets: {
                 $large_image: String,
