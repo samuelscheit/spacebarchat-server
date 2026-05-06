@@ -5095,7 +5095,7 @@
                     "connected_accounts": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PublicConnectedAccount"
+                            "$ref": "#/components/schemas/PartialConnectedAccountResponse"
                         }
                     },
                     "premium_guild_since": {
@@ -14395,24 +14395,6 @@
                     "window"
                 ]
             },
-            "PublicConnectedAccount": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "verified": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "name",
-                    "type"
-                ]
-            },
             "UserProfile": {
                 "type": "object",
                 "properties": {
@@ -17185,6 +17167,26 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UserProfileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

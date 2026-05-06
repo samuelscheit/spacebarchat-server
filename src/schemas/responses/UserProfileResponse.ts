@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicConnectedAccount, PublicMember, PublicUser } from "@spacebar/schemas";
+import { PartialConnectedAccountResponse, PublicMember, PublicUser } from "@spacebar/schemas";
 
 export type MutualGuild = {
     id: string;
@@ -47,7 +47,7 @@ export interface ProfileBadge {
 
 export interface UserProfileResponse {
     user: PublicUser;
-    connected_accounts: PublicConnectedAccount[];
+    connected_accounts: PartialConnectedAccountResponse[];
     premium_guild_since?: Date;
     premium_since?: Date;
     mutual_guilds: MutualGuild[];
