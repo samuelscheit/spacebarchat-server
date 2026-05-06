@@ -1561,6 +1561,29 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ActiveThreadsResponse": {
+        "type": "object",
+        "properties": {
+            "threads": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ActiveThreadsChannel"
+                }
+            },
+            "members": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ActiveThreadsThreadMember"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "members",
+            "threads"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "BackupCodesChallengeResponse": {
         "type": "object",
         "properties": {
@@ -8649,6 +8672,137 @@
             1,
             2,
             3
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActiveThreadsChannel": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "parent_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "last_message_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "owner_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "rate_limit_per_user": {
+                "type": "integer"
+            },
+            "message_count": {
+                "type": "integer"
+            },
+            "member_count": {
+                "type": "integer"
+            },
+            "total_message_sent": {
+                "type": "integer"
+            },
+            "thread_metadata": {
+                "type": "object",
+                "properties": {
+                    "archived": {
+                        "type": "boolean"
+                    },
+                    "auto_archive_duration": {
+                        "type": "integer"
+                    },
+                    "archive_timestamp": {
+                        "type": "string"
+                    },
+                    "locked": {
+                        "type": "boolean"
+                    },
+                    "invitable": {
+                        "type": "boolean"
+                    },
+                    "create_timestamp": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "archive_timestamp",
+                    "archived",
+                    "create_timestamp"
+                ]
+            },
+            "member_ids_preview": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "applied_tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActiveThreadsThreadMember": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "member_idx": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "join_timestamp": {
+                "type": "string"
+            },
+            "muted": {
+                "type": "boolean"
+            },
+            "mute_config": {},
+            "flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "flags",
+            "id",
+            "join_timestamp",
+            "muted"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
