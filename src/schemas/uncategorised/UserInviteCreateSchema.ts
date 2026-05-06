@@ -17,5 +17,10 @@
 */
 
 export interface UserInviteCreateSchema {
+    /**
+     * @minLength 1
+     * @maxLength 20
+     * @pattern ^[A-Za-z0-9]+$
+     */
     code?: string;
 }

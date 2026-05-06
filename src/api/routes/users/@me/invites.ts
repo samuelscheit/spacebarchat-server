@@ -29,7 +29,7 @@ router.post(
         right: "INVITE_USERS",
         responses: {
             201: {
-                body: "Invite",
+                body: "UserInviteResponse",
             },
             400: {
                 body: "APIErrorResponse",

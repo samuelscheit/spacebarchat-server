@@ -22,6 +22,7 @@ import { Channel } from "./Channel";
 import { Guild } from "./Guild";
 import { Member } from "./Member";
 import { User } from "./User";
+import { DiscordApiErrors } from "../util";
 
 export const PublicInviteRelation = ["inviter", "guild", "channel"];
 
@@ -111,16 +112,21 @@ export class Invite extends BaseClassWithoutId {
         };
     }
 
-    static async joinGuild(user_id: string, code: string) {
-        const invite = await Invite.findOneOrFail({ where: { code } });
+    static async acceptGuildInvite(user_id: string, invite: Invite) {
+        if (!invite.guild_id) throw DiscordApiErrors.UNKNOWN_INVITE;
+
         if (invite.isExpired()) {
-            await Invite.delete({ code });
+            await Invite.delete({ code: invite.code });
             throw new Error("Invite is expired");
         }
-        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) await Invite.delete({ code });
+        if (invite.uses++ >= invite.max_uses && invite.max_uses !== 0) await Invite.delete({ code: invite.code });
         else await invite.save();
 
         await Member.addToGuild(user_id, invite.guild_id);
         return invite;
+    }
+
+    static async joinGuild(user_id: string, code: string) {
+        return Invite.acceptGuildInvite(user_id, await Invite.findOneOrFail({ where: { code } }));
     }
 }

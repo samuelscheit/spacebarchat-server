@@ -11,6 +11,16 @@ describe("UserInviteCreateSchema", () => {
         assert.equal(validate({ code: "friend1" }), true);
     });
 
+    test("rejects empty or invalid custom invite codes", () => {
+        const validate = ajv.getSchema("UserInviteCreateSchema");
+        assert.ok(validate);
+
+        assert.equal(validate({ code: "" }), false);
+        assert.equal(validate({ code: "bad code" }), false);
+        assert.equal(validate({ code: "bad-code" }), false);
+        assert.equal(validate({ code: null }), false);
+    });
+
     test("rejects channel invite options", () => {
         const validate = ajv.getSchema("UserInviteCreateSchema");
         assert.ok(validate);
