@@ -1,16 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { ChannelType } from "../../schemas/api/channels/Channel";
 import { applyReadyChannelOrdering } from "./ReadyChannelOrdering";
 
-const ChannelType = {
-    GUILD_TEXT: 0,
-    GUILD_CATEGORY: 4,
-    GUILD_PUBLIC_THREAD: 11,
-    GUILD_FORUM: 15,
-};
-
 describe("applyReadyChannelOrdering", () => {
-    it("sorts channels by guild channel ordering", () => {
+    it("sorts top-level channels by guild channel ordering", () => {
         const channels = [{ id: "text" }, { id: "category" }, { id: "voice" }];
 
         assert.deepEqual(
@@ -49,6 +43,18 @@ describe("applyReadyChannelOrdering", () => {
         );
     });
 
+    it("places missing channels after all ordering entries when channel_ordering has duplicates", () => {
+        const channels = [{ id: "missing" }, { id: "ordered" }];
+
+        assert.deepEqual(
+            applyReadyChannelOrdering(channels, ["ordered", "ordered"]).map((channel) => [channel.id, channel.position]),
+            [
+                ["ordered", 0],
+                ["missing", 1],
+            ],
+        );
+    });
+
     it("places category children after the parent with sibling-local positions", () => {
         const channels = [
             { id: "second-child", parent_id: "category", type: ChannelType.GUILD_TEXT },
@@ -64,6 +70,38 @@ describe("applyReadyChannelOrdering", () => {
                 ["first-child", 0],
                 ["second-child", 1],
                 ["top-text", 1],
+            ],
+        );
+    });
+
+    it("keeps category children grouped when a child is ordered but the category is missing", () => {
+        const channels = [
+            { id: "child", parent_id: "category", type: ChannelType.GUILD_TEXT },
+            { id: "category", type: ChannelType.GUILD_CATEGORY },
+            { id: "top-text", type: ChannelType.GUILD_TEXT },
+        ];
+
+        assert.deepEqual(
+            applyReadyChannelOrdering(channels, ["top-text", "child"]).map((channel) => [channel.id, channel.position]),
+            [
+                ["top-text", 0],
+                ["category", 1],
+                ["child", 0],
+            ],
+        );
+    });
+
+    it("treats channels with missing parent categories as top-level channels", () => {
+        const channels = [
+            { id: "orphan", parent_id: "missing-category", type: ChannelType.GUILD_TEXT },
+            { id: "top-text", type: ChannelType.GUILD_TEXT },
+        ];
+
+        assert.deepEqual(
+            applyReadyChannelOrdering(channels, ["top-text", "orphan"]).map((channel) => [channel.id, channel.position]),
+            [
+                ["top-text", 0],
+                ["orphan", 1],
             ],
         );
     });
