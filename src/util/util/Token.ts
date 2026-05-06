@@ -18,7 +18,9 @@
 
 import jwt from "jsonwebtoken";
 import { Config } from "./Config";
-import { InstanceBan, Session, User } from "../entities";
+import { InstanceBan } from "../entities/InstanceBan";
+import { Session } from "../entities/Session";
+import { User } from "../entities/User";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -96,6 +98,17 @@ export const checkToken = (
                 return rejectAndLog(reject, 401, "User not found");
             }
 
+            const tokenVersion = decoded.ver ?? legacyVersion ?? 2;
+            if (tokenVersion >= CurrentTokenFormatVersion && !decoded.did) {
+                logAuth("validateUser rejected: Session-bound token missing device id");
+                return rejectAndLog(reject, 401, "Invalid Token");
+            }
+
+            if (decoded.did && !session) {
+                logAuth("validateUser rejected: Session not found");
+                return rejectAndLog(reject, 401, "Invalid Token");
+            }
+
             // we need to round it to seconds as it saved as seconds in jwt iat and valid_tokens_since is stored in milliseconds
             if (decoded.iat * 1000 < new Date(user.data.valid_tokens_since).setSeconds(0, 0)) {
                 logAuth("validateUser rejected: Token not yet valid");
@@ -133,7 +146,7 @@ export const checkToken = (
                 session: session ?? undefined,
                 user,
                 // v1 can be told apart, v2 cant outside of missing device id and version
-                tokenVersion: decoded.ver ?? legacyVersion ?? 2,
+                tokenVersion,
             };
 
             if (process.env.LOG_TOKEN_VERSION) console.log("User", user.id, "logged in with token version", result.tokenVersion);
