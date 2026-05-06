@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { toGuildDiscoveryMetadata } from "./GuildDiscoveryMetadata";
+import { getGuildDiscoveryMetadataUpdate, toGuildDiscoveryMetadata } from "./GuildDiscoveryMetadata";
 
 describe("guild discovery metadata response", () => {
     it("serializes stored discovery category with client-required metadata defaults", () => {
@@ -22,5 +22,37 @@ describe("guild discovery metadata response", () => {
     it("uses null category when a guild has not been categorized", () => {
         assert.equal(toGuildDiscoveryMetadata({ id: "123" }).primary_category_id, null);
         assert.deepEqual(toGuildDiscoveryMetadata({ id: "123" }).category_ids, []);
+    });
+
+    it("builds database nulls when nullable fields are cleared", () => {
+        assert.deepEqual(
+            getGuildDiscoveryMetadataUpdate(
+                { id: "123", primary_category_id: "5", features: ["DISCOVERABLE"], description: "About this guild" },
+                { primary_category_id: null, about: null },
+            ),
+            {
+                primary_category_id: null,
+                description: null,
+            },
+        );
+    });
+
+    it("builds persisted values for category, about text, and publication state", () => {
+        assert.deepEqual(
+            getGuildDiscoveryMetadataUpdate({ id: "123", features: ["COMMUNITY"], description: null }, { primary_category_id: 5, about: "About", is_published: true }),
+            {
+                primary_category_id: "5",
+                description: "About",
+                features: ["COMMUNITY", "DISCOVERABLE"],
+            },
+        );
+    });
+
+    it("removes discoverability without mutating the loaded guild feature list", () => {
+        const features = ["COMMUNITY", "DISCOVERABLE"];
+        const update = getGuildDiscoveryMetadataUpdate({ id: "123", features }, { is_published: false });
+
+        assert.deepEqual(update, { features: ["COMMUNITY"] });
+        assert.deepEqual(features, ["COMMUNITY", "DISCOVERABLE"]);
     });
 });

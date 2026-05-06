@@ -1,4 +1,4 @@
-import { GuildDiscoveryMetadataResponse } from "@spacebar/schemas";
+import { GuildDiscoveryMetadataResponse, GuildDiscoveryMetadataUpdateSchema } from "@spacebar/schemas";
 
 export interface DiscoveryMetadataGuild {
     id: string;
@@ -6,6 +6,8 @@ export interface DiscoveryMetadataGuild {
     features?: string[];
     description?: string | null;
 }
+
+export type GuildDiscoveryMetadataUpdate = Pick<DiscoveryMetadataGuild, "primary_category_id" | "features" | "description">;
 
 export function toGuildDiscoveryMetadata(guild: DiscoveryMetadataGuild): GuildDiscoveryMetadataResponse {
     const primaryCategoryId = guild.primary_category_id ? Number(guild.primary_category_id) : null;
@@ -23,4 +25,27 @@ export function toGuildDiscoveryMetadata(guild: DiscoveryMetadataGuild): GuildDi
         social_links: [],
         about: guild.description ?? null,
     };
+}
+
+export function getGuildDiscoveryMetadataUpdate(guild: DiscoveryMetadataGuild, body: GuildDiscoveryMetadataUpdateSchema): GuildDiscoveryMetadataUpdate {
+    const update: GuildDiscoveryMetadataUpdate = {};
+
+    if (body.primary_category_id !== undefined) {
+        update.primary_category_id = body.primary_category_id === null ? null : body.primary_category_id.toString();
+    }
+
+    if (body.about !== undefined) {
+        update.description = body.about;
+    }
+
+    if (body.is_published !== undefined) {
+        const features = guild.features ?? [];
+        update.features = body.is_published
+            ? features.includes("DISCOVERABLE")
+                ? features
+                : [...features, "DISCOVERABLE"]
+            : features.filter((feature) => feature !== "DISCOVERABLE");
+    }
+
+    return update;
 }

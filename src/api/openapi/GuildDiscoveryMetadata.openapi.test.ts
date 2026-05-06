@@ -30,4 +30,12 @@ describe("guild discovery metadata OpenAPI", () => {
             "social_links",
         ]);
     });
+
+    it("documents only persisted discovery metadata PATCH fields", () => {
+        const schema = openapi.components.schemas.GuildDiscoveryMetadataUpdateSchema;
+
+        assert.deepEqual(Object.keys(schema.properties).sort(), ["about", "is_published", "primary_category_id"]);
+        assert.equal(schema.properties.primary_category_id.nullable, true);
+        assert.equal(schema.properties.about.nullable, true);
+    });
 });

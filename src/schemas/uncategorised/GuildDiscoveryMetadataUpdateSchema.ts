@@ -18,11 +18,6 @@
 
 export interface GuildDiscoveryMetadataUpdateSchema {
     primary_category_id?: number | null;
-    category_ids?: number[];
-    keywords?: string[];
-    emoji_discoverability_enabled?: boolean;
     is_published?: boolean;
-    reasons_to_join?: string[];
-    social_links?: string[];
     about?: string | null;
 }

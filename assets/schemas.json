@@ -1172,35 +1172,8 @@
                     "integer"
                 ]
             },
-            "category_ids": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                }
-            },
-            "keywords": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "emoji_discoverability_enabled": {
-                "type": "boolean"
-            },
             "is_published": {
                 "type": "boolean"
-            },
-            "reasons_to_join": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "social_links": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
             },
             "about": {
                 "type": [
@@ -1968,6 +1941,15 @@
             "region": {
                 "type": "string"
             },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "description": {
+                "type": "string"
+            },
             "icon": {
                 "type": [
                     "null",
@@ -1997,15 +1979,6 @@
                     "null",
                     "string"
                 ]
-            },
-            "description": {
-                "type": "string"
-            },
-            "features": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
             },
             "verification_level": {
                 "type": "integer"
@@ -4432,6 +4405,24 @@
             "id": {
                 "type": "string"
             },
+            "primary_category_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "channels": {
                 "type": "array",
                 "items": {
@@ -4464,15 +4455,6 @@
             },
             "splash": {
                 "type": "string"
-            },
-            "description": {
-                "type": "string"
-            },
-            "features": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
             },
             "verification_level": {
                 "type": "integer"
@@ -4559,9 +4541,6 @@
                 "items": {
                     "$ref": "#/definitions/Ban"
                 }
-            },
-            "primary_category_id": {
-                "type": "string"
             },
             "large": {
                 "type": "boolean"
@@ -5290,6 +5269,15 @@
             "region": {
                 "type": "string"
             },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "description": {
+                "type": "string"
+            },
             "icon": {
                 "type": [
                     "null",
@@ -5319,15 +5307,6 @@
                     "null",
                     "string"
                 ]
-            },
-            "description": {
-                "type": "string"
-            },
-            "features": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
             },
             "verification_level": {
                 "type": "integer"
@@ -9453,7 +9432,10 @@
                 "type": "integer"
             },
             "description": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "discovery_splash": {
                 "type": "string"
@@ -9469,7 +9451,10 @@
                 "default": []
             },
             "primary_category_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "icon": {
                 "type": "string"

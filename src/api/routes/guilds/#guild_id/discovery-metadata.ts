@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, toGuildDiscoveryMetadata } from "@spacebar/api";
+import { getGuildDiscoveryMetadataUpdate, route, toGuildDiscoveryMetadata } from "@spacebar/api";
 import { Guild } from "@spacebar/util";
 import { GuildDiscoveryMetadataUpdateSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
@@ -72,21 +72,11 @@ router.patch(
             select: { id: true, primary_category_id: true, features: true, description: true },
         });
 
-        if (body.primary_category_id !== undefined) {
-            guild.primary_category_id = body.primary_category_id === null ? undefined : body.primary_category_id.toString();
+        const update = getGuildDiscoveryMetadataUpdate(guild, body);
+        if (Object.keys(update).length) {
+            await Guild.update({ id: guild_id }, update);
+            Object.assign(guild, update);
         }
-
-        if (body.about !== undefined) {
-            guild.description = body.about ?? undefined;
-        }
-
-        if (body.is_published !== undefined) {
-            guild.features = guild.features ?? [];
-            if (body.is_published && !guild.features.includes("DISCOVERABLE")) guild.features.push("DISCOVERABLE");
-            if (!body.is_published) guild.features = guild.features.filter((feature) => feature !== "DISCOVERABLE");
-        }
-
-        if (body.primary_category_id !== undefined || body.about !== undefined || body.is_published !== undefined) await guild.save();
 
         res.json(toGuildDiscoveryMetadata(guild));
     },

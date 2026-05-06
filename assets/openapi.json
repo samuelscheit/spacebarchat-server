@@ -1118,35 +1118,8 @@
                         "type": "integer",
                         "nullable": true
                     },
-                    "category_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "keywords": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "emoji_discoverability_enabled": {
-                        "type": "boolean"
-                    },
                     "is_published": {
                         "type": "boolean"
-                    },
-                    "reasons_to_join": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "social_links": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "about": {
                         "type": "string",
@@ -1852,6 +1825,15 @@
                     "region": {
                         "type": "string"
                     },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    },
                     "icon": {
                         "type": "string",
                         "nullable": true
@@ -1875,15 +1857,6 @@
                     "splash": {
                         "type": "string",
                         "nullable": true
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "verification_level": {
                         "type": "integer"
@@ -4178,6 +4151,20 @@
                     "id": {
                         "type": "string"
                     },
+                    "primary_category_id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
                     "channels": {
                         "type": "array",
                         "items": {
@@ -4206,15 +4193,6 @@
                     },
                     "splash": {
                         "type": "string"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "verification_level": {
                         "type": "integer"
@@ -4297,9 +4275,6 @@
                         "items": {
                             "$ref": "#/components/schemas/Ban"
                         }
-                    },
-                    "primary_category_id": {
-                        "type": "string"
                     },
                     "large": {
                         "type": "boolean"
@@ -4989,6 +4964,15 @@
                     "region": {
                         "type": "string"
                     },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    },
                     "icon": {
                         "type": "string",
                         "nullable": true
@@ -5012,15 +4996,6 @@
                     "splash": {
                         "type": "string",
                         "nullable": true
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
                     },
                     "verification_level": {
                         "type": "integer"
@@ -8853,7 +8828,8 @@
                         "type": "integer"
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "discovery_splash": {
                         "type": "string"
@@ -8869,7 +8845,8 @@
                         "default": []
                     },
                     "primary_category_id": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "icon": {
                         "type": "string"

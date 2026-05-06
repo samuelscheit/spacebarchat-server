@@ -93,7 +93,7 @@ export class Guild extends BaseClass {
     default_message_notifications?: number;
 
     @Column({ nullable: true })
-    description?: string;
+    description?: string | null;
 
     @Column({ nullable: true })
     discovery_splash?: string;
@@ -106,7 +106,7 @@ export class Guild extends BaseClass {
     //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
     @Column({ nullable: true })
-    primary_category_id?: string; // TODO: this was number?
+    primary_category_id?: string | null; // TODO: this was number?
 
     @Column({ nullable: true })
     icon?: string;
