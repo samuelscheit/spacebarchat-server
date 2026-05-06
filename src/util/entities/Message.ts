@@ -354,9 +354,9 @@ export class Message extends BaseClass {
         function signMedia(media: UnfurledMediaItem) {
             Object.assign(media, Attachment.prototype.signUrls.call(media, data));
         }
+        const publicMessage = typeof this.toJSON === "function" ? this.toJSON() : { ...this, mention_roles: serializeMessageRoleMentions(this.mention_roles) };
         return {
-            ...this,
-            mention_roles: serializeMessageRoleMentions(this.mention_roles),
+            ...publicMessage,
             attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
             components: this.components
                 ? this.components.map((comp) => {
