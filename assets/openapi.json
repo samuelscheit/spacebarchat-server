@@ -2312,6 +2312,88 @@
                     "gateway"
                 ]
             },
+            "InstanceConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "limits_user_maxGuilds": {
+                        "type": "integer"
+                    },
+                    "limits_user_maxBio": {
+                        "type": "integer"
+                    },
+                    "limits_guild_maxEmojis": {
+                        "type": "integer"
+                    },
+                    "limits_guild_maxRoles": {
+                        "type": "integer"
+                    },
+                    "limits_message_maxCharacters": {
+                        "type": "integer"
+                    },
+                    "limits_message_maxAttachmentSize": {
+                        "type": "integer"
+                    },
+                    "limits_message_maxEmbedDownloadSize": {
+                        "type": "integer"
+                    },
+                    "limits_channel_maxWebhooks": {
+                        "type": "integer"
+                    },
+                    "register_dateOfBirth_requiredc": {
+                        "type": "boolean"
+                    },
+                    "register_password_required": {
+                        "type": "boolean"
+                    },
+                    "register_disabled": {
+                        "type": "boolean"
+                    },
+                    "register_requireInvite": {
+                        "type": "boolean"
+                    },
+                    "register_allowNewRegistration": {
+                        "type": "boolean"
+                    },
+                    "register_allowMultipleAccounts": {
+                        "type": "boolean"
+                    },
+                    "guild_autoJoin_canLeave": {
+                        "type": "boolean"
+                    },
+                    "guild_autoJoin_guilds_x": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "register_email_required": {
+                        "type": "boolean"
+                    },
+                    "can_recover_account": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "can_recover_account",
+                    "guild_autoJoin_canLeave",
+                    "guild_autoJoin_guilds_x",
+                    "limits_channel_maxWebhooks",
+                    "limits_guild_maxEmojis",
+                    "limits_guild_maxRoles",
+                    "limits_message_maxAttachmentSize",
+                    "limits_message_maxCharacters",
+                    "limits_message_maxEmbedDownloadSize",
+                    "limits_user_maxBio",
+                    "limits_user_maxGuilds",
+                    "register_allowMultipleAccounts",
+                    "register_allowNewRegistration",
+                    "register_dateOfBirth_requiredc",
+                    "register_disabled",
+                    "register_email_required",
+                    "register_password_required",
+                    "register_requireInvite"
+                ]
+            },
             "InstancePingResponse": {
                 "type": "object",
                 "properties": {
@@ -18778,7 +18860,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Object"
+                                    "$ref": "#/components/schemas/InstanceConfigResponse"
                                 }
                             }
                         }

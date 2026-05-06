@@ -44,6 +44,7 @@ export * from "./GuildWidgetSettingsResponse";
 export * from "./HubDirectoryEntriesResponse";
 export * from "./HubWaitlistSignupResponse";
 export * from "./InstanceDomainsResponse";
+export * from "./InstanceConfigResponse";
 export * from "./InstancePingResponse";
 export * from "./InstanceStatsResponse";
 export * from "./LocationMetadataResponse";
