@@ -61,6 +61,11 @@
   },
   {
     "pname": "Microsoft.DotNet.HotReload.WebAssembly.Browser",
+    "version": "10.0.201",
+    "hash": "sha256-z1QpaipEn/QcWvTiuNB1KnuurPVrQKHwUbizQ0hEx4E="
+  },
+  {
+    "pname": "Microsoft.DotNet.HotReload.WebAssembly.Browser",
     "version": "10.0.203",
     "hash": "sha256-cHV8Z0p3dq/tbmbY7Fzxj0hodGS1eAQBjig5UUTrp9o="
   },
@@ -176,7 +181,17 @@
   },
   {
     "pname": "Microsoft.NET.Sdk.WebAssembly.Pack",
+    "version": "10.0.5",
+    "hash": "sha256-gwneB/pH5T80p0YW+XbMkep4BmZ+ycKEISol+fR2rGw="
+  },
+  {
+    "pname": "Microsoft.NET.Sdk.WebAssembly.Pack",
     "version": "10.0.7",
     "hash": "sha256-oC4g9q/ZCZx7yt6B4AtlKrHiaumV0lnSdirOoswPsFc="
+  },
+  {
+    "pname": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
+    "version": "10.0.5",
+    "hash": "sha256-bkErTmR5f6Kxd0g8gkQnPBVTNPfuuKUKEwB53E5Ec18="
   }
 ]

@@ -205,14 +205,38 @@ nixpkgs.lib.recursiveUpdate (
           packNupkg = false;
           runtimeId = "browser-wasm";
           useAppHost = false;
+          dontBuild = true;
+          dontDotnetBuild = true;
+          dontDotnetFixup = true;
           projectReferences = [
             proj.Spacebar-Models-AdminApi
             proj.Spacebar-Models-Config
           ];
 
-          postInstall = ''
+          # buildDotnetModule's default flow splits `dotnet build` and
+          # `dotnet publish --no-build`.
+          # With the SDK-pinned Blazor WebAssembly pack used by nixpkgs, that publish
+          # phase can lose the resolved browser-wasm runtime pack metadata. Run publish
+          # as the only build step so MSBuild resolves the runtime pack and emits the
+          # complete static UI in one graph.
+          installPhase = ''
+            runHook preInstall
+
+            dotnet publish Spacebar.AdminApi.TestClient.csproj \
+              -maxcpucount:"''${NIX_BUILD_CORES:-1}" \
+              -p:ContinuousIntegrationBuild=true \
+              -p:Deterministic=true \
+              -p:OverwriteReadOnlyFiles=true \
+              -p:UseAppHost=false \
+              --configuration "''${dotnetBuildType:-Release}" \
+              --runtime browser-wasm \
+              --no-restore \
+              --output "$out/lib/Spacebar.AdminApi.TestClient"
+
             mkdir -p $out/share/spacebar-admin-ui
             cp -r $out/lib/Spacebar.AdminApi.TestClient/wwwroot/. $out/share/spacebar-admin-ui/
+
+            runHook postInstall
           '';
         };
       };
