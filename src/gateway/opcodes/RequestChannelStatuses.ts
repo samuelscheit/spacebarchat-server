@@ -28,7 +28,6 @@ export type ChannelStatus = {
 
 export async function getChannelStatuses(guild_id: string, user_id: string): Promise<ChannelStatus[]> {
     const permissions = await getPermission(user_id, guild_id);
-    permissions.hasThrow("VIEW_CHANNEL");
 
     const channels = await Channel.find({
         where: {

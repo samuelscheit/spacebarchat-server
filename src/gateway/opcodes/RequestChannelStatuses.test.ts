@@ -60,8 +60,8 @@ describe("RequestChannelStatuses", () => {
         }
     });
 
-    test("checks guild view permission before loading statuses", async () => {
-        const { Channel, Permissions } = require("@spacebar/util");
+    test("checks guild access before loading statuses", async () => {
+        const { Channel } = require("@spacebar/util");
         const permissionsModule = require("@spacebar/util/util/Permissions");
         const { getChannelStatuses } = require("./RequestChannelStatuses");
         const originalFind = Channel.find;
@@ -69,14 +69,55 @@ describe("RequestChannelStatuses", () => {
         let findCalled = false;
 
         try {
-            permissionsModule.getPermission = async () => new Permissions(0);
+            permissionsModule.getPermission = async () => {
+                throw new Error("missing guild access");
+            };
             Channel.find = async () => {
                 findCalled = true;
                 return [];
             };
 
-            await assert.rejects(getChannelStatuses("42", "user"), /VIEW_CHANNEL/);
+            await assert.rejects(getChannelStatuses("42", "user"), /missing guild access/);
             assert.equal(findCalled, false);
+        } finally {
+            Channel.find = originalFind;
+            permissionsModule.getPermission = originalGetPermission;
+        }
+    });
+
+    test("allows per-channel view overwrites without guild-level view", async () => {
+        const { Channel, Permissions } = require("@spacebar/util");
+        const { ChannelPermissionOverwriteType } = require("@spacebar/schemas");
+        const permissionsModule = require("@spacebar/util/util/Permissions");
+        const { getChannelStatuses } = require("./RequestChannelStatuses");
+        const originalFind = Channel.find;
+        const originalGetPermission = permissionsModule.getPermission;
+
+        try {
+            permissionsModule.getPermission = async (user_id: string, guild_id: string) => {
+                const permissions = new Permissions(0);
+                permissions.cache = {
+                    roles: [{ id: guild_id }],
+                    user_id,
+                };
+                return permissions;
+            };
+            Channel.find = async () => [
+                {
+                    id: "1000",
+                    status: "Open sync",
+                    permission_overwrites: [
+                        {
+                            id: "42",
+                            type: ChannelPermissionOverwriteType.role,
+                            allow: Permissions.FLAGS.VIEW_CHANNEL.toString(),
+                            deny: "0",
+                        },
+                    ],
+                },
+            ];
+
+            assert.deepEqual(await getChannelStatuses("42", "user"), [{ id: "1000", status: "Open sync" }]);
         } finally {
             Channel.find = originalFind;
             permissionsModule.getPermission = originalGetPermission;
