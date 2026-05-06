@@ -14953,6 +14953,15 @@
                             "type": "string"
                         },
                         "description": "message_id"
+                    },
+                    {
+                        "name": "thread_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Get a webhook message in the specified thread."
                     }
                 ],
                 "tags": [

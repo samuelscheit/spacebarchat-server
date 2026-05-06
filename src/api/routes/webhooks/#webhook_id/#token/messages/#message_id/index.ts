@@ -40,6 +40,13 @@ function getThreadId(req: Request) {
 router.get(
     "/",
     route({
+        query: {
+            thread_id: {
+                type: "string",
+                required: false,
+                description: "Get a webhook message in the specified thread.",
+            },
+        },
         responses: {
             200: {
                 body: "Message",

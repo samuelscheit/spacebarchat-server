@@ -141,6 +141,26 @@ async function main() {
         assert.deepEqual({ ...calls[3].args[1] }, nullableBody);
 
         calls = [];
+        const form = new FormData();
+        form.append("payload_json", JSON.stringify({ content: "with file" }));
+        form.append("files[0]", new Blob(["hello"], { type: "text/plain" }), "hello.txt");
+        response = await fetch(baseUrl + "/webhooks/webhook/token/messages/message?thread_id=thread", {
+            method: "PATCH",
+            body: form,
+        });
+        assert.equal(response.status, 200);
+        assert.deepEqual(callNames(), ["getWebhookForToken", "getWebhookMessage", "buildWebhookMessageEditBody", "editWebhookMessage"]);
+        assert.deepEqual(calls[1].args, ["webhook", "message", "thread"]);
+        assert.equal(calls[2].args[0], message);
+        assert.deepEqual({ ...calls[2].args[1] }, { content: "with file" });
+        assert.equal(calls[2].args[2].length, 1);
+        assert.equal(calls[2].args[2][0].originalname, "hello.txt");
+        assert.equal(calls[2].args[2][0].mimetype, "text/plain");
+        assert.equal(calls[2].args[2][0].buffer.toString("utf8"), "hello");
+        assert.equal(calls[3].args[0], message);
+        assert.deepEqual({ ...calls[3].args[1] }, { content: "with file" });
+
+        calls = [];
         response = await fetch(baseUrl + "/webhooks/webhook/token/messages/message", { method: "DELETE" });
         assert.equal(response.status, 204);
         assert.equal(await response.text(), "");
