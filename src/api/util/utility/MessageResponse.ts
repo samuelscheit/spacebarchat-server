@@ -1,12 +1,33 @@
+/*
+	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 import { Request } from "express";
 import type { Message } from "../../../util/entities/Message";
 import { NewUrlUserSignatureData } from "../../../util/Signing";
 
 export function messageToResponse(message: Message, req: Request) {
-    return message.withSignedAttachments(
-        new NewUrlUserSignatureData({
-            ip: req.ip,
-            userAgent: req.headers["user-agent"] as string,
-        }),
-    );
+    return message.withSignedAttachments(requestUrlSignatureData(req));
+}
+
+export function requestUrlSignatureData(req: Pick<Request, "headers" | "ip">) {
+    const userAgent = req.headers["user-agent"];
+    return new NewUrlUserSignatureData({
+        ip: req.ip,
+        userAgent: Array.isArray(userAgent) ? userAgent[0] : userAgent,
+    });
 }

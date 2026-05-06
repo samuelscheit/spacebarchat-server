@@ -27,7 +27,7 @@ import { Guild } from "./Guild";
 import { Webhook } from "./Webhook";
 import { Sticker } from "./Sticker";
 import { Attachment } from "./Attachment";
-import { NewUrlUserSignatureData } from "../Signing";
+import { getUrlSignature, NewUrlSignatureData, NewUrlUserSignatureData } from "../Signing";
 import {
     ApplicationCommandType,
     BaseMessageComponents,
@@ -345,13 +345,29 @@ export class Message extends BaseClass {
         };
     }
 
-    withSignedAttachments(data: NewUrlUserSignatureData) {
-        function signMedia(media: UnfurledMediaItem) {
-            Object.assign(media, Attachment.prototype.signUrls.call(media, data));
+    withSignedAttachments(data: NewUrlUserSignatureData): PublicMessage {
+        const message = typeof this.toJSON === "function" ? this.toJSON() : ({ ...this } as unknown as PublicMessage);
+
+        function signUrl(url: string) {
+            return getUrlSignature(new NewUrlSignatureData({ ...data, url }))
+                .applyToUrl(url)
+                .toString();
         }
+
+        function signUrlFields<T extends { url: string; proxy_url?: string | null }>(value: T): T {
+            const signed = structuredClone(value);
+            signed.url = signUrl(signed.url);
+            if (signed.proxy_url) signed.proxy_url = signUrl(signed.proxy_url);
+            return signed;
+        }
+
+        function signMedia(media: UnfurledMediaItem) {
+            Object.assign(media, signUrlFields(media));
+        }
+
         return {
-            ...this,
-            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
+            ...message,
+            attachments: message.attachments?.map((attachment) => signUrlFields(attachment)) ?? [],
             components: this.components
                 ? this.components.map((comp) => {
                       comp = structuredClone(comp);
@@ -393,7 +409,7 @@ export class Message extends BaseClass {
                       }
                       return comp;
                   })
-                : this.components,
+                : message.components,
         };
     }
 
