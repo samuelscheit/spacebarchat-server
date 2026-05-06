@@ -28,7 +28,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "MessageListResponse",
+                body: "APIMessageArray",
             },
             404: {
                 body: "APIErrorResponse",
