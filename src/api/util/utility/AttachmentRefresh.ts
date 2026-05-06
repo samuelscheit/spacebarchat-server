@@ -13,8 +13,17 @@ export interface AttachmentUrlSignResult {
 export type AttachmentUrlSigner = (data: AttachmentUrlSignatureInput) => AttachmentUrlSignResult;
 export type AttachmentRefreshFetch = typeof fetch;
 
+export interface LocalAttachmentUrlParts {
+    channelId: string;
+    filename: string;
+    messageId: string;
+}
+
+export type LocalAttachmentAuthorizer = (url: string, attachment: LocalAttachmentUrlParts) => Promise<void> | void;
+
 export interface RefreshAttachmentUrlsOptions {
     attachmentUrls: string[];
+    authorizeLocalAttachmentUrl?: LocalAttachmentAuthorizer;
     discordBotToken?: string | null;
     fetcher?: AttachmentRefreshFetch;
     ip?: string;
@@ -23,28 +32,75 @@ export interface RefreshAttachmentUrlsOptions {
     userAgent?: string;
 }
 
-const discordAttachmentHosts = new Set(["cdn.discordapp.com", "media.discordapp.net"]);
-const discordRefreshEndpoint = "https://discord.com/api/v9/attachments/refresh-urls";
-
-export function isDiscordAttachmentUrl(url: string) {
-    try {
-        return discordAttachmentHosts.has(new URL(url).hostname);
-    } catch {
-        return false;
+export class AttachmentRefreshError extends Error {
+    constructor(
+        public readonly statusCode: number,
+        public readonly publicMessage: string,
+    ) {
+        super(publicMessage);
     }
 }
 
-export function isLocalAttachmentUrl(url: string, localCdnEndpoint: string | null | undefined) {
-    if (!localCdnEndpoint) return false;
+const discordAttachmentHosts = new Set(["cdn.discordapp.com", "media.discordapp.net"]);
+const discordRefreshEndpoint = "https://discord.com/api/v9/attachments/refresh-urls";
+const discordAttachmentPathPattern = /^\/(?:attachments|ephemeral-attachments)\/([^/]+)\/([^/]+)\/([^/]+)$/;
+const localAttachmentPathPattern = /^\/attachments\/([^/]+)\/([^/]+)\/([^/]+)$/;
+const snowflakePattern = /^\d+$/;
+
+function decodePathSegment(segment: string) {
+    try {
+        return decodeURIComponent(segment);
+    } catch {
+        return null;
+    }
+}
+
+function parseAttachmentPath(pathname: string, pattern: RegExp): LocalAttachmentUrlParts | null {
+    const match = pathname.match(pattern);
+    if (!match) return null;
+
+    const [channelId, messageId, filename] = match.slice(1).map(decodePathSegment);
+    if (!channelId || !messageId || !filename) return null;
+    if (!snowflakePattern.test(channelId) || !snowflakePattern.test(messageId)) return null;
+    if (filename.includes("/")) return null;
+
+    return { channelId, messageId, filename };
+}
+
+export function parseDiscordAttachmentUrl(url: string) {
+    try {
+        const parsedUrl = new URL(url);
+        if (parsedUrl.protocol !== "https:") return null;
+        if (!discordAttachmentHosts.has(parsedUrl.hostname)) return null;
+        if (!parseAttachmentPath(parsedUrl.pathname, discordAttachmentPathPattern)) return null;
+
+        return parsedUrl;
+    } catch {
+        return null;
+    }
+}
+
+export function isDiscordAttachmentUrl(url: string) {
+    return parseDiscordAttachmentUrl(url) !== null;
+}
+
+export function parseLocalAttachmentUrl(url: string, localCdnEndpoint: string | null | undefined): LocalAttachmentUrlParts | null {
+    if (!localCdnEndpoint) return null;
 
     try {
         const parsedUrl = new URL(url);
         const parsedLocalCdnEndpoint = new URL(localCdnEndpoint);
 
-        return parsedUrl.origin === parsedLocalCdnEndpoint.origin && parsedUrl.pathname.startsWith("/attachments/");
+        if (parsedUrl.origin !== parsedLocalCdnEndpoint.origin) return null;
+
+        return parseAttachmentPath(parsedUrl.pathname, localAttachmentPathPattern);
     } catch {
-        return false;
+        return null;
     }
+}
+
+export function isLocalAttachmentUrl(url: string, localCdnEndpoint: string | null | undefined) {
+    return parseLocalAttachmentUrl(url, localCdnEndpoint) !== null;
 }
 
 function getDiscordAuthorizationHeader(discordBotToken: string) {
@@ -63,10 +119,33 @@ async function refreshDiscordAttachmentUrls(attachmentUrls: string[], discordBot
         }),
     });
 
-    if (!response.ok) throw new Error(`Discord attachment URL refresh failed with status ${response.status}`);
+    if (!response.ok) throw new AttachmentRefreshError(502, "Discord attachment URL refresh failed");
 
-    const body = (await response.json()) as { refreshed_urls?: RefreshedUrl[] };
-    const refreshedUrls = new Map((body.refreshed_urls ?? []).map((url) => [url.original, url.refreshed]));
+    let body: { refreshed_urls?: RefreshedUrl[] };
+    try {
+        body = (await response.json()) as { refreshed_urls?: RefreshedUrl[] };
+    } catch {
+        throw new AttachmentRefreshError(502, "Discord attachment URL refresh returned an invalid response");
+    }
+
+    if (!Array.isArray(body.refreshed_urls)) {
+        throw new AttachmentRefreshError(502, "Discord attachment URL refresh returned an invalid response");
+    }
+
+    const requestedUrls = new Set(attachmentUrls);
+    const refreshedUrls = new Map<string, string>();
+    for (const refreshedUrl of body.refreshed_urls) {
+        if (!refreshedUrl || typeof refreshedUrl.original !== "string" || typeof refreshedUrl.refreshed !== "string") {
+            throw new AttachmentRefreshError(502, "Discord attachment URL refresh returned an invalid response");
+        }
+
+        if (!requestedUrls.has(refreshedUrl.original)) continue;
+        if (!isDiscordAttachmentUrl(refreshedUrl.original) || !isDiscordAttachmentUrl(refreshedUrl.refreshed)) {
+            throw new AttachmentRefreshError(502, "Discord attachment URL refresh returned an invalid response");
+        }
+
+        refreshedUrls.set(refreshedUrl.original, refreshedUrl.refreshed);
+    }
 
     return attachmentUrls.map((url) => ({
         original: url,
@@ -76,6 +155,7 @@ async function refreshDiscordAttachmentUrls(attachmentUrls: string[], discordBot
 
 export async function refreshAttachmentUrls({
     attachmentUrls,
+    authorizeLocalAttachmentUrl,
     discordBotToken,
     fetcher = fetch,
     ip,
@@ -83,30 +163,43 @@ export async function refreshAttachmentUrls({
     signer,
     userAgent,
 }: RefreshAttachmentUrlsOptions): Promise<RefreshedUrl[]> {
-    const discordUrls = attachmentUrls.filter(isDiscordAttachmentUrl);
-    if (discordUrls.length && !discordBotToken) throw new Error("Discord attachment URL refresh requires external.discordAttachmentRefreshBotToken");
+    const classifiedUrls = await Promise.all(
+        attachmentUrls.map(async (url) => {
+            if (isDiscordAttachmentUrl(url)) return { type: "discord" as const, url };
+
+            const localAttachmentUrl = parseLocalAttachmentUrl(url, localCdnEndpoint);
+            if (localAttachmentUrl) {
+                if (!authorizeLocalAttachmentUrl) throw new AttachmentRefreshError(503, "Local attachment URL refresh is not configured");
+                await authorizeLocalAttachmentUrl?.(url, localAttachmentUrl);
+                return { type: "local" as const, attachment: localAttachmentUrl, url };
+            }
+
+            throw new AttachmentRefreshError(400, "Only Spacebar attachment URLs and Discord attachment URLs can be refreshed");
+        }),
+    );
+
+    const discordUrls = classifiedUrls.filter((classifiedUrl) => classifiedUrl.type === "discord").map((classifiedUrl) => classifiedUrl.url);
+    if (discordUrls.length && !discordBotToken) throw new AttachmentRefreshError(503, "Discord attachment URL refresh is not configured");
 
     const discordRefreshes = discordUrls.length ? await refreshDiscordAttachmentUrls(discordUrls, discordBotToken!, fetcher) : [];
     const discordRefreshByOriginal = new Map(discordRefreshes.map((url) => [url.original, url.refreshed]));
 
-    return attachmentUrls.map((url) => {
-        if (discordRefreshByOriginal.has(url)) {
+    return classifiedUrls.map((classifiedUrl) => {
+        if (classifiedUrl.type === "discord") {
             return {
-                original: url,
-                refreshed: discordRefreshByOriginal.get(url)!,
+                original: classifiedUrl.url,
+                refreshed: discordRefreshByOriginal.get(classifiedUrl.url) ?? classifiedUrl.url,
             };
         }
 
-        if (!isLocalAttachmentUrl(url, localCdnEndpoint)) throw new Error("Only Spacebar attachment URLs and Discord attachment URLs can be refreshed");
-
         return {
-            original: url,
+            original: classifiedUrl.url,
             refreshed: signer({
-                url,
+                url: classifiedUrl.url,
                 ip,
                 userAgent,
             })
-                .applyToUrl(url)
+                .applyToUrl(classifiedUrl.url)
                 .toString(),
         };
     });

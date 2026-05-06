@@ -16,12 +16,31 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { refreshAttachmentUrls, route } from "@spacebar/api";
-import { Config, getUrlSignature, NewUrlSignatureData } from "@spacebar/util";
+import { AttachmentRefreshError, refreshAttachmentUrls, route, type LocalAttachmentUrlParts } from "@spacebar/api";
+import { Attachment, Config, getPermission, getUrlSignature, NewUrlSignatureData } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { RefreshUrlsRequestSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
+
+async function authorizeLocalAttachmentUrlForUser(userId: string, attachmentUrl: LocalAttachmentUrlParts) {
+    const attachment = await Attachment.findOne({
+        where: {
+            channel_id: attachmentUrl.channelId,
+            filename: attachmentUrl.filename,
+            message_id: attachmentUrl.messageId,
+        },
+        relations: {
+            message: true,
+        },
+    });
+
+    if (!attachment?.message) throw new AttachmentRefreshError(404, "Attachment could not be found");
+
+    const permissions = await getPermission(userId, undefined, attachmentUrl.channelId);
+    permissions.hasThrow("VIEW_CHANNEL");
+    if (attachment.message.author_id !== userId) permissions.hasThrow("READ_MESSAGE_HISTORY");
+}
 
 router.post(
     "/",
@@ -34,6 +53,18 @@ router.post(
             400: {
                 body: "APIErrorResponse",
             },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+            502: {
+                body: "APIErrorResponse",
+            },
+            503: {
+                body: "APIErrorResponse",
+            },
         },
     }),
     async (req: Request, res: Response) => {
@@ -43,6 +74,7 @@ router.post(
         try {
             refreshed_urls = await refreshAttachmentUrls({
                 attachmentUrls: attachment_urls,
+                authorizeLocalAttachmentUrl: (_, attachmentUrl) => authorizeLocalAttachmentUrlForUser(req.user_id, attachmentUrl),
                 discordBotToken: Config.get().external.discordAttachmentRefreshBotToken,
                 ip: req.ip,
                 localCdnEndpoint: Config.get().cdn.endpointPublic,
@@ -50,7 +82,8 @@ router.post(
                 userAgent: req.headers["user-agent"] as string,
             });
         } catch (error) {
-            throw new HTTPError((error as Error).message, 400);
+            if (error instanceof AttachmentRefreshError) throw new HTTPError(error.publicMessage, error.statusCode);
+            throw error;
         }
 
         return res.status(200).json({

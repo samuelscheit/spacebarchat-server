@@ -87,6 +87,12 @@ public class RateLimits {
             Window = 5
         };
 
+        [JsonPropertyName("attachmentRefresh")]
+        public RateLimitOptions AttachmentRefresh { get; set; } = new RateLimitOptions() {
+            Count = 10,
+            Window = 60
+        };
+
         [JsonPropertyName("auth")]
         public AuthRateLimits Auth { get; set; } = new AuthRateLimits();
 
