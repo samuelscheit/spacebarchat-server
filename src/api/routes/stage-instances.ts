@@ -18,12 +18,13 @@
 
 import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api";
+import { StageInstancesResponse } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
+router.get("/", route({ responses: { 200: { body: "StageInstancesResponse" } } }), (req: Request, res: Response) => {
     //TODO
-    res.json([]).status(200);
+    res.status(200).json([] as StageInstancesResponse);
 });
 
 export default router;

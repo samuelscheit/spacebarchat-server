@@ -2590,6 +2590,50 @@
                     "settings"
                 ]
             },
+            "StageInstanceResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "topic": {
+                        "type": "string"
+                    },
+                    "privacy_level": {
+                        "$ref": "#/components/schemas/StageInstancePrivacyLevel"
+                    },
+                    "discoverable_disabled": {
+                        "type": "boolean"
+                    },
+                    "guild_scheduled_event_id": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "discoverable_disabled",
+                    "guild_id",
+                    "id",
+                    "privacy_level",
+                    "topic"
+                ]
+            },
+            "StageInstancesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/StageInstanceResponse"
+                }
+            },
             "TeamListResponse": {
                 "type": "array",
                 "items": {
@@ -13552,6 +13596,13 @@
                     }
                 ]
             },
+            "StageInstancePrivacyLevel": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2
+                ]
+            },
             "BackupCode": {
                 "type": "object",
                 "properties": {
@@ -17722,8 +17773,15 @@
                     }
                 ],
                 "responses": {
-                    "default": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StageInstancesResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [
