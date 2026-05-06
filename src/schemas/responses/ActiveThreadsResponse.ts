@@ -27,10 +27,8 @@ export interface ActiveThreadsChannel {
 
 export interface ActiveThreadsThreadMember {
     id: Snowflake;
-    member_idx?: Snowflake;
+    user_id: Snowflake;
     join_timestamp: string;
-    muted: boolean;
-    mute_config?: unknown;
     flags: number;
 }
 

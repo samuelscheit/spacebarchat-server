@@ -11,7 +11,9 @@ type ThreadLike = {
 
 type ThreadMemberLike = {
     id: string;
-    toJSON: () => unknown;
+    join_timestamp?: Date | string;
+    flags?: number;
+    toJSON?: () => Record<string, unknown>;
 };
 
 type PermissionLike = {
@@ -23,7 +25,9 @@ export type ActiveThreadsResponseBody = {
     members: unknown[];
 };
 
-const threadTypes = new Set([10, 11, 12]);
+export const ACTIVE_GUILD_THREAD_TYPES = [10, 11, 12] as const;
+const GUILD_PRIVATE_THREAD_TYPE = 12;
+const threadTypes = new Set<number>(ACTIVE_GUILD_THREAD_TYPES);
 
 export function isActiveGuildThread(thread: ThreadLike, guildId: string) {
     return thread.guild_id === guildId && threadTypes.has(thread.type) && thread.thread_metadata?.archived === false;
@@ -38,7 +42,7 @@ export function canAccessActiveGuildThread(thread: ThreadLike, guildId: string, 
     const parentPermission = parentPermissions.get(parentId);
     if (!parentPermission?.has("VIEW_CHANNEL")) return false;
 
-    if (thread.type === 12) return joinedThreadIds.has(thread.id) || parentPermission.has("MANAGE_THREADS");
+    if (thread.type === GUILD_PRIVATE_THREAD_TYPE) return joinedThreadIds.has(thread.id) || parentPermission.has("MANAGE_THREADS");
     return true;
 }
 
@@ -46,11 +50,23 @@ export function filterAccessibleActiveGuildThreads(threads: ThreadLike[], guildI
     return threads.filter((thread) => canAccessActiveGuildThread(thread, guildId, joinedThreadIds, parentPermissions));
 }
 
-export function serializeActiveGuildThreads(threads: ThreadLike[], threadMembers: ThreadMemberLike[]): ActiveThreadsResponseBody {
+export function serializeActiveThreadMember(threadMember: ThreadMemberLike, userId: string) {
+    const json = threadMember.toJSON?.() ?? threadMember;
+    const joinTimestamp = json.join_timestamp ?? threadMember.join_timestamp;
+
+    return {
+        id: threadMember.id,
+        user_id: userId,
+        join_timestamp: joinTimestamp instanceof Date ? joinTimestamp.toISOString() : joinTimestamp,
+        flags: json.flags ?? threadMember.flags ?? 0,
+    };
+}
+
+export function serializeActiveGuildThreads(threads: ThreadLike[], threadMembers: ThreadMemberLike[], userId: string): ActiveThreadsResponseBody {
     const returnedThreadIds = new Set(threads.map((thread) => thread.id));
 
     return {
         threads: threads.map((thread) => thread.toJSON()),
-        members: threadMembers.filter((threadMember) => returnedThreadIds.has(threadMember.id)).map((threadMember) => threadMember.toJSON()),
+        members: threadMembers.filter((threadMember) => returnedThreadIds.has(threadMember.id)).map((threadMember) => serializeActiveThreadMember(threadMember, userId)),
     };
 }

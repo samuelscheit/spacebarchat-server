@@ -88,8 +88,7 @@ router.post(
             return res.status(204).send();
         }
 
-        const threadMember = ThreadMember.create({ member_idx: member.index, id: channel_id, join_timestamp: new Date(), muted: false, flags: ThreadMemberFlags.ALL_MESSAGES });
-        await threadMember.save();
+        const threadMember = await ThreadMember.createForUser(user_id, thread, ThreadMemberFlags.ALL_MESSAGES);
 
         // increment member count
         if (thread.member_count !== null && thread.member_count !== undefined) {
