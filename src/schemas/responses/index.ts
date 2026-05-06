@@ -21,6 +21,7 @@ export * from "./APIErrorResponse";
 export * from "./AccountStandingResponse";
 export * from "./BackupCodesChallengeResponse";
 export * from "./CaptchaRequiredResponse";
+export * from "./ChannelThreadsSearchResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";

@@ -215,7 +215,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "GuildMessagesSearchResponse",
+                body: "ChannelThreadsSearchResponse",
             },
             403: {
                 body: "APIErrorResponse",
@@ -263,7 +263,7 @@ router.get(
 
         const permissions = await getPermission(req.user_id, channel.guild_id, channel);
         permissions.hasThrow("VIEW_CHANNEL");
-        if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] });
+        if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], messages: [], has_more: false });
         const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });
 
         const query: FindManyOptions<Channel> = {
@@ -298,6 +298,7 @@ router.get(
             where: {
                 id: In(threads.map(({ id }) => id)),
             },
+            relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
         });
 
         const left = total_results - threads.length - +(offset || 0);
