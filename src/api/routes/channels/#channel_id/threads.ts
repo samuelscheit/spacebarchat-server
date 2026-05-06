@@ -87,11 +87,10 @@ router.post(
                 req.permission?.hasThrow("MANAGE_THREADS");
             }
         }
+        const files = (req.files as Express.Multer.File[]) ?? [];
+        const messageAttachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message?.attachments ?? [];
         if (body.message) {
-            const files = (req.files as Express.Multer.File[]) ?? [];
-            const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
-            const messagePermission = await getPermission(req.user_id, channel.guild_id, channel);
-            assertMessagePayloadPermissions(messagePermission, { ...body.message, attachments, uploadedFileCount: files.length });
+            assertMessagePayloadPermissions(req.permission!, { ...body.message, attachments: messageAttachments, uploadedFileCount: files.length });
         }
 
         const user = await User.findOneOrFail({ where: { id: req.user_id } });
@@ -144,8 +143,7 @@ router.post(
                 author_id: user.id,
             });
         if (body.message) {
-            const files = (req.files as Express.Multer.File[]) ?? [];
-            const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
+            const attachments = messageAttachments;
 
             for (const currFile of files) {
                 try {

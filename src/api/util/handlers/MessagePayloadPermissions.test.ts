@@ -5,7 +5,7 @@ import { assertMessagePayloadPermissions } from "../utility/MessagePayloadPermis
 function permissions(...allowed: ("EMBED_LINKS" | "ATTACH_FILES")[]) {
     return {
         hasThrow(permission: "EMBED_LINKS" | "ATTACH_FILES") {
-            if (allowed.includes(permission)) return true;
+            if (allowed.includes(permission)) return;
             throw new Error(`You are missing the following permissions ${permission}`);
         },
     };
@@ -52,6 +52,25 @@ describe("assertMessagePayloadPermissions", () => {
                 attachments: [{ id: "0", filename: "image.png", uploaded_filename: "upload/image.png" }],
             });
         });
+    });
+
+    test("allows retained attachment references without ATTACH_FILES", () => {
+        assert.doesNotThrow(() => {
+            assertMessagePayloadPermissions(permissions(), {
+                attachments: [{ id: "123", filename: "existing.png" }],
+            });
+        });
+    });
+
+    test("requires ATTACH_FILES when retained and new cloud attachments are mixed", () => {
+        assert.throws(() => {
+            assertMessagePayloadPermissions(permissions(), {
+                attachments: [
+                    { id: "123", filename: "existing.png" },
+                    { id: "0", filename: "new.png", uploaded_filename: "upload/new.png" },
+                ],
+            });
+        }, /ATTACH_FILES/);
     });
 
     test("requires ATTACH_FILES for multipart uploads", () => {

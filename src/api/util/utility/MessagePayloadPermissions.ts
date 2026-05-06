@@ -6,15 +6,23 @@ export interface MessagePayloadPermissionOptions {
 }
 
 export interface MessagePayloadPermissionChecker {
-    hasThrow(permission: "EMBED_LINKS" | "ATTACH_FILES"): boolean;
+    hasThrow(permission: "EMBED_LINKS" | "ATTACH_FILES"): unknown;
 }
 
-export function assertMessagePayloadPermissions(permission: MessagePayloadPermissionChecker, opts: MessagePayloadPermissionOptions) {
-    if (opts.embed || opts.embeds?.length) {
+export function isNewMessagePayloadAttachment(attachment: unknown): boolean {
+    return typeof attachment === "object" && attachment !== null && "uploaded_filename" in attachment;
+}
+
+export function hasNewMessagePayloadAttachments(opts: MessagePayloadPermissionOptions): boolean {
+    return (opts.uploadedFileCount ?? 0) > 0 || !!opts.attachments?.some(isNewMessagePayloadAttachment);
+}
+
+export function assertMessagePayloadPermissions(permission: MessagePayloadPermissionChecker, opts: MessagePayloadPermissionOptions): void {
+    if (opts.embed != null || opts.embeds?.length) {
         permission.hasThrow("EMBED_LINKS");
     }
 
-    if (opts.attachments?.length || opts.uploadedFileCount) {
+    if (hasNewMessagePayloadAttachments(opts)) {
         permission.hasThrow("ATTACH_FILES");
     }
 }

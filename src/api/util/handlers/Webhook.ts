@@ -1,5 +1,19 @@
-import { handleMessage, postHandleMessage } from "@spacebar/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, Snowflake, uploadFile, ValidateName, Webhook } from "@spacebar/util";
+import { assertMessagePayloadPermissions, handleMessage, postHandleMessage } from "@spacebar/api";
+import {
+    Attachment,
+    Channel,
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    FieldErrors,
+    getPermission,
+    Message,
+    MessageCreateEvent,
+    Snowflake,
+    uploadFile,
+    ValidateName,
+    Webhook,
+} from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
@@ -37,10 +51,11 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     const wait = req.query.wait === "true";
     const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
-
-    if (!wait) {
-        res.status(204).send();
-    }
+    const acknowledgeNoWait = () => {
+        if (!wait && !res.headersSent) {
+            res.status(204).send();
+        }
+    };
 
     const attachments: Attachment[] = [];
 
@@ -48,6 +63,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
         if (wait) {
             throw new HTTPError(`Cannot send messages to channel of type ${webhook.channel.type}`, 400);
         } else {
+            acknowledgeNoWait();
             return;
         }
     }
@@ -71,6 +87,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
                     },
                 });
             } else {
+                acknowledgeNoWait();
                 return;
             }
     }
@@ -86,6 +103,24 @@ export const executeWebhook = async (req: Request, res: Response) => {
     }
 
     const files = (req.files as Express.Multer.File[]) ?? [];
+    const permissionSubjectId = webhook.user_id ?? webhook.application_id;
+    const messagePayload = { ...body, attachments: body.attachments ?? [], uploadedFileCount: files.length };
+    if (permissionSubjectId) {
+        const permissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
+        assertMessagePayloadPermissions(permissions, messagePayload);
+    } else {
+        assertMessagePayloadPermissions(
+            {
+                hasThrow(permission) {
+                    throw new HTTPError(`Webhook cannot send media requiring ${permission} without a permission subject`, 403);
+                },
+            },
+            messagePayload,
+        );
+    }
+
+    acknowledgeNoWait();
+
     for (const currFile of files) {
         try {
             const file = await uploadFile(`/attachments/${sendChannel.id}/${messageId}`, currFile);

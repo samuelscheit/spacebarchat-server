@@ -310,6 +310,10 @@ router.post(
             relations: { recipients: { user: true } },
         });
         if (channel.thread_metadata?.locked) throw DiscordApiErrors.THREAD_IS_LOCKED;
+
+        const files = (req.files as Express.Multer.File[]) ?? [];
+        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });
+
         if (channel.isThread()) {
             req.permission!.hasThrow("SEND_MESSAGES_IN_THREADS");
             if (channel.recipients && !channel.recipients.find(({ id }) => id === req.user_id)) {
@@ -405,9 +409,6 @@ router.post(
                     });
             }
         }
-
-        const files = (req.files as Express.Multer.File[]) ?? [];
-        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });
 
         for (const currFile of files) {
             try {
