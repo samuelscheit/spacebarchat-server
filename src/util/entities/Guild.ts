@@ -92,7 +92,7 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     default_message_notifications?: number;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: "varchar" })
     description?: string | null;
 
     @Column({ nullable: true })
@@ -105,7 +105,7 @@ export class Guild extends BaseClass {
     features: string[] = []; //TODO use enum
     //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, type: "int8" })
     primary_category_id?: string | null; // TODO: this was number?
 
     @Column({ nullable: true })
