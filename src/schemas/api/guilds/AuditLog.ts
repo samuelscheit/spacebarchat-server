@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelPermissionOverwrite } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, PublicUser, Snowflake, StringStringDictionary } from "@spacebar/schemas";
 
 export enum AuditLogEvents {
     // guild level
@@ -108,65 +108,50 @@ export enum AuditLogEvents {
     ROUTE_UPDATE = 226,
 }
 
-export interface AuditLogChange {
+export interface AuditLogResponse {
+    application_commands: object[];
+    audit_log_entries: AuditLogEntry[];
+    auto_moderation_rules: object[];
+    guild_scheduled_events: object[];
+    integrations: object[];
+    threads: object[];
+    users: PublicUser[];
+    webhooks: object[];
+}
+
+export interface AuditLogEntry {
+    target_id?: string | null;
+    changes?: AuditLogChange[];
+    user_id?: Snowflake | null;
+    id: Snowflake;
+    action_type: AuditLogEvents;
+    options?: StringStringDictionary;
+    reason?: string;
+}
+
+export type AuditLogChange = AuditLogGenericChange | AuditLogPartialRoleChange;
+
+export interface AuditLogGenericChange {
     new_value?: AuditLogChangeValue;
     old_value?: AuditLogChangeValue;
     key: string;
 }
 
-export interface AuditLogChangeValue {
-    name?: string;
-    description?: string;
-    icon_hash?: string;
-    splash_hash?: string;
-    discovery_splash_hash?: string;
-    banner_hash?: string;
-    owner_id?: string;
-    region?: string;
-    preferred_locale?: string;
-    afk_channel_id?: string;
-    afk_timeout?: number;
-    rules_channel_id?: string;
-    public_updates_channel_id?: string;
-    mfa_level?: number;
-    verification_level?: number;
-    explicit_content_filter?: number;
-    default_message_notifications?: number;
-    vanity_url_code?: string;
-    $add?: object[]; // TODO: These types are bad.
-    $remove?: object[];
-    prune_delete_days?: number;
-    widget_enabled?: boolean;
-    widget_channel_id?: string;
-    system_channel_id?: string;
-    position?: number;
-    topic?: string;
-    bitrate?: number;
-    permission_overwrites?: ChannelPermissionOverwrite[];
-    nsfw?: boolean;
-    application_id?: string;
-    rate_limit_per_user?: number;
-    permissions?: string;
-    color?: number;
-    hoist?: boolean;
-    mentionable?: boolean;
-    allow?: string;
-    deny?: string;
-    code?: string;
-    channel_id?: string;
-    inviter_id?: string;
-    max_uses?: number;
-    uses?: number;
-    max_age?: number;
-    temporary?: boolean;
-    deaf?: boolean;
-    mute?: boolean;
-    nick?: string;
-    avatar_hash?: string;
-    id?: string;
-    type?: number;
-    enable_emoticons?: boolean;
-    expire_behavior?: number;
-    expire_grace_period?: number;
-    user_limit?: number;
+export interface AuditLogPartialRoleChange {
+    key: "$add" | "$remove";
+    new_value?: AuditLogPartialRole[];
+    old_value?: AuditLogPartialRole[];
+}
+
+export type AuditLogChangeValue = string | number | boolean | null | Snowflake[] | AuditLogApplicationCommandPermissionValue | AuditLogPartialRole[] | ChannelPermissionOverwrite[];
+
+export interface AuditLogPartialRole {
+    id: Snowflake;
+    name: string;
+}
+
+export interface AuditLogApplicationCommandPermissionValue {
+    id: Snowflake;
+    type: number;
+    permission: boolean;
 }
