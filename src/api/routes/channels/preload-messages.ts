@@ -19,7 +19,7 @@
 import { route } from "@spacebar/api";
 import { Config, Message } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@spacebar/schemas";
+import { PreloadMessagesRequestSchema, type PreloadMessagesResponse } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
 router.post(
@@ -55,12 +55,12 @@ router.post(
             )
         ).filter((x) => x !== null) as Message[];
 
-        const filteredMessages = messages.map((message) => {
-            const x = message.toJSON();
+        const filteredMessages: PreloadMessagesResponse = messages.map((message) => {
+            const x = message.toJSON() as PreloadMessagesResponse[number] & { reactions?: unknown };
             // https://docs.discord.food/resources/message#preload-messages - reactions are not included in the response
-            x.reactions = undefined;
+            delete x.reactions;
             return x;
-        }) as unknown as PreloadMessagesResponseSchema;
+        });
 
         return res.status(200).send(filteredMessages);
     },
