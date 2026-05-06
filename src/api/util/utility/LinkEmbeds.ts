@@ -16,7 +16,7 @@ export function selectLinkEmbedUrls(content: string | undefined | null, maxLinkE
     const seenNormalizedUrls = new Set<string>();
 
     for (const url of getMessageContentUrls(content)) {
-        if (url.startsWith("<") && url.endsWith(">")) continue;
+        if (url.startsWith("<") || url.endsWith(">")) continue;
 
         const normalizedUrl = normalizeUrl(url);
         if (seenNormalizedUrls.has(normalizedUrl)) continue;

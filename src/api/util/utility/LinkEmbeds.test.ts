@@ -28,4 +28,10 @@ describe("selectLinkEmbedUrls", () => {
     test("ignores links inside inline code blocks", () => {
         assert.deepEqual(selectLinkEmbedUrls("`https://a.com` https://b.com", 5), ["https://b.com"]);
     });
+
+    test("ignores full and partial angle-bracket URL matches", () => {
+        const content = "<https://suppressed.com https://trailing.com> <https://wrapped.com> https://kept.com";
+
+        assert.deepEqual(selectLinkEmbedUrls(content, 5), ["https://kept.com"]);
+    });
 });

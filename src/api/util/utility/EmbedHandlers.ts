@@ -619,9 +619,9 @@ export async function getOrUpdateEmbedCache(urls: string[], cb?: (url: string, e
 }
 
 async function generateEmbedSingle(link: string, cb?: (url: string, embeds: Embed[]) => Promise<void>): Promise<EmbedCache | null> {
-    const url = new URL(link);
-    const handler = url.hostname === new URL(Config.get().cdn.endpointPublic!).hostname ? EmbedHandlers["self"] : (EmbedHandlers[url.hostname] ?? EmbedHandlers["default"]);
     try {
+        const url = new URL(link);
+        const handler = url.hostname === new URL(Config.get().cdn.endpointPublic!).hostname ? EmbedHandlers["self"] : (EmbedHandlers[url.hostname] ?? EmbedHandlers["default"]);
         let res = await handler(url);
         if (!res) return null;
         if (!Array.isArray(res)) res = [res];
@@ -644,19 +644,21 @@ async function generateEmbedSingle(link: string, cb?: (url: string, embeds: Embe
 
 export async function fillMessageUrlEmbeds(message: Message) {
     // Filter out embeds that could be links, start from scratch
-    message.embeds = message.embeds.filter((embed) => embed.type === "rich");
+    const richEmbeds = message.embeds.filter((embed) => embed.type === "rich");
+    const removedAutomaticEmbeds = richEmbeds.length !== message.embeds.length;
+    message.embeds = richEmbeds;
 
-    const uniqueLinks = selectLinkEmbedUrls(message.content, Config.get().embeds.maxLinkEmbeds);
+    const config = Config.get();
+    const remainingEmbedSlots = Math.max(0, config.limits.message.maxEmbeds - message.embeds.length);
+    const uniqueLinks = selectLinkEmbedUrls(message.content, Math.min(config.embeds.maxLinkEmbeds, remainingEmbedSlots));
 
     if (uniqueLinks.length === 0) {
-        // No valid unique links found, update message to remove old embeds
-        message.embeds = message.embeds.filter((embed) => embed.type === "rich");
-        await saveAndEmitMessageUpdate(message);
+        if (removedAutomaticEmbeds) await saveAndEmitMessageUpdate(message);
         return message;
     }
 
     // avoid a race condition updating the same row
-    let messageUpdateLock = saveAndEmitMessageUpdate(message);
+    let messageUpdateLock = removedAutomaticEmbeds ? saveAndEmitMessageUpdate(message) : Promise.resolve();
     await getOrUpdateEmbedCache(uniqueLinks, async (url, embeds) => {
         if (url !== "cached" && message.embeds.length + embeds.length > Config.get().limits.message.maxEmbeds) return;
         message.embeds.push(...embeds);
