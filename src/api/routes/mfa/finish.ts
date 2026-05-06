@@ -60,7 +60,11 @@ router.post(
 
         if (!verified) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
 
-        const token = await generateRecentMfaToken(user.id);
+        const token = await generateRecentMfaToken({
+            userId: user.id,
+            action: ticket.action,
+            sessionId: ticket.session_id,
+        });
         res.setHeader("Set-Cookie", createRecentMfaCookie(token));
         return res.json({ token });
     },

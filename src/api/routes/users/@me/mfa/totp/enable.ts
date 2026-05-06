@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { clearRecentMfaCookie, createMfaRequiredResponse, generateMfaTicket, hasRecentMfaToken, route } from "@spacebar/api";
+import { clearRecentMfaCookie, createMfaRequiredResponse, generateMfaTicket, hasRecentMfaToken, MFA_ACTION_TOTP_ENABLE, type MfaTokenContext, route } from "@spacebar/api";
 import { User, generateMfaBackupCodes, generateToken } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
@@ -52,10 +52,17 @@ router.post(
 
         // TODO: Are guests allowed to enable 2fa?
         if (user.data.hash) {
-            const hasRecentMfa = await hasRecentMfaToken(req.headers, user.id);
+            const mfaContext: MfaTokenContext = {
+                userId: user.id,
+                action: MFA_ACTION_TOTP_ENABLE,
+                sessionId: req.token.did,
+            };
+            const hasRecentMfa = await hasRecentMfaToken(req.headers, mfaContext);
             if (!hasRecentMfa) {
                 if (!body.password) {
-                    const ticket = await generateMfaTicket(user.id);
+                    if (!mfaContext.sessionId) throw new HTTPError("Session-bound authorization is required for MFA");
+
+                    const ticket = await generateMfaTicket(mfaContext);
                     res.setHeader("Set-Cookie", clearRecentMfaCookie());
                     return res.status(400).json(createMfaRequiredResponse(ticket));
                 }

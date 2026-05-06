@@ -19,50 +19,9 @@
 import { checkToken, Rights, Session, User, UserTokenData } from "@spacebar/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
+import { isNoAuthorizationRoute } from "./NoAuthorizationRoutes";
 
-export const NO_AUTHORIZATION_ROUTES = [
-    // Authentication routes
-    "POST /auth/login",
-    "POST /auth/register",
-    "GET /auth/location-metadata",
-    "POST /auth/mfa/",
-    "POST /mfa/finish",
-    "POST /auth/verify",
-    "POST /auth/forgot",
-    "POST /auth/reset",
-    "POST /auth/fingerprint",
-    "GET /invites/",
-    // Routes with a seperate auth system
-    /^(POST|HEAD|GET|PATCH|DELETE) \/webhooks\/\d+\/\w+\/?/, // no token requires auth
-    /^POST \/interactions\/\d+\/[A-Za-z0-9_-]+\/callback/,
-    // Public information endpoints
-    "GET /ping",
-    "GET /gateway",
-    "GET /experiments",
-    "GET /updates",
-    "GET /download",
-    "GET /scheduled-maintenances/upcoming.json",
-    // Public kubernetes integration
-    "GET /-/readyz",
-    "GET /-/healthz",
-    // Client analytics
-    "POST /science",
-    "POST /track",
-    // Public policy pages
-    "GET /policies/instance/",
-    // Oauth callback
-    "/oauth2/callback",
-    // Asset delivery
-    /^(GET|HEAD) \/guilds\/\d+\/widget\.(json|png)/,
-    /^(GET|HEAD) \/guilds\/\d+\/shield\.svg/,
-    // Connections
-    /^(POST|HEAD) \/connections\/\w+\/callback/,
-    // Image proxy
-    /^(GET|HEAD) \/imageproxy\/[A-Za-z0-9+/]\/\d+x\d+\/.+/,
-];
-
-export const API_PREFIX = /^\/api(\/v\d+)?/;
-export const API_PREFIX_TRAILING_SLASH = /^\/api(\/v\d+)?\//;
+export { API_PREFIX, API_PREFIX_TRAILING_SLASH, NO_AUTHORIZATION_ROUTES, isNoAuthorizationRoute } from "./NoAuthorizationRoutes";
 
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -82,7 +41,6 @@ declare global {
 
 export async function Authentication(req: Request, res: Response, next: NextFunction) {
     if (req.method === "OPTIONS") return res.sendStatus(204);
-    const url = req.url.replace(API_PREFIX, "");
 
     if (req.headers.cookie?.split("; ").find((x) => x.startsWith("__sb_sessid=")))
         req.fingerprint = req.headers.cookie
@@ -92,31 +50,7 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
     // for some reason we need to require here, else the openapi generator fails with "route is not a function"
     else res.setHeader("Set-Cookie", `__sb_sessid=${(req.fingerprint = (await require("../util")).randomString(32))}; Secure; HttpOnly; SameSite=None; Path=/`);
 
-    if (
-        NO_AUTHORIZATION_ROUTES.some((x) => {
-            if (typeof x !== "string") {
-                return x.test(req.method + " " + url);
-            }
-
-            const fullRoute = req.method + " " + url;
-
-            if (req.method === "HEAD") {
-                const urlPart = x.split(" ").slice(1).join(" ");
-                if (urlPart.endsWith("/")) {
-                    return url.startsWith(urlPart);
-                } else {
-                    return url === urlPart;
-                }
-            }
-
-            if (x.endsWith("/")) {
-                return fullRoute.startsWith(x);
-            } else {
-                return fullRoute === x;
-            }
-        })
-    )
-        return next();
+    if (isNoAuthorizationRoute(req.method, req.url)) return next();
 
     if (!req.headers.authorization) return next(new HTTPError("Missing Authorization Header", 401));
 
