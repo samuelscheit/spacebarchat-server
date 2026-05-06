@@ -16,8 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
-import { filterVisibleActiveThreads } from "@spacebar/api/util/utility/ActiveThreads";
+import { ACTIVE_THREAD_TYPES, type ActiveThreadLike, filterVisibleActiveThreads, handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
 import {
     Channel,
     emitEvent,
@@ -30,6 +29,7 @@ import {
     FieldErrors,
     getPermission,
     ThreadMember,
+    ThreadMemberFlags,
     Message,
     ChannelFlags,
     Snowflake,
@@ -39,7 +39,7 @@ import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
 import { HTTPError } from "#util/util/lambert-server";
-import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap } from "typeorm";
+import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap, JsonContains } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
@@ -115,6 +115,16 @@ router.post(
             void 0,
             { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
         );
+        const member = req.permission?.cache.member ?? (await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } }));
+        if (!(await ThreadMember.existsBy({ member_idx: member.index, id: thread.id }))) {
+            await ThreadMember.create({
+                member_idx: member.index,
+                id: thread.id,
+                join_timestamp: new Date(),
+                muted: false,
+                flags: ThreadMemberFlags.ALL_MESSAGES,
+            }).save();
+        }
 
         await Promise.all([
             emitEvent({
@@ -217,6 +227,9 @@ router.get(
         permission: "VIEW_CHANNEL",
         responses: {
             200: {},
+            400: {
+                body: "APIErrorResponse",
+            },
             403: {
                 body: "APIErrorResponse",
             },
@@ -226,15 +239,10 @@ router.get(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as Record<string, string>;
 
-        const channel = await Channel.findOneOrFail({
-            where: {
-                id: channel_id,
-            },
-        });
+        const permissions = req.permission!;
+        const channel = permissions.cache.channel ?? (await Channel.findOneOrFail({ where: { id: channel_id } }));
         if (!channel.guild_id) throw new HTTPError("Threads are only available in guild channels", 400);
 
-        const permissions = await getPermission(req.user_id, channel.guild_id, channel);
-        permissions.hasThrow("VIEW_CHANNEL");
         if (!permissions.has("READ_MESSAGE_HISTORY")) {
             return res.json({
                 threads: [],
@@ -242,16 +250,14 @@ router.get(
             });
         }
 
-        const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });
-        const threads = await Channel.find({
+        const member = permissions.cache.member ?? (await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } }));
+        const threads = (await Channel.find({
             where: {
                 parent_id: channel_id,
-                type: In([ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD]),
-                thread_metadata: {
-                    archived: false,
-                },
+                type: In(ACTIVE_THREAD_TYPES),
+                thread_metadata: JsonContains({ archived: false }),
             },
-        });
+        })) as (Channel & ActiveThreadLike)[];
         const threadMembers = threads.length
             ? await ThreadMember.find({
                   where: {
@@ -262,7 +268,7 @@ router.get(
             : [];
 
         const joinedThreadIds = new Set(threadMembers.map((threadMember) => threadMember.id));
-        const visibleThreads = filterVisibleActiveThreads(threads, joinedThreadIds, permissions.has("MANAGE_THREADS"));
+        const visibleThreads = filterVisibleActiveThreads(threads, joinedThreadIds, permissions.has("MANAGE_THREADS"), req.user_id);
         const visibleThreadIds = new Set(visibleThreads.map((thread) => thread.id));
 
         return res.json({
