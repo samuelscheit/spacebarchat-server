@@ -82,8 +82,18 @@ interface MessageInteractionSchema {
     target_message_id?: Snowflake;
 }
 
-export function normalizeMessageCreateSchema(body: MessageCreateSchema & { type?: number; embed?: Embed | null }): MessageCreateSchema {
-    if (body.embed) body.embeds = [...(body.embeds ?? []), body.embed];
+export type LegacyMessageCreateBody = Omit<MessageCreateSchema, "embeds"> & {
+    embeds?: unknown;
+    embed?: unknown;
+    type?: number;
+};
+
+export function normalizeMessageCreateSchema(body: LegacyMessageCreateBody): LegacyMessageCreateBody {
+    if (body.embed != null) {
+        if (Array.isArray(body.embeds)) body.embeds = [...body.embeds, body.embed];
+        else if (body.embeds == null) body.embeds = [body.embed];
+    }
+
     delete body.embed;
     delete body.type;
     return body;

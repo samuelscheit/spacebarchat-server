@@ -6111,18 +6111,6 @@
             "channel_id": {
                 "type": "string"
             },
-            "content": {
-                "type": "string"
-            },
-            "mobile_network_type": {
-                "type": "string"
-            },
-            "nonce": {
-                "type": "string"
-            },
-            "tts": {
-                "type": "boolean"
-            },
             "embeds": {
                 "anyOf": [
                     {
@@ -6135,6 +6123,18 @@
                         "type": "null"
                     }
                 ]
+            },
+            "content": {
+                "type": "string"
+            },
+            "mobile_network_type": {
+                "type": "string"
+            },
+            "nonce": {
+                "type": "string"
+            },
+            "tts": {
+                "type": "boolean"
             },
             "allowed_mentions": {
                 "anyOf": [
