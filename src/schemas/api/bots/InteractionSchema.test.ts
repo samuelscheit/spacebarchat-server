@@ -39,6 +39,13 @@ describe("InteractionSchema", () => {
                     id: "100000000000000003",
                     name: "ping",
                     version: "100000000000000004",
+                    options: [
+                        {
+                            type: 10,
+                            name: "size",
+                            value: 1.5,
+                        },
+                    ],
                 },
             }),
             true,
@@ -53,6 +60,14 @@ describe("InteractionSchema", () => {
                     id: "100000000000000006",
                     name: "autocomplete",
                     version: "100000000000000007",
+                    options: [
+                        {
+                            type: 3,
+                            name: "query",
+                            value: "he",
+                            focused: true,
+                        },
+                    ],
                 },
             }),
             true,
@@ -65,8 +80,10 @@ describe("InteractionSchema", () => {
                 type: 3,
                 message_id: "100000000000000008",
                 data: {
+                    id: 1,
                     custom_id: "confirm",
                     component_type: 2,
+                    resolved: {},
                 },
             }),
             true,
@@ -78,8 +95,47 @@ describe("InteractionSchema", () => {
                 ...baseInteraction(),
                 type: 5,
                 data: {
-                    id: "100000000000000005",
                     custom_id: "feedback",
+                    components: [
+                        {
+                            type: 18,
+                            id: 1,
+                            component: {
+                                type: 4,
+                                id: 2,
+                                custom_id: "feedback_input",
+                                value: "The new interaction validation works.",
+                            },
+                        },
+                    ],
+                },
+            }),
+            true,
+            JSON.stringify(validate.errors),
+        );
+    });
+
+    test("accepts legacy modal action row component responses", () => {
+        const validate = compileInteractionSchema();
+
+        assert.equal(
+            validate({
+                ...baseInteraction(),
+                type: 5,
+                data: {
+                    custom_id: "legacy_feedback",
+                    components: [
+                        {
+                            type: 1,
+                            components: [
+                                {
+                                    type: 4,
+                                    custom_id: "feedback_input",
+                                    value: "",
+                                },
+                            ],
+                        },
+                    ],
                 },
             }),
             true,

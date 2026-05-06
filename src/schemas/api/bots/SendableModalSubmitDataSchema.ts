@@ -19,9 +19,47 @@
 import { UploadAttachmentRequestSchema } from "@spacebar/schemas";
 import { Snowflake } from "../../Identifiers";
 
-export interface SendableModalSubmitDataSchema {
-    id: Snowflake;
+type ModalSubmitComponentData = ModalSubmitActionRowComponentData | ModalSubmitLabelComponentData;
+
+type ModalSubmitInteractiveComponentData = ModalSubmitTextInputComponentData | ModalSubmitSelectComponentData | ModalSubmitCheckboxComponentData;
+
+interface ModalSubmitActionRowComponentData {
+    type: 1;
+    id?: number;
+    components: ModalSubmitInteractiveComponentData[];
+}
+
+interface ModalSubmitLabelComponentData {
+    type: 18;
+    id?: number;
+    component: ModalSubmitInteractiveComponentData;
+}
+
+interface ModalSubmitTextInputComponentData {
+    type: 4;
+    id?: number;
     custom_id: string;
-    // components: ModalSubmitComponentData[]; // TODO: do this
+    value: string;
+}
+
+interface ModalSubmitSelectComponentData {
+    type: 3 | 5 | 6 | 7 | 8 | 19 | 21 | 22;
+    id?: number;
+    custom_id: string;
+    values: string[];
+}
+
+interface ModalSubmitCheckboxComponentData {
+    type: 23;
+    id?: number;
+    custom_id: string;
+    value: boolean;
+}
+
+export interface SendableModalSubmitDataSchema {
+    id?: Snowflake;
+    custom_id: string;
+    components: ModalSubmitComponentData[];
+    resolved?: object;
     attachments?: UploadAttachmentRequestSchema[];
 }

@@ -17,8 +17,24 @@
 */
 
 import { Snowflake } from "../../Identifiers";
-import { ApplicationCommandOption } from "../developers";
 import { ApplicationCommandType } from "./ApplicationCommandSchema";
+
+/**
+ * Keep Discord number-command option values as JSON numbers in the generated
+ * schema. The repository schema generator defaults TypeScript `number` to
+ * JSON-schema `integer`, but submitted command options may contain doubles.
+ *
+ * @TJS-type number
+ */
+declare class SendableApplicationCommandInteractionNumberValue {}
+
+interface SendableApplicationCommandInteractionDataOption {
+    type: number;
+    name: string;
+    value?: string | number | boolean | SendableApplicationCommandInteractionNumberValue;
+    options?: SendableApplicationCommandInteractionDataOption[];
+    focused?: boolean;
+}
 
 export interface SendableApplicationCommandDataSchema {
     id: Snowflake;
@@ -26,7 +42,8 @@ export interface SendableApplicationCommandDataSchema {
     name: string;
     version: Snowflake;
     application_command?: object;
-    options?: ApplicationCommandOption[];
+    resolved?: object;
+    options?: SendableApplicationCommandInteractionDataOption[];
     target_id?: Snowflake;
     attachments?: object[]; // idk the type
 }

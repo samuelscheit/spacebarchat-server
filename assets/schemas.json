@@ -163,80 +163,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ApplicationCreateSchema": {
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string"
-            },
-            "team_id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "name"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationModifySchema": {
-        "type": "object",
-        "properties": {
-            "description": {
-                "type": "string"
-            },
-            "icon": {
-                "type": "string"
-            },
-            "cover_image": {
-                "type": "string"
-            },
-            "interactions_endpoint_url": {
-                "type": "string"
-            },
-            "max_participants": {
-                "type": [
-                    "null",
-                    "integer"
-                ]
-            },
-            "name": {
-                "type": "string"
-            },
-            "privacy_policy_url": {
-                "type": "string"
-            },
-            "role_connections_verification_url": {
-                "type": "string"
-            },
-            "tags": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "terms_of_service_url": {
-                "type": "string"
-            },
-            "bot_public": {
-                "type": "boolean"
-            },
-            "bot_require_code_grant": {
-                "type": "boolean"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "custom_install_url": {
-                "type": "string"
-            },
-            "guild_id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "SendableApplicationCommandDataSchema": {
         "type": "object",
         "properties": {
@@ -265,10 +191,15 @@
                 "properties": {},
                 "additionalProperties": true
             },
+            "resolved": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
             "options": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/ApplicationCommandOption"
+                    "$ref": "#/definitions/SendableApplicationCommandInteractionDataOption"
                 }
             },
             "target_id": {
@@ -295,6 +226,9 @@
     "SendableMessageComponentDataSchema": {
         "type": "object",
         "properties": {
+            "id": {
+                "type": "integer"
+            },
             "component_type": {
                 "enum": [
                     1,
@@ -339,6 +273,11 @@
                 "items": {
                     "type": "string"
                 }
+            },
+            "resolved": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
             }
         },
         "additionalProperties": false,
@@ -357,6 +296,17 @@
             "custom_id": {
                 "type": "string"
             },
+            "components": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ModalSubmitComponentData"
+                }
+            },
+            "resolved": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
             "attachments": {
                 "type": "array",
                 "items": {
@@ -366,8 +316,8 @@
         },
         "additionalProperties": false,
         "required": [
-            "custom_id",
-            "id"
+            "components",
+            "custom_id"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -3828,6 +3778,80 @@
             "timezone_offset",
             "view_nsfw_guilds"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCreateSchema": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "team_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationModifySchema": {
+        "type": "object",
+        "properties": {
+            "description": {
+                "type": "string"
+            },
+            "icon": {
+                "type": "string"
+            },
+            "cover_image": {
+                "type": "string"
+            },
+            "interactions_endpoint_url": {
+                "type": "string"
+            },
+            "max_participants": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "name": {
+                "type": "string"
+            },
+            "privacy_policy_url": {
+                "type": "string"
+            },
+            "role_connections_verification_url": {
+                "type": "string"
+            },
+            "tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "terms_of_service_url": {
+                "type": "string"
+            },
+            "bot_public": {
+                "type": "boolean"
+            },
+            "bot_require_code_grant": {
+                "type": "boolean"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "custom_install_url": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "GuildProfileResponse": {
@@ -8207,6 +8231,208 @@
     "ErrorList": {
         "type": "object",
         "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SendableApplicationCommandInteractionDataOption": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer"
+            },
+            "name": {
+                "type": "string"
+            },
+            "value": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/SendableApplicationCommandInteractionNumberValue"
+                    },
+                    {
+                        "type": [
+                            "string",
+                            "integer",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/SendableApplicationCommandInteractionDataOption"
+                }
+            },
+            "focused": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SendableApplicationCommandInteractionNumberValue": {
+        "description": "Keep Discord number-command option values as JSON numbers in the generated\nschema. The repository schema generator defaults TypeScript `number` to\nJSON-schema `integer`, but submitted command options may contain doubles.",
+        "type": "number",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitComponentData": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/ModalSubmitActionRowComponentData"
+            },
+            {
+                "$ref": "#/definitions/ModalSubmitLabelComponentData"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitActionRowComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 1
+            },
+            "id": {
+                "type": "integer"
+            },
+            "components": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ModalSubmitInteractiveComponentData"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "components",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitInteractiveComponentData": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/ModalSubmitTextInputComponentData"
+            },
+            {
+                "$ref": "#/definitions/ModalSubmitSelectComponentData"
+            },
+            {
+                "$ref": "#/definitions/ModalSubmitCheckboxComponentData"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitTextInputComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 4
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "value": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitSelectComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "enum": [
+                    19,
+                    21,
+                    22,
+                    3,
+                    5,
+                    6,
+                    7,
+                    8
+                ],
+                "type": "number"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "values": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "values"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitCheckboxComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 23
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "value": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitLabelComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 18
+            },
+            "id": {
+                "type": "integer"
+            },
+            "component": {
+                "$ref": "#/definitions/ModalSubmitInteractiveComponentData"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "component",
+            "type"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "UploadAttachmentRequest": {
