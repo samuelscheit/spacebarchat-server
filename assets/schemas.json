@@ -2573,7 +2573,10 @@
                 "type": "boolean"
             },
             "country_code": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "promotional_email_opt_in": {
                 "type": "object",
