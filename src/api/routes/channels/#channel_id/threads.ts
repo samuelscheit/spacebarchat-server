@@ -33,7 +33,15 @@ import {
     ChannelFlags,
     Snowflake,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+import {
+    ChannelType,
+    MessageType,
+    ThreadCreationSchema,
+    MessageCreateAttachment,
+    MessageCreateCloudAttachment,
+    type ThreadSearchMember,
+    type ThreadSearchResponse,
+} from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -215,7 +223,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "GuildMessagesSearchResponse",
+                body: "ThreadSearchResponse",
             },
             403: {
                 body: "APIErrorResponse",
@@ -263,7 +271,8 @@ router.get(
 
         const permissions = await getPermission(req.user_id, channel.guild_id, channel);
         permissions.hasThrow("VIEW_CHANNEL");
-        if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] });
+        if (!permissions.has("READ_MESSAGE_HISTORY"))
+            return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] } satisfies ThreadSearchResponse);
         const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });
 
         const query: FindManyOptions<Channel> = {
@@ -300,14 +309,32 @@ router.get(
             },
         });
 
+        const threadMembers = (await members).map(
+            (threadMember): ThreadSearchMember => ({
+                id: threadMember.id,
+                user_id: req.user_id,
+                join_timestamp: threadMember.join_timestamp.toISOString(),
+                flags: threadMember.flags,
+                muted: threadMember.muted,
+                mute_config: threadMember.mute_config
+                    ? {
+                          ...threadMember.mute_config,
+                          end_time: threadMember.mute_config.end_time?.toISOString(),
+                      }
+                    : undefined,
+            }),
+        );
+
         const left = total_results - threads.length - +(offset || 0);
-        return res.json({
+        const response = {
             threads: threads.map((_) => _.toJSON()),
-            members: (await members).map((_) => _.toJSON()),
-            messages: (await messages).map((_) => _.toJSON()),
+            members: threadMembers,
+            first_messages: (await messages).map((_) => _.toJSON()),
             total_results,
             has_more: left > 0,
-        });
+        } satisfies ThreadSearchResponse;
+
+        return res.json(response);
     },
 );
 

@@ -55,6 +55,7 @@ export * from "./RefreshUrlsResponse";
 export * from "./SettingsProtoUpdateResponse";
 export * from "./TeamListResponse";
 export * from "./Tenor";
+export * from "./ThreadSearchResponse";
 export * from "./TokenResponse";
 export * from "./TypedResponses";
 export * from "./UpdatesResponse";
