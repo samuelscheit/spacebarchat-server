@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import WS from "ws";
-import { genSessionId, WebSocket } from "@spacebar/gateway";
+import { createGatewayMessageHandler, genSessionId, WebSocket } from "@spacebar/gateway";
 import { Send } from "../util/Send";
 import { CLOSECODES, OPCODES } from "../util/Constants";
 import { setHeartbeat } from "../util/Heartbeat";
@@ -36,10 +36,6 @@ try {
 } catch (e) {
     console.log("Failed to import @yukikaze-bot/erlpack: ", e);
 }
-
-// TODO: check rate limit
-// TODO: specify rate limit in config
-// TODO: check msg max size
 
 export const openConnections: WebSocket[] = [];
 
@@ -79,8 +75,10 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
     try {
         // @ts-ignore
         socket.on("close", Close);
-        // @ts-ignore
-        socket.on("message", Message);
+        socket.on(
+            "message",
+            createGatewayMessageHandler(socket, (buffer) => Message.call(socket, buffer), Config.get().limits.gateway),
+        );
 
         socket.on("error", (err) => console.error(`[Gateway/${socket.user_id ?? socket.ipAddress}]`, err));
 

@@ -17,6 +17,7 @@
 */
 
 export * from "./ChannelLimits";
+export * from "./GatewayLimits";
 export * from "./GlobalRateLimits";
 export * from "./GuildLimits";
 export * from "./MessageLimits";

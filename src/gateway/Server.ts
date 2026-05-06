@@ -22,7 +22,7 @@ import { checkToken, closeDatabase, Config, initDatabase, initEvent, Rights } fr
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "node:http";
-import { cleanupOnStartup } from "./util";
+import { cleanupOnStartup, GATEWAY_TRANSPORT_MAX_PAYLOAD } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
 
@@ -159,7 +159,7 @@ export class Server {
         });
 
         this.ws = new ws.Server({
-            maxPayload: 4096,
+            maxPayload: GATEWAY_TRANSPORT_MAX_PAYLOAD,
             noServer: true,
         });
         this.ws.on("connection", Connection);
