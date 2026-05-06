@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, Relationship, User, UserUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
+import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
 import {
     PartialConnectedAccountResponse,
     PrivateUserProjection,
@@ -135,25 +136,8 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
     }
 
     // Only expose public properties to response
-    const publicUserConnections: PartialConnectedAccountResponse[] = [];
-
-    user.connected_accounts
-        .filter((x) => x.visibility != 0)
-        .forEach((x) => {
-            const publicUserConnection = {
-                id: x.id,
-                type: x.type,
-                name: x.name,
-                verified: x.verified ?? false,
-            } satisfies PartialConnectedAccountResponse;
-
-            if (x.metadata_visibility != 0) {
-                // @ts-expect-error idk
-                publicUserConnection.metadata = x.metadata_;
-            }
-
-            publicUserConnections.push(publicUserConnection);
-        });
+    const publicUserConnections: PartialConnectedAccountResponse[] = user.connected_accounts.filter((x) => x.visibility != 0).map(toPartialConnectedAccountResponse);
+    const profileBadges: UserProfileResponse["badges"] = badges.filter((x) => user.badge_ids?.includes(x.id)).map(toProfileBadgeResponse);
 
     const response = {
         connected_accounts: publicUserConnections,
@@ -168,7 +152,7 @@ router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), 
         user_profile: userProfile,
         guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
         guild_member_profile: guildMemberProfile,
-        badges: badges.filter((x) => user.badge_ids?.includes(x.id)),
+        badges: profileBadges,
     } satisfies UserProfileResponse;
 
     res.json(response);

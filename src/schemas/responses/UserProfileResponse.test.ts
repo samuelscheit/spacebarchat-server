@@ -9,7 +9,7 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERMERMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
@@ -46,6 +46,7 @@ test("UserProfileResponse schema matches route-owned profile fields", () => {
     assert.equal(response.required?.includes("mutual_guilds"), false);
     assert.equal(response.properties?.mutual_friends?.type, "array");
     assert.equal(response.properties?.mutual_friends_count?.type, "integer");
+    assert.equal(schemas.ProfileBadge.properties?.link?.type, "string");
     assert.deepEqual(schemas.UserProfile.properties?.bio?.type, ["null", "string"]);
 });
 
@@ -60,6 +61,7 @@ test("UserProfileResponse validates visible connected accounts and optional quer
                 metadata: { verified_at: "2026-05-06T00:00:00.000Z" },
             },
         ],
+        premium_since: null,
         user: {
             id: "100",
             username: "alice",
@@ -67,7 +69,7 @@ test("UserProfileResponse validates visible connected accounts and optional quer
             public_flags: 0,
             bot: false,
             bio: "",
-            premium_since: "2026-05-06T00:00:00.000Z",
+            premium_since: null,
             premium_type: 0,
         },
         premium_type: 0,
@@ -79,10 +81,17 @@ test("UserProfileResponse validates visible connected accounts and optional quer
             pronouns: null,
             theme_colors: null,
         },
-        badges: [],
+        badges: [
+            {
+                id: "early_supporter",
+                description: "Early Supporter",
+                icon: "supporter",
+            },
+        ],
     };
 
     assert.equal(ajv.validate("UserProfileResponse", response), true);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: response.connected_accounts[0] }), false);
+    assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: [{ ...response.connected_accounts[0], metadata: null }] }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, guild_member: { user: response.user } }), false);
 });

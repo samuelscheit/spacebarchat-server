@@ -49,7 +49,7 @@ export interface UserProfileResponse {
     user: PublicUser;
     connected_accounts: PartialConnectedAccountResponse[];
     premium_guild_since?: number;
-    premium_since?: Date;
+    premium_since?: Date | null;
     mutual_guilds?: MutualGuild[];
     mutual_friends?: PublicUser[];
     mutual_friends_count?: number;

@@ -110,7 +110,7 @@ export class User extends BaseClass {
     created_at: Date; // registration date
 
     @Column({ nullable: true })
-    premium_since: Date; // premium date
+    premium_since?: Date | null; // premium date
 
     @Column({ select: false })
     verified: boolean; // email is verified

@@ -4548,8 +4548,15 @@
                 "type": "string"
             },
             "premium_since": {
-                "type": "string",
-                "format": "date-time"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "avatar": {
                 "type": "string"
@@ -4609,7 +4616,6 @@
             "bot",
             "discriminator",
             "id",
-            "premium_since",
             "premium_type",
             "public_flags",
             "username"
@@ -4636,8 +4642,15 @@
                 "type": "boolean"
             },
             "premium_since": {
-                "type": "string",
-                "format": "date-time"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "avatar": {
                 "type": "string"
@@ -4726,7 +4739,6 @@
             "mfa_enabled",
             "nsfw_allowed",
             "premium",
-            "premium_since",
             "premium_type",
             "premium_usage_flags",
             "public_flags",
@@ -4780,8 +4792,15 @@
                 "type": "boolean"
             },
             "premium_since": {
-                "type": "string",
-                "format": "date-time"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "avatar": {
                 "type": "string"
@@ -4870,7 +4889,6 @@
             "mfa_enabled",
             "nsfw_allowed",
             "premium",
-            "premium_since",
             "premium_type",
             "premium_usage_flags",
             "public_flags",
@@ -5414,8 +5432,15 @@
                 "type": "integer"
             },
             "premium_since": {
-                "type": "string",
-                "format": "date-time"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "mutual_guilds": {
                 "type": "array",
@@ -9900,8 +9925,15 @@
                 "format": "date-time"
             },
             "premium_since": {
-                "type": "string",
-                "format": "date-time"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "verified": {
                 "type": "boolean"
@@ -10029,7 +10061,6 @@
             "mobile",
             "nsfw_allowed",
             "premium",
-            "premium_since",
             "premium_type",
             "premium_usage_flags",
             "public_flags",
@@ -14124,8 +14155,15 @@
                 "type": "string"
             },
             "premium_since": {
-                "type": "string",
-                "format": "date-time"
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "avatar": {
                 "type": "string"
@@ -14185,7 +14223,6 @@
             "bot",
             "discriminator",
             "id",
-            "premium_since",
             "premium_type",
             "public_flags",
             "username"
