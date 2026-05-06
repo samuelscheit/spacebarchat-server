@@ -68,10 +68,12 @@ public class GuildRoleUpdatePayloadTests {
 
         var json = JsonSerializer.Serialize(payload);
         var node = JsonNode.Parse(json)!;
+        var role = node["role"]!.AsObject();
 
-        Assert.Null(node["role"]!["icon"]);
-        Assert.Null(node["role"]!["tags"]);
-        Assert.Equal(0, node["role"]!["colors"]!["primary_color"]!.GetValue<int>());
-        Assert.Equal("2", node["role"]!["id"]!.GetValue<string>());
+        Assert.False(role.ContainsKey("icon"));
+        Assert.False(role.ContainsKey("unicode_emoji"));
+        Assert.False(role.ContainsKey("tags"));
+        Assert.Equal(0, role["colors"]!["primary_color"]!.GetValue<int>());
+        Assert.Equal("2", role["id"]!.GetValue<string>());
     }
 }

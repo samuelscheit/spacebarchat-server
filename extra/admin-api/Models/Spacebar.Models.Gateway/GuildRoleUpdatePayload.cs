@@ -41,7 +41,7 @@ public class GuildRoleUpdateRole {
     [JsonPropertyName("position")]
     public int Position { get; set; }
 
-    [JsonPropertyName("unicode_emoji")]
+    [JsonPropertyName("unicode_emoji"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? UnicodeEmoji { get; set; }
 
     [JsonPropertyName("flags")]
