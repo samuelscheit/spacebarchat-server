@@ -1,4 +1,4 @@
-import { Config, Snowflake } from "@spacebar/util";
+import { CloudAttachment, Config, Snowflake } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import imageSize from "image-size";
 import { HTTPError } from "lambert-server";
@@ -58,6 +58,55 @@ router.delete("/:channel_id/:message_id/:filename", async (req: Request, res: Re
     await storage.delete(path);
 
     return res.send({ success: true });
+});
+
+router.delete("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Request, res: Response) => {
+    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
+    console.log("[Cloud Delete] Deleting attachment", req.params);
+
+    const { channel_id, batch_id, attachment_id, filename } = req.params as { [key: string]: string };
+    const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
+
+    const att = await CloudAttachment.findOne({
+        where: {
+            uploadFilename: `${channel_id}/${batch_id}/${attachment_id}/${filename}`,
+            channelId: channel_id,
+            userAttachmentId: attachment_id,
+            userFilename: filename,
+        },
+    });
+
+    if (att) {
+        await att.remove();
+        await storage.delete(path);
+        return res.send({ success: true });
+    }
+    return res.status(404).send("Attachment not found");
+});
+
+router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id", async (req: Request, res: Response) => {
+    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
+    console.log("[Cloud Clone] Cloning attachment to message", req.params);
+
+    const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
+    const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
+    const newPath = `attachments/${channel_id}/${message_id}/${filename}`;
+
+    const att = await CloudAttachment.findOne({
+        where: {
+            uploadFilename: `${channel_id}/${batch_id}/${attachment_id}/${filename}`,
+            channelId: channel_id,
+            userAttachmentId: attachment_id,
+            userFilename: filename,
+        },
+    });
+
+    if (att) {
+        await storage.clone(path, newPath);
+        return res.send({ success: true, new_path: newPath });
+    }
+
+    return res.status(404).send("Attachment not found");
 });
 
 export default router;

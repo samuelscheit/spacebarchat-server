@@ -25,3 +25,11 @@ export function getCdnMutationUrl(cdnEndpoint: string, path: string) {
 
     return `${trimTrailingSlash(cdnEndpoint)}${normalizedPath}`;
 }
+
+export function getAttachmentMutationPath(uploadFilename: string) {
+    return `/attachments/${uploadFilename}`;
+}
+
+export function getAttachmentCloneMutationPath(uploadFilename: string, messageId: string) {
+    return `${getAttachmentMutationPath(uploadFilename)}/clone_to_message/${messageId}`;
+}

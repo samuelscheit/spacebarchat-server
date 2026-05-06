@@ -47,6 +47,9 @@ import {
     MessageFlags,
     FieldErrors,
     getDatabase,
+    getAttachmentCloneMutationPath,
+    getAttachmentMutationPath,
+    getCdnMutationUrl,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -149,7 +152,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
         delWhenDone = true;
     }
 
-    const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${messageId}`, {
+    const cloneResponse = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentCloneMutationPath(attEnt.uploadFilename, messageId)), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
@@ -188,13 +191,11 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
 
     if (delWhenDone) {
         return () =>
-            fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}`, {
+            fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentMutationPath(attEnt.uploadFilename)), {
                 headers: {
                     signature: Config.get().security.requestSignature,
                 },
                 method: "DELETE",
-            }).then(() => {
-                attEnt.remove();
             });
     }
 }
@@ -757,7 +758,7 @@ export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateClou
         },
     });
 
-    const cloneResponse = await fetch(`${Config.get().cdn.endpointPrivate}/attachments/${attEnt.uploadFilename}/clone_to_message/${destinationMessageId}`, {
+    const cloneResponse = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentCloneMutationPath(attEnt.uploadFilename, destinationMessageId)), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
