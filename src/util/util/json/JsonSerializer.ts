@@ -104,14 +104,17 @@ export class JsonSerializer {
     }
 
     private static async *DeserializeAsyncEnumerableReadableStream<T>(json: ReadableStream, opts?: JsonSerializerOptions) {
-        const reader = json.getReader();
-        //TODO: implement
-        yield undefined as unknown as T;
+        const arr = await this.DeserializeAsync<T[]>(json, opts);
+        for (const item of arr) {
+            yield item;
+        }
     }
 
     private static async *DeserializeAsyncEnumerableReadStream<T>(json: ReadStream, opts?: JsonSerializerOptions) {
-        // TODO: implement
-        yield undefined as unknown as T;
+        const arr = await this.DeserializeAsync<T[]>(json, opts);
+        for (const item of arr) {
+            yield item;
+        }
     }
 
     public static async SerializeAsyncEnumerableToStringAsync<T>(items: AsyncIterable<T>, opts?: JsonSerializerOptions): Promise<string> {
