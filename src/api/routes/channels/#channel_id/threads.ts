@@ -32,6 +32,7 @@ import {
     Message,
     ChannelFlags,
     Snowflake,
+    messagePublicRelations,
 } from "@spacebar/util";
 import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
 
@@ -298,6 +299,7 @@ router.get(
             where: {
                 id: In(threads.map(({ id }) => id)),
             },
+            relations: messagePublicRelations,
         });
 
         const left = total_results - threads.length - +(offset || 0);

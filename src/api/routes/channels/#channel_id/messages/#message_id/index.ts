@@ -28,9 +28,9 @@ import {
     emitEvent,
     getPermission,
     getRights,
-    serializeMessageRoleMentions,
-    uploadFile,
+    messagePublicWithThreadRelations,
     NewUrlUserSignatureData,
+    uploadFile,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -58,7 +58,7 @@ router.patch(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "PublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -113,25 +113,11 @@ router.patch(
 
         postHandleMessage(new_message).catch((e) => console.error("[Message] post-message handler failed", e));
 
-        // TODO: a DTO?
-        return res.json({
-            ...new_message.toJSON(),
-            id: new_message.id,
-            type: new_message.type,
-            channel_id: new_message.channel_id,
-            member: new_message.member?.toPublicMember(),
-            author: new_message.author?.toPublicUser(),
-            attachments: new_message.attachments,
-            embeds: new_message.embeds,
-            mentions: new_message.mentions,
-            mention_roles: serializeMessageRoleMentions(new_message.mention_roles),
-            mention_everyone: new_message.mention_everyone,
-            pinned: new_message.pinned,
-            timestamp: new_message.timestamp,
-            edited_timestamp: new_message.edited_timestamp,
+        const publicMessage = new_message.toJSON();
 
-            // these are not in the Discord.com response
-            mention_channels: new_message.mention_channels,
+        return res.json({
+            ...publicMessage,
+            member: new_message.member?.toPublicMember(),
         });
     },
 );
@@ -153,7 +139,7 @@ router.put(
         right: "SEND_BACKDATED_EVENTS",
         responses: {
             200: {
-                body: "Message",
+                body: "PublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -250,7 +236,7 @@ router.get(
         permission: "VIEW_CHANNEL",
         responses: {
             200: {
-                body: "Message",
+                body: "PublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -264,17 +250,14 @@ router.get(
 
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: {
-                attachments: true,
-                author: true,
-            },
+            relations: messagePublicWithThreadRelations,
         });
 
         const permissions = await getPermission(req.user_id, undefined, channel_id);
 
         if (message.author_id !== req.user_id) permissions.hasThrow("READ_MESSAGE_HISTORY");
 
-        return res.json(message);
+        return res.json(message.toJSON());
     },
 );
 

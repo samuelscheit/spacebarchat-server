@@ -30,6 +30,7 @@ import {
     Member,
     Message,
     MessageCreateEvent,
+    messagePublicWithThreadRelations,
     NewUrlSignatureData,
     NewUrlUserSignatureData,
     ReadState,
@@ -119,21 +120,7 @@ router.get(
             order: { timestamp: "DESC" },
             take: limit,
             where: { channel_id },
-            relations: {
-                author: true,
-                webhook: true,
-                application: true,
-                mentions: true,
-                mention_roles: true,
-                mention_channels: true,
-                sticker_items: true,
-                attachments: true,
-                thread: {
-                    recipients: {
-                        user: true,
-                    },
-                },
-            },
+            relations: messagePublicWithThreadRelations,
         };
 
         let messages: Message[];
@@ -290,7 +277,7 @@ router.post(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "PublicMessage",
             },
             400: {
                 body: "APIErrorResponse",

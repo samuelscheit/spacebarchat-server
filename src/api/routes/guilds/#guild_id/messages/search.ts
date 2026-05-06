@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, FieldErrors, Member, Message, Snowflake, getPermission, serializeMessageRoleMentions } from "@spacebar/util";
+import { Channel, FieldErrors, Member, Message, Snowflake, getPermission, messagePublicRelations, serializeMessageRoleMentions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThan, Like, MoreThan } from "typeorm";
@@ -156,7 +156,7 @@ router.get(
                       },
                   ]
                 : where,
-            relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
+            relations: messagePublicRelations,
         };
 
         const messages: Message[] = await Message.find({ ...query, take: parsedLimit || 0, skip: offset ? Number(offset) : 0 });

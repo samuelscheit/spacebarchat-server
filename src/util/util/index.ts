@@ -35,6 +35,7 @@ export * from "./JSON";
 export * from "./KittyLogo";
 export * from "./Logo";
 export * from "./MessageFlags";
+export * from "./MessagePublicRelations";
 export * from "./MessageRoleMentions";
 export * from "./networking";
 export * from "./Permissions";

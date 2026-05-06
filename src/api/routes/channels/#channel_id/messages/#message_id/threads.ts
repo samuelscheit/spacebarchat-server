@@ -17,7 +17,7 @@
 */
 
 import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "@spacebar/util";
+import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations } from "@spacebar/util";
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
@@ -44,7 +44,10 @@ router.post(
         const body = req.body as MessageThreadCreationSchema;
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: ["guild"],
+            relations: {
+                ...messagePublicRelations,
+                guild: true,
+            },
         });
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },

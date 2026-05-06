@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@spacebar/util";
+import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { GreetRequestSchema, MessageType } from "@spacebar/schemas";
@@ -31,7 +31,7 @@ router.post(
         permission: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "PublicMessage",
             },
             404: {},
             400: {
@@ -53,6 +53,7 @@ router.post(
                 channel_id: payload.message_reference?.channel_id,
                 guild_id: payload.message_reference?.guild_id,
             },
+            relations: messagePublicRelations,
         });
 
         if (!channel.isDm() && targetMessage.type != MessageType.GUILD_MEMBER_JOIN)
@@ -101,7 +102,7 @@ router.post(
             channel.save(),
         ]);
 
-        res.send(message);
+        res.send(publicMsg);
     },
 );
 

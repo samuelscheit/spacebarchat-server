@@ -47,6 +47,7 @@ import {
     MessageFlags,
     FieldErrors,
     getDatabase,
+    messagePublicRelations,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -442,16 +443,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                         where: {
                             id: opts.message_reference.message_id,
                         },
-                        relations: {
-                            author: true,
-                            webhook: true,
-                            application: true,
-                            mentions: true,
-                            mention_roles: true,
-                            mention_channels: true,
-                            sticker_items: true,
-                            attachments: true,
-                        },
+                        relations: messagePublicRelations,
                     });
 
                     if (

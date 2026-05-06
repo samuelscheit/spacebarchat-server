@@ -143,6 +143,11 @@ export class Message extends BaseClass {
     @ManyToMany(() => User)
     mentions: User[];
 
+    /**
+     * Public message payloads serialize role mentions as role ids.
+     *
+     * @items.type string
+     */
     @JoinTable({ name: "message_role_mentions" })
     @ManyToMany(() => Role)
     mention_roles: Role[];
