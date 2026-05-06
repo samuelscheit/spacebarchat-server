@@ -48,4 +48,8 @@ describe("ActivitySchema", () => {
     test("rejects party size with non-number entries", () => {
         assert.throws(() => instanceOf(ActivitySchema, activityPayload({ type: 0, party: { size: [1, "many"] } })), /must be a number/);
     });
+
+    test("rejects party size with null entries", () => {
+        assert.throws(() => instanceOf(ActivitySchema, activityPayload({ type: 0, party: { size: [1, null] } })), /is required/);
+    });
 });

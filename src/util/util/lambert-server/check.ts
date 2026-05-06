@@ -68,7 +68,7 @@ export function instanceOf(type: any, value: any, { path = "", optional = false 
             if (!Array.isArray(value)) throw `${path} must be an array`;
             if (!type.length) return true; // type array didn't specify any type
 
-            return value.every((val, i) => instanceOf(type[0], val, { path: `${path}[${i}]`, optional }));
+            return value.every((val, i) => instanceOf(type[0], val, { path: `${path}[${i}]` }));
         }
         if (type?.constructor?.name != "Object") {
             if (type instanceof Tuple) {
@@ -89,7 +89,7 @@ export function instanceOf(type: any, value: any, { path = "", optional = false 
                 if (!Array.isArray(value)) throw `${path} must be an array`;
                 if (value.length !== type.types.length) throw `${path} must have exactly ${type.types.length} items`;
 
-                return (<ExactArray>type).types.every((x, i) => instanceOf(x, value[i], { path: `${path}[${i}]`, optional }));
+                return (<ExactArray>type).types.every((x, i) => instanceOf(x, value[i], { path: `${path}[${i}]` }));
             }
             if (type instanceof Email) {
                 if ((<Email>type).check()) return true;

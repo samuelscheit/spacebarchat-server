@@ -18,7 +18,7 @@
 
 export interface Activity {
     name: string; // the activity's name
-    type: ActivityType; // activity type // TODO: check if its between range 0-5
+    type: ActivityType; // activity type
     url?: string; // stream url, is validated when type is 1
     created_at?: number; // unix timestamp of when the activity was added to the user's session
     timestamps?: {
@@ -36,7 +36,11 @@ export interface Activity {
     };
     party?: {
         id?: string;
-        size?: number[]; // used to show the party's current and maximum size // TODO: array length 2
+        /**
+         * @minItems 2
+         * @maxItems 2
+         */
+        size?: number[]; // used to show the party's current and maximum size
     };
     assets?: {
         large_image?: string; // the id for a large asset of the activity, usually a snowflake
