@@ -120,15 +120,23 @@ export class JsonSerializer {
 
     private static async *ReadReadableStreamChunks(json: ReadableStream): AsyncGenerator<unknown, void, unknown> {
         const reader = json.getReader();
+        let doneReading = false;
 
         try {
             while (true) {
                 const { done, value } = await reader.read();
-                if (done) break;
+                if (done) {
+                    doneReading = true;
+                    break;
+                }
 
                 yield value;
             }
         } finally {
+            if (!doneReading) {
+                await reader.cancel();
+            }
+
             reader.releaseLock();
         }
     }

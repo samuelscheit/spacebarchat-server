@@ -98,6 +98,28 @@ describe("JsonSerializer async enumerable streams", () => {
         assert.deepEqual(await iterator.next(), { done: true, value: undefined });
     });
 
+    it("cancels web streams when iteration stops before EOF", async () => {
+        let canceled = false;
+        const stream = new ReadableStream<Uint8Array>({
+            start(controller) {
+                controller.enqueue(new TextEncoder().encode('[{"id":1},'));
+            },
+            cancel() {
+                canceled = true;
+            },
+        });
+        const iterator = JsonSerializer.DeserializeAsyncEnumerable<{ id: number }>(stream)[Symbol.asyncIterator]();
+
+        assert.deepEqual(await withTimeout(iterator.next(), "Timed out waiting for first streamed JSON item."), {
+            done: false,
+            value: { id: 1 },
+        });
+
+        await iterator.return?.();
+
+        assert.equal(canceled, true);
+    });
+
     it("deserializes from a web readable stream", async () => {
         const encoder = new TextEncoder();
         const encoded = encoder.encode(
