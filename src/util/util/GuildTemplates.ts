@@ -1,11 +1,13 @@
+type TemplateId = string | number;
+
 export type TemplateRoleLike = {
-    id?: string | null;
+    id?: TemplateId | null;
 };
 
 export type TemplateChannelPermissionOverwrite = {
     allow: string;
     deny: string;
-    id: string;
+    id: TemplateId;
     type: number;
 };
 
@@ -13,18 +15,31 @@ export type TemplateChannelLike = {
     permission_overwrites?: TemplateChannelPermissionOverwrite[];
 };
 
+function normalizeTemplateId(id: TemplateId | null | undefined): string | undefined {
+    if (id === null || id === undefined) return undefined;
+    return String(id);
+}
+
 const ROLE_PERMISSION_OVERWRITE_TYPE = 0;
 
 export function createTemplateRoleIdMap(roles: TemplateRoleLike[], sourceGuildId: string | null, guildId: string, generateId: () => string) {
     const roleIdMap = new Map<string, string>([["0", guildId]]);
-    if (sourceGuildId) roleIdMap.set(sourceGuildId, guildId);
+    const normalizedSourceGuildId = normalizeTemplateId(sourceGuildId);
+    if (normalizedSourceGuildId) roleIdMap.set(normalizedSourceGuildId, guildId);
 
     for (const role of roles) {
-        if (!role.id || roleIdMap.has(role.id)) continue;
-        roleIdMap.set(role.id, generateId());
+        const roleId = normalizeTemplateId(role.id);
+        if (!roleId || roleIdMap.has(roleId)) continue;
+        roleIdMap.set(roleId, generateId());
     }
 
     return roleIdMap;
+}
+
+export function getMappedTemplateRoleId(roleId: TemplateId | null | undefined, roleIdMap: Map<string, string>) {
+    const normalizedRoleId = normalizeTemplateId(roleId);
+    if (!normalizedRoleId) return undefined;
+    return roleIdMap.get(normalizedRoleId);
 }
 
 export function remapTemplateChannelPermissionOverwrites<T extends TemplateChannelLike>(channels: T[], roleIdMap: Map<string, string>): T[] {
@@ -33,13 +48,22 @@ export function remapTemplateChannelPermissionOverwrites<T extends TemplateChann
 
         return {
             ...channel,
-            permission_overwrites: channel.permission_overwrites.map((overwrite) => {
-                if (overwrite.type !== ROLE_PERMISSION_OVERWRITE_TYPE) return overwrite;
+            permission_overwrites: channel.permission_overwrites.flatMap((overwrite) => {
+                // Guild templates can only safely preserve role overwrites that
+                // point at roles recreated in the destination guild. Unknown
+                // roles would keep source-guild IDs, and member overwrites would
+                // grant/deny permissions to global user IDs outside the template.
+                if (overwrite.type !== ROLE_PERMISSION_OVERWRITE_TYPE) return [];
 
-                return {
-                    ...overwrite,
-                    id: roleIdMap.get(overwrite.id) ?? overwrite.id,
-                };
+                const mappedRoleId = getMappedTemplateRoleId(overwrite.id, roleIdMap);
+                if (!mappedRoleId) return [];
+
+                return [
+                    {
+                        ...overwrite,
+                        id: mappedRoleId,
+                    },
+                ];
             }),
         };
     });

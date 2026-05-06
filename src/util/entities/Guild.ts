@@ -31,7 +31,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { arrayRemove } from "@spacebar/util";
-import { createTemplateRoleIdMap, remapTemplateChannelPermissionOverwrites } from "../util/GuildTemplates";
+import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -414,7 +414,7 @@ export class Guild extends BaseClass {
                                 ...role,
                                 guild_id,
                                 // role.id === body.source_guild_id indicates that this is the @everyone role
-                                id: role.id ? (roleIdMap.get(role.id) ?? Snowflake.generate()) : Snowflake.generate(),
+                                id: getMappedTemplateRoleId(role.id, roleIdMap) ?? Snowflake.generate(),
                             })
                                 .save()
                                 .then(resolve);
