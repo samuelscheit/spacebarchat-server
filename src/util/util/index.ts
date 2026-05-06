@@ -17,6 +17,7 @@
 */
 
 export * from "./ApiError";
+export * from "./ApiVersions";
 export * from "./extensions/Array";
 export * from "./BitField";
 //export * from "./Categories";
