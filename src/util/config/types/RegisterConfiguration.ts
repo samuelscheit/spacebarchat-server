@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { DateOfBirthConfiguration, PasswordConfiguration, RegistrationEmailConfiguration } from ".";
+import { DateOfBirthConfiguration, PasswordConfiguration, RegistrationEmailConfiguration } from "./subconfigurations/register";
 
 export class RegisterConfiguration {
     email: RegistrationEmailConfiguration = new RegistrationEmailConfiguration();
@@ -34,7 +34,7 @@ export class RegisterConfiguration {
     blockAbuseIpDbAboveScore: number = 75; // 0 to disable
     incrementingDiscriminators: boolean = false; // random otherwise
     defaultRights: string = "875069521787904"; // See `npm run generate:rights`
-    defaultBotRights: string = "875069521787904"; // See `npm run generate:rights`
+    defaultBotRights?: string; // Falls back to `defaultRights` when unset
     enableAbuseIpDb: boolean = false;
     enableIpData: boolean = false;
 }
