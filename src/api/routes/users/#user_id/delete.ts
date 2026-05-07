@@ -21,7 +21,7 @@ import {
     Channel,
     ChannelDeleteEvent,
     ChannelRecipientRemoveEvent,
-    ChannelUpdateEvent,
+    DmChannelDTO,
     emitEvent,
     Emoji,
     Guild,
@@ -85,8 +85,12 @@ router.post(
             where: { type: ChannelType.GROUP_DM },
             relations: { recipients: true },
             select: {
+                icon: true,
                 id: true,
+                last_message_id: true,
+                name: true,
                 owner_id: true,
+                type: true,
                 recipients: {
                     id: true,
                     user_id: true,
@@ -129,9 +133,9 @@ router.post(
                     if (ownerChanged) {
                         await emitEvent({
                             event: "CHANNEL_UPDATE",
-                            data: channel.toJSON(),
+                            data: await DmChannelDTO.from(channel),
                             channel_id: channel.id,
-                        } satisfies ChannelUpdateEvent);
+                        });
                         console.log(`[Instance ban] Reassigned ownership of group channel ${channel.id} to user ${channel.owner_id}`);
                     }
                 }
