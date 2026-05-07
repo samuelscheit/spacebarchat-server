@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { verifyToken } from "node-2fa";
+import { consumeMfaBackupCode, isCurrentTotpCode } from "./Totp";
 
 export const RECENT_MFA_COOKIE = "__Secure-recent_mfa";
 export const RECENT_MFA_HEADER = "x-discord-mfa-authorization";
@@ -185,21 +185,7 @@ export async function verifyMfaTicketFromRequest(ticket: string): Promise<MfaTic
 }
 
 export async function verifyTotpOrBackupCode(userId: string, totpSecret: string | null | undefined, code: string): Promise<boolean> {
-    const { BackupCode } = await import("../../../util/index.js");
-    const backup = await BackupCode.findOne({
-        where: {
-            code,
-            expired: false,
-            consumed: false,
-            user: { id: userId },
-        },
-    });
+    if (await consumeMfaBackupCode({ code, userId })) return true;
 
-    if (backup) {
-        backup.consumed = true;
-        await backup.save();
-        return true;
-    }
-
-    return verifyToken(totpSecret || "", code)?.delta === 0;
+    return isCurrentTotpCode(totpSecret, code);
 }

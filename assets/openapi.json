@@ -1436,6 +1436,14 @@
                     }
                 }
             },
+            "GuildDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    }
+                }
+            },
             "GuildSubscriptionsBulkSchema": {
                 "type": "object",
                 "properties": {
@@ -7294,7 +7302,7 @@
                 "properties": {
                     "code": {
                         "minLength": 6,
-                        "maxLength": 6,
+                        "maxLength": 8,
                         "type": "string"
                     }
                 },
@@ -24874,9 +24882,29 @@
                         "bearer": []
                     }
                 ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GuildDeleteSchema"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "204": {
                         "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "",

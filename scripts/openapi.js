@@ -120,6 +120,13 @@ function getTag(key) {
     return key.match(/\/([\w-]+)/)[1];
 }
 
+function normalizeRequestBody(requestBody) {
+    if (!requestBody) return undefined;
+    if (typeof requestBody === "string") return { schema: requestBody, required: true };
+
+    return { schema: requestBody.schema, required: requestBody.required ?? true };
+}
+
 function apiRoutes(missingRoutes) {
     const routes = getRouteDescriptions();
 
@@ -150,20 +157,21 @@ function apiRoutes(missingRoutes) {
         if (route.summary) obj.summary = route.summary;
         if (route.deprecated) obj.deprecated = route.deprecated;
 
-        if (route.requestBody) {
+        const requestBody = normalizeRequestBody(route.requestBody);
+        if (requestBody) {
             obj.requestBody = {
-                required: true,
+                required: requestBody.required,
                 content: {
                     "application/json": {
                         schema: {
-                            $ref: `#/components/schemas/${route.requestBody}`,
+                            $ref: `#/components/schemas/${requestBody.schema}`,
                         },
                     },
                 },
             };
-            if (!specification.components.schemas[route.requestBody]) {
+            if (!specification.components.schemas[requestBody.schema]) {
                 missingRequestSchemaCount++;
-                console.log(`\x1b[91m${white("\x1b[48;5;208mERROR")}\x1b[0m\x1b[95m`, "Route", method, path, "missing request schema:", route.requestBody, "\x1b[0m");
+                console.log(`\x1b[91m${white("\x1b[48;5;208mERROR")}\x1b[0m\x1b[95m`, "Route", method, path, "missing request schema:", requestBody.schema, "\x1b[0m");
             }
         }
 
