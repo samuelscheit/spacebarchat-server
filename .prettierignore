@@ -8,6 +8,7 @@ hashes.json
 flake.lock
 extra/admin-api
 discord-response-samples
+test/generated/*.json
 src/util/migration/postgres-initial.ts
 temp
 scripts/schemaExclusions.json
