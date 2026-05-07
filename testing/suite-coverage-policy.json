@@ -68,6 +68,7 @@
                     "status": "partial-existing-tests",
                     "testFiles": [
                         "test/scenarios/channels-messages.test.ts",
+                        "test/scenarios/channels-supplemental.test.ts",
                         "src/api/tests/ChannelInviteCreate.test.ts",
                         "src/api/util/utility/MessageHistoryPagination.test.ts",
                         "src/api/util/utility/MessageNotifications.test.ts",
