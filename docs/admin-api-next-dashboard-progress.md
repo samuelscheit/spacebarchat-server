@@ -522,7 +522,7 @@ Next step:
 
 ## 2026-05-07 21:44 CEST - PR Packaging
 
-Status: blocked
+Status: complete
 
 Changed files:
 - `docs/admin-api-next-dashboard-progress.md`
@@ -531,6 +531,7 @@ What changed:
 - Started packaging the completed admin API and dashboard implementation for a pull request.
 - Committed the implementation as `0ac01c0d8 Add TypeScript admin API and dashboard`.
 - Pushed branch `admin-api-next-dashboard-plan` to `https://github.com/samuelscheit2/spacebarchat-server`.
+- Created PR `https://github.com/samuelscheit2/spacebarchat-server/pull/182`.
 
 Verification:
 - Command: `git commit -m "Add TypeScript admin API and dashboard"`
@@ -540,11 +541,11 @@ Verification:
 - Result: pass
 - Notes: Branch now tracks `samuelscheit2/admin-api-next-dashboard-plan`.
 - Command: `gh pr create --repo samuelscheit2/spacebarchat-server --head admin-api-next-dashboard-plan --base master --title "Add TypeScript admin API and dashboard" --body-file -`
-- Result: blocked
-- Notes: GitHub returned `GraphQL: Resource not accessible by personal access token (createPullRequest)`.
+- Result: pass
+- Notes: Created PR `https://github.com/samuelscheit2/spacebarchat-server/pull/182` after GitHub token permissions were updated.
 
 Risks or blockers:
-- The local GitHub token can push to `samuelscheit2/spacebarchat-server` but cannot create pull requests.
+- None for PR packaging.
 
 Next step:
-- Create the PR in `samuelscheit2/spacebarchat-server` with a token that has pull request write access, or open `https://github.com/samuelscheit2/spacebarchat-server/compare/master...admin-api-next-dashboard-plan?expand=1` in a browser.
+- Review PR `https://github.com/samuelscheit2/spacebarchat-server/pull/182`.
