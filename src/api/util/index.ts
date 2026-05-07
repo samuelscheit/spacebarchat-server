@@ -30,6 +30,7 @@ export * from "./utility/RandomInviteID";
 export * from "./utility/ApplicationAuthorization";
 export * from "./utility/ApplicationCommands";
 export * from "./utility/Relationships";
+export * from "./utility/WebAuthn";
 export * from "./handlers/route";
 export * from "./handlers/StageInstance";
 export * from "./utility/String";

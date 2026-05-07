@@ -16,22 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createTokenResponse, route } from "@spacebar/api";
-import { SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import {
+    buildWebAuthnAssertionExpectations,
+    createTokenResponse,
+    isWebAuthnTicketForUser,
+    parseWebAuthnCredentialResponse,
+    route,
+    webAuthnLoginMfaSecurityKeyLookup,
+} from "@spacebar/api";
+import { isWebAuthnTicketPayload, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { ExpectedAssertionResult } from "fido2-lib";
 import { HTTPError } from "lambert-server";
 import { WebAuthnTotpSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
-
-function toArrayBuffer(buf: Buffer) {
-    const ab = new ArrayBuffer(buf.length);
-    const view = new Uint8Array(ab);
-    for (let i = 0; i < buf.length; ++i) {
-        view[i] = buf[i];
-    }
-    return ab;
-}
 
 router.post(
     "/",
@@ -58,38 +55,37 @@ router.post(
             select: { id: true },
         });
 
-        const ret = await verifyWebAuthnToken(ticket);
-        if (!ret) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        let verified: unknown;
+        try {
+            verified = await verifyWebAuthnToken(ticket);
+        } catch {
+            throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        }
 
-        await User.update({ id: user.id }, { totp_last_ticket: "" });
+        if (!isWebAuthnTicketPayload(verified) || !isWebAuthnTicketForUser(verified, user.id, "login_mfa")) {
+            throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        }
 
-        const clientAttestationResponse = JSON.parse(code);
+        const parsedCredential = parseWebAuthnCredentialResponse(code);
+        if (!parsedCredential) throw new HTTPError("Missing rawId", 400);
 
-        if (!clientAttestationResponse.rawId) throw new HTTPError("Missing rawId", 400);
-
-        clientAttestationResponse.rawId = toArrayBuffer(Buffer.from(clientAttestationResponse.rawId, "base64url"));
+        const securityKeyLookup = webAuthnLoginMfaSecurityKeyLookup(verified, user.id, parsedCredential.keyId);
+        if (!securityKeyLookup) {
+            throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        }
 
         const securityKey = await SecurityKey.findOneOrFail({
-            where: {
-                key_id: Buffer.from(clientAttestationResponse.rawId, "base64url").toString("base64"),
-            },
+            where: securityKeyLookup,
         });
 
-        const assertionExpectations: ExpectedAssertionResult = JSON.parse(Buffer.from(clientAttestationResponse.response.clientDataJSON, "base64").toString());
-
-        const authnResult = await WebAuthn.fido2.assertionResult(clientAttestationResponse, {
-            ...assertionExpectations,
-            factor: "second",
-            publicKey: securityKey.public_key,
-            prevCounter: securityKey.counter,
-            userHandle: securityKey.key_id,
-        });
+        const authnResult = await WebAuthn.fido2.assertionResult(parsedCredential.credential, buildWebAuthnAssertionExpectations(verified, securityKey));
 
         const counter = authnResult.authnrData.get("counter");
 
         securityKey.counter = counter;
 
         await securityKey.save();
+        await User.update({ id: user.id }, { totp_last_ticket: "" });
 
         return res.json(await createTokenResponse(user.id));
     },
