@@ -41,7 +41,7 @@ describe("message media permission route integration", () => {
         assertBefore(
             source,
             "assertMessagePayloadPermissions(req.permission!, { ...body.message, attachments: messageAttachments, uploadedFileCount: files.length });",
-            "Channel.createChannel(",
+            "Channel.createThreadChannel(",
         );
         assertBefore(
             source,

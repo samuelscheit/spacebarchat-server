@@ -318,11 +318,13 @@ export class Channel extends BaseClass {
             skipNameChecks?: boolean;
         },
     ): Promise<Channel> {
+        const threadId = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
+
         channel = {
             // set the default type to private
             type: ChannelType.GUILD_PRIVATE_THREAD,
             ...channel,
-            ...(!opts?.keepId && { id: Snowflake.generate() }),
+            id: threadId,
             created_at: new Date(),
             position: 0, // TODO:
             message_count: 0,
@@ -381,17 +383,7 @@ export class Channel extends BaseClass {
 
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
-        const member = {
-            id: thread.id,
-            user_id,
-            join_timestamp: new Date(),
-            muted: false,
-            mute_config: null,
-            flags: 0,
-        };
-        if (channel.member_count) channel.member_count++;
-
-        const threadMember = await OrmUtils.mergeDeep(new ThreadMember(), member).save();
+        const threadMember = await ThreadMember.createForUser(user_id, thread);
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
@@ -409,7 +401,7 @@ export class Channel extends BaseClass {
                         guild_id: channel.guild_id!, // TODO: is this the right fix?
                         id: thread.id,
                         member_count: channel.member_count ?? 0, //TODO: is this the right fix?
-                        added_members: [threadMember],
+                        added_members: [{ user_id, ...threadMember.toJSON() }],
                         removed_member_ids: [],
                     },
                     guild_id: channel.guild_id,

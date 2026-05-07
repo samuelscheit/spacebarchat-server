@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 396,
+        "totalEntries": 397,
         "byService": {
-            "api": 331,
+            "api": 332,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 371,
+            "http-route": 372,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 236,
+            "stateful-domain": 237,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -42,7 +42,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 15,
-            "route-class": 291,
+            "route-class": 292,
             "hot-path": 25,
             "none": 1,
             "cdn-hot-path": 41,
@@ -3866,7 +3866,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 160,
+            "line": 159,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3906,7 +3906,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 132,
+            "line": 131,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3947,7 +3947,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 158,
+            "line": 157,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3987,7 +3987,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 156,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4027,7 +4027,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 220,
+            "line": 219,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4067,7 +4067,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 101,
+            "line": 100,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4148,7 +4148,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 230,
+            "line": 228,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4241,7 +4241,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 297,
+            "line": 295,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7844,6 +7844,48 @@
                     400,
                     403,
                     404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/guilds/:guild_id/threads/active/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/threads/active/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/threads/active.ts",
+            "line": 8,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ActiveThreadsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    403
                 ],
                 "hasQuery": false
             },

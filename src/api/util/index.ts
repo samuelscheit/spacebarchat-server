@@ -17,6 +17,7 @@
 */
 
 export * from "./utility/Base64";
+export * from "./utility/ActiveThreads";
 export * from "./utility/AjvErrorFields";
 export * from "./utility/AttachmentRefresh";
 export * from "./utility/DiscoverableGuildCategories";

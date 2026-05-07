@@ -54,30 +54,28 @@ router.post(
         });
         const user = await User.findOneOrFail({ where: { id: req.user_id } });
 
-        const thread = await Channel.createChannel(
+        const thread = await Channel.createThreadChannel(
             {
                 id: message.id,
                 owner: user,
                 parent: channel,
                 guild: channel.guild,
-                member_count: 1,
-                message_count: 0,
-                total_message_sent: 0,
                 name: body.name,
+                parent_id: channel.id,
                 guild_id: channel.guild_id,
                 rate_limit_per_user: body.rate_limit_per_user,
                 type: channel.type === ChannelType.GUILD_NEWS ? ChannelType.GUILD_NEWS_THREAD : ChannelType.GUILD_PUBLIC_THREAD,
                 recipients: [],
-                thread_metadata: {
-                    archived: false,
-                    auto_archive_duration: body.auto_archive_duration || channel.default_auto_archive_duration || 4320,
-                    archive_timestamp: new Date().toISOString(),
-                    locked: false,
-                    create_timestamp: new Date().toISOString(),
-                },
             },
-            void 0,
-            { skipPermissionCheck: true, keepId: true, skipEventEmit: true },
+            {
+                archived: false,
+                auto_archive_duration: body.auto_archive_duration || channel.default_auto_archive_duration || 4320,
+                archive_timestamp: new Date().toISOString(),
+                locked: false,
+                create_timestamp: new Date().toISOString(),
+            },
+            req.user_id,
+            { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
         );
 
         message.thread = thread;
