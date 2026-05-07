@@ -27,7 +27,7 @@ import { Guild } from "./Guild";
 import { Message } from "./Message";
 import { Role } from "./Role";
 import { User } from "./User";
-import { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicMember, PublicMemberProjection, UserGuildSettings } from "@spacebar/schemas";
+import { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicMember, PublicMemberProjection, PublicUserProjection, UserGuildSettings } from "@spacebar/schemas";
 
 export const MemberPrivateProjection: (keyof Member)[] = [
     "id",
@@ -219,7 +219,10 @@ export class Member extends BaseClassWithoutId {
                 where: { id: user_id, guild_id },
                 relations: { user: true, roles: true }, // we don't want to load  the role objects just the ids
                 select: {
+                    id: true,
                     index: true,
+                    guild_id: true,
+                    user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
                     roles: {
                         id: true,
                     },
@@ -252,7 +255,10 @@ export class Member extends BaseClassWithoutId {
                 where: { id: user_id, guild_id },
                 relations: { user: true, roles: true }, // we don't want to load  the role objects just the ids
                 select: {
+                    id: true,
                     index: true,
+                    guild_id: true,
+                    user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
                     roles: {
                         id: true,
                     },
