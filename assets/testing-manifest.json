@@ -5238,8 +5238,12 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "AuditLogResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "coverage": {

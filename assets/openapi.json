@@ -5007,6 +5007,81 @@
                     "type"
                 ]
             },
+            "AuditLogResponse": {
+                "type": "object",
+                "properties": {
+                    "application_commands": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "audit_log_entries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditLogEntry"
+                        }
+                    },
+                    "auto_moderation_rules": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "guild_scheduled_events": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "integrations": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "threads": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicUser"
+                        }
+                    },
+                    "webhooks": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    }
+                },
+                "required": [
+                    "application_commands",
+                    "audit_log_entries",
+                    "auto_moderation_rules",
+                    "guild_scheduled_events",
+                    "integrations",
+                    "threads",
+                    "users",
+                    "webhooks"
+                ]
+            },
             "GuildProfileResponse": {
                 "type": "object",
                 "properties": {
@@ -17630,6 +17705,343 @@
                     }
                 }
             },
+            "AuditLogEntry": {
+                "type": "object",
+                "properties": {
+                    "target_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "changes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditLogChange"
+                        }
+                    },
+                    "user_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "action_type": {
+                        "$ref": "#/components/schemas/AuditLogEvents"
+                    },
+                    "options": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "action_type",
+                    "id"
+                ]
+            },
+            "AuditLogChange": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/AuditLogGenericChange"
+                    },
+                    {
+                        "$ref": "#/components/schemas/AuditLogPartialRoleChange"
+                    },
+                    {
+                        "$ref": "#/components/schemas/AuditLogApplicationCommandPermissionChange"
+                    }
+                ]
+            },
+            "AuditLogGenericChange": {
+                "type": "object",
+                "properties": {
+                    "new_value": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ChannelPermissionOverwrite"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/AuditLogJsonValue"
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/components/schemas/AuditLogJsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "integer",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
+                    "old_value": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/ChannelPermissionOverwrite"
+                                }
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/AuditLogJsonValue"
+                                }
+                            },
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/components/schemas/AuditLogJsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "integer",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
+                    "key": {
+                        "description": "Discord reserves \"$add\" and \"$remove\" for role changes, and numeric keys for\napplication command permission changes. Keep those out of the generic branch\nso they validate against their stricter value shapes.",
+                        "pattern": "^(?!(?:\\$add|\\$remove|\\d+)$).+$",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "key"
+                ]
+            },
+            "AuditLogJsonValue": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditLogJsonValue"
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/AuditLogJsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "integer",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
+            "AuditLogPartialRoleChange": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "enum": [
+                            "$add",
+                            "$remove"
+                        ],
+                        "type": "string"
+                    },
+                    "new_value": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditLogPartialRole"
+                        }
+                    },
+                    "old_value": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AuditLogPartialRole"
+                        }
+                    }
+                },
+                "required": [
+                    "key"
+                ]
+            },
+            "AuditLogPartialRole": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "AuditLogApplicationCommandPermissionChange": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "pattern": "^\\d+$",
+                        "type": "string"
+                    },
+                    "new_value": {
+                        "$ref": "#/components/schemas/AuditLogApplicationCommandPermissionValue"
+                    },
+                    "old_value": {
+                        "$ref": "#/components/schemas/AuditLogApplicationCommandPermissionValue"
+                    }
+                },
+                "required": [
+                    "key"
+                ]
+            },
+            "AuditLogApplicationCommandPermissionValue": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "permission": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id",
+                    "permission",
+                    "type"
+                ]
+            },
+            "AuditLogEvents": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    20,
+                    21,
+                    22,
+                    23,
+                    24,
+                    25,
+                    26,
+                    27,
+                    28,
+                    30,
+                    31,
+                    32,
+                    33,
+                    40,
+                    41,
+                    42,
+                    50,
+                    51,
+                    52,
+                    53,
+                    60,
+                    61,
+                    62,
+                    63,
+                    70,
+                    71,
+                    72,
+                    73,
+                    74,
+                    75,
+                    80,
+                    81,
+                    82,
+                    83,
+                    84,
+                    85,
+                    90,
+                    91,
+                    92,
+                    93,
+                    100,
+                    101,
+                    102,
+                    110,
+                    111,
+                    112,
+                    121,
+                    130,
+                    131,
+                    132,
+                    140,
+                    141,
+                    142,
+                    143,
+                    144,
+                    145,
+                    146,
+                    150,
+                    151,
+                    163,
+                    164,
+                    165,
+                    166,
+                    167,
+                    190,
+                    191,
+                    192,
+                    193,
+                    216,
+                    223,
+                    224,
+                    225,
+                    226
+                ]
+            },
             "GameActivity": {
                 "type": "object",
                 "properties": {
@@ -27535,8 +27947,15 @@
                     }
                 ],
                 "responses": {
-                    "default": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuditLogResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

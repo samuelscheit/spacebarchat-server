@@ -5653,6 +5653,83 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "AuditLogResponse": {
+        "type": "object",
+        "properties": {
+            "application_commands": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                }
+            },
+            "audit_log_entries": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/AuditLogEntry"
+                }
+            },
+            "auto_moderation_rules": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                }
+            },
+            "guild_scheduled_events": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                }
+            },
+            "integrations": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                }
+            },
+            "threads": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                }
+            },
+            "users": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PublicUser"
+                }
+            },
+            "webhooks": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_commands",
+            "audit_log_entries",
+            "auto_moderation_rules",
+            "guild_scheduled_events",
+            "integrations",
+            "threads",
+            "users",
+            "webhooks"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildProfileResponse": {
         "type": "object",
         "properties": {
@@ -19077,6 +19154,358 @@
             }
         },
         "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogEntry": {
+        "type": "object",
+        "properties": {
+            "target_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "changes": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/AuditLogChange"
+                }
+            },
+            "user_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "action_type": {
+                "$ref": "#/definitions/AuditLogEvents"
+            },
+            "options": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "reason": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "action_type",
+            "id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogChange": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/AuditLogGenericChange"
+            },
+            {
+                "$ref": "#/definitions/AuditLogPartialRoleChange"
+            },
+            {
+                "$ref": "#/definitions/AuditLogApplicationCommandPermissionChange"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogGenericChange": {
+        "type": "object",
+        "properties": {
+            "new_value": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/ChannelPermissionOverwrite"
+                        }
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/AuditLogJsonValue"
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/definitions/AuditLogJsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "integer",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
+            "old_value": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/ChannelPermissionOverwrite"
+                        }
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/AuditLogJsonValue"
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/definitions/AuditLogJsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "integer",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
+            "key": {
+                "description": "Discord reserves \"$add\" and \"$remove\" for role changes, and numeric keys for\napplication command permission changes. Keep those out of the generic branch\nso they validate against their stricter value shapes.",
+                "pattern": "^(?!(?:\\$add|\\$remove|\\d+)$).+$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogJsonValue": {
+        "anyOf": [
+            {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/AuditLogJsonValue"
+                }
+            },
+            {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/AuditLogJsonValue"
+                }
+            },
+            {
+                "type": [
+                    "null",
+                    "string",
+                    "integer",
+                    "boolean"
+                ]
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogPartialRoleChange": {
+        "type": "object",
+        "properties": {
+            "key": {
+                "enum": [
+                    "$add",
+                    "$remove"
+                ],
+                "type": "string"
+            },
+            "new_value": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/AuditLogPartialRole"
+                }
+            },
+            "old_value": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/AuditLogPartialRole"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogPartialRole": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogApplicationCommandPermissionChange": {
+        "type": "object",
+        "properties": {
+            "key": {
+                "pattern": "^\\d+$",
+                "type": "string"
+            },
+            "new_value": {
+                "$ref": "#/definitions/AuditLogApplicationCommandPermissionValue"
+            },
+            "old_value": {
+                "$ref": "#/definitions/AuditLogApplicationCommandPermissionValue"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogApplicationCommandPermissionValue": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "permission": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "permission",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuditLogEvents": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            30,
+            31,
+            32,
+            33,
+            40,
+            41,
+            42,
+            50,
+            51,
+            52,
+            53,
+            60,
+            61,
+            62,
+            63,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            90,
+            91,
+            92,
+            93,
+            100,
+            101,
+            102,
+            110,
+            111,
+            112,
+            121,
+            130,
+            131,
+            132,
+            140,
+            141,
+            142,
+            143,
+            144,
+            145,
+            146,
+            150,
+            151,
+            163,
+            164,
+            165,
+            166,
+            167,
+            190,
+            191,
+            192,
+            193,
+            216,
+            223,
+            224,
+            225,
+            226
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "GameActivity": {

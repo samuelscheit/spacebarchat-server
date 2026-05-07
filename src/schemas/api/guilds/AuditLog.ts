@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelPermissionOverwrite } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, PublicUser, Snowflake, StringStringDictionary } from "@spacebar/schemas";
 
 export enum AuditLogEvents {
     // guild level
@@ -87,17 +87,43 @@ export enum AuditLogEvents {
     STICKER_UPDATE = 91,
     STICKER_DELETE = 92,
     STICKER_SWAP = 93,
+    // guild scheduled events
+    GUILD_SCHEDULED_EVENT_CREATE = 100,
+    GUILD_SCHEDULED_EVENT_UPDATE = 101,
+    GUILD_SCHEDULED_EVENT_DELETE = 102,
     // threads
     THREAD_CREATE = 110,
     THREAD_UPDATE = 111,
     THREAD_DELETE = 112,
     // application commands
     APPLICATION_COMMAND_PERMISSION_UPDATE = 121,
-    // automod
+    // soundboard
+    SOUNDBOARD_SOUND_CREATE = 130,
+    SOUNDBOARD_SOUND_UPDATE = 131,
+    SOUNDBOARD_SOUND_DELETE = 132,
+    // automod; Spacebar policy names mirror Discord auto moderation rule/block events
     POLICY_CREATE = 140,
     POLICY_UPDATE = 141,
     POLICY_DELETE = 142,
     MESSAGE_BLOCKED_BY_POLICIES = 143, // in spacebar, blocked messages are stealth-dropped
+    AUTO_MODERATION_FLAG_TO_CHANNEL = 144,
+    AUTO_MODERATION_USER_COMMUNICATION_DISABLED = 145,
+    AUTO_MODERATION_QUARANTINE_USER = 146,
+    // creator monetization
+    CREATOR_MONETIZATION_REQUEST_CREATED = 150,
+    CREATOR_MONETIZATION_TERMS_ACCEPTED = 151,
+    // onboarding
+    ONBOARDING_PROMPT_CREATE = 163,
+    ONBOARDING_PROMPT_UPDATE = 164,
+    ONBOARDING_PROMPT_DELETE = 165,
+    ONBOARDING_CREATE = 166,
+    ONBOARDING_UPDATE = 167,
+    // server guide
+    HOME_SETTINGS_CREATE = 190,
+    HOME_SETTINGS_UPDATE = 191,
+    // voice channel status
+    VOICE_CHANNEL_STATUS_UPDATE = 192,
+    VOICE_CHANNEL_STATUS_DELETE = 193,
     // instance policies affecting the guild
     GUILD_AFFECTED_BY_POLICIES = 216,
     // message moves
@@ -108,65 +134,72 @@ export enum AuditLogEvents {
     ROUTE_UPDATE = 226,
 }
 
-export interface AuditLogChange {
-    new_value?: AuditLogChangeValue;
-    old_value?: AuditLogChangeValue;
-    key: string;
+export interface AuditLogResponse {
+    application_commands: object[];
+    audit_log_entries: AuditLogEntry[];
+    auto_moderation_rules: object[];
+    guild_scheduled_events: object[];
+    integrations: object[];
+    threads: object[];
+    users: PublicUser[];
+    webhooks: object[];
 }
 
-export interface AuditLogChangeValue {
-    name?: string;
-    description?: string;
-    icon_hash?: string;
-    splash_hash?: string;
-    discovery_splash_hash?: string;
-    banner_hash?: string;
-    owner_id?: string;
-    region?: string;
-    preferred_locale?: string;
-    afk_channel_id?: string;
-    afk_timeout?: number;
-    rules_channel_id?: string;
-    public_updates_channel_id?: string;
-    mfa_level?: number;
-    verification_level?: number;
-    explicit_content_filter?: number;
-    default_message_notifications?: number;
-    vanity_url_code?: string;
-    $add?: object[]; // TODO: These types are bad.
-    $remove?: object[];
-    prune_delete_days?: number;
-    widget_enabled?: boolean;
-    widget_channel_id?: string;
-    system_channel_id?: string;
-    position?: number;
-    topic?: string;
-    bitrate?: number;
-    permission_overwrites?: ChannelPermissionOverwrite[];
-    nsfw?: boolean;
-    application_id?: string;
-    rate_limit_per_user?: number;
-    permissions?: string;
-    color?: number;
-    hoist?: boolean;
-    mentionable?: boolean;
-    allow?: string;
-    deny?: string;
-    code?: string;
-    channel_id?: string;
-    inviter_id?: string;
-    max_uses?: number;
-    uses?: number;
-    max_age?: number;
-    temporary?: boolean;
-    deaf?: boolean;
-    mute?: boolean;
-    nick?: string;
-    avatar_hash?: string;
-    id?: string;
-    type?: number;
-    enable_emoticons?: boolean;
-    expire_behavior?: number;
-    expire_grace_period?: number;
-    user_limit?: number;
+export interface AuditLogEntry {
+    target_id?: string | null;
+    changes?: AuditLogChange[];
+    user_id?: Snowflake | null;
+    id: Snowflake;
+    action_type: AuditLogEvents;
+    options?: StringStringDictionary;
+    reason?: string;
+}
+
+export type AuditLogChange = AuditLogGenericChange | AuditLogPartialRoleChange | AuditLogApplicationCommandPermissionChange;
+
+/**
+ * Discord reserves "$add" and "$remove" for role changes, and numeric keys for
+ * application command permission changes. Keep those out of the generic branch
+ * so they validate against their stricter value shapes.
+ *
+ * @TJS-pattern ^(?!(?:\$add|\$remove|\d+)$).+$
+ */
+export type AuditLogGenericChangeKey = string;
+
+/**
+ * @TJS-pattern ^\d+$
+ */
+export type AuditLogApplicationCommandPermissionKey = string;
+
+export interface AuditLogGenericChange {
+    new_value?: AuditLogGenericChangeValue;
+    old_value?: AuditLogGenericChangeValue;
+    key: AuditLogGenericChangeKey;
+}
+
+export interface AuditLogPartialRoleChange {
+    key: "$add" | "$remove";
+    new_value?: AuditLogPartialRole[];
+    old_value?: AuditLogPartialRole[];
+}
+
+export interface AuditLogApplicationCommandPermissionChange {
+    key: AuditLogApplicationCommandPermissionKey;
+    new_value?: AuditLogApplicationCommandPermissionValue;
+    old_value?: AuditLogApplicationCommandPermissionValue;
+}
+
+export type AuditLogGenericChangeValue = string | number | boolean | null | Snowflake[] | ChannelPermissionOverwrite[] | AuditLogJsonValue;
+
+export type AuditLogJsonValue = string | number | boolean | null | AuditLogJsonValue[] | { [key: string]: AuditLogJsonValue };
+
+export interface AuditLogPartialRole {
+    id: Snowflake;
+    name: string;
+}
+
+export interface AuditLogApplicationCommandPermissionValue {
+    id: Snowflake;
+    type: number;
+    permission: boolean;
 }
