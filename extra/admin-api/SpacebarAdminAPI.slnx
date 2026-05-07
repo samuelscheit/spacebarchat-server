@@ -40,6 +40,7 @@
         <Project Path="Tests/Spacebar.Models.Config.Tests/Spacebar.Models.Config.Tests.csproj"/>
         <Project Path="Tests/Spacebar.Models.Db.Tests/Spacebar.Models.Db.Tests.csproj"/>
         <Project Path="Tests/Spacebar.Models.Generic.Tests/Spacebar.Models.Generic.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Models.Gateway.Tests/Spacebar.Models.Gateway.Tests.csproj"/>
         <Project Path="Tests/Spacebar.UApi.Tests/Spacebar.UApi.Tests.csproj"/>
     </Folder>
     <Project Path="Spacebar.AdminApi/Spacebar.AdminApi.csproj"/>
