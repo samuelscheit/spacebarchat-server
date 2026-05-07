@@ -1,18 +1,20 @@
 import { forceJoinGuild } from "../../../actions";
-import { CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../../components";
+import { ActionResultBanner, CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, ReturnToField, StatusPill } from "../../../components";
 import { safeAdminFetch } from "../../../lib/admin-api";
 import type { AdminGuild } from "../../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function GuildDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function GuildDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ actionSuccess?: string; actionError?: string }> }) {
     const { id } = await params;
+    const actionParams = await searchParams;
     const guild = await safeAdminFetch<AdminGuild>(`/guilds/${id}`);
 
     return (
         <>
             <PageHeader title={guild.data ? guild.data.name : "Guild"} description={id} />
             <ErrorBanner message={guild.error} />
+            <ActionResultBanner success={actionParams.actionSuccess} error={actionParams.actionError} />
             {guild.data ? (
                 <div className="grid two">
                     <Panel title="Guild State">
@@ -40,6 +42,7 @@ export default async function GuildDetailPage({ params }: { params: Promise<{ id
                     </Panel>
                     <Panel title="Force Join">
                         <form action={forceJoinGuild} className="panel-body grid">
+                            <ReturnToField value={`/guilds/${id}`} />
                             <input type="hidden" name="guildId" value={id} />
                             <input name="userId" placeholder="User ID; blank uses current operator" />
                             <div className="inline-form">

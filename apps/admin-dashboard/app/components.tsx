@@ -132,6 +132,25 @@ export function ErrorBanner({ message }: { message: string | null }) {
     );
 }
 
+export function ActionResultBanner({ success, error }: { success?: string; error?: string }) {
+    const message = error || success;
+    if (!message) return null;
+
+    const failed = Boolean(error);
+    const Icon = failed ? BadgeAlert : CheckCircle2;
+
+    return (
+        <div className={`action-banner ${failed ? "action-banner-error" : "action-banner-success"}`}>
+            <Icon size={16} />
+            <span>{message}</span>
+        </div>
+    );
+}
+
+export function ReturnToField({ value }: { value: string }) {
+    return <input type="hidden" name="returnTo" value={value} />;
+}
+
 export function SearchForm({ defaultValue, placeholder = "Search" }: { defaultValue?: string; placeholder?: string }) {
     return (
         <form className="search-form">

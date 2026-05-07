@@ -346,3 +346,89 @@ Risks or blockers:
 Next step:
 
 - Run the completion audit against `docs/admin-api-next-dashboard-plan.md` before deciding whether any Feature Track 4 operation polish remains.
+
+## 2026-05-07 22:50 CEST - Completion Audit Feature Track 4 Fixes
+
+Status: complete
+
+Changed files:
+
+- `.github/pull_request_template.md`
+- `apps/admin-dashboard/app/(dashboard)/activity/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/channels/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/configuration/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/discovery/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/guilds/[id]/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/jobs/[id]/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/jobs/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/media/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/users/[id]/page.tsx`
+- `apps/admin-dashboard/app/(dashboard)/users/page.tsx`
+- `apps/admin-dashboard/app/actions.ts`
+- `apps/admin-dashboard/app/components.tsx`
+- `apps/admin-dashboard/app/configuration-editor.tsx`
+- `apps/admin-dashboard/app/globals.css`
+- `docs/admin-api-next-dashboard-progress.md`
+- `docs/admin-dashboard-deployment.md`
+- `scripts/smoke-admin-dashboard-e2e.mjs`
+- `scripts/test-admin-destructive-operations.mjs`
+- `src/admin/destructiveOperations.test.ts`
+
+What changed:
+
+- Started the required completion audit against `docs/admin-api-next-dashboard-plan.md`.
+- Found incomplete Feature Track 4 evidence in the current dashboard implementation:
+  - Activity page only showed a table plus a recent payload dump, not per-record detail or expandable metadata/related job rows.
+  - Server actions revalidated pages but did not surface success or failure results in-page.
+  - Configuration editing used a raw textarea without client-side JSON validation, formatting, or diff/preview before save.
+  - Media job forms hid `missingLimit` instead of exposing it intentionally.
+- Added dashboard action-result redirects and shared banners so server-action success and failure states are visible on the page that submitted the action.
+- Added hidden `returnTo` fields to mutation forms so action result banners preserve the operator's current dashboard page and query state.
+- Added a client-side configuration editor with JSON validation, a formatting action, parsed preview, and a path-level diff before save.
+- Added expandable activity rows with per-record metadata and related job links.
+- Exposed media fsck and migration `missingLimit` as intentional numeric controls while keeping migration dry-run and force controls visible.
+- Extended the browser e2e smoke to assert a failed media action banner and a successful safe dry-run media job banner.
+- Found another Feature Track 6 audit gap: destructive operation DB/event side effects were only covered by a monkeypatched helper test, not a real database integration gate.
+- Added `test:admin-destructive-operations`, which creates a temporary Postgres database, deletes a real guild category through the admin mutation helper, and asserts row deletion, child detachment, guild ordering updates, and emitted events.
+- Documented the new destructive-operation database gate and added it to the admin dashboard PR checklist.
+
+Verification:
+
+- Command: `npm run build`
+- Result: pass
+- Notes: Full backend build, schema generation, and OpenAPI generation completed. The generator reported existing route/response-schema warnings but exited successfully.
+- Command: `npm run build:src -- --force`
+- Result: pass
+- Notes: Forced rebuild emitted the new destructive-operation integration test after the incremental compiler initially skipped the new file.
+- Command: `npm run build:src`
+- Result: pass
+- Notes: Normal backend TypeScript build passed from the current worktree.
+- Command: `node -r dotenv/config -r module-alias/register --enable-source-maps --test dist/admin/audit.test.js dist/admin/cdnJobs.test.js dist/admin/jobs.test.js dist/admin/mutations.test.js`
+- Result: pass
+- Notes: 16 focused admin tests passed.
+- Command: `npm run test:admin-durable-storage`
+- Result: pass
+- Notes: 2 Postgres durable-storage tests passed.
+- Command: `npm run test:admin-destructive-operations`
+- Result: pass
+- Notes: 1 Postgres destructive-operation integration test passed.
+- Command: `npm run build:admin-dashboard`
+- Result: pass
+- Notes: Next.js production build passed after the dashboard operation UX changes.
+- Command: `npm run test:admin-dashboard-actions`
+- Result: pass
+- Notes: 3 dashboard action request tests passed.
+- Command: `npm run smoke:admin-dashboard:e2e`
+- Result: pass
+- Notes: Browser e2e passed and wrote screenshots under `tmp/admin-dashboard-e2e`, including failed and successful media action states.
+- Command: `npm run lint`
+- Result: pass
+- Notes: Re-run after `npm run build` also passed.
+
+Risks or blockers:
+
+- The local branch currently contains a pre-existing merge commit from `samuelscheit2/master` and an unrelated `node-modules.nix` worktree modification. They were not part of this audit fix and were not reverted.
+
+Next step:
+
+- Finish the prompt-to-artifact completion audit before marking the plan complete.

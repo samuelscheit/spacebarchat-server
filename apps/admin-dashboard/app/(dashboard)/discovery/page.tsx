@@ -1,19 +1,21 @@
 import { updateDiscoveryGuild } from "../../actions";
-import { ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
+import { ActionResultBanner, ErrorBanner, PageHeader, PaginationControls, Panel, ReturnToField, SearchForm, StatusPill } from "../../components";
 import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminGuildListItem, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function DiscoveryPage({ searchParams }: { searchParams: Promise<{ q?: string; offset?: string }> }) {
+export default async function DiscoveryPage({ searchParams }: { searchParams: Promise<{ q?: string; offset?: string; actionSuccess?: string; actionError?: string }> }) {
     const params = await searchParams;
     const offset = parseOffsetParam(params.offset);
+    const returnTo = `/discovery${queryString({ q: params.q, offset })}`;
     const guilds = await safeAdminFetch<PageResult<AdminGuildListItem>>(`/discovery/guilds${queryString({ q: params.q, include_excluded: true, limit: 50, offset })}`);
 
     return (
         <>
             <PageHeader title="Discovery" description="Rank and exclude discoverable guilds without editing raw entity records." />
             <ErrorBanner message={guilds.error} />
+            <ActionResultBanner success={params.actionSuccess} error={params.actionError} />
             <SearchForm defaultValue={params.q} placeholder="Search discoverable guilds" />
             <Panel title={`Discoverable Guilds${guilds.data ? ` · ${guilds.data.pagination.total}` : ""}`}>
                 <table>
@@ -38,6 +40,7 @@ export default async function DiscoveryPage({ searchParams }: { searchParams: Pr
                                 </td>
                                 <td>
                                     <form action={updateDiscoveryGuild} className="inline-form">
+                                        <ReturnToField value={returnTo} />
                                         <input type="hidden" name="guildId" value={guild.id} />
                                         <input name="discoveryWeight" type="number" defaultValue={guild.discoveryWeight} aria-label="Discovery weight" />
                                         <label className="status-pill status-neutral">

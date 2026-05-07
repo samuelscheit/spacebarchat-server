@@ -9,6 +9,7 @@
 - [ ] Focused backend tests for touched admin modules
 - [ ] `npm run test:admin-dashboard-actions` when dashboard server actions or mutation forms change
 - [ ] `npm run test:admin-durable-storage` when admin job/audit persistence changes
+- [ ] `npm run test:admin-destructive-operations` when destructive admin operations or their database/event side effects change
 - [ ] `npm run smoke:admin-dashboard` when dashboard deployment or health behavior changes
 - [ ] `npm run smoke:admin-dashboard:e2e` when dashboard navigation, auth, jobs, media actions, or layout changes
 

@@ -1,19 +1,21 @@
 import { cancelJob } from "../../actions";
-import { CodeBlock, ErrorBanner, PageHeader, PaginationControls, Panel, RowLink, SearchForm, StatusPill } from "../../components";
+import { ActionResultBanner, CodeBlock, ErrorBanner, PageHeader, PaginationControls, Panel, ReturnToField, RowLink, SearchForm, StatusPill } from "../../components";
 import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminJob, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function JobsPage({ searchParams }: { searchParams: Promise<{ q?: string; offset?: string }> }) {
+export default async function JobsPage({ searchParams }: { searchParams: Promise<{ q?: string; offset?: string; actionSuccess?: string; actionError?: string }> }) {
     const params = await searchParams;
     const offset = parseOffsetParam(params.offset);
+    const returnTo = `/jobs${queryString({ q: params.q, offset })}`;
     const jobs = await safeAdminFetch<PageResult<AdminJob>>(`/jobs${queryString({ q: params.q, limit: 50, offset })}`);
 
     return (
         <>
             <PageHeader title="Jobs" description="Track destructive and long-running admin work with progress, errors, and cancellation requests." />
             <ErrorBanner message={jobs.error} />
+            <ActionResultBanner success={params.actionSuccess} error={params.actionError} />
             <SearchForm defaultValue={params.q} placeholder="Search job id, type, actor, or idempotency key" />
             <Panel title={`Job Queue${jobs.data ? ` · ${jobs.data.pagination.total}` : ""}`}>
                 <table>
@@ -48,6 +50,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
                                     <div className="row-actions">
                                         {job.status === "queued" || job.status === "running" ? (
                                             <form action={cancelJob}>
+                                                <ReturnToField value={returnTo} />
                                                 <input type="hidden" name="jobId" value={job.id} />
                                                 <button type="submit" className="secondary">
                                                     Cancel

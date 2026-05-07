@@ -1,15 +1,20 @@
 import { randomUUID } from "node:crypto";
 import { startCdnAttachmentFsck, startCdnAttachmentMigration } from "../../actions";
-import { DestructiveActionFields, ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
+import { ActionResultBanner, DestructiveActionFields, ErrorBanner, PageHeader, PaginationControls, Panel, ReturnToField, SearchForm, StatusPill } from "../../components";
 import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminAttachment, AdminSticker, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function MediaPage({ searchParams }: { searchParams: Promise<{ q?: string; userId?: string; stickersOffset?: string; attachmentsOffset?: string }> }) {
+export default async function MediaPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ q?: string; userId?: string; stickersOffset?: string; attachmentsOffset?: string; actionSuccess?: string; actionError?: string }>;
+}) {
     const params = await searchParams;
     const stickersOffset = parseOffsetParam(params.stickersOffset);
     const attachmentsOffset = parseOffsetParam(params.attachmentsOffset);
+    const returnTo = `/media${queryString({ q: params.q, userId: params.userId, stickersOffset, attachmentsOffset })}`;
     const [stickers, attachments] = await Promise.all([
         safeAdminFetch<PageResult<AdminSticker>>(`/media/stickers${queryString({ q: params.q, limit: 50, offset: stickersOffset })}`),
         params.userId
@@ -21,20 +26,29 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
         <>
             <PageHeader title="Media" description="Review stickers and media ownership without loading attachment graphs." />
             <ErrorBanner message={stickers.error ?? attachments.error} />
+            <ActionResultBanner success={params.actionSuccess} error={params.actionError} />
             <SearchForm defaultValue={params.q} placeholder="Search sticker id, name, guild, or user" />
             <div className="grid">
                 <Panel title="Attachment Jobs">
                     <div className="panel-body grid two">
                         <form action={startCdnAttachmentFsck} className="stack">
-                            <input type="hidden" name="missingLimit" value="50" />
+                            <ReturnToField value={returnTo} />
                             <input type="hidden" name="idempotencyKey" value={randomUUID()} />
+                            <label className="field-label">
+                                Missing limit
+                                <input name="missingLimit" type="number" min="1" max="10000" defaultValue="50" />
+                            </label>
                             <input name="reason" placeholder="Optional fsck reason" />
                             <button type="submit" className="secondary">
                                 Start Fsck
                             </button>
                         </form>
                         <form action={startCdnAttachmentMigration} className="stack">
-                            <input type="hidden" name="missingLimit" value="50" />
+                            <ReturnToField value={returnTo} />
+                            <label className="field-label">
+                                Missing limit
+                                <input name="missingLimit" type="number" min="1" max="10000" defaultValue="50" />
+                            </label>
                             <label className="check-row">
                                 <input type="checkbox" name="dryRun" defaultChecked />
                                 Dry run

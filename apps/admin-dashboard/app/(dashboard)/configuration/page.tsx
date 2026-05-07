@@ -1,11 +1,13 @@
 import { reloadConfiguration, updateConfiguration } from "../../actions";
-import { CodeBlock, DatabaseMode, DestructiveActionFields, ErrorBanner, PageHeader, Panel } from "../../components";
+import { ConfigurationEditor } from "../../configuration-editor";
+import { ActionResultBanner, CodeBlock, DatabaseMode, ErrorBanner, PageHeader, Panel, ReturnToField } from "../../components";
 import { safeAdminFetch } from "../../lib/admin-api";
 import type { AdminConfiguration } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function ConfigurationPage() {
+export default async function ConfigurationPage({ searchParams }: { searchParams: Promise<{ actionSuccess?: string; actionError?: string }> }) {
+    const params = await searchParams;
     const configuration = await safeAdminFetch<AdminConfiguration>("/configuration");
     const serialized = JSON.stringify(configuration.data?.values ?? {}, null, 2);
 
@@ -21,21 +23,19 @@ export default async function ConfigurationPage() {
                 }
             />
             <ErrorBanner message={configuration.error} />
-            <div className="grid two">
-                <Panel title="Editor">
-                    <form action={updateConfiguration} className="panel-body grid">
-                        <textarea name="configuration" defaultValue={serialized} spellCheck={false} />
-                        <DestructiveActionFields confirmation="SAVE CONFIGURATION" reasonPlaceholder="Configuration change reason" />
-                        <div className="row-actions">
-                            <button type="submit" disabled={configuration.data?.readonly}>
-                                Save Configuration
-                            </button>
-                        </div>
-                    </form>
-                </Panel>
+            <ActionResultBanner success={params.actionSuccess} error={params.actionError} />
+            <div className="grid">
+                <ConfigurationEditor
+                    action={updateConfiguration}
+                    initialText={serialized}
+                    initialValue={configuration.data?.values ?? {}}
+                    readonly={Boolean(configuration.data?.readonly)}
+                    returnTo="/configuration"
+                />
                 <Panel title="Runtime">
                     <div className="panel-body grid">
                         <form action={reloadConfiguration}>
+                            <ReturnToField value="/configuration" />
                             <button type="submit" className="secondary">
                                 Reload Configuration
                             </button>

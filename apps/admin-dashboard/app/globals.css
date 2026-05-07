@@ -322,6 +322,7 @@ td {
 .metric,
 .panel,
 .error-banner,
+.action-banner,
 .empty-state {
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -427,6 +428,26 @@ td {
     font-weight: 700;
 }
 
+.action-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.action-banner-success {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.action-banner-error {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
 .empty-state {
     display: grid;
     place-items: center;
@@ -519,6 +540,116 @@ td {
     font-weight: 650;
 }
 
+.field-label {
+    display: grid;
+    gap: 5px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 760;
+    text-transform: uppercase;
+}
+
+.validation-banner {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 9px 10px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.validation-ok {
+    border-color: #b6d7c5;
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.validation-error {
+    border-color: #e0b6b6;
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+.json-preview {
+    max-height: 300px;
+}
+
+.diff-list {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.diff-entry {
+    display: grid;
+    grid-template-columns: 82px minmax(130px, 0.5fr) minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+}
+
+.diff-entry strong {
+    text-transform: uppercase;
+}
+
+.diff-entry code,
+.diff-entry span {
+    overflow-wrap: anywhere;
+}
+
+.diff-added {
+    background: var(--green-soft);
+}
+
+.diff-changed {
+    background: var(--blue-soft);
+}
+
+.diff-removed {
+    background: var(--red-soft);
+}
+
+.empty-inline {
+    border: 1px dashed var(--line-strong);
+    border-radius: 6px;
+    padding: 14px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.activity-detail-row td {
+    padding-top: 0;
+    background: #fbfcfa;
+}
+
+.activity-detail-row details {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.activity-detail-row summary {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.activity-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.activity-related {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+}
+
 .code-block {
     max-height: 560px;
     margin: 0;
@@ -606,7 +737,8 @@ td {
 
     .metric-row,
     .grid.two,
-    .grid.three {
+    .grid.three,
+    .activity-detail-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -630,6 +762,10 @@ td {
     }
 
     .kv-list {
+        grid-template-columns: 1fr;
+    }
+
+    .diff-entry {
         grid-template-columns: 1fr;
     }
 }

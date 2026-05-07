@@ -1,12 +1,13 @@
 import { startUserDeletion } from "../../../actions";
-import { CodeBlock, DestructiveActionFields, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../../components";
+import { ActionResultBanner, CodeBlock, DestructiveActionFields, ErrorBanner, KeyValueList, PageHeader, Panel, ReturnToField, StatusPill } from "../../../components";
 import { safeAdminFetch } from "../../../lib/admin-api";
 import type { AdminUser } from "../../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function UserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function UserDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ actionSuccess?: string; actionError?: string }> }) {
     const { id } = await params;
+    const actionParams = await searchParams;
     const user = await safeAdminFetch<AdminUser>(`/users/${id}`);
 
     return (
@@ -16,6 +17,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
                 description={id}
                 action={
                     <form action={startUserDeletion} className="inline-form">
+                        <ReturnToField value={`/users/${id}`} />
                         <input type="hidden" name="userId" value={id} />
                         <label className="status-pill status-neutral">
                             <input type="checkbox" name="deleteMessages" defaultChecked />
@@ -29,6 +31,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
                 }
             />
             <ErrorBanner message={user.error} />
+            <ActionResultBanner success={actionParams.actionSuccess} error={actionParams.actionError} />
             {user.data ? (
                 <div className="grid two">
                     <Panel title="Profile">

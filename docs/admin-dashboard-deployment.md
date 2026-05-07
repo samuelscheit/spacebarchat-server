@@ -118,7 +118,7 @@ Run the browser e2e smoke after `npm run build:admin-dashboard`:
 npm run smoke:admin-dashboard:e2e
 ```
 
-The e2e smoke starts a mock admin API, starts the built dashboard, drives headless Chrome through login, users, jobs, and media, submits a safe dry-run attachment migration, and writes screenshots to `tmp/admin-dashboard-e2e` by default. Set `CHROME_PATH` if Chrome is not installed at the macOS default path, or `ADMIN_DASHBOARD_E2E_ARTIFACT_DIR` to change the screenshot output directory.
+The e2e smoke starts a mock admin API, starts the built dashboard, drives headless Chrome through login, users, jobs, and media, verifies failed and successful media action banners, submits a safe dry-run attachment migration, and writes screenshots to `tmp/admin-dashboard-e2e` by default. Set `CHROME_PATH` if Chrome is not installed at the macOS default path, or `ADMIN_DASHBOARD_E2E_ARTIFACT_DIR` to change the screenshot output directory.
 
 Run dashboard server-action request tests when mutation forms change:
 
@@ -138,7 +138,15 @@ Run the durable storage integration gate after `npm run build:src`:
 npm run test:admin-durable-storage
 ```
 
-The gate creates a temporary Postgres database, applies the admin job/audit migration, verifies persistence across a database reconnect, exercises idempotency, progress, failure, cancellation, and restart recovery, then drops the temporary database. Set `ADMIN_DURABLE_TEST_ADMIN_DATABASE_URL` if local Postgres is not available at `postgres://user:password@127.0.0.1:5432/postgres`.
+Run the destructive-operation database integration gate after `npm run build:src`:
+
+```sh
+npm run test:admin-destructive-operations
+```
+
+The durable-storage gate creates a temporary Postgres database, applies the admin job/audit migration, verifies persistence across a database reconnect, exercises idempotency, progress, failure, cancellation, and restart recovery, then drops the temporary database. Set `ADMIN_DURABLE_TEST_ADMIN_DATABASE_URL` if local Postgres is not available at `postgres://user:password@127.0.0.1:5432/postgres`.
+
+The destructive-operation gate creates a temporary Postgres database with synchronized entities, deletes a real guild category through the admin mutation helper, asserts row deletion, child detachment, guild ordering updates, and emitted events, then drops the temporary database. Set `ADMIN_DESTRUCTIVE_TEST_ADMIN_DATABASE_URL` to change the admin database used to create the temporary database.
 
 ## Admin Session Check
 

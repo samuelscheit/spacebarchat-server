@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Fragment } from "react";
 import { CodeBlock, ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
 import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminAuditRecord, PageResult } from "../../lib/types";
@@ -28,21 +30,51 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
                     </thead>
                     <tbody>
                         {(activity.data?.items ?? []).map((record) => (
-                            <tr key={record.id}>
-                                <td>{new Date(record.createdAt).toLocaleString()}</td>
-                                <td className="mono">{record.actorId}</td>
-                                <td>
-                                    <strong>{record.action}</strong>
-                                    <div className="mono">
-                                        {record.targetType}:{record.targetId}
-                                    </div>
-                                </td>
-                                <td>
-                                    <StatusPill value={record.status} />
-                                </td>
-                                <td className="hide-sm">{record.reason ?? "—"}</td>
-                                <td className="hide-sm">{record.severity}</td>
-                            </tr>
+                            <Fragment key={record.id}>
+                                <tr>
+                                    <td>{new Date(record.createdAt).toLocaleString()}</td>
+                                    <td className="mono">{record.actorId}</td>
+                                    <td>
+                                        <strong>{record.action}</strong>
+                                        <div className="mono">
+                                            {record.targetType}:{record.targetId}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <StatusPill value={record.status} />
+                                    </td>
+                                    <td className="hide-sm">{record.reason ?? "—"}</td>
+                                    <td className="hide-sm">{record.severity}</td>
+                                </tr>
+                                <tr className="activity-detail-row">
+                                    <td colSpan={6}>
+                                        <details>
+                                            <summary>Metadata and related job</summary>
+                                            <div className="activity-detail-grid">
+                                                <div className="activity-related">
+                                                    <span className="muted">Record</span>
+                                                    <strong className="mono">{record.id}</strong>
+                                                    <span className="muted">Related Job</span>
+                                                    {record.jobId ? (
+                                                        <Link href={`/jobs/${record.jobId}`} className="button secondary">
+                                                            {record.jobId}
+                                                        </Link>
+                                                    ) : (
+                                                        <span>None</span>
+                                                    )}
+                                                </div>
+                                                <CodeBlock
+                                                    value={{
+                                                        reason: record.reason,
+                                                        metadata: record.metadata,
+                                                        jobId: record.jobId,
+                                                    }}
+                                                />
+                                            </div>
+                                        </details>
+                                    </td>
+                                </tr>
+                            </Fragment>
                         ))}
                     </tbody>
                 </table>

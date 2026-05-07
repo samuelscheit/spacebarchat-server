@@ -1,12 +1,13 @@
 import { cancelJob } from "../../../actions";
-import { CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../../components";
+import { ActionResultBanner, CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, ReturnToField, StatusPill } from "../../../components";
 import { queryString, safeAdminFetch } from "../../../lib/admin-api";
 import type { AdminAuditRecord, AdminJob, PageResult } from "../../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function JobDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ actionSuccess?: string; actionError?: string }> }) {
     const { id } = await params;
+    const actionParams = await searchParams;
     const [job, activity] = await Promise.all([
         safeAdminFetch<AdminJob>(`/jobs/${id}`),
         safeAdminFetch<PageResult<AdminAuditRecord>>(`/activity${queryString({ q: id, limit: 20 })}`),
@@ -22,6 +23,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 action={
                     active ? (
                         <form action={cancelJob}>
+                            <ReturnToField value={`/jobs/${id}`} />
                             <input type="hidden" name="jobId" value={id} />
                             <button type="submit" className="secondary">
                                 Cancel
@@ -31,6 +33,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
                 }
             />
             <ErrorBanner message={job.error ?? activity.error} />
+            <ActionResultBanner success={actionParams.actionSuccess} error={actionParams.actionError} />
             {job.data ? (
                 <div className="grid two">
                     <Panel title="Job State">

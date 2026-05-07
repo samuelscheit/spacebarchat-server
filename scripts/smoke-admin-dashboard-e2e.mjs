@@ -206,6 +206,11 @@ function createMockAdminApi() {
 
             if (route === `${apiPath}/media/attachments/migrate` && req.method === "POST") {
                 const body = await readJson(req);
+                if (body.reason === "E2E failure smoke") {
+                    json(res, 400, { message: "E2E forced failure" });
+                    return;
+                }
+
                 if (body.dryRun !== true || body.force === true) {
                     json(res, 400, { message: "E2E migration must remain a dry run" });
                     return;
@@ -525,6 +530,24 @@ async function main() {
                 if (!form) throw new Error("Migration form not found");
                 form.querySelector('input[name="dryRun"]').checked = true;
                 form.querySelector('input[name="force"]').checked = false;
+                form.querySelector('input[name="reason"]').value = "E2E failure smoke";
+                form.querySelector('input[name="confirmation"]').value = "MIGRATE ATTACHMENTS";
+                form.requestSubmit();
+                return true;
+            })()`,
+        );
+        await waitForText(cdp, sessionId, "E2E forced failure");
+        await screenshot(cdp, sessionId, "05-media-failure");
+
+        await evaluate(
+            cdp,
+            sessionId,
+            `(() => {
+                const forms = Array.from(document.querySelectorAll("form"));
+                const form = forms.find((candidate) => candidate.innerText.includes("Start Migration"));
+                if (!form) throw new Error("Migration form not found");
+                form.querySelector('input[name="dryRun"]').checked = true;
+                form.querySelector('input[name="force"]').checked = false;
                 form.querySelector('input[name="reason"]').value = "E2E dry-run smoke";
                 form.querySelector('input[name="confirmation"]').value = "MIGRATE ATTACHMENTS";
                 form.requestSubmit();
@@ -535,11 +558,12 @@ async function main() {
         if (mockApi.dryRunMigrations[0].authorization !== `Bearer ${operatorToken}`) {
             throw new Error("Dashboard server action did not forward the admin authorization header");
         }
-        await screenshot(cdp, sessionId, "05-media");
+        await waitForText(cdp, sessionId, "Attachment migration job queued.");
+        await screenshot(cdp, sessionId, "06-media");
 
         await navigate(cdp, sessionId, `${dashboardUrl}/jobs`);
         await waitForText(cdp, sessionId, "cdn.attachments.migrate");
-        await screenshot(cdp, sessionId, "06-jobs-after");
+        await screenshot(cdp, sessionId, "07-jobs-after");
 
         console.log(`admin dashboard e2e ok: ${dashboardUrl}`);
         console.log(`screenshots: ${artifactDir}`);
