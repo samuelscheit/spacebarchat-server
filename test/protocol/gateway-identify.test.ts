@@ -3,9 +3,11 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, emitEvent, events, generateToken, initDatabase, User, type UserUpdateEvent } from "@spacebar/util";
+import { closeDatabase, emitEvent, events, generateToken, initDatabase, Snowflake, User, VoiceState, type UserUpdateEvent } from "@spacebar/util";
+import { ChannelType } from "@spacebar/schemas";
 import ws from "ws";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
+import { makeChannel, makeGuild } from "../fixtures/entities";
 import { startGateway } from "../server/startGateway";
 
 const coveredManifestIds = ["gateway:opcode:2:Identify"];
@@ -276,6 +278,116 @@ test(
     },
 );
 
+test(
+    "Gateway channel status and info requests dispatch real websocket responses",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const coveredChannelManifestIds = ["gateway:opcode:36", "gateway:opcode:43"];
+        assert.deepEqual(coveredChannelManifestIds, ["gateway:opcode:36", "gateway:opcode:43"]);
+
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_gateway_channel_info" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-gateway-channel-info-"));
+        const previous = snapshotProcessState();
+        let gateway: Awaited<ReturnType<typeof startGateway>> | undefined;
+        let client: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+            delete process.env.EVENT_TRANSMISSION;
+            delete process.env.EVENT_SOCKET_PATH;
+            delete process.env.RABBITMQ_HOST;
+
+            await initDatabase();
+            const suffix = `${process.pid}${Date.now()}`;
+            const user = await User.register({
+                username: `channelinfo${suffix.slice(-8)}`,
+                email: `channel-info-${suffix}@example.com`,
+                password: "gateway-password-fixture",
+            });
+            const token = await generateToken(user.id);
+            assert.equal(typeof token, "string");
+            if (!token) assert.fail("expected generated token");
+
+            const guild = await makeGuild(user, { id: Snowflake.generate(), name: "Gateway Channel Info Guild" }).save();
+            const voiceChannel = await makeChannel(guild, {
+                id: Snowflake.generate(),
+                name: "voice",
+                type: ChannelType.GUILD_VOICE,
+            }).save();
+            await VoiceState.create({
+                guild_id: guild.id,
+                channel_id: voiceChannel.id,
+                user_id: user.id,
+                session_id: `voice-${Snowflake.generate()}`,
+                token: `voice-token-${Snowflake.generate()}`,
+                deaf: false,
+                mute: false,
+                self_deaf: false,
+                self_mute: false,
+                self_video: false,
+                suppress: false,
+            }).save();
+
+            gateway = await startGateway();
+            client = await connectIdentifiedGatewayClient(gateway.url, token);
+            await readUntil(client, (payload) => payload.op === 0 && payload.t === "READY");
+
+            client.send(
+                JSON.stringify({
+                    op: 36,
+                    d: {
+                        guild_id: guild.id,
+                    },
+                }),
+            );
+
+            const statuses = await readUntil(client, (payload) => payload.op === 0 && payload.t === "CHANNEL_STATUSES");
+            assert.equal(typeof statuses.s, "number");
+            assert.deepEqual(statuses.d, {
+                guild_id: guild.id,
+                channels: [],
+            });
+
+            client.send(
+                JSON.stringify({
+                    op: 43,
+                    d: {
+                        guild_id: guild.id,
+                        fields: ["status", "voice_start_time"],
+                    },
+                }),
+            );
+
+            const info = await readUntil(client, (payload) => payload.op === 0 && payload.t === "CHANNEL_INFO");
+            const infoData = info.d as { guild_id: string; channels: Array<{ id: string; status: null; voice_start_time: string }> };
+            assert.equal(typeof info.s, "number");
+            assert.equal(info.s, (statuses.s ?? 0) + 1);
+            assert.equal(infoData.guild_id, guild.id);
+            assert.equal(infoData.channels.length, 1);
+            assert.equal(infoData.channels[0].id, voiceChannel.id);
+            assert.equal(infoData.channels[0].status, null);
+            assert.match(infoData.channels[0].voice_start_time, /^\d{4}-\d{2}-\d{2}T/);
+        } finally {
+            if (client) {
+                await closeClient(client);
+                await waitForCloseHandlers();
+            }
+            if (gateway) await gateway.stop();
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
 async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
@@ -300,7 +412,7 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string)
 }
 
 async function readUntil(client: ws, predicate: (payload: GatewayPayload) => boolean) {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
         const payload = await readJsonMessage(client);
         if (predicate(payload)) return payload;
     }

@@ -101,6 +101,24 @@ describe("Gateway Server transport", () => {
         }
     });
 
+    test("closes authenticated-only opcodes before identify over a real websocket", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            await readJsonMessage(client);
+
+            client.send(JSON.stringify({ op: OPCODES.Request_Channel_Statuses, d: { guild_id: "100000000000000001" } }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Not_authenticated);
+        } finally {
+            await closeGateway(server);
+        }
+    });
+
     test("closes bad opcodes over a real websocket", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });

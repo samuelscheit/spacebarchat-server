@@ -16,7 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES, Payload, WebSocket } from "@spacebar/gateway";
+import { CLOSECODES, OPCODES, type Payload } from "../util/Constants";
+import type { WebSocket } from "../util/WebSocket";
 // import { ErlpackType } from "@spacebar/util";
 import * as erlpack from "harmony-erlpack";
 import fs from "node:fs/promises";
@@ -28,6 +29,7 @@ import { check } from "../opcodes/instanceOf";
 import { PayloadSchema } from "@spacebar/schemas";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
+const PRE_AUTHENTICATION_OPCODES = new Set<number>([OPCODES.Heartbeat, OPCODES.Identify, OPCODES.Resume, OPCODES.SetQoS]);
 
 // let erlpack: ErlpackType | null = null;
 // try {
@@ -90,6 +92,11 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
     if (!OPCodeHandler) {
         console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Unknown opcode`, data.op);
         return this.close(CLOSECODES.Unknown_opcode);
+    }
+
+    if (!this.user_id && !PRE_AUTHENTICATION_OPCODES.has(data.op)) {
+        console.error(`[Gateway/${this.ipAddress}] Opcode ${data.op} requires authentication`);
+        return this.close(CLOSECODES.Not_authenticated);
     }
 
     try {
