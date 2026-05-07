@@ -14,14 +14,24 @@ type RabbitMQInternals = {
     reconnectAttempts: number;
     BASE_RECONNECT_DELAY_MS: number;
     reconnectTimer: NodeJS.Timeout | null;
-    connectionListenersAttached: boolean;
 };
 
 class FakeConnection extends EventEmitter {
     channel = new EventEmitter() as Channel;
+    closeCalls = 0;
+
+    constructor(private readonly createChannelError?: Error) {
+        super();
+    }
 
     async createChannel() {
+        if (this.createChannelError) throw this.createChannelError;
         return this.channel;
+    }
+
+    async close() {
+        this.closeCalls++;
+        this.emit("close");
     }
 }
 
@@ -41,7 +51,6 @@ function resetRabbitMQ() {
     rabbit.reconnectAttempts = 0;
     rabbit.BASE_RECONNECT_DELAY_MS = 1;
     rabbit.reconnectTimer = null;
-    rabbit.connectionListenersAttached = false;
     amqp.connect = originalConnect;
     rabbit = undefined;
 }
@@ -124,6 +133,45 @@ describe("RabbitMQ reconnect", () => {
         await waitFor(() => rabbit.connection === secondConnection);
 
         assert.equal(attempts, 4);
+        assert.equal(rabbit.isConnected(), true);
+    });
+
+    test("recovered connections still reconnect after channel setup fails once", async () => {
+        const { rabbit } = await loadRabbitMQ();
+        const channelFailureConnection = new FakeConnection(new Error("channel unavailable"));
+        const recoveredConnection = new FakeConnection();
+        const reconnectedAfterClose = new FakeConnection();
+        let attempts = 0;
+
+        amqp.connect = async () => {
+            attempts++;
+            if (attempts === 1) return channelFailureConnection as unknown as ChannelModel;
+            if (attempts === 2) return recoveredConnection as unknown as ChannelModel;
+            if (attempts === 3) return reconnectedAfterClose as unknown as ChannelModel;
+            throw new Error(`unexpected connection attempt ${attempts}`);
+        };
+
+        await rabbit.connect("amqp://spacebar");
+        await waitFor(() => rabbit.connection === (recoveredConnection as unknown as ChannelModel));
+
+        assert.equal(attempts, 2);
+        assert.equal(channelFailureConnection.closeCalls, 1);
+        assert.equal(recoveredConnection.listenerCount("close"), 1);
+        assert.equal(recoveredConnection.listenerCount("error"), 1);
+        assert.equal(rabbit.isConnected(), true);
+
+        channelFailureConnection.emit("close");
+        await new Promise<void>((resolve) => {
+            setTimeout(resolve, 5);
+        });
+
+        assert.equal(rabbit.connection, recoveredConnection as unknown as ChannelModel);
+        assert.equal(attempts, 2);
+
+        recoveredConnection.emit("close");
+        await waitFor(() => rabbit.connection === (reconnectedAfterClose as unknown as ChannelModel));
+
+        assert.equal(attempts, 3);
         assert.equal(rabbit.isConnected(), true);
     });
 });

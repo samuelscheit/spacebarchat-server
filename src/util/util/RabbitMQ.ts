@@ -33,9 +33,6 @@ export class RabbitMQ {
     private static readonly BASE_RECONNECT_DELAY_MS = 500; // reconnect after 500 milliseconds delay
     private static reconnectTimer: NodeJS.Timeout | null = null;
 
-    // Track if event listeners have been set up (to avoid duplicates)
-    private static connectionListenersAttached = false;
-
     /**
      * Subscribe to connection events.
      * - 'reconnected': Fired after successful reconnection. Consumers should re-establish subscriptions.
@@ -57,47 +54,53 @@ export class RabbitMQ {
     }
 
     private static async connect(host: string): Promise<void> {
+        let connection: ChannelModel | null = null;
+
         try {
             console.log(`[RabbitMQ] Connecting to: ${host}`);
-            this.connection = await amqp.connect(host, {
+            connection = await amqp.connect(host, {
                 timeout: 1000 * 60,
             });
+
+            this.connection = connection;
+            this.channel = null;
+            this.attachConnectionListeners(connection, host);
+
+            // Pre-create the shared channel
+            await this.getSafeChannel();
+
             console.log(`[RabbitMQ] Connected successfully`);
 
             // Reset reconnection state on successful connect
             this.reconnectAttempts = 0;
             this.isReconnecting = false;
 
-            // Only attach listeners once per connection object
-            if (!this.connectionListenersAttached) {
-                this.attachConnectionListeners(host);
-                this.connectionListenersAttached = true;
-            }
-
-            // Pre-create the shared channel
-            await this.getSafeChannel();
-
             // Notify subscribers that connection is (re-)established
             this.events.emit("reconnected");
         } catch (error) {
             console.error("[RabbitMQ] Connection failed:", error);
+            if (connection) {
+                this.cleanupFailedConnection(connection);
+            }
             this.scheduleReconnect(host);
         }
     }
 
-    private static attachConnectionListeners(host: string) {
-        if (!this.connection) return;
-
-        this.connection.on("error", (err) => {
+    private static attachConnectionListeners(connection: ChannelModel, host: string) {
+        connection.on("error", (err) => {
             console.error("[RabbitMQ] Connection error:", err);
             // Don't reconnect here - wait for 'close' event
         });
 
-        this.connection.on("close", () => {
+        connection.on("close", () => {
+            if (this.connection !== connection) {
+                console.log("[RabbitMQ] Stale connection closed");
+                return;
+            }
+
             console.error("[RabbitMQ] Connection closed");
             this.channel = null;
             this.connection = null;
-            this.connectionListenersAttached = false;
 
             // Notify subscribers that connection is lost
             this.events.emit("disconnected");
@@ -105,6 +108,15 @@ export class RabbitMQ {
             // Schedule reconnection
             this.scheduleReconnect(host);
         });
+    }
+
+    private static cleanupFailedConnection(connection: ChannelModel): void {
+        if (this.connection === connection) {
+            this.channel = null;
+            this.connection = null;
+        }
+
+        void connection.close().catch((e) => console.error("[RabbitMQ] Failed to close incomplete connection:", e));
     }
 
     private static scheduleReconnect(host: string): void {
