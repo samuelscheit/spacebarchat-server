@@ -4,25 +4,39 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { closeDatabase, initDatabase, Session, User } from "@spacebar/util";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
+import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
-const coveredManifestIds = ["api:http:POST:/auth/register/", "api:http:POST:/auth/login/"];
+const coveredManifestIds = [
+    "api:http:POST:/auth/register/",
+    "api:http:POST:/auth/login/",
+    "api:http:GET:/auth/sessions/",
+    "api:http:POST:/auth/sessions/logout",
+    "api:http:POST:/auth/logout/",
+];
 
 test(
-    "register then login persists the user and creates independent sessions",
+    "register, login, list sessions, and logout persist and invalidate session state",
     {
         skip: !hasPostgresAdminUrl(),
         timeout: 180_000,
     },
     async () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:POST:/auth/register/", "api:http:POST:/auth/login/"]);
+        assert.deepEqual(coveredManifestIds, [
+            "api:http:POST:/auth/register/",
+            "api:http:POST:/auth/login/",
+            "api:http:GET:/auth/sessions/",
+            "api:http:POST:/auth/sessions/logout",
+            "api:http:POST:/auth/logout/",
+        ]);
 
         const database = await createDisposablePostgresDatabase({ prefix: "spacebar_auth_scenario" });
         const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-auth-scenario-"));
         const previous = snapshotProcessState();
         let api: Awaited<ReturnType<typeof startApi>> | undefined;
+        let sessionEvents: Awaited<ReturnType<typeof captureEvents>> | undefined;
 
         try {
             process.chdir(tempCwd);
@@ -52,6 +66,7 @@ test(
             const registerBody = await assertJsonObject(register);
             assert.equal(typeof registerBody.token, "string");
             assert.match(registerBody.token as string, /^.+\..+\..+$/);
+            const registerToken = registerBody.token as string;
 
             const user = await User.findOne({
                 where: { email },
@@ -76,11 +91,44 @@ test(
             assert.equal(loginBody.user_id, user.id);
             assert.equal(typeof loginBody.token, "string");
             assert.match(loginBody.token as string, /^.+\..+\..+$/);
-            assert.notEqual(loginBody.token, registerBody.token);
+            assert.notEqual(loginBody.token, registerToken);
+            const loginToken = loginBody.token as string;
 
             const sessionsAfterLogin = await Session.find({ where: { user_id: user.id }, select: { session_id: true, user_id: true } });
             assert.equal(sessionsAfterLogin.length, 2, "login should persist a second session");
+            const registerSessionId = sessionsAfterRegister[0].session_id;
+            const loginSession = sessionsAfterLogin.find((session) => session.session_id !== registerSessionId);
+            assert.ok(loginSession, "login should create a distinct session");
+            sessionEvents = await captureEvents([registerSessionId, loginSession.session_id]);
+
+            const sessionList = await getJson(`${api.apiBaseUrl}/auth/sessions`, loginToken);
+            await assertStatus(sessionList, 200);
+            const sessionListBody = await assertJsonObject(sessionList);
+            assert.ok(Array.isArray(sessionListBody.user_sessions));
+            assert.equal(sessionListBody.user_sessions.length, 2);
+
+            const removeRegisterSession = await postJson(`${api.apiBaseUrl}/auth/sessions/logout`, { session_ids: [registerSessionId] }, loginToken);
+            await assertStatus(removeRegisterSession, 204);
+            const sessionLogoutEvent = await sessionEvents.waitFor((event) => event.event === "SB_SESSION_REMOVE" && event.session_id === registerSessionId);
+            assert.equal(sessionLogoutEvent.origin, "Sessions logout");
+
+            await assertJsonError(await getJson(`${api.apiBaseUrl}/auth/sessions`, registerToken), 401);
+
+            const sessionsAfterSessionLogout = await Session.find({ where: { user_id: user.id }, select: { session_id: true, user_id: true } });
+            assert.deepEqual(
+                sessionsAfterSessionLogout.map((session) => session.session_id),
+                [loginSession.session_id],
+            );
+
+            const selfLogout = await postJson(`${api.apiBaseUrl}/auth/logout`, {}, loginToken);
+            await assertStatus(selfLogout, 204);
+            const selfLogoutEvent = await sessionEvents.waitFor((event) => event.event === "SB_SESSION_REMOVE" && event.session_id === loginSession.session_id);
+            assert.equal(selfLogoutEvent.origin, "Self logout");
+            assert.equal(await Session.count({ where: { user_id: user.id } }), 0);
+
+            await assertJsonError(await getJson(`${api.apiBaseUrl}/auth/sessions`, loginToken), 401);
         } finally {
+            if (sessionEvents) await sessionEvents.stop();
             if (api) await api.stop();
             await closeDatabase();
             await database.close();
@@ -90,13 +138,22 @@ test(
     },
 );
 
-async function postJson(url: string, body: unknown) {
+async function postJson(url: string, body: unknown, token?: string) {
     return await fetch(url, {
         method: "POST",
         headers: {
             "content-type": "application/json",
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(body),
+    });
+}
+
+async function getJson(url: string, token: string) {
+    return await fetch(url, {
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
     });
 }
 

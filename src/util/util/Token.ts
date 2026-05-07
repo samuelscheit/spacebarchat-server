@@ -86,6 +86,11 @@ export const checkToken = (
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: userId } }) : undefined,
             ]);
 
+            if (decoded.did && !session) {
+                logAuth("validateUser rejected: Session not found");
+                return rejectAndLog(reject, 401, "Invalid Session");
+            }
+
             if (!user) {
                 logAuth("validateUser rejected: User not found");
                 return rejectAndLog(reject, 401, "User not found");
