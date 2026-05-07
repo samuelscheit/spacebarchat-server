@@ -4,6 +4,7 @@ import type { AddressInfo } from "node:net";
 import { describe, test } from "node:test";
 import ws from "ws";
 import { CLOSECODES } from "@spacebar/gateway";
+import { Config, ConfigValue } from "@spacebar/util";
 import { Server as WebRtcServer } from "./Server";
 import { VoiceOPCodes, type VoicePayload } from "./util/Constants";
 import type { WebRtcWebSocket } from "./util/WebRtcWebSocket";
@@ -43,6 +44,64 @@ describe("WebRTC Server transport", () => {
 
             assert.equal(close.code, CLOSECODES.Not_authenticated);
         } finally {
+            await closeWebRtc(server);
+        }
+    });
+
+    test("closes oversized signaling messages over a real websocket", async () => {
+        const restoreConfig = withWebRtcLimits({ maxMessageSize: 32 });
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+
+        try {
+            server.configureWebSocketServer();
+            const port = await listen(http);
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            client.send("x".repeat(64));
+            const close = await readClose(client);
+
+            assert.equal(close.code, 1009);
+        } finally {
+            restoreConfig();
+            await closeWebRtc(server);
+        }
+    });
+
+    test("rate limits authenticated signaling messages over a real websocket", async () => {
+        const restoreConfig = withWebRtcLimits({
+            maxMessageSize: 4096,
+            rateLimitCount: 2,
+            rateLimitWindow: 60_000,
+        });
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+
+        try {
+            server.configureWebSocketServer();
+            const port = await listen(http);
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            const [serverSocket] = server.ws?.clients ?? [];
+            assert(serverSocket);
+            (serverSocket as WebRtcWebSocket).user_id = "user-fixture";
+
+            client.send(JSON.stringify({ op: VoiceOPCodes.HEARTBEAT, d: 1 }));
+            const firstAck = await readJsonMessage(client);
+            assert.equal(firstAck.op, VoiceOPCodes.HEARTBEAT_ACK);
+
+            client.send(JSON.stringify({ op: VoiceOPCodes.HEARTBEAT, d: 2 }));
+            const secondAck = await readJsonMessage(client);
+            assert.equal(secondAck.op, VoiceOPCodes.HEARTBEAT_ACK);
+
+            client.send(JSON.stringify({ op: VoiceOPCodes.HEARTBEAT, d: 3 }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Rate_limited);
+        } finally {
+            restoreConfig();
             await closeWebRtc(server);
         }
     });
@@ -100,6 +159,17 @@ describe("WebRTC Server transport", () => {
         }
     });
 });
+
+function withWebRtcLimits(limits: Partial<ConfigValue["limits"]["webrtc"]>) {
+    const originalConfigGet = Config.get;
+    const config = new ConfigValue();
+    Object.assign(config.limits.webrtc, limits);
+    (Config as unknown as { get: () => ConfigValue }).get = () => config;
+
+    return () => {
+        (Config as unknown as { get: typeof originalConfigGet }).get = originalConfigGet;
+    };
+}
 
 async function listen(server: ReturnType<typeof createServer>) {
     await new Promise<void>((resolve, reject) => {
