@@ -24,6 +24,26 @@ describe("Gateway Server transport", () => {
             await closeGateway(server);
         }
     });
+
+    test("responds to heartbeat over a real websocket before authentication", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            await readJsonMessage(client);
+
+            client.send(JSON.stringify({ op: OPCODES.Heartbeat, d: null }));
+            const ack = await readJsonMessage(client);
+
+            assert.equal(ack.op, OPCODES.Heartbeat_ACK);
+
+            await closeClient(client);
+        } finally {
+            await closeGateway(server);
+        }
+    });
 });
 
 async function listen(server: ReturnType<typeof createServer>) {

@@ -5,6 +5,7 @@ import { describe, test } from "node:test";
 import ws from "ws";
 import { Server as WebRtcServer } from "./Server";
 import { VoiceOPCodes, type VoicePayload } from "./util/Constants";
+import type { WebRtcWebSocket } from "./util/WebRtcWebSocket";
 
 describe("WebRTC Server transport", () => {
     test("accepts a real websocket client and sends HELLO without startup database initialization", async () => {
@@ -19,6 +20,32 @@ describe("WebRTC Server transport", () => {
 
             assert.equal(hello.op, VoiceOPCodes.HELLO);
             assert.equal(typeof hello.d?.heartbeat_interval, "number");
+
+            await closeClient(client);
+        } finally {
+            await closeWebRtc(server);
+        }
+    });
+
+    test("responds to heartbeat over a real websocket after authentication precondition is met", async () => {
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+        server.configureWebSocketServer();
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            const [serverSocket] = server.ws?.clients ?? [];
+            assert(serverSocket);
+            (serverSocket as WebRtcWebSocket).user_id = "user-fixture";
+
+            client.send(JSON.stringify({ op: VoiceOPCodes.HEARTBEAT, d: 12345 }));
+            const ack = await readJsonMessage(client);
+
+            assert.equal(ack.op, VoiceOPCodes.HEARTBEAT_ACK);
+            assert.equal(ack.d, 12345);
 
             await closeClient(client);
         } finally {

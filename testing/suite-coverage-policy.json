@@ -135,6 +135,7 @@
                     "kind": "protocol-integration",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "src/gateway/ServerConfigure.test.ts",
                         "src/gateway/opcodes/Heartbeat.test.ts",
                         "src/gateway/events/Close.test.ts",
                         "src/gateway/listener/subscriptions.test.ts",
@@ -151,7 +152,7 @@
                     "title": "WebRTC signaling protocol",
                     "kind": "protocol-integration",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/webrtc/Server.test.ts", "src/webrtc/util/Send.test.ts", "src/webrtc/util/WebRtcMessageGuard.test.ts"],
+                    "testFiles": ["src/webrtc/Server.test.ts", "src/webrtc/ServerConfigure.test.ts", "src/webrtc/util/Send.test.ts", "src/webrtc/util/WebRtcMessageGuard.test.ts"],
                     "selectors": [{ "service": "webrtc", "type": "opcode" }],
                     "fixtures": ["users", "sessions", "voice-states", "fake-media-server"],
                     "checks": ["identify", "select-protocol", "speaking", "video", "guard-size-rate"]

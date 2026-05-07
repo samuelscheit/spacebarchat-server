@@ -35,18 +35,21 @@ export async function onHeartbeat(this: WebSocket, data: Payload) {
         this.qos = (data.d as QoSHeartbeatData).qos;
     }
 
-    const newSessionData: Partial<Session> = {
-        last_seen: new Date(),
-    };
+    const ack = Send(this, { op: OPCODES.Heartbeat_ACK, d: {} });
+    const authSessionId = this.session?.session_id;
+    if (!this.user_id || !authSessionId) {
+        await ack;
+        return;
+    }
 
     await Promise.all([
-        Send(this, { op: OPCODES.Heartbeat_ACK, d: {} }),
+        ack,
         Session.update(
             {
-                session_id: this.session_id!,
+                session_id: authSessionId,
                 user_id: this.user_id,
             } as FindOptionsWhere<Session>,
-            newSessionData,
+            { last_seen: new Date() },
         ),
     ]);
 }
