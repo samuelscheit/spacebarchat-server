@@ -18,7 +18,7 @@
 
 import { HTTPError } from "lambert-server";
 import { Column, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { DmChannelDTO } from "../dtos";
+import { DmChannelDTO, getCreateDMChannelResponse, saveGroupDMOwnerAfterRecipientRemoval } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
 import {
     Snowflake,
@@ -503,7 +503,7 @@ export class Channel extends BaseClass {
             });
         }
 
-        return channel_dto.forRecipient(creator_user_id);
+        return getCreateDMChannelResponse(channel_dto, creator_user_id);
     }
 
     static async checkServerDmReopenPrivacy(channel: Channel, creatorUserId: string) {
@@ -576,23 +576,21 @@ export class Channel extends BaseClass {
             return;
         }
 
+        const ownerChanged = await saveGroupDMOwnerAfterRecipientRemoval(channel, channel.recipients?.map((recipient) => recipient.user_id) ?? []);
+
         await emitEvent({
             event: "CHANNEL_DELETE",
             data: await DmChannelDTO.from(channel, [user_id]),
             user_id: user_id,
         });
 
-        //If the owner leave the server user is the new owner
-        if (channel.owner_id === user_id) {
-            channel.owner_id = "1"; // The channel is now owned by the server user
+        if (ownerChanged) {
             await emitEvent({
                 event: "CHANNEL_UPDATE",
                 data: await DmChannelDTO.from(channel, [user_id]),
                 channel_id: channel.id,
             });
         }
-
-        await channel.save();
 
         await emitEvent({
             event: "CHANNEL_RECIPIENT_REMOVE",

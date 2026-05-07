@@ -10280,7 +10280,7 @@
             "method": "POST",
             "path": "/users/:user_id/delete/",
             "sourceFile": "src/api/routes/users/#user_id/delete.ts",
-            "line": 42,
+            "line": 44,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

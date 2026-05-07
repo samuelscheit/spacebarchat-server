@@ -21,6 +21,7 @@ import {
     Channel,
     ChannelDeleteEvent,
     ChannelRecipientRemoveEvent,
+    DmChannelDTO,
     emitEvent,
     Emoji,
     Guild,
@@ -29,6 +30,7 @@ import {
     Recipient,
     Sticker,
     Stopwatch,
+    saveGroupDMOwnerAfterRecipientRemoval,
     User,
     UserDeleteEvent,
     UserSettingsProtos,
@@ -83,8 +85,12 @@ router.post(
             where: { type: ChannelType.GROUP_DM },
             relations: { recipients: true },
             select: {
+                icon: true,
                 id: true,
+                last_message_id: true,
+                name: true,
                 owner_id: true,
+                type: true,
                 recipients: {
                     id: true,
                     user_id: true,
@@ -110,6 +116,7 @@ router.post(
 
                 // if no recipients remain, delete the channel
                 const remainingRecipients = await Recipient.find({ where: { channel_id: channel.id } });
+                channel.recipients = remainingRecipients;
                 if (remainingRecipients.length === 0) {
                     await emitEvent({
                         event: "CHANNEL_DELETE",
@@ -119,10 +126,16 @@ router.post(
                     await Channel.deleteChannel(channel);
                     console.log(`[Instance ban] Deleted empty group channel ${channel.id}`);
                 } else {
-                    // otherwise, if the banned user was the owner, reassign ownership
-                    if (channel.owner_id === user.id) {
-                        channel.owner_id = remainingRecipients[0].user_id;
-                        await channel.save();
+                    const ownerChanged = await saveGroupDMOwnerAfterRecipientRemoval(
+                        channel,
+                        remainingRecipients.map((recipient) => recipient.user_id),
+                    );
+                    if (ownerChanged) {
+                        await emitEvent({
+                            event: "CHANNEL_UPDATE",
+                            data: await DmChannelDTO.from(channel),
+                            channel_id: channel.id,
+                        });
                         console.log(`[Instance ban] Reassigned ownership of group channel ${channel.id} to user ${channel.owner_id}`);
                     }
                 }
