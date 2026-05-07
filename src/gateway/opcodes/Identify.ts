@@ -60,13 +60,14 @@ import {
     UserSettings,
     UserSettingsProtos,
     VoiceState,
+    getReadyReadStateWhere,
+    READY_READ_STATE_SELECT,
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
-import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { randomString } from "@spacebar/api";
 
 // TODO: user sharding
@@ -222,6 +223,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     // * guild members for this user
     // * recipients ( dm channels )
     // * the bot application, if it exists
+    const includeNonChannelReadStates = this.capabilities!.has(Capabilities.FLAGS.NON_CHANNEL_READ_STATES);
     const [
         { elapsed: sessionSaveTime },
         { result: sessions, elapsed: sessionQueryTime },
@@ -260,8 +262,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         ),
         timePromise(() =>
             ReadState.find({
-                where: { user_id: this.user_id, read_state_type: ReadStateType.CHANNEL },
-                select: { id: true, channel_id: true, last_message_id: true, last_pin_timestamp: true, mention_count: true, last_viewed: true, flags: true },
+                where: getReadyReadStateWhere(this.user_id, includeNonChannelReadStates),
+                select: READY_READ_STATE_SELECT,
             }),
         ),
         timePromise(() =>
@@ -621,7 +623,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         micros: 0,
         calls: [],
     };
-    const { result: serializedReadStates, elapsed: remapReadStateIdsTime } = timeFunction(() => serializeReadyReadState(read_states));
+    const { result: serializedReadStates, elapsed: remapReadStateIdsTime } = timeFunction(() => serializeReadyReadState(read_states, includeNonChannelReadStates));
     buildReadyTrace.calls!.push("remapReadStateIds", { micros: remapReadStateIdsTime.totalMicroseconds });
 
     const { result: user_settings_proto, elapsed: serialiseUserSettingsProtoTime } = timeFunction(() =>

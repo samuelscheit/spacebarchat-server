@@ -186,6 +186,95 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "MessageAcknowledgeSchema": {
+        "type": "object",
+        "properties": {
+            "manual": {
+                "type": "boolean"
+            },
+            "mention_count": {
+                "type": "integer"
+            },
+            "flags": {
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    4
+                ],
+                "type": "number"
+            },
+            "last_viewed": {
+                "type": "integer"
+            },
+            "token": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AckBulkSchema": {
+        "type": "object",
+        "properties": {
+            "read_states": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "channel_id": {
+                            "type": "string"
+                        },
+                        "message_id": {
+                            "type": "string"
+                        },
+                        "read_state_type": {
+                            "enum": [
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5
+                            ],
+                            "type": "number"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "channel_id",
+                        "message_id"
+                    ]
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "read_states"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AcknowledgeDeleteSchema": {
+        "type": "object",
+        "properties": {
+            "read_state_type": {
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "type": "number"
+            },
+            "version": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "FieldErrorResponse": {
         "type": "object",
         "properties": {
@@ -6740,88 +6829,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "MessageAcknowledgeSchema": {
-        "type": "object",
-        "properties": {
-            "manual": {
-                "type": "boolean"
-            },
-            "mention_count": {
-                "type": "integer"
-            },
-            "flags": {
-                "enum": [
-                    0,
-                    1,
-                    2,
-                    4
-                ],
-                "type": "number"
-            },
-            "last_viewed": {
-                "type": "integer"
-            },
-            "token": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "AckBulkSchema": {
-        "type": "object",
-        "properties": {
-            "read_states": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "channel_id": {
-                            "type": "string"
-                        },
-                        "message_id": {
-                            "type": "string"
-                        },
-                        "read_state_type": {
-                            "$ref": "#/definitions/ReadStateType"
-                        }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "channel_id",
-                        "message_id",
-                        "read_state_type"
-                    ]
-                }
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "read_states"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "AcknowledgeDeleteSchema": {
-        "type": "object",
-        "properties": {
-            "read_state_type": {
-                "enum": [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5
-                ],
-                "type": "number"
-            },
-            "version": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "MessageCreateSchema": {
         "type": "object",
         "properties": {
@@ -11122,12 +11129,6 @@
                     "$ref": "#/definitions/VoiceState"
                 }
             },
-            "read_states": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/ReadState"
-                }
-            },
             "webhooks": {
                 "type": "array",
                 "items": {
@@ -14766,90 +14767,6 @@
             "token",
             "user",
             "user_id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ReadState": {
-        "type": "object",
-        "properties": {
-            "channel_id": {
-                "type": "string"
-            },
-            "channel": {
-                "$ref": "#/definitions/Channel"
-            },
-            "user_id": {
-                "type": "string"
-            },
-            "user": {
-                "$ref": "#/definitions/User"
-            },
-            "last_message_id": {
-                "type": "string"
-            },
-            "last_acked_id": {
-                "type": "string"
-            },
-            "notifications_cursor": {
-                "type": "string"
-            },
-            "mention_count": {
-                "type": "integer"
-            },
-            "badge_count": {
-                "type": "integer"
-            },
-            "last_pin_timestamp": {
-                "type": "string",
-                "format": "date-time"
-            },
-            "last_viewed": {
-                "type": "integer"
-            },
-            "read_state_type": {
-                "$ref": "#/definitions/ReadStateType"
-            },
-            "flags": {
-                "$ref": "#/definitions/ReadStateFlags"
-            },
-            "id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "badge_count",
-            "channel",
-            "channel_id",
-            "flags",
-            "id",
-            "last_viewed",
-            "mention_count",
-            "notifications_cursor",
-            "read_state_type",
-            "user",
-            "user_id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ReadStateType": {
-        "type": "number",
-        "enum": [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ReadStateFlags": {
-        "type": "number",
-        "enum": [
-            1,
-            2,
-            4
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

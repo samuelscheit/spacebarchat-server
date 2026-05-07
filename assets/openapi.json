@@ -205,6 +205,89 @@
                     "type"
                 ]
             },
+            "MessageAcknowledgeSchema": {
+                "type": "object",
+                "properties": {
+                    "manual": {
+                        "type": "boolean"
+                    },
+                    "mention_count": {
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    "last_viewed": {
+                        "type": "integer"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AckBulkSchema": {
+                "type": "object",
+                "properties": {
+                    "read_states": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "channel_id": {
+                                    "type": "string"
+                                },
+                                "message_id": {
+                                    "type": "string"
+                                },
+                                "read_state_type": {
+                                    "enum": [
+                                        0,
+                                        1,
+                                        2,
+                                        3,
+                                        4,
+                                        5
+                                    ],
+                                    "type": "number"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "channel_id",
+                                "message_id"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "read_states"
+                ]
+            },
+            "AcknowledgeDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "read_state_type": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5
+                        ],
+                        "type": "number"
+                    },
+                    "version": {
+                        "type": "integer"
+                    }
+                }
+            },
             "FieldErrorResponse": {
                 "type": "object",
                 "properties": {
@@ -6284,82 +6367,6 @@
                     "nick"
                 ]
             },
-            "MessageAcknowledgeSchema": {
-                "type": "object",
-                "properties": {
-                    "manual": {
-                        "type": "boolean"
-                    },
-                    "mention_count": {
-                        "type": "integer"
-                    },
-                    "flags": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            4
-                        ],
-                        "type": "number"
-                    },
-                    "last_viewed": {
-                        "type": "integer"
-                    },
-                    "token": {
-                        "type": "string"
-                    }
-                }
-            },
-            "AckBulkSchema": {
-                "type": "object",
-                "properties": {
-                    "read_states": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "channel_id": {
-                                    "type": "string"
-                                },
-                                "message_id": {
-                                    "type": "string"
-                                },
-                                "read_state_type": {
-                                    "$ref": "#/components/schemas/ReadStateType"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "channel_id",
-                                "message_id",
-                                "read_state_type"
-                            ]
-                        }
-                    }
-                },
-                "required": [
-                    "read_states"
-                ]
-            },
-            "AcknowledgeDeleteSchema": {
-                "type": "object",
-                "properties": {
-                    "read_state_type": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                        ],
-                        "type": "number"
-                    },
-                    "version": {
-                        "type": "integer"
-                    }
-                }
-            },
             "MessageCreateSchema": {
                 "type": "object",
                 "properties": {
@@ -10360,12 +10367,6 @@
                             "$ref": "#/components/schemas/VoiceState"
                         }
                     },
-                    "read_states": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ReadState"
-                        }
-                    },
                     "webhooks": {
                         "type": "array",
                         "items": {
@@ -13831,86 +13832,6 @@
                     "token",
                     "user",
                     "user_id"
-                ]
-            },
-            "ReadState": {
-                "type": "object",
-                "properties": {
-                    "channel_id": {
-                        "type": "string"
-                    },
-                    "channel": {
-                        "$ref": "#/components/schemas/Channel"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    },
-                    "user": {
-                        "$ref": "#/components/schemas/User"
-                    },
-                    "last_message_id": {
-                        "type": "string"
-                    },
-                    "last_acked_id": {
-                        "type": "string"
-                    },
-                    "notifications_cursor": {
-                        "type": "string"
-                    },
-                    "mention_count": {
-                        "type": "integer"
-                    },
-                    "badge_count": {
-                        "type": "integer"
-                    },
-                    "last_pin_timestamp": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "last_viewed": {
-                        "type": "integer"
-                    },
-                    "read_state_type": {
-                        "$ref": "#/components/schemas/ReadStateType"
-                    },
-                    "flags": {
-                        "$ref": "#/components/schemas/ReadStateFlags"
-                    },
-                    "id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "badge_count",
-                    "channel",
-                    "channel_id",
-                    "flags",
-                    "id",
-                    "last_viewed",
-                    "mention_count",
-                    "notifications_cursor",
-                    "read_state_type",
-                    "user",
-                    "user_id"
-                ]
-            },
-            "ReadStateType": {
-                "type": "number",
-                "enum": [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5
-                ]
-            },
-            "ReadStateFlags": {
-                "type": "number",
-                "enum": [
-                    1,
-                    2,
-                    4
                 ]
             },
             "ThreadMetadata": {

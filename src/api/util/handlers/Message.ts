@@ -556,13 +556,14 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         const states = await ReadState.findBy({
             user_id: Or(...ids.map((id) => Equal(id))),
             channel_id: channel.id,
+            read_state_type: ReadStateType.CHANNEL,
         });
         const users = new Set(ids);
         states.forEach((state) => users.delete(state.user_id));
         if (!users.size) {
             return;
         }
-        return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id }).save()));
+        return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id, read_state_type: ReadStateType.CHANNEL }).save()));
     }
     const incrementMentionCount = shouldIncrementMentionCount(notificationOptions);
     if (ephermal) {

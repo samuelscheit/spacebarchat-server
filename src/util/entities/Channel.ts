@@ -26,15 +26,16 @@ import { Guild } from "./Guild";
 import { Invite } from "./Invite";
 import { Message } from "./Message";
 import { Tag } from "./Tag";
-import { ReadState } from "./ReadState";
 import { Recipient } from "./Recipient";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
 import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
+import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
+import { ReadState } from "./ReadState";
 
 @Entity({
     name: "channels",
@@ -142,12 +143,6 @@ export class Channel extends BaseClass {
         orphanedRowAction: "delete",
     })
     voice_states?: VoiceState[];
-
-    @OneToMany(() => ReadState, (read_state: ReadState) => read_state.channel, {
-        cascade: true,
-        orphanedRowAction: "delete",
-    })
-    read_states?: ReadState[];
 
     @OneToMany(() => Webhook, (webhook: Webhook) => webhook.channel, {
         cascade: true,
@@ -563,6 +558,7 @@ export class Channel extends BaseClass {
         if (!database) throw new Error("Tried to delete a channel before the database was initialised");
 
         const updatedGuilds = await database.transaction(async (entityManager) => {
+            await entityManager.delete(ReadState, { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL });
             await entityManager.delete(Channel, { id: channel.id });
 
             if (channel.guild_id) {

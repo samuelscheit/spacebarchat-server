@@ -75,6 +75,7 @@ export * from "../../schemas/HelperTypes";
 export * from "./extensions";
 export * from "./Random";
 export * from "./ReadStateAck";
+export * from "./ReadState";
 export * from "./ReadyChannelOrdering";
 export * from "./Url";
 export * from "./Version";

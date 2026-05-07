@@ -539,8 +539,6 @@ public partial class SpacebarDbContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Channel).WithMany(p => p.ReadStates).HasConstraintName("FK_40da2fca4e0eaf7a23b5bfc5d34");
-
             entity.HasOne(d => d.User).WithMany(p => p.ReadStates).HasConstraintName("FK_195f92e4dd1254a4e348c043763");
         });
 

@@ -61,12 +61,42 @@ describe("READY read_state serialization", () => {
         ]);
     });
 
-    test("does not serialize non-channel read-state rows as channel read states", () => {
+    test("filters non-channel read-state rows when the capability is absent", () => {
+        assert.deepEqual(
+            serializeReadyReadState(
+                [
+                    {
+                        channel_id: "guild-home-1",
+                        read_state_type: 3,
+                    },
+                    {
+                        channel_id: "channel-1",
+                        read_state_type: 0,
+                    },
+                ],
+                false,
+            ),
+            [
+                {
+                    id: "channel-1",
+                    mention_count: 0,
+                    last_viewed: 0,
+                    last_pin_timestamp: READY_READ_STATE_DEFAULT_LAST_PIN_TIMESTAMP,
+                    flags: 0,
+                },
+            ],
+        );
+    });
+
+    test("serializes non-channel read-state rows when the capability is present", () => {
         assert.deepEqual(
             serializeReadyReadState([
                 {
                     channel_id: "guild-home-1",
                     read_state_type: 3,
+                    badge_count: 4,
+                    last_acked_id: "guild-home-item-1",
+                    last_viewed: 3576,
                 },
                 {
                     channel_id: "channel-1",
@@ -74,6 +104,13 @@ describe("READY read_state serialization", () => {
                 },
             ]),
             [
+                {
+                    id: "guild-home-1",
+                    read_state_type: 3,
+                    badge_count: 4,
+                    last_acked_id: "guild-home-item-1",
+                    last_viewed: 3576,
+                },
                 {
                     id: "channel-1",
                     mention_count: 0,

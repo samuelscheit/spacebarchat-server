@@ -80,7 +80,7 @@ export interface PublicRelationship {
 
 // ! END Custom Events that shouldn't get sent to the client but processed by the server
 
-export interface ReadyReadState {
+export interface ReadyChannelReadState {
     id: string;
     mention_count: number;
     last_viewed: number;
@@ -88,6 +88,16 @@ export interface ReadyReadState {
     last_pin_timestamp: Date | string;
     flags: number;
 }
+
+export interface ReadyNonChannelReadState {
+    id: string;
+    read_state_type: number;
+    badge_count: number;
+    last_viewed: number;
+    last_acked_id?: string | null;
+}
+
+export type ReadyReadState = ReadyChannelReadState | ReadyNonChannelReadState;
 
 export interface ReadyEventData {
     v: number;
