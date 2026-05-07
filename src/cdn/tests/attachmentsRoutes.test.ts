@@ -27,11 +27,17 @@ describe("attachment CDN mutation routes", () => {
         assert.match(source, /router\.delete\("\/:channel_id\/:message_id\/:filename"/);
         assert.match(source, /router\.delete\("\/:channel_id\/:batch_id\/:attachment_id\/:filename"/);
         assert.match(source, /router\.post\("\/:channel_id\/:batch_id\/:attachment_id\/:filename\/clone_to_message\/:message_id"/);
+        assert.match(source, /destination_channel_id/);
+        assert.match(source, /getAttachmentCloneDestinationPath/);
         assert.match(source, /requestSignature/);
     });
 
     test("server-side cloud attachment mutations use the internal CDN helper", async () => {
-        const source = await Promise.all([readProjectFile("api", "routes", "channels", "#channel_id", "attachments.ts"), readProjectFile("api", "util", "handlers", "Message.ts")]);
+        const source = await Promise.all([
+            readProjectFile("api", "routes", "channels", "#channel_id", "attachments.ts"),
+            readProjectFile("api", "util", "handlers", "Message.ts"),
+            readProjectFile("api", "util", "handlers", "CloudAttachmentLookup.ts"),
+        ]);
 
         assert.doesNotMatch(source.join("\n"), /endpointPrivate[^`\n]*\/attachments/);
         assert.match(source.join("\n"), /getAttachmentMutationPath/);

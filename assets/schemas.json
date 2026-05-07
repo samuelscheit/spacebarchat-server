@@ -8298,24 +8298,50 @@
             "attachments": {
                 "type": "array",
                 "items": {
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "string"
+                    "anyOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "filename": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "file": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "id"
+                            ]
                         },
-                        "filename": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "file": {
-                            "type": "string"
+                        {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "filename": {
+                                    "type": "string"
+                                },
+                                "uploaded_filename": {
+                                    "type": "string"
+                                },
+                                "original_content_type": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "filename",
+                                "uploaded_filename"
+                            ]
                         }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "id"
                     ]
                 }
             },

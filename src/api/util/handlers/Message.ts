@@ -50,7 +50,6 @@ import {
     getDatabase,
     messagePublicRelations,
     getCloudAttachmentAccessError,
-    getAttachmentCloneMutationPath,
     getAttachmentMutationPath,
     getCdnMutationUrl,
 } from "@spacebar/util";
@@ -75,6 +74,7 @@ import {
     v1CompTypes,
 } from "@spacebar/schemas";
 import { collectMessageComponentMedia } from "../utility/MessagePayloadPermissions";
+import { findCloudAttachmentForChannel, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -156,7 +156,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
         delWhenDone = true;
     }
 
-    const cloneResponse = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentCloneMutationPath(attEnt.uploadFilename, messageId)), {
+    const cloneResponse = await fetch(getCloudAttachmentCloneUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, messageId, channel.id), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
@@ -288,6 +288,10 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     const conf = Config.get();
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
+    const messageOptions = { ...opts };
+    delete messageOptions.attachment_channel_ids;
+    delete messageOptions.attachment_user_id;
+    delete messageOptions.cloud_attachment_upload_channel_id;
 
     const channel = await Channel.findOneOrFail({
         where: { id: opts.channel_id },
@@ -313,7 +317,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     const stickers = opts.sticker_ids ? await Sticker.find({ where: { id: In(opts.sticker_ids) } }) : undefined;
 
     const message = Message.create({
-        ...opts,
+        ...messageOptions,
         message_reference: opts.message_reference ?? undefined,
         poll: opts.poll,
         sticker_items: stickers,
@@ -723,6 +727,7 @@ interface MessageOptions extends MessageCreateSchema {
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
     attachment_user_id?: string;
     attachment_channel_ids?: string[];
+    cloud_attachment_upload_channel_id?: string;
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;
@@ -738,11 +743,20 @@ export async function processMessageOptionAttachments(source: MessageOptions, de
     if (!source.attachments || source.attachments.length == 0) return;
     const logp = `[Message/${destination.id}/Attachments]`;
     console.log("[Message] Processing attachments for message", source.id, "->", source.attachments);
+    const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(destination.channel_id!, source.cloud_attachment_upload_channel_id);
+    const cloudAttachmentAllowedChannelIds = source.attachment_channel_ids ?? [cloudAttachmentLookupChannelId];
     const tasks = source.attachments?.map(async (src): Promise<Attachment> => {
         if (src instanceof Attachment) return logPassthru(src, logp, `Got Attachment instance`);
         if (isCloudAttachment(src))
             return logPassthru(
-                await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id, source.attachment_channel_ids, source.attachment_user_id),
+                await convertCloudAttachmentToAttachment(
+                    src,
+                    cloudAttachmentLookupChannelId,
+                    destination.channel_id!,
+                    destination.id,
+                    cloudAttachmentAllowedChannelIds,
+                    source.attachment_user_id,
+                ),
                 logp,
                 "Got MessageCreateCloudAttachment contents",
             );
@@ -761,22 +775,24 @@ export function isCloudAttachment(attachment: MessageOptionAttachment) {
 
 export async function convertCloudAttachmentToAttachment(
     cAtt: MessageCreateCloudAttachment,
+    cloudAttachmentLookupChannelId: string,
     destinationChannelId: string,
     destinationMessageId: string,
-    sourceChannelIds: string[] = [destinationChannelId],
+    sourceChannelIds: string[] = [cloudAttachmentLookupChannelId],
     expectedUserId?: string,
 ) {
-    const attEnt = await CloudAttachment.findOne({
-        where: {
-            uploadFilename: cAtt.uploaded_filename,
+    const attEnt = await findCloudAttachmentForChannel(
+        {
+            findOne: (options) => CloudAttachment.findOne(options),
         },
-    });
+        cAtt.uploaded_filename,
+        cloudAttachmentLookupChannelId,
+    );
 
-    if (!attEnt) throw new HTTPError("Unknown attachment", 400);
     const accessError = getCloudAttachmentAccessError(attEnt, sourceChannelIds, expectedUserId);
     if (accessError) throw new HTTPError(accessError.message, accessError.status);
 
-    const cloneResponse = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentCloneMutationPath(attEnt.uploadFilename, destinationMessageId)), {
+    const cloneResponse = await fetch(getCloudAttachmentCloneUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, destinationMessageId, destinationChannelId), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",

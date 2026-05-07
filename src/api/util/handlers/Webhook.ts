@@ -22,6 +22,7 @@ import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
+import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
@@ -207,7 +208,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
         embeds,
         // TODO: Support thread_id/thread_name once threads are implemented
         channel_id: sendChannel.id,
-        attachments,
+        attachments: mergeWebhookMessageAttachments(attachments, body.attachments),
         timestamp: new Date(),
     });
 

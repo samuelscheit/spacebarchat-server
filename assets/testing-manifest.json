@@ -4148,7 +4148,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 229,
+            "line": 230,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4241,7 +4241,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 296,
+            "line": 297,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12926,7 +12926,7 @@
             "method": "POST",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 145,
+            "line": 146,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -12957,7 +12957,7 @@
             "method": "DELETE",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 121,
+            "line": 122,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -12988,7 +12988,7 @@
             "method": "PUT",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 12,
+            "line": 13,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -13019,7 +13019,7 @@
             "method": "DELETE",
             "path": "/_spacebar/cdn/attachments/:channel_id/:message_id/:filename",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 110,
+            "line": 111,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -13050,7 +13050,7 @@
             "method": "POST",
             "path": "/_spacebar/cdn/attachments/:channel_id/:message_id",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 68,
+            "line": 69,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false

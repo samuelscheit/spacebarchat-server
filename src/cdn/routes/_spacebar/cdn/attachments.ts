@@ -6,6 +6,7 @@ import { multer } from "../../../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { attachmentStoragePath } from "../../../util/AttachmentStorage";
+import { getAttachmentCloneDestinationPath } from "../../../util/AttachmentClonePath";
 
 const router = Router({ mergeParams: true });
 
@@ -147,8 +148,14 @@ router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:m
     console.log("[Cloud Clone] Cloning attachment to message", req.params);
 
     const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
+    const destinationChannelId = typeof req.query.destination_channel_id === "string" ? req.query.destination_channel_id : undefined;
     const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-    const newPath = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
+    const newPath = getAttachmentCloneDestinationPath({
+        sourceChannelId: channel_id,
+        destinationChannelId,
+        messageId: message_id,
+        filename,
+    });
 
     const att = await CloudAttachment.findOne({
         where: {

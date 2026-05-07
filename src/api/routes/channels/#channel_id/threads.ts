@@ -179,6 +179,7 @@ router.post(
                 author_id: req.user_id,
                 embeds,
                 channel_id: thread.id,
+                cloud_attachment_upload_channel_id: channel.id,
                 attachments,
                 attachment_user_id: req.user_id,
                 attachment_channel_ids: [channel.id, thread.id],
