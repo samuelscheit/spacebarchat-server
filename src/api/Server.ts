@@ -37,6 +37,7 @@ import path from "node:path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
 import { route } from "./util";
+import { mountApiRouter } from "./util/ApiPrefixes";
 
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
@@ -120,12 +121,7 @@ export class SpacebarServer extends Server {
         //app.use("/__development", )
         //app.use("/__internals", )
 
-        app.use("/api/v6", api);
-        app.use("/api/v7", api);
-        app.use("/api/v8", api);
-        app.use("/api/v9", api);
-        app.use("/api/v10", api); // https://discord.com/developers/docs/change-log#api-v10
-        app.use("/api", api); // allow unversioned requests
+        mountApiRouter(app, api);
 
         app.use("/imageproxy/:hash/:size/:url", ImageProxy);
 
