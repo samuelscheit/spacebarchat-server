@@ -20,6 +20,7 @@ import FormData from "form-data";
 import { HTTPError } from "lambert-server";
 import { Attachment } from "../entities";
 import { Config } from "./Config";
+import { getCdnMutationUrl } from "./InternalCdnRoutes";
 
 export async function uploadFile(
     path: string,
@@ -34,7 +35,7 @@ export async function uploadFile(
         filename: file.originalname,
     });
 
-    const response = await fetch(`${Config.get().cdn.endpointPrivate}${path}`, {
+    const response = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, path), {
         headers: {
             signature: Config.get().security.requestSignature,
             ...form.getHeaders(),
@@ -67,7 +68,7 @@ export async function handleFile(path: string, body?: string): Promise<string | 
 }
 
 export async function deleteFile(path: string) {
-    const response = await fetch(`${Config.get().cdn.endpointPrivate}${path}`, {
+    const response = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, path), {
         headers: {
             signature: Config.get().security.requestSignature,
         },

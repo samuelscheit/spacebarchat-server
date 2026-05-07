@@ -35,6 +35,7 @@ export * from "./Event";
 export * from "./FieldError";
 export * from "./GatewaySessions";
 export * from "./GuildCreate";
+export * from "./InternalCdnRoutes";
 export * from "./Intents";
 export * from "./InvisibleCharacters";
 export * from "./InviteCreate";

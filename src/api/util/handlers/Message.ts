@@ -46,11 +46,13 @@ import {
     Session,
     MessageFlags,
     FieldErrors,
-    getCloudAttachmentCloneCdnUrl,
     getCloudAttachmentCdnUrl,
     getDatabase,
     messagePublicRelations,
     getCloudAttachmentAccessError,
+    getAttachmentCloneMutationPath,
+    getAttachmentMutationPath,
+    getCdnMutationUrl,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -154,7 +156,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
         delWhenDone = true;
     }
 
-    const cloneResponse = await fetch(getCloudAttachmentCloneCdnUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, messageId), {
+    const cloneResponse = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentCloneMutationPath(attEnt.uploadFilename, messageId)), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
@@ -193,13 +195,11 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
 
     if (delWhenDone) {
         return () =>
-            fetch(getCloudAttachmentCdnUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename), {
+            fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentMutationPath(attEnt.uploadFilename)), {
                 headers: {
                     signature: Config.get().security.requestSignature,
                 },
                 method: "DELETE",
-            }).then(() => {
-                attEnt.remove();
             });
     }
 }
@@ -775,7 +775,7 @@ export async function convertCloudAttachmentToAttachment(
     const accessError = getCloudAttachmentAccessError(attEnt, sourceChannelIds, expectedUserId);
     if (accessError) throw new HTTPError(accessError.message, accessError.status);
 
-    const cloneResponse = await fetch(getCloudAttachmentCloneCdnUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, destinationMessageId), {
+    const cloneResponse = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentCloneMutationPath(attEnt.uploadFilename, destinationMessageId)), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
