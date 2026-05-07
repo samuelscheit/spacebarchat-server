@@ -11,6 +11,7 @@ import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
+    "api:http:GET:/users/:user_id/relationships/",
     "api:http:GET:/users/@me/relationships/",
     "api:http:PUT:/users/@me/relationships/:user_id",
     "api:http:PATCH:/users/@me/relationships/:user_id",
@@ -26,6 +27,7 @@ test(
     },
     async () => {
         assert.deepEqual(coveredManifestIds, [
+            "api:http:GET:/users/:user_id/relationships/",
             "api:http:GET:/users/@me/relationships/",
             "api:http:PUT:/users/@me/relationships/:user_id",
             "api:http:PATCH:/users/@me/relationships/:user_id",
@@ -64,6 +66,21 @@ test(
             const friendByName = await User.register({
                 username: `friendname${suffix.slice(-8)}`,
                 email: `friend-name-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            const profileOwner = await User.register({
+                username: `owner${suffix.slice(-8)}`,
+                email: `owner-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            const mutualFriend = await User.register({
+                username: `mutual${suffix.slice(-8)}`,
+                email: `mutual-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            const profileOnlyFriend = await User.register({
+                username: `profileonly${suffix.slice(-8)}`,
+                email: `profile-only-${suffix}@example.com`,
                 password: "not-a-real-login-hash",
             });
             const token = await generateToken(requester.id);
@@ -137,6 +154,24 @@ test(
             );
             assert.equal(usernameAddEvent.data.type, RelationshipType.outgoing);
             assert.equal(await Relationship.countBy({ from_id: requester.id, to_id: friendByName.id }), 1);
+
+            await Relationship.save([
+                Relationship.create({ from: requester, from_id: requester.id, to: mutualFriend, to_id: mutualFriend.id, type: RelationshipType.friends }),
+                Relationship.create({ from: profileOwner, from_id: profileOwner.id, to: mutualFriend, to_id: mutualFriend.id, type: RelationshipType.friends }),
+                Relationship.create({ from: profileOwner, from_id: profileOwner.id, to: requester, to_id: requester.id, type: RelationshipType.friends }),
+                Relationship.create({ from: profileOwner, from_id: profileOwner.id, to: profileOnlyFriend, to_id: profileOnlyFriend.id, type: RelationshipType.friends }),
+            ]);
+
+            const mutualRelationships = await getJsonArray(`${api.apiBaseUrl}/users/${profileOwner.id}/relationships`, token);
+            assert.deepEqual(mutualRelationships, [
+                {
+                    id: mutualFriend.id,
+                    username: mutualFriend.username,
+                    avatar: mutualFriend.avatar,
+                    discriminator: mutualFriend.discriminator,
+                    public_flags: mutualFriend.public_flags,
+                },
+            ]);
         } finally {
             if (relationshipEvents) await relationshipEvents.stop();
             if (api) await api.stop();
@@ -147,6 +182,18 @@ test(
         }
     },
 );
+
+async function getJsonArray(url: string, token: string) {
+    const response = await fetch(url, {
+        headers: {
+            authorization: `Bearer ${token}`,
+        },
+    });
+    await assertStatus(response, 200);
+    const body = await response.json();
+    assert.ok(Array.isArray(body));
+    return body as Array<Record<string, unknown>>;
+}
 
 async function listRelationships(url: string, token: string) {
     const response = await fetch(url, {
