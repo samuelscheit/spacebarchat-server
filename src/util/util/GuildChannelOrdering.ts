@@ -1,8 +1,47 @@
+import type { ColumnOptions } from "typeorm";
+import { insertChannelInOrdering } from "./ChannelOrdering";
+
+export interface GuildChannelOrderingContainer {
+    channel_ordering?: string[] | null;
+}
+
 export type TemplateChannelOrderLike = {
     id?: string | null;
     parent_id?: string | null;
     position?: number | null;
 };
+
+export function getGuildChannelOrderingColumnOptions(databaseType = process.env.DATABASE?.split(":")[0]?.replace("+srv", "")): ColumnOptions {
+    if (!databaseType || databaseType === "postgres") {
+        return {
+            select: false,
+            type: "int8",
+            array: true,
+            default: [],
+        };
+    }
+
+    return {
+        select: false,
+        type: "simple-array",
+        default: "",
+    };
+}
+
+export function getGuildChannelOrdering(guild: GuildChannelOrderingContainer): string[] {
+    if (!Array.isArray(guild.channel_ordering)) guild.channel_ordering = [];
+    return guild.channel_ordering;
+}
+
+export function getGuildChannelPosition(guild: GuildChannelOrderingContainer, channelId: string): number {
+    return getGuildChannelOrdering(guild).indexOf(channelId);
+}
+
+export function insertInGuildChannelOrdering(guild: GuildChannelOrderingContainer, channelId: string, insertPoint: string | number): number {
+    const { ordering, position } = insertChannelInOrdering(guild.channel_ordering, channelId, insertPoint);
+    guild.channel_ordering = ordering;
+    return position;
+}
 
 export function sortTemplateChannelsForCreation<T extends TemplateChannelOrderLike>(channels: T[]): T[] {
     const channelsById = new Map(channels.filter((channel) => channel.id).map((channel) => [channel.id as string, channel]));

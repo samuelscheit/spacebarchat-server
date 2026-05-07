@@ -45,7 +45,7 @@ import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { setVanityUrlFeature } from "../util/GuildFeatures";
 import type { GuildCreateResponse } from "@spacebar/schemas";
-import { mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
+import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
@@ -311,7 +311,7 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     premium_progress_bar_enabled: boolean = false;
 
-    @Column({ select: false, type: "int8", array: true })
+    @Column(getGuildChannelOrderingColumnOptions())
     channel_ordering: string[];
 
     @Column()

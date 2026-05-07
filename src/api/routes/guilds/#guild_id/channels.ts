@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, getGuildChannelOrdering, Guild, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelCreateSchema, ChannelReorderSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
@@ -98,14 +98,16 @@ router.patch(
             select: { channel_ordering: true },
         });
 
+        const channelOrdering = getGuildChannelOrdering(guild);
+
         body = body.sort((a, b) => {
-            const apos = a.position || (a.parent_id ? guild.channel_ordering.findIndex((_) => _ === a.parent_id) + 1 : 0);
-            const bpos = b.position || (b.parent_id ? guild.channel_ordering.findIndex((_) => _ === b.parent_id) + 1 : 0);
+            const apos = a.position || (a.parent_id ? channelOrdering.findIndex((_) => _ === a.parent_id) + 1 : 0);
+            const bpos = b.position || (b.parent_id ? channelOrdering.findIndex((_) => _ === b.parent_id) + 1 : 0);
             return apos - bpos;
         });
 
         // The channels not listed for this query
-        const notMentioned = guild.channel_ordering.filter((x) => !body.find((c) => c.id == x));
+        const notMentioned = channelOrdering.filter((x) => !body.find((c) => c.id == x));
 
         const withParents = body.filter((x) => x.parent_id !== undefined);
         const withPositions = body.filter((x) => x.position !== undefined);

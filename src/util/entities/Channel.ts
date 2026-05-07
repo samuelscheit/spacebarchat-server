@@ -49,6 +49,7 @@ import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSch
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
+import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 
 @Entity({
     name: "channels",
@@ -555,7 +556,7 @@ export class Channel extends BaseClass {
                     select: { channel_ordering: true },
                 });
 
-                const updatedOrdering = guild.channel_ordering.filter((id) => id != channel.id);
+                const updatedOrdering = getGuildChannelOrdering(guild).filter((id) => id != channel.id);
                 await entityManager.update(Guild, { id: channel.guild_id }, { channel_ordering: updatedOrdering });
 
                 const updatedGuild = await Invite.syncGuildVanityUrlFeature(channel.guild_id, entityManager);
@@ -575,7 +576,7 @@ export class Channel extends BaseClass {
                 select: { channel_ordering: true },
             });
 
-        return guild.channel_ordering.findIndex((id) => channel_id == id);
+        return getGuildChannelOrdering(guild).findIndex((id) => channel_id == id);
     }
 
     static async getOrderedChannels(guild_id: string, guild?: Guild) {
@@ -585,14 +586,15 @@ export class Channel extends BaseClass {
                 select: { channel_ordering: true },
             });
 
-        const channels = await Promise.all(guild.channel_ordering.map((id) => Channel.findOne({ where: { id } })));
+        const channelOrdering = getGuildChannelOrdering(guild);
+        const channels = await Promise.all(channelOrdering.map((id) => Channel.findOne({ where: { id } })));
 
         return channels
             .filter((channel) => channel !== null)
             .reduce((r, v) => {
                 v = v as Channel;
 
-                v.position = (guild as Guild).channel_ordering.indexOf(v.id);
+                v.position = channelOrdering.indexOf(v.id);
                 r[v.position] = v;
                 return r;
             }, [] as Array<Channel>);
