@@ -51,6 +51,10 @@ export interface CloseSessionCleanupDependencies {
     createTransactionId(userId: string): string;
 }
 
+interface CloseCleanupDatabase {
+    isInitialized: boolean;
+}
+
 const closeSessionCleanupDependencies: CloseSessionCleanupDependencies = {
     findSessions: (userId) =>
         Session.find({
@@ -114,6 +118,10 @@ export async function cleanupClosedSessionPresence(
     return true;
 }
 
+export function shouldRunClosedSessionCleanup(scheduledDatabase: CloseCleanupDatabase | null, currentDatabase: CloseCleanupDatabase | null) {
+    return !!scheduledDatabase && scheduledDatabase.isInitialized && currentDatabase === scheduledDatabase;
+}
+
 export async function Close(this: WebSocket, code: number, reason: Buffer) {
     console.log("[WebSocket] closed", code, reason.toString());
     if (this.heartbeatTimeout) clearTimeout(this.heartbeatTimeout);
@@ -126,10 +134,11 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     const authSessionId = this.session?.session_id;
     if (this.user_id && authSessionId) {
         const closedAt = Date.now();
+        const scheduledDatabase = getDatabase();
 
         const presenceCleanupTimer = setTimeout(async () => {
             console.log("Handling presence update after disconnect");
-            if (!getDatabase()) return;
+            if (!shouldRunClosedSessionCleanup(scheduledDatabase, getDatabase())) return;
             try {
                 const updated = await cleanupClosedSessionPresence(this.user_id, authSessionId, closedAt);
                 if (updated) console.log("... done!");

@@ -60,6 +60,17 @@ function publicUser(id = "user") {
 }
 
 describe("cleanupClosedSessionPresence", () => {
+    test("only runs scheduled cleanup for the same initialized database", async () => {
+        const { shouldRunClosedSessionCleanup } = await loadCloseCleanup();
+        const scheduledDatabase = { isInitialized: true };
+
+        assert.equal(shouldRunClosedSessionCleanup(scheduledDatabase, scheduledDatabase), true);
+        assert.equal(shouldRunClosedSessionCleanup(scheduledDatabase, { isInitialized: true }), false);
+        assert.equal(shouldRunClosedSessionCleanup({ isInitialized: false }, scheduledDatabase), false);
+        assert.equal(shouldRunClosedSessionCleanup(null, scheduledDatabase), false);
+        assert.equal(shouldRunClosedSessionCleanup(scheduledDatabase, null), false);
+    });
+
     test("marks the authenticated session offline and distributes offline presence", async () => {
         const { cleanupClosedSessionPresence } = await loadCloseCleanup();
         const session = createSession(new Date(1000));
