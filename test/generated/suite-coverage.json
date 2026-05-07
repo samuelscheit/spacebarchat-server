@@ -770,6 +770,7 @@
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "test/scenarios/users-profile-settings.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
                         "src/util/dtos/ConnectedAccountDTO.test.ts"
@@ -783,7 +784,8 @@
                     "checks": [
                         "ownership-boundary",
                         "schema-validation",
-                        "db-state"
+                        "db-state",
+                        "events"
                     ],
                     "manifestIds": [
                         "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",

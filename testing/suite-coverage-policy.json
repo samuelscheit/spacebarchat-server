@@ -27,10 +27,15 @@
                     "title": "Users, profiles, settings, relationships, and billing",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/util/util/UserProfile.test.ts", "src/api/util/utility/PaymentSources.test.ts", "src/util/dtos/ConnectedAccountDTO.test.ts"],
+                    "testFiles": [
+                        "test/scenarios/users-profile-settings.test.ts",
+                        "src/util/util/UserProfile.test.ts",
+                        "src/api/util/utility/PaymentSources.test.ts",
+                        "src/util/dtos/ConnectedAccountDTO.test.ts"
+                    ],
                     "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/users" }],
                     "fixtures": ["users", "sessions", "relationships", "settings"],
-                    "checks": ["ownership-boundary", "schema-validation", "db-state"]
+                    "checks": ["ownership-boundary", "schema-validation", "db-state", "events"]
                 },
                 {
                     "id": "guilds",
