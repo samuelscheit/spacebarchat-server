@@ -154,7 +154,13 @@
                     "title": "WebRTC signaling protocol",
                     "kind": "protocol-integration",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/webrtc/Server.test.ts", "src/webrtc/ServerConfigure.test.ts", "src/webrtc/util/Send.test.ts", "src/webrtc/util/WebRtcMessageGuard.test.ts"],
+                    "testFiles": [
+                        "test/protocol/webrtc-identify.test.ts",
+                        "src/webrtc/Server.test.ts",
+                        "src/webrtc/ServerConfigure.test.ts",
+                        "src/webrtc/util/Send.test.ts",
+                        "src/webrtc/util/WebRtcMessageGuard.test.ts"
+                    ],
                     "selectors": [{ "service": "webrtc", "type": "opcode" }],
                     "fixtures": ["users", "sessions", "voice-states", "fake-media-server"],
                     "checks": ["auth-required", "heartbeat", "backend-version", "identify", "select-protocol", "speaking", "video", "guard-size-rate"]

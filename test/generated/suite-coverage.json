@@ -1404,6 +1404,7 @@
                     "kind": "protocol-integration",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "test/protocol/webrtc-identify.test.ts",
                         "src/webrtc/Server.test.ts",
                         "src/webrtc/ServerConfigure.test.ts",
                         "src/webrtc/util/Send.test.ts",
