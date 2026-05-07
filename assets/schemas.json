@@ -6390,7 +6390,10 @@
                 "$ref": "#/definitions/PublicUser"
             },
             "connected_accounts": {
-                "$ref": "#/definitions/PublicConnectedAccount"
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialConnectedAccountResponse"
+                }
             },
             "premium_guild_since": {
                 "type": "string",
@@ -6436,7 +6439,13 @@
             "badges": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Badge"
+                    "$ref": "#/definitions/ProfileBadge"
+                }
+            },
+            "guild_badges": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ProfileBadge"
                 }
             }
         },
@@ -6444,6 +6453,7 @@
         "required": [
             "badges",
             "connected_accounts",
+            "guild_badges",
             "mutual_guilds",
             "premium_type",
             "profile_themes_experiment_bucket",
@@ -7143,14 +7153,14 @@
             "flags": {
                 "type": "integer"
             },
+            "channel_id": {
+                "type": "string"
+            },
             "applied_tags": {
                 "type": "array",
                 "items": {
                     "type": "string"
                 }
-            },
-            "channel_id": {
-                "type": "string"
             },
             "content": {
                 "type": "string"
@@ -17880,60 +17890,58 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "PublicConnectedAccount": {
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string"
-            },
-            "type": {
-                "type": "string"
-            },
-            "verified": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "name",
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "UserProfile": {
         "type": "object",
         "properties": {
+            "bio": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "accent_color": {
-                "type": "integer"
+                "type": [
+                    "null",
+                    "integer"
+                ]
             },
             "banner": {
-                "type": "string"
-            },
-            "bio": {
-                "type": "string"
-            },
-            "theme_colors": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                }
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "pronouns": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "theme_colors": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
-        "required": [
-            "bio"
-        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PublicMemberProfile": {
-        "additionalProperties": false,
         "type": "object",
         "properties": {
             "banner": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "bio": {
                 "type": "string"
@@ -17945,15 +17953,14 @@
                 "type": "null"
             }
         },
+        "additionalProperties": false,
         "required": [
             "accent_color",
-            "banner",
-            "bio",
-            "guild_id"
+            "bio"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "Badge": {
+    "ProfileBadge": {
         "type": "object",
         "properties": {
             "id": {
@@ -17966,7 +17973,10 @@
                 "type": "string"
             },
             "link": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             }
         },
         "additionalProperties": false,

@@ -181,7 +181,7 @@ export class User extends BaseClass {
     @OneToMany(() => SecurityKey, (key: SecurityKey) => key.user)
     security_keys: SecurityKey[];
 
-    @Column({ type: "int8", array: true, nullable: true })
+    @Column({ type: "varchar", array: true, nullable: true })
     badge_ids?: string[];
 
     @Column({ type: "jsonb", nullable: true })

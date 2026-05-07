@@ -5978,7 +5978,10 @@
                         "$ref": "#/components/schemas/PublicUser"
                     },
                     "connected_accounts": {
-                        "$ref": "#/components/schemas/PublicConnectedAccount"
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartialConnectedAccountResponse"
+                        }
                     },
                     "premium_guild_since": {
                         "type": "string",
@@ -6024,13 +6027,20 @@
                     "badges": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Badge"
+                            "$ref": "#/components/schemas/ProfileBadge"
+                        }
+                    },
+                    "guild_badges": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ProfileBadge"
                         }
                     }
                 },
                 "required": [
                     "badges",
                     "connected_accounts",
+                    "guild_badges",
                     "mutual_guilds",
                     "premium_type",
                     "profile_themes_experiment_bucket",
@@ -6675,14 +6685,14 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "channel_id": {
+                        "type": "string"
+                    },
                     "applied_tags": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
-                    },
-                    "channel_id": {
-                        "type": "string"
                     },
                     "content": {
                         "type": "string"
@@ -16716,55 +16726,46 @@
                     "window"
                 ]
             },
-            "PublicConnectedAccount": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "verified": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "name",
-                    "type"
-                ]
-            },
             "UserProfile": {
                 "type": "object",
                 "properties": {
+                    "bio": {
+                        "type": "string",
+                        "nullable": true
+                    },
                     "accent_color": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "banner": {
-                        "type": "string"
-                    },
-                    "bio": {
-                        "type": "string"
-                    },
-                    "theme_colors": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
+                        "type": "string",
+                        "nullable": true
                     },
                     "pronouns": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "theme_colors": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
-                },
-                "required": [
-                    "bio"
-                ]
+                }
             },
             "PublicMemberProfile": {
                 "type": "object",
                 "properties": {
                     "banner": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "bio": {
                         "type": "string"
@@ -16778,12 +16779,10 @@
                 },
                 "required": [
                     "accent_color",
-                    "banner",
-                    "bio",
-                    "guild_id"
+                    "bio"
                 ]
             },
-            "Badge": {
+            "ProfileBadge": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -16796,7 +16795,8 @@
                         "type": "string"
                     },
                     "link": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -19531,6 +19531,26 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UserProfileResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }
