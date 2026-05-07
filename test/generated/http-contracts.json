@@ -12,6 +12,7 @@
         "runtimeMalformedAuthContracts": 274,
         "runtimePublicAuthBoundaryContracts": 36,
         "runtimePublicInvalidBodyContracts": 11,
+        "runtimeProtectedInvalidBodyContracts": 49,
         "runtimePublicResponseSchemaContracts": 7
     },
     "contracts": [

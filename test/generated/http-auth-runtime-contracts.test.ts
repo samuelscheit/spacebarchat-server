@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { test } from "node:test";
 import Ajv, { type AnySchema } from "ajv";
 import addFormats from "ajv-formats";
-import { Config } from "@spacebar/util";
+import { closeDatabase, Config, generateToken, initDatabase, User } from "@spacebar/util";
+import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { startApi } from "../server/startApi";
 
 type GeneratedHttpContract = {
@@ -17,6 +21,8 @@ type GeneratedHttpContract = {
         requestBody?: string;
         responses: string[];
         responseStatuses: number[];
+        permission?: unknown;
+        right?: unknown;
     };
 };
 
@@ -26,6 +32,7 @@ type GeneratedHttpContractMatrix = {
         runtimeMalformedAuthContracts: number;
         runtimePublicAuthBoundaryContracts: number;
         runtimePublicInvalidBodyContracts: number;
+        runtimeProtectedInvalidBodyContracts: number;
         runtimePublicResponseSchemaContracts: number;
     };
     contracts: GeneratedHttpContract[];
@@ -38,6 +45,7 @@ const protectedApiContracts = matrix.contracts.filter((contract) => contract.ser
 const publicApiContracts = matrix.contracts.filter((contract) => contract.service === "api" && contract.authMode === "public" && contract.method !== "OPTIONS");
 const publicRequestBodyValidationExclusions = new Set(["api:http:POST:/webhooks/:webhook_id/:token/github/"]);
 const publicResponseSchemaExclusions = new Set(["api:http:GET:/download/", "api:http:GET:/policies/stats/", "api:http:GET:/updates/"]);
+const ignoredRuntimeRequestBodyValidationSchemas = new Set(["SettingsProtoUpdateJsonSchema"]);
 const publicInvalidBodyContracts = matrix.contracts.filter(
     (contract) =>
         contract.service === "api" &&
@@ -45,6 +53,16 @@ const publicInvalidBodyContracts = matrix.contracts.filter(
         contract.method !== "OPTIONS" &&
         contract.routeMetadata.requestBody &&
         !publicRequestBodyValidationExclusions.has(contract.manifestId),
+);
+const protectedInvalidBodyContracts = matrix.contracts.filter(
+    (contract) =>
+        contract.service === "api" &&
+        contract.authMode === "bearer" &&
+        contract.method !== "OPTIONS" &&
+        contract.routeMetadata.requestBody &&
+        !contract.routeMetadata.permission &&
+        !contract.routeMetadata.right &&
+        !ignoredRuntimeRequestBodyValidationSchemas.has(contract.routeMetadata.requestBody),
 );
 const schemas = JSON.parse(JSON.stringify(require("../../../assets/schemas.json")).replaceAll("#/definitions/", "")) as Record<string, AnySchema>;
 const ajv = new Ajv({
@@ -106,6 +124,31 @@ function configurePublicResponseSchemaRuntime() {
 
 function responseSchemaForContract(contract: GeneratedHttpContract) {
     return contract.routeMetadata.responses.find((schema) => !["APIErrorResponse", "Object"].includes(schema) && schemas[schema]);
+}
+
+function snapshotProcessState() {
+    return {
+        cwd: process.cwd(),
+        DATABASE: process.env.DATABASE,
+        APPLY_DB_MIGRATIONS: process.env.APPLY_DB_MIGRATIONS,
+        CONFIG_PATH: process.env.CONFIG_PATH,
+        DB_SYNC: process.env.DB_SYNC,
+        LOG_ROUTES: process.env.LOG_ROUTES,
+    };
+}
+
+function restoreProcessState(state: ReturnType<typeof snapshotProcessState>) {
+    process.chdir(state.cwd);
+    restoreEnv("DATABASE", state.DATABASE);
+    restoreEnv("APPLY_DB_MIGRATIONS", state.APPLY_DB_MIGRATIONS);
+    restoreEnv("CONFIG_PATH", state.CONFIG_PATH);
+    restoreEnv("DB_SYNC", state.DB_SYNC);
+    restoreEnv("LOG_ROUTES", state.LOG_ROUTES);
+}
+
+function restoreEnv(name: string, value: string | undefined) {
+    if (value === undefined) delete process.env[name];
+    else process.env[name] = value;
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -220,6 +263,80 @@ test("generated HTTP public response-schema contracts match real API responses",
         if (api) await api.stop();
     }
 });
+
+test(
+    "generated HTTP protected request-body contracts reject schema-invalid bodies after auth",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(protectedInvalidBodyContracts.length, matrix.summary.runtimeProtectedInvalidBodyContracts);
+        assert.ok(protectedInvalidBodyContracts.length > 0, "expected protected request-body API routes to be covered");
+
+        const previous = snapshotProcessState();
+        const restoreConsole = silenceConsole();
+        let api: Awaited<ReturnType<typeof startApi>> | undefined;
+        let database: Awaited<ReturnType<typeof createDisposablePostgresDatabase>> | undefined;
+        let databaseInitialized = false;
+        let tempCwd: string | undefined;
+
+        try {
+            database = await createDisposablePostgresDatabase({ prefix: "spacebar_contracts_protected_body" });
+            tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-contracts-protected-body-"));
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            process.env.LOG_ROUTES = "false";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            await initDatabase();
+            databaseInitialized = true;
+            api = await startApi();
+
+            const suffix = `${process.pid}${Date.now()}`;
+            const user = await User.register({
+                username: `contract${suffix.slice(-8)}`,
+                email: `contract-${suffix}@example.com`,
+                password: "contract-password",
+            });
+            const token = await generateToken(user.id);
+            assert.ok(token, "token generation should return a bearer token");
+
+            for (const contract of protectedInvalidBodyContracts) {
+                const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, {
+                    method: contract.method,
+                    headers: {
+                        accept: "application/json",
+                        authorization: `Bearer ${token}`,
+                        "content-type": "application/json",
+                    },
+                    body: JSON.stringify({ __generated_contract_invalid_body__: true }),
+                });
+
+                assert.equal(response.status, 400, `${contract.manifestId} should reject a schema-invalid request body after auth`);
+                assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON validation error`);
+
+                const body = (await response.json()) as Record<string, unknown>;
+                assert.equal(body.code, 50035, `${contract.manifestId} should return the invalid form body code`);
+                assert.equal(body.message, "Invalid Form Body", `${contract.manifestId} should return the invalid form body message`);
+                assert.equal(body.request, `${contract.method} /api/v9${contract.samplePath}`, `${contract.manifestId} should include the request route`);
+                assert.equal(typeof body.errors, "object", `${contract.manifestId} should include validation errors`);
+                assert.notEqual(body.errors, null, `${contract.manifestId} should include validation errors`);
+                assert.ok(Array.isArray(body._ajvErrors), `${contract.manifestId} should include raw AJV errors`);
+                assert.ok(body._ajvErrors.length > 0, `${contract.manifestId} should include at least one raw AJV error`);
+            }
+        } finally {
+            restoreConsole();
+            if (api) await api.stop();
+            if (databaseInitialized) await closeDatabase();
+            if (database) await database.close();
+            restoreProcessState(previous);
+            if (tempCwd) await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
 
 test("generated HTTP public request-body contracts reject schema-invalid bodies through the real API stack", { timeout: 60_000 }, async () => {
     assert.equal(publicInvalidBodyContracts.length, matrix.summary.runtimePublicInvalidBodyContracts);
