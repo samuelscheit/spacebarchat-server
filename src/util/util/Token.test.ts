@@ -8,6 +8,7 @@ import {
     checkToken,
     createTokenPayload,
     CurrentTokenFormatVersion,
+    FirstTokenFormatVersionWithDeviceId,
     generateTokenForSession,
     getCheckTokenUserSelect,
     getInvalidCurrentTokenSessionReason,
@@ -102,10 +103,12 @@ describe("token session binding", () => {
     test("validates current-format token session references", () => {
         assert.equal(getInvalidCurrentTokenSessionReason({ did: "SESSION" }, CurrentTokenFormatVersion, { session_id: "SESSION" }), undefined);
         assert.equal(getInvalidCurrentTokenSessionReason({}, CurrentTokenFormatVersion, undefined), "Current token has no real session id");
+        assert.equal(getInvalidCurrentTokenSessionReason({}, FirstTokenFormatVersionWithDeviceId, undefined), "Current token has no real session id");
+        assert.equal(getInvalidCurrentTokenSessionReason({}, FirstTokenFormatVersionWithDeviceId - 1, undefined), undefined);
         assert.equal(getInvalidCurrentTokenSessionReason({ did: "all" }, CurrentTokenFormatVersion, { session_id: "all" }), "Current token has no real session id");
         assert.equal(getInvalidCurrentTokenSessionReason({ did: "TEMP_socket" }, CurrentTokenFormatVersion, { session_id: "TEMP_socket" }), "Current token has no real session id");
         assert.equal(getInvalidCurrentTokenSessionReason({ did: "MISSING" }, CurrentTokenFormatVersion, undefined), "Current token session was not found");
-        assert.equal(getInvalidCurrentTokenSessionReason({ did: "LEGACY_MISSING" }, CurrentTokenFormatVersion - 1, undefined), undefined);
+        assert.equal(getInvalidCurrentTokenSessionReason({ did: "LEGACY_MISSING" }, FirstTokenFormatVersionWithDeviceId - 1, undefined), "Current token session was not found");
     });
 
     test("creates current-format token payloads for the selected session", () => {
@@ -149,6 +152,19 @@ describe("token session binding", () => {
             }
         }));
 
+    test("checkToken rejects the first session-bound token format without a session id", async (t) =>
+        withTempCwd(async () => {
+            setTokenStoreMocks(t);
+
+            const token = await signPayload({
+                id: "USER",
+                iat: 123,
+                ver: FirstTokenFormatVersionWithDeviceId,
+            });
+
+            await assert.rejects(() => checkToken(token), /Invalid Token/);
+        }));
+
     test("checkToken rejects current-format tokens with invalid session ids", async (t) =>
         withTempCwd(async () => {
             setTokenStoreMocks(t, { session: { session_id: "all" } });
@@ -166,5 +182,20 @@ describe("token session binding", () => {
 
             assert.equal(tokenData.tokenVersion, CurrentTokenFormatVersion);
             assert.equal(tokenData.session?.session_id, "SESSION");
+        }));
+
+    test("checkToken keeps explicit legacy tokens without a session id accepted", async (t) =>
+        withTempCwd(async () => {
+            setTokenStoreMocks(t);
+
+            const token = await signPayload({
+                id: "USER",
+                iat: 123,
+                ver: FirstTokenFormatVersionWithDeviceId - 1,
+            });
+            const tokenData = await checkToken(token);
+
+            assert.equal(tokenData.tokenVersion, FirstTokenFormatVersionWithDeviceId - 1);
+            assert.equal(tokenData.session, undefined);
         }));
 });

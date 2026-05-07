@@ -24,13 +24,14 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { FindOptionsRelations, FindOptionsSelect } from "typeorm";
+import { randomUpperString } from "./Random";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
 import path from "node:path";
-import { createTokenPayload, CurrentTokenFormatVersion, getTokenUserId, TokenPayload } from "./TokenPayload";
+import { createTokenPayload, CurrentTokenFormatVersion, FirstTokenFormatVersionWithDeviceId, getTokenUserId, TokenPayload } from "./TokenPayload";
 import { isRealGatewaySessionId } from "./GatewaySessions";
 
-export { createTokenPayload, CurrentTokenFormatVersion };
+export { createTokenPayload, CurrentTokenFormatVersion, FirstTokenFormatVersionWithDeviceId };
 
 export type UserTokenData = {
     user: User;
@@ -65,10 +66,6 @@ export function getCheckTokenUserSelect(select?: FindOptionsSelect<User>): FindO
     };
 }
 
-function randomUpperString(length: number = 10) {
-    return (require("@spacebar/api") as { randomUpperString(length?: number): string }).randomUpperString(length);
-}
-
 export type TokenEntityStores = {
     InstanceBan: typeof InstanceBan;
     Session: typeof Session;
@@ -90,9 +87,8 @@ export function setTokenEntityStoresForTests(stores: TokenEntityStores | undefin
 }
 
 export function getInvalidCurrentTokenSessionReason(decoded: Pick<UserTokenData["decoded"], "did">, tokenVersion: number, session?: Pick<Session, "session_id">) {
-    if (tokenVersion !== CurrentTokenFormatVersion) return undefined;
-    if (!isRealGatewaySessionId(decoded.did)) return "Current token has no real session id";
-    if (!session || session.session_id !== decoded.did) return "Current token session was not found";
+    if (tokenVersion >= FirstTokenFormatVersionWithDeviceId && !isRealGatewaySessionId(decoded.did)) return "Current token has no real session id";
+    if (decoded.did && (!session || session.session_id !== decoded.did)) return "Current token session was not found";
     return undefined;
 }
 
