@@ -429,6 +429,18 @@ Risks or blockers:
 
 - The local branch currently contains a pre-existing merge commit from `samuelscheit2/master` and an unrelated `node-modules.nix` worktree modification. They were not part of this audit fix and were not reverted.
 
+Final completion audit:
+
+- Objective restated: make the TypeScript admin API and Next.js dashboard production-ready across session UX, deployment wiring, durable jobs/audit, operations UX, destructive-action safety, and release gates.
+- Feature Track 1 evidence: `apps/admin-dashboard/app/login/page.tsx`, `apps/admin-dashboard/app/logout/route.ts`, `apps/admin-dashboard/app/lib/admin-session.ts`, `apps/admin-dashboard/app/lib/admin-api.ts`, and the protected dashboard layout cover login, logout, cookie attributes, header/cookie forwarding, `/whoami` validation, and missing/expired/forbidden/unreachable states.
+- Feature Track 2 evidence: root and workspace dashboard scripts in `package.json`, `apps/admin-dashboard/app/health/route.ts`, `scripts/smoke-admin-dashboard.mjs`, and `docs/admin-dashboard-deployment.md` cover build/start, health/smoke, API URL/cookie/base-path envs, reverse-proxy topology, misconfiguration behavior, and release note.
+- Feature Track 3 evidence: `src/util/entities/AdminJob.ts`, `src/util/entities/AdminAuditRecord.ts`, `src/util/migration/postgres/1778062363001-AdminJobsAndAuditRecords.ts`, `src/admin/jobs.ts`, `src/admin/audit.ts`, registered job runners, and `src/admin/durableStorage.test.ts` cover durable rows, idempotency, cancellation, worker claims, restart recovery, retention policy, pagination, and memory fallback only when no DB is initialized.
+- Feature Track 4 evidence: shared pagination and URL-backed search are wired through every list page; `apps/admin-dashboard/app/(dashboard)/jobs/[id]/page.tsx` covers job detail; `apps/admin-dashboard/app/(dashboard)/activity/page.tsx` now has expandable metadata/job rows; `apps/admin-dashboard/app/actions.ts` and `ActionResultBanner` expose server-action success/failure; `apps/admin-dashboard/app/configuration-editor.tsx` covers validation, formatting, parsed preview, and diff; `apps/admin-dashboard/app/(dashboard)/media/page.tsx` exposes dry-run, force, and missing-limit controls.
+- Feature Track 5 evidence: `src/admin/safety.ts`, admin route handlers, dashboard destructive fields, dashboard idempotency keys, CDN dry-run defaults, and focused admin tests cover typed confirmations, required reasons, audit reason metadata, idempotency propagation, and duplicate job prevention.
+- Feature Track 6 evidence: `src/admin/destructiveOperations.test.ts`, `scripts/test-admin-destructive-operations.mjs`, durable storage tests, dashboard action tests, browser e2e smoke screenshots, and `.github/pull_request_template.md` cover real DB destructive side effects, dashboard mutation failures, visual smoke artifacts, login/users/jobs/safe-media e2e, and PR checklist gates.
+- Explicit verification commands inspected: `npm run build`, `npm run build:src -- --force`, `npm run build:src`, focused admin backend tests, `npm run test:admin-durable-storage`, `npm run test:admin-destructive-operations`, `npm run build:admin-dashboard`, `npm run test:admin-dashboard-actions`, `npm run smoke:admin-dashboard:e2e`, and `npm run lint`.
+- Remaining missing, incomplete, weakly verified, or uncovered plan requirement: none found after the final audit.
+
 Next step:
 
-- Finish the prompt-to-artifact completion audit before marking the plan complete.
+- No remaining implementation work for `docs/admin-api-next-dashboard-plan.md`.
