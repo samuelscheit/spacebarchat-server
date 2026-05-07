@@ -82,6 +82,7 @@ export * from "./ChannelOrdering";
 export * from "./Gifs";
 export * from "./GuildFeatures";
 export * from "./GuildChannelOrdering";
+export * from "./GuildTemplates";
 export * from "./Application";
 export * from "./ApplicationModify";
 export * from "./NameValidation";
