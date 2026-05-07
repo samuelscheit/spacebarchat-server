@@ -60,6 +60,7 @@ export * from "./PinnedMessagesResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PaymentSourceResponse";
 export * from "./PreloadMessagesResponseSchema";
+export * from "./RecentAvatarsResponse";
 export * from "./RefreshUrlsResponse";
 export * from "./ReportingMenuResponse";
 export * from "./SettingsProtoUpdateResponse";

@@ -4039,6 +4039,42 @@
                     "$ref": "#/components/schemas/PreloadMessageResponse"
                 }
             },
+            "RecentAvatarResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "storage_hash": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "description",
+                    "id",
+                    "storage_hash"
+                ]
+            },
+            "RecentAvatarsResponse": {
+                "type": "object",
+                "properties": {
+                    "avatars": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecentAvatarResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "avatars"
+                ]
+            },
             "RefreshUrlsResponse": {
                 "type": "object",
                 "properties": {
@@ -7218,6 +7254,16 @@
                             "null",
                             "string"
                         ]
+                    },
+                    "avatar_description": {
+                        "maxLength": 1024,
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "avatar_id": {
+                        "type": "string"
                     },
                     "bio": {
                         "type": "string"
@@ -13636,6 +13682,12 @@
                             "$ref": "#/components/schemas/SecurityKey"
                         }
                     },
+                    "recent_avatars": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserRecentAvatar"
+                        }
+                    },
                     "badge_ids": {
                         "type": "array",
                         "items": {
@@ -13682,6 +13734,7 @@
                     "premium_usage_flags",
                     "public_flags",
                     "purchased_flags",
+                    "recent_avatars",
                     "relationships",
                     "rights",
                     "security_keys",
@@ -14211,6 +14264,40 @@
                     "key_id",
                     "name",
                     "public_key",
+                    "user",
+                    "user_id"
+                ]
+            },
+            "UserRecentAvatar": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "storage_hash": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "created_at",
+                    "id",
+                    "storage_hash",
                     "user",
                     "user_id"
                 ]
@@ -24489,6 +24576,40 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/avatars/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RecentAvatarsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [
