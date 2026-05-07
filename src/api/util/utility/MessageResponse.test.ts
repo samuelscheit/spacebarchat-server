@@ -99,7 +99,15 @@ describe("messageToResponse", () => {
                 },
             ],
             embeds: [],
-            reactions: [],
+            reactions: [
+                {
+                    count: 2,
+                    emoji: { name: "sparkles" },
+                    user_ids: ["viewer"],
+                    burst_user_ids: ["other-user"],
+                    burst_colors: ["#ff0000"],
+                },
+            ],
             pinned_at: null,
             type: 0,
             flags: 0,
@@ -108,6 +116,7 @@ describe("messageToResponse", () => {
         });
 
         const req = {
+            user_id: "viewer",
             ip: "203.0.113.10",
             headers: {
                 "user-agent": ["first-agent", "second-agent"],
@@ -125,6 +134,18 @@ describe("messageToResponse", () => {
         assert.deepEqual(response.mention_roles, []);
         assert.equal(response.pinned, false);
         assert.equal(response.timestamp, "2026-01-02T03:04:05.000Z");
+        assert.deepEqual(response.reactions, [
+            {
+                count: 2,
+                count_details: { normal: 1, burst: 1 },
+                me: true,
+                me_burst: false,
+                emoji: { name: "sparkles" },
+                burst_colors: ["#ff0000"],
+            },
+        ]);
+        assert.equal("user_ids" in response.reactions![0], false);
+        assert.equal("burst_user_ids" in response.reactions![0], false);
         assert.deepEqual(response.author, {
             id: "raw-author-id",
             username: "raw-author",

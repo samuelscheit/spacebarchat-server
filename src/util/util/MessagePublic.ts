@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PartialUser, PublicMessage } from "@spacebar/schemas";
+import type { PartialUser, PublicMessage, StoredReaction } from "@spacebar/schemas";
 import { serializePublicMember, type PublicMemberLike } from "./MemberRoles";
 import { serializeMessageMentions } from "./MessageMentions";
 import { serializeMessageRoleMentions, type SerializableRoleMention } from "./MessageRoleMentions";
+import { toPublicReactions } from "./Reactions";
 
 interface PublicUserSource {
     avatar?: string | null;
@@ -51,7 +52,7 @@ interface PublicMessageSource {
     nonce?: string | null;
     pinned: boolean;
     poll?: PublicMessage["poll"];
-    reactions?: PublicMessage["reactions"];
+    reactions?: StoredReaction[];
     referenced_message?: { toJSON: (shallow?: boolean) => PublicMessage } | null;
     thread?: { toJSON: () => PublicMessage["thread"] } | PublicMessage["thread"];
     timestamp: Date;
@@ -87,7 +88,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
 
         nonce: message.nonce ?? undefined,
         tts: message.tts ?? false,
-        reactions: message.reactions ?? undefined,
+        reactions: message.reactions ? toPublicReactions(message.reactions) : undefined,
         message_reference: message.message_reference ?? undefined,
         mention_everyone: message.mention_everyone ?? false,
         author,

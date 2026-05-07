@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 400,
+        "totalEntries": 403,
         "byService": {
-            "api": 335,
+            "api": 338,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 375,
+            "http-route": 378,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 240,
+            "stateful-domain": 243,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -42,7 +42,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 15,
-            "route-class": 292,
+            "route-class": 295,
             "hot-path": 28,
             "none": 1,
             "cdn-hot-path": 41,
@@ -2651,13 +2651,13 @@
             }
         },
         {
-            "id": "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:burst/:user_id",
+            "id": "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/:user_id",
             "type": "http-route",
             "service": "api",
             "method": "DELETE",
-            "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:burst/:user_id",
+            "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 343,
+            "line": 416,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2695,13 +2695,146 @@
             }
         },
         {
+            "id": "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
+            "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
+            "line": 401,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
+            "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
+            "line": 281,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "READ_MESSAGE_HISTORY",
+                "right": "SELF_ADD_REACTIONS",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
+            "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
+            "line": 182,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PublicUser"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:user_id",
             "type": "http-route",
             "service": "api",
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 324,
+            "line": 385,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2745,7 +2878,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 307,
+            "line": 370,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2788,7 +2921,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 222,
+            "line": 264,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2833,7 +2966,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 139,
+            "line": 113,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2877,7 +3010,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 182,
+            "line": 156,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2892,7 +3025,7 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2922,7 +3055,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 103,
+            "line": 77,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3007,7 +3140,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 70,
+            "line": 78,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3051,7 +3184,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 241,
+            "line": 244,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3098,7 +3231,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 514,
+            "line": 517,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

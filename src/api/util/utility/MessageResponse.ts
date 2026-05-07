@@ -19,9 +19,12 @@
 import { Request } from "express";
 import type { Message } from "../../../util/entities/Message";
 import { NewUrlUserSignatureData } from "../../../util/Signing";
+import { toPublicReactions } from "../../../util/util/Reactions";
 
 export function messageToResponse(message: Message, req: Request) {
-    return message.withSignedAttachments(requestUrlSignatureData(req));
+    const response = message.withSignedAttachments(requestUrlSignatureData(req));
+    if (message.reactions) response.reactions = toPublicReactions(message.reactions, req.user_id);
+    return response;
 }
 
 export function requestUrlSignatureData(req: Pick<Request, "headers" | "ip">) {

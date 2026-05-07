@@ -15906,16 +15906,31 @@
                     }
                 }
             },
-            "Reaction": {
+            "StoredReaction": {
                 "type": "object",
                 "properties": {
                     "count": {
                         "type": "integer"
                     },
+                    "count_details": {
+                        "$ref": "#/components/schemas/ReactionCountDetails"
+                    },
                     "emoji": {
                         "$ref": "#/components/schemas/PartialEmoji"
                     },
                     "user_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "burst_user_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "burst_colors": {
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -15926,6 +15941,21 @@
                     "count",
                     "emoji",
                     "user_ids"
+                ]
+            },
+            "ReactionCountDetails": {
+                "type": "object",
+                "properties": {
+                    "normal": {
+                        "type": "integer"
+                    },
+                    "burst": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "burst",
+                    "normal"
                 ]
             },
             "PartialEmoji": {
@@ -16968,6 +16998,36 @@
                     2,
                     4,
                     8
+                ]
+            },
+            "Reaction": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer"
+                    },
+                    "count_details": {
+                        "$ref": "#/components/schemas/ReactionCountDetails"
+                    },
+                    "me": {
+                        "type": "boolean"
+                    },
+                    "me_burst": {
+                        "type": "boolean"
+                    },
+                    "emoji": {
+                        "$ref": "#/components/schemas/PartialEmoji"
+                    },
+                    "burst_colors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "count",
+                    "emoji"
                 ]
             },
             "MessageActivity": {
@@ -33748,6 +33808,94 @@
                             "type": "string"
                         },
                         "description": "emoji"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The type of reaction to return users for."
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}": {
+            "get": {
+                "x-permission-required": "VIEW_CHANNEL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    },
+                    {
+                        "name": "emoji",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "emoji"
+                    },
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "type"
                     }
                 ],
                 "tags": [
@@ -33879,6 +34027,148 @@
                 ]
             }
         },
+        "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}/@me": {
+            "put": {
+                "x-right-required": "SELF_ADD_REACTIONS",
+                "x-permission-required": "READ_MESSAGE_HISTORY",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    },
+                    {
+                        "name": "emoji",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "emoji"
+                    },
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "type"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    },
+                    {
+                        "name": "emoji",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "emoji"
+                    },
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "type"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
         "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}": {
             "delete": {
                 "x-permission-required": "MANAGE_MESSAGES",
@@ -33951,7 +34241,7 @@
                 ]
             }
         },
-        "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{burst}/{user_id}": {
+        "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}/{user_id}": {
             "delete": {
                 "x-permission-required": "MANAGE_MESSAGES",
                 "security": [
@@ -34009,13 +34299,13 @@
                         "description": "emoji"
                     },
                     {
-                        "name": "burst",
+                        "name": "type",
                         "in": "path",
                         "required": true,
                         "schema": {
                             "type": "string"
                         },
-                        "description": "burst"
+                        "description": "type"
                     },
                     {
                         "name": "user_id",

@@ -38,7 +38,7 @@ import {
     PartialMessage,
     Poll,
     PublicMessage,
-    Reaction,
+    StoredReaction,
     UnfurledMediaItem,
     PartialUser,
     InteractionType,
@@ -294,7 +294,7 @@ export class Message extends BaseClass {
 
     @Column({ type: "jsonb" })
     @JsonRemoveEmpty
-    reactions: Reaction[];
+    reactions: StoredReaction[];
 
     @Column({ type: "text", nullable: true })
     @JsonRemoveEmpty

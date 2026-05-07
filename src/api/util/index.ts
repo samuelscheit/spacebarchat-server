@@ -35,6 +35,7 @@ export * from "./utility/RegistrationTokens";
 export * from "./utility/Relationships";
 export * from "./utility/WebAuthn";
 export * from "./utility/Messages";
+export * from "./utility/ReactionTypes";
 export * from "./handlers/route";
 export * from "./handlers/StageInstance";
 export * from "./utility/String";
