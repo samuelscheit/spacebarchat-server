@@ -146,8 +146,18 @@
                         "src/gateway/util/StreamRegion.test.ts"
                     ],
                     "selectors": [{ "service": "gateway", "type": "opcode" }],
-                    "fixtures": ["users", "sessions", "guilds", "channels", "event-bus"],
-                    "checks": ["hello", "identify", "heartbeat", "resume", "bad-payload-close", "unsupported-handshake-close", "event-fanout"]
+                    "fixtures": ["users", "sessions", "guilds", "channels", "voice-states", "streams", "event-bus"],
+                    "checks": [
+                        "hello",
+                        "identify",
+                        "heartbeat",
+                        "resume",
+                        "bad-payload-close",
+                        "unsupported-handshake-close",
+                        "event-fanout",
+                        "channel-status-info",
+                        "stream-create-watch-delete"
+                    ]
                 },
                 {
                     "id": "webrtc",

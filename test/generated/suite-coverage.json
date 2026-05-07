@@ -1370,6 +1370,8 @@
                         "sessions",
                         "guilds",
                         "channels",
+                        "voice-states",
+                        "streams",
                         "event-bus"
                     ],
                     "checks": [
@@ -1379,7 +1381,9 @@
                         "resume",
                         "bad-payload-close",
                         "unsupported-handshake-close",
-                        "event-fanout"
+                        "event-fanout",
+                        "channel-status-info",
+                        "stream-create-watch-delete"
                     ],
                     "manifestIds": [
                         "gateway:opcode:1",
