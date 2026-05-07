@@ -21,6 +21,7 @@ dotenv.config({ quiet: true });
 import {
     checkToken,
     closeDatabase,
+    Config,
     getProcessMetricSamples,
     initEvent,
     initStartupConfigAndDatabase,
@@ -32,14 +33,14 @@ import {
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "node:http";
-import { cleanupOnStartup } from "./util";
+import { cleanupOnStartup, getGatewayTransportMaxPayload } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
 import { Duplex } from "node:stream";
 import { closeGatewayServer } from "./util/Shutdown";
 
 export class Server {
-    public ws: ws.Server;
+    public ws?: ws.Server;
     public port: number;
     public server: http.Server;
     public production: boolean;
@@ -179,27 +180,21 @@ export class Server {
             });
         }
 
-        this.ws = new ws.Server({
-            maxPayload: 4096,
-            noServer: true,
-        });
-        this.ws.on("connection", Connection);
-        this.ws.on("error", console.error);
-
         this.upgradeHandler = (request, socket, head) => {
-            if (this.stopping) {
+            if (this.stopping || !this.ws) {
                 socket.destroy();
                 return;
             }
 
+            const wsServer = this.ws;
             try {
-                this.ws.handleUpgrade(request, socket, head, (websocket) => {
+                wsServer.handleUpgrade(request, socket, head, (websocket) => {
                     if (this.stopping) {
                         websocket.close(1001, "Gateway shutdown");
                         return;
                     }
 
-                    this.ws.emit("connection", websocket, request);
+                    wsServer.emit("connection", websocket, request);
                 });
             } catch (error) {
                 if (!this.stopping) console.error("[Gateway] WebSocket upgrade failed", error);
@@ -207,6 +202,17 @@ export class Server {
             }
         };
         this.server.on("upgrade", this.upgradeHandler);
+    }
+
+    private initializeWebSocketServer() {
+        if (this.ws) return;
+
+        this.ws = new ws.Server({
+            maxPayload: getGatewayTransportMaxPayload(Config.get().limits.gateway),
+            noServer: true,
+        });
+        this.ws.on("connection", Connection);
+        this.ws.on("error", console.error);
     }
 
     getExtraMetricSamples(): MetricSample[] {
@@ -235,6 +241,7 @@ export class Server {
     async start(): Promise<void> {
         await initStartupConfigAndDatabase();
         await initEvent();
+        this.initializeWebSocketServer();
         // temporary fix
         await cleanupOnStartup();
 
@@ -254,7 +261,7 @@ export class Server {
         this.stopping = true;
         this.server.off("upgrade", this.upgradeHandler);
 
-        await closeGatewayServer(this.ws);
+        if (this.ws) await closeGatewayServer(this.ws);
 
         if (this.ownsHttpServer) {
             if (this.server.listening) await closeHttpServer(this.server);

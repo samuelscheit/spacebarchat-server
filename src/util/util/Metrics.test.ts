@@ -195,7 +195,7 @@ describe("Prometheus metrics", () => {
             assert.match(response.headers.get("content-type") ?? "", /^text\/plain; version=0\.0\.4/);
             assert.match(body, /spacebar_gateway_websocket_clients\{service="gateway"\} /);
         } finally {
-            gateway.ws.close();
+            gateway.ws?.close();
             await close(server.server);
         }
     });
@@ -214,7 +214,7 @@ describe("Prometheus metrics", () => {
             assert.match(response, /content-type: text\/plain; version=0\.0\.4; charset=utf-8/i);
             assert.match(response, /spacebar_gateway_websocket_clients\{service="gateway"\} /);
         } finally {
-            gateway.ws.close();
+            gateway.ws?.close();
             await close(server.server);
         }
     });
@@ -231,7 +231,7 @@ describe("Prometheus metrics", () => {
             assert.match(response, /^HTTP\/1\.1 200 OK\r\n/);
             assert.match(response, /Online/);
         } finally {
-            gateway.ws.close();
+            gateway.ws?.close();
             await close(server.server);
         }
     });
