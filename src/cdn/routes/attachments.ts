@@ -81,7 +81,7 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
 
     let hasValidAuth = false;
     if (req.headers.signature) {
-        hasValidAuth = req.headers.signature !== Config.get().security.requestSignature;
+        hasValidAuth = req.headers.signature === Config.get().security.requestSignature;
         if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid signature header");
     } else if (!Config.get().security.cdnSignUrls) hasValidAuth = true;
     else {
@@ -98,7 +98,7 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     if (!hasValidAuth) return res.status(404).send("This content is no longer available.");
 
     const file = await storage.get(path);
-    if (!file) throw new HTTPError("File not found");
+    if (!file) throw new HTTPError("File not found", 404);
     const type = await fileTypeFromBuffer(file);
     let content_type = type?.mime || "application/octet-stream";
 

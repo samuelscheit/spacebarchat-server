@@ -18,7 +18,7 @@
 
 import { Server, ServerOptions } from "lambert-server";
 import { Attachment, Config, initStartupConfigAndDatabase, registerRoutes } from "@spacebar/util";
-import { CORS, BodyParser } from "@spacebar/api";
+import { CORS, BodyParser, ErrorHandler } from "@spacebar/api";
 import path from "node:path";
 import guildProfilesRoute from "./routes/guild-profiles";
 import morgan from "morgan";
@@ -64,6 +64,8 @@ export class CDNServer extends Server {
 
         this.app.use("/guilds/:guild_id/users/:user_id/banners", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/banners registered");
+
+        this.app.use(ErrorHandler);
         this.configured = true;
     }
 
