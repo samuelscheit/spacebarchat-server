@@ -28,7 +28,8 @@ describe("guild template role remapping", () => {
         const roleIdMap = new Map([
             ["0", "new-guild"],
             ["source-guild", "new-guild"],
-            ["old-role", "new-role"],
+            ["1", "new-role-1"],
+            ["old-role", "new-role-2"],
         ]);
 
         const channels = remapTemplateChannelPermissionOverwrites(
@@ -37,10 +38,11 @@ describe("guild template role remapping", () => {
                     id: "channel",
                     permission_overwrites: [
                         { id: 0, type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "1", deny: "0" },
-                        { id: "old-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "2", deny: "0" },
-                        { id: "missing-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "4", deny: "0" },
-                        { id: "user-id", type: MEMBER_PERMISSION_OVERWRITE_TYPE, allow: "8", deny: "0" },
-                        { id: "group-id", type: GROUP_PERMISSION_OVERWRITE_TYPE, allow: "16", deny: "0" },
+                        { id: 1, type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "2", deny: "0" },
+                        { id: "old-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "4", deny: "0" },
+                        { id: "missing-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "8", deny: "0" },
+                        { id: "user-id", type: MEMBER_PERMISSION_OVERWRITE_TYPE, allow: "16", deny: "0" },
+                        { id: "group-id", type: GROUP_PERMISSION_OVERWRITE_TYPE, allow: "32", deny: "0" },
                     ],
                 },
             ],
@@ -49,7 +51,8 @@ describe("guild template role remapping", () => {
 
         assert.deepEqual(channels[0].permission_overwrites, [
             { id: "new-guild", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "1", deny: "0" },
-            { id: "new-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "2", deny: "0" },
+            { id: "new-role-1", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "2", deny: "0" },
+            { id: "new-role-2", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "4", deny: "0" },
         ]);
     });
 });

@@ -1,4 +1,4 @@
-type TemplateId = string | number;
+export type TemplateId = string | number;
 
 export type TemplateRoleLike = {
     id?: TemplateId | null;
@@ -15,12 +15,27 @@ export type TemplateChannelLike = {
     permission_overwrites?: TemplateChannelPermissionOverwrite[];
 };
 
-function normalizeTemplateId(id: TemplateId | null | undefined): string | undefined {
+export type RemappedTemplateChannelPermissionOverwrite = Omit<TemplateChannelPermissionOverwrite, "id"> & {
+    id: string;
+};
+
+export type RemappedTemplateChannelLike<T extends TemplateChannelLike> = Omit<T, "permission_overwrites"> & {
+    permission_overwrites?: RemappedTemplateChannelPermissionOverwrite[];
+};
+
+export function normalizeTemplateId(id: TemplateId | null | undefined): string | undefined {
     if (id === null || id === undefined) return undefined;
     return String(id);
 }
 
 const ROLE_PERMISSION_OVERWRITE_TYPE = 0;
+
+export function isTemplateEveryoneRoleId(roleId: TemplateId | null | undefined, sourceGuildId: TemplateId | null | undefined): boolean {
+    const normalizedRoleId = normalizeTemplateId(roleId);
+    if (!normalizedRoleId) return false;
+
+    return normalizedRoleId === "0" || normalizedRoleId === normalizeTemplateId(sourceGuildId);
+}
 
 export function createTemplateRoleIdMap(roles: TemplateRoleLike[], sourceGuildId: string | null, guildId: string, generateId: () => string) {
     const roleIdMap = new Map<string, string>([["0", guildId]]);
@@ -42,9 +57,9 @@ export function getMappedTemplateRoleId(roleId: TemplateId | null | undefined, r
     return roleIdMap.get(normalizedRoleId);
 }
 
-export function remapTemplateChannelPermissionOverwrites<T extends TemplateChannelLike>(channels: T[], roleIdMap: Map<string, string>): T[] {
+export function remapTemplateChannelPermissionOverwrites<T extends TemplateChannelLike>(channels: T[], roleIdMap: Map<string, string>): RemappedTemplateChannelLike<T>[] {
     return channels.map((channel) => {
-        if (!channel.permission_overwrites?.length) return channel;
+        if (!channel.permission_overwrites?.length) return channel as RemappedTemplateChannelLike<T>;
 
         return {
             ...channel,
@@ -65,6 +80,6 @@ export function remapTemplateChannelPermissionOverwrites<T extends TemplateChann
                     },
                 ];
             }),
-        };
+        } as RemappedTemplateChannelLike<T>;
     });
 }

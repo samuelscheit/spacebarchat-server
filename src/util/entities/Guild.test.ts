@@ -96,15 +96,18 @@ test("Guild.createGuild remaps template channel role permission overwrites befor
     const guild = await Guild.createGuild({
         name: "Template Import",
         owner_id: "owner",
-        roles: [{ id: "old-role", name: "Mods" }],
+        roles: [
+            { id: 0, permissions: "8" },
+            { id: 1, name: "Mods" },
+        ],
         channels: [
             {
                 id: "old-category",
                 type: GUILD_CATEGORY_CHANNEL_TYPE,
                 name: "Private",
                 permission_overwrites: [
-                    { id: "source-guild", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "0", deny: "1024" },
-                    { id: "old-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "1024", deny: "0" },
+                    { id: 0, type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "0", deny: "1024" },
+                    { id: 1, type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "1024", deny: "0" },
                     { id: "member-id", type: MEMBER_PERMISSION_OVERWRITE_TYPE, allow: "2048", deny: "0" },
                     { id: "missing-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "4096", deny: "0" },
                 ],
@@ -114,7 +117,7 @@ test("Guild.createGuild remaps template channel role permission overwrites befor
                 parent_id: "old-category",
                 type: GUILD_TEXT_CHANNEL_TYPE,
                 name: "mods",
-                permission_overwrites: [{ id: "old-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "2048", deny: "0" }],
+                permission_overwrites: [{ id: 1, type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "2048", deny: "0" }],
             },
         ],
         source_guild_id: "source-guild",
@@ -122,8 +125,11 @@ test("Guild.createGuild remaps template channel role permission overwrites befor
 
     assert.equal(guild.id, "new-guild");
     assert.deepEqual(
-        createdRoles.map((role) => role.id),
-        ["new-guild", "new-role"],
+        createdRoles.map((role) => ({ id: role.id, name: role.name, permissions: role.permissions })),
+        [
+            { id: "new-guild", name: "@everyone", permissions: "8" },
+            { id: "new-role", name: "Mods", permissions: "0" },
+        ],
     );
     assert.deepEqual(createdChannels[0].permission_overwrites, [
         { id: "new-guild", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "0", deny: "1024" },

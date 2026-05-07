@@ -42,7 +42,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { insertChannelInOrdering } from "@spacebar/util";
-import { remapTemplateChannelPermissionOverwrites } from "../util/GuildTemplates";
+import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -60,6 +60,8 @@ import { remapTemplateChannelPermissionOverwrites } from "../util/GuildTemplates
 // 		"miHoYo",
 // 		"Gacha"
 // 	],
+
+type GuildCreateChannelInput = Omit<Partial<Channel>, "permission_overwrites"> & TemplateChannelLike;
 
 export const PublicGuildRelations = [
     "channels",
@@ -361,7 +363,7 @@ export class Guild extends BaseClass {
         icon?: string | null;
         owner_id?: string;
         roles?: GuildCreateRoleInput[];
-        channels?: Partial<Channel>[];
+        channels?: GuildCreateChannelInput[];
         source_guild_id: string | null;
         verification_level?: number | null;
         default_message_notifications?: number | null;
@@ -373,8 +375,7 @@ export class Guild extends BaseClass {
         rules_channel_id?: string | null;
     }) {
         const guild_id = Snowflake.generate();
-        const roleIds = new Map<string, string>([["0", guild_id]]);
-        if (body.source_guild_id) roleIds.set(body.source_guild_id, guild_id);
+        const roleIds = createTemplateRoleIdMap(body.roles ?? [], body.source_guild_id, guild_id, () => Snowflake.generate());
 
         const guild = await Guild.create({
             id: guild_id,
@@ -432,7 +433,7 @@ export class Guild extends BaseClass {
         if (customRoles.length) {
             await Promise.all(
                 customRoles.map((role, index) => {
-                    const id = Snowflake.generate();
+                    const id = getMappedTemplateRoleId(role.id, roleIds) ?? Snowflake.generate();
                     const normalized = normalizeGuildCreateRole(role, {
                         color: 0,
                         colors: { primary_color: 0 },
@@ -445,8 +446,6 @@ export class Guild extends BaseClass {
                         flags: 0,
                     });
 
-                    if (role.id) roleIds.set(role.id, id);
-
                     return Role.create({
                         ...normalized,
                         guild_id,
@@ -456,7 +455,7 @@ export class Guild extends BaseClass {
             );
         }
 
-        const templateChannels = body.channels?.length ? body.channels : [{ id: "01", type: 0, name: "general", nsfw: false }];
+        const templateChannels: GuildCreateChannelInput[] = body.channels?.length ? body.channels : [{ id: "01", type: 0, name: "general", nsfw: false }];
         const channels = remapTemplateChannelPermissionOverwrites(templateChannels, roleIds);
 
         const ids = new Map();
