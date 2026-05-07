@@ -21,15 +21,16 @@ import {
     Channel,
     ChannelDeleteEvent,
     ChannelRecipientRemoveEvent,
+    ChannelUpdateEvent,
     emitEvent,
     Emoji,
-    getGroupDMOwnerAfterRecipientRemoval,
     Guild,
     InstanceBan,
     Member,
     Recipient,
     Sticker,
     Stopwatch,
+    saveGroupDMOwnerAfterRecipientRemoval,
     User,
     UserDeleteEvent,
     UserSettingsProtos,
@@ -111,6 +112,7 @@ router.post(
 
                 // if no recipients remain, delete the channel
                 const remainingRecipients = await Recipient.find({ where: { channel_id: channel.id } });
+                channel.recipients = remainingRecipients;
                 if (remainingRecipients.length === 0) {
                     await emitEvent({
                         event: "CHANNEL_DELETE",
@@ -120,13 +122,16 @@ router.post(
                     await Channel.deleteChannel(channel);
                     console.log(`[Instance ban] Deleted empty group channel ${channel.id}`);
                 } else {
-                    const nextOwnerId = getGroupDMOwnerAfterRecipientRemoval(
-                        channel.owner_id,
+                    const ownerChanged = await saveGroupDMOwnerAfterRecipientRemoval(
+                        channel,
                         remainingRecipients.map((recipient) => recipient.user_id),
                     );
-                    if (channel.owner_id !== nextOwnerId) {
-                        channel.owner_id = nextOwnerId;
-                        await channel.save();
+                    if (ownerChanged) {
+                        await emitEvent({
+                            event: "CHANNEL_UPDATE",
+                            data: channel.toJSON(),
+                            channel_id: channel.id,
+                        } satisfies ChannelUpdateEvent);
                         console.log(`[Instance ban] Reassigned ownership of group channel ${channel.id} to user ${channel.owner_id}`);
                     }
                 }

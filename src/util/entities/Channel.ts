@@ -18,7 +18,7 @@
 
 import { HTTPError } from "lambert-server";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { DmChannelDTO, getCreateDMChannelResponse, getGroupDMOwnerAfterRecipientRemoval } from "../dtos";
+import { DmChannelDTO, getCreateDMChannelResponse, saveGroupDMOwnerAfterRecipientRemoval } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
 import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util";
 import { BaseClass } from "./BaseClass";
@@ -520,12 +520,7 @@ export class Channel extends BaseClass {
             return;
         }
 
-        const nextOwnerId = getGroupDMOwnerAfterRecipientRemoval(channel.owner_id, channel.recipients?.map((recipient) => recipient.user_id) ?? []);
-        const ownerChanged = channel.owner_id !== nextOwnerId;
-        if (ownerChanged) {
-            channel.owner_id = nextOwnerId;
-            await channel.save();
-        }
+        const ownerChanged = await saveGroupDMOwnerAfterRecipientRemoval(channel, channel.recipients?.map((recipient) => recipient.user_id) ?? []);
 
         await emitEvent({
             event: "CHANNEL_DELETE",
