@@ -722,7 +722,7 @@
             "method": "PUT",
             "path": "/applications/:application_id/commands/",
             "sourceFile": "src/api/routes/applications/#application_id/commands/index.ts",
-            "line": 72,
+            "line": 74,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -1007,7 +1007,7 @@
             "method": "PUT",
             "path": "/applications/:application_id/guilds/:guild_id/commands/",
             "sourceFile": "src/api/routes/applications/#application_id/guilds/#guild_id/commands/index.ts",
-            "line": 98,
+            "line": 100,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

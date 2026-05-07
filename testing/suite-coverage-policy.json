@@ -94,7 +94,11 @@
                     "title": "Applications, commands, bot authorization, entitlements, and interactions",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/api/util/utility/ApplicationAuthorization.test.ts", "src/api/util/utility/ApplicationCommands.test.ts"],
+                    "testFiles": [
+                        "test/scenarios/applications-commands.test.ts",
+                        "src/api/util/utility/ApplicationAuthorization.test.ts",
+                        "src/api/util/utility/ApplicationCommands.test.ts"
+                    ],
                     "selectors": [
                         { "service": "api", "type": "http-route", "pathPrefix": "/applications" },
                         { "service": "api", "type": "http-route", "pathPrefix": "/interactions" }

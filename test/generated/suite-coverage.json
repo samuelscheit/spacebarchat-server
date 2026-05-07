@@ -1091,6 +1091,7 @@
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "test/scenarios/applications-commands.test.ts",
                         "src/api/util/utility/ApplicationAuthorization.test.ts",
                         "src/api/util/utility/ApplicationCommands.test.ts"
                     ],
