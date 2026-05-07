@@ -17,7 +17,7 @@
 */
 
 import { createTokenResponse, route } from "@spacebar/api";
-import { checkToken, Email, FieldErrors, User, userSelectFromKeys } from "@spacebar/util";
+import { Email, EmailActionTokenPurpose, FieldErrors, User, verifyEmailActionToken } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { PasswordResetSchema } from "@spacebar/schemas";
@@ -42,12 +42,7 @@ router.post(
 
         let user;
         try {
-            const userTokenData = await checkToken(token, {
-                select: userSelectFromKeys(["email"]),
-                fingerprint: req.fingerprint,
-                ipAddress: req.ip,
-            });
-            user = userTokenData.user;
+            user = await verifyEmailActionToken(token, EmailActionTokenPurpose.resetPassword);
         } catch {
             throw FieldErrors({
                 password: {
@@ -62,6 +57,7 @@ router.post(
 
         const data = {
             data: {
+                ...user.data,
                 hash,
                 valid_tokens_since: new Date(),
             },

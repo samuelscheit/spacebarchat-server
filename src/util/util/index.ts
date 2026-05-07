@@ -18,6 +18,7 @@
 
 export * from "./ApiError";
 export * from "./ApiVersions";
+export * from "./AuthTokenPayload";
 export * from "./extensions/Array";
 export * from "./BitField";
 //export * from "./Categories";
@@ -32,6 +33,7 @@ export * from "./DateBuilder";
 export * from "./DefaultUserRights";
 export * from "./DmPrivacy";
 export * from "./EmailAddress";
+export * from "./EmailActionToken";
 export * from "./email";
 export * from "./ElapsedTime";
 export * from "./Event";

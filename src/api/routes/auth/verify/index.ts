@@ -16,19 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createTokenResponse, route, verifyCaptcha } from "@spacebar/api";
-import { checkToken, Config, FieldErrors, User, userSelectFromKeys } from "@spacebar/util";
+import { route, verifyCaptcha } from "@spacebar/api";
+import { Config, EmailActionTokenPurpose, FieldErrors, User, verifyEmailActionToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
+// TODO: the response interface also returns settings, but this route doesn't actually return that.
 router.post(
     "/",
     route({
         requestBody: "VerifyEmailSchema",
         responses: {
-            200: {
-                body: "TokenResponse",
-            },
+            204: {},
             400: {
                 body: "APIErrorOrCaptchaResponse",
             },
@@ -64,12 +63,7 @@ router.post(
         let user;
 
         try {
-            const userTokenData = await checkToken(token, {
-                select: userSelectFromKeys(["verified"]),
-                fingerprint: req.fingerprint,
-                ipAddress: req.ip,
-            });
-            user = userTokenData.user;
+            user = await verifyEmailActionToken(token, EmailActionTokenPurpose.verifyEmail);
         } catch {
             throw FieldErrors({
                 token: {
@@ -79,11 +73,18 @@ router.post(
             });
         }
 
-        if (user.verified) return res.json(await createTokenResponse(user.id));
+        if (user.verified) {
+            throw FieldErrors({
+                token: {
+                    message: req.t("auth:password_reset.INVALID_TOKEN"),
+                    code: "INVALID_TOKEN",
+                },
+            });
+        }
 
         await User.update({ id: user.id }, { verified: true });
 
-        return res.json(await createTokenResponse(user.id));
+        return res.sendStatus(204);
     },
 );
 

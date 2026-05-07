@@ -31128,15 +31128,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TokenResponse"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "No description available"
                     },
                     "400": {
                         "description": "",

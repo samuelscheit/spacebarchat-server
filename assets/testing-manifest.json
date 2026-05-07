@@ -5,6 +5,7 @@
     "sources": [
         "src/api/routes",
         "src/api/Server.ts",
+        "src/api/util/PublicAssetRoutes.ts",
         "src/cdn/routes",
         "src/cdn/Server.ts",
         "src/gateway/opcodes/index.ts",
@@ -12,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 394,
+        "totalEntries": 395,
         "byService": {
-            "api": 329,
+            "api": 330,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -23,12 +24,12 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 369,
+            "http-route": 370,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
-            "app-smoke": 13,
+            "app-smoke": 14,
             "contract": 53,
             "stateful-domain": 235,
             "cdn-integration": 42,
@@ -40,7 +41,7 @@
         },
         "byBenchmarkClass": {
             "micro": 2,
-            "startup-health": 14,
+            "startup-health": 15,
             "route-class": 290,
             "hot-path": 25,
             "none": 1,
@@ -81,7 +82,7 @@
             "method": "GET",
             "path": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 149,
+            "line": 136,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -110,7 +111,7 @@
             "method": "GET",
             "path": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 145,
+            "line": 132,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -139,7 +140,7 @@
             "method": "GET",
             "path": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 153,
+            "line": 140,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -226,7 +227,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 168,
+            "line": 155,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -255,7 +256,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 161,
+            "line": 148,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -283,15 +284,15 @@
             "service": "api",
             "method": "GET",
             "path": "/",
-            "sourceFile": "src/api/Server.ts",
-            "line": 130,
+            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
+            "line": 9,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
                 "present": false
             },
             "coverage": {
-                "policyId": "api-app-bootstrap",
+                "policyId": "api-public-assets",
                 "testTier": "app-smoke",
                 "benchmarkClass": "startup-health",
                 "fixtureRequirements": [
@@ -303,7 +304,7 @@
                     "body-shape"
                 ],
                 "allowMissingRouteMetadata": true,
-                "notes": "Root, well-known, image proxy, health, and static asset routes are registered outside src/api/routes."
+                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
             }
         },
         {
@@ -1779,17 +1780,16 @@
             "method": "POST",
             "path": "/auth/verify/",
             "sourceFile": "src/api/routes/auth/verify/index.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "VerifyEmailSchema",
                 "responseBodies": [
-                    "APIErrorOrCaptchaResponse",
-                    "TokenResponse"
+                    "APIErrorOrCaptchaResponse"
                 ],
                 "responseStatuses": [
-                    200,
+                    204,
                     400
                 ],
                 "hasQuery": false
@@ -8464,7 +8464,7 @@
             "method": "GET",
             "path": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 208,
+            "line": 195,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -9223,7 +9223,7 @@
             "method": "GET",
             "path": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 207,
+            "line": 194,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -12411,15 +12411,15 @@
             "service": "api",
             "method": "GET",
             "path": "/verify-email",
-            "sourceFile": "src/api/Server.ts",
-            "line": 135,
+            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
+            "line": 14,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
                 "present": false
             },
             "coverage": {
-                "policyId": "api-app-bootstrap",
+                "policyId": "api-public-assets",
                 "testTier": "app-smoke",
                 "benchmarkClass": "startup-health",
                 "fixtureRequirements": [
@@ -12431,7 +12431,36 @@
                     "body-shape"
                 ],
                 "allowMissingRouteMetadata": true,
-                "notes": "Root, well-known, image proxy, health, and static asset routes are registered outside src/api/routes."
+                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
+            }
+        },
+        {
+            "id": "api:http:GET:/verify-response.js",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/verify-response.js",
+            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
+            "line": 19,
+            "mountedVia": "api-app",
+            "authMode": "public-app-route",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "api-public-assets",
+                "testTier": "app-smoke",
+                "benchmarkClass": "startup-health",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "status",
+                    "headers",
+                    "body-shape"
+                ],
+                "allowMissingRouteMetadata": true,
+                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
             }
         },
         {
@@ -12840,15 +12869,15 @@
             "service": "api",
             "method": "GET",
             "path": "/widget",
-            "sourceFile": "src/api/Server.ts",
-            "line": 140,
+            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
+            "line": 24,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
                 "present": false
             },
             "coverage": {
-                "policyId": "api-app-bootstrap",
+                "policyId": "api-public-assets",
                 "testTier": "app-smoke",
                 "benchmarkClass": "startup-health",
                 "fixtureRequirements": [
@@ -12860,7 +12889,7 @@
                     "body-shape"
                 ],
                 "allowMissingRouteMetadata": true,
-                "notes": "Root, well-known, image proxy, health, and static asset routes are registered outside src/api/routes."
+                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
             }
         },
         {

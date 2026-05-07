@@ -18,6 +18,7 @@ import {
     type TokenEntityStores,
     type UserTokenData,
 } from "./Token";
+import { EmailActionTokenPurpose } from "./EmailActionToken";
 
 function testUser() {
     return {
@@ -170,6 +171,22 @@ describe("token session binding", () => {
             setTokenStoreMocks(t, { session: { session_id: "all" } });
 
             const token = await signPayload({ ...createTokenPayload("USER", 123, "fingerprint", "all"), did: "all" });
+            await assert.rejects(() => checkToken(token), /Invalid Token/);
+        }));
+
+    test("checkToken rejects email action tokens as bearer auth tokens", async () =>
+        withTempCwd(async () => {
+            const token = await signPayload({
+                typ: "email_action",
+                id: "USER",
+                iat: 123,
+                exp: 9999999999,
+                kid: "fingerprint",
+                purpose: EmailActionTokenPurpose.resetPassword,
+                nonce: "nonce",
+                ver: 1,
+            } as unknown as UserTokenData["decoded"]);
+
             await assert.rejects(() => checkToken(token), /Invalid Token/);
         }));
 

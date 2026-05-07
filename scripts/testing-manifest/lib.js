@@ -516,20 +516,31 @@ function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules) {
 }
 
 function collectApiAppRoutes(repoRoot, noAuthRules) {
-    const file = path.join(repoRoot, "src", "api", "Server.ts");
-    const source = readText(file);
-    return scanAppCalls(source, "app").map((call) =>
-        makeHttpEntry({
-            service: "api",
-            method: call.method,
-            routePath: call.path,
-            sourceFile: toPosix(path.relative(repoRoot, file)),
-            line: call.line,
-            routeMetadata: call.routeMetadata,
-            noAuthRules,
-            mountedVia: "api-app",
-        }),
-    );
+    const files = ["src/api/Server.ts", "src/api/util/PublicAssetRoutes.ts"];
+    const entries = [];
+
+    for (const sourceFile of files) {
+        const file = path.join(repoRoot, sourceFile);
+        if (!fs.existsSync(file)) continue;
+        const source = readText(file);
+
+        for (const call of scanAppCalls(source, "app")) {
+            entries.push(
+                makeHttpEntry({
+                    service: "api",
+                    method: call.method,
+                    routePath: call.path,
+                    sourceFile,
+                    line: call.line,
+                    routeMetadata: call.routeMetadata,
+                    noAuthRules,
+                    mountedVia: "api-app",
+                }),
+            );
+        }
+    }
+
+    return entries;
 }
 
 function collectCdnManualMounts(repoRoot, cdnEntries, noAuthRules) {
@@ -753,6 +764,7 @@ function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POL
         sources: [
             "src/api/routes",
             "src/api/Server.ts",
+            "src/api/util/PublicAssetRoutes.ts",
             "src/cdn/routes",
             "src/cdn/Server.ts",
             "src/gateway/opcodes/index.ts",
