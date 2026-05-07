@@ -24,9 +24,20 @@ export interface UserModifySchema {
      * @minLength 2
      */
     username?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     avatar?: string | null;
+    /**
+     * @maxLength 1024
+     */
+    avatar_description?: string | null;
+    avatar_id?: string;
     bio?: string;
     accent_color?: number;
+    /**
+     * @TJS-format image-data-uri
+     */
     banner?: string | null;
     /**
      * @minLength 1
@@ -46,7 +57,7 @@ export interface UserModifySchema {
     /**
      * @TJS-format email
      */
-    email?: string;
+    email?: string | null;
     /**
      * @minLength 4
      * @maxLength 4

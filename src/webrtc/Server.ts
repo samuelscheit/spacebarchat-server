@@ -17,15 +17,26 @@
 */
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { closeDatabase, Config, initDatabase, initEvent, Session, TimeSpan } from "@spacebar/util";
+import {
+    closeDatabase,
+    Config,
+    getProcessMetricSamples,
+    initEvent,
+    initStartupConfigAndDatabase,
+    type MetricSample,
+    parseHttpRequestUrl,
+    Session,
+    TimeSpan,
+    writePrometheusMetricsResponse,
+} from "@spacebar/util";
 import http from "node:http";
 import ws from "ws";
 import { Connection } from "./events/Connection";
-import { loadWebRtcLibrary, mediaServer, WRTC_PORT_MAX, WRTC_PORT_MIN, WRTC_PUBLIC_IP } from "./util";
+import { getWebRtcTransportMaxPayload, loadWebRtcLibrary, mediaServer, WRTC_PORT_MAX, WRTC_PORT_MIN, WRTC_PUBLIC_IP } from "./util";
 import { green, yellow } from "picocolors";
 
 export class Server {
-    public ws: ws.Server;
+    public ws?: ws.Server;
     public port: number;
     public server: http.Server;
     public production: boolean;
@@ -36,7 +47,13 @@ export class Server {
 
         if (server) this.server = server;
         else {
-            this.server = http.createServer(function (req, res) {
+            this.server = http.createServer((req, res) => {
+                const requestUrl = parseHttpRequestUrl(req.url);
+                if (requestUrl.pathname === "/-/metrics") {
+                    writePrometheusMetricsResponse(res, () => this.getMetricSamples());
+                    return;
+                }
+
                 res.writeHead(200).end("Online");
             });
         }
@@ -49,18 +66,37 @@ export class Server {
         // 		this.ws.emit("connection", socket, request);
         // 	});
         // });
+    }
+
+    private initializeWebSocketServer() {
+        if (this.ws) return;
 
         this.ws = new ws.Server({
-            maxPayload: 1024 * 1024 * 100,
+            maxPayload: getWebRtcTransportMaxPayload(Config.get().limits.webrtc),
             server: this.server,
         });
         this.ws.on("connection", Connection);
         this.ws.on("error", console.error);
     }
 
+    getExtraMetricSamples(): MetricSample[] {
+        return [
+            {
+                name: "spacebar_webrtc_websocket_clients",
+                help: "Number of websocket clients attached to the WebRTC server.",
+                type: "gauge",
+                value: this.ws?.clients.size ?? 0,
+                labels: { service: "webrtc" },
+            },
+        ];
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("webrtc", this.getExtraMetricSamples());
+    }
+
     async start(): Promise<void> {
-        await initDatabase();
-        await Config.init();
+        await initStartupConfigAndDatabase();
         await initEvent();
 
         // try to load webrtc library, if failed just don't start webrtc endpoint
@@ -72,6 +108,8 @@ export class Server {
             return;
         }
 
+        this.initializeWebSocketServer();
+
         if (!this.server.listening) {
             this.server.listen(this.port);
             console.log(`[WebRTC] ${green(`online on 0.0.0.0:${this.port}`)}`);
@@ -80,7 +118,12 @@ export class Server {
 
     async stop() {
         await closeDatabase();
-        this.server.close();
+        if (this.ws) {
+            this.ws.clients.forEach((socket) => socket.close());
+            this.ws.close(() => this.server.close());
+        } else {
+            this.server.close();
+        }
         mediaServer?.stop();
     }
 }

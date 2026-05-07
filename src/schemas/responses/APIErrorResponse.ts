@@ -19,12 +19,15 @@
 export interface APIErrorResponse {
     code: number;
     message: string;
-    errors: {
-        [key: string]: {
-            _errors: {
-                message: string;
-                code: string;
-            }[];
-        };
-    };
+    errors?: APIErrorResponseErrorTree;
+}
+
+export interface APIErrorResponseFieldError {
+    message: string;
+    code: string;
+}
+
+export interface APIErrorResponseErrorTree {
+    _errors?: APIErrorResponseFieldError[];
+    [key: string]: APIErrorResponseErrorTree | APIErrorResponseFieldError[] | undefined;
 }

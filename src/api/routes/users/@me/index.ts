@@ -17,10 +17,24 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, emitEvent, FieldErrors, generateToken, handleFile, User, UserUpdateEvent } from "@spacebar/util";
+import {
+    Config,
+    emailAlreadyRegisteredFieldError,
+    emailMatches,
+    emitEvent,
+    FieldErrors,
+    generateToken,
+    handleFile,
+    isNormalizedEmailUniqueViolation,
+    normalizeOptionalEmail,
+    User,
+    UserUpdateEvent,
+} from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
+import { getUserRecentAvatarHash, recordUserRecentAvatar } from "@spacebar/api/util";
+import { Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -34,12 +48,12 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        res.json(
-            await User.findOne({
-                select: PrivateUserProjection,
-                where: { id: req.user_id },
-            }),
-        );
+        const user = await User.findOneOrFail({
+            select: PrivateUserProjection,
+            where: { id: req.user_id },
+        });
+
+        res.json(user.toPrivateUser());
     },
 );
 
@@ -60,7 +74,8 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        const body = req.body as UserModifySchema;
+        const { avatar_description, avatar_id, ...body } = req.body as UserModifySchema;
+        let recentAvatarToRecord: { storageHash: string; description: string | null | undefined } | undefined;
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
@@ -70,7 +85,18 @@ router.patch(
         // Populated on password change
         let newToken: string | undefined;
 
-        if (body.avatar) body.avatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string);
+        if (body.avatar) {
+            const uploadedAvatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string);
+            body.avatar = uploadedAvatar;
+            if (uploadedAvatar) {
+                recentAvatarToRecord = {
+                    storageHash: uploadedAvatar,
+                    description: avatar_description,
+                };
+            }
+        } else if (!("avatar" in body) && avatar_id) {
+            body.avatar = await getUserRecentAvatarHash(req.user_id, avatar_id);
+        }
         if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
 
         if (body.password) {
@@ -89,8 +115,9 @@ router.patch(
             }
         }
 
-        if (body.email) {
-            if (!body.email && Config.get().register.email.required)
+        if ("email" in body) {
+            const email = normalizeOptionalEmail(body.email);
+            if (!email && Config.get().register.email.required)
                 throw FieldErrors({
                     email: {
                         message: req.t("auth:register.EMAIL_INVALID"),
@@ -104,6 +131,10 @@ router.patch(
                         code: "INVALID_PASSWORD",
                     },
                 });
+            if (email && (await User.findOne({ where: { email: emailMatches(email), id: Not(req.user_id) }, select: { id: true } }))) {
+                throw emailAlreadyRegisteredFieldError(req.t("auth:register.EMAIL_ALREADY_REGISTERED"));
+            }
+            body.email = email ?? null;
         }
 
         if (body.new_password) {
@@ -217,7 +248,15 @@ router.patch(
 
         user.assign(body);
         user.validate();
-        await user.save();
+        try {
+            await user.save();
+        } catch (error) {
+            if (isNormalizedEmailUniqueViolation(error)) {
+                throw emailAlreadyRegisteredFieldError(req.t("auth:register.EMAIL_ALREADY_REGISTERED"));
+            }
+            throw error;
+        }
+        if (recentAvatarToRecord) await recordUserRecentAvatar(req.user_id, recentAvatarToRecord.storageHash, recentAvatarToRecord.description);
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
@@ -231,7 +270,7 @@ router.patch(
         } satisfies UserUpdateEvent);
 
         res.json({
-            ...user,
+            ...user.toPrivateUser(),
             newToken,
         });
     },

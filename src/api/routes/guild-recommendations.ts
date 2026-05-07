@@ -18,9 +18,10 @@
 
 import { Config, Guild } from "@spacebar/util";
 
-import { route } from "@spacebar/api";
+import { route, toRecommendedGuild } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ArrayContains } from "typeorm";
+import { type GuildRecommendationsResponse } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -47,10 +48,12 @@ router.get(
                   where: { features: ArrayContains(["DISCOVERABLE"]) },
                   take: Math.abs(Number(limit || 24)),
               });
-        res.send({
-            recommended_guilds: guilds,
+        const response = {
+            recommended_guilds: guilds.map(toRecommendedGuild),
             load_id: `server_recs/${genLoadId(32)}`,
-        }).status(200);
+        } satisfies GuildRecommendationsResponse;
+
+        return res.status(200).send(response);
     },
 );
 

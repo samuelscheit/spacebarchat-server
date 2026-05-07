@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@spacebar/gateway";
+import { Capabilities, CLOSECODES, OPCODES, Payload, Send, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
 import {
     Application,
     arrayGroupBy,
@@ -28,7 +28,7 @@ import {
     emitEvent,
     Emoji,
     EVENTEnum,
-    generateToken,
+    generateTokenForSession,
     getDatabase,
     Guild,
     GuildOrUnavailable,
@@ -38,6 +38,7 @@ import {
     OPCodes,
     PresenceUpdateEvent,
     ReadState,
+    applyReadyChannelOrdering,
     ReadyEventData,
     ReadyGuildDTO,
     ReadyUserGuildSettingsEntries,
@@ -46,6 +47,9 @@ import {
     Role,
     Session,
     SessionsReplace,
+    isRealGatewaySessionId,
+    serializePrivateGatewaySessions,
+    StageInstance,
     Sticker,
     Stopwatch,
     ThreadMember,
@@ -53,11 +57,15 @@ import {
     timePromise,
     TraceNode,
     TraceRoot,
+    userSelectFromKeys,
     UserSettings,
     UserSettingsProtos,
     VoiceState,
+    getReadyReadStateWhere,
+    READY_READ_STATE_SELECT,
 } from "@spacebar/util";
 import { check } from "./instanceOf";
+import { toReadyMergedMembers } from "../util/MergedMembers";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
@@ -90,7 +98,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         checkToken(identify.token, {
             // relations: {"relationships", "relationships.to", "settings"],
             // select: [...PrivateUserProjection, "relationships", "rights"],
-            select: [...PrivateUserProjection, "rights"],
+            select: userSelectFromKeys([...PrivateUserProjection, "rights"]),
         }),
     );
 
@@ -128,16 +136,17 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const validateIntentsAndShardingTime = taskSw.getElapsedAndReset();
 
     // Generate a new gateway session if needed (id is already made, just save it in db )
-    const { session, isNewSession } = tokenData.session
-        ? { session: tokenData.session, isNewSession: false }
+    const tokenSession = isRealGatewaySessionId(tokenData.session?.session_id) ? tokenData.session : undefined;
+    const { session, isNewSession } = tokenSession
+        ? { session: tokenSession, isNewSession: false }
         : {
               session: Session.create({
                   user_id: this.user_id,
-                  session_id: this.session_id,
                   status: "offline", // ??? why wasnt this required before
               }),
               isNewSession: true,
           };
+    const shouldRefreshAuthToken = tokenData.tokenVersion != CurrentTokenFormatVersion || tokenData.decoded.did !== session.session_id;
 
     if (isNewSession)
         console.warn(
@@ -215,6 +224,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     // * guild members for this user
     // * recipients ( dm channels )
     // * the bot application, if it exists
+    const includeNonChannelReadStates = this.capabilities!.has(Capabilities.FLAGS.NON_CHANNEL_READ_STATES);
     const [
         { elapsed: sessionSaveTime },
         { result: sessions, elapsed: sessionQueryTime },
@@ -253,8 +263,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         ),
         timePromise(() =>
             ReadState.find({
-                where: { user_id: this.user_id },
-                select: { id: true, channel_id: true, last_message_id: true, last_pin_timestamp: true, mention_count: true },
+                where: getReadyReadStateWhere(this.user_id, includeNonChannelReadStates),
+                select: READY_READ_STATE_SELECT,
             }),
         ),
         timePromise(() =>
@@ -334,6 +344,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         { result: memberGuildEmojis, elapsed: queryGuildEmojisTime },
         { result: memberGuildRoles, elapsed: queryGuildRolesTime },
         { result: memberGuildStickers, elapsed: queryGuildStickersTime },
+        { result: memberGuildStageInstances, elapsed: queryGuildStageInstancesTime },
         { result: memberGuildVoiceStates, elapsed: queryGuildVoiceStatesTime },
         { result: threadMembers, elapsed: threadMemberTime },
         { result: allThreadsRaw, elapsed: queryThreadsTime },
@@ -377,6 +388,12 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             }),
         ),
         timePromise(() =>
+            StageInstance.find({
+                where: { guild_id: In(memberGuildIds) },
+                order: { guild_id: "ASC" },
+            }),
+        ),
+        timePromise(() =>
             VoiceState.find({
                 where: { guild_id: In(memberGuildIds) },
                 order: { guild_id: "ASC" },
@@ -406,6 +423,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const { result: emojisByGuild, elapsed: groupEmojisTime } = timeFunction(() => arrayGroupBy(memberGuildEmojis, (e) => e.guild_id!));
     const { result: rolesByGuild, elapsed: groupRolesTime } = timeFunction(() => arrayGroupBy(memberGuildRoles, (r) => r.guild_id!));
     const { result: stickersByGuild, elapsed: groupStickersTime } = timeFunction(() => arrayGroupBy(memberGuildStickers, (s) => s.guild_id!));
+    const { result: stageInstancesByGuild, elapsed: groupStageInstancesTime } = timeFunction(() => arrayGroupBy(memberGuildStageInstances, (s) => s.guild_id));
     const { result: voiceStatesByGuild, elapsed: groupVoiceStatesTime } = timeFunction(() => arrayGroupBy(memberGuildVoiceStates, (v) => v.guild_id!));
     const { result: threadsByGuild, elapsed: groupThreadsTime } = timeFunction(() => arrayGroupBy(allThreads, (t) => t.guild_id!));
 
@@ -413,6 +431,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const queryGuildEmojisTimeTotal = new ElapsedTime(queryGuildEmojisTime.totalNanoseconds + groupEmojisTime.totalNanoseconds);
     const queryGuildRolesTimeTotal = new ElapsedTime(queryGuildRolesTime.totalNanoseconds + groupRolesTime.totalNanoseconds);
     const queryGuildStickersTimeTotal = new ElapsedTime(queryGuildStickersTime.totalNanoseconds + groupStickersTime.totalNanoseconds);
+    const queryGuildStageInstancesTimeTotal = new ElapsedTime(queryGuildStageInstancesTime.totalNanoseconds + groupStageInstancesTime.totalNanoseconds);
     const queryGuildVoiceStatesTimeTotal = new ElapsedTime(queryGuildVoiceStatesTime.totalNanoseconds + groupVoiceStatesTime.totalNanoseconds);
     const queryThreadsTimeTotal = new ElapsedTime(queryThreadsTime.totalNanoseconds + groupThreadsTime.totalNanoseconds);
 
@@ -448,6 +467,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             g.stickers = stickersByGuild.get(m.guild_id) ?? [];
             trace.calls.push(`getStickers(${g.stickers.length}/${memberGuildStickers.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
+            const guildStageInstances = stageInstancesByGuild.get(m.guild_id) ?? [];
+            trace.calls.push(`getStageInstances(${guildStageInstances.length}/${memberGuildStageInstances.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
+
             g.voice_states = voiceStatesByGuild.get(m.guild_id) ?? [];
             trace.calls.push(`getVoiceStates(${g.voice_states.length}/${memberGuildVoiceStates.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
@@ -474,25 +496,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         createUserSettingsTime = taskSw.getElapsedAndReset();
     }
 
-    // Generate merged_members
-    const merged_members = members.map((x) => [
-        {
-            ...x,
-            // filter out @everyone role
-            roles: x.roles.filter((r) => r.id !== x.guild.id).map((x) => x.id),
-
-            // add back user, which we don't fetch from db
-            // TODO: For guild profiles, this may need to be changed.
-            // TODO: The only field required in the user prop is `id`,
-            // but our types are annoying so I didn't bother.
-            user: user.toPublicUser(),
-
-            guild: {
-                id: x.guild.id,
-            },
-            settings: undefined,
-        },
-    ]);
+    const merged_members = toReadyMergedMembers(members, user.toPublicUser());
     const mergedMembersTime = taskSw.getElapsedAndReset();
 
     // Populated with guilds 'unavailable' currently
@@ -502,27 +506,22 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Generate guilds list ( make them unavailable if user is bot )
     const guilds: GuildOrUnavailable[] = members.map((member) => {
-        member.guild.channels = (channelsByGuild.get(member.guild_id) ?? [])
-            /*
-   			//TODO maybe implement this correctly, by causing create and delete events for users who can newly view and not view the channels, along with doing these checks correctly, as they don't currently take into account that the owner of the guild is always able to view channels, with potentially other issues
-   			.filter((channel) => {
-				const perms = Permissions.finalPermission({
-					user: {
-						id: member.id,
-						roles: member.roles.map((x) => x.id),
-					},
-					guild: member.guild,
-					channel,
-				});
-
-				return perms.has("VIEW_CHANNEL");
-			})
-   			*/
-            .map((channel) => {
-                channel.position = member.guild.channel_ordering.indexOf(channel.id);
-                return channel;
-            })
-            .sort((a, b) => a.position - b.position);
+        // TODO maybe implement this correctly, by causing create and delete events for users who can newly view
+        // and not view the channels, along with doing these checks correctly, as they don't currently take into
+        // account that the owner of the guild is always able to view channels, with potentially other issues.
+        // .filter((channel) => {
+        //     const perms = Permissions.finalPermission({
+        //         user: {
+        //             id: member.id,
+        //             roles: member.roles.map((x) => x.id),
+        //         },
+        //         guild: member.guild,
+        //         channel,
+        //     });
+        //
+        //     return perms.has("VIEW_CHANNEL");
+        // })
+        member.guild.channels = applyReadyChannelOrdering(channelsByGuild.get(member.guild_id) ?? [], member.guild.channel_ordering);
 
         const threads: Channel[] = threadsByGuild.get(member.guild_id) ?? [];
 
@@ -539,6 +538,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             }),
             guild_scheduled_events: [],
             presences: [],
+            stage_instances: (stageInstancesByGuild.get(member.guild_id) ?? []).map((stageInstance) => stageInstance.toPublicStageInstance()),
         };
 
         if (user.bot) {
@@ -604,7 +604,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const appendRelationshipsTime = taskSw.getElapsedAndReset();
 
     // Send SESSIONS_REPLACE and PRESENCE_UPDATE
-    const allSessions = sessions.concat(this.session!).map((x) => x.toPrivateGatewayDeviceInfo());
+    const allSessions = serializePrivateGatewaySessions(sessions.concat(this.session!));
     const findAndGenerateSessionReplaceTime = taskSw.getElapsedAndReset();
 
     const [{ elapsed: emitSessionsReplaceTime }, { elapsed: emitPresenceUpdateTime }] = await Promise.all([
@@ -637,11 +637,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         micros: 0,
         calls: [],
     };
-    const { elapsed: remapReadStateIdsTime } = timeFunction(() =>
-        read_states.forEach((x) => {
-            x.id = x.channel_id;
-        }),
-    );
+    const { result: serializedReadStates, elapsed: remapReadStateIdsTime } = timeFunction(() => serializeReadyReadState(read_states, includeNonChannelReadStates));
     buildReadyTrace.calls!.push("remapReadStateIds", { micros: remapReadStateIdsTime.totalMicroseconds });
 
     const { result: user_settings_proto, elapsed: serialiseUserSettingsProtoTime } = timeFunction(() =>
@@ -679,11 +675,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 user_settings_proto_json,
                 guilds: remappedGuilds,
                 relationships: remappedRelationships,
-                read_state: {
-                    entries: read_states,
-                    partial: false,
-                    version: 0, // TODO
-                },
+                read_state: serializedReadStates,
                 user_guild_settings: {
                     entries: user_guild_settings_entries,
                     partial: false,
@@ -726,8 +718,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             }) satisfies ReadyEventData,
     );
 
-    if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && tokenData.tokenVersion != CurrentTokenFormatVersion) {
-        d.auth_token = this.accessToken = (await generateToken(this.user_id))!;
+    if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && shouldRefreshAuthToken) {
+        d.auth_token = this.accessToken = (await generateTokenForSession(this.user_id, this.session!))!;
     }
     // const buildReadyEventDataTime = taskSw.getElapsedAndReset();
 
@@ -790,6 +782,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     queryGuildEmojisTime: queryGuildEmojisTimeTotal,
                     queryGuildRolesTime: queryGuildRolesTimeTotal,
                     queryGuildStickersTime: queryGuildStickersTimeTotal,
+                    queryGuildStageInstancesTime: queryGuildStageInstancesTimeTotal,
                     queryGuildVoiceStatesTime: queryGuildVoiceStatesTimeTotal,
                     threadMemberTime,
                     queryThreadsTime: queryThreadsTimeTotal,

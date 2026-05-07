@@ -1,0 +1,219 @@
+{
+    "routeRules": [
+        {
+            "id": "api-app-bootstrap",
+            "type": "http-route",
+            "service": "api",
+            "sourceFile": "src/api/Server.ts",
+            "testTier": "app-smoke",
+            "benchmarkClass": "startup-health",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["status", "headers", "body-shape"],
+            "allowMissingRouteMetadata": true,
+            "notes": "Root, well-known, image proxy, health, and static asset routes are registered outside src/api/routes."
+        },
+        {
+            "id": "api-public-assets",
+            "type": "http-route",
+            "service": "api",
+            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
+            "testTier": "app-smoke",
+            "benchmarkClass": "startup-health",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["status", "headers", "body-shape"],
+            "allowMissingRouteMetadata": true,
+            "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
+        },
+        {
+            "id": "api-health-kubernetes",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/-/",
+            "testTier": "app-smoke",
+            "benchmarkClass": "startup-health",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["public-auth-boundary", "status"]
+        },
+        {
+            "id": "api-auth",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/auth",
+            "testTier": "auth-scenario",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["users", "sessions", "tokens"],
+            "contractChecks": ["public-auth-boundary", "schema-validation", "response-shape", "session-state"]
+        },
+        {
+            "id": "api-channel-state",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/channels",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "channels", "messages", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"]
+        },
+        {
+            "id": "api-guild-state",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/guilds",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "members", "roles", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"]
+        },
+        {
+            "id": "api-user-state",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/users",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"]
+        },
+        {
+            "id": "api-webhooks",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/webhooks",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["guilds", "channels", "webhooks", "messages"],
+            "contractChecks": ["token-auth-boundary", "schema-validation", "response-shape", "db-state", "events"]
+        },
+        {
+            "id": "api-applications",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/applications",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "guilds", "commands"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"]
+        },
+        {
+            "id": "api-oauth-connections",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/oauth2",
+            "testTier": "integration",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "oauth-clients"],
+            "contractChecks": ["auth-boundary", "schema-validation", "redirects", "token-state"]
+        },
+        {
+            "id": "api-connections",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/connections",
+            "testTier": "integration",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "connected-accounts"],
+            "contractChecks": ["auth-boundary", "schema-validation", "provider-state"]
+        },
+        {
+            "id": "api-interactions",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/interactions",
+            "testTier": "integration",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["applications", "interactions"],
+            "contractChecks": ["token-auth-boundary", "schema-validation", "response-shape"]
+        },
+        {
+            "id": "api-attachments",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/attachments",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["users", "channels", "messages", "attachments"],
+            "contractChecks": ["authenticated", "schema-validation", "signed-url-state"]
+        },
+        {
+            "id": "api-public-contract",
+            "type": "http-route",
+            "service": "api",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"]
+        },
+        {
+            "id": "cdn-route-contract",
+            "type": "http-route",
+            "service": "cdn",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "allowMissingRouteMetadata": true
+        }
+    ],
+    "featureRules": [
+        {
+            "id": "gateway-opcodes",
+            "type": "opcode",
+            "service": "gateway",
+            "testTier": "protocol-integration",
+            "benchmarkClass": "protocol-load",
+            "fixtureRequirements": ["users", "sessions", "guilds", "channels", "event-bus"],
+            "contractChecks": ["hello", "identify", "heartbeat", "resume", "bad-payload-close", "event-fanout"]
+        },
+        {
+            "id": "webrtc-opcodes",
+            "type": "opcode",
+            "service": "webrtc",
+            "testTier": "protocol-integration",
+            "benchmarkClass": "protocol-load",
+            "fixtureRequirements": ["users", "sessions", "voice-states", "fake-media-server"],
+            "contractChecks": ["identify", "select-protocol", "speaking", "video", "guard-size-rate"]
+        }
+    ],
+    "manualFeatures": [
+        {
+            "id": "api:middleware:auth-rate-limit-error",
+            "service": "api",
+            "name": "Authentication, rate limiting, body parsing, translation, and error handling middleware",
+            "sourceFile": "src/api/middlewares/index.ts",
+            "testTier": "middleware-contract",
+            "benchmarkClass": "micro",
+            "fixtureRequirements": ["config", "users", "sessions"],
+            "contractChecks": ["auth-boundary", "rate-limit-headers", "invalid-json", "localized-errors"]
+        },
+        {
+            "id": "server:database:migrations-startup",
+            "service": "server",
+            "name": "Database initialization and migrations",
+            "sourceFile": "src/util/util/Database.ts",
+            "testTier": "migration-integration",
+            "benchmarkClass": "startup-health",
+            "fixtureRequirements": ["postgres"],
+            "contractChecks": ["fresh-boot", "full-chain", "idempotent-rerun", "apply-migrations-toggle"]
+        },
+        {
+            "id": "server:event-bus",
+            "service": "server",
+            "name": "Event dispatch transports and subscriptions",
+            "sourceFile": "src/util/util/Event.ts",
+            "testTier": "integration",
+            "benchmarkClass": "micro",
+            "fixtureRequirements": ["event-bus", "rabbitmq-mock"],
+            "contractChecks": ["emit-listen", "acknowledge", "reconnect", "subscription-filter"]
+        },
+        {
+            "id": "benchmarks:harness",
+            "service": "benchmarks",
+            "name": "Benchmark runner, suite metadata, profiler, and comparison output",
+            "sourceFile": "scripts/benchmarks/run.js",
+            "testTier": "tooling-contract",
+            "benchmarkClass": "none",
+            "fixtureRequirements": ["benchmark-fixtures"],
+            "contractChecks": ["suite-validation", "summary-schema", "comparison-thresholds", "profile-artifacts"]
+        }
+    ]
+}

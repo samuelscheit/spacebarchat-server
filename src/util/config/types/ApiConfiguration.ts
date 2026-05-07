@@ -17,8 +17,9 @@
 */
 
 import { EndpointConfiguration } from "./EndpointConfiguration";
+import { API_VERSIONS } from "../../util/ApiVersions";
 
 export class ApiConfiguration extends EndpointConfiguration {
     defaultVersion: string = "9";
-    activeVersions: string[] = ["6", "7", "8", "9"];
+    activeVersions: string[] = [...API_VERSIONS];
 }

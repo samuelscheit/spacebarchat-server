@@ -25,6 +25,7 @@ import {
     EmbedConfiguration,
     EndpointConfiguration,
     ExternalTokensConfiguration,
+    GatewayConfiguration,
     GeneralConfiguration,
     GifConfiguration,
     GuildConfiguration,
@@ -37,12 +38,14 @@ import {
     RegisterConfiguration,
     SecurityConfiguration,
     TemplateConfiguration,
+    UpdateCheckConfiguration,
     UserConfiguration,
+    WebhookConfiguration,
 } from "./types";
 
 export class ConfigValue {
     admin: EndpointConfiguration = new EndpointConfiguration();
-    gateway: EndpointConfiguration = new EndpointConfiguration();
+    gateway: GatewayConfiguration = new GatewayConfiguration();
     cdn: CdnConfiguration = new CdnConfiguration();
     api: ApiConfiguration = new ApiConfiguration();
     general: GeneralConfiguration = new GeneralConfiguration();
@@ -55,11 +58,13 @@ export class ConfigValue {
     gif: GifConfiguration = new GifConfiguration();
     rabbitmq: RabbitMQConfiguration = new RabbitMQConfiguration();
     templates: TemplateConfiguration = new TemplateConfiguration();
+    updates: UpdateCheckConfiguration = new UpdateCheckConfiguration();
     defaults: DefaultsConfiguration = new DefaultsConfiguration();
     external: ExternalTokensConfiguration = new ExternalTokensConfiguration();
     email: EmailConfiguration = new EmailConfiguration();
     passwordReset: PasswordResetConfiguration = new PasswordResetConfiguration();
     user: UserConfiguration = new UserConfiguration();
+    webhook: WebhookConfiguration = new WebhookConfiguration();
     offload: OffloadConfiguration = new OffloadConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();

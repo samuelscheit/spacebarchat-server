@@ -16,7 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { Snowflake } from "@spacebar/schemas";
+
 export interface PublicAttachment {
+    id: Snowflake;
     filename: string; // name of file attached
     size: number; // size of file in bytes
     height?: number; // height of file (if image)

@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using Spacebar.Models.Generic;
 
 namespace Spacebar.Models.Generic;
 
@@ -16,16 +15,14 @@ public class Presence {
     [JsonPropertyName("status")]
     public string Status { get; set; } = "unknown";
 
-    // TODO
     [JsonPropertyName("activities")]
-    public List<JsonObject> Activities { get; set; }
+    public List<Activity> Activities { get; set; } = [];
 
-    // TODO
-    [JsonPropertyName("hidden_activities")]
-    public List<JsonObject> HiddenActivities { get; set; }
+    [JsonPropertyName("hidden_activities"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<Activity>? HiddenActivities { get; set; }
 
     [JsonPropertyName("client_status")]
-    public ClientStatuses ClientStatus { get; set; }
+    public ClientStatuses ClientStatus { get; set; } = new();
 
     [JsonPropertyName("has_played_game")]
     public bool? HasPlayedGame { get; set; }

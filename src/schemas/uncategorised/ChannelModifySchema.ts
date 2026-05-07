@@ -18,10 +18,14 @@
 
 import { ChannelPermissionOverwriteType, ChannelType, TagCreateSchema } from "@spacebar/schemas";
 
-export interface ChannelModifySchema {
+export type ChannelModifyType = ChannelType.GUILD_TEXT | ChannelType.GUILD_NEWS;
+
+export interface ChannelBaseModifySchema {
     name?: string;
-    type?: ChannelType;
     topic?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string | null;
     bitrate?: number;
     user_limit?: number;
@@ -35,7 +39,7 @@ export interface ChannelModifySchema {
         deny: string;
     }[];
     applied_tags?: string[];
-    parent_id?: string;
+    parent_id?: string | null;
     id?: string; // is not used (only for guild create)
     nsfw?: boolean;
     rtc_region?: string;
@@ -48,4 +52,12 @@ export interface ChannelModifySchema {
     archived?: boolean;
     locked?: boolean;
     available_tags?: (TagCreateSchema & { id: string })[];
+}
+
+export interface ChannelModifySchema extends ChannelBaseModifySchema {
+    type?: ChannelModifyType;
+    /**
+     * @maxLength 500
+     */
+    status?: string | null;
 }

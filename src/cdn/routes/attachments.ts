@@ -16,88 +16,59 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, CloudAttachment, hasValidSignature, NewUrlUserSignatureData, Snowflake, UrlSignResult } from "@spacebar/util";
+import { Attachment, Config, hasValidSignature, NewUrlUserSignatureData, UrlSignResult } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import imageSize from "image-size";
 import { HTTPError } from "lambert-server";
-import { multer } from "../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
+import { hasValidAttachmentRequestAuthorization } from "../util/AttachmentAuthorization";
+import { getAttachmentFileFromStorage } from "../util/AttachmentStorage";
 
 const router = Router({ mergeParams: true });
 
 const SANITIZED_CONTENT_TYPE = ["text/html", "text/mhtml", "multipart/related", "application/xhtml+xml"];
 
-router.post("/:channel_id/:message_id", multer.single("file"), async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature)
-        throw new HTTPError(`Invalid request signature, expected '${Config.get().security.requestSignature}', got ${req.headers.signature}`);
-
-    if (!req.file) throw new HTTPError("file missing");
-
-    const { buffer, mimetype, size, originalname } = req.file;
-    const { channel_id, message_id } = req.params as { [key: string]: string };
-    const filename = originalname.replaceAll(" ", "_").replace(/[^a-zA-Z0-9._]+/g, "");
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
-
-    const endpoint = Config.get()?.cdn.endpointPublic;
-
-    await storage.set(path, buffer);
-    let width;
-    let height;
-    if (mimetype.includes("image")) {
-        const dimensions = imageSize(buffer);
-        if (dimensions) {
-            width = dimensions.width;
-            height = dimensions.height;
-        }
-    }
-
-    const finalUrl = `${endpoint}/${path}`;
-
-    const file = {
-        id: Snowflake.generate(),
-        channel_id,
-        message_id,
-        content_type: mimetype,
-        filename: filename,
-        size,
-        url: finalUrl,
-        path,
-        width,
-        height,
-    };
-
-    return res.json(file);
-});
-
 router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res: Response) => {
     const { channel_id, message_id, filename } = req.params as { [key: string]: string };
     // const { format } = req.query;
 
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
-
     const fullUrl = (req.headers["x-forwarded-proto"] ?? req.protocol) + "://" + (req.headers["x-forwarded-host"] ?? req.hostname) + req.originalUrl;
+    res.vary("signature");
 
-    let hasValidAuth = false;
-    if (req.headers.signature) {
-        hasValidAuth = req.headers.signature !== Config.get().security.requestSignature;
-        if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid signature header");
-    } else if (!Config.get().security.cdnSignUrls) hasValidAuth = true;
-    else {
-        hasValidAuth = hasValidSignature(
-            new NewUrlUserSignatureData({
-                ip: req.ip,
-                userAgent: req.headers["user-agent"] as string,
-            }),
-            UrlSignResult.fromUrl(fullUrl),
-        );
-        if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid attachment URL signature");
-    }
+    const userAgent = Array.isArray(req.headers["user-agent"]) ? req.headers["user-agent"][0] : req.headers["user-agent"];
+    const securityConfig = Config.get().security;
+    const hasValidAuth = hasValidAttachmentRequestAuthorization({
+        signatureHeader: req.headers.signature,
+        requestSignature: securityConfig.requestSignature,
+        cdnSignUrls: securityConfig.cdnSignUrls,
+        fullUrl,
+        ip: req.ip,
+        userAgent,
+        validateSignature: (request, signature) => hasValidSignature(new NewUrlUserSignatureData(request), new UrlSignResult(signature)),
+        warn: console.warn,
+    });
 
     if (!hasValidAuth) return res.status(404).send("This content is no longer available.");
 
-    const file = await storage.get(path);
+    const file = await getAttachmentFileFromStorage({
+        storage,
+        channelId: channel_id,
+        messageId: message_id,
+        filename,
+        log: console.log,
+        findAttachment: async ({ channelId, messageId, filename }) =>
+            Attachment.findOne({
+                where: {
+                    channel_id: channelId,
+                    message_id: messageId,
+                    filename,
+                },
+                select: {
+                    id: true,
+                },
+            }),
+    });
     if (!file) throw new HTTPError("File not found");
     const type = await fileTypeFromBuffer(file);
     let content_type = type?.mime || "application/octet-stream";
@@ -109,123 +80,6 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     res.set("Content-Type", content_type);
 
     return res.send(file);
-});
-
-router.delete("/:channel_id/:message_id/:filename", async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-
-    const { channel_id, message_id, filename } = req.params as { [key: string]: string };
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
-
-    await storage.delete(path);
-
-    return res.send({ success: true });
-});
-
-// "cloud attachments"
-router.put("/:channel_id/:batch_id/:attachment_id/:filename", multer.single("file"), async (req: Request, res: Response) => {
-    const { channel_id, batch_id, attachment_id, filename } = req.params as { [key: string]: string };
-    const att = await CloudAttachment.findOneOrFail({
-        where: {
-            uploadFilename: `${channel_id}/${batch_id}/${attachment_id}/${filename}`,
-            channelId: channel_id,
-            userAttachmentId: attachment_id,
-            userFilename: filename,
-        },
-    });
-
-    const maxLength = Config.get().cdn.maxAttachmentSize;
-
-    console.log("[Cloud Upload] Uploading attachment", att.id, att.userFilename, `Max size: ${maxLength} bytes`);
-
-    const chunks: Buffer[] = [];
-    let length = 0;
-
-    req.on("data", (chunk) => {
-        console.log(`[Cloud Upload] Received chunk of size ${chunk.length} bytes`);
-        chunks.push(chunk);
-        length += chunk.length;
-        if (length > maxLength) {
-            res.status(413).send("File too large");
-            req.destroy();
-        }
-    });
-    req.on("end", async () => {
-        console.log(`[Cloud Upload] Finished receiving file, total size ${length} bytes`);
-        const buffer = Buffer.concat(chunks);
-        const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-
-        await storage.set(path, buffer);
-
-        let mimeType = att.userOriginalContentType;
-        if (att.userOriginalContentType === null) {
-            const ft = await fileTypeFromBuffer(buffer);
-            mimeType = att.contentType = ft?.mime || "application/octet-stream";
-        }
-
-        if (mimeType?.includes("image")) {
-            const dimensions = imageSize(buffer);
-            if (dimensions) {
-                att.width = dimensions.width;
-                att.height = dimensions.height;
-            }
-        }
-
-        att.size = buffer.length;
-        await att.save();
-
-        console.log("[Cloud Upload] Saved attachment", att.id, att.userFilename);
-        res.status(200).end();
-    });
-});
-
-router.delete("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    console.log("[Cloud Delete] Deleting attachment", req.params);
-
-    const { channel_id, batch_id, attachment_id, filename } = req.params as { [key: string]: string };
-    const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-
-    const att = await CloudAttachment.findOne({
-        where: {
-            uploadFilename: `${channel_id}/${batch_id}/${attachment_id}/${filename}`,
-            channelId: channel_id,
-            userAttachmentId: attachment_id,
-            userFilename: filename,
-        },
-    });
-
-    if (att) {
-        await att.remove();
-        await storage.delete(path);
-        return res.send({ success: true });
-    }
-    return res.status(404).send("Attachment not found");
-});
-
-router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id", async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    console.log("[Cloud Clone] Cloning attachment to message", req.params);
-
-    const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
-    const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-    const newPath = `attachments/${channel_id}/${message_id}/${filename}`;
-
-    const att = await CloudAttachment.findOne({
-        where: {
-            uploadFilename: `${channel_id}/${batch_id}/${attachment_id}/${filename}`,
-            channelId: channel_id,
-            userAttachmentId: attachment_id,
-            userFilename: filename,
-        },
-    });
-
-    if (att) {
-        await storage.clone(path, newPath);
-        return res.send({ success: true, new_path: newPath });
-    }
-
-    return res.status(404).send("Attachment not found");
 });
 
 export default router;

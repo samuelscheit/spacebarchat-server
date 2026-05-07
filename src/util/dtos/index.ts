@@ -22,3 +22,4 @@ export * from "./DmChannelDTO";
 export * from "./DmChannelOwnership";
 export * from "./ReadyGuildDTO";
 export * from "./UserDTO";
+export * from "./WebhookDTO";
