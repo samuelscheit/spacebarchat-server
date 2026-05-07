@@ -18,7 +18,17 @@
 
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { checkToken, closeDatabase, initEvent, initStartupConfigAndDatabase, Rights } from "@spacebar/util";
+import {
+    checkToken,
+    closeDatabase,
+    getProcessMetricSamples,
+    initEvent,
+    initStartupConfigAndDatabase,
+    type MetricSample,
+    parseHttpRequestUrl,
+    Rights,
+    writePrometheusMetricsResponse,
+} from "@spacebar/util";
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "node:http";
@@ -49,7 +59,7 @@ export class Server {
             const eluP = [1, 5, 15].map(() => performance.eventLoopUtilization());
             const cpu = [1, 5, 15].map(() => process.cpuUsage());
             let sec = 0;
-            setInterval(() => {
+            const statsInterval = setInterval(() => {
                 sec += 1;
                 // for some reason this behaves differently from cpuUsage, so we need an absolute reference as "previous"
                 const eluC = performance.eventLoopUtilization();
@@ -68,12 +78,19 @@ export class Server {
                     eluP[2] = eluC;
                 }
             }, 1000);
+            statsInterval.unref();
 
             this.server = http.createServer(async (req, res) => {
+                const requestUrl = parseHttpRequestUrl(req.url);
+                if (requestUrl.pathname === "/-/metrics") {
+                    writePrometheusMetricsResponse(res, () => this.getMetricSamples());
+                    return;
+                }
+
                 if (!req.headers.cookie?.split("; ").find((x) => x.startsWith("__sb_sessid="))) {
                     res.setHeader("Set-Cookie", `__sb_sessid=${randomString(32)}; Secure; HttpOnly; SameSite=None; Path=/`);
                 }
-                const requestUrl = new URL(`http://${req.headers.host}${req.url}`);
+
                 if (requestUrl.pathname === "/_spacebar/gateway/admin/introspect") {
                     if (!req.headers.authorization) {
                         return res.writeHead(401).end("Unauthorized");
@@ -190,6 +207,29 @@ export class Server {
             }
         };
         this.server.on("upgrade", this.upgradeHandler);
+    }
+
+    getExtraMetricSamples(): MetricSample[] {
+        return [
+            {
+                name: "spacebar_gateway_open_connections",
+                help: "Number of authenticated gateway connection records.",
+                type: "gauge",
+                value: openConnections.length,
+                labels: { service: "gateway" },
+            },
+            {
+                name: "spacebar_gateway_websocket_clients",
+                help: "Number of websocket clients attached to the gateway server.",
+                type: "gauge",
+                value: this.ws?.clients.size ?? 0,
+                labels: { service: "gateway" },
+            },
+        ];
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("gateway", this.getExtraMetricSamples());
     }
 
     async start(): Promise<void> {

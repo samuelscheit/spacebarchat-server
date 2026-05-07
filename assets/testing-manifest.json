@@ -82,7 +82,7 @@
             "method": "GET",
             "path": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 136,
+            "line": 157,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -111,7 +111,7 @@
             "method": "GET",
             "path": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 132,
+            "line": 153,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -140,7 +140,7 @@
             "method": "GET",
             "path": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 140,
+            "line": 161,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -227,7 +227,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 155,
+            "line": 180,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -256,7 +256,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 148,
+            "line": 173,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -8559,7 +8559,7 @@
             "method": "GET",
             "path": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 195,
+            "line": 220,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -8628,7 +8628,7 @@
             "method": "USE",
             "path": "/imageproxy/:hash/:size/:url",
             "sourceFile": "src/api/Server.ts",
-            "line": 128,
+            "line": 149,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -9319,7 +9319,7 @@
             "method": "GET",
             "path": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 194,
+            "line": 219,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {

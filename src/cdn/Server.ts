@@ -17,7 +17,7 @@
 */
 
 import { Server, ServerOptions } from "lambert-server";
-import { Attachment, Config, initStartupConfigAndDatabase, registerRoutes } from "@spacebar/util";
+import { Attachment, Config, getProcessMetricSamples, initStartupConfigAndDatabase, type MetricSample, registerPrometheusMetricsRoute, registerRoutes } from "@spacebar/util";
 import { CORS, BodyParser } from "@spacebar/api";
 import path from "node:path";
 import guildProfilesRoute from "./routes/guild-profiles";
@@ -25,13 +25,19 @@ import morgan from "morgan";
 import { storage } from "./util";
 import { attachmentStoragePath, legacyAttachmentStoragePath, moveLegacyAttachmentFile } from "./util/AttachmentStorage";
 
-export type CDNServerOptions = ServerOptions;
+export type CDNServerOptions = ServerOptions & {
+    registerMetricsEndpoint?: boolean;
+};
 
 export class CDNServer extends Server {
     declare public options: CDNServerOptions;
 
     constructor(options?: Partial<CDNServerOptions>) {
         super(options);
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("cdn");
     }
 
     async start() {
@@ -64,6 +70,10 @@ export class CDNServer extends Server {
         this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
 
         await registerRoutes(this, path.join(__dirname, "routes/"));
+
+        if (this.options.registerMetricsEndpoint !== false) {
+            registerPrometheusMetricsRoute(this.app, () => this.getMetricSamples());
+        }
 
         this.app.use("/guilds/:guild_id/users/:user_id/avatars", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/avatars registered");

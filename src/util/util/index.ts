@@ -56,6 +56,7 @@ export * from "./MessageReactions";
 export * from "./MessageMentions";
 export * from "./MessagePublicRelations";
 export * from "./MessageRoleMentions";
+export * from "./Metrics";
 export * from "./networking";
 export * from "./Permissions";
 export * from "./RabbitMQ";

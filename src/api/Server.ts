@@ -29,6 +29,9 @@ import {
     getRevInfoOrFail,
     initStartupConfigAndDatabase,
     getConfiguredImageUploadBodyLimit,
+    getProcessMetricSamples,
+    type MetricSample,
+    registerPrometheusMetricsRoute,
 } from "@spacebar/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
@@ -45,7 +48,9 @@ import { registerPublicAssetRoutes } from "./util/PublicAssetRoutes";
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
 
-export type SpacebarServerOptions = ServerOptions;
+export type SpacebarServerOptions = ServerOptions & {
+    registerMetricsEndpoint?: boolean;
+};
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Express {
@@ -62,6 +67,22 @@ export class SpacebarServer extends Server {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         super(opts);
+    }
+
+    getExtraMetricSamples(): MetricSample[] {
+        return [
+            {
+                name: "spacebar_database_ready",
+                help: "Whether the API process has an initialized database connection.",
+                type: "gauge",
+                value: getDatabase() ? 1 : 0,
+                labels: { service: "api" },
+            },
+        ];
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("api", this.getExtraMetricSamples());
     }
 
     async start() {
@@ -143,6 +164,10 @@ export class SpacebarServer extends Server {
                 version: getRevInfoOrFail(),
             });
         });
+
+        if (this.options.registerMetricsEndpoint !== false) {
+            registerPrometheusMetricsRoute(app, () => this.getMetricSamples());
+        }
 
         // current well-known location
         app.get("/.well-known/spacebar", (req, res) => {
