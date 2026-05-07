@@ -11774,7 +11774,7 @@
             "method": "POST",
             "path": "/users/@me/mfa/codes-verification/",
             "sourceFile": "src/api/routes/users/@me/mfa/codes-verification.ts",
-            "line": 26,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
