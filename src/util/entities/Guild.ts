@@ -44,6 +44,7 @@ import { Webhook } from "./Webhook";
 import { insertChannelInOrdering } from "@spacebar/util";
 import { setVanityUrlFeature } from "../util/GuildFeatures";
 import type { GuildCreateResponse } from "@spacebar/schemas";
+import { mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -475,7 +476,8 @@ export class Guild extends BaseClass {
             body.channels = [{ id: "01", type: 0, name: "general", nsfw: false }];
         }
 
-        const ids = new Map();
+        const ids = new Map<string, string>();
+        const createdChannelIds = new Map<Partial<Channel>, string>();
 
         body.channels.forEach((x) => {
             if (x.id) {
@@ -483,10 +485,10 @@ export class Guild extends BaseClass {
             }
         });
 
-        for (const channel of body.channels.sort((a) => (a.parent_id ? 1 : -1))) {
-            const id = ids.get(channel.id) || Snowflake.generate();
+        for (const channel of sortTemplateChannelsForCreation(body.channels)) {
+            const id = channel.id ? ids.get(channel.id) || Snowflake.generate() : Snowflake.generate();
 
-            const parent_id = ids.get(channel.parent_id);
+            const parent_id = channel.parent_id ? ids.get(channel.parent_id) : undefined;
             const permission_overwrites = resolveGuildCreatePermissionOverwrites(channel.permission_overwrites, roleIds);
 
             const saved = await Channel.createChannel({ ...channel, guild_id, id, parent_id, permission_overwrites }, body.owner_id, {
@@ -494,16 +496,25 @@ export class Guild extends BaseClass {
                 skipExistsCheck: true,
                 skipPermissionCheck: true,
                 skipEventEmit: true,
+                skipOrdering: true,
             });
 
-            await Guild.insertChannelInOrder(guild.id, saved.id, parent_id ?? channel.position ?? 0, guild);
+            createdChannelIds.set(channel, saved.id);
         }
 
         const channelReferences = resolveGuildCreateChannelReferences(body, ids);
-        if (Object.values(channelReferences).some((channelId) => channelId !== undefined)) {
-            Object.assign(guild, channelReferences);
-            await guild.save();
-        }
+        guild.channel_ordering = mapTemplateChannelOrdering(body.channels, (channel) => createdChannelIds.get(channel));
+        const guildUpdate: {
+            afk_channel_id?: string | null;
+            channel_ordering: string[];
+            rules_channel_id?: string | null;
+            system_channel_id?: string | null;
+        } = { channel_ordering: guild.channel_ordering };
+        if (channelReferences.afk_channel_id !== undefined) guildUpdate.afk_channel_id = channelReferences.afk_channel_id;
+        if (channelReferences.rules_channel_id !== undefined) guildUpdate.rules_channel_id = channelReferences.rules_channel_id;
+        if (channelReferences.system_channel_id !== undefined) guildUpdate.system_channel_id = channelReferences.system_channel_id;
+        Object.assign(guild, guildUpdate);
+        await Guild.update({ id: guild.id }, guildUpdate);
 
         return guild;
     }

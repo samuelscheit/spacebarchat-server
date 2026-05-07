@@ -66,6 +66,7 @@ export * from "./ChannelFlags";
 export * from "./ChannelOrdering";
 export * from "./Gifs";
 export * from "./GuildFeatures";
+export * from "./GuildChannelOrdering";
 export * from "./Application";
 export * from "./NameValidation";
 export * from "../../schemas/HelperTypes";
