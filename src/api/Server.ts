@@ -28,6 +28,7 @@ import {
     getDatabase,
     getRevInfoOrFail,
     initStartupConfigAndDatabase,
+    getConfiguredImageUploadBodyLimit,
 } from "@spacebar/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
@@ -90,7 +91,7 @@ export class SpacebarServer extends Server {
         if (trustedProxies) this.app.set("trust proxy", trustedProxies);
 
         this.app.use(CORS);
-        this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
+        this.app.use(BodyParser({ inflate: true, limit: getConfiguredImageUploadBodyLimit(Config.get().cdn) }));
 
         const app = this.app;
         const api = Router({ mergeParams: true });

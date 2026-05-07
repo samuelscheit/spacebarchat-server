@@ -21,6 +21,7 @@ export * from "./ApiVersions";
 export * from "./extensions/Array";
 export * from "./BitField";
 //export * from "./Categories";
+export * from "./CdnFileLimits";
 export * from "./cdn";
 export * from "./Config";
 export * from "./Constants";

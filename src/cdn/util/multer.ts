@@ -17,12 +17,24 @@
 */
 
 import multerConfig from "multer";
+import { Config, getConfiguredCdnMultipartFileLimit } from "@spacebar/util";
+import type { RequestHandler } from "express";
 
-export const multer = multerConfig({
-    storage: multerConfig.memoryStorage(),
-    limits: {
-        fields: 10,
-        files: 10,
-        fileSize: 1024 * 1024 * 100, // 100 mb
+function createMulter() {
+    return multerConfig({
+        storage: multerConfig.memoryStorage(),
+        limits: {
+            fields: 10,
+            files: 10,
+            fileSize: getConfiguredCdnMultipartFileLimit(Config.get().cdn),
+        },
+    });
+}
+
+export const multer = {
+    single(fieldName: string): RequestHandler {
+        return (req, res, next) => {
+            createMulter().single(fieldName)(req, res, next);
+        };
     },
-});
+};

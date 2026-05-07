@@ -230,7 +230,8 @@ public class CdnConfiguration : EndpointConfiguration {
     [JsonPropertyName("maxAttachmentSize")]
     public int MaxAttachmentSize { get; set; } = 25 * 1024 * 1024; // 25 MB
 
-    // limits: CdnLimitsConfiguration {get;set;}=new CdnLimitsConfiguration();
+    [JsonPropertyName("limits")]
+    public CdnLimitsConfiguration Limits { get; set; } = new();
 }
 
 public class CdnLimitsConfiguration {

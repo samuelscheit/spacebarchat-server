@@ -18,7 +18,9 @@
 
 import FormData from "form-data";
 import { HTTPError } from "lambert-server";
+import { ApiError } from "./ApiError";
 import { Attachment } from "../entities";
+import { assertCdnFileSizeLimit } from "./CdnFileLimits";
 import { Config } from "./Config";
 import { parseBase64DataUri } from "../../schemas/ImageData";
 import { getCdnMutationUrl } from "./InternalCdnRoutes";
@@ -55,6 +57,7 @@ export async function handleFile(path: string, body?: string): Promise<string | 
     try {
         const image = parseBase64DataUri(body);
         if (!image || !image.mimetype.startsWith("image/")) throw new Error("Invalid image data URI");
+        assertCdnFileSizeLimit(path, image.buffer.length, Config.get().cdn);
 
         const { id } = await uploadFile(path, {
             buffer: image.buffer,
@@ -63,6 +66,7 @@ export async function handleFile(path: string, body?: string): Promise<string | 
         });
         return id;
     } catch (error) {
+        if (error instanceof ApiError) throw error;
         console.error(error);
         throw new HTTPError("Invalid " + path);
     }
