@@ -3,13 +3,13 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, generateToken, initDatabase, User } from "@spacebar/util";
+import { closeDatabase, events, generateToken, initDatabase, User } from "@spacebar/util";
 import ws from "ws";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { startGateway } from "../server/startGateway";
 
 const coveredManifestIds = ["gateway:opcode:2:Identify"];
-type GatewayPayload = { op: number; t?: string; d?: Record<string, unknown> };
+type GatewayPayload = { op: number; s?: number; t?: string; d?: Record<string, unknown> | boolean };
 
 test(
     "Gateway IDENTIFY accepts a persisted user token and sends READY",
@@ -120,6 +120,176 @@ test("Gateway IDENTIFY closes invalid tokens with authentication failure", { tim
     }
 });
 
+test(
+    "Gateway RESUME reattaches a persisted session and sends RESUMED",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_gateway_resume" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-gateway-resume-"));
+        const previous = snapshotProcessState();
+        let gateway: Awaited<ReturnType<typeof startGateway>> | undefined;
+        let firstClient: ws | undefined;
+        let resumedClient: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+            delete process.env.EVENT_TRANSMISSION;
+            delete process.env.EVENT_SOCKET_PATH;
+            delete process.env.RABBITMQ_HOST;
+
+            await initDatabase();
+            const suffix = `${process.pid}${Date.now()}`;
+            const user = await User.register({
+                username: `resume${suffix.slice(-8)}`,
+                email: `resume-${suffix}@example.com`,
+                password: "gateway-password-fixture",
+            });
+            const token = await generateToken(user.id);
+            assert.equal(typeof token, "string");
+            if (!token) assert.fail("expected generated token");
+            const userToken = token;
+
+            gateway = await startGateway();
+            firstClient = await connectIdentifiedGatewayClient(gateway.url, userToken);
+            const ready = await readUntil(firstClient, (payload) => payload.op === 0 && payload.t === "READY");
+            const readyData = ready.d as { user: { id: string }; session_id: string };
+            const lastSeq = ready.s ?? 0;
+            assert.equal(readyData.user.id, user.id);
+            await closeClient(firstClient);
+            await waitForCloseHandlers();
+            firstClient = undefined;
+
+            resumedClient = new ws(`${gateway.url}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            const hello = await readJsonMessage(resumedClient);
+            assert.equal(hello.op, 10);
+
+            resumedClient.send(
+                JSON.stringify({
+                    op: 6,
+                    d: {
+                        token: userToken,
+                        session_id: readyData.session_id,
+                        seq: lastSeq,
+                    },
+                }),
+            );
+
+            const resumed = await readJsonMessage(resumedClient);
+            assert.equal(resumed.op, 0);
+            assert.equal(resumed.t, "RESUMED");
+            assert.equal(resumed.s, lastSeq + 1);
+            assert.deepEqual((resumed.d as { _trace: unknown[] })._trace, []);
+
+            await waitForEventListener(readyData.session_id);
+        } finally {
+            if (firstClient) await closeClient(firstClient);
+            if (resumedClient) await closeClient(resumedClient);
+            if (firstClient || resumedClient) await waitForCloseHandlers();
+            if (gateway) await gateway.stop();
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+test(
+    "Gateway RESUME rejects a valid token with the wrong session id",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_gateway_resume_invalid" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-gateway-resume-invalid-"));
+        const previous = snapshotProcessState();
+        let gateway: Awaited<ReturnType<typeof startGateway>> | undefined;
+        let client: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+            delete process.env.EVENT_TRANSMISSION;
+            delete process.env.EVENT_SOCKET_PATH;
+            delete process.env.RABBITMQ_HOST;
+
+            await initDatabase();
+            const suffix = `${process.pid}${Date.now()}`;
+            const user = await User.register({
+                username: `badresume${suffix.slice(-8)}`,
+                email: `bad-resume-${suffix}@example.com`,
+                password: "gateway-password-fixture",
+            });
+            const token = await generateToken(user.id);
+            assert.equal(typeof token, "string");
+
+            gateway = await startGateway();
+            client = new ws(`${gateway.url}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            const hello = await readJsonMessage(client);
+            assert.equal(hello.op, 10);
+
+            client.send(
+                JSON.stringify({
+                    op: 6,
+                    d: {
+                        token,
+                        session_id: "wrong-session-id",
+                        seq: 0,
+                    },
+                }),
+            );
+
+            const invalid = await readJsonMessage(client);
+            assert.equal(invalid.op, 9);
+            assert.equal(invalid.d, false);
+            const close = await readClose(client);
+            assert.equal(close.code, 4006);
+        } finally {
+            if (client) await closeClient(client);
+            if (client) await waitForCloseHandlers();
+            if (gateway) await gateway.stop();
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
+    const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+    const hello = await readJsonMessage(client);
+    assert.equal(hello.op, 10);
+
+    client.send(
+        JSON.stringify({
+            op: 2,
+            d: {
+                token,
+                intents: 0,
+                properties: {
+                    os: "test",
+                    browser: "spacebar-test",
+                    device: "spacebar-test",
+                },
+            },
+        }),
+    );
+
+    return client;
+}
+
 async function readUntil(client: ws, predicate: (payload: GatewayPayload) => boolean) {
     for (let i = 0; i < 5; i++) {
         const payload = await readJsonMessage(client);
@@ -197,6 +367,17 @@ async function waitForCloseHandlers() {
     await new Promise<void>((resolve) => {
         setTimeout(resolve, 100);
     });
+}
+
+async function waitForEventListener(eventId: string) {
+    for (let i = 0; i < 20; i++) {
+        if (events.listenerCount(eventId) > 0) return;
+        await new Promise<void>((resolve) => {
+            setTimeout(resolve, 25);
+        });
+    }
+
+    assert.fail(`Timed out waiting for event listener ${eventId}`);
 }
 
 function snapshotProcessState() {
