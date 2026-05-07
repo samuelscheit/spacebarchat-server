@@ -4,10 +4,31 @@ import { Channel } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { deleteAdminChannel } from "./mutations";
 import { AdminChannelType, assertAdminChannelDeletionSupported, createAdminThreadDeleteEvent, parseAdminDiscoveryGuildUpdate, parseAdminForceJoinInput } from "./mutationPolicy";
+import { requireAdminActionSafety, stripAdminActionSafetyFields, unwrapAdminActionPayload } from "./safety";
 
 process.env.DATABASE ??= "postgres://user:password@localhost:5432/test";
 
 describe("admin mutation helpers", () => {
+    test("requires reason and exact typed confirmation for dangerous actions", () => {
+        assert.deepEqual(requireAdminActionSafety({ reason: "cleanup request", confirmation: "123" }, { expectedConfirmation: "123", idempotencyKey: "same" }), {
+            reason: "cleanup request",
+            confirmation: "123",
+            idempotencyKey: "same",
+        });
+        assert.deepEqual(stripAdminActionSafetyFields({ reason: "cleanup request", confirmation: "123", value: true }), { value: true });
+        assert.deepEqual(unwrapAdminActionPayload({ reason: "config change", confirmation: "SAVE CONFIGURATION", values: { gateway: { endpointClient: "wss://example" } } }), {
+            gateway: { endpointClient: "wss://example" },
+        });
+        assert.throws(
+            () => requireAdminActionSafety({ confirmation: "123" }, { expectedConfirmation: "123" }),
+            (error) => error instanceof HTTPError && error.code === 400,
+        );
+        assert.throws(
+            () => requireAdminActionSafety({ reason: "cleanup request", confirmation: "wrong" }, { expectedConfirmation: "123" }),
+            (error) => error instanceof HTTPError && error.code === 400,
+        );
+    });
+
     test("parses only supported discovery update fields", () => {
         assert.deepEqual(parseAdminDiscoveryGuildUpdate({ discoveryExcluded: true, discoveryWeight: 7 }), {
             discoveryExcluded: true,

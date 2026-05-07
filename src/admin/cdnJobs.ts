@@ -7,6 +7,7 @@ export interface CdnAttachmentJobInput {
     dryRun: boolean;
     force: boolean;
     missingLimit: number;
+    reason: string | null;
 }
 
 export interface CdnAttachmentJobResult {
@@ -67,9 +68,10 @@ export function parseCdnAttachmentJobInput(body: unknown, query: Record<string, 
     const input = isRecord(body) ? body : {};
 
     return {
-        dryRun: parseBoolean(input.dryRun ?? input.dry_run ?? query.dryRun ?? query.dry_run),
+        dryRun: parseBoolean(input.dryRun ?? input.dry_run ?? query.dryRun ?? query.dry_run, true),
         force: parseBoolean(input.force ?? query.force),
         missingLimit: parseMissingLimit(input.missingLimit ?? input.missing_limit ?? query.missingLimit ?? query.missing_limit),
+        reason: typeof input.reason === "string" && input.reason.trim() ? input.reason.trim() : null,
     };
 }
 

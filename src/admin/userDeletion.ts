@@ -8,6 +8,7 @@ export interface UserDeletionJobInput {
     userId: string;
     deleteMessages: boolean;
     messageDeleteChunkSize: number;
+    reason: string;
 }
 
 export interface UserDeletionJobResult {
@@ -55,6 +56,7 @@ export function parseUserDeletionJobInput(userId: string, body: unknown, query: 
         userId,
         deleteMessages: parseBoolean(input.deleteMessages, true),
         messageDeleteChunkSize: parseChunkSize(input.messageDeleteChunkSize ?? query.message_delete_chunk_size ?? query.messageDeleteChunkSize),
+        reason: typeof input.reason === "string" ? input.reason.trim() : "",
     };
 }
 

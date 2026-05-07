@@ -18,6 +18,7 @@ import { deleteAdminChannel, forceJoinAdminGuild, updateAdminDiscoveryGuild } fr
 import { parseBooleanQuery, parsePagination, parseQueryString } from "./pagination";
 import { parseUserDeletionJobInput, startUserDeletionJob } from "./userDeletion";
 import { parseCdnAttachmentJobInput, startCdnAttachmentFsckJob, startCdnAttachmentMigrationJob } from "./cdnJobs";
+import { firstHeaderValue, parseAdminActionSafety, requireAdminActionSafety, unwrapAdminActionPayload } from "./safety";
 
 export interface AdminRouterOptions {
     authentication?: RequestHandler;
@@ -28,6 +29,10 @@ function listOptions(req: Parameters<RequestHandler>[0]) {
         ...parsePagination(req.query as Record<string, unknown>),
         q: parseQueryString(req.query.q),
     };
+}
+
+function idempotencyKey(req: Parameters<RequestHandler>[0]) {
+    return firstHeaderValue(req.headers["idempotency-key"]);
 }
 
 export function createAdminRouter(options: AdminRouterOptions = {}) {
@@ -57,11 +62,14 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
     });
 
     router.post("/users/:id/delete", async (req, res) => {
-        const idempotencyKey = Array.isArray(req.headers["idempotency-key"]) ? req.headers["idempotency-key"][0] : req.headers["idempotency-key"];
+        const safety = requireAdminActionSafety(req.body, {
+            expectedConfirmation: req.params.id,
+            idempotencyKey: idempotencyKey(req),
+        });
         const job = startUserDeletionJob({
             input: parseUserDeletionJobInput(req.params.id, req.body, req.query as Record<string, unknown>),
             createdBy: req.user_id,
-            idempotencyKey,
+            idempotencyKey: safety.idempotencyKey,
         });
         recordAdminAuditEvent({
             action: "user.delete",
@@ -71,7 +79,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             status: job.status === "queued" ? "accepted" : "succeeded",
             severity: "danger",
             jobId: job.id,
-            metadata: { deleteMessages: job.input.deleteMessages, idempotencyKey: job.idempotencyKey },
+            metadata: { deleteMessages: job.input.deleteMessages, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
         });
 
         res.status(job.status === "queued" ? 202 : 200).json(job);
@@ -131,7 +139,8 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
     });
 
     router.put("/configuration", async (req, res) => {
-        const result = await updateAdminConfiguration(req.body);
+        const safety = requireAdminActionSafety(req.body, { expectedConfirmation: "SAVE CONFIGURATION" });
+        const result = await updateAdminConfiguration(unwrapAdminActionPayload(req.body));
         recordAdminAuditEvent({
             action: "configuration.update",
             actorId: req.user_id,
@@ -139,7 +148,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             targetId: result.source,
             status: "succeeded",
             severity: "warning",
-            metadata: { source: result.source, readonly: result.readonly },
+            metadata: { source: result.source, readonly: result.readonly, reason: safety.reason },
         });
         res.json(result);
     });
@@ -167,11 +176,11 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
     });
 
     router.post("/media/attachments/fsck", (req, res) => {
-        const idempotencyKey = Array.isArray(req.headers["idempotency-key"]) ? req.headers["idempotency-key"][0] : req.headers["idempotency-key"];
+        const safety = parseAdminActionSafety(req.body, idempotencyKey(req));
         const job = startCdnAttachmentFsckJob({
             input: parseCdnAttachmentJobInput(req.body, req.query as Record<string, unknown>),
             createdBy: req.user_id,
-            idempotencyKey,
+            idempotencyKey: safety.idempotencyKey,
         });
         recordAdminAuditEvent({
             action: "cdn.attachments.fsck",
@@ -181,18 +190,25 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             status: job.status === "queued" ? "accepted" : "succeeded",
             severity: "warning",
             jobId: job.id,
-            metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey },
+            metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
         });
 
         res.status(job.status === "queued" ? 202 : 200).json(job);
     });
 
     router.post("/media/attachments/migrate", (req, res) => {
-        const idempotencyKey = Array.isArray(req.headers["idempotency-key"]) ? req.headers["idempotency-key"][0] : req.headers["idempotency-key"];
+        const parsedInput = parseCdnAttachmentJobInput(req.body, req.query as Record<string, unknown>);
+        const safety =
+            parsedInput.dryRun && !parsedInput.force
+                ? parseAdminActionSafety(req.body, idempotencyKey(req))
+                : requireAdminActionSafety(req.body, {
+                      expectedConfirmation: "MIGRATE ATTACHMENTS",
+                      idempotencyKey: idempotencyKey(req),
+                  });
         const job = startCdnAttachmentMigrationJob({
-            input: parseCdnAttachmentJobInput(req.body, req.query as Record<string, unknown>),
+            input: parsedInput,
             createdBy: req.user_id,
-            idempotencyKey,
+            idempotencyKey: safety.idempotencyKey,
         });
         recordAdminAuditEvent({
             action: "cdn.attachments.migrate",
@@ -202,13 +218,14 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             status: job.status === "queued" ? "accepted" : "succeeded",
             severity: job.input.dryRun ? "info" : "danger",
             jobId: job.id,
-            metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey },
+            metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
         });
 
         res.status(job.status === "queued" ? 202 : 200).json(job);
     });
 
     router.delete("/channels/:id", async (req, res) => {
+        const safety = requireAdminActionSafety(req.body, { expectedConfirmation: req.params.id });
         const result = await deleteAdminChannel(req.params.id);
         recordAdminAuditEvent({
             action: "channel.delete",
@@ -217,7 +234,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             targetId: req.params.id,
             status: "succeeded",
             severity: "danger",
-            metadata: { ...result },
+            metadata: { ...result, reason: safety.reason },
         });
         res.json(result);
     });

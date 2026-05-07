@@ -164,3 +164,65 @@ Risks or blockers:
 Next step:
 
 - Continue dashboard operations UX with action result banners, richer filters, or begin durable jobs/audit storage.
+
+## 2026-05-07 22:17 CEST - Destructive Action Safety
+
+Status: complete
+
+Changed files:
+
+- `apps/admin-dashboard/app/actions.ts`
+- `apps/admin-dashboard/app/(dashboard)/**`
+- `src/admin/index.ts`
+- `src/admin/safety.ts`
+- `src/admin/userDeletion.ts`
+- `src/admin/cdnJobs.ts`
+- `src/admin/audit.test.ts`
+- `src/admin/safety.ts`
+- `src/admin/mutations.test.ts`
+- `src/admin/cdnJobs.test.ts`
+- `src/admin/jobs.test.ts`
+- `docs/admin-api-next-dashboard-progress.md`
+
+What changed:
+
+- Started Feature Track 5: require operator reasons and typed confirmations for dangerous dashboard actions, propagate reason metadata into audit records, and generate dashboard idempotency keys for job-backed destructive work.
+- Added backend safety helpers that require non-empty reasons and exact typed confirmations for user delete, channel delete, config writes, and real or forced CDN attachment migrations.
+- Changed CDN attachment migration parsing so omitted `dryRun` defaults to `true`.
+- Added reason to user deletion and CDN job inputs so idempotent duplicate submissions preserve the original reason metadata.
+- Added dashboard reason and confirmation fields for user deletion, channel deletion, configuration save, and CDN attachment migration.
+- Added dashboard-generated idempotency keys for user deletion, CDN fsck, and CDN migration jobs.
+- Documented reason metadata preservation with focused audit, job, CDN, and mutation helper tests.
+
+Verification:
+
+- Command: `npm run build:src`
+- Result: pass
+- Notes: TypeScript source build passed after backend safety changes.
+- Command: `node -r dotenv/config -r module-alias/register --enable-source-maps --test dist/admin/audit.test.js dist/admin/cdnJobs.test.js dist/admin/jobs.test.js dist/admin/mutations.test.js`
+- Result: pass
+- Notes: 16 focused backend tests passed, covering safety parsing, audit reason metadata, CDN dry-run defaults, and idempotency preserving original dangerous input.
+- Command: `npm run build:admin-dashboard`
+- Result: pass
+- Notes: Next.js production build passed after dashboard safety form/action changes.
+- Command: `PORT=3314 SPACEBAR_ADMIN_API_URL=http://127.0.0.1:3001/_spacebar/admin/api SPACEBAR_ADMIN_COOKIE_SECURE=false npm run start:admin-dashboard`
+- Result: pass
+- Notes: Started the built dashboard on a temporary local port for runtime checks.
+- Command: `SPACEBAR_ADMIN_DASHBOARD_URL=http://127.0.0.1:3314/_spacebar/admin npm run smoke:admin-dashboard`
+- Result: pass
+- Notes: Health check passed; authenticated SSR check was skipped because `SPACEBAR_ADMIN_TOKEN` was not set.
+- Command: `curl -i --max-time 5 http://127.0.0.1:3314/_spacebar/admin/media`
+- Result: pass
+- Notes: Media route rendered the CDN fsck idempotency key and migration reason/confirmation fields before redirecting unauthenticated access to login.
+- Command: `test -z "$(lsof -ti tcp:3314)"`
+- Result: pass
+- Notes: No temporary dashboard server remained after runtime checks.
+
+Risks or blockers:
+
+- Authenticated dashboard submissions still need a live admin API/token smoke check; this workspace does not have an OPERATOR token.
+- Durable job/audit storage is still not implemented, so reason metadata remains process-local with the current audit/job stores.
+
+Next step:
+
+- Continue with durable jobs/audit storage or browser/e2e release gates.

@@ -2,12 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { randomUUID } from "node:crypto";
 import { adminFetch } from "./lib/admin-api";
 import { setAdminSessionToken, validateAdminToken } from "./lib/admin-session";
 
 function stringValue(formData: FormData, key: string) {
     const value = formData.get(key);
     return typeof value === "string" ? value : "";
+}
+
+function idempotencyKey(formData: FormData) {
+    return stringValue(formData, "idempotencyKey") || randomUUID();
 }
 
 export async function reloadConfiguration() {
@@ -31,7 +36,11 @@ export async function updateConfiguration(formData: FormData) {
     const raw = stringValue(formData, "configuration");
     await adminFetch("/configuration", {
         method: "PUT",
-        body: JSON.stringify(JSON.parse(raw)),
+        body: JSON.stringify({
+            values: JSON.parse(raw),
+            reason: stringValue(formData, "reason"),
+            confirmation: stringValue(formData, "confirmation"),
+        }),
     });
     revalidatePath("/configuration");
 }
@@ -57,7 +66,14 @@ export async function startUserDeletion(formData: FormData) {
 
     await adminFetch(`/users/${userId}/delete`, {
         method: "POST",
-        body: JSON.stringify({ deleteMessages }),
+        body: JSON.stringify({
+            deleteMessages,
+            reason: stringValue(formData, "reason"),
+            confirmation: stringValue(formData, "confirmation"),
+        }),
+        headers: {
+            "idempotency-key": idempotencyKey(formData),
+        },
     });
     revalidatePath("/users");
     revalidatePath("/jobs");
@@ -65,7 +81,13 @@ export async function startUserDeletion(formData: FormData) {
 
 export async function deleteChannel(formData: FormData) {
     const channelId = stringValue(formData, "channelId");
-    await adminFetch(`/channels/${channelId}`, { method: "DELETE" });
+    await adminFetch(`/channels/${channelId}`, {
+        method: "DELETE",
+        body: JSON.stringify({
+            reason: stringValue(formData, "reason"),
+            confirmation: stringValue(formData, "confirmation"),
+        }),
+    });
     revalidatePath("/channels");
 }
 
@@ -90,7 +112,11 @@ export async function startCdnAttachmentFsck(formData: FormData) {
         body: JSON.stringify({
             dryRun: true,
             missingLimit: Number(stringValue(formData, "missingLimit") || 50),
+            reason: stringValue(formData, "reason") || undefined,
         }),
+        headers: {
+            "idempotency-key": idempotencyKey(formData),
+        },
     });
     revalidatePath("/media");
     revalidatePath("/jobs");
@@ -103,7 +129,12 @@ export async function startCdnAttachmentMigration(formData: FormData) {
             dryRun: formData.get("dryRun") === "on",
             force: formData.get("force") === "on",
             missingLimit: Number(stringValue(formData, "missingLimit") || 50),
+            reason: stringValue(formData, "reason"),
+            confirmation: stringValue(formData, "confirmation"),
         }),
+        headers: {
+            "idempotency-key": idempotencyKey(formData),
+        },
     });
     revalidatePath("/media");
     revalidatePath("/jobs");

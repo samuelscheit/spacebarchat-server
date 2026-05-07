@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { randomUUID } from "node:crypto";
 import {
     Activity,
     BadgeAlert,
@@ -228,5 +229,23 @@ export function DatabaseMode({ source, readonly }: { source: string; readonly: b
             {source}
             {readonly ? " readonly" : ""}
         </span>
+    );
+}
+
+export function DestructiveActionFields({
+    confirmation,
+    reasonPlaceholder = "Operator reason",
+    idempotency = false,
+}: {
+    confirmation: string;
+    reasonPlaceholder?: string;
+    idempotency?: boolean;
+}) {
+    return (
+        <div className="destructive-fields">
+            {idempotency ? <input type="hidden" name="idempotencyKey" value={randomUUID()} /> : null}
+            <input name="reason" placeholder={reasonPlaceholder} required />
+            <input name="confirmation" placeholder={`Type ${confirmation} to confirm`} autoComplete="off" required />
+        </div>
     );
 }

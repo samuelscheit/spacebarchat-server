@@ -1,5 +1,5 @@
 import { reloadConfiguration, updateConfiguration } from "../../actions";
-import { CodeBlock, DatabaseMode, ErrorBanner, PageHeader, Panel } from "../../components";
+import { CodeBlock, DatabaseMode, DestructiveActionFields, ErrorBanner, PageHeader, Panel } from "../../components";
 import { safeAdminFetch } from "../../lib/admin-api";
 import type { AdminConfiguration } from "../../lib/types";
 
@@ -25,6 +25,7 @@ export default async function ConfigurationPage() {
                 <Panel title="Editor">
                     <form action={updateConfiguration} className="panel-body grid">
                         <textarea name="configuration" defaultValue={serialized} spellCheck={false} />
+                        <DestructiveActionFields confirmation="SAVE CONFIGURATION" reasonPlaceholder="Configuration change reason" />
                         <div className="row-actions">
                             <button type="submit" disabled={configuration.data?.readonly}>
                                 Save Configuration

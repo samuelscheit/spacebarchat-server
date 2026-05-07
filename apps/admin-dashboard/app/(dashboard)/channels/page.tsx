@@ -1,5 +1,5 @@
 import { deleteChannel } from "../../actions";
-import { PageHeader, Panel } from "../../components";
+import { DestructiveActionFields, PageHeader, Panel } from "../../components";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +10,7 @@ export default function ChannelsPage() {
             <Panel title="Delete Channel">
                 <form action={deleteChannel} className="panel-body grid">
                     <input name="channelId" placeholder="Channel ID" />
+                    <DestructiveActionFields confirmation="the channel ID" reasonPlaceholder="Deletion reason" />
                     <div className="row-actions">
                         <button className="danger" type="submit">
                             Delete Channel

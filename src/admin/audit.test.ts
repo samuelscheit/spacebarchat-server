@@ -15,7 +15,7 @@ describe("admin audit events", () => {
             targetId: "10",
             status: "succeeded",
             severity: "danger",
-            metadata: { detachedChildChannelIds: ["11"] },
+            metadata: { detachedChildChannelIds: ["11"], reason: "requested by Trust and Safety" },
         });
         const second = recordAdminAuditEvent({
             action: "configuration.reload",
@@ -30,7 +30,7 @@ describe("admin audit events", () => {
         assert.equal(listed.pagination.total, 2);
         assert.equal(listed.items[0].id, second.id);
         assert.equal(listed.items[1].id, first.id);
-        assert.deepEqual(listed.items[1].metadata, { detachedChildChannelIds: ["11"] });
+        assert.deepEqual(listed.items[1].metadata, { detachedChildChannelIds: ["11"], reason: "requested by Trust and Safety" });
     });
 
     test("filters activity by action, actor, target, and status", () => {

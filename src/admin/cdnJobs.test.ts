@@ -87,6 +87,13 @@ describe("admin CDN jobs", () => {
             dryRun: true,
             force: true,
             missingLimit: 500,
+            reason: null,
+        });
+        assert.deepEqual(parseCdnAttachmentJobInput({ reason: " storage audit " }), {
+            dryRun: true,
+            force: false,
+            missingLimit: 50,
+            reason: "storage audit",
         });
     });
 
@@ -100,7 +107,7 @@ describe("admin CDN jobs", () => {
         );
         const context = createContext();
 
-        const result = await runCdnAttachmentFsckJob({ dryRun: false, force: false, missingLimit: 10 }, context, deps);
+        const result = await runCdnAttachmentFsckJob({ dryRun: false, force: false, missingLimit: 10, reason: null }, context, deps);
 
         assert.equal(result.checked, 2);
         assert.equal(result.present, 1);
@@ -119,7 +126,7 @@ describe("admin CDN jobs", () => {
         );
         const context = createContext();
 
-        const result = await runCdnAttachmentMigrationJob({ dryRun: false, force: false, missingLimit: 10 }, context, deps);
+        const result = await runCdnAttachmentMigrationJob({ dryRun: false, force: false, missingLimit: 10, reason: "storage migration" }, context, deps);
 
         assert.equal(result.checked, 2);
         assert.equal(result.migrated, 1);

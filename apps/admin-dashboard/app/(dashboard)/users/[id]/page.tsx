@@ -1,5 +1,5 @@
 import { startUserDeletion } from "../../../actions";
-import { CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../../components";
+import { CodeBlock, DestructiveActionFields, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../../components";
 import { safeAdminFetch } from "../../../lib/admin-api";
 import type { AdminUser } from "../../../lib/types";
 
@@ -21,6 +21,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
                             <input type="checkbox" name="deleteMessages" defaultChecked />
                             messages
                         </label>
+                        <DestructiveActionFields confirmation={id} reasonPlaceholder="Deletion reason" idempotency />
                         <button className="danger" type="submit">
                             Delete User
                         </button>

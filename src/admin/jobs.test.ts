@@ -57,6 +57,28 @@ describe("admin jobs", () => {
         assert.deepEqual(second.input, { id: "1" });
     });
 
+    test("idempotent duplicate starts preserve the original dangerous input", () => {
+        clearAdminJobsForTests();
+
+        const first = createAdminJob({
+            type: "test.dangerous",
+            input: { targetId: "1", reason: "original reason" },
+            createdBy: "operator",
+            idempotencyKey: "same-dangerous-submit",
+            runner: async () => ({ ok: true }),
+        });
+        const second = createAdminJob({
+            type: "test.dangerous",
+            input: { targetId: "2", reason: "changed reason" },
+            createdBy: "operator",
+            idempotencyKey: "same-dangerous-submit",
+            runner: async () => ({ ok: true }),
+        });
+
+        assert.equal(second.id, first.id);
+        assert.deepEqual(second.input, { targetId: "1", reason: "original reason" });
+    });
+
     test("supports cancellation before queued jobs start", async () => {
         clearAdminJobsForTests();
 

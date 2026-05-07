@@ -1,5 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { startCdnAttachmentFsck, startCdnAttachmentMigration } from "../../actions";
-import { ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
+import { DestructiveActionFields, ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
 import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminAttachment, AdminSticker, PageResult } from "../../lib/types";
 
@@ -26,6 +27,8 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
                     <div className="panel-body grid two">
                         <form action={startCdnAttachmentFsck} className="stack">
                             <input type="hidden" name="missingLimit" value="50" />
+                            <input type="hidden" name="idempotencyKey" value={randomUUID()} />
+                            <input name="reason" placeholder="Optional fsck reason" />
                             <button type="submit" className="secondary">
                                 Start Fsck
                             </button>
@@ -40,6 +43,7 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
                                 <input type="checkbox" name="force" />
                                 Force
                             </label>
+                            <DestructiveActionFields confirmation="MIGRATE ATTACHMENTS" reasonPlaceholder="Migration reason" idempotency />
                             <button type="submit">Start Migration</button>
                         </form>
                     </div>

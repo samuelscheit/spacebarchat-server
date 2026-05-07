@@ -1,5 +1,5 @@
 import { startUserDeletion } from "../../actions";
-import { ErrorBanner, PageHeader, PaginationControls, Panel, RowLink, SearchForm, StatusPill } from "../../components";
+import { DestructiveActionFields, ErrorBanner, PageHeader, PaginationControls, Panel, RowLink, SearchForm, StatusPill } from "../../components";
 import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminUserListItem, PageResult } from "../../lib/types";
 
@@ -50,6 +50,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                                                 <input type="checkbox" name="deleteMessages" defaultChecked />
                                                 messages
                                             </label>
+                                            <DestructiveActionFields confirmation={user.id} reasonPlaceholder="Deletion reason" idempotency />
                                             <button className="danger" type="submit">
                                                 Delete
                                             </button>
