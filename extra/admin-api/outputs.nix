@@ -63,6 +63,12 @@ nixpkgs.lib.recursiveUpdate (
           nugetDeps = Interop/Spacebar.Interop.Cdn.Abstractions/deps.json;
           srcRoot = Interop/Spacebar.Interop.Cdn.Abstractions;
         };
+        Spacebar-Interop-Cdn-Signing = buildSpacebarDotnetModule {
+          name = "Spacebar.Interop.Cdn.Signing";
+          projectFile = "Spacebar.Interop.Cdn.Signing.csproj";
+          nugetDeps = Interop/Spacebar.Interop.Cdn.Signing/deps.json;
+          srcRoot = Interop/Spacebar.Interop.Cdn.Signing;
+        };
         Spacebar-Interop-Replication-Abstractions = buildSpacebarDotnetModule {
           name = "Spacebar.Interop.Replication.Abstractions";
           projectFile = "Spacebar.Interop.Replication.Abstractions.csproj";
@@ -161,6 +167,7 @@ nixpkgs.lib.recursiveUpdate (
           projectReferences = [
             proj.Spacebar-Models-Db
             proj.Spacebar-Interop-Cdn-Abstractions
+            proj.Spacebar-Interop-Cdn-Signing
           ];
         };
         Spacebar-Offload = buildSpacebarDotnetModule {
