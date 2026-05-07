@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { assertMfaCode, consumeMfaBackupCode, route } from "@spacebar/api";
-import { User, generateToken } from "@spacebar/util";
+import { assertMfaCode, consumeMfaBackupCode, createTokenResponse, route } from "@spacebar/api";
+import { User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { TotpSchema } from "@spacebar/schemas";
@@ -46,7 +46,6 @@ router.post(
                 totp_last_ticket: ticket,
             },
             select: { id: true, totp_secret: true },
-            relations: { settings: true },
         });
 
         await assertMfaCode({
@@ -59,10 +58,7 @@ router.post(
 
         await User.update({ id: user.id }, { totp_last_ticket: "" });
 
-        return res.json({
-            token: await generateToken(user.id),
-            settings: { ...user.settings, index: undefined },
-        });
+        return res.json(await createTokenResponse(user.id));
     },
 );
 

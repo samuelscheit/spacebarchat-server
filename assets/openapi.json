@@ -322,9 +322,6 @@
                     }
                 }
             },
-            "InstanceUserDeleteSchema": {
-                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
-            },
             "UserSettingsUpdateSchema": {
                 "type": "object",
                 "properties": {
@@ -621,6 +618,9 @@
                     "timezone_offset",
                     "view_nsfw_guilds"
                 ]
+            },
+            "InstanceUserDeleteSchema": {
+                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
             "ActivitySchema": {
                 "type": "object",
@@ -8702,17 +8702,6 @@
                     }
                 }
             },
-            "InstanceUserDeleteSchemaContent": {
-                "type": "object",
-                "properties": {
-                    "reason": {
-                        "type": "string"
-                    },
-                    "persistInstanceBan": {
-                        "type": "boolean"
-                    }
-                }
-            },
             "CustomStatus": {
                 "type": "object",
                 "properties": {
@@ -8766,6 +8755,17 @@
                 "required": [
                     "guild_ids"
                 ]
+            },
+            "InstanceUserDeleteSchemaContent": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string"
+                    },
+                    "persistInstanceBan": {
+                        "type": "boolean"
+                    }
+                }
             },
             "Status": {
                 "enum": [
@@ -29742,7 +29742,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TokenOnlyResponse"
+                                    "$ref": "#/components/schemas/TokenResponse"
                                 }
                             }
                         }

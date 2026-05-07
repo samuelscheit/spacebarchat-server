@@ -313,10 +313,6 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "InstanceUserDeleteSchema": {
-        "$ref": "#/definitions/InstanceUserDeleteSchemaContent",
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "UserSettingsUpdateSchema": {
         "type": "object",
         "properties": {
@@ -616,6 +612,10 @@
             "timezone_offset",
             "view_nsfw_guilds"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InstanceUserDeleteSchema": {
+        "$ref": "#/definitions/InstanceUserDeleteSchemaContent",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ActivitySchema": {
@@ -9348,19 +9348,6 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "InstanceUserDeleteSchemaContent": {
-        "type": "object",
-        "properties": {
-            "reason": {
-                "type": "string"
-            },
-            "persistInstanceBan": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "CustomStatus": {
         "type": "object",
         "properties": {
@@ -9425,6 +9412,19 @@
         "required": [
             "guild_ids"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InstanceUserDeleteSchemaContent": {
+        "type": "object",
+        "properties": {
+            "reason": {
+                "type": "string"
+            },
+            "persistInstanceBan": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Status": {

@@ -16,22 +16,21 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { checkToken, Email, FieldErrors, generateToken, User, userSelectFromKeys } from "@spacebar/util";
+import { createTokenResponse, route } from "@spacebar/api";
+import { checkToken, Email, FieldErrors, User, userSelectFromKeys } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { PasswordResetSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
-// TODO: the response interface also returns settings, but this route doesn't actually return that.
 router.post(
     "/",
     route({
         requestBody: "PasswordResetSchema",
         responses: {
             200: {
-                body: "TokenOnlyResponse",
+                body: "TokenResponse",
             },
             400: {
                 body: "APIErrorOrCaptchaResponse",
@@ -72,7 +71,7 @@ router.post(
         // come on, the user has to have an email to reset their password in the first place
         await Email.sendPasswordChanged(user, user.email!);
 
-        res.json({ token: await generateToken(user.id) });
+        res.json(await createTokenResponse(user.id));
     },
 );
 

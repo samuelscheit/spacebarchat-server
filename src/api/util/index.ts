@@ -46,3 +46,5 @@ export * from "./utility/MessageResponse";
 export * from "./utility/MessageSearch";
 export * from "./utility/LinkEmbeds";
 export * from "./utility/Mfa";
+export * from "./handlers/AuthTokenResponse";
+export * from "./handlers/AuthTokenResponseSettings";

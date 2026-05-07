@@ -16,22 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@spacebar/api";
-import { checkToken, Config, FieldErrors, generateToken, User, userSelectFromKeys } from "@spacebar/util";
+import { createTokenResponse, route, verifyCaptcha } from "@spacebar/api";
+import { checkToken, Config, FieldErrors, User, userSelectFromKeys } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
-async function getToken(user: User) {
-    const token = await generateToken(user.id);
-
-    // Notice this will have a different token structure, than discord
-    // Discord header is just the user id as string, which is not possible with npm-jsonwebtoken package
-    // https://user-images.githubusercontent.com/6506416/81051916-dd8c9900-8ec2-11ea-8794-daf12d6f31f0.png
-
-    return { token };
-}
-
-// TODO: the response interface also returns settings, but this route doesn't actually return that.
 router.post(
     "/",
     route({
@@ -90,11 +79,11 @@ router.post(
             });
         }
 
-        if (user.verified) return res.json(await getToken(user));
+        if (user.verified) return res.json(await createTokenResponse(user.id));
 
         await User.update({ id: user.id }, { verified: true });
 
-        return res.json(await getToken(user));
+        return res.json(await createTokenResponse(user.id));
     },
 );
 
