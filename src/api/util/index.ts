@@ -36,3 +36,4 @@ export * from "./utility/EmbedHandlers";
 export * from "./utility/MessageNotifications";
 export * from "./utility/MessageHistoryPagination";
 export * from "./utility/EmbedPayload";
+export * from "./utility/MessageResponse";

@@ -29,12 +29,11 @@ import {
     getPermission,
     getRights,
     uploadFile,
-    NewUrlUserSignatureData,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
+import { handleMessage, messageToResponse, postHandleMessage, route } from "@spacebar/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -244,15 +243,7 @@ router.put(
         // no await as it shouldnt block the message send function and silently catch error
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
 
-        return res.json(
-            Message.prototype.withSignedAttachments.call(
-                message.toJSON(),
-                new NewUrlUserSignatureData({
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"] as string,
-                }),
-            ),
-        );
+        return res.json(messageToResponse(message, req));
     },
 );
 

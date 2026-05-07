@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getMessageHistoryQueryOrder, handleMessage, postHandleMessage, route, sortMessagesNewestFirst } from "@spacebar/api";
+import { getMessageHistoryQueryOrder, handleMessage, messageToResponse, postHandleMessage, route, sortMessagesNewestFirst } from "@spacebar/api";
 import {
     Attachment,
     Channel,
@@ -484,14 +484,7 @@ router.post(
 
         // no await as it shouldnt block the message send function and silently catch error
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
-        return res.json(
-            message.withSignedAttachments(
-                new NewUrlUserSignatureData({
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"] as string,
-                }),
-            ),
-        );
+        return res.json(messageToResponse(message, req));
     },
 );
 
