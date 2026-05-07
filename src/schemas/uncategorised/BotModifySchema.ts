@@ -17,7 +17,13 @@
 */
 
 export interface BotModifySchema {
+    /**
+     * @TJS-format image-data-uri
+     */
     avatar?: string;
     username?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     banner?: string;
 }

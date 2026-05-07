@@ -224,6 +224,311 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "InstanceUserDeleteSchema": {
+        "$ref": "#/definitions/InstanceUserDeleteSchemaContent",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserSettingsUpdateSchema": {
+        "type": "object",
+        "properties": {
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "allow_accessibility_detection": {
+                "type": "boolean"
+            },
+            "animate_emoji": {
+                "type": "boolean"
+            },
+            "animate_stickers": {
+                "type": "integer"
+            },
+            "contact_sync_enabled": {
+                "type": "boolean"
+            },
+            "convert_emoticons": {
+                "type": "boolean"
+            },
+            "custom_status": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/CustomStatus"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "default_guilds_restricted": {
+                "type": "boolean"
+            },
+            "detect_platform_accounts": {
+                "type": "boolean"
+            },
+            "developer_mode": {
+                "type": "boolean"
+            },
+            "disable_games_tab": {
+                "type": "boolean"
+            },
+            "enable_tts_command": {
+                "type": "boolean"
+            },
+            "explicit_content_filter": {
+                "type": "integer"
+            },
+            "friend_discovery_flags": {
+                "type": "integer"
+            },
+            "friend_source_flags": {
+                "$ref": "#/definitions/FriendSourceFlags"
+            },
+            "gateway_connected": {
+                "type": "boolean"
+            },
+            "gif_auto_play": {
+                "type": "boolean"
+            },
+            "guild_folders": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildFolder"
+                }
+            },
+            "guild_positions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "inline_attachment_media": {
+                "type": "boolean"
+            },
+            "inline_embed_media": {
+                "type": "boolean"
+            },
+            "locale": {
+                "type": "string"
+            },
+            "message_display_compact": {
+                "type": "boolean"
+            },
+            "native_phone_integration_enabled": {
+                "type": "boolean"
+            },
+            "render_embeds": {
+                "type": "boolean"
+            },
+            "render_reactions": {
+                "type": "boolean"
+            },
+            "restricted_guilds": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "show_current_game": {
+                "type": "boolean"
+            },
+            "status": {
+                "enum": [
+                    "dnd",
+                    "idle",
+                    "invisible",
+                    "offline",
+                    "online"
+                ],
+                "type": "string"
+            },
+            "stream_notifications_enabled": {
+                "type": "boolean"
+            },
+            "theme": {
+                "enum": [
+                    "dark",
+                    "light"
+                ],
+                "type": "string"
+            },
+            "timezone_offset": {
+                "type": "integer"
+            },
+            "view_nsfw_guilds": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserSettingsSchema": {
+        "type": "object",
+        "properties": {
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "allow_accessibility_detection": {
+                "type": "boolean"
+            },
+            "animate_emoji": {
+                "type": "boolean"
+            },
+            "animate_stickers": {
+                "type": "integer"
+            },
+            "contact_sync_enabled": {
+                "type": "boolean"
+            },
+            "convert_emoticons": {
+                "type": "boolean"
+            },
+            "custom_status": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/CustomStatus"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "default_guilds_restricted": {
+                "type": "boolean"
+            },
+            "detect_platform_accounts": {
+                "type": "boolean"
+            },
+            "developer_mode": {
+                "type": "boolean"
+            },
+            "disable_games_tab": {
+                "type": "boolean"
+            },
+            "enable_tts_command": {
+                "type": "boolean"
+            },
+            "explicit_content_filter": {
+                "type": "integer"
+            },
+            "friend_discovery_flags": {
+                "type": "integer"
+            },
+            "friend_source_flags": {
+                "$ref": "#/definitions/FriendSourceFlags"
+            },
+            "gateway_connected": {
+                "type": "boolean"
+            },
+            "gif_auto_play": {
+                "type": "boolean"
+            },
+            "guild_folders": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildFolder"
+                }
+            },
+            "guild_positions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "inline_attachment_media": {
+                "type": "boolean"
+            },
+            "inline_embed_media": {
+                "type": "boolean"
+            },
+            "locale": {
+                "type": "string"
+            },
+            "message_display_compact": {
+                "type": "boolean"
+            },
+            "native_phone_integration_enabled": {
+                "type": "boolean"
+            },
+            "render_embeds": {
+                "type": "boolean"
+            },
+            "render_reactions": {
+                "type": "boolean"
+            },
+            "restricted_guilds": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "show_current_game": {
+                "type": "boolean"
+            },
+            "status": {
+                "enum": [
+                    "dnd",
+                    "idle",
+                    "invisible",
+                    "offline",
+                    "online"
+                ],
+                "type": "string"
+            },
+            "stream_notifications_enabled": {
+                "type": "boolean"
+            },
+            "theme": {
+                "enum": [
+                    "dark",
+                    "light"
+                ],
+                "type": "string"
+            },
+            "timezone_offset": {
+                "type": "integer"
+            },
+            "view_nsfw_guilds": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "afk_timeout",
+            "allow_accessibility_detection",
+            "animate_emoji",
+            "animate_stickers",
+            "contact_sync_enabled",
+            "convert_emoticons",
+            "custom_status",
+            "default_guilds_restricted",
+            "detect_platform_accounts",
+            "developer_mode",
+            "disable_games_tab",
+            "enable_tts_command",
+            "explicit_content_filter",
+            "friend_discovery_flags",
+            "friend_source_flags",
+            "gateway_connected",
+            "gif_auto_play",
+            "guild_folders",
+            "guild_positions",
+            "inline_attachment_media",
+            "inline_embed_media",
+            "locale",
+            "message_display_compact",
+            "native_phone_integration_enabled",
+            "render_embeds",
+            "render_reactions",
+            "restricted_guilds",
+            "show_current_game",
+            "status",
+            "stream_notifications_enabled",
+            "theme",
+            "timezone_offset",
+            "view_nsfw_guilds"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ActivitySchema": {
         "type": "object",
         "properties": {
@@ -658,12 +963,14 @@
         "type": "object",
         "properties": {
             "avatar": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "username": {
                 "type": "string"
             },
             "banner": {
+                "format": "image-data-uri",
                 "type": "string"
             }
         },
@@ -715,6 +1022,7 @@
                 "type": "string"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -868,6 +1176,7 @@
                 "type": "string"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -1282,6 +1591,7 @@
                 "type": "string"
             },
             "image": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "require_colons": {
@@ -1406,6 +1716,7 @@
                 "type": "integer"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "unicode_emoji": {
@@ -1450,6 +1761,7 @@
                 "type": "string"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -1594,6 +1906,7 @@
                 "type": "string"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -1609,13 +1922,22 @@
     "GuildUpdateSchema": {
         "type": "object",
         "properties": {
+            "icon": {
+                "format": "image-data-uri-or-asset-hash",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "banner": {
+                "format": "image-data-uri-or-asset-hash",
                 "type": [
                     "null",
                     "string"
                 ]
             },
             "splash": {
+                "format": "image-data-uri-or-asset-hash",
                 "type": [
                     "null",
                     "string"
@@ -1658,6 +1980,7 @@
                 "type": "boolean"
             },
             "discovery_splash": {
+                "format": "image-data-uri-or-asset-hash",
                 "type": "string"
             },
             "safety_alerts_channel_id": {
@@ -1672,12 +1995,6 @@
             },
             "region": {
                 "type": "string"
-            },
-            "icon": {
-                "type": [
-                    "null",
-                    "string"
-                ]
             },
             "system_channel_id": {
                 "type": [
@@ -2378,53 +2695,29 @@
             "region": {
                 "type": "string"
             },
-            "banner": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
             "icon": {
                 "type": [
                     "null",
                     "string"
                 ]
             },
-            "verification_level": {
-                "type": "integer"
-            },
-            "default_message_notifications": {
-                "type": "integer"
-            },
-            "explicit_content_filter": {
-                "type": "integer"
-            },
-            "afk_channel_id": {
+            "system_channel_id": {
                 "type": "string"
             },
-            "afk_timeout": {
-                "type": "integer"
-            },
-            "system_channel_flags": {
-                "type": "integer"
-            },
-            "system_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
             "rules_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
+                "type": "string"
             },
             "guild_template_code": {
                 "type": "string"
             },
             "staff_only": {
                 "type": "boolean"
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "splash": {
                 "type": [
@@ -2441,7 +2734,25 @@
                     "type": "string"
                 }
             },
+            "verification_level": {
+                "type": "integer"
+            },
+            "default_message_notifications": {
+                "type": "integer"
+            },
+            "system_channel_flags": {
+                "type": "integer"
+            },
+            "explicit_content_filter": {
+                "type": "integer"
+            },
             "public_updates_channel_id": {
+                "type": "string"
+            },
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "afk_channel_id": {
                 "type": "string"
             },
             "preferred_locale": {
@@ -3860,9 +4171,11 @@
                 "type": "string"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "cover_image": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "interactions_endpoint_url": {
@@ -3921,9 +4234,11 @@
                 "type": "string"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "cover_image": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "interactions_endpoint_url": {
@@ -4102,311 +4417,6 @@
         "required": [
             "components",
             "custom_id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InstanceUserDeleteSchema": {
-        "$ref": "#/definitions/InstanceUserDeleteSchemaContent",
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "UserSettingsUpdateSchema": {
-        "type": "object",
-        "properties": {
-            "afk_timeout": {
-                "type": "integer"
-            },
-            "allow_accessibility_detection": {
-                "type": "boolean"
-            },
-            "animate_emoji": {
-                "type": "boolean"
-            },
-            "animate_stickers": {
-                "type": "integer"
-            },
-            "contact_sync_enabled": {
-                "type": "boolean"
-            },
-            "convert_emoticons": {
-                "type": "boolean"
-            },
-            "custom_status": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/CustomStatus"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "default_guilds_restricted": {
-                "type": "boolean"
-            },
-            "detect_platform_accounts": {
-                "type": "boolean"
-            },
-            "developer_mode": {
-                "type": "boolean"
-            },
-            "disable_games_tab": {
-                "type": "boolean"
-            },
-            "enable_tts_command": {
-                "type": "boolean"
-            },
-            "explicit_content_filter": {
-                "type": "integer"
-            },
-            "friend_discovery_flags": {
-                "type": "integer"
-            },
-            "friend_source_flags": {
-                "$ref": "#/definitions/FriendSourceFlags"
-            },
-            "gateway_connected": {
-                "type": "boolean"
-            },
-            "gif_auto_play": {
-                "type": "boolean"
-            },
-            "guild_folders": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/GuildFolder"
-                }
-            },
-            "guild_positions": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "inline_attachment_media": {
-                "type": "boolean"
-            },
-            "inline_embed_media": {
-                "type": "boolean"
-            },
-            "locale": {
-                "type": "string"
-            },
-            "message_display_compact": {
-                "type": "boolean"
-            },
-            "native_phone_integration_enabled": {
-                "type": "boolean"
-            },
-            "render_embeds": {
-                "type": "boolean"
-            },
-            "render_reactions": {
-                "type": "boolean"
-            },
-            "restricted_guilds": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "show_current_game": {
-                "type": "boolean"
-            },
-            "status": {
-                "enum": [
-                    "dnd",
-                    "idle",
-                    "invisible",
-                    "offline",
-                    "online"
-                ],
-                "type": "string"
-            },
-            "stream_notifications_enabled": {
-                "type": "boolean"
-            },
-            "theme": {
-                "enum": [
-                    "dark",
-                    "light"
-                ],
-                "type": "string"
-            },
-            "timezone_offset": {
-                "type": "integer"
-            },
-            "view_nsfw_guilds": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "UserSettingsSchema": {
-        "type": "object",
-        "properties": {
-            "afk_timeout": {
-                "type": "integer"
-            },
-            "allow_accessibility_detection": {
-                "type": "boolean"
-            },
-            "animate_emoji": {
-                "type": "boolean"
-            },
-            "animate_stickers": {
-                "type": "integer"
-            },
-            "contact_sync_enabled": {
-                "type": "boolean"
-            },
-            "convert_emoticons": {
-                "type": "boolean"
-            },
-            "custom_status": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/CustomStatus"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "default_guilds_restricted": {
-                "type": "boolean"
-            },
-            "detect_platform_accounts": {
-                "type": "boolean"
-            },
-            "developer_mode": {
-                "type": "boolean"
-            },
-            "disable_games_tab": {
-                "type": "boolean"
-            },
-            "enable_tts_command": {
-                "type": "boolean"
-            },
-            "explicit_content_filter": {
-                "type": "integer"
-            },
-            "friend_discovery_flags": {
-                "type": "integer"
-            },
-            "friend_source_flags": {
-                "$ref": "#/definitions/FriendSourceFlags"
-            },
-            "gateway_connected": {
-                "type": "boolean"
-            },
-            "gif_auto_play": {
-                "type": "boolean"
-            },
-            "guild_folders": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/GuildFolder"
-                }
-            },
-            "guild_positions": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "inline_attachment_media": {
-                "type": "boolean"
-            },
-            "inline_embed_media": {
-                "type": "boolean"
-            },
-            "locale": {
-                "type": "string"
-            },
-            "message_display_compact": {
-                "type": "boolean"
-            },
-            "native_phone_integration_enabled": {
-                "type": "boolean"
-            },
-            "render_embeds": {
-                "type": "boolean"
-            },
-            "render_reactions": {
-                "type": "boolean"
-            },
-            "restricted_guilds": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "show_current_game": {
-                "type": "boolean"
-            },
-            "status": {
-                "enum": [
-                    "dnd",
-                    "idle",
-                    "invisible",
-                    "offline",
-                    "online"
-                ],
-                "type": "string"
-            },
-            "stream_notifications_enabled": {
-                "type": "boolean"
-            },
-            "theme": {
-                "enum": [
-                    "dark",
-                    "light"
-                ],
-                "type": "string"
-            },
-            "timezone_offset": {
-                "type": "integer"
-            },
-            "view_nsfw_guilds": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "afk_timeout",
-            "allow_accessibility_detection",
-            "animate_emoji",
-            "animate_stickers",
-            "contact_sync_enabled",
-            "convert_emoticons",
-            "custom_status",
-            "default_guilds_restricted",
-            "detect_platform_accounts",
-            "developer_mode",
-            "disable_games_tab",
-            "enable_tts_command",
-            "explicit_content_filter",
-            "friend_discovery_flags",
-            "friend_source_flags",
-            "gateway_connected",
-            "gif_auto_play",
-            "guild_folders",
-            "guild_positions",
-            "inline_attachment_media",
-            "inline_embed_media",
-            "locale",
-            "message_display_compact",
-            "native_phone_integration_enabled",
-            "render_embeds",
-            "render_reactions",
-            "restricted_guilds",
-            "show_current_game",
-            "status",
-            "stream_notifications_enabled",
-            "theme",
-            "timezone_offset",
-            "view_nsfw_guilds"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -5165,79 +5175,7 @@
                     "$ref": "#/definitions/Role"
                 }
             },
-            "channels": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Channel"
-                }
-            },
-            "members": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Member"
-                }
-            },
             "icon": {
-                "type": "string"
-            },
-            "verification_level": {
-                "type": "integer"
-            },
-            "default_message_notifications": {
-                "type": "integer"
-            },
-            "explicit_content_filter": {
-                "type": "integer"
-            },
-            "afk_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "afk_timeout": {
-                "type": "integer"
-            },
-            "system_channel_flags": {
-                "type": "integer"
-            },
-            "system_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "rules_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "splash": {
-                "type": "string"
-            },
-            "description": {
-                "type": "string"
-            },
-            "features": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "public_updates_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "preferred_locale": {
-                "type": "string"
-            },
-            "premium_progress_bar_enabled": {
-                "type": "boolean"
-            },
-            "discovery_splash": {
                 "type": "string"
             },
             "parent": {
@@ -5278,10 +5216,67 @@
                 "type": "object",
                 "additionalProperties": false
             },
+            "channels": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Channel"
+                }
+            },
+            "members": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Member"
+                }
+            },
+            "verification_level": {
+                "type": "integer"
+            },
+            "default_message_notifications": {
+                "type": "integer"
+            },
+            "explicit_content_filter": {
+                "type": "integer"
+            },
+            "afk_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "system_channel_flags": {
+                "type": "integer"
+            },
+            "system_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "rules_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "bans": {
                 "type": "array",
                 "items": {
                     "$ref": "#/definitions/Ban"
+                }
+            },
+            "description": {
+                "type": "string"
+            },
+            "discovery_splash": {
+                "type": "string"
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
                 }
             },
             "primary_category_id": {
@@ -5320,11 +5315,23 @@
             "mfa_level": {
                 "type": "integer"
             },
+            "preferred_locale": {
+                "type": "string"
+            },
             "premium_subscription_count": {
                 "type": "integer"
             },
             "premium_tier": {
                 "type": "integer"
+            },
+            "public_updates_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "splash": {
+                "type": "string"
             },
             "unavailable": {
                 "type": "boolean"
@@ -5344,6 +5351,9 @@
             },
             "permissions": {
                 "type": "integer"
+            },
+            "premium_progress_bar_enabled": {
+                "type": "boolean"
             },
             "channel_ordering": {
                 "type": "array",
@@ -6039,53 +6049,29 @@
             "region": {
                 "type": "string"
             },
-            "banner": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
             "icon": {
                 "type": [
                     "null",
                     "string"
                 ]
             },
-            "verification_level": {
-                "type": "integer"
-            },
-            "default_message_notifications": {
-                "type": "integer"
-            },
-            "explicit_content_filter": {
-                "type": "integer"
-            },
-            "afk_channel_id": {
+            "system_channel_id": {
                 "type": "string"
             },
-            "afk_timeout": {
-                "type": "integer"
-            },
-            "system_channel_flags": {
-                "type": "integer"
-            },
-            "system_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
             "rules_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
+                "type": "string"
             },
             "guild_template_code": {
                 "type": "string"
             },
             "staff_only": {
                 "type": "boolean"
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "splash": {
                 "type": [
@@ -6102,7 +6088,25 @@
                     "type": "string"
                 }
             },
+            "verification_level": {
+                "type": "integer"
+            },
+            "default_message_notifications": {
+                "type": "integer"
+            },
+            "system_channel_flags": {
+                "type": "integer"
+            },
+            "explicit_content_filter": {
+                "type": "integer"
+            },
             "public_updates_channel_id": {
+                "type": "string"
+            },
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "afk_channel_id": {
                 "type": "string"
             },
             "preferred_locale": {
@@ -6652,6 +6656,7 @@
         "type": "object",
         "properties": {
             "banner": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -6696,6 +6701,7 @@
                 "type": "string"
             },
             "avatar": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -7612,6 +7618,7 @@
                 "type": "integer"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "unicode_emoji": {
@@ -8007,6 +8014,7 @@
                 "type": "string"
             },
             "avatar": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -8019,6 +8027,7 @@
                 "type": "integer"
             },
             "banner": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -8117,6 +8126,7 @@
                 ]
             },
             "banner": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -8282,6 +8292,7 @@
                 "type": "string"
             },
             "avatar": {
+                "format": "image-data-uri",
                 "type": "string"
             }
         },
@@ -8442,6 +8453,7 @@
                 "type": "string"
             },
             "avatar": {
+                "format": "image-data-uri",
                 "type": "string"
             },
             "channel_id": {
@@ -8736,6 +8748,7 @@
                 "type": "integer"
             },
             "icon": {
+                "format": "image-data-uri",
                 "type": [
                     "null",
                     "string"
@@ -9227,6 +9240,85 @@
                 }
             }
         },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InstanceUserDeleteSchemaContent": {
+        "type": "object",
+        "properties": {
+            "reason": {
+                "type": "string"
+            },
+            "persistInstanceBan": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CustomStatus": {
+        "type": "object",
+        "properties": {
+            "emoji_id": {
+                "type": "string"
+            },
+            "emoji_name": {
+                "type": "string"
+            },
+            "expires_at": {
+                "type": "integer"
+            },
+            "text": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FriendSourceFlags": {
+        "type": "object",
+        "properties": {
+            "all": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "all"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildFolder": {
+        "type": "object",
+        "properties": {
+            "color": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "guild_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "id": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild_ids"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Status": {
@@ -11877,72 +11969,6 @@
             "theme",
             "timezone_offset",
             "view_nsfw_guilds"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "CustomStatus": {
-        "type": "object",
-        "properties": {
-            "emoji_id": {
-                "type": "string"
-            },
-            "emoji_name": {
-                "type": "string"
-            },
-            "expires_at": {
-                "type": "integer"
-            },
-            "text": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "FriendSourceFlags": {
-        "type": "object",
-        "properties": {
-            "all": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "all"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "GuildFolder": {
-        "type": "object",
-        "properties": {
-            "color": {
-                "type": [
-                    "null",
-                    "integer"
-                ]
-            },
-            "guild_ids": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "id": {
-                "type": [
-                    "null",
-                    "integer"
-                ]
-            },
-            "name": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "guild_ids"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -17347,19 +17373,6 @@
                     "properties": {},
                     "additionalProperties": true
                 }
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InstanceUserDeleteSchemaContent": {
-        "type": "object",
-        "properties": {
-            "reason": {
-                "type": "string"
-            },
-            "persistInstanceBan": {
-                "type": "boolean"
             }
         },
         "additionalProperties": false,

@@ -38,6 +38,12 @@ import { GuildUpdateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
+async function handleGuildImageField(path: string, value?: string | null, current?: string | null): Promise<string | null | undefined> {
+    if (!value || value === current) return value;
+    if (!value.startsWith("data:")) throw new HTTPError("Invalid " + path);
+    return await handleFile(path, value);
+}
+
 router.get(
     "/",
     route({
@@ -100,16 +106,19 @@ router.patch(
             relations: { emojis: true, roles: true, stickers: true },
         });
 
-        // TODO: guild update check image
+        // trying to `select` this fails
+        guild.channel_ordering = (
+            await Guild.findOneOrFail({
+                where: { id: guild_id },
+                select: { channel_ordering: true },
+            })
+        ).channel_ordering;
 
-        if (body.icon && body.icon != guild.icon) body.icon = await handleFile(`/icons/${guild_id}`, body.icon);
-
-        if (body.banner && body.banner !== guild.banner) body.banner = await handleFile(`/banners/${guild_id}`, body.banner);
-
-        if (body.splash && body.splash !== guild.splash) body.splash = await handleFile(`/splashes/${guild_id}`, body.splash);
-
-        if (body.discovery_splash && body.discovery_splash !== guild.discovery_splash)
-            body.discovery_splash = await handleFile(`/discovery-splashes/${guild_id}`, body.discovery_splash);
+        if ("icon" in body) body.icon = await handleGuildImageField(`/icons/${guild_id}`, body.icon, guild.icon);
+        if ("banner" in body) body.banner = await handleGuildImageField(`/banners/${guild_id}`, body.banner, guild.banner);
+        if ("splash" in body) body.splash = await handleGuildImageField(`/splashes/${guild_id}`, body.splash, guild.splash);
+        if ("discovery_splash" in body)
+            body.discovery_splash = (await handleGuildImageField(`/discovery-splashes/${guild_id}`, body.discovery_splash, guild.discovery_splash)) as string | undefined;
 
         if (body.features) {
             const diff = guild.features.filter((x) => !body.features?.includes(x)).concat(body.features.filter((x) => !guild.features.includes(x)));

@@ -20,7 +20,7 @@ import { HTTPError } from "lambert-server";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { DmChannelDTO } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors, getDatabase } from "../util";
+import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors, getDatabase, handleFile } from "../util";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
@@ -273,10 +273,15 @@ export class Channel extends BaseClass {
         // TODO: eagerly auto generate position of all guild channels
 
         const position = (channel.type === ChannelType.UNHANDLED ? 0 : channel.position) || 0;
+        const id = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
+
+        if (typeof channel.icon === "string" && channel.icon.startsWith("data:")) {
+            channel.icon = await handleFile(`/channel-icons/${id}`, channel.icon);
+        }
 
         channel = {
             ...channel,
-            ...(!opts?.keepId && { id: Snowflake.generate() }),
+            id,
             created_at: new Date(),
             position,
             // from #876 (threads): shouldnt these be undefined?

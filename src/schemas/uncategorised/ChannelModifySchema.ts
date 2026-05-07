@@ -23,6 +23,9 @@ export type ChannelModifyType = ChannelType.GUILD_TEXT | ChannelType.GUILD_NEWS;
 export interface ChannelBaseModifySchema {
     name?: string;
     topic?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string | null;
     bitrate?: number;
     user_limit?: number;

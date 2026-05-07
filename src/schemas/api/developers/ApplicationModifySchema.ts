@@ -18,7 +18,13 @@
 
 export interface ApplicationModifySchema {
     description?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     cover_image?: string;
     interactions_endpoint_url?: string;
     max_participants?: number | null;
