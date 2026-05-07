@@ -21428,7 +21428,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/MessageListResponse"
+                                    "$ref": "#/components/schemas/APIMessageArray"
                                 }
                             }
                         }
