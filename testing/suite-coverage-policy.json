@@ -172,6 +172,7 @@
                         "src/util/util/Database.test.ts",
                         "src/util/util/Startup.test.ts",
                         "src/util/util/StandaloneStartup.test.ts",
+                        "test/migrations/database-startup.test.ts",
                         "src/util/migration/postgres/1675044825710-webauthn.test.ts",
                         "src/util/migration/postgres/__tests__/1776204936000-JsonbForJsonColumns.test.ts",
                         "src/util/migration/postgres/__tests__/1776400000000-CategoryLocalizationsDefault.test.ts"
