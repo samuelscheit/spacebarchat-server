@@ -33,7 +33,7 @@ import {
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
 import { pendingInteractions } from "@spacebar/util/imports/Interactions";
-import { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
+import { getAuthorizingIntegrationOwners, InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 
 const router = Router({ mergeParams: true });
 
@@ -62,11 +62,21 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         token: interactionToken,
         version: 1,
         entitlements: [],
-        authorizing_integration_owners: { "0": req.user_id },
+        authorizing_integration_owners: getAuthorizingIntegrationOwners({
+            application_id: body.application_id,
+            channel_id: body.channel_id,
+            guild_id: body.guild_id,
+            user_id: req.user_id,
+        }),
         attachment_size_limit: Config.get().cdn.maxAttachmentSize,
     };
 
-    if (body.type === InteractionType.ApplicationCommand || body.type === InteractionType.MessageComponent || body.type === InteractionType.ModalSubmit) {
+    if (
+        body.type === InteractionType.ApplicationCommand ||
+        body.type === InteractionType.ApplicationCommandAutocomplete ||
+        body.type === InteractionType.MessageComponent ||
+        body.type === InteractionType.ModalSubmit
+    ) {
         interactionData.data = body.data;
     }
 
@@ -101,7 +111,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         }
     }
 
-    if (body.type === InteractionType.MessageComponent || body.data.type === InteractionType.ModalSubmit) {
+    if (body.type === InteractionType.MessageComponent || (body.type === InteractionType.ModalSubmit && body.message_id)) {
         interactionData.message = (
             await Message.findOneOrFail({
                 where: { id: body.message_id, flags: undefined },

@@ -5182,10 +5182,35 @@
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "InteractionCreateSchema": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/PingInteractionCreateSchema"
+            },
+            {
+                "$ref": "#/definitions/ApplicationCommandInteractionCreateSchema"
+            },
+            {
+                "$ref": "#/definitions/ApplicationCommandAutocompleteInteractionCreateSchema"
+            },
+            {
+                "$ref": "#/definitions/MessageComponentInteractionCreateSchema"
+            },
+            {
+                "$ref": "#/definitions/ModalSubmitInteractionCreateSchema"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PingInteractionCreateSchema": {
         "type": "object",
         "properties": {
+            "type": {
+                "type": "integer",
+                "const": 1
+            },
             "version": {
-                "type": "integer"
+                "type": "integer",
+                "const": 1
             },
             "id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -5195,16 +5220,8 @@
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
             },
-            "type": {
-                "$ref": "#/definitions/InteractionType"
-            },
             "token": {
                 "type": "string"
-            },
-            "data": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true
             },
             "guild": {
                 "$ref": "#/definitions/InteractionGuild"
@@ -5241,9 +5258,7 @@
             "entitlements": {
                 "type": "array",
                 "items": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
+                    "$ref": "#/definitions/InteractionEntitlement"
                 }
             },
             "entitlement_sku_ids": {
@@ -5253,16 +5268,15 @@
                 }
             },
             "authorizing_integration_owners": {
-                "type": "object",
-                "additionalProperties": false,
-                "patternProperties": {
-                    "^[0-9]+$": {
-                        "type": "string"
-                    }
-                }
+                "$ref": "#/definitions/AuthorizingIntegrationOwners"
             },
             "context": {
-                "type": "integer"
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "type": "number"
             },
             "attachment_size_limit": {
                 "type": "integer"
@@ -5273,6 +5287,404 @@
             "app_permissions",
             "application_id",
             "attachment_size_limit",
+            "authorizing_integration_owners",
+            "entitlements",
+            "id",
+            "token",
+            "type",
+            "version"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandInteractionCreateSchema": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 2
+            },
+            "data": {
+                "$ref": "#/definitions/InteractionApplicationCommandData"
+            },
+            "version": {
+                "type": "integer",
+                "const": 1
+            },
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "token": {
+                "type": "string"
+            },
+            "guild": {
+                "$ref": "#/definitions/InteractionGuild"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_locale": {
+                "type": "string"
+            },
+            "channel": {
+                "$ref": "#/definitions/Channel"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "member": {
+                "$ref": "#/definitions/PublicMember"
+            },
+            "user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "locale": {
+                "type": "string"
+            },
+            "message": {
+                "$ref": "#/definitions/PublicMessage"
+            },
+            "app_permissions": {
+                "type": "string"
+            },
+            "entitlements": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionEntitlement"
+                }
+            },
+            "entitlement_sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "authorizing_integration_owners": {
+                "$ref": "#/definitions/AuthorizingIntegrationOwners"
+            },
+            "context": {
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "type": "number"
+            },
+            "attachment_size_limit": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "app_permissions",
+            "application_id",
+            "attachment_size_limit",
+            "authorizing_integration_owners",
+            "data",
+            "entitlements",
+            "id",
+            "token",
+            "type",
+            "version"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandAutocompleteInteractionCreateSchema": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 4
+            },
+            "data": {
+                "$ref": "#/definitions/InteractionApplicationCommandData"
+            },
+            "version": {
+                "type": "integer",
+                "const": 1
+            },
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "token": {
+                "type": "string"
+            },
+            "guild": {
+                "$ref": "#/definitions/InteractionGuild"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_locale": {
+                "type": "string"
+            },
+            "channel": {
+                "$ref": "#/definitions/Channel"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "member": {
+                "$ref": "#/definitions/PublicMember"
+            },
+            "user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "locale": {
+                "type": "string"
+            },
+            "message": {
+                "$ref": "#/definitions/PublicMessage"
+            },
+            "app_permissions": {
+                "type": "string"
+            },
+            "entitlements": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionEntitlement"
+                }
+            },
+            "entitlement_sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "authorizing_integration_owners": {
+                "$ref": "#/definitions/AuthorizingIntegrationOwners"
+            },
+            "context": {
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "type": "number"
+            },
+            "attachment_size_limit": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "app_permissions",
+            "application_id",
+            "attachment_size_limit",
+            "authorizing_integration_owners",
+            "data",
+            "entitlements",
+            "id",
+            "token",
+            "type",
+            "version"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageComponentInteractionCreateSchema": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 3
+            },
+            "data": {
+                "$ref": "#/definitions/InteractionMessageComponentData"
+            },
+            "version": {
+                "type": "integer",
+                "const": 1
+            },
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "token": {
+                "type": "string"
+            },
+            "guild": {
+                "$ref": "#/definitions/InteractionGuild"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_locale": {
+                "type": "string"
+            },
+            "channel": {
+                "$ref": "#/definitions/Channel"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "member": {
+                "$ref": "#/definitions/PublicMember"
+            },
+            "user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "locale": {
+                "type": "string"
+            },
+            "message": {
+                "$ref": "#/definitions/PublicMessage"
+            },
+            "app_permissions": {
+                "type": "string"
+            },
+            "entitlements": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionEntitlement"
+                }
+            },
+            "entitlement_sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "authorizing_integration_owners": {
+                "$ref": "#/definitions/AuthorizingIntegrationOwners"
+            },
+            "context": {
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "type": "number"
+            },
+            "attachment_size_limit": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "app_permissions",
+            "application_id",
+            "attachment_size_limit",
+            "authorizing_integration_owners",
+            "data",
+            "entitlements",
+            "id",
+            "token",
+            "type",
+            "version"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ModalSubmitInteractionCreateSchema": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 5
+            },
+            "data": {
+                "$ref": "#/definitions/InteractionModalSubmitData"
+            },
+            "version": {
+                "type": "integer",
+                "const": 1
+            },
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "token": {
+                "type": "string"
+            },
+            "guild": {
+                "$ref": "#/definitions/InteractionGuild"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_locale": {
+                "type": "string"
+            },
+            "channel": {
+                "$ref": "#/definitions/Channel"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "member": {
+                "$ref": "#/definitions/PublicMember"
+            },
+            "user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "locale": {
+                "type": "string"
+            },
+            "message": {
+                "$ref": "#/definitions/PublicMessage"
+            },
+            "app_permissions": {
+                "type": "string"
+            },
+            "entitlements": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionEntitlement"
+                }
+            },
+            "entitlement_sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "authorizing_integration_owners": {
+                "$ref": "#/definitions/AuthorizingIntegrationOwners"
+            },
+            "context": {
+                "enum": [
+                    0,
+                    1,
+                    2
+                ],
+                "type": "number"
+            },
+            "attachment_size_limit": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "app_permissions",
+            "application_id",
+            "attachment_size_limit",
+            "authorizing_integration_owners",
+            "data",
+            "entitlements",
             "id",
             "token",
             "type",
@@ -18808,6 +19220,649 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "InteractionEntitlement": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "sku_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/EntitlementType"
+            },
+            "deleted": {
+                "type": "boolean"
+            },
+            "starts_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "ends_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "consumed": {
+                "type": "boolean"
+            },
+            "user": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "parent_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "branches": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "promotion_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "subscription_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "gift_code_flags": {
+                "type": "integer"
+            },
+            "gift_code_batch_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "gifter_user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "gift_style": {
+                "type": "integer"
+            },
+            "fulfillment_status": {
+                "type": "integer"
+            },
+            "fulfilled_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "source_type": {
+                "type": "integer"
+            },
+            "tenant_metadata": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "sku": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "subscription_plan": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "deleted",
+            "id",
+            "sku_id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EntitlementType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuthorizingIntegrationOwners": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/GuildInstallAuthorizingIntegrationOwners"
+            },
+            {
+                "$ref": "#/definitions/UserInstallAuthorizingIntegrationOwners"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildInstallAuthorizingIntegrationOwners": {
+        "type": "object",
+        "properties": {
+            "0": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "1": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "0"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserInstallAuthorizingIntegrationOwners": {
+        "type": "object",
+        "properties": {
+            "0": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "1": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "1"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionApplicationCommandData": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "version": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "resolved": {
+                "$ref": "#/definitions/InteractionResolvedData"
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionApplicationCommandDataOption"
+                }
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "target_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionResolvedData": {
+        "type": "object",
+        "properties": {
+            "users": {
+                "$ref": "#/definitions/InteractionResolvedObjectMap"
+            },
+            "members": {
+                "$ref": "#/definitions/InteractionResolvedObjectMap"
+            },
+            "roles": {
+                "$ref": "#/definitions/InteractionResolvedObjectMap"
+            },
+            "channels": {
+                "$ref": "#/definitions/InteractionResolvedObjectMap"
+            },
+            "messages": {
+                "$ref": "#/definitions/InteractionResolvedObjectMap"
+            },
+            "attachments": {
+                "$ref": "#/definitions/InteractionResolvedObjectMap"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionResolvedObjectMap": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionApplicationCommandDataOption": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "value": {
+                "type": [
+                    "string",
+                    "integer",
+                    "boolean"
+                ]
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionApplicationCommandDataOption"
+                }
+            },
+            "focused": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionMessageComponentData": {
+        "type": "object",
+        "properties": {
+            "custom_id": {
+                "type": "string"
+            },
+            "component_type": {
+                "$ref": "#/definitions/MessageComponentType"
+            },
+            "values": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "resolved": {
+                "$ref": "#/definitions/InteractionResolvedData"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "component_type",
+            "custom_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitData": {
+        "type": "object",
+        "properties": {
+            "custom_id": {
+                "type": "string"
+            },
+            "components": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionModalSubmitTopLevelComponentData"
+                }
+            },
+            "resolved": {
+                "$ref": "#/definitions/InteractionResolvedData"
+            },
+            "attachments": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": true
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "components",
+            "custom_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitTopLevelComponentData": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/InteractionModalSubmitActionRowComponentData"
+            },
+            {
+                "$ref": "#/definitions/InteractionModalSubmitLabelComponentData"
+            },
+            {
+                "$ref": "#/definitions/InteractionModalSubmitTextDisplayComponentData"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitActionRowComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.ActionRow"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "components": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionModalSubmitComponentData"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "components",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitComponentData": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/InteractionModalSubmitTextInputComponentData"
+            },
+            {
+                "$ref": "#/definitions/InteractionModalSubmitSelectComponentData"
+            },
+            {
+                "$ref": "#/definitions/InteractionModalSubmitFileUploadComponentData"
+            },
+            {
+                "$ref": "#/definitions/InteractionModalSubmitRadioGroupComponentData"
+            },
+            {
+                "$ref": "#/definitions/InteractionModalSubmitCheckboxGroupComponentData"
+            },
+            {
+                "$ref": "#/definitions/InteractionModalSubmitCheckboxComponentData"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitTextInputComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.TextInput"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "value": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitSelectComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "enum": [
+                    3,
+                    5,
+                    6,
+                    7,
+                    8
+                ],
+                "type": "number"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "values": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "values"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitFileUploadComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.FileUpload"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "values": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "values"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageComponentType.FileUpload": {
+        "type": "number",
+        "const": 19,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitRadioGroupComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.RadioGroup"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "value": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageComponentType.RadioGroup": {
+        "type": "number",
+        "const": 21,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitCheckboxGroupComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.CheckboxGroup"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "values": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "values"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageComponentType.CheckboxGroup": {
+        "type": "number",
+        "const": 22,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitCheckboxComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.Checkbox"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "custom_id": {
+                "type": "string"
+            },
+            "value": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom_id",
+            "type",
+            "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageComponentType.Checkbox": {
+        "type": "number",
+        "const": 23,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitLabelComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.Label"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "component": {
+                "$ref": "#/definitions/InteractionModalSubmitComponentData"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "component",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageComponentType.Label": {
+        "type": "number",
+        "const": 18,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InteractionModalSubmitTextDisplayComponentData": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageComponentType.TextDisplay"
+            },
+            "id": {
+                "type": "integer"
+            },
+            "content": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "content",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ModalSubmitTopLevelComponentData": {
         "anyOf": [
             {
@@ -18890,11 +19945,6 @@
             "id",
             "type"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageComponentType.Label": {
-        "type": "number",
-        "const": 18,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ModalSubmitComponentData": {
@@ -18983,11 +20033,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "MessageComponentType.FileUpload": {
-        "type": "number",
-        "const": 19,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "ModalSubmitRadioGroupComponentData": {
         "type": "object",
         "properties": {
@@ -19014,11 +20059,6 @@
             "type",
             "value"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageComponentType.RadioGroup": {
-        "type": "number",
-        "const": 21,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ModalSubmitCheckboxGroupComponentData": {
@@ -19049,11 +20089,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "MessageComponentType.CheckboxGroup": {
-        "type": "number",
-        "const": 22,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "ModalSubmitCheckboxComponentData": {
         "type": "object",
         "properties": {
@@ -19077,11 +20112,6 @@
             "type",
             "value"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageComponentType.Checkbox": {
-        "type": "number",
-        "const": 23,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ModalSubmitTextDisplayComponentData": {
