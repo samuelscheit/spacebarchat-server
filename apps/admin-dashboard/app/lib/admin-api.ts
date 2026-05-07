@@ -14,7 +14,7 @@ export interface AdminApiResult<T> {
     error: string | null;
 }
 
-function adminApiBase() {
+export function adminApiBase() {
     return (process.env.SPACEBAR_ADMIN_API_URL ?? "http://localhost:3001/_spacebar/admin/api").replace(/\/+$/, "");
 }
 
@@ -23,8 +23,11 @@ export async function getAuthorizationHeader() {
     const cookieStore = await cookies();
     const forwarded = headerStore.get("authorization");
     const adminCookieName = process.env.SPACEBAR_ADMIN_TOKEN_COOKIE ?? "spacebar_admin_token";
+    const logoutCookieName = process.env.SPACEBAR_ADMIN_LOGOUT_COOKIE ?? "spacebar_admin_logged_out";
     const fallbackCookieName = process.env.SPACEBAR_TOKEN_COOKIE ?? "spacebar_token";
-    const cookieToken = cookieStore.get(adminCookieName)?.value ?? cookieStore.get(fallbackCookieName)?.value;
+    const adminCookieToken = cookieStore.get(adminCookieName)?.value;
+    const fallbackSuppressed = cookieStore.get(logoutCookieName)?.value === "1";
+    const cookieToken = adminCookieToken ?? (fallbackSuppressed ? undefined : cookieStore.get(fallbackCookieName)?.value);
     const token = forwarded ?? cookieToken;
 
     if (!token) return null;

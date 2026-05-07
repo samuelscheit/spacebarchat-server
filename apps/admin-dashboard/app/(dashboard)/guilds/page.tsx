@@ -1,6 +1,6 @@
-import { ErrorBanner, PageHeader, Panel, RowLink, SearchForm, StatusPill } from "../components";
-import { queryString, safeAdminFetch } from "../lib/admin-api";
-import type { AdminGuildListItem, PageResult } from "../lib/types";
+import { ErrorBanner, PageHeader, Panel, RowLink, SearchForm, StatusPill } from "../../components";
+import { queryString, safeAdminFetch } from "../../lib/admin-api";
+import type { AdminGuildListItem, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 

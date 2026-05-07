@@ -1,5 +1,5 @@
-import { deleteChannel } from "../actions";
-import { PageHeader, Panel } from "../components";
+import { deleteChannel } from "../../actions";
+import { PageHeader, Panel } from "../../components";
 
 export const dynamic = "force-dynamic";
 

@@ -1,7 +1,7 @@
-import { startCdnAttachmentFsck, startCdnAttachmentMigration } from "../actions";
-import { ErrorBanner, PageHeader, Panel, SearchForm, StatusPill } from "../components";
-import { queryString, safeAdminFetch } from "../lib/admin-api";
-import type { AdminAttachment, AdminSticker, PageResult } from "../lib/types";
+import { startCdnAttachmentFsck, startCdnAttachmentMigration } from "../../actions";
+import { ErrorBanner, PageHeader, Panel, SearchForm, StatusPill } from "../../components";
+import { queryString, safeAdminFetch } from "../../lib/admin-api";
+import type { AdminAttachment, AdminSticker, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 

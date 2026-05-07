@@ -134,6 +134,8 @@ td {
 }
 
 .sidebar {
+    display: flex;
+    flex-direction: column;
     position: sticky;
     top: 0;
     height: 100vh;
@@ -175,6 +177,23 @@ td {
     gap: 4px;
 }
 
+.sidebar-footer {
+    display: grid;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 18px;
+}
+
+.operator-name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .nav-item {
     display: flex;
     align-items: center;
@@ -192,9 +211,60 @@ td {
     color: var(--ink);
 }
 
+.logout-link {
+    border: 1px solid var(--line);
+}
+
 .main-surface {
     min-width: 0;
     padding: 28px;
+}
+
+.auth-shell {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: 24px;
+}
+
+.auth-panel {
+    display: grid;
+    width: min(100%, 520px);
+    gap: 20px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
+
+.auth-panel h1 {
+    margin: 14px 0 6px;
+    font-size: 30px;
+    line-height: 1;
+}
+
+.auth-panel p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.auth-form {
+    display: grid;
+    gap: 10px;
+}
+
+.auth-form label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 760;
+    text-transform: uppercase;
+}
+
+.auth-form textarea {
+    min-height: 118px;
 }
 
 .page-header {
@@ -491,6 +561,11 @@ td {
 
     .nav-list {
         grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .sidebar-footer {
+        margin-top: 14px;
+        padding-top: 10px;
     }
 
     .main-surface {

@@ -12,6 +12,7 @@ import {
     FileClock,
     Image,
     LayoutDashboard,
+    LogOut,
     Search,
     Shield,
     Sparkles,
@@ -31,7 +32,7 @@ const navItems = [
     { href: "/activity", label: "Activity", icon: FileClock },
 ];
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, operator }: { children: ReactNode; operator?: string }) {
     return (
         <div className="app-shell">
             <aside className="sidebar">
@@ -50,6 +51,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                         </Link>
                     ))}
                 </nav>
+                <div className="sidebar-footer">
+                    {operator ? <span className="operator-name">{operator}</span> : null}
+                    <Link href="/logout" className="nav-item logout-link">
+                        <LogOut size={17} />
+                        <span>Logout</span>
+                    </Link>
+                </div>
             </aside>
             <main className="main-surface">{children}</main>
         </div>

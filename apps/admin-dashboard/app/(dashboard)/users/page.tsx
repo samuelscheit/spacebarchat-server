@@ -1,7 +1,7 @@
-import { startUserDeletion } from "../actions";
-import { ErrorBanner, PageHeader, Panel, RowLink, SearchForm, StatusPill } from "../components";
-import { queryString, safeAdminFetch } from "../lib/admin-api";
-import type { AdminUserListItem, PageResult } from "../lib/types";
+import { startUserDeletion } from "../../actions";
+import { ErrorBanner, PageHeader, Panel, RowLink, SearchForm, StatusPill } from "../../components";
+import { queryString, safeAdminFetch } from "../../lib/admin-api";
+import type { AdminUserListItem, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 

@@ -1,7 +1,7 @@
-import { cancelJob } from "../actions";
-import { CodeBlock, ErrorBanner, PageHeader, Panel, StatusPill } from "../components";
-import { queryString, safeAdminFetch } from "../lib/admin-api";
-import type { AdminJob, PageResult } from "../lib/types";
+import { cancelJob } from "../../actions";
+import { CodeBlock, ErrorBanner, PageHeader, Panel, StatusPill } from "../../components";
+import { queryString, safeAdminFetch } from "../../lib/admin-api";
+import type { AdminJob, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 

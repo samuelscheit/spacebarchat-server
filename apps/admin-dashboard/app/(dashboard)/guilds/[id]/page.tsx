@@ -1,7 +1,7 @@
-import { forceJoinGuild } from "../../actions";
-import { CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../components";
-import { safeAdminFetch } from "../../lib/admin-api";
-import type { AdminGuild } from "../../lib/types";
+import { forceJoinGuild } from "../../../actions";
+import { CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../../components";
+import { safeAdminFetch } from "../../../lib/admin-api";
+import type { AdminGuild } from "../../../lib/types";
 
 export const dynamic = "force-dynamic";
 

@@ -1,7 +1,7 @@
-import { startUserDeletion } from "../../actions";
-import { CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../components";
-import { safeAdminFetch } from "../../lib/admin-api";
-import type { AdminUser } from "../../lib/types";
+import { startUserDeletion } from "../../../actions";
+import { CodeBlock, ErrorBanner, KeyValueList, PageHeader, Panel, StatusPill } from "../../../components";
+import { safeAdminFetch } from "../../../lib/admin-api";
+import type { AdminUser } from "../../../lib/types";
 
 export const dynamic = "force-dynamic";
 

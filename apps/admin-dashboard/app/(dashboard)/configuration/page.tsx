@@ -1,7 +1,7 @@
-import { reloadConfiguration, updateConfiguration } from "../actions";
-import { CodeBlock, DatabaseMode, ErrorBanner, PageHeader, Panel } from "../components";
-import { safeAdminFetch } from "../lib/admin-api";
-import type { AdminConfiguration } from "../lib/types";
+import { reloadConfiguration, updateConfiguration } from "../../actions";
+import { CodeBlock, DatabaseMode, ErrorBanner, PageHeader, Panel } from "../../components";
+import { safeAdminFetch } from "../../lib/admin-api";
+import type { AdminConfiguration } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 

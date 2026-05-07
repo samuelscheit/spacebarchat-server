@@ -51,3 +51,68 @@ Risks or blockers:
 Next step:
 
 - Start the next follow-up slice: admin login/session UX or durable jobs/audit storage.
+
+## 2026-05-07 22:10 CEST - Admin Session UX
+
+Status: complete
+
+Changed files:
+
+- `apps/admin-dashboard/app/(dashboard)/**`
+- `apps/admin-dashboard/app/actions.ts`
+- `apps/admin-dashboard/app/components.tsx`
+- `apps/admin-dashboard/app/layout.tsx`
+- `apps/admin-dashboard/app/lib/admin-api.ts`
+- `apps/admin-dashboard/app/lib/admin-session.ts`
+- `apps/admin-dashboard/app/login/page.tsx`
+- `apps/admin-dashboard/app/logout/route.ts`
+- `apps/admin-dashboard/app/globals.css`
+- `docs/admin-api-next-dashboard-progress.md`
+
+What changed:
+
+- Started Feature Track 1: add a dashboard login/session layer while preserving header and cookie token forwarding to the admin API.
+- Moved existing dashboard pages into a protected `(dashboard)` route group without changing public URLs.
+- Added a route-group layout that validates the current token with `GET /_spacebar/admin/api/whoami` before rendering dashboard pages.
+- Added `/_spacebar/admin/login` with a server action that validates a submitted token through `/whoami` before setting the HttpOnly dashboard cookie.
+- Added `/_spacebar/admin/logout` to clear the dashboard cookie and set a logout marker that suppresses fallback `spacebar_token` reuse until the next login.
+- Kept incoming `Authorization` headers as the highest-priority auth source for automation and reverse proxies.
+- Documented session cookie attributes and manual cookie verification steps in the deployment guide.
+
+Verification:
+
+- Command: `npm run build:admin-dashboard`
+- Result: pass
+- Notes: Next.js production build passed with protected dashboard routes plus public `/login`, `/logout`, and `/health`.
+- Command: `PORT=3311 SPACEBAR_ADMIN_API_URL=http://127.0.0.1:3001/_spacebar/admin/api SPACEBAR_ADMIN_COOKIE_SECURE=false npm run start:admin-dashboard`
+- Result: pass
+- Notes: Started the built dashboard on a temporary local port for runtime checks.
+- Command: `SPACEBAR_ADMIN_DASHBOARD_URL=http://127.0.0.1:3311/_spacebar/admin npm run smoke:admin-dashboard`
+- Result: pass
+- Notes: Health check passed; authenticated SSR check was skipped because `SPACEBAR_ADMIN_TOKEN` was not set.
+- Command: `curl -i --max-time 5 http://127.0.0.1:3311/_spacebar/admin`
+- Result: pass
+- Notes: Unauthenticated dashboard request returned `307` to `/_spacebar/admin/login?reason=missing`.
+- Command: `curl -i --max-time 5 http://127.0.0.1:3311/_spacebar/admin/login`
+- Result: pass
+- Notes: Login page returned `200 OK`.
+- Command: `curl -i --max-time 5 http://127.0.0.1:3311/_spacebar/admin/logout`
+- Result: pass
+- Notes: Logout returned `307` to login and set cookies clearing `spacebar_admin_token` plus setting `spacebar_admin_logged_out=1`.
+- Command: `curl -i --max-time 5 -H 'Cookie: spacebar_token=abc' http://127.0.0.1:3311/_spacebar/admin`
+- Result: pass
+- Notes: Fallback cookie was attempted and redirected to `reason=unreachable` because no local admin API was running.
+- Command: `curl -i --max-time 5 -H 'Cookie: spacebar_token=abc; spacebar_admin_logged_out=1' http://127.0.0.1:3311/_spacebar/admin`
+- Result: pass
+- Notes: Logout marker suppressed fallback cookie reuse and redirected to `reason=missing`.
+- Command: `test -z "$(lsof -ti tcp:3311)"`
+- Result: pass
+- Notes: No temporary dashboard server remained after runtime checks.
+
+Risks or blockers:
+
+- Real OPERATOR and non-OPERATOR token validation still needs an environment with live admin API credentials; the code path is wired through `/whoami`, but no token was available in this workspace.
+
+Next step:
+
+- Start the next follow-up slice: durable jobs/audit storage or dashboard operations UX.

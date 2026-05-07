@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { adminFetch } from "./lib/admin-api";
+import { setAdminSessionToken, validateAdminToken } from "./lib/admin-session";
 
 function stringValue(formData: FormData, key: string) {
     const value = formData.get(key);
@@ -11,6 +13,18 @@ function stringValue(formData: FormData, key: string) {
 export async function reloadConfiguration() {
     await adminFetch("/configuration/reload", { method: "POST" });
     revalidatePath("/configuration");
+}
+
+export async function loginAdmin(formData: FormData) {
+    const token = stringValue(formData, "token");
+    const validation = await validateAdminToken(token);
+
+    if (!validation.ok) {
+        redirect(`/login?reason=${validation.reason}`);
+    }
+
+    await setAdminSessionToken(token);
+    redirect("/");
 }
 
 export async function updateConfiguration(formData: FormData) {

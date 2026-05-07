@@ -54,6 +54,9 @@ npm run dev:admin-dashboard
 | `SPACEBAR_ADMIN_API_TIMEOUT_MS` | `2500` | Fetch timeout for dashboard SSR and server actions. |
 | `SPACEBAR_ADMIN_DASHBOARD_BASE_PATH` | `/_spacebar/admin` | Public dashboard base path. This is a Next.js build-time setting; rebuild the dashboard after changing it. |
 | `SPACEBAR_ADMIN_TOKEN_COOKIE` | `spacebar_admin_token` | Cookie name checked first for dashboard admin token forwarding. |
+| `SPACEBAR_ADMIN_LOGOUT_COOKIE` | `spacebar_admin_logged_out` | Logout marker that suppresses fallback `spacebar_token` forwarding after dashboard logout. |
+| `SPACEBAR_ADMIN_SESSION_MAX_AGE_SECONDS` | `43200` | Dashboard admin session cookie lifetime. |
+| `SPACEBAR_ADMIN_COOKIE_SECURE` | production-only | Set to `false` to allow dashboard cookies on local plain HTTP. |
 | `SPACEBAR_TOKEN_COOKIE` | `spacebar_token` | Fallback cookie name for compatibility with existing Spacebar token cookies. |
 | `PORT` | Next.js default | Dashboard listen port. |
 | `HOSTNAME` | Next.js default | Dashboard listen host. |
@@ -106,6 +109,21 @@ npm run smoke:admin-dashboard
 ```
 
 Without `SPACEBAR_ADMIN_TOKEN`, the smoke command only verifies the dashboard process and health endpoint.
+
+## Admin Session Check
+
+The dashboard login form validates a submitted token through `GET /_spacebar/admin/api/whoami` before setting the dashboard cookie. The cookie is HttpOnly, same-site lax, scoped to the dashboard base path, and secure in production unless `SPACEBAR_ADMIN_COOKIE_SECURE=false` is set.
+
+Manual cookie check for a local HTTP deployment:
+
+```sh
+SPACEBAR_ADMIN_COOKIE_SECURE=false \
+SPACEBAR_ADMIN_API_URL=http://127.0.0.1:3001/_spacebar/admin/api \
+PORT=3300 \
+npm run start:admin-dashboard
+```
+
+After login, inspect the response cookies for `spacebar_admin_token` with `HttpOnly`, `SameSite=Lax`, and `Path=/_spacebar/admin`. After logout, `spacebar_admin_token` should be cleared and `spacebar_admin_logged_out=1` should prevent fallback `spacebar_token` reuse until the operator logs in again. Incoming `Authorization` headers still take priority for automation and reverse proxies.
 
 ## Misconfiguration Behavior
 

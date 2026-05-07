@@ -1,6 +1,6 @@
-import { CodeBlock, ErrorBanner, PageHeader, Panel, StatusPill } from "../components";
-import { safeAdminFetch } from "../lib/admin-api";
-import type { AdminAuditRecord, PageResult } from "../lib/types";
+import { CodeBlock, ErrorBanner, PageHeader, Panel, StatusPill } from "../../components";
+import { safeAdminFetch } from "../../lib/admin-api";
+import type { AdminAuditRecord, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
