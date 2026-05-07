@@ -5,7 +5,13 @@ import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { WebhookExecuteSchema } from "@spacebar/schemas";
 
-export const executeWebhook = async (req: Request, res: Response) => {
+type ExecuteWebhookOptions = {
+    wait?: boolean;
+};
+
+export const executeWebhook = (req: Request, res: Response) => executeWebhookWithOptions(req, res);
+
+export const executeWebhookWithOptions = async (req: Request, res: Response, options: ExecuteWebhookOptions = {}) => {
     const body = req.body as WebhookExecuteSchema;
     const messageId = Snowflake.generate();
 
@@ -35,7 +41,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
         throw DiscordApiErrors.CANNOT_SEND_EMPTY_MESSAGE;
     }
 
-    const wait = req.query.wait === "true";
+    const wait = options.wait ?? req.query.wait === "true";
     const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
 
     if (!wait) {

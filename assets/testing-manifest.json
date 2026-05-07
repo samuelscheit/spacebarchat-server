@@ -12373,7 +12373,7 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/github/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/github.ts",
-            "line": 393,
+            "line": 392,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

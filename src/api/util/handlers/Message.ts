@@ -699,6 +699,13 @@ export async function postHandleMessage(message: Message) {
         embed.type ||= EmbedType.rich;
     });
 
+    if (message.webhook_id) {
+        await fillMessageUrlEmbeds(message);
+        return;
+    }
+
+    if (!message.author_id) return;
+
     if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
 }
 

@@ -79,7 +79,12 @@
                     "title": "Webhooks, token execution, compatible payloads, and attachments",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/api/WebhookResponseSerialization.test.ts", "src/util/dtos/WebhookDTO.test.ts", "src/schemas/responses/WebhookCreateResponse.test.ts"],
+                    "testFiles": [
+                        "test/scenarios/webhooks.test.ts",
+                        "src/api/WebhookResponseSerialization.test.ts",
+                        "src/util/dtos/WebhookDTO.test.ts",
+                        "src/schemas/responses/WebhookCreateResponse.test.ts"
+                    ],
                     "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/webhooks" }],
                     "fixtures": ["guilds", "channels", "webhooks", "messages"],
                     "checks": ["token-auth-boundary", "schema-validation", "response-shape", "db-state", "events"]

@@ -24171,7 +24171,7 @@
             "path": "/webhooks/:webhook_id/:token/github/",
             "samplePath": "/webhooks/100000000000000006/test_token/github/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/github.ts",
-            "line": 393,
+            "line": 392,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
