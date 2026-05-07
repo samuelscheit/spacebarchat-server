@@ -42,6 +42,8 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { insertChannelInOrdering } from "@spacebar/util";
+import { setVanityUrlFeature } from "../util/GuildFeatures";
+import type { GuildCreateResponse } from "@spacebar/schemas";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -354,6 +356,20 @@ export class Guild extends BaseClass {
         };
     }
 
+    toGuildUpdateEventData(): GuildCreateResponse {
+        const data = this.toJSON();
+        delete data.template_id;
+
+        return {
+            ...data,
+            // TODO: did i do this right?
+            afk_channel_id: data.afk_channel_id ?? undefined,
+            public_updates_channel_id: data.public_updates_channel_id ?? undefined,
+            rules_channel_id: data.rules_channel_id ?? undefined,
+            system_channel_id: data.system_channel_id ?? undefined,
+        } satisfies GuildCreateResponse;
+    }
+
     static async createGuild(body: {
         name?: string;
         region?: string | null;
@@ -398,7 +414,7 @@ export class Guild extends BaseClass {
             afk_timeout: body.afk_timeout ?? Config.get().defaults.guild.afkTimeout,
             default_message_notifications: body.default_message_notifications ?? Config.get().defaults.guild.defaultMessageNotifications,
             explicit_content_filter: body.explicit_content_filter ?? Config.get().defaults.guild.explicitContentFilter,
-            features: Config.get().guild.defaultFeatures,
+            features: setVanityUrlFeature(Config.get().guild.defaultFeatures, false),
             max_members: Config.get().limits.guild.maxMembers,
             max_presences: Config.get().defaults.guild.maxPresences,
             max_video_channel_users: Config.get().defaults.guild.maxVideoChannelUsers,

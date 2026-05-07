@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Guild, Invite, normalizeInviteCreateOptions } from "@spacebar/util";
+import { Channel, Guild, Invite, getDatabase, normalizeInviteCreateOptions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ChannelType, VanityUrlSchema } from "@spacebar/schemas";
@@ -45,21 +45,22 @@ router.get(
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
+        const invites = await Invite.find({
+            where: { guild_id: guild_id, vanity_url: true },
+        });
+        const expiredInvites = invites.filter((invite) => invite.isExpired());
+        await Invite.deleteWithVanityUrlFeatureSync(expiredInvites);
+        const activeInvites = invites.filter((invite) => !expiredInvites.includes(invite));
 
         if (!guild.features.includes("ALIASABLE_NAMES")) {
-            const invite = await Invite.findOne({
-                where: { guild_id: guild_id, vanity_url: true },
-            });
+            const invite = activeInvites[0];
             if (!invite) return res.json({ code: null });
 
             return res.json({ code: invite.code, uses: invite.uses });
         } else {
-            const invite = await Invite.find({
-                where: { guild_id: guild_id, vanity_url: true },
-            });
-            if (!invite || invite.length == 0) return res.json({ code: null });
+            if (activeInvites.length == 0) return res.json({ code: null });
 
-            return res.json(invite.map((x) => ({ code: x.code, uses: x.uses })));
+            return res.json(activeInvites.map((x) => ({ code: x.code, uses: x.uses })));
         }
     },
 );
@@ -86,33 +87,40 @@ router.patch(
         const body = req.body as VanityUrlSchema;
         const code = body.code?.replace(InviteRegex, "");
 
-        const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
-        if (!guild.features.includes("VANITY_URL")) throw new HTTPError("Your guild doesn't support vanity urls");
-
         if (!code || code.length === 0) throw new HTTPError("Code cannot be null or empty");
-
-        const existingInvite = await Invite.findOne({ where: { code } });
-        if (existingInvite) throw new HTTPError("Invite already exists");
 
         const { id } = await Channel.findOneOrFail({
             where: { guild_id, type: ChannelType.GUILD_TEXT },
         });
 
-        if (!guild.features.includes("ALIASABLE_NAMES")) {
-            await Invite.delete({ guild_id, vanity_url: true });
-        }
+        const database = getDatabase();
+        if (!database) throw new Error("Tried to create a vanity URL before the database was initialised");
 
-        const invite = Invite.createForChannel(
-            code,
-            {
-                guild_id,
-                channel_id: id,
-            },
-            normalizeInviteCreateOptions({ max_age: 0 }),
-        );
-        invite.vanity_url = true;
+        const updatedGuild = await database.transaction(async (entityManager) => {
+            const guild = await entityManager.findOneOrFail(Guild, { where: { id: guild_id } });
+            const invite = await entityManager.findOne(Invite, { where: { code } });
+            if (invite) throw new HTTPError("Invite already exists");
 
-        await invite.save();
+            if (!guild.features.includes("ALIASABLE_NAMES")) {
+                await entityManager.delete(Invite, { guild_id, vanity_url: true });
+            }
+
+            const vanityInvite = Invite.createForChannel(
+                code,
+                {
+                    guild_id,
+                    channel_id: id,
+                },
+                normalizeInviteCreateOptions({ max_age: 0 }),
+            );
+            vanityInvite.vanity_url = true;
+
+            await entityManager.save(vanityInvite);
+
+            return Invite.syncGuildVanityUrlFeature(guild_id, entityManager);
+        });
+
+        if (updatedGuild) await Invite.emitGuildUpdate(updatedGuild);
 
         return res.json({ code });
     },

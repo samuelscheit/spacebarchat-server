@@ -20,7 +20,7 @@ import { HTTPError } from "lambert-server";
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { DmChannelDTO } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util";
+import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors, getDatabase } from "../util";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
@@ -553,17 +553,29 @@ export class Channel extends BaseClass {
 
     static async deleteChannel(channel: Channel) {
         // TODO Delete attachments from the CDN for messages in the channel
-        await Channel.delete({ id: channel.id });
+        const database = getDatabase();
+        if (!database) throw new Error("Tried to delete a channel before the database was initialised");
 
-        if (channel.guild_id) {
-            const guild = await Guild.findOneOrFail({
-                where: { id: channel.guild_id },
-                select: { channel_ordering: true },
-            });
+        const updatedGuilds = await database.transaction(async (entityManager) => {
+            await entityManager.delete(Channel, { id: channel.id });
 
-            const updatedOrdering = guild.channel_ordering.filter((id) => id != channel.id);
-            await Guild.update({ id: channel.guild_id }, { channel_ordering: updatedOrdering });
-        }
+            if (channel.guild_id) {
+                const guild = await entityManager.findOneOrFail(Guild, {
+                    where: { id: channel.guild_id },
+                    select: { channel_ordering: true },
+                });
+
+                const updatedOrdering = guild.channel_ordering.filter((id) => id != channel.id);
+                await entityManager.update(Guild, { id: channel.guild_id }, { channel_ordering: updatedOrdering });
+
+                const updatedGuild = await Invite.syncGuildVanityUrlFeature(channel.guild_id, entityManager);
+                return updatedGuild ? [updatedGuild] : [];
+            }
+
+            return [];
+        });
+
+        await Promise.all(updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild)));
     }
 
     static async calculatePosition(channel_id: string, guild_id: string, guild?: Guild) {

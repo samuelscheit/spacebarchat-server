@@ -64,6 +64,7 @@ export * from "./WebAuthn";
 export * from "./ChannelFlags";
 export * from "./ChannelOrdering";
 export * from "./Gifs";
+export * from "./GuildFeatures";
 export * from "./Application";
 export * from "./NameValidation";
 export * from "../../schemas/HelperTypes";
