@@ -33,5 +33,6 @@ export * from "./handlers/Voice";
 export * from "./utility/captcha";
 export * from "./utility/BillingLocationInfo";
 export * from "./utility/EmbedHandlers";
+export * from "./utility/MessageNotifications";
 export * from "./utility/MessageHistoryPagination";
 export * from "./utility/EmbedPayload";

@@ -52,6 +52,7 @@ import {
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
+import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
 import {
     ActionRowComponent,
     ButtonStyle,
@@ -292,7 +293,7 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
     };
 }
-export async function handleMessage(opts: MessageOptions): Promise<Message> {
+export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     const conf = Config.get();
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
 
@@ -580,6 +581,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         }
         return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id }).save()));
     }
+    const incrementMentionCount = shouldIncrementMentionCount(notificationOptions);
     if (ephermal) {
         const id = message.interaction_metadata?.user_id;
         if (id) {
@@ -590,38 +592,40 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                 //stuff
             }
         }
-    } else if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
-        if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
-            if (channel.recipients) {
-                await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
+    } else if (incrementMentionCount) {
+        if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+            if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+                if (channel.recipients) {
+                    await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
+                }
+            } else {
+                await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
             }
-        } else {
-            await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
-        }
-        const repository = ReadState.getRepository();
-        const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-        await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
-        await repository.increment(condition, "mention_count", 1);
-    } else {
-        const users = new Set<string>([
-            ...(message.mention_roles.length
-                ? await Member.find({
-                      where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
-                  })
-                : []
-            ).map((member) => member.id),
-            ...message.mentions.map((user) => user.id),
-        ]);
-        if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
-            const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
-            (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
-        }
-        if (users.size) {
             const repository = ReadState.getRepository();
-            const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-
-            await fillInMissingIDs([...users]);
+            const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
+            await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
             await repository.increment(condition, "mention_count", 1);
+        } else {
+            const users = new Set<string>([
+                ...(message.mention_roles.length
+                    ? await Member.find({
+                          where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
+                      })
+                    : []
+                ).map((member) => member.id),
+                ...message.mentions.map((user) => user.id),
+            ]);
+            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
+                const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
+                (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
+            }
+            if (users.size) {
+                const repository = ReadState.getRepository();
+                const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
+
+                await fillInMissingIDs([...users]);
+                await repository.increment(condition, "mention_count", 1);
+            }
         }
     }
 
