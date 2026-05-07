@@ -4699,7 +4699,7 @@
             "method": "GET",
             "path": "/discoverable-guilds/",
             "sourceFile": "src/api/routes/discoverable-guilds.ts",
-            "line": 27,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

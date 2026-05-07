@@ -21,6 +21,7 @@ import { Config, Guild, Member } from "@spacebar/util";
 import { createDiscoverableGuildCategoryFilter, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ArrayContains, In, Not } from "typeorm";
+import { type DiscoverableGuildsResponse, toDiscoverableGuild } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -75,18 +76,16 @@ router.get(
             take: Math.abs(Number(limit || configLimit)),
         });
 
-        const total = guilds ? guilds.length : undefined;
+        const total = guilds.length;
 
-        res.send({
+        const response = {
             total: total,
-            guilds: guilds.map((g) => ({
-                ...g,
-                discovery_weight: undefined,
-                discovery_splash: undefined,
-            })),
+            guilds: guilds.map(toDiscoverableGuild),
             offset: Number(offset || Config.get().guild.discovery.offset),
             limit: Number(limit || configLimit),
-        });
+        } satisfies DiscoverableGuildsResponse;
+
+        return res.send(response);
     },
 );
 
