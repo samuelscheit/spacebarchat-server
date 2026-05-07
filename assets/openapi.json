@@ -2419,38 +2419,99 @@
                     "joined"
                 ]
             },
-            "EmojiSourceResponse": {
+            "EmojisResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/EmojiResponse"
+                }
+            },
+            "EmojiResponse": {
                 "type": "object",
                 "properties": {
-                    "type": {
-                        "enum": [
-                            "APPLICATION",
-                            "GUILD"
-                        ],
-                        "type": "string"
-                    },
-                    "guild": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/EmojiGuild"
-                            },
-                            {
-                                "type": "null"
-                            }
+                    "id": {
+                        "type": [
+                            "null",
+                            "string"
                         ]
                     },
-                    "application": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/EmojiApplication"
-                            },
-                            {
-                                "type": "null"
-                            }
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
                         ]
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "require_colons": {
+                        "type": "boolean"
+                    },
+                    "managed": {
+                        "type": "boolean"
+                    },
+                    "animated": {
+                        "type": "boolean"
+                    },
+                    "available": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "EmojiSourceResponse": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/EmojiGuildSourceResponse"
+                    },
+                    {
+                        "$ref": "#/components/schemas/EmojiApplicationSourceResponse"
+                    }
+                ]
+            },
+            "EmojiGuildSourceResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "const": "GUILD"
+                    },
+                    "guild": {
+                        "$ref": "#/components/schemas/EmojiGuild"
+                    },
+                    "application": {
+                        "type": "null"
+                    }
+                },
+                "required": [
+                    "guild",
+                    "type"
+                ]
+            },
+            "EmojiApplicationSourceResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "const": "APPLICATION"
+                    },
+                    "guild": {
+                        "type": "null"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/EmojiApplication"
+                    }
+                },
+                "required": [
+                    "application",
                     "type"
                 ]
             },
@@ -8624,54 +8685,6 @@
                     }
                 }
             },
-            "EmojisResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/EmojiResponse"
-                }
-            },
-            "EmojiResponse": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "name": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "roles": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "user": {
-                        "$ref": "#/components/schemas/PartialUser"
-                    },
-                    "require_colons": {
-                        "type": "boolean"
-                    },
-                    "managed": {
-                        "type": "boolean"
-                    },
-                    "animated": {
-                        "type": "boolean"
-                    },
-                    "available": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "id",
-                    "name"
-                ]
-            },
             "SessionsLogoutSchema": {
                 "type": "object",
                 "properties": {
@@ -14631,14 +14644,17 @@
                     "emojis": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Emoji"
+                            "$ref": "#/components/schemas/EmojiResponse"
                         }
                     },
                     "premium_tier": {
                         "type": "integer"
                     },
                     "premium_subscription_count": {
-                        "type": "integer"
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
                     },
                     "approximate_member_count": {
                         "type": "integer"
@@ -14648,10 +14664,13 @@
                     }
                 },
                 "required": [
+                    "approximate_member_count",
+                    "approximate_presence_count",
                     "emojis",
                     "features",
                     "id",
                     "name",
+                    "premium_subscription_count",
                     "premium_tier"
                 ]
             },

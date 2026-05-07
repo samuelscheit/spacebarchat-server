@@ -2519,39 +2519,106 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "EmojiSourceResponse": {
+    "EmojisResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/EmojiResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmojiResponse": {
         "type": "object",
         "properties": {
-            "type": {
-                "enum": [
-                    "APPLICATION",
-                    "GUILD"
-                ],
-                "type": "string"
-            },
-            "guild": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/EmojiGuild"
-                    },
-                    {
-                        "type": "null"
-                    }
+            "id": {
+                "type": [
+                    "null",
+                    "string"
                 ]
             },
-            "application": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/EmojiApplication"
-                    },
-                    {
-                        "type": "null"
-                    }
+            "name": {
+                "type": [
+                    "null",
+                    "string"
                 ]
+            },
+            "roles": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "require_colons": {
+                "type": "boolean"
+            },
+            "managed": {
+                "type": "boolean"
+            },
+            "animated": {
+                "type": "boolean"
+            },
+            "available": {
+                "type": "boolean"
             }
         },
         "additionalProperties": false,
         "required": [
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmojiSourceResponse": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/EmojiGuildSourceResponse"
+            },
+            {
+                "$ref": "#/definitions/EmojiApplicationSourceResponse"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmojiGuildSourceResponse": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "string",
+                "const": "GUILD"
+            },
+            "guild": {
+                "$ref": "#/definitions/EmojiGuild"
+            },
+            "application": {
+                "type": "null"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmojiApplicationSourceResponse": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "string",
+                "const": "APPLICATION"
+            },
+            "guild": {
+                "type": "null"
+            },
+            "application": {
+                "$ref": "#/definitions/EmojiApplication"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application",
             "type"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -9038,57 +9105,6 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "EmojisResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/EmojiResponse"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "EmojiResponse": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "name": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "roles": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "user": {
-                "$ref": "#/definitions/PartialUser"
-            },
-            "require_colons": {
-                "type": "boolean"
-            },
-            "managed": {
-                "type": "boolean"
-            },
-            "animated": {
-                "type": "boolean"
-            },
-            "available": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "id",
-            "name"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "SessionsLogoutSchema": {
         "type": "object",
         "properties": {
@@ -15317,14 +15333,17 @@
             "emojis": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Emoji"
+                    "$ref": "#/definitions/EmojiResponse"
                 }
             },
             "premium_tier": {
                 "type": "integer"
             },
             "premium_subscription_count": {
-                "type": "integer"
+                "type": [
+                    "null",
+                    "integer"
+                ]
             },
             "approximate_member_count": {
                 "type": "integer"
@@ -15335,10 +15354,13 @@
         },
         "additionalProperties": false,
         "required": [
+            "approximate_member_count",
+            "approximate_presence_count",
             "emojis",
             "features",
             "id",
             "name",
+            "premium_subscription_count",
             "premium_tier"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
