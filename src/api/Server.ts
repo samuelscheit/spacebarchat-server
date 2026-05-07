@@ -36,6 +36,7 @@ import {
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
+import { createAdminRouter } from "../admin";
 import morgan from "morgan";
 import path from "node:path";
 import { red } from "picocolors";
@@ -145,6 +146,8 @@ export class SpacebarServer extends Server {
         //app.use("/__internals", )
 
         mountApiRouter(app, api);
+
+        app.use("/_spacebar/admin/api", createAdminRouter());
 
         app.use("/imageproxy/:hash/:size/:url", ImageProxy);
 

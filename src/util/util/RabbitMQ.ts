@@ -31,9 +31,7 @@ export class RabbitMQ {
     private static isReconnecting = false;
     private static reconnectAttempts = 0;
     private static readonly BASE_RECONNECT_DELAY_MS = 500; // reconnect after 500 milliseconds delay
-
-    // Track if event listeners have been set up (to avoid duplicates)
-    private static connectionListenersAttached = false;
+    private static reconnectTimer: NodeJS.Timeout | null = null;
 
     /**
      * Subscribe to connection events.
@@ -56,57 +54,72 @@ export class RabbitMQ {
     }
 
     private static async connect(host: string): Promise<void> {
+        let connection: ChannelModel | null = null;
+
         try {
             console.log(`[RabbitMQ] Connecting to: ${host}`);
-            this.connection = await amqp.connect(host, {
+            connection = await amqp.connect(host, {
                 timeout: 1000 * 60,
             });
+
+            this.connection = connection;
+            this.channel = null;
+            this.attachConnectionListeners(connection, host);
+
+            // Pre-create the shared channel
+            await this.getSafeChannel();
+
             console.log(`[RabbitMQ] Connected successfully`);
 
             // Reset reconnection state on successful connect
             this.reconnectAttempts = 0;
             this.isReconnecting = false;
 
-            // Only attach listeners once per connection object
-            if (!this.connectionListenersAttached) {
-                this.attachConnectionListeners(host);
-                this.connectionListenersAttached = true;
-            }
-
-            // Pre-create the shared channel
-            await this.getSafeChannel();
-
             // Notify subscribers that connection is (re-)established
             this.events.emit("reconnected");
         } catch (error) {
             console.error("[RabbitMQ] Connection failed:", error);
-            await this.scheduleReconnect(host);
+            if (connection) {
+                this.cleanupFailedConnection(connection);
+            }
+            this.scheduleReconnect(host);
         }
     }
 
-    private static attachConnectionListeners(host: string) {
-        if (!this.connection) return;
-
-        this.connection.on("error", (err) => {
+    private static attachConnectionListeners(connection: ChannelModel, host: string) {
+        connection.on("error", (err) => {
             console.error("[RabbitMQ] Connection error:", err);
             // Don't reconnect here - wait for 'close' event
         });
 
-        this.connection.on("close", () => {
+        connection.on("close", () => {
+            if (this.connection !== connection) {
+                console.log("[RabbitMQ] Stale connection closed");
+                return;
+            }
+
             console.error("[RabbitMQ] Connection closed");
             this.channel = null;
             this.connection = null;
-            this.connectionListenersAttached = false;
 
             // Notify subscribers that connection is lost
             this.events.emit("disconnected");
 
             // Schedule reconnection
-            this.scheduleReconnect(host).catch((e) => console.error("[RabbitMQ] Failed to schedule reconnection:", e));
+            this.scheduleReconnect(host);
         });
     }
 
-    private static async scheduleReconnect(host: string): Promise<void> {
+    private static cleanupFailedConnection(connection: ChannelModel): void {
+        if (this.connection === connection) {
+            this.channel = null;
+            this.connection = null;
+        }
+
+        void connection.close().catch((e) => console.error("[RabbitMQ] Failed to close incomplete connection:", e));
+    }
+
+    private static scheduleReconnect(host: string): void {
         if (this.isReconnecting) {
             console.log("[RabbitMQ] Reconnection already in progress, skipping");
             return;
@@ -117,14 +130,13 @@ export class RabbitMQ {
 
         console.log(`[RabbitMQ] Scheduling reconnection attempt ${this.reconnectAttempts} in ${this.BASE_RECONNECT_DELAY_MS}ms`);
 
-        await new Promise((resolve) => void setTimeout(resolve, this.BASE_RECONNECT_DELAY_MS));
+        this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = null;
+            this.isReconnecting = false;
 
-        try {
-            await this.connect(host);
-        } catch {
-            // connect() will schedule another reconnect on failure
-            console.log("[RabbitMQ] Reconnection attempt failed, will retry");
-        }
+            this.connect(host).catch((e) => console.error("[RabbitMQ] Reconnection attempt failed:", e));
+        }, this.BASE_RECONNECT_DELAY_MS);
+        this.reconnectTimer.unref?.();
     }
 
     static async getSafeChannel(): Promise<Channel> {

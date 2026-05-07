@@ -1,5 +1,7 @@
+import { type TemplateId, isTemplateEveryoneRoleId, normalizeTemplateId } from "./GuildTemplates";
+
 export interface GuildCreateRoleInput {
-    id?: string;
+    id?: TemplateId;
     name?: string;
     permissions?: string;
     color?: number;
@@ -52,7 +54,7 @@ export interface GuildCreatePermissionOverwriteInput {
 const rolePermissionOverwriteType = 0;
 
 export function isGuildCreateEveryoneRole(role: GuildCreateRoleInput, sourceGuildId: string | null): boolean {
-    return role.id === "0" || (!!sourceGuildId && role.id === sourceGuildId);
+    return isTemplateEveryoneRoleId(role.id, sourceGuildId);
 }
 
 export function getGuildCreateEveryoneRole(roles: GuildCreateRoleInput[] | undefined, sourceGuildId: string | null): GuildCreateRoleInput | undefined {
@@ -84,7 +86,7 @@ export function normalizeGuildCreateRole(role: GuildCreateRoleInput, fallback: N
         flags: role.flags ?? fallback.flags,
     };
 
-    const id = role.id ?? fallback.id;
+    const id = normalizeTemplateId(role.id ?? fallback.id);
     if (id !== undefined) normalized.id = id;
     const icon = role.icon ?? fallback.icon;
     if (icon !== undefined) normalized.icon = icon;

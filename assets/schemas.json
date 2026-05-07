@@ -4219,6 +4219,46 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "RecentAvatarResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "storage_hash": {
+                "type": "string"
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "id",
+            "storage_hash"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RecentAvatarsResponse": {
+        "type": "object",
+        "properties": {
+            "avatars": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/RecentAvatarResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "avatars"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "RefreshUrlsResponse": {
         "type": "object",
         "properties": {
@@ -4696,15 +4736,6 @@
             "id": {
                 "type": "string"
             },
-            "banner": {
-                "type": "string"
-            },
-            "roles": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Role"
-                }
-            },
             "icon": {
                 "type": "string"
             },
@@ -4745,6 +4776,15 @@
             "clean_data": {
                 "type": "object",
                 "additionalProperties": false
+            },
+            "banner": {
+                "type": "string"
+            },
+            "roles": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Role"
+                }
             },
             "channels": {
                 "type": "array",
@@ -5033,6 +5073,9 @@
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
             },
+            "flags": {
+                "type": "integer"
+            },
             "username": {
                 "type": "string"
             },
@@ -5097,9 +5140,6 @@
             },
             "primary_guild": {
                 "$ref": "#/definitions/PrimaryGuild"
-            },
-            "flags": {
-                "type": "integer"
             },
             "mfa_enabled": {
                 "type": "boolean"
@@ -5183,6 +5223,9 @@
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
             },
+            "flags": {
+                "type": "integer"
+            },
             "username": {
                 "type": "string"
             },
@@ -5247,9 +5290,6 @@
             },
             "primary_guild": {
                 "$ref": "#/definitions/PrimaryGuild"
-            },
-            "flags": {
-                "type": "integer"
             },
             "mfa_enabled": {
                 "type": "boolean"
@@ -5460,6 +5500,12 @@
             "id": {
                 "type": "string"
             },
+            "guild_id": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
             "avatar": {
                 "type": "string"
             },
@@ -5489,12 +5535,6 @@
             },
             "collectibles": {
                 "$ref": "#/definitions/Collectibles"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "guild_id": {
-                "type": "string"
             },
             "nick": {
                 "type": "string"
@@ -6618,14 +6658,14 @@
             "flags": {
                 "type": "integer"
             },
-            "channel_id": {
-                "type": "string"
-            },
             "applied_tags": {
                 "type": "array",
                 "items": {
                     "type": "string"
                 }
+            },
+            "channel_id": {
+                "type": "string"
             },
             "content": {
                 "type": "string"
@@ -7496,6 +7536,12 @@
             "version": {
                 "type": "integer"
             },
+            "guild_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "flags": {
                 "type": "integer"
             },
@@ -7523,12 +7569,6 @@
             },
             "suppress_roles": {
                 "type": "boolean"
-            },
-            "guild_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
             },
             "mute_scheduled_events": {
                 "type": "boolean"
@@ -7570,6 +7610,16 @@
                     "null",
                     "string"
                 ]
+            },
+            "avatar_description": {
+                "maxLength": 1024,
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "avatar_id": {
+                "type": "string"
             },
             "bio": {
                 "type": "string"
@@ -8901,25 +8951,6 @@
             "id": {
                 "type": "string"
             },
-            "flags": {
-                "type": "integer"
-            },
-            "icon": {
-                "format": "image-data-uri",
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "parent_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "default_auto_archive_duration": {
-                "type": "integer"
-            },
             "permission_overwrites": {
                 "type": "array",
                 "items": {
@@ -8947,6 +8978,22 @@
                     ]
                 }
             },
+            "icon": {
+                "format": "image-data-uri",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "parent_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "default_auto_archive_duration": {
+                "type": "integer"
+            },
             "video_quality_mode": {
                 "type": "integer"
             },
@@ -8964,6 +9011,9 @@
             },
             "topic": {
                 "type": "string"
+            },
+            "flags": {
+                "type": "integer"
             },
             "default_thread_rate_limit_per_user": {
                 "type": "integer"
@@ -13231,6 +13281,12 @@
             "id": {
                 "type": "string"
             },
+            "guild_id": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
             "avatar": {
                 "type": "string"
             },
@@ -13260,12 +13316,6 @@
             },
             "collectibles": {
                 "$ref": "#/definitions/Collectibles"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "guild_id": {
-                "type": "string"
             },
             "nick": {
                 "type": "string"
@@ -13691,6 +13741,12 @@
             "id": {
                 "type": "string"
             },
+            "guild_id": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
             "avatar": {
                 "type": "string"
             },
@@ -13720,12 +13776,6 @@
             },
             "collectibles": {
                 "$ref": "#/definitions/Collectibles"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "guild_id": {
-                "type": "string"
             },
             "nick": {
                 "type": "string"
@@ -14244,6 +14294,12 @@
                     "$ref": "#/definitions/SecurityKey"
                 }
             },
+            "recent_avatars": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/UserRecentAvatar"
+                }
+            },
             "badge_ids": {
                 "type": "array",
                 "items": {
@@ -14291,6 +14347,7 @@
             "premium_usage_flags",
             "public_flags",
             "purchased_flags",
+            "recent_avatars",
             "relationships",
             "rights",
             "security_keys",
@@ -14835,6 +14892,42 @@
             "key_id",
             "name",
             "public_key",
+            "user",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserRecentAvatar": {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "type": "string"
+            },
+            "user": {
+                "$ref": "#/definitions/User"
+            },
+            "storage_hash": {
+                "type": "string"
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "created_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "created_at",
+            "id",
+            "storage_hash",
             "user",
             "user_id"
         ],

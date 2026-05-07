@@ -63,3 +63,4 @@ export * from "./utility/ChannelVisibility";
 export * from "./utility/PreloadMessages";
 export * from "./utility/GuildRecommendations";
 export * from "./utility/MfaBackupCodes";
+export * from "./utility/RecentAvatars";
