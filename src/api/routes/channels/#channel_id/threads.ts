@@ -38,7 +38,7 @@ import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
 import { HTTPError } from "#util/util/lambert-server";
-import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap } from "typeorm";
+import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap, JsonContains } from "typeorm";
 import {
     applyPrivateArchivedThreadsQuery,
     parsePrivateArchivedThreadBefore,
@@ -96,11 +96,9 @@ router.post(
         }
         const user = await User.findOneOrFail({ where: { id: req.user_id } });
 
-        const thread = await Channel.createChannel(
+        const thread = await Channel.createThreadChannel(
             {
-                owner: user,
-                parent: channel,
-                guild: channel.guild,
+                parent_id: channel.id,
                 member_count: 1,
                 message_count: 0,
                 total_message_sent: 0,
@@ -110,16 +108,16 @@ router.post(
                 type: body.type || (channel.threadOnly() ? ChannelType.GUILD_PUBLIC_THREAD : ChannelType.GUILD_PRIVATE_THREAD),
                 recipients: [],
                 applied_tags: body.applied_tags || [],
-                thread_metadata: {
-                    archived: false,
-                    auto_archive_duration: body.auto_archive_duration || channel.default_auto_archive_duration || 4320,
-                    archive_timestamp: new Date().toISOString(),
-                    locked: false,
-                    create_timestamp: new Date().toISOString(),
-                },
             },
-            void 0,
-            { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
+            {
+                archived: false,
+                auto_archive_duration: body.auto_archive_duration || channel.default_auto_archive_duration || 4320,
+                archive_timestamp: new Date().toISOString(),
+                locked: false,
+                create_timestamp: new Date().toISOString(),
+            },
+            user.id,
+            { skipPermissionCheck: true, skipEventEmit: true, skipNameChecks: true },
         );
 
         await Promise.all([
@@ -349,9 +347,7 @@ router.get(
 
                 ...(archived
                     ? {
-                          thread_metadata: {
-                              archived: archived === "true" ? true : false,
-                          },
+                          thread_metadata: JsonContains({ archived: archived === "true" ? true : false }),
                       }
                     : {}),
             },

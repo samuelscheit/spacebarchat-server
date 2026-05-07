@@ -34,7 +34,7 @@ import { Webhook } from "./Webhook";
 import { Member } from "./Member";
 import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
 import { OrmUtils } from "../imports";
-import { ThreadMember } from "./ThreadMember";
+import { ThreadMember, ThreadMemberFlags } from "./ThreadMember";
 
 @Entity({
     name: "channels",
@@ -389,17 +389,17 @@ export class Channel extends BaseClass {
 
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
-        const member = {
+        const guildMember = await Member.findOneOrFail({
+            where: { id: user_id, guild_id: thread.guild_id! },
+            select: { index: true },
+        });
+        const threadMember = await ThreadMember.create({
             id: thread.id,
-            user_id,
+            member_idx: guildMember.index,
             join_timestamp: new Date(),
             muted: false,
-            mute_config: null,
-            flags: 0,
-        };
-        if (channel.member_count) channel.member_count++;
-
-        const threadMember = await OrmUtils.mergeDeep(new ThreadMember(), member).save();
+            flags: ThreadMemberFlags.ALL_MESSAGES,
+        }).save();
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
@@ -416,8 +416,8 @@ export class Channel extends BaseClass {
                     data: {
                         guild_id: channel.guild_id!, // TODO: is this the right fix?
                         id: thread.id,
-                        member_count: channel.member_count ?? 0, //TODO: is this the right fix?
-                        added_members: [threadMember],
+                        member_count: thread.member_count ?? 0, //TODO: is this the right fix?
+                        added_members: [{ user_id, ...threadMember.toJSON() }],
                         removed_member_ids: [],
                     },
                     guild_id: channel.guild_id,

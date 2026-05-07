@@ -25,6 +25,7 @@ import {
     Permissions,
     ThreadCreateEvent,
     ThreadDeleteEvent,
+    ThreadMemberUpdateEvent,
     ThreadMember,
     ThreadMemberFlags,
     ThreadMembersUpdateEvent,
@@ -227,20 +228,30 @@ router.patch(
         permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
-        // TODO
-        // eslint-disable-next-line prefer-const
-        let { channel_id } = req.params as { [key: string]: string };
+        const { channel_id } = req.params as { [key: string]: string };
+        const body = req.body as {
+            muted?: boolean;
+            mute_config?: ThreadMember["mute_config"] | null;
+            flags?: ThreadMemberFlags;
+        };
         const thread = await Channel.findOneOrFail({ where: { id: channel_id } });
-        await Member.IsInGuildOrFail(req.params.user_id as string, thread.guild_id!);
-        // var threadMember = await ThreadMember.findOneOrFail({ where: { member_id: req.user_id, id: channel_id } });
+        const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: thread.guild_id! }, select: { index: true } });
+        const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
 
-        // await emitEvent({
-        //     event: "THREAD_MEMBER_UPDATE",
-        //     data: ,
-        //     user_id: user_id,
-        // } satisfies ThreadMemberUpdateEvent);
+        if ("muted" in body) threadMember.muted = body.muted ?? false;
+        if ("mute_config" in body) threadMember.mute_config = body.mute_config ?? undefined;
+        if ("flags" in body) threadMember.flags = body.flags ?? ThreadMemberFlags.NONE;
 
-        return res.status(500).send("not implemented");
+        await Promise.all([
+            threadMember.save(),
+            emitEvent({
+                event: "THREAD_MEMBER_UPDATE",
+                data: { ...threadMember.toJSON(), guild_id: thread.guild_id! },
+                user_id: req.user_id,
+            } satisfies ThreadMemberUpdateEvent),
+        ]);
+
+        return res.json(threadMember.toJSON());
     },
 );
 
