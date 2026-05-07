@@ -37,3 +37,4 @@ export * from "./utility/MessageNotifications";
 export * from "./utility/MessageHistoryPagination";
 export * from "./utility/EmbedPayload";
 export * from "./utility/MessageResponse";
+export * from "./utility/MessageSearch";

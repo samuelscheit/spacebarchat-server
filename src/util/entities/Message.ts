@@ -43,7 +43,7 @@ import {
     PartialUser,
     InteractionType,
 } from "@spacebar/schemas";
-import { MessageFlags } from "@spacebar/util";
+import { MessageFlags, serializeMessageMentions } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 type AttachmentUrlFields = {
@@ -395,10 +395,7 @@ export class Message extends BaseClass {
             member_id: undefined,
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
-            mentions: this.mentions?.map((user) => {
-                if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
-                return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
-            }),
+            mentions: serializeMessageMentions(this.mentions) as PartialUser[],
 
             mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
             mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
@@ -456,7 +453,7 @@ export class Message extends BaseClass {
                 embeds: this.embeds,
                 flags: this.flags,
                 mention_roles: this.mention_roles?.map((x) => x.id),
-                mentions: this.mentions.map((x) => x.toPublicUser() as unknown as PartialUser), // TODO: write a proper method for this
+                mentions: serializeMessageMentions(this.mentions) as PartialUser[],
                 timestamp: this.timestamp,
                 type: this.type,
             },
