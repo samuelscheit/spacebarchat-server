@@ -3501,6 +3501,9 @@
             "user": {
                 "$ref": "#/definitions/UserConfiguration"
             },
+            "webhook": {
+                "$ref": "#/definitions/WebhookConfiguration"
+            },
             "offload": {
                 "$ref": "#/definitions/OffloadConfiguration"
             },
@@ -3535,7 +3538,8 @@
             "security",
             "templates",
             "updates",
-            "user"
+            "user",
+            "webhook"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -20103,6 +20107,23 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "WebhookConfiguration": {
+        "type": "object",
+        "properties": {
+            "blockedNameRegexPatterns": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": []
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "blockedNameRegexPatterns"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "OffloadConfiguration": {
         "type": "object",
         "properties": {
@@ -20297,6 +20318,9 @@
             "user": {
                 "$ref": "#/definitions/UserConfiguration"
             },
+            "webhook": {
+                "$ref": "#/definitions/WebhookConfiguration"
+            },
             "offload": {
                 "$ref": "#/definitions/OffloadConfiguration"
             },
@@ -20331,7 +20355,8 @@
             "security",
             "templates",
             "updates",
-            "user"
+            "user",
+            "webhook"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

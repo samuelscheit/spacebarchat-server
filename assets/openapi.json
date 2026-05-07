@@ -3352,6 +3352,9 @@
                     "user": {
                         "$ref": "#/components/schemas/UserConfiguration"
                     },
+                    "webhook": {
+                        "$ref": "#/components/schemas/WebhookConfiguration"
+                    },
                     "offload": {
                         "$ref": "#/components/schemas/OffloadConfiguration"
                     },
@@ -3385,7 +3388,8 @@
                     "security",
                     "templates",
                     "updates",
-                    "user"
+                    "user",
+                    "webhook"
                 ]
             },
             "InstanceConfigResponse": {
@@ -19232,6 +19236,21 @@
                     "botsCanUseInvites"
                 ]
             },
+            "WebhookConfiguration": {
+                "type": "object",
+                "properties": {
+                    "blockedNameRegexPatterns": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    }
+                },
+                "required": [
+                    "blockedNameRegexPatterns"
+                ]
+            },
             "OffloadConfiguration": {
                 "type": "object",
                 "properties": {
@@ -19416,6 +19435,9 @@
                     "user": {
                         "$ref": "#/components/schemas/UserConfiguration"
                     },
+                    "webhook": {
+                        "$ref": "#/components/schemas/WebhookConfiguration"
+                    },
                     "offload": {
                         "$ref": "#/components/schemas/OffloadConfiguration"
                     },
@@ -19449,7 +19471,8 @@
                     "security",
                     "templates",
                     "updates",
-                    "user"
+                    "user",
+                    "webhook"
                 ]
             },
             "PinnedMessageItem": {

@@ -40,6 +40,7 @@ import {
     TemplateConfiguration,
     UpdateCheckConfiguration,
     UserConfiguration,
+    WebhookConfiguration,
 } from "./types";
 
 export class ConfigValue {
@@ -63,6 +64,7 @@ export class ConfigValue {
     email: EmailConfiguration = new EmailConfiguration();
     passwordReset: PasswordResetConfiguration = new PasswordResetConfiguration();
     user: UserConfiguration = new UserConfiguration();
+    webhook: WebhookConfiguration = new WebhookConfiguration();
     offload: OffloadConfiguration = new OffloadConfiguration();
     components = new ComponentConfiguration();
     embeds = new EmbedConfiguration();

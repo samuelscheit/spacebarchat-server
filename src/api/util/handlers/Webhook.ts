@@ -12,7 +12,7 @@ import {
     MessageCreateEvent,
     Snowflake,
     toAPIWebhook,
-    ValidateName,
+    ValidateWebhookName,
     Webhook,
 } from "@spacebar/util";
 import { Request, Response } from "express";
@@ -36,9 +36,8 @@ export async function updateWebhookWithToken(req: Request, res: Response) {
     const update: Partial<Pick<Webhook, "name" | "avatar">> = {};
     if (body.avatar) update.avatar = (await handleFile(`/avatars/${webhook_id}`, body.avatar)) as string;
 
-    if (body.name) {
-        ValidateName(body.name);
-        update.name = body.name;
+    if (body.name !== undefined) {
+        update.name = ValidateWebhookName(body.name);
     }
 
     webhook.assign(update);
@@ -64,7 +63,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
     const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: true });
 
     if (body.username) {
-        ValidateName(body.username);
+        body.username = ValidateWebhookName(body.username);
     }
 
     // ensure one of content, embeds, components, or file is present

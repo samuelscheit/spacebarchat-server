@@ -38,5 +38,6 @@ export * from "./subconfigurations";
 export * from "./TemplateConfiguration";
 export * from "./UpdateCheckConfiguration";
 export * from "./UsersConfiguration";
+export * from "./WebhookConfiguration";
 export * from "./ComponentConfiguration";
 export * from "./EmbedConfiguration";

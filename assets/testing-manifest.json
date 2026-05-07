@@ -13095,7 +13095,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/index.ts",
-            "line": 42,
+            "line": 54,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -13136,7 +13136,7 @@
             "method": "GET",
             "path": "/webhooks/:webhook_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/index.ts",
-            "line": 10,
+            "line": 22,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -13176,7 +13176,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/index.ts",
-            "line": 95,
+            "line": 107,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

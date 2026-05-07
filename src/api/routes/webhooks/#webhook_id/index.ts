@@ -1,5 +1,17 @@
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, getPermission, Webhook, emitEvent, Channel, handleFile, ValidateName, Message, MessageDeleteBulkEvent, toAPIWebhook } from "@spacebar/util";
+import {
+    Config,
+    DiscordApiErrors,
+    getPermission,
+    Webhook,
+    emitEvent,
+    Channel,
+    handleFile,
+    ValidateWebhookName,
+    Message,
+    MessageDeleteBulkEvent,
+    toAPIWebhook,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { isTextChannel, WebhookUpdateSchema } from "@spacebar/schemas";
@@ -128,8 +140,8 @@ router.patch(
 
         if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
 
-        if (body.name) {
-            ValidateName(body.name);
+        if (body.name !== undefined) {
+            body.name = ValidateWebhookName(body.name);
         }
 
         const previousWebhookLocation = {

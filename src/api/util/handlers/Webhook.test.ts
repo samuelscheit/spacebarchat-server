@@ -189,6 +189,7 @@ describe("PATCH /webhooks/:webhook_id/:token", () => {
             api: { endpointPublic: "https://api.example.test" },
             limits: { user: { maxUsername: 32 } },
             user: { blockedContains: [], blockedEquals: [] },
+            webhook: { blockedNameRegexPatterns: [] },
         }));
         t.mock.method(eventUtil, "emitEvent", async () => undefined);
         t.mock.method(util.Webhook, "findOne", async () => {

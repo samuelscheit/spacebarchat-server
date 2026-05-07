@@ -84,6 +84,7 @@ export * from "./GuildChannelOrdering";
 export * from "./Application";
 export * from "./ApplicationModify";
 export * from "./NameValidation";
+export * from "./WebhookNamePatterns";
 export * from "../../schemas/HelperTypes";
 export * from "./extensions";
 export * from "./Random";
