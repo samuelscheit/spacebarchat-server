@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 403,
+        "totalEntries": 404,
         "byService": {
-            "api": 338,
+            "api": 339,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 378,
+            "http-route": 379,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 243,
+            "stateful-domain": 244,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -42,7 +42,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 15,
-            "route-class": 295,
+            "route-class": 296,
             "hot-path": 28,
             "none": 1,
             "cdn-hot-path": 41,
@@ -4240,7 +4240,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 57,
+            "line": 67,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4275,13 +4275,58 @@
             }
         },
         {
+            "id": "api:http:GET:/channels/:channel_id/threads/active",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/threads/active",
+            "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
+            "line": 238,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ActiveThreadsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/channels/:channel_id/threads/archived/private",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 228,
+            "line": 297,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4374,7 +4419,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 295,
+            "line": 364,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

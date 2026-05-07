@@ -58,12 +58,15 @@ describe("active guild thread utilities", () => {
         );
     });
 
-    test("requires membership or manage threads for private threads", () => {
-        const privateThread = { id: "private", guild_id: "guild", parent_id: "parent", type: 12, thread_metadata: { archived: false }, toJSON: () => ({}) };
+    test("requires membership, ownership, or manage threads for private threads", () => {
+        const privateThread = { id: "private", guild_id: "guild", parent_id: "parent", type: 12, owner_id: "owner", thread_metadata: { archived: false }, toJSON: () => ({}) };
+        const ownerlessThread = { id: "ownerless", guild_id: "guild", parent_id: "parent", type: 12, thread_metadata: { archived: false }, toJSON: () => ({}) };
 
         assert.equal(canAccessActiveGuildThread(privateThread, "guild", new Set(), viewParent), false);
+        assert.equal(canAccessActiveGuildThread(ownerlessThread, "guild", new Set(), viewParent, "owner"), false);
         assert.equal(canAccessActiveGuildThread(privateThread, "guild", new Set(["private"]), viewParent), true);
         assert.equal(canAccessActiveGuildThread(privateThread, "guild", new Set(), manageParent), true);
+        assert.equal(canAccessActiveGuildThread(privateThread, "guild", new Set(), viewParent, "owner"), true);
     });
 
     test("filters accessible active guild threads", () => {
@@ -71,16 +74,18 @@ describe("active guild thread utilities", () => {
             [
                 { id: "public", guild_id: "guild", parent_id: "parent", type: 11, thread_metadata: { archived: false }, toJSON: () => ({ id: "public" }) },
                 { id: "private", guild_id: "guild", parent_id: "parent", type: 12, thread_metadata: { archived: false }, toJSON: () => ({ id: "private" }) },
+                { id: "owned", guild_id: "guild", parent_id: "parent", type: 12, owner_id: "owner", thread_metadata: { archived: false }, toJSON: () => ({ id: "owned" }) },
                 { id: "archived", guild_id: "guild", parent_id: "parent", type: 11, thread_metadata: { archived: true }, toJSON: () => ({ id: "archived" }) },
             ],
             "guild",
             new Set(["private"]),
             viewParent,
+            "owner",
         );
 
         assert.deepEqual(
             threads.map((thread) => thread.id),
-            ["public", "private"],
+            ["public", "private", "owned"],
         );
     });
 

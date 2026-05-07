@@ -16,7 +16,17 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { assertMessagePayloadPermissions, handleMessage, postHandleMessage, route, sendMessage, serializeThreadSearchMember } from "@spacebar/api";
+import {
+    ACTIVE_GUILD_THREAD_TYPES,
+    assertMessagePayloadPermissions,
+    filterAccessibleActiveGuildThreads,
+    handleMessage,
+    postHandleMessage,
+    route,
+    sendMessage,
+    serializeActiveGuildThreads,
+    serializeThreadSearchMember,
+} from "@spacebar/api";
 import {
     Channel,
     emitEvent,
@@ -39,7 +49,7 @@ import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageC
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
 import { HTTPError } from "#util/util/lambert-server";
-import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap } from "typeorm";
+import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap, JsonContains } from "typeorm";
 import {
     applyPrivateArchivedThreadsQuery,
     parsePrivateArchivedThreadBefore,
@@ -222,6 +232,65 @@ router.post(
         }
 
         return res.json(thread.toJSON());
+    },
+);
+
+router.get(
+    "/active",
+    route({
+        permission: "VIEW_CHANNEL",
+        responses: {
+            200: {
+                body: "ActiveThreadsResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as Record<string, string>;
+        const permissions = req.permission!;
+        const channel = permissions.cache.channel ?? (await Channel.findOneOrFail({ where: { id: channel_id } }));
+        if (!channel.guild_id) throw new HTTPError("Threads are only available in guild channels", 400);
+
+        if (!permissions.has("READ_MESSAGE_HISTORY")) {
+            return res.json({
+                threads: [],
+                members: [],
+            });
+        }
+
+        const member = permissions.cache.member ?? (await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } }));
+        const threads = await Channel.find({
+            where: {
+                parent_id: channel_id,
+                type: In(ACTIVE_GUILD_THREAD_TYPES),
+                thread_metadata: JsonContains({ archived: false }),
+            },
+        });
+        const threadMembers = threads.length
+            ? await ThreadMember.find({
+                  where: {
+                      member_idx: member.index,
+                      id: In(threads.map((thread) => thread.id)),
+                  },
+              })
+            : [];
+        const parentPermissions = new Map([[channel_id, permissions]]);
+        const visibleThreads = filterAccessibleActiveGuildThreads(
+            threads,
+            channel.guild_id,
+            new Set(threadMembers.map((threadMember) => threadMember.id)),
+            parentPermissions,
+            req.user_id,
+        );
+
+        return res.json(serializeActiveGuildThreads(visibleThreads, threadMembers, req.user_id));
     },
 );
 

@@ -1,7 +1,10 @@
-type ThreadLike = {
+import { ChannelType } from "@spacebar/schemas/api/channels/Channel";
+
+export type ActiveGuildThreadLike = {
     id: string;
     guild_id?: string | null;
     parent_id?: string | null;
+    owner_id?: string | null;
     type: number;
     thread_metadata?: {
         archived?: boolean;
@@ -25,15 +28,21 @@ export type ActiveThreadsResponseBody = {
     members: unknown[];
 };
 
-export const ACTIVE_GUILD_THREAD_TYPES = [10, 11, 12] as const;
-const GUILD_PRIVATE_THREAD_TYPE = 12;
+export const ACTIVE_GUILD_THREAD_TYPES = [ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD] as const;
+const GUILD_PRIVATE_THREAD_TYPE = ChannelType.GUILD_PRIVATE_THREAD;
 const threadTypes = new Set<number>(ACTIVE_GUILD_THREAD_TYPES);
 
-export function isActiveGuildThread(thread: ThreadLike, guildId: string) {
+export function isActiveGuildThread(thread: ActiveGuildThreadLike, guildId: string) {
     return thread.guild_id === guildId && threadTypes.has(thread.type) && thread.thread_metadata?.archived === false;
 }
 
-export function canAccessActiveGuildThread(thread: ThreadLike, guildId: string, joinedThreadIds: Set<string>, parentPermissions: Map<string, PermissionLike>) {
+export function canAccessActiveGuildThread(
+    thread: ActiveGuildThreadLike,
+    guildId: string,
+    joinedThreadIds: ReadonlySet<string>,
+    parentPermissions: Map<string, PermissionLike>,
+    viewerId?: string,
+) {
     if (!isActiveGuildThread(thread, guildId)) return false;
 
     const parentId = thread.parent_id;
@@ -42,12 +51,18 @@ export function canAccessActiveGuildThread(thread: ThreadLike, guildId: string, 
     const parentPermission = parentPermissions.get(parentId);
     if (!parentPermission?.has("VIEW_CHANNEL")) return false;
 
-    if (thread.type === GUILD_PRIVATE_THREAD_TYPE) return joinedThreadIds.has(thread.id) || parentPermission.has("MANAGE_THREADS");
+    if (thread.type === GUILD_PRIVATE_THREAD_TYPE) return joinedThreadIds.has(thread.id) || parentPermission.has("MANAGE_THREADS") || thread.owner_id === viewerId;
     return true;
 }
 
-export function filterAccessibleActiveGuildThreads(threads: ThreadLike[], guildId: string, joinedThreadIds: Set<string>, parentPermissions: Map<string, PermissionLike>) {
-    return threads.filter((thread) => canAccessActiveGuildThread(thread, guildId, joinedThreadIds, parentPermissions));
+export function filterAccessibleActiveGuildThreads(
+    threads: ActiveGuildThreadLike[],
+    guildId: string,
+    joinedThreadIds: ReadonlySet<string>,
+    parentPermissions: Map<string, PermissionLike>,
+    viewerId?: string,
+) {
+    return threads.filter((thread) => canAccessActiveGuildThread(thread, guildId, joinedThreadIds, parentPermissions, viewerId));
 }
 
 export function serializeActiveThreadMember(threadMember: ThreadMemberLike, userId: string) {
@@ -62,7 +77,7 @@ export function serializeActiveThreadMember(threadMember: ThreadMemberLike, user
     };
 }
 
-export function serializeActiveGuildThreads(threads: ThreadLike[], threadMembers: ThreadMemberLike[], userId: string): ActiveThreadsResponseBody {
+export function serializeActiveGuildThreads(threads: ActiveGuildThreadLike[], threadMembers: ThreadMemberLike[], userId: string): ActiveThreadsResponseBody {
     const returnedThreadIds = new Set(threads.map((thread) => thread.id));
 
     return {
