@@ -5462,6 +5462,15 @@
                     "pronouns": {
                         "type": "string"
                     },
+                    "avatar_decoration_data": {
+                        "$ref": "#/components/schemas/AvatarDecorationData"
+                    },
+                    "display_name_styles": {
+                        "$ref": "#/components/schemas/DisplayNameStyle"
+                    },
+                    "collectibles": {
+                        "$ref": "#/components/schemas/Collectibles"
+                    },
                     "flags": {
                         "type": "integer"
                     },
@@ -14331,6 +14340,15 @@
                     "pronouns": {
                         "type": "string"
                     },
+                    "avatar_decoration_data": {
+                        "$ref": "#/components/schemas/AvatarDecorationData"
+                    },
+                    "display_name_styles": {
+                        "$ref": "#/components/schemas/DisplayNameStyle"
+                    },
+                    "collectibles": {
+                        "$ref": "#/components/schemas/Collectibles"
+                    },
                     "flags": {
                         "type": "integer"
                     },
@@ -14688,6 +14706,15 @@
                     },
                     "pronouns": {
                         "type": "string"
+                    },
+                    "avatar_decoration_data": {
+                        "$ref": "#/components/schemas/AvatarDecorationData"
+                    },
+                    "display_name_styles": {
+                        "$ref": "#/components/schemas/DisplayNameStyle"
+                    },
+                    "collectibles": {
+                        "$ref": "#/components/schemas/Collectibles"
                     },
                     "flags": {
                         "type": "integer"

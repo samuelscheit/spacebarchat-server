@@ -58,6 +58,7 @@ import {
     VoiceState,
 } from "@spacebar/util";
 import { check } from "./instanceOf";
+import { toReadyMergedMembers } from "../util/MergedMembers";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
@@ -475,25 +476,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         createUserSettingsTime = taskSw.getElapsedAndReset();
     }
 
-    // Generate merged_members
-    const merged_members = members.map((x) => [
-        {
-            ...x,
-            // filter out @everyone role
-            roles: x.roles.filter((r) => r.id !== x.guild.id).map((x) => x.id),
-
-            // add back user, which we don't fetch from db
-            // TODO: For guild profiles, this may need to be changed.
-            // TODO: The only field required in the user prop is `id`,
-            // but our types are annoying so I didn't bother.
-            user: user.toPublicUser(),
-
-            guild: {
-                id: x.guild.id,
-            },
-            settings: undefined,
-        },
-    ]);
+    const merged_members = toReadyMergedMembers(members, user.toPublicUser());
     const mergedMembersTime = taskSw.getElapsedAndReset();
 
     // Populated with guilds 'unavailable' currently

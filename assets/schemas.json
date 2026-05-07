@@ -5831,6 +5831,15 @@
             "pronouns": {
                 "type": "string"
             },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
             "flags": {
                 "type": "integer"
             },
@@ -15292,6 +15301,15 @@
             "pronouns": {
                 "type": "string"
             },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
             "flags": {
                 "type": "integer"
             },
@@ -15685,6 +15703,15 @@
             },
             "pronouns": {
                 "type": "string"
+            },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
             },
             "flags": {
                 "type": "integer"
