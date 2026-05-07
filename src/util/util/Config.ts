@@ -23,6 +23,7 @@ import { ConfigEntity } from "../entities";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
 import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";
+import { applyEnvConfigOverrides } from "./EnvConfig";
 import { readJsonConfigFile } from "./JsonConfigFile";
 
 // TODO: yaml instead of json
@@ -78,6 +79,7 @@ export class Config {
         if (process.env.REQUEST_SIGNATURE_PATH) config.security.requestSignature = await Config.readSecret("REQUEST_SIGNATURE_PATH");
 
         await this.set(config);
+        await applyEnvConfigOverrides(config as unknown as Record<string, unknown>);
         validateFinalConfig(config);
         return config;
     }
