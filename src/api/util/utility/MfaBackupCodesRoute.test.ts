@@ -4,8 +4,8 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 import bcrypt from "bcrypt";
 import express from "express";
-import { createMfaBackupCodesChallengeNonce, verifyMfaBackupCodesChallengeNonce } from "@spacebar/api";
-import { BackupCode, User } from "@spacebar/util";
+import { getMfaBackupCodesChallengePurpose, issueMfaBackupCodesChallengeNonce, verifyMfaBackupCodesChallengeNonce } from "@spacebar/api";
+import { AuthActionToken, BackupCode, User } from "@spacebar/util";
 import viewBackupCodesChallengeRouter from "../../routes/auth/verify/view-backup-codes-challenge";
 import codesVerificationRouter from "../../routes/users/@me/mfa/codes-verification";
 
@@ -17,6 +17,19 @@ interface BackupCodeStaticsPatch {
     create(options: unknown): BackupCode;
     find(options: unknown): Promise<unknown[]>;
     update(criteria: unknown, partialEntity: unknown): Promise<unknown>;
+}
+
+interface AuthActionTokenRecord {
+    token_hash: string;
+    user_id: string;
+    purpose: string;
+    expires_at: Date;
+    consumed_at: Date | null;
+}
+
+interface AuthActionTokenStaticsPatch {
+    insert(record: AuthActionTokenRecord): Promise<unknown>;
+    update(criteria: unknown, partialEntity: unknown): Promise<{ affected?: number | null }>;
 }
 
 function createApp(user_id = "user-a") {
@@ -82,15 +95,21 @@ async function postJson(app: express.Express, body: object) {
 describe("POST /users/@me/mfa/codes-verification", () => {
     const userStatics = User as unknown as UserStaticsPatch;
     const backupCodeStatics = BackupCode as unknown as BackupCodeStaticsPatch;
+    const authActionTokenStatics = AuthActionToken as unknown as AuthActionTokenStaticsPatch;
     const originalUserFindOneOrFail = userStatics.findOneOrFail;
     const originalBackupCodeCreate = backupCodeStatics.create;
     const originalBackupCodeFind = backupCodeStatics.find;
     const originalBackupCodeUpdate = backupCodeStatics.update;
     const originalBackupCodeSave = BackupCode.prototype.save;
+    const originalAuthActionTokenInsert = authActionTokenStatics.insert;
+    const originalAuthActionTokenUpdate = authActionTokenStatics.update;
 
     let userFindCalls: unknown[];
     let backupFindCalls: unknown[];
     let backupUpdateCalls: unknown[];
+    let authActionTokenInsertCalls: AuthActionTokenRecord[];
+    let authActionTokenUpdateCalls: Array<{ criteria: unknown; partialEntity: unknown }>;
+    let consumedChallengeTokenHashes: Set<string>;
     let savedBackupCodes: BackupCode[];
     let passwordHash: string;
 
@@ -98,6 +117,9 @@ describe("POST /users/@me/mfa/codes-verification", () => {
         userFindCalls = [];
         backupFindCalls = [];
         backupUpdateCalls = [];
+        authActionTokenInsertCalls = [];
+        authActionTokenUpdateCalls = [];
+        consumedChallengeTokenHashes = new Set();
         savedBackupCodes = [];
         passwordHash = await bcrypt.hash("correct-password", 4);
 
@@ -122,6 +144,22 @@ describe("POST /users/@me/mfa/codes-verification", () => {
             backupUpdateCalls.push({ criteria, partialEntity });
             return { affected: 1 };
         };
+        authActionTokenStatics.insert = async (record: AuthActionTokenRecord) => {
+            authActionTokenInsertCalls.push(record);
+            return { identifiers: [{ token_hash: record.token_hash }] };
+        };
+        authActionTokenStatics.update = async (criteria: unknown, partialEntity: unknown) => {
+            authActionTokenUpdateCalls.push({ criteria, partialEntity });
+
+            const { token_hash, user_id, purpose } = criteria as Partial<AuthActionTokenRecord>;
+            const hasUnconsumedRecord = authActionTokenInsertCalls.some(
+                (record) => record.token_hash === token_hash && record.user_id === user_id && record.purpose === purpose && !consumedChallengeTokenHashes.has(record.token_hash),
+            );
+            if (!token_hash || !hasUnconsumedRecord) return { affected: 0 };
+
+            consumedChallengeTokenHashes.add(token_hash);
+            return { affected: 1 };
+        };
         BackupCode.prototype.save = async function () {
             savedBackupCodes.push(this);
             return this;
@@ -134,9 +172,11 @@ describe("POST /users/@me/mfa/codes-verification", () => {
         backupCodeStatics.find = originalBackupCodeFind;
         backupCodeStatics.update = originalBackupCodeUpdate;
         BackupCode.prototype.save = originalBackupCodeSave;
+        authActionTokenStatics.insert = originalAuthActionTokenInsert;
+        authActionTokenStatics.update = originalAuthActionTokenUpdate;
     });
 
-    test("issues action-bound challenge nonces after password verification", async () => {
+    test("issues stored, action-bound challenge nonces after password verification", async () => {
         const { response, json } = await postJson(createChallengeApp(), {
             password: "correct-password",
         });
@@ -150,6 +190,14 @@ describe("POST /users/@me/mfa/codes-verification", () => {
         assert.equal(verifyMfaBackupCodesChallengeNonce("user-a", "view", body.nonce), true);
         assert.equal(verifyMfaBackupCodesChallengeNonce("user-a", "regenerate", body.regenerate_nonce), true);
         assert.equal(verifyMfaBackupCodesChallengeNonce("user-a", "regenerate", body.nonce), false);
+        assert.equal(authActionTokenInsertCalls.length, 2);
+        assert.deepEqual(
+            authActionTokenInsertCalls.map(({ user_id, purpose, consumed_at }) => ({ user_id, purpose, consumed_at })).sort((a, b) => a.purpose.localeCompare(b.purpose)),
+            [
+                { user_id: "user-a", purpose: getMfaBackupCodesChallengePurpose("regenerate"), consumed_at: null },
+                { user_id: "user-a", purpose: getMfaBackupCodesChallengePurpose("view"), consumed_at: null },
+            ],
+        );
     });
 
     test("rejects arbitrary key and nonce before loading or returning backup codes", async () => {
@@ -160,13 +208,14 @@ describe("POST /users/@me/mfa/codes-verification", () => {
 
         assert.equal(response.status, 400);
         assert.deepEqual(userFindCalls, []);
+        assert.deepEqual(authActionTokenUpdateCalls, []);
         assert.deepEqual(backupFindCalls, []);
         assert.deepEqual(backupUpdateCalls, []);
         assert.match(JSON.stringify(json), /INVALID_BACKUP_CODE_NONCE/);
     });
 
     test("rejects a valid nonce for the wrong backup-code action", async () => {
-        const viewNonce = createMfaBackupCodesChallengeNonce("user-a", "view");
+        const viewNonce = await issueMfaBackupCodesChallengeNonce("user-a", "view");
 
         const { response, json } = await postJson(createApp(), {
             key: "correct-password",
@@ -176,13 +225,14 @@ describe("POST /users/@me/mfa/codes-verification", () => {
 
         assert.equal(response.status, 400);
         assert.deepEqual(userFindCalls, []);
+        assert.deepEqual(authActionTokenUpdateCalls, []);
         assert.deepEqual(backupFindCalls, []);
         assert.deepEqual(backupUpdateCalls, []);
         assert.match(JSON.stringify(json), /INVALID_BACKUP_CODE_NONCE/);
     });
 
     test("rejects a valid nonce when the password key is wrong", async () => {
-        const nonce = createMfaBackupCodesChallengeNonce("user-a", "view");
+        const nonce = await issueMfaBackupCodesChallengeNonce("user-a", "view");
 
         const { response, json } = await postJson(createApp(), {
             key: "wrong-password",
@@ -191,13 +241,14 @@ describe("POST /users/@me/mfa/codes-verification", () => {
 
         assert.equal(response.status, 400);
         assert.equal(userFindCalls.length, 1);
+        assert.equal(authActionTokenUpdateCalls.length, 1);
         assert.deepEqual(backupFindCalls, []);
         assert.deepEqual(backupUpdateCalls, []);
         assert.match(JSON.stringify(json), /INVALID_PASSWORD/);
     });
 
     test("returns only the authenticated user's active backup codes after nonce and password verification", async () => {
-        const nonce = createMfaBackupCodesChallengeNonce("user-a", "view");
+        const nonce = await issueMfaBackupCodesChallengeNonce("user-a", "view");
 
         const { response, json } = await postJson(createApp(), {
             key: "correct-password",
@@ -206,6 +257,7 @@ describe("POST /users/@me/mfa/codes-verification", () => {
 
         assert.equal(response.status, 200);
         assert.equal(userFindCalls.length, 1);
+        assert.equal(authActionTokenUpdateCalls.length, 1);
         assert.deepEqual(backupFindCalls, [
             {
                 where: {
@@ -229,8 +281,27 @@ describe("POST /users/@me/mfa/codes-verification", () => {
         });
     });
 
+    test("rejects replayed backup-code challenge nonces", async () => {
+        const nonce = await issueMfaBackupCodesChallengeNonce("user-a", "view");
+
+        const first = await postJson(createApp(), {
+            key: "correct-password",
+            nonce,
+        });
+        const second = await postJson(createApp(), {
+            key: "correct-password",
+            nonce,
+        });
+
+        assert.equal(first.response.status, 200);
+        assert.equal(second.response.status, 400);
+        assert.equal(authActionTokenUpdateCalls.length, 2);
+        assert.equal(backupFindCalls.length, 1);
+        assert.match(JSON.stringify(second.json), /INVALID_BACKUP_CODE_NONCE/);
+    });
+
     test("regenerates backup codes only after regenerate nonce and password verification", async () => {
-        const nonce = createMfaBackupCodesChallengeNonce("user-a", "regenerate");
+        const nonce = await issueMfaBackupCodesChallengeNonce("user-a", "regenerate");
 
         const { response, json } = await postJson(createApp(), {
             key: "correct-password",
@@ -240,6 +311,7 @@ describe("POST /users/@me/mfa/codes-verification", () => {
 
         assert.equal(response.status, 200);
         assert.equal(userFindCalls.length, 1);
+        assert.equal(authActionTokenUpdateCalls.length, 1);
         assert.deepEqual(backupFindCalls, []);
         assert.deepEqual(backupUpdateCalls, [
             {

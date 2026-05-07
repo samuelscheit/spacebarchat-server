@@ -17,11 +17,13 @@
 */
 
 import crypto from "node:crypto";
-import { Config } from "@spacebar/util";
+import { AuthActionToken, Config } from "@spacebar/util";
+import { IsNull, MoreThan } from "typeorm";
 
 export type MfaBackupCodesChallengeAction = "view" | "regenerate";
 
 export const MFA_BACKUP_CODES_CHALLENGE_TTL = 5 * 60 * 1000;
+export const MFA_BACKUP_CODES_CHALLENGE_PURPOSE_PREFIX = "mfa_backup_codes:";
 
 interface MfaBackupCodesChallengePayload {
     v: 1;
@@ -32,15 +34,28 @@ interface MfaBackupCodesChallengePayload {
     nonce: string;
 }
 
+export interface MfaBackupCodesChallengeStateStore {
+    insert(record: { token_hash: string; user_id: string; purpose: string; expires_at: Date; consumed_at: Date | null }): Promise<unknown>;
+    update(criteria: unknown, partialEntity: { consumed_at: Date }): Promise<{ affected?: number | null }>;
+}
+
 export interface MfaBackupCodesChallengeOptions {
     now?: number;
     secret?: string;
     randomBytes?: (size: number) => Buffer;
 }
 
+export interface StoredMfaBackupCodesChallengeOptions extends MfaBackupCodesChallengeOptions {
+    stateStore?: MfaBackupCodesChallengeStateStore;
+}
+
 export interface MfaBackupCodesChallengeVerifyOptions {
     now?: number;
     secret?: string;
+}
+
+export interface ConsumeMfaBackupCodesChallengeOptions extends MfaBackupCodesChallengeVerifyOptions {
+    stateStore?: MfaBackupCodesChallengeStateStore;
 }
 
 const uninitializedConfigChallengeSecret = crypto.randomBytes(32).toString("base64");
@@ -54,6 +69,10 @@ function getChallengeSecret(secret?: string) {
     if (configuredSecret === stableConfiguredSecret) return configuredSecret;
 
     return uninitializedConfigChallengeSecret;
+}
+
+function getStateStore(stateStore?: MfaBackupCodesChallengeStateStore) {
+    return stateStore ?? (AuthActionToken as unknown as MfaBackupCodesChallengeStateStore);
 }
 
 function encodeBase64Url(value: string | Buffer) {
@@ -91,6 +110,39 @@ function isChallengePayload(value: unknown): value is MfaBackupCodesChallengePay
     );
 }
 
+export function getMfaBackupCodesChallengePurpose(action: MfaBackupCodesChallengeAction) {
+    return `${MFA_BACKUP_CODES_CHALLENGE_PURPOSE_PREFIX}${action}`;
+}
+
+export function hashMfaBackupCodesChallengeNonce(nonce: string) {
+    return crypto.createHash("sha256").update(nonce).digest("hex");
+}
+
+function readMfaBackupCodesChallengePayload(user_id: string, action: MfaBackupCodesChallengeAction, nonce: string, options: MfaBackupCodesChallengeVerifyOptions = {}) {
+    const [payloadSegment, signatureSegment, ...extraSegments] = nonce.split(".");
+    if (!payloadSegment || !signatureSegment || extraSegments.length > 0) return undefined;
+
+    const secret = getChallengeSecret(options.secret);
+    if (!hasValidSignature(payloadSegment, signatureSegment, secret)) return undefined;
+
+    let payload: unknown;
+    try {
+        payload = JSON.parse(decodeBase64Url(payloadSegment));
+    } catch {
+        return undefined;
+    }
+
+    if (!isChallengePayload(payload)) return undefined;
+
+    const now = options.now ?? Date.now();
+    if (payload.user_id !== user_id) return undefined;
+    if (payload.action !== action) return undefined;
+    if (payload.exp <= now) return undefined;
+    if (payload.iat > now + 30 * 1000) return undefined;
+
+    return payload;
+}
+
 export function createMfaBackupCodesChallengeNonce(user_id: string, action: MfaBackupCodesChallengeAction, options: MfaBackupCodesChallengeOptions = {}) {
     const now = options.now ?? Date.now();
     const randomBytes = options.randomBytes ?? crypto.randomBytes;
@@ -109,27 +161,45 @@ export function createMfaBackupCodesChallengeNonce(user_id: string, action: MfaB
     return `${payloadSegment}.${signatureSegment}`;
 }
 
+export async function issueMfaBackupCodesChallengeNonce(user_id: string, action: MfaBackupCodesChallengeAction, options: StoredMfaBackupCodesChallengeOptions = {}) {
+    const now = options.now ?? Date.now();
+    const nonce = createMfaBackupCodesChallengeNonce(user_id, action, { ...options, now });
+
+    await getStateStore(options.stateStore).insert({
+        token_hash: hashMfaBackupCodesChallengeNonce(nonce),
+        user_id,
+        purpose: getMfaBackupCodesChallengePurpose(action),
+        expires_at: new Date(now + MFA_BACKUP_CODES_CHALLENGE_TTL),
+        consumed_at: null,
+    });
+
+    return nonce;
+}
+
 export function verifyMfaBackupCodesChallengeNonce(user_id: string, action: MfaBackupCodesChallengeAction, nonce: string, options: MfaBackupCodesChallengeVerifyOptions = {}) {
-    const [payloadSegment, signatureSegment, ...extraSegments] = nonce.split(".");
-    if (!payloadSegment || !signatureSegment || extraSegments.length > 0) return false;
+    return !!readMfaBackupCodesChallengePayload(user_id, action, nonce, options);
+}
 
-    const secret = getChallengeSecret(options.secret);
-    if (!hasValidSignature(payloadSegment, signatureSegment, secret)) return false;
-
-    let payload: unknown;
-    try {
-        payload = JSON.parse(decodeBase64Url(payloadSegment));
-    } catch {
-        return false;
-    }
-
-    if (!isChallengePayload(payload)) return false;
+export async function consumeMfaBackupCodesChallengeNonce(
+    user_id: string,
+    action: MfaBackupCodesChallengeAction,
+    nonce: string,
+    options: ConsumeMfaBackupCodesChallengeOptions = {},
+) {
+    const payload = readMfaBackupCodesChallengePayload(user_id, action, nonce, options);
+    if (!payload) return false;
 
     const now = options.now ?? Date.now();
-    if (payload.user_id !== user_id) return false;
-    if (payload.action !== action) return false;
-    if (payload.exp < now) return false;
-    if (payload.iat > now + 30 * 1000) return false;
+    const result = await getStateStore(options.stateStore).update(
+        {
+            token_hash: hashMfaBackupCodesChallengeNonce(nonce),
+            user_id,
+            purpose: getMfaBackupCodesChallengePurpose(action),
+            consumed_at: IsNull(),
+            expires_at: MoreThan(new Date(now)),
+        },
+        { consumed_at: new Date(now) },
+    );
 
-    return true;
+    return result.affected === 1;
 }

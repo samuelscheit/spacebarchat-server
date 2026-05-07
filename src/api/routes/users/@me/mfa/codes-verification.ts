@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyMfaBackupCodesChallengeNonce } from "@spacebar/api";
+import { consumeMfaBackupCodesChallengeNonce, route } from "@spacebar/api";
 import { BackupCode, FieldErrors, User, generateMfaBackupCodes } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
@@ -44,10 +44,10 @@ router.post(
         const { key, nonce, regenerate } = req.body as CodesVerificationSchema;
         const action = regenerate ? "regenerate" : "view";
 
-        if (!verifyMfaBackupCodesChallengeNonce(req.user_id, action, nonce)) {
+        if (!(await consumeMfaBackupCodesChallengeNonce(req.user_id, action, nonce))) {
             throw FieldErrors({
                 nonce: {
-                    message: "Invalid or expired backup-code verification nonce",
+                    message: "Invalid, expired, or already used backup-code verification nonce",
                     code: "INVALID_BACKUP_CODE_NONCE",
                 },
             });
