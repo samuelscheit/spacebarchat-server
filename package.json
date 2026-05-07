@@ -19,6 +19,8 @@
         "build:admin-dashboard": "npm run build --workspace apps/admin-dashboard",
         "start:admin-dashboard": "npm run start --workspace apps/admin-dashboard",
         "smoke:admin-dashboard": "node scripts/smoke-admin-dashboard.mjs",
+        "smoke:admin-dashboard:e2e": "node scripts/smoke-admin-dashboard-e2e.mjs",
+        "test:admin-dashboard-actions": "node --test apps/admin-dashboard/app/lib/action-requests.test.mjs",
         "build": "npm run build:src && npm run generate:schema && npm run generate:openapi",
         "build:all": "npm run build && npm run build --workspaces --if-present",
         "build:src": "tsc -b -v",

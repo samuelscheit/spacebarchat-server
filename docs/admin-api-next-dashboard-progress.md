@@ -297,3 +297,52 @@ Risks or blockers:
 Next step:
 
 - Continue Feature Track 6 with dashboard server-action tests, browser/Playwright smoke checks, the safe dry-run media e2e path, and a PR checklist.
+
+## 2026-05-07 22:38 CEST - Verification and Release Gates
+
+Status: complete
+
+Changed files:
+
+- `.github/pull_request_template.md`
+- `apps/admin-dashboard/app/actions.ts`
+- `apps/admin-dashboard/app/components.tsx`
+- `apps/admin-dashboard/app/lib/action-requests.mjs`
+- `apps/admin-dashboard/app/lib/action-requests.test.mjs`
+- `docs/admin-api-next-dashboard-progress.md`
+- `docs/admin-dashboard-deployment.md`
+- `package.json`
+- `scripts/smoke-admin-dashboard-e2e.mjs`
+
+What changed:
+
+- Started Feature Track 6: dashboard server-action coverage, browser/e2e smoke checks, visual artifacts, and PR checklist.
+- Inspected existing dashboard scripts and confirmed there is no Playwright dependency or dashboard test harness yet.
+- Added pure dashboard server-action request builders and Node tests covering dangerous mutation payloads, idempotency headers, safe CDN dry-run migration payloads, and mutation failure propagation.
+- Added a dependency-free headless Chrome e2e smoke script that starts a mock admin API, starts the built dashboard, drives login, users, jobs, media, submits a safe dry-run attachment migration, verifies server-action authorization forwarding, and writes screenshots under `tmp/admin-dashboard-e2e`.
+- Fixed a root-cause session bug found by the e2e smoke: the sidebar logout link now disables Next prefetch so rendering dashboard pages cannot prefetch `/logout` and clear the session.
+- Added an admin dashboard PR checklist covering builds, focused tests, durable storage tests, smoke/e2e checks, destructive-action safety, auth boundaries, DTOs, and visual artifacts.
+- Documented the dashboard action test and browser e2e smoke commands.
+
+Verification:
+
+- Command: `npm run test:admin-dashboard-actions`
+- Result: pass
+- Notes: 3 dashboard action request tests passed.
+- Command: `npm run build:admin-dashboard`
+- Result: pass
+- Notes: Next.js production build passed after action request extraction and logout prefetch fix.
+- Command: `npm run smoke:admin-dashboard:e2e`
+- Result: pass
+- Notes: Mock-admin-API/headless-Chrome e2e passed and produced screenshots: `tmp/admin-dashboard-e2e/01-login.png`, `02-overview.png`, `03-users.png`, `04-jobs-before.png`, `05-media.png`, `06-jobs-after.png`.
+- Command: `npm run lint`
+- Result: pass
+- Notes: ESLint completed with 2 pre-existing deprecation warnings in `src/util/util/Token.ts`.
+
+Risks or blockers:
+
+- The e2e smoke depends on a local Chrome binary. Override with `CHROME_PATH` when Chrome is installed somewhere else.
+
+Next step:
+
+- Run the completion audit against `docs/admin-api-next-dashboard-plan.md` before deciding whether any Feature Track 4 operation polish remains.

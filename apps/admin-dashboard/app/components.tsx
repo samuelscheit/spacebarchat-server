@@ -54,7 +54,7 @@ export function AppShell({ children, operator }: { children: ReactNode; operator
                 </nav>
                 <div className="sidebar-footer">
                     {operator ? <span className="operator-name">{operator}</span> : null}
-                    <Link href="/logout" className="nav-item logout-link">
+                    <Link href="/logout" className="nav-item logout-link" prefetch={false}>
                         <LogOut size={17} />
                         <span>Logout</span>
                     </Link>

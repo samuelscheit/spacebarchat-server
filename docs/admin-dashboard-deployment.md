@@ -112,6 +112,20 @@ npm run smoke:admin-dashboard
 
 Without `SPACEBAR_ADMIN_TOKEN`, the smoke command only verifies the dashboard process and health endpoint.
 
+Run the browser e2e smoke after `npm run build:admin-dashboard`:
+
+```sh
+npm run smoke:admin-dashboard:e2e
+```
+
+The e2e smoke starts a mock admin API, starts the built dashboard, drives headless Chrome through login, users, jobs, and media, submits a safe dry-run attachment migration, and writes screenshots to `tmp/admin-dashboard-e2e` by default. Set `CHROME_PATH` if Chrome is not installed at the macOS default path, or `ADMIN_DASHBOARD_E2E_ARTIFACT_DIR` to change the screenshot output directory.
+
+Run dashboard server-action request tests when mutation forms change:
+
+```sh
+npm run test:admin-dashboard-actions
+```
+
 ## Durable Admin Storage
 
 Admin jobs are stored in the Spacebar database table `admin_jobs`. Admin audit/activity records are stored in `admin_audit_records`. The schema is installed by the normal Postgres migration flow when the API process starts with migrations enabled.
