@@ -45,9 +45,19 @@ router.post(
             select: { id: true, totp_secret: true },
         });
 
-        const backup = await BackupCode.findOne({ where: { code: body.code } });
+        const backup = await BackupCode.findOne({
+            where: {
+                code: body.code,
+                expired: false,
+                consumed: false,
+                user: { id: req.user_id },
+            },
+        });
         if (!backup) {
             if (!isValidTotpCode(user.totp_secret, body.code)) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        } else {
+            backup.consumed = true;
+            await backup.save();
         }
 
         await User.update(

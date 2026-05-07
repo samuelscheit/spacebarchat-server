@@ -3283,7 +3283,7 @@
                 "requestBody": "VerifyEmailSchema",
                 "responses": [
                     "APIErrorOrCaptchaResponse",
-                    "TokenResponse"
+                    "TokenOnlyResponse"
                 ],
                 "responseStatuses": [
                     200,

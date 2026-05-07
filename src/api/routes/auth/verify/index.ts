@@ -38,7 +38,7 @@ router.post(
         requestBody: "VerifyEmailSchema",
         responses: {
             200: {
-                body: "TokenResponse",
+                body: "TokenOnlyResponse",
             },
             400: {
                 body: "APIErrorOrCaptchaResponse",

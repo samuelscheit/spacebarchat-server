@@ -1782,7 +1782,7 @@
                 "requestBody": "VerifyEmailSchema",
                 "responseBodies": [
                     "APIErrorOrCaptchaResponse",
-                    "TokenResponse"
+                    "TokenOnlyResponse"
                 ],
                 "responseStatuses": [
                     200,

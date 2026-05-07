@@ -33,7 +33,7 @@ router.get(
     async (req: Request, res: Response) => {
         //TODO
         //Note: It's most likely related to legal. At the moment Discord hasn't finished this too
-        const country_code = (await IpDataClient.getIpInfo(req.ip!))?.country_code;
+        const country_code = (await IpDataClient.getIpInfo(req.ip!))?.country_code ?? "unknown";
         res.json({
             consent_required: false,
             country_code: country_code,

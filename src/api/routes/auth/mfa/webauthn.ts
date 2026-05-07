@@ -62,8 +62,6 @@ router.post(
         const ret = await verifyWebAuthnToken(ticket);
         if (!ret) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
 
-        await User.update({ id: user.id }, { totp_last_ticket: "" });
-
         const clientAttestationResponse = JSON.parse(code);
 
         if (!clientAttestationResponse.rawId) throw new HTTPError("Missing rawId", 400);
@@ -91,6 +89,7 @@ router.post(
         securityKey.counter = counter;
 
         await securityKey.save();
+        await User.update({ id: user.id }, { totp_last_ticket: "" });
 
         return res.json({
             token: await generateToken(user.id),
