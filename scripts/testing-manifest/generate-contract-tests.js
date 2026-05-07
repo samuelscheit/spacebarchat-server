@@ -7,6 +7,7 @@ const { DEFAULT_MANIFEST_PATH } = require("./lib");
 
 const DEFAULT_CONTRACT_MATRIX_PATH = path.join("test", "generated", "http-contracts.json");
 const DEFAULT_CONTRACT_TEST_PATH = path.join("test", "generated", "http-contracts.test.js");
+const DEFAULT_RUNTIME_CONTRACT_TEST_PATH = path.join("test", "generated", "http-auth-runtime-contracts.test.ts");
 
 function optionValue(args, name, fallback) {
     const index = args.indexOf(name);
@@ -144,6 +145,7 @@ function contractForEntry(entry) {
 
 function buildContractMatrix(manifest) {
     const contracts = manifest.entries.filter((entry) => entry.type === "http-route").map(contractForEntry);
+    const runtimeAuthBoundaryContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS").length;
 
     return {
         schemaVersion: 1,
@@ -155,6 +157,7 @@ function buildContractMatrix(manifest) {
                 acc[contract.service] = (acc[contract.service] || 0) + 1;
                 return acc;
             }, {}),
+            runtimeAuthBoundaryContracts,
         },
         contracts,
     };
@@ -226,16 +229,70 @@ describe("generated HTTP contract matrix", () => {
 `;
 }
 
+function generatedRuntimeTestSource() {
+    return `import assert from "node:assert/strict";
+import { test } from "node:test";
+import { startApi } from "../server/startApi";
+
+type GeneratedHttpContract = {
+    manifestId: string;
+    service: string;
+    method: string;
+    samplePath: string;
+    authMode: string;
+};
+
+type GeneratedHttpContractMatrix = {
+    summary: {
+        runtimeAuthBoundaryContracts: number;
+    };
+    contracts: GeneratedHttpContract[];
+};
+
+// This path is resolved from the compiled dist-test/test/generated directory.
+const matrix = require("../../../test/generated/http-contracts.json") as GeneratedHttpContractMatrix;
+
+const protectedApiContracts = matrix.contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS");
+
+test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
+    assert.equal(protectedApiContracts.length, matrix.summary.runtimeAuthBoundaryContracts);
+    assert.ok(protectedApiContracts.length > 0, "expected protected API routes to be covered");
+
+    const api = await startApi();
+    try {
+        for (const contract of protectedApiContracts) {
+            const response = await fetch(\`\${api.apiBaseUrl}\${contract.samplePath}\`, {
+                method: contract.method,
+                headers: { accept: "application/json" },
+            });
+
+            assert.equal(response.status, 401, \`\${contract.manifestId} should reject missing Authorization\`);
+            assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON error\`);
+
+            const body = (await response.json()) as Record<string, unknown>;
+            assert.equal(body.code, 401, \`\${contract.manifestId} should return the auth error code\`);
+            assert.equal(body.message, "Error: Missing Authorization Header", \`\${contract.manifestId} should return the auth error message\`);
+            assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
+        }
+    } finally {
+        await api.stop();
+    }
+});
+`;
+}
+
 function main() {
     const args = process.argv.slice(2);
     const repoRoot = path.resolve(optionValue(args, "--repo-root", path.join(__dirname, "..", "..")));
     const manifestPath = path.resolve(repoRoot, optionValue(args, "--manifest", DEFAULT_MANIFEST_PATH));
     const matrixPath = path.resolve(repoRoot, optionValue(args, "--output", DEFAULT_CONTRACT_MATRIX_PATH));
     const testPath = path.resolve(repoRoot, optionValue(args, "--test-output", DEFAULT_CONTRACT_TEST_PATH));
+    const runtimeTestPath = path.resolve(repoRoot, optionValue(args, "--runtime-test-output", DEFAULT_RUNTIME_CONTRACT_TEST_PATH));
     const check = args.includes("--check");
     const matrix = buildContractMatrix(readJson(manifestPath));
     const expectedMatrix = serialize(matrix);
     const expectedTest = generatedTestSource();
+    const expectedRuntimeTest = generatedRuntimeTestSource();
 
     if (check) {
         const errors = [];
@@ -243,6 +300,8 @@ function main() {
             errors.push(`${path.relative(repoRoot, matrixPath)} is stale. Run npm run generate:contract-tests.`);
         if (!fs.existsSync(testPath) || fs.readFileSync(testPath, "utf8") !== expectedTest)
             errors.push(`${path.relative(repoRoot, testPath)} is stale. Run npm run generate:contract-tests.`);
+        if (!fs.existsSync(runtimeTestPath) || fs.readFileSync(runtimeTestPath, "utf8") !== expectedRuntimeTest)
+            errors.push(`${path.relative(repoRoot, runtimeTestPath)} is stale. Run npm run generate:contract-tests.`);
 
         if (errors.length) {
             console.error(errors.map((error) => `- ${error}`).join("\n"));
@@ -257,8 +316,9 @@ function main() {
     fs.mkdirSync(path.dirname(matrixPath), { recursive: true });
     fs.writeFileSync(matrixPath, expectedMatrix);
     fs.writeFileSync(testPath, expectedTest);
+    fs.writeFileSync(runtimeTestPath, expectedRuntimeTest);
     process.stdout.write(
-        `Wrote generated HTTP contract tests to ${path.relative(repoRoot, matrixPath)} and ${path.relative(repoRoot, testPath)} (${matrix.summary.totalContracts} contracts)\n`,
+        `Wrote generated HTTP contract tests to ${path.relative(repoRoot, matrixPath)}, ${path.relative(repoRoot, testPath)}, and ${path.relative(repoRoot, runtimeTestPath)} (${matrix.summary.totalContracts} contracts)\n`,
     );
 }
 

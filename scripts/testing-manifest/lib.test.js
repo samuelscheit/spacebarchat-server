@@ -3,7 +3,7 @@
 const { describe, test } = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
-const { combineRoutePaths, parseRouteOptions, routePathFromFile, scanRouterCalls } = require("./lib");
+const { combineRoutePaths, parseRegexLiteral, parseRouteOptions, routePathFromFile, scanRouterCalls, splitTopLevelArguments, stripComments } = require("./lib");
 
 describe("testing manifest route helpers", () => {
     test("derives mounted paths with Spacebar route filename conventions", () => {
@@ -48,5 +48,30 @@ describe("testing manifest route helpers", () => {
 
         assert.deepEqual(options.permission, ["VIEW_CHANNEL", "SEND_MESSAGES"]);
         assert.deepEqual(options.event, ["EVENT.MESSAGE_CREATE", "EVENT.MESSAGE_UPDATE"]);
+    });
+
+    test("strips comments without dropping the following array entry", () => {
+        const source = `
+            // public auth routes
+            "POST /auth/login",
+            "POST /auth/register",
+            // token-auth routes
+            /^(GET|POST) \\/webhooks\\/\\d+\\/\\w+\\/?/,
+            "GET /-/readyz",
+        `;
+
+        assert.deepEqual(splitTopLevelArguments(stripComments(source)), [
+            '"POST /auth/login"',
+            '"POST /auth/register"',
+            "/^(GET|POST) \\/webhooks\\/\\d+\\/\\w+\\/?/",
+            '"GET /-/readyz"',
+        ]);
+    });
+
+    test("parses regex literals with slash characters inside character classes", () => {
+        const regex = parseRegexLiteral(String.raw`/^(GET|HEAD) \/imageproxy\/[A-Za-z0-9+/]\/\d+x\d+\/.+/,`);
+
+        assert.ok(regex);
+        assert.equal(regex.test("GET /imageproxy/+/32x32/https://example.invalid/a.png"), true);
     });
 });

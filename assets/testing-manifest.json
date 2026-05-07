@@ -198,7 +198,7 @@
             "path": "/-/readyz/",
             "sourceFile": "src/api/routes/-/readyz.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -1468,7 +1468,7 @@
             "path": "/auth/login/",
             "sourceFile": "src/api/routes/auth/login.ts",
             "line": 29,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "LoginSchema",
@@ -4629,7 +4629,7 @@
             "path": "/connections/:connection_name/callback/",
             "sourceFile": "src/api/routes/connections/#connection_name/callback.ts",
             "line": 26,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConnectionCallbackSchema",
@@ -7986,7 +7986,7 @@
             "path": "/guilds/:guild_id/widget.json/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.json.ts",
             "line": 37,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8028,7 +8028,7 @@
             "path": "/guilds/:guild_id/widget.png/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.png.ts",
             "line": 35,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8848,7 +8848,7 @@
             "path": "/ping/",
             "sourceFile": "src/api/routes/ping.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8882,7 +8882,7 @@
             "path": "/policies/instance/",
             "sourceFile": "src/api/routes/policies/instance/index.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8916,7 +8916,7 @@
             "path": "/policies/instance/config/",
             "sourceFile": "src/api/routes/policies/instance/config.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8950,7 +8950,7 @@
             "path": "/policies/instance/domains/",
             "sourceFile": "src/api/routes/policies/instance/domains.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8984,7 +8984,7 @@
             "path": "/policies/instance/limits/",
             "sourceFile": "src/api/routes/policies/instance/limits.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9258,7 +9258,7 @@
             "path": "/science/",
             "sourceFile": "src/api/routes/science.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -12207,7 +12207,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 96,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -12248,7 +12248,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 10,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -12288,7 +12288,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 140,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookUpdateSchema",
@@ -12332,7 +12332,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 58,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookExecuteSchema",
@@ -12374,7 +12374,7 @@
             "path": "/webhooks/:webhook_id/:token/github/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/github.ts",
             "line": 393,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookExecuteSchema",

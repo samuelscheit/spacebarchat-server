@@ -7,7 +7,8 @@
         "byService": {
             "api": 321,
             "cdn": 73
-        }
+        },
+        "runtimeAuthBoundaryContracts": 275
     },
     "contracts": [
         {
@@ -237,7 +238,7 @@
             "samplePath": "/-/readyz/",
             "sourceFile": "src/api/routes/-/readyz.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
             "fixtureRequirements": [
@@ -255,8 +256,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -271,12 +271,6 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
-                    ]
-                },
-                {
-                    "id": "policy-public-auth-boundary",
-                    "checks": [
-                        "public-auth-boundary"
                     ]
                 }
             ]
@@ -2704,7 +2698,7 @@
             "samplePath": "/auth/login/",
             "sourceFile": "src/api/routes/auth/login.ts",
             "line": 29,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "auth-scenario",
             "benchmarkClass": "hot-path",
             "fixtureRequirements": [
@@ -2733,8 +2727,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -2758,12 +2751,6 @@
                         "error-shape"
                     ],
                     "requestBody": "LoginSchema"
-                },
-                {
-                    "id": "policy-public-auth-boundary",
-                    "checks": [
-                        "public-auth-boundary"
-                    ]
                 },
                 {
                     "id": "policy-session-state",
@@ -8987,7 +8974,7 @@
             "samplePath": "/connections/github/callback/",
             "sourceFile": "src/api/routes/connections/#connection_name/callback.ts",
             "line": 26,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "integration",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -9008,8 +8995,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -15682,7 +15668,7 @@
             "samplePath": "/guilds/100000000000000001/widget.json/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.json.ts",
             "line": 37,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -15713,8 +15699,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -15729,6 +15714,12 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "policy-authenticated",
+                    "checks": [
+                        "authenticated"
                     ]
                 },
                 {
@@ -15765,7 +15756,7 @@
             "samplePath": "/guilds/100000000000000001/widget.png/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.png.ts",
             "line": 35,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -15796,8 +15787,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -15812,6 +15802,12 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "policy-authenticated",
+                    "checks": [
+                        "authenticated"
                     ]
                 },
                 {
@@ -17390,7 +17386,7 @@
             "samplePath": "/ping/",
             "sourceFile": "src/api/routes/ping.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -17413,8 +17409,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -17453,7 +17448,7 @@
             "samplePath": "/policies/instance/",
             "sourceFile": "src/api/routes/policies/instance/index.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -17476,8 +17471,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -17516,7 +17510,7 @@
             "samplePath": "/policies/instance/config/",
             "sourceFile": "src/api/routes/policies/instance/config.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -17539,8 +17533,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -17579,7 +17572,7 @@
             "samplePath": "/policies/instance/domains/",
             "sourceFile": "src/api/routes/policies/instance/domains.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -17602,8 +17595,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -17642,7 +17634,7 @@
             "samplePath": "/policies/instance/limits/",
             "sourceFile": "src/api/routes/policies/instance/limits.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -17665,8 +17657,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -18146,7 +18137,7 @@
             "samplePath": "/science/",
             "sourceFile": "src/api/routes/science.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -18167,8 +18158,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -23849,7 +23839,7 @@
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 96,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
             "fixtureRequirements": [
@@ -23879,8 +23869,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -23931,7 +23920,7 @@
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 10,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
             "fixtureRequirements": [
@@ -23960,8 +23949,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -24012,7 +24000,7 @@
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 140,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
             "fixtureRequirements": [
@@ -24045,8 +24033,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -24099,7 +24086,7 @@
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 58,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
             "fixtureRequirements": [
@@ -24130,8 +24117,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },
@@ -24184,7 +24170,7 @@
             "samplePath": "/webhooks/100000000000000006/test_token/github/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/github.ts",
             "line": 393,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
             "fixtureRequirements": [
@@ -24215,8 +24201,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },

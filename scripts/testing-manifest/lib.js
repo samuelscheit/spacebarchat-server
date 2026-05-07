@@ -348,13 +348,18 @@ function parseRegexLiteral(raw) {
     if (!text.startsWith("/")) return undefined;
 
     let escaped = false;
+    let inCharacterClass = false;
     for (let i = 1; i < text.length; i += 1) {
         const char = text[i];
         if (escaped) {
             escaped = false;
         } else if (char === "\\") {
             escaped = true;
-        } else if (char === "/") {
+        } else if (char === "[") {
+            inCharacterClass = true;
+        } else if (char === "]") {
+            inCharacterClass = false;
+        } else if (char === "/" && !inCharacterClass) {
             return new RegExp(text.slice(1, i), text.slice(i + 1).replace(/[,\s].*$/, ""));
         }
     }
@@ -380,6 +385,7 @@ function stripComments(source) {
                     i += 1;
                 }
                 if (i < source.length) result += "\n";
+                state.mode = "code";
                 continue;
             }
 
@@ -392,6 +398,7 @@ function stripComments(source) {
                 }
                 if (i < source.length) result += "  ";
                 i += 1;
+                state.mode = "code";
                 continue;
             }
         }
@@ -428,7 +435,7 @@ function extractNoAuthorizationRules(repoRoot) {
 function samplePathForAuth(pathValue) {
     return pathValue.replace(/:([A-Za-z_][\w]*)/g, (_match, name) => {
         if (name.includes("id")) return "123456789012345678";
-        if (name.includes("token")) return "token_value-123";
+        if (name.includes("token")) return "tokenvalue123";
         if (name.includes("connection_name")) return "github";
         if (name.includes("filename")) return "file.png";
         if (name.includes("url")) return "https://example.invalid/image.png";
@@ -801,6 +808,8 @@ module.exports = {
     scanAppCalls,
     scanRouterCalls,
     serializeManifest,
+    parseRegexLiteral,
+    stripComments,
     splitTopLevelArguments,
     validateManifest,
 };
