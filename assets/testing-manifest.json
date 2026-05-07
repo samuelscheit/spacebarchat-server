@@ -2616,11 +2616,11 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/crosspost/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/crosspost.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "permission": "MANAGE_MESSAGES",
+                "permission": "VIEW_CHANNEL",
                 "responseBodies": [
                     "APIPublicMessage"
                 ],
