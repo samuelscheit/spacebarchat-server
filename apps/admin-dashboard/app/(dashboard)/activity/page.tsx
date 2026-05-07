@@ -22,7 +22,8 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
                             <th>Actor</th>
                             <th>Operation</th>
                             <th>Status</th>
-                            <th className="hide-sm">Errors</th>
+                            <th className="hide-sm">Reason</th>
+                            <th className="hide-sm">Severity</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,6 +40,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
                                 <td>
                                     <StatusPill value={record.status} />
                                 </td>
+                                <td className="hide-sm">{record.reason ?? "—"}</td>
                                 <td className="hide-sm">{record.severity}</td>
                             </tr>
                         ))}

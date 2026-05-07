@@ -34,13 +34,13 @@ function createContext(): AdminJobContext<CdnAttachmentJobResult> & { errors: st
     return {
         errors,
         job,
-        setProgress(progress) {
+        async setProgress(progress) {
             job.progress = { ...job.progress, ...progress };
         },
-        addError(error) {
+        async addError(error) {
             errors.push(error instanceof Error ? error.message : String(error));
         },
-        throwIfCancellationRequested() {
+        async throwIfCancellationRequested() {
             if (job.cancelRequested) throw new Error("cancelled");
         },
     };

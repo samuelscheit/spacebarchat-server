@@ -127,6 +127,7 @@ export interface AdminAuditRecord {
     status: "accepted" | "succeeded" | "failed" | "cancel_requested";
     severity: "info" | "warning" | "danger";
     metadata: Record<string, unknown>;
+    reason: string | null;
     jobId: string | null;
     createdAt: string;
 }

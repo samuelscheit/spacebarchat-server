@@ -2,7 +2,7 @@ import { Message, MessageDeleteBulkEvent, Session, User, emitEvent } from "@spac
 import { HTTPError } from "lambert-server";
 import { IsNull } from "typeorm";
 import { AdminEventEmitter } from "./mutations";
-import { AdminJobContext, AdminJobSnapshot, createAdminJob } from "./jobs";
+import { AdminJobContext, AdminJobSnapshot, createAdminJob, registerAdminJobRunner } from "./jobs";
 
 export interface UserDeletionJobInput {
     userId: string;
@@ -126,23 +126,23 @@ async function deleteUserMessages(input: UserDeletionJobInput, context: AdminJob
     const totalMessages = channels.reduce((total, channel) => total + Number(channel.messageCount), 0);
     let deleted = 0;
 
-    context.setProgress({
+    await context.setProgress({
         current: 0,
         total: totalMessages,
         label: "Deleting user messages",
     });
 
     for (const channel of channels) {
-        context.throwIfCancellationRequested();
+        await context.throwIfCancellationRequested();
 
         while (true) {
-            context.throwIfCancellationRequested();
+            await context.throwIfCancellationRequested();
             const ids = await getMessageIdsForChannel(input.userId, channel.channelId, channel.guildId, input.messageDeleteChunkSize);
             if (ids.length === 0) break;
 
             await Message.delete(ids);
             deleted += ids.length;
-            context.setProgress({ current: deleted });
+            await context.setProgress({ current: deleted });
             await emitter({
                 event: "MESSAGE_DELETE_BULK",
                 channel_id: channel.channelId,
@@ -159,7 +159,7 @@ async function deleteUserMessages(input: UserDeletionJobInput, context: AdminJob
     if (orphanedMessages > 0) {
         await Message.delete({ author_id: input.userId, channel_id: IsNull() });
         deleted += orphanedMessages;
-        context.setProgress({ current: deleted, total: totalMessages + orphanedMessages });
+        await context.setProgress({ current: deleted, total: totalMessages + orphanedMessages });
     }
 
     return {
@@ -173,11 +173,11 @@ export async function runUserDeletionJob(
     context: AdminJobContext<UserDeletionJobResult>,
     emitter: AdminEventEmitter = emitEvent,
 ): Promise<UserDeletionJobResult> {
-    context.setProgress({ current: 0, total: null, label: "Disabling user" });
+    await context.setProgress({ current: 0, total: null, label: "Disabling user" });
     await markUserDeleted(input.userId);
 
-    context.throwIfCancellationRequested();
-    context.setProgress({ current: 0, total: null, label: "Invalidating sessions" });
+    await context.throwIfCancellationRequested();
+    await context.setProgress({ current: 0, total: null, label: "Invalidating sessions" });
     const sessionsInvalidated = await invalidateUserSessions(input.userId, emitter);
 
     let messagesDeleted = 0;
@@ -188,7 +188,7 @@ export async function runUserDeletionJob(
         channelsProcessed = result.channelsProcessed;
     }
 
-    context.setProgress({ current: messagesDeleted, total: messagesDeleted, label: "Complete" });
+    await context.setProgress({ current: messagesDeleted, total: messagesDeleted, label: "Complete" });
 
     return {
         userId: input.userId,
@@ -200,11 +200,26 @@ export async function runUserDeletionJob(
     };
 }
 
+function persistedUserDeletionInput(input: unknown): UserDeletionJobInput {
+    const record = typeof input === "object" && input !== null && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+    if (typeof record.userId !== "string" || !record.userId) throw new Error("Invalid persisted user deletion job input");
+
+    return {
+        userId: record.userId,
+        deleteMessages: typeof record.deleteMessages === "boolean" ? record.deleteMessages : true,
+        messageDeleteChunkSize:
+            typeof record.messageDeleteChunkSize === "number" && Number.isFinite(record.messageDeleteChunkSize) ? record.messageDeleteChunkSize : DEFAULT_MESSAGE_DELETE_CHUNK_SIZE,
+        reason: typeof record.reason === "string" ? record.reason : "",
+    };
+}
+
+registerAdminJobRunner<UserDeletionJobInput, UserDeletionJobResult>("user.delete", (input) => (context) => runUserDeletionJob(persistedUserDeletionInput(input), context));
+
 export function startUserDeletionJob(options: {
     input: UserDeletionJobInput;
     createdBy: string;
     idempotencyKey?: string | null;
-}): AdminJobSnapshot<UserDeletionJobInput, UserDeletionJobResult> {
+}): Promise<AdminJobSnapshot<UserDeletionJobInput, UserDeletionJobResult>> {
     return createAdminJob({
         type: "user.delete",
         input: options.input,

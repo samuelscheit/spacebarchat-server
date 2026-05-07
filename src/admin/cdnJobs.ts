@@ -1,7 +1,7 @@
 import { storage as defaultStorage, type Storage } from "@spacebar/cdn";
 import { Attachment } from "@spacebar/util";
 import { IsNull, Not } from "typeorm";
-import { AdminJobContext, AdminJobSnapshot, createAdminJob } from "./jobs";
+import { AdminJobContext, AdminJobSnapshot, createAdminJob, registerAdminJobRunner } from "./jobs";
 
 export interface CdnAttachmentJobInput {
     dryRun: boolean;
@@ -111,10 +111,10 @@ function defaultDependencies(): CdnAttachmentJobDependencies {
     };
 }
 
-function recordMissingPath(result: CdnAttachmentJobResult, path: string, context: AdminJobContext<CdnAttachmentJobResult>, input: CdnAttachmentJobInput) {
+async function recordMissingPath(result: CdnAttachmentJobResult, path: string, context: AdminJobContext<CdnAttachmentJobResult>, input: CdnAttachmentJobInput) {
     result.missing += 1;
     if (result.missingPaths.length < input.missingLimit) result.missingPaths.push(path);
-    if (result.missing <= input.missingLimit) context.addError(`Missing CDN attachment file: ${path}`);
+    if (result.missing <= input.missingLimit) await context.addError(`Missing CDN attachment file: ${path}`);
 }
 
 function emptyResult(): CdnAttachmentJobResult {
@@ -137,20 +137,20 @@ export async function runCdnAttachmentFsckJob(
 ): Promise<CdnAttachmentJobResult> {
     const total = await dependencies.countRows();
     const result = emptyResult();
-    context.setProgress({ current: 0, total, label: "Checking CDN attachments" });
+    await context.setProgress({ current: 0, total, label: "Checking CDN attachments" });
 
     for await (const row of await dependencies.streamRows()) {
-        context.throwIfCancellationRequested();
+        await context.throwIfCancellationRequested();
         result.checked += 1;
         const path = currentAttachmentPath(row);
 
         if (await dependencies.storage.exists(path)) result.present += 1;
-        else recordMissingPath(result, path, context, input);
+        else await recordMissingPath(result, path, context, input);
 
-        context.setProgress({ current: result.checked });
+        await context.setProgress({ current: result.checked });
     }
 
-    context.setProgress({ current: result.checked, total, label: "Complete" });
+    await context.setProgress({ current: result.checked, total, label: "Complete" });
     return result;
 }
 
@@ -163,48 +163,68 @@ export async function runCdnAttachmentMigrationJob(
 
     if (!input.force && (await dependencies.storage.exists(ATTACHMENT_MIGRATION_MARKER))) {
         result.skipped = true;
-        context.setProgress({ current: 0, total: 0, label: "Migration marker already exists" });
+        await context.setProgress({ current: 0, total: 0, label: "Migration marker already exists" });
         return result;
     }
 
     const total = await dependencies.countRows();
-    context.setProgress({ current: 0, total, label: input.dryRun ? "Planning CDN attachment migration" : "Migrating CDN attachments" });
+    await context.setProgress({ current: 0, total, label: input.dryRun ? "Planning CDN attachment migration" : "Migrating CDN attachments" });
 
     for await (const row of await dependencies.streamRows()) {
-        context.throwIfCancellationRequested();
+        await context.throwIfCancellationRequested();
         result.checked += 1;
 
         const currentPath = currentAttachmentPath(row);
         if (await dependencies.storage.exists(currentPath)) {
             result.present += 1;
             result.alreadyCurrent += 1;
-            context.setProgress({ current: result.checked });
+            await context.setProgress({ current: result.checked });
             continue;
         }
 
         const legacyPath = legacyAttachmentPath(row);
         if (!(await dependencies.storage.exists(legacyPath))) {
-            recordMissingPath(result, legacyPath, context, input);
-            context.setProgress({ current: result.checked });
+            await recordMissingPath(result, legacyPath, context, input);
+            await context.setProgress({ current: result.checked });
             continue;
         }
 
         if (!input.dryRun) await dependencies.storage.move(legacyPath, currentPath);
         result.migrated += 1;
         result.present += 1;
-        context.setProgress({ current: result.checked });
+        await context.setProgress({ current: result.checked });
     }
 
     if (!input.dryRun) await dependencies.storage.set(ATTACHMENT_MIGRATION_MARKER, Buffer.from([1]));
-    context.setProgress({ current: result.checked, total, label: "Complete" });
+    await context.setProgress({ current: result.checked, total, label: "Complete" });
     return result;
 }
+
+function persistedCdnAttachmentInput(input: unknown): CdnAttachmentJobInput {
+    const record = isRecord(input) ? input : {};
+
+    return {
+        dryRun: typeof record.dryRun === "boolean" ? record.dryRun : true,
+        force: typeof record.force === "boolean" ? record.force : false,
+        missingLimit: typeof record.missingLimit === "number" && Number.isFinite(record.missingLimit) ? record.missingLimit : DEFAULT_MISSING_LIMIT,
+        reason: typeof record.reason === "string" && record.reason.trim() ? record.reason.trim() : null,
+    };
+}
+
+registerAdminJobRunner<CdnAttachmentJobInput, CdnAttachmentJobResult>(
+    "cdn.attachments.fsck",
+    (input) => (context) => runCdnAttachmentFsckJob(persistedCdnAttachmentInput(input), context),
+);
+registerAdminJobRunner<CdnAttachmentJobInput, CdnAttachmentJobResult>(
+    "cdn.attachments.migrate",
+    (input) => (context) => runCdnAttachmentMigrationJob(persistedCdnAttachmentInput(input), context),
+);
 
 export function startCdnAttachmentFsckJob(options: {
     input: CdnAttachmentJobInput;
     createdBy: string;
     idempotencyKey?: string | null;
-}): AdminJobSnapshot<CdnAttachmentJobInput, CdnAttachmentJobResult> {
+}): Promise<AdminJobSnapshot<CdnAttachmentJobInput, CdnAttachmentJobResult>> {
     return createAdminJob({
         type: "cdn.attachments.fsck",
         input: options.input,
@@ -218,7 +238,7 @@ export function startCdnAttachmentMigrationJob(options: {
     input: CdnAttachmentJobInput;
     createdBy: string;
     idempotencyKey?: string | null;
-}): AdminJobSnapshot<CdnAttachmentJobInput, CdnAttachmentJobResult> {
+}): Promise<AdminJobSnapshot<CdnAttachmentJobInput, CdnAttachmentJobResult>> {
     return createAdminJob({
         type: "cdn.attachments.migrate",
         input: options.input,

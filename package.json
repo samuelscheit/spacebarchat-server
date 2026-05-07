@@ -26,6 +26,7 @@
         "build:src:tsgo": "rm -rf dist/* tsconfig.tsbuildinfo && tsgo -b -v",
         "watch": "tsc -w -b .",
         "test": "node -r dotenv/config -r module-alias/register --enable-source-maps scripts/test.js",
+        "test:admin-durable-storage": "node scripts/test-admin-durable-storage.mjs",
         "test:all": "npm run test && npm run test --workspaces --if-present",
         "lint": "eslint .",
         "lint:all": "npm run lint && npm run lint --workspaces --if-present",

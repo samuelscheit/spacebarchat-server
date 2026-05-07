@@ -62,6 +62,8 @@ npm run dev:admin-dashboard
 | `HOSTNAME` | Next.js default | Dashboard listen host. |
 | `SPACEBAR_ADMIN_DASHBOARD_URL` | `http://127.0.0.1:3300/_spacebar/admin` | URL used by `npm run smoke:admin-dashboard`. |
 | `SPACEBAR_ADMIN_TOKEN` | unset | Optional token used by the smoke script to verify authenticated SSR. |
+| `ADMIN_JOB_CLAIM_TIMEOUT_MS` | `300000` | API-side lease timeout before a `running` admin job is considered stale and eligible for restart recovery. |
+| `ADMIN_JOB_RECOVERY_INTERVAL_MS` | `60000` | API-side interval for checking queued jobs and stale running job claims. |
 
 ## Reverse Proxy Example
 
@@ -109,6 +111,20 @@ npm run smoke:admin-dashboard
 ```
 
 Without `SPACEBAR_ADMIN_TOKEN`, the smoke command only verifies the dashboard process and health endpoint.
+
+## Durable Admin Storage
+
+Admin jobs are stored in the Spacebar database table `admin_jobs`. Admin audit/activity records are stored in `admin_audit_records`. The schema is installed by the normal Postgres migration flow when the API process starts with migrations enabled.
+
+Job and audit API responses remain paginated through `limit` and `offset`; the dashboard currently requests 50 rows per activity page and the configured page size for job lists. Running jobs hold a database claim lease and refresh it while writing progress or errors; restart recovery only requeues stale running jobs whose claim is older than `ADMIN_JOB_CLAIM_TIMEOUT_MS`. Records are retained indefinitely by default so operators can inspect history after process restarts. If an installation needs shorter retention, purge old rows from `admin_audit_records` and terminal `admin_jobs` rows with an operational SQL job after exporting anything required for compliance.
+
+Run the durable storage integration gate after `npm run build:src`:
+
+```sh
+npm run test:admin-durable-storage
+```
+
+The gate creates a temporary Postgres database, applies the admin job/audit migration, verifies persistence across a database reconnect, exercises idempotency, progress, failure, cancellation, and restart recovery, then drops the temporary database. Set `ADMIN_DURABLE_TEST_ADMIN_DATABASE_URL` if local Postgres is not available at `postgres://user:password@127.0.0.1:5432/postgres`.
 
 ## Admin Session Check
 

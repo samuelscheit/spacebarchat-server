@@ -226,3 +226,74 @@ Risks or blockers:
 Next step:
 
 - Continue with durable jobs/audit storage or browser/e2e release gates.
+
+## 2026-05-07 22:24 CEST - Durable Jobs and Audit Storage
+
+Status: complete
+
+Changed files:
+
+- `apps/admin-dashboard/app/(dashboard)/activity/page.tsx`
+- `apps/admin-dashboard/app/lib/types.ts`
+- `apps/admin-dashboard/next.config.mjs`
+- `docs/admin-api-next-dashboard-progress.md`
+- `docs/admin-dashboard-deployment.md`
+- `eslint.config.mjs`
+- `package.json`
+- `scripts/test-admin-durable-storage.mjs`
+- `src/admin/audit.ts`
+- `src/admin/audit.test.ts`
+- `src/admin/cdnJobs.ts`
+- `src/admin/cdnJobs.test.ts`
+- `src/admin/durableStorage.test.ts`
+- `src/admin/index.ts`
+- `src/admin/jobs.ts`
+- `src/admin/jobs.test.ts`
+- `src/admin/userDeletion.ts`
+- `src/util/entities/AdminAuditRecord.ts`
+- `src/util/entities/AdminJob.ts`
+- `src/util/entities/index.ts`
+- `src/util/migration/postgres/1778062363001-AdminJobsAndAuditRecords.ts`
+
+What changed:
+
+- Started Feature Track 3: move admin jobs and audit/activity records out of process memory.
+- Inspected the existing process-local admin job/audit modules and TypeORM entity/migration patterns.
+- Started a subagent hypothesis check for durable job/audit storage conventions and caller/test pitfalls.
+- Added TypeORM entities and a Postgres migration for `admin_jobs` and `admin_audit_records`.
+- Made admin job and audit APIs async so database writes, reads, progress updates, cancellation checks, and audit recording are awaited.
+- Added first-class audit `reason` storage while preserving the existing metadata shape.
+- Registered durable job runner factories for user deletion and CDN attachment jobs so persisted queued/stale jobs can resume after process restart.
+- Added database-conditional job claiming and idempotency handling so duplicate workers do not run the same queued job and duplicate dangerous submissions return the original job row.
+- Added persisted cancellation state, stale claim recovery, and a periodic API-side recovery loop.
+- Kept the process-local job/audit stores only as a no-database fallback for tests and headless execution.
+- Added a real Postgres durable-storage test runner that creates a temporary database, applies the admin migration, and drops the database after the test.
+- Documented durable admin storage, retention policy, claim timeout settings, recovery interval, and the durable-storage verification command.
+- Exposed audit reasons on the dashboard activity page.
+- Added the Next config Node global annotation and ignored generated `.next` output in root ESLint so lint remains stable after dashboard builds.
+
+Verification:
+
+- Command: `npm run build:src`
+- Result: pass
+- Notes: TypeScript source build passed after entity, migration, route, and job runner changes.
+- Command: `node -r dotenv/config -r module-alias/register --enable-source-maps --test dist/admin/audit.test.js dist/admin/cdnJobs.test.js dist/admin/jobs.test.js dist/admin/mutations.test.js`
+- Result: pass
+- Notes: 16 focused admin tests passed, covering memory fallback, async job context updates, idempotency, cancellation, audit reason metadata, CDN jobs, and mutation safety helpers.
+- Command: `npm run test:admin-durable-storage`
+- Result: pass
+- Notes: Created a temporary local Postgres database, applied the admin job/audit migration, and passed 2 durable-storage integration tests covering audit persistence across reconnect, job idempotency, progress persistence, failure, queued cancellation recovery, stale running job recovery, and non-stale claim protection.
+- Command: `npm run build:admin-dashboard`
+- Result: pass
+- Notes: Next.js production build passed after adding the audit `reason` type and activity table column.
+- Command: `npm run lint`
+- Result: pass
+- Notes: ESLint completed with 2 pre-existing deprecation warnings in `src/util/util/Token.ts`.
+
+Risks or blockers:
+
+- Full destructive operation database side-effect coverage is still part of the release/e2e gates track.
+
+Next step:
+
+- Continue Feature Track 6 with dashboard server-action tests, browser/Playwright smoke checks, the safe dry-run media e2e path, and a PR checklist.

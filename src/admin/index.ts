@@ -13,7 +13,7 @@ import {
     listAdminUsers,
 } from "./queries";
 import { reloadAdminConfiguration, updateAdminConfiguration } from "./config";
-import { getAdminJob, listAdminJobs, requestAdminJobCancellation } from "./jobs";
+import { getAdminJob, listAdminJobs, recoverAdminJobs, requestAdminJobCancellation } from "./jobs";
 import { deleteAdminChannel, forceJoinAdminGuild, updateAdminDiscoveryGuild } from "./mutations";
 import { parseBooleanQuery, parsePagination, parseQueryString } from "./pagination";
 import { parseUserDeletionJobInput, startUserDeletionJob } from "./userDeletion";
@@ -22,6 +22,13 @@ import { firstHeaderValue, parseAdminActionSafety, requireAdminActionSafety, unw
 
 export interface AdminRouterOptions {
     authentication?: RequestHandler;
+}
+
+let adminJobRecoveryStarted = false;
+
+function adminJobRecoveryIntervalMs() {
+    const configured = Number.parseInt(process.env.ADMIN_JOB_RECOVERY_INTERVAL_MS ?? "", 10);
+    return Number.isFinite(configured) && configured > 0 ? configured : 60_000;
 }
 
 function listOptions(req: Parameters<RequestHandler>[0]) {
@@ -38,6 +45,12 @@ function idempotencyKey(req: Parameters<RequestHandler>[0]) {
 export function createAdminRouter(options: AdminRouterOptions = {}) {
     const router = Router({ mergeParams: true });
     const authentication = options.authentication ?? AdminAuthentication;
+    if (!adminJobRecoveryStarted) {
+        adminJobRecoveryStarted = true;
+        void recoverAdminJobs();
+        const recoveryTimer = setInterval(() => void recoverAdminJobs(), adminJobRecoveryIntervalMs());
+        recoveryTimer.unref?.();
+    }
 
     router.use(authentication);
 
@@ -66,12 +79,12 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             expectedConfirmation: req.params.id,
             idempotencyKey: idempotencyKey(req),
         });
-        const job = startUserDeletionJob({
+        const job = await startUserDeletionJob({
             input: parseUserDeletionJobInput(req.params.id, req.body, req.query as Record<string, unknown>),
             createdBy: req.user_id,
             idempotencyKey: safety.idempotencyKey,
         });
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "user.delete",
             actorId: req.user_id,
             targetType: "user",
@@ -79,6 +92,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             status: job.status === "queued" ? "accepted" : "succeeded",
             severity: "danger",
             jobId: job.id,
+            reason: job.input.reason,
             metadata: { deleteMessages: job.input.deleteMessages, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
         });
 
@@ -95,7 +109,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
 
     router.post("/guilds/:id/force-join", async (req, res) => {
         const result = await forceJoinAdminGuild(req.params.id, req.body, req.user_id);
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "guild.force_join",
             actorId: req.user_id,
             targetType: "guild",
@@ -122,7 +136,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
 
     router.patch("/discovery/guilds/:id", async (req, res) => {
         const result = await updateAdminDiscoveryGuild(req.params.id, req.body, parseBooleanQuery(req.query.include_excluded));
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "discovery.guild.update",
             actorId: req.user_id,
             targetType: "guild",
@@ -141,13 +155,14 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
     router.put("/configuration", async (req, res) => {
         const safety = requireAdminActionSafety(req.body, { expectedConfirmation: "SAVE CONFIGURATION" });
         const result = await updateAdminConfiguration(unwrapAdminActionPayload(req.body));
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "configuration.update",
             actorId: req.user_id,
             targetType: "configuration",
             targetId: result.source,
             status: "succeeded",
             severity: "warning",
+            reason: safety.reason,
             metadata: { source: result.source, readonly: result.readonly, reason: safety.reason },
         });
         res.json(result);
@@ -155,7 +170,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
 
     router.post("/configuration/reload", async (req, res) => {
         const result = await reloadAdminConfiguration();
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "configuration.reload",
             actorId: req.user_id,
             targetType: "configuration",
@@ -175,14 +190,14 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
         res.json(await listAdminUserAttachments(req.params.id, listOptions(req)));
     });
 
-    router.post("/media/attachments/fsck", (req, res) => {
+    router.post("/media/attachments/fsck", async (req, res) => {
         const safety = parseAdminActionSafety(req.body, idempotencyKey(req));
-        const job = startCdnAttachmentFsckJob({
+        const job = await startCdnAttachmentFsckJob({
             input: parseCdnAttachmentJobInput(req.body, req.query as Record<string, unknown>),
             createdBy: req.user_id,
             idempotencyKey: safety.idempotencyKey,
         });
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "cdn.attachments.fsck",
             actorId: req.user_id,
             targetType: "cdn",
@@ -190,13 +205,14 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             status: job.status === "queued" ? "accepted" : "succeeded",
             severity: "warning",
             jobId: job.id,
+            reason: job.input.reason,
             metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
         });
 
         res.status(job.status === "queued" ? 202 : 200).json(job);
     });
 
-    router.post("/media/attachments/migrate", (req, res) => {
+    router.post("/media/attachments/migrate", async (req, res) => {
         const parsedInput = parseCdnAttachmentJobInput(req.body, req.query as Record<string, unknown>);
         const safety =
             parsedInput.dryRun && !parsedInput.force
@@ -205,12 +221,12 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
                       expectedConfirmation: "MIGRATE ATTACHMENTS",
                       idempotencyKey: idempotencyKey(req),
                   });
-        const job = startCdnAttachmentMigrationJob({
+        const job = await startCdnAttachmentMigrationJob({
             input: parsedInput,
             createdBy: req.user_id,
             idempotencyKey: safety.idempotencyKey,
         });
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "cdn.attachments.migrate",
             actorId: req.user_id,
             targetType: "cdn",
@@ -218,6 +234,7 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
             status: job.status === "queued" ? "accepted" : "succeeded",
             severity: job.input.dryRun ? "info" : "danger",
             jobId: job.id,
+            reason: job.input.reason,
             metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
         });
 
@@ -227,43 +244,44 @@ export function createAdminRouter(options: AdminRouterOptions = {}) {
     router.delete("/channels/:id", async (req, res) => {
         const safety = requireAdminActionSafety(req.body, { expectedConfirmation: req.params.id });
         const result = await deleteAdminChannel(req.params.id);
-        recordAdminAuditEvent({
+        await recordAdminAuditEvent({
             action: "channel.delete",
             actorId: req.user_id,
             targetType: "channel",
             targetId: req.params.id,
             status: "succeeded",
             severity: "danger",
+            reason: safety.reason,
             metadata: { ...result, reason: safety.reason },
         });
         res.json(result);
     });
 
-    router.get("/activity", (req, res) => {
+    router.get("/activity", async (req, res) => {
         res.json(
-            listAdminAuditEvents({
+            await listAdminAuditEvents({
                 ...parsePagination(req.query as Record<string, unknown>),
                 q: parseQueryString(req.query.q),
             }),
         );
     });
 
-    router.get("/jobs", (req, res) => {
+    router.get("/jobs", async (req, res) => {
         res.json(
-            listAdminJobs({
+            await listAdminJobs({
                 ...parsePagination(req.query as Record<string, unknown>),
                 q: parseQueryString(req.query.q),
             }),
         );
     });
 
-    router.get("/jobs/:id", (req, res) => {
-        res.json(getAdminJob(req.params.id));
+    router.get("/jobs/:id", async (req, res) => {
+        res.json(await getAdminJob(req.params.id));
     });
 
-    router.post("/jobs/:id/cancel", (req, res) => {
-        const result = requestAdminJobCancellation(req.params.id);
-        recordAdminAuditEvent({
+    router.post("/jobs/:id/cancel", async (req, res) => {
+        const result = await requestAdminJobCancellation(req.params.id);
+        await recordAdminAuditEvent({
             action: "job.cancel",
             actorId: req.user_id,
             targetType: "job",
