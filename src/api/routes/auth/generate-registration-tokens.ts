@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
+import { createRegistrationTokens, randomString, route } from "@spacebar/api";
 import { Config, ValidRegistrationToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -44,15 +44,7 @@ router.get(
         const count = req.query.count ? parseInt(req.query.count as string) : 1;
         const length = req.query.length ? parseInt(req.query.length as string) : 255;
 
-        const tokens: ValidRegistrationToken[] = [];
-
-        for (let i = 0; i < count; i++) {
-            const token = ValidRegistrationToken.create({
-                token: randomString(length),
-                expires_at: new Date(Date.now() + Config.get().security.defaultRegistrationTokenExpiration),
-            });
-            tokens.push(token);
-        }
+        const tokens: ValidRegistrationToken[] = createRegistrationTokens(count, length, Config.get().security.defaultRegistrationTokenExpiration, randomString);
 
         // Why are these options used, exactly?
         await ValidRegistrationToken.save(tokens, {
