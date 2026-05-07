@@ -26,6 +26,7 @@ jobs:
     - run: npm i --only=dev
     - run: npm run test:manifest
     - run: npm run test:contracts
+    - run: npm run test:harness
     - run: npm run test:scenarios
     - run: npm run test:protocol
     - run: npm run test:migrations

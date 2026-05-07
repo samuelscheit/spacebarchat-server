@@ -28,4 +28,26 @@ describe("registerRoutes", () => {
             await rm(root, { recursive: true, force: true });
         }
     });
+
+    test("ignores compiled test files in route directories", async () => {
+        const root = await mkdtemp(path.join(os.tmpdir(), "spacebar-routes-"));
+        try {
+            await writeFile(path.join(root, "ping.js"), `module.exports = function router() {};\n`);
+            await writeFile(path.join(root, "ping.test.js"), `throw new Error("test file should not be loaded");\n`);
+            await writeFile(path.join(root, "ping.spec.js"), `throw new Error("spec file should not be loaded");\n`);
+
+            const server = new Server({ serverInitLogging: false });
+            const registeredPaths: string[] = [];
+            (server.app as unknown as { use: (routePath: string, router: unknown) => unknown }).use = (routePath: string) => {
+                registeredPaths.push(routePath);
+                return server.app;
+            };
+
+            await registerRoutes(server, `${root}${path.sep}`);
+
+            assert.deepEqual(registeredPaths, ["/ping"]);
+        } finally {
+            await rm(root, { recursive: true, force: true });
+        }
+    });
 });

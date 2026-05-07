@@ -203,7 +203,7 @@ describe("generated suite coverage matrix", () => {
     });
 
     test("keeps CI gate order aligned with TESTING.md", () => {
-        const expectedOrder = ["test:manifest", "test:contracts", "test:scenarios", "test:protocol", "test:migrations", "bench:test"];
+        const expectedOrder = ["test:manifest", "test:contracts", "test:harness", "test:scenarios", "test:protocol", "test:migrations", "bench:test"];
         let previous = -1;
 
         for (const command of expectedOrder) {

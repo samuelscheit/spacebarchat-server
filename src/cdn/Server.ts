@@ -28,19 +28,14 @@ export type CDNServerOptions = ServerOptions;
 
 export class CDNServer extends Server {
     declare public options: CDNServerOptions;
+    private configured = false;
 
     constructor(options?: Partial<CDNServerOptions>) {
         super(options);
     }
 
-    async start() {
-        await initStartupConfigAndDatabase();
-
-        this.migrateAttachments().then(
-            (_) => console.log("[CDN] Successfully migrated attachments"),
-            (_) => console.log("[CDN] Attachment migration failed"),
-        );
-
+    async configureApp() {
+        if (this.configured) return;
         const logRequests = process.env["LOG_REQUESTS"] != undefined;
         if (logRequests) {
             this.app.use(
@@ -69,6 +64,18 @@ export class CDNServer extends Server {
 
         this.app.use("/guilds/:guild_id/users/:user_id/banners", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/banners registered");
+        this.configured = true;
+    }
+
+    async start() {
+        await initStartupConfigAndDatabase();
+
+        this.migrateAttachments().then(
+            (_) => console.log("[CDN] Successfully migrated attachments"),
+            (_) => console.log("[CDN] Attachment migration failed"),
+        );
+
+        await this.configureApp();
 
         return super.start();
     }

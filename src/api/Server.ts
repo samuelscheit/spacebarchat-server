@@ -55,6 +55,7 @@ declare global {
 
 export class SpacebarServer extends Server {
     declare public options: SpacebarServerOptions;
+    private configured = false;
 
     constructor(opts?: Partial<SpacebarServerOptions>) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -62,14 +63,8 @@ export class SpacebarServer extends Server {
         super(opts);
     }
 
-    async start() {
-        await initStartupConfigAndDatabase();
-        await initEvent();
-        await Email.init();
-        await ConnectionConfig.init();
-        await initInstance();
-        WebAuthn.init();
-
+    async configureApp() {
+        if (this.configured) return;
         const logRequests = process.env["LOG_REQUESTS"] != undefined;
         if (logRequests) {
             this.app.use(
@@ -206,9 +201,22 @@ export class SpacebarServer extends Server {
         app.get("/healthz", route({ description: "Get the ready state of the server" }), isReady);
 
         this.app.use(ErrorHandler);
+        this.configured = true;
+    }
+
+    async start() {
+        await initStartupConfigAndDatabase();
+        await initEvent();
+        await Email.init();
+        await ConnectionConfig.init();
+        await initInstance();
+        WebAuthn.init();
+
+        await this.configureApp();
 
         await ConnectionLoader.loadConnections();
 
+        const logRequests = process.env["LOG_REQUESTS"] != undefined;
         if (logRequests) console.log(red(`Warning: Request logging is enabled! This will spam your console!\nTo disable this, unset the 'LOG_REQUESTS' environment variable!`));
 
         return super.start();
