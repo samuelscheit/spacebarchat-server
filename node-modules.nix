@@ -36,6 +36,7 @@ pkgs.buildNpmPackage {
   src = filteredSrc;
   npmDeps = pkgs.importNpmLock { npmRoot = filteredSrc; };
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+  npmInstallFlags = [ "--workspaces=false" ];
 
   dontNpmBuild = true;
   makeCacheWritable = true;
@@ -50,6 +51,7 @@ pkgs.buildNpmPackage {
     # Copy outputs
     echo "Copying node_modules as $out"
     cp -r node_modules $out
+
     echo -n 'Disk usage: '
     du -sh node_modules/
 
