@@ -36,6 +36,7 @@
     </Folder>
     <Folder Name="/Tests/">
         <Project Path="Tests/Spacebar.AdminApi.Tests/Spacebar.AdminApi.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Interop.Replication.RabbitMq.Tests/Spacebar.Interop.Replication.RabbitMq.Tests.csproj"/>
         <Project Path="Tests/Spacebar.Models.Config.Tests/Spacebar.Models.Config.Tests.csproj"/>
         <Project Path="Tests/Spacebar.Models.Db.Tests/Spacebar.Models.Db.Tests.csproj"/>
         <Project Path="Tests/Spacebar.Models.Generic.Tests/Spacebar.Models.Generic.Tests.csproj"/>
