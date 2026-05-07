@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { getRecentAvatarsFromCurrentAvatar } from "@spacebar/api/util";
+import { getUserRecentAvatars } from "@spacebar/api/util";
 import { User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -42,7 +42,7 @@ router.get(
         });
 
         res.json({
-            avatars: getRecentAvatarsFromCurrentAvatar(user.avatar),
+            avatars: await getUserRecentAvatars(req.user_id, user.avatar),
         });
     },
 );

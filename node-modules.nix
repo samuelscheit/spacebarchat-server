@@ -36,6 +36,7 @@ pkgs.buildNpmPackage {
   src = filteredSrc;
   npmDeps = pkgs.importNpmLock { npmRoot = filteredSrc; };
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+  npmInstallFlags = [ "--workspaces=false" ];
 
   dontNpmBuild = true;
   makeCacheWritable = true;

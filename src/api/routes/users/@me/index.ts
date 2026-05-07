@@ -33,7 +33,7 @@ import {
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
-import { removeAvatarDescription } from "@spacebar/api/util";
+import { getUserRecentAvatarHash, recordUserRecentAvatar } from "@spacebar/api/util";
 import { Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
@@ -74,7 +74,8 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        const body = removeAvatarDescription(req.body as UserModifySchema);
+        const { avatar_description, avatar_id, ...body } = req.body as UserModifySchema;
+        let recentAvatarToRecord: { storageHash: string; description: string | null | undefined } | undefined;
 
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
@@ -84,7 +85,18 @@ router.patch(
         // Populated on password change
         let newToken: string | undefined;
 
-        if (body.avatar) body.avatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string);
+        if (body.avatar) {
+            const uploadedAvatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string);
+            body.avatar = uploadedAvatar;
+            if (uploadedAvatar) {
+                recentAvatarToRecord = {
+                    storageHash: uploadedAvatar,
+                    description: avatar_description,
+                };
+            }
+        } else if (!("avatar" in body) && avatar_id) {
+            body.avatar = await getUserRecentAvatarHash(req.user_id, avatar_id);
+        }
         if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
 
         if (body.password) {
@@ -244,6 +256,7 @@ router.patch(
             }
             throw error;
         }
+        if (recentAvatarToRecord) await recordUserRecentAvatar(req.user_id, recentAvatarToRecord.storageHash, recentAvatarToRecord.description);
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore

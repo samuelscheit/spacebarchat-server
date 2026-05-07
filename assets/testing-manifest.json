@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 404,
+        "totalEntries": 405,
         "byService": {
-            "api": 339,
+            "api": 340,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 379,
+            "http-route": 380,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 244,
+            "stateful-domain": 245,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -42,7 +42,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 15,
-            "route-class": 296,
+            "route-class": 297,
             "hot-path": 28,
             "none": 1,
             "cdn-hot-path": 41,
@@ -10478,7 +10478,7 @@
             "method": "GET",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 40,
+            "line": 41,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10516,7 +10516,7 @@
             "method": "PATCH",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 59,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10666,6 +10666,46 @@
                 "present": true,
                 "responseBodies": [],
                 "responseStatuses": [],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/avatars/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/avatars/",
+            "sourceFile": "src/api/routes/users/@me/avatars.ts",
+            "line": 26,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "RecentAvatarsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
+                ],
                 "hasQuery": false
             },
             "coverage": {
