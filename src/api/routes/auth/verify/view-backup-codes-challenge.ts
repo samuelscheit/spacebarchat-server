@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { createMfaBackupCodesChallengeNonce, route } from "@spacebar/api";
 import { FieldErrors, User } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
@@ -50,8 +50,8 @@ router.post(
         }
 
         return res.json({
-            nonce: "NoncePlaceholder",
-            regenerate_nonce: "RegenNoncePlaceholder",
+            nonce: createMfaBackupCodesChallengeNonce(req.user_id, "view"),
+            regenerate_nonce: createMfaBackupCodesChallengeNonce(req.user_id, "regenerate"),
         });
     },
 );
