@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
 import bcrypt from "bcrypt";
 import { generateSecret, generateToken as generateTotpToken } from "node-2fa";
@@ -176,14 +177,13 @@ test(
             assert.equal(await ValidRegistrationToken.findOneBy({ token: registrationToken }), null);
 
             const secret = generateSecret({ name: "Spacebar", account: email }).secret;
-            const enableCode = generateTotpToken(secret);
-            assert.ok(enableCode);
+            const enableCode = await generateFreshTotpToken(secret);
             const enableTotp = await postJson(
                 `${api.apiBaseUrl}/users/@me/mfa/totp/enable`,
                 {
                     password: resetPassword,
                     secret,
-                    code: enableCode.token,
+                    code: enableCode,
                 },
                 { token: resetBearer },
             );
@@ -203,11 +203,10 @@ test(
             assert.equal(typeof loginWithMfaBody.ticket, "string");
             assert.equal((await User.findOne({ where: { id: user.id }, select: { id: true, totp_last_ticket: true } }))?.totp_last_ticket, loginWithMfaBody.ticket);
 
-            const completeTotpCode = generateTotpToken(secret);
-            assert.ok(completeTotpCode);
+            const completeTotpCode = await generateFreshTotpToken(secret);
             const completeTotp = await postJson(`${api.apiBaseUrl}/auth/mfa/totp`, {
                 ticket: loginWithMfaBody.ticket,
-                code: completeTotpCode.token,
+                code: completeTotpCode,
             });
             await assertStatus(completeTotp, 200);
             const completeTotpBody = await assertJsonObject(completeTotp);
@@ -247,9 +246,8 @@ test(
             await assertJsonError(await postJson(`${api.apiBaseUrl}/users/@me/mfa/totp/disable`, { code: "abcdef" }, { token: mfaBearer }), 400);
             assert.equal((await loadUserSecurityState(user.id)).mfa_enabled, true);
 
-            const disableCode = generateTotpToken(secret);
-            assert.ok(disableCode);
-            const disableTotp = await postJson(`${api.apiBaseUrl}/users/@me/mfa/totp/disable`, { code: disableCode.token }, { token: mfaBearer });
+            const disableCode = await generateFreshTotpToken(secret);
+            const disableTotp = await postJson(`${api.apiBaseUrl}/users/@me/mfa/totp/disable`, { code: disableCode }, { token: mfaBearer });
             await assertStatus(disableTotp, 200);
             const disableBearer = (await assertJsonObject(disableTotp)).token as string;
             assert.equal(typeof disableBearer, "string");
@@ -330,6 +328,18 @@ async function activeBackupCodeCount(userId: string) {
             expired: false,
         },
     });
+}
+
+async function generateFreshTotpToken(secret: string) {
+    const stepMs = 30_000;
+    const minRemainingMs = 5_000;
+    const remainingMs = stepMs - (Date.now() % stepMs);
+
+    if (remainingMs < minRemainingMs) await delay(remainingMs + 100);
+
+    const generated = generateTotpToken(secret);
+    assert.ok(generated, "TOTP token generation should succeed");
+    return generated.token;
 }
 
 async function getJson(url: string, token?: string) {

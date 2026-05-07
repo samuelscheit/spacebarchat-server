@@ -18,7 +18,8 @@
 
 // TODO: remove entity imports
 import { Badge, Member, User } from "@spacebar/util";
-import { PublicConnectedAccount, PublicMember, PublicUser } from "@spacebar/schemas";
+import { PublicMember, PublicUser } from "@spacebar/schemas";
+import { PartialConnectedAccountResponse } from "./PartialConnectedAccountResponse";
 
 export type MutualGuild = {
     id: string;
@@ -33,10 +34,10 @@ export type UserProfile = Pick<User, "bio" | "accent_color" | "banner" | "pronou
 
 export interface UserProfileResponse {
     user: PublicUser;
-    connected_accounts: PublicConnectedAccount;
+    connected_accounts: PartialConnectedAccountResponse[];
     premium_guild_since?: Date;
     premium_since?: Date;
-    mutual_guilds: MutualGuild[];
+    mutual_guilds?: MutualGuild[];
     premium_type: number;
     profile_themes_experiment_bucket: number;
     user_profile: UserProfile;

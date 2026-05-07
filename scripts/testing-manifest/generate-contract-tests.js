@@ -9,6 +9,26 @@ const DEFAULT_CONTRACT_MATRIX_PATH = path.join("test", "generated", "http-contra
 const DEFAULT_CONTRACT_TEST_PATH = path.join("test", "generated", "http-contracts.test.js");
 const DEFAULT_RUNTIME_CONTRACT_TEST_PATH = path.join("test", "generated", "http-auth-runtime-contracts.test.ts");
 const IGNORED_RUNTIME_REQUEST_BODY_VALIDATION_SCHEMAS = new Set(["SettingsProtoUpdateJsonSchema"]);
+const AUTHENTICATED_RESPONSE_SCHEMA_MANIFEST_IDS = new Set([
+    "api:http:GET:/auth/sessions/",
+    "api:http:GET:/auth/whoami/",
+    "api:http:GET:/users/:user_id/",
+    "api:http:GET:/users/:user_id/profile/",
+    "api:http:GET:/users/:user_id/relationships/",
+    "api:http:GET:/users/@me/",
+    "api:http:GET:/users/@me/billing/location-info/",
+    "api:http:GET:/users/@me/billing/payment-sources/",
+    "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
+    "api:http:GET:/users/@me/channels/",
+    "api:http:GET:/users/@me/collectibles-marketing/",
+    "api:http:GET:/users/@me/guilds/",
+    "api:http:GET:/users/@me/relationships/",
+    "api:http:GET:/users/@me/settings/",
+    "api:http:GET:/users/@me/settings-proto/1/",
+    "api:http:GET:/users/@me/settings-proto/1/json",
+    "api:http:GET:/users/@me/settings-proto/2/",
+    "api:http:GET:/users/@me/settings-proto/2/json",
+]);
 
 function optionValue(args, name, fallback) {
     const index = args.indexOf(name);
@@ -160,6 +180,7 @@ function buildContractMatrix(manifest) {
     const runtimePublicInvalidBodyContracts = contracts.filter(supportsRuntimePublicInvalidBodyContract).length;
     const runtimeProtectedInvalidBodyContracts = contracts.filter(supportsRuntimeProtectedInvalidBodyContract).length;
     const runtimePublicResponseSchemaContracts = contracts.filter(supportsRuntimePublicResponseSchemaContract).length;
+    const runtimeAuthenticatedResponseSchemaContracts = contracts.filter(supportsRuntimeAuthenticatedResponseSchemaContract).length;
 
     return {
         schemaVersion: 1,
@@ -177,6 +198,7 @@ function buildContractMatrix(manifest) {
             runtimePublicInvalidBodyContracts,
             runtimeProtectedInvalidBodyContracts,
             runtimePublicResponseSchemaContracts,
+            runtimeAuthenticatedResponseSchemaContracts,
         },
         contracts,
     };
@@ -214,6 +236,17 @@ function supportsRuntimePublicResponseSchemaContract(contract) {
         contract.routeMetadata.responseStatuses.includes(200) &&
         contract.routeMetadata.responses.some((schema) => !["APIErrorResponse", "Object"].includes(schema)) &&
         !["api:http:GET:/download/", "api:http:GET:/policies/stats/", "api:http:GET:/updates/"].includes(contract.manifestId)
+    );
+}
+
+function supportsRuntimeAuthenticatedResponseSchemaContract(contract) {
+    return (
+        AUTHENTICATED_RESPONSE_SCHEMA_MANIFEST_IDS.has(contract.manifestId) &&
+        contract.service === "api" &&
+        contract.authMode === "bearer" &&
+        contract.method === "GET" &&
+        contract.routeMetadata.responseStatuses.includes(200) &&
+        contract.routeMetadata.responses.some((schema) => !["APIErrorResponse", "Object"].includes(schema))
     );
 }
 
@@ -291,7 +324,7 @@ import path from "node:path";
 import { test } from "node:test";
 import Ajv, { type AnySchema } from "ajv";
 import addFormats from "ajv-formats";
-import { closeDatabase, Config, generateToken, initDatabase, User } from "@spacebar/util";
+import { closeDatabase, Config, generateToken, initDatabase, Session, User } from "@spacebar/util";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { startApi } from "../server/startApi";
 
@@ -320,6 +353,7 @@ type GeneratedHttpContractMatrix = {
         runtimePublicInvalidBodyContracts: number;
         runtimeProtectedInvalidBodyContracts: number;
         runtimePublicResponseSchemaContracts: number;
+        runtimeAuthenticatedResponseSchemaContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -332,6 +366,26 @@ const publicApiContracts = matrix.contracts.filter((contract) => contract.servic
 const publicRequestBodyValidationExclusions = new Set(["api:http:POST:/webhooks/:webhook_id/:token/github/"]);
 const publicResponseSchemaExclusions = new Set(["api:http:GET:/download/", "api:http:GET:/policies/stats/", "api:http:GET:/updates/"]);
 const ignoredRuntimeRequestBodyValidationSchemas = new Set(["SettingsProtoUpdateJsonSchema"]);
+const authenticatedResponseSchemaManifestIds = new Set([
+    "api:http:GET:/auth/sessions/",
+    "api:http:GET:/auth/whoami/",
+    "api:http:GET:/users/:user_id/",
+    "api:http:GET:/users/:user_id/profile/",
+    "api:http:GET:/users/:user_id/relationships/",
+    "api:http:GET:/users/@me/",
+    "api:http:GET:/users/@me/billing/location-info/",
+    "api:http:GET:/users/@me/billing/payment-sources/",
+    "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
+    "api:http:GET:/users/@me/channels/",
+    "api:http:GET:/users/@me/collectibles-marketing/",
+    "api:http:GET:/users/@me/guilds/",
+    "api:http:GET:/users/@me/relationships/",
+    "api:http:GET:/users/@me/settings/",
+    "api:http:GET:/users/@me/settings-proto/1/",
+    "api:http:GET:/users/@me/settings-proto/1/json",
+    "api:http:GET:/users/@me/settings-proto/2/",
+    "api:http:GET:/users/@me/settings-proto/2/json",
+]);
 const publicInvalidBodyContracts = matrix.contracts.filter(
     (contract) =>
         contract.service === "api" &&
@@ -373,6 +427,15 @@ const publicResponseSchemaContracts = matrix.contracts.filter(
         contract.routeMetadata.responseStatuses.includes(200) &&
         contract.routeMetadata.responses.some((schema) => !["APIErrorResponse", "Object"].includes(schema) && schemas[schema]) &&
         !publicResponseSchemaExclusions.has(contract.manifestId),
+);
+const authenticatedResponseSchemaContracts = matrix.contracts.filter(
+    (contract) =>
+        authenticatedResponseSchemaManifestIds.has(contract.manifestId) &&
+        contract.service === "api" &&
+        contract.authMode === "bearer" &&
+        contract.method === "GET" &&
+        contract.routeMetadata.responseStatuses.includes(200) &&
+        contract.routeMetadata.responses.some((schema) => !["APIErrorResponse", "Object"].includes(schema) && schemas[schema]),
 );
 
 function silenceConsole() {
@@ -435,6 +498,81 @@ function restoreProcessState(state: ReturnType<typeof snapshotProcessState>) {
 function restoreEnv(name: string, value: string | undefined) {
     if (value === undefined) delete process.env[name];
     else process.env[name] = value;
+}
+
+async function withAuthenticatedApi<T>(prefix: string, fn: (context: { api: Awaited<ReturnType<typeof startApi>>; token: string; user: User }) => Promise<T>): Promise<T> {
+    const previous = snapshotProcessState();
+    let api: Awaited<ReturnType<typeof startApi>> | undefined;
+    let database: Awaited<ReturnType<typeof createDisposablePostgresDatabase>> | undefined;
+    let databaseInitialized = false;
+    let tempCwd: string | undefined;
+
+    try {
+        database = await createDisposablePostgresDatabase({ prefix });
+        tempCwd = await mkdtemp(path.join(tmpdir(), \`\${prefix.replaceAll("_", "-")}-\`));
+        process.chdir(tempCwd);
+        process.env.DATABASE = database.url;
+        process.env.APPLY_DB_MIGRATIONS = "true";
+        process.env.LOG_ROUTES = "false";
+        delete process.env.CONFIG_PATH;
+        delete process.env.DB_SYNC;
+
+        await initDatabase();
+        databaseInitialized = true;
+        api = await startApi();
+
+        const suffix = \`\${process.pid}\${Date.now()}\`;
+        const user = await User.register({
+            username: \`contract\${suffix.slice(-8)}\`,
+            email: \`contract-\${suffix}@example.com\`,
+            password: "contract-password",
+        });
+        user.premium_since = new Date();
+        user.theme_colors = [0, 0];
+        user.badge_ids = [];
+        user.avatar_decoration_data = {
+            asset: "fixture-avatar-decoration",
+            sku_id: "100000000000000001",
+            expires_at: null,
+        };
+        user.display_name_styles = {
+            font_id: 0,
+            effect_id: 0,
+            colors: [],
+        };
+        user.collectibles = { nameplate: null };
+        user.primary_guild = {
+            identity_enabled: null,
+            identity_guild_id: null,
+            tag: null,
+            badge: null,
+        };
+        await user.save();
+
+        const token = await generateToken(user.id);
+        assert.ok(token, "token generation should return a bearer token");
+        const session = await Session.findOneByOrFail({ user_id: user.id });
+        session.client_info = {
+            platform: "generated-contract",
+            os: "test",
+            version: 1,
+        };
+        session.last_seen = new Date();
+        session.last_seen_location = "test";
+        await session.save();
+
+        return await fn({ api, token, user });
+    } finally {
+        if (api) await api.stop();
+        if (databaseInitialized) await closeDatabase();
+        if (database) await database.close();
+        restoreProcessState(previous);
+        if (tempCwd) await rm(tempCwd, { recursive: true, force: true });
+    }
+}
+
+function samplePathForAuthenticatedResponseContract(contract: GeneratedHttpContract, userId: string) {
+    return contract.path.replace(/:user_id/g, userId).replace(/:payment_source_id/g, "fixture-payment-source");
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -560,66 +698,76 @@ test(
         assert.equal(protectedInvalidBodyContracts.length, matrix.summary.runtimeProtectedInvalidBodyContracts);
         assert.ok(protectedInvalidBodyContracts.length > 0, "expected protected request-body API routes to be covered");
 
-        const previous = snapshotProcessState();
         const restoreConsole = silenceConsole();
-        let api: Awaited<ReturnType<typeof startApi>> | undefined;
-        let database: Awaited<ReturnType<typeof createDisposablePostgresDatabase>> | undefined;
-        let databaseInitialized = false;
-        let tempCwd: string | undefined;
-
         try {
-            database = await createDisposablePostgresDatabase({ prefix: "spacebar_contracts_protected_body" });
-            tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-contracts-protected-body-"));
-            process.chdir(tempCwd);
-            process.env.DATABASE = database.url;
-            process.env.APPLY_DB_MIGRATIONS = "true";
-            process.env.LOG_ROUTES = "false";
-            delete process.env.CONFIG_PATH;
-            delete process.env.DB_SYNC;
+            await withAuthenticatedApi("spacebar_contracts_protected_body", async ({ api, token }) => {
+                for (const contract of protectedInvalidBodyContracts) {
+                    const response = await fetch(\`\${api.apiBaseUrl}\${contract.samplePath}\`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: \`Bearer \${token}\`,
+                            "content-type": "application/json",
+                        },
+                        body: JSON.stringify({ __generated_contract_invalid_body__: true }),
+                    });
 
-            await initDatabase();
-            databaseInitialized = true;
-            api = await startApi();
+                    assert.equal(response.status, 400, \`\${contract.manifestId} should reject a schema-invalid request body after auth\`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON validation error\`);
 
-            const suffix = \`\${process.pid}\${Date.now()}\`;
-            const user = await User.register({
-                username: \`contract\${suffix.slice(-8)}\`,
-                email: \`contract-\${suffix}@example.com\`,
-                password: "contract-password",
+                    const body = (await response.json()) as Record<string, unknown>;
+                    assert.equal(body.code, 50035, \`\${contract.manifestId} should return the invalid form body code\`);
+                    assert.equal(body.message, "Invalid Form Body", \`\${contract.manifestId} should return the invalid form body message\`);
+                    assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
+                    assert.equal(typeof body.errors, "object", \`\${contract.manifestId} should include validation errors\`);
+                    assert.notEqual(body.errors, null, \`\${contract.manifestId} should include validation errors\`);
+                    assert.ok(Array.isArray(body._ajvErrors), \`\${contract.manifestId} should include raw AJV errors\`);
+                    assert.ok(body._ajvErrors.length > 0, \`\${contract.manifestId} should include at least one raw AJV error\`);
+                }
             });
-            const token = await generateToken(user.id);
-            assert.ok(token, "token generation should return a bearer token");
-
-            for (const contract of protectedInvalidBodyContracts) {
-                const response = await fetch(\`\${api.apiBaseUrl}\${contract.samplePath}\`, {
-                    method: contract.method,
-                    headers: {
-                        accept: "application/json",
-                        authorization: \`Bearer \${token}\`,
-                        "content-type": "application/json",
-                    },
-                    body: JSON.stringify({ __generated_contract_invalid_body__: true }),
-                });
-
-                assert.equal(response.status, 400, \`\${contract.manifestId} should reject a schema-invalid request body after auth\`);
-                assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON validation error\`);
-
-                const body = (await response.json()) as Record<string, unknown>;
-                assert.equal(body.code, 50035, \`\${contract.manifestId} should return the invalid form body code\`);
-                assert.equal(body.message, "Invalid Form Body", \`\${contract.manifestId} should return the invalid form body message\`);
-                assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
-                assert.equal(typeof body.errors, "object", \`\${contract.manifestId} should include validation errors\`);
-                assert.notEqual(body.errors, null, \`\${contract.manifestId} should include validation errors\`);
-                assert.ok(Array.isArray(body._ajvErrors), \`\${contract.manifestId} should include raw AJV errors\`);
-                assert.ok(body._ajvErrors.length > 0, \`\${contract.manifestId} should include at least one raw AJV error\`);
-            }
         } finally {
             restoreConsole();
-            if (api) await api.stop();
-            if (databaseInitialized) await closeDatabase();
-            if (database) await database.close();
-            restoreProcessState(previous);
-            if (tempCwd) await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+test(
+    "generated HTTP authenticated response-schema contracts match real API responses",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(authenticatedResponseSchemaContracts.length, matrix.summary.runtimeAuthenticatedResponseSchemaContracts);
+        assert.ok(authenticatedResponseSchemaContracts.length > 0, "expected authenticated response-schema API routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_authenticated_response", async ({ api, token, user }) => {
+                for (const contract of authenticatedResponseSchemaContracts) {
+                    const samplePath = samplePathForAuthenticatedResponseContract(contract, user.id);
+                    const response = await fetch(\`\${api.apiBaseUrl}\${samplePath}\`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: \`Bearer \${token}\`,
+                        },
+                    });
+
+                    assert.equal(response.status, 200, \`\${contract.manifestId} should return a successful response for schema validation\`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON response\`);
+
+                    const schema = responseSchemaForContract(contract);
+                    assert.ok(schema, \`\${contract.manifestId} should declare a known response schema\`);
+                    const validate = ajv.getSchema(schema);
+                    assert.ok(validate, \`\${contract.manifestId} should resolve response schema \${schema}\`);
+                    const body = (await response.json()) as unknown;
+
+                    assert.equal(validate(body), true, \`\${contract.manifestId} response should match \${schema}: \${JSON.stringify(validate.errors)}\`);
+                }
+            });
+        } finally {
+            restoreConsole();
         }
     },
 );
