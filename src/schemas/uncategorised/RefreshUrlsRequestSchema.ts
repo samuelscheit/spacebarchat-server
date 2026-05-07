@@ -17,5 +17,13 @@
 */
 
 export interface RefreshUrlsRequestSchema {
+    /**
+     * @minItems 1
+     * @maxItems 50
+     * @items.type string
+     * @items.minLength 1
+     * @items.maxLength 2048
+     * @items.format uri
+     */
     attachment_urls: string[];
 }

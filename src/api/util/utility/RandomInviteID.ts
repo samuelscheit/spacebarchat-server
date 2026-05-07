@@ -56,13 +56,4 @@ export function snowflakeBasedInvite() {
         .join("");
 }
 
-export function randomUpperString(length: number = 10) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    return result;
-}
+export { randomUpperString } from "@spacebar/util";

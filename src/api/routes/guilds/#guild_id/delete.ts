@@ -16,10 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Guild, GuildDeleteEvent, emitEvent } from "@spacebar/util";
+import { assertMfaCode, consumeMfaBackupCode, route } from "@spacebar/api";
+import { Guild, GuildDeleteEvent, User, emitEvent, getDatabase } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { GuildDeleteSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -28,8 +29,15 @@ const router = Router({ mergeParams: true });
 router.post(
     "/",
     route({
+        requestBody: {
+            schema: "GuildDeleteSchema",
+            required: false,
+        },
         responses: {
             204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
             401: {
                 body: "APIErrorResponse",
             },
@@ -40,6 +48,7 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
+        const { code } = (req.body ?? {}) as GuildDeleteSchema;
 
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
@@ -47,16 +56,30 @@ router.post(
         });
         if (guild.owner_id !== req.user_id) throw new HTTPError("You are not the owner of this guild", 401);
 
-        await Promise.all([
-            Guild.delete({ id: guild_id }), // this will also delete all guild related data
-            emitEvent({
-                event: "GUILD_DELETE",
-                data: {
-                    id: guild_id,
-                },
-                guild_id: guild_id,
-            } satisfies GuildDeleteEvent),
-        ]);
+        const user = await User.findOneOrFail({
+            where: { id: req.user_id },
+            select: { id: true, mfa_enabled: true, totp_secret: true },
+        });
+
+        await getDatabase()!.transaction(async (manager) => {
+            await assertMfaCode({
+                code,
+                mfa_enabled: user.mfa_enabled,
+                totp_secret: user.totp_secret,
+                invalidCodeError: () => new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008),
+                consumeBackupCode: (code) => consumeMfaBackupCode({ code, manager, userId: req.user_id }),
+            });
+
+            await manager.delete(Guild, { id: guild_id }); // this will also delete all guild related data
+        });
+
+        await emitEvent({
+            event: "GUILD_DELETE",
+            data: {
+                id: guild_id,
+            },
+            guild_id: guild_id,
+        } satisfies GuildDeleteEvent);
 
         return res.sendStatus(204);
     },

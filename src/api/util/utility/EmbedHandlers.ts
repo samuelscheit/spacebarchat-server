@@ -23,6 +23,8 @@ import crypto from "node:crypto";
 import { yellow } from "picocolors";
 import probe from "probe-image-size";
 import { FindOptionsWhere, In } from "typeorm";
+import { mergeGeneratedUrlEmbeds } from "./EmbedMerge";
+import { selectLinkEmbedUrls } from "./LinkEmbeds";
 
 export function getDefaultFetchOptions(): RequestInit {
     return {
@@ -529,14 +531,6 @@ export const EmbedHandlers: {
     },
 };
 
-const LINK_REGEX = /<?https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)>?/g;
-
-export function getMessageContentUrls(message: Message) {
-    const content = message.content?.replace(/ *`[^)]*` */g, ""); // remove markdown
-
-    return content?.match(LINK_REGEX) ?? [];
-}
-
 export async function dropDuplicateCacheEntries(entries: EmbedCache[]): Promise<EmbedCache[]> {
     const grouped = Array.from(arrayGroupBy(entries, (e) => e.url).values()).map((g) =>
         g.toSorted((e1, e2) => {
@@ -626,9 +620,9 @@ export async function getOrUpdateEmbedCache(urls: string[], cb?: (url: string, e
 }
 
 async function generateEmbedSingle(link: string, cb?: (url: string, embeds: Embed[]) => Promise<void>): Promise<EmbedCache | null> {
-    const url = new URL(link);
-    const handler = url.hostname === new URL(Config.get().cdn.endpointPublic!).hostname ? EmbedHandlers["self"] : (EmbedHandlers[url.hostname] ?? EmbedHandlers["default"]);
     try {
+        const url = new URL(link);
+        const handler = url.hostname === new URL(Config.get().cdn.endpointPublic!).hostname ? EmbedHandlers["self"] : (EmbedHandlers[url.hostname] ?? EmbedHandlers["default"]);
         let res = await handler(url);
         if (!res) return null;
         if (!Array.isArray(res)) res = [res];
@@ -650,37 +644,30 @@ async function generateEmbedSingle(link: string, cb?: (url: string, embeds: Embe
 }
 
 export async function fillMessageUrlEmbeds(message: Message) {
-    const linkMatches = getMessageContentUrls(message).filter((l) => !l.startsWith("<") && !l.endsWith(">"));
-
-    // Filter out embeds that could be links, start from scratch
-    message.embeds = message.embeds.filter((embed) => embed.type === "rich");
-
-    if (linkMatches.length == 0) return message;
-
-    const uniqueLinks: string[] = arrayDistinctBy(linkMatches, normalizeUrl);
+    const config = Config.get();
+    const explicitEmbeds = message.embeds.filter((embed) => embed.type === "rich");
+    const removedAutomaticEmbeds = explicitEmbeds.length !== message.embeds.length;
+    const remainingEmbedSlots = Math.max(0, config.limits.message.maxEmbeds - explicitEmbeds.length);
+    const uniqueLinks = selectLinkEmbedUrls(message.content, Math.min(config.embeds.maxLinkEmbeds, remainingEmbedSlots));
 
     if (uniqueLinks.length === 0) {
-        // No valid unique links found, update message to remove old embeds
-        message.embeds = message.embeds.filter((embed) => embed.type === "rich");
-        await saveAndEmitMessageUpdate(message);
+        if (removedAutomaticEmbeds) {
+            message.embeds = explicitEmbeds;
+            await saveAndEmitMessageUpdate(message);
+        }
         return message;
     }
 
-    // avoid a race condition updating the same row
-    let messageUpdateLock = saveAndEmitMessageUpdate(message);
-    await getOrUpdateEmbedCache(uniqueLinks, async (url, embeds) => {
-        if (url !== "cached" && message.embeds.length + embeds.length > Config.get().limits.message.maxEmbeds) return;
-        message.embeds.push(...embeds);
-        if (message.embeds.length > Config.get().limits.message.maxEmbeds) message.embeds = message.embeds.slice(0, Config.get().limits.message.maxEmbeds);
+    const embedCaches = await getOrUpdateEmbedCache(uniqueLinks);
+    const generatedEmbeds = embedCaches
+        .map((entry) => entry.embeds)
+        .flat()
+        .filter((embed) => embed !== undefined);
+    const mergedEmbeds = mergeGeneratedUrlEmbeds(message.embeds, generatedEmbeds, config.limits.message.maxEmbeds);
 
-        try {
-            await messageUpdateLock;
-        } catch {
-            /* empty */
-        }
-        messageUpdateLock = saveAndEmitMessageUpdate(message);
-    });
+    if (!mergedEmbeds.changed) return message;
 
+    message.embeds = mergedEmbeds.embeds;
     await saveAndEmitMessageUpdate(message);
     return message;
 }

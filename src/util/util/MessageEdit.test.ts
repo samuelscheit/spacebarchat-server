@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import type { MessageEditSchema, Reaction } from "@spacebar/schemas";
+import type { MessageEditSchema, StoredReaction } from "@spacebar/schemas";
 import { buildMessageEditHandleMessageOptions, preserveEditedMessageReactions } from "./MessageEdit";
 import { ajv } from "../../schemas/Validator";
 
@@ -17,7 +17,7 @@ describe("Message edit helpers", () => {
     });
 
     test("passes persisted reactions across the edit route/handler boundary", () => {
-        const reactions: Reaction[] = [{ count: 1, emoji: { name: "thumb" }, user_ids: ["user_id"] }];
+        const reactions: StoredReaction[] = [{ count: 1, emoji: { name: "thumb" }, user_ids: ["user_id"] }];
         const editedAt = new Date("2026-01-02T03:04:05.000Z");
 
         const options = buildMessageEditHandleMessageOptions(
@@ -44,9 +44,9 @@ describe("Message edit helpers", () => {
     });
 
     test("does not allow edit payload reactions to replace persisted reactions", () => {
-        const persisted: Reaction[] = [{ count: 1, emoji: { name: "thumb" }, user_ids: ["user_id"] }];
-        const incoming: Reaction[] = [{ count: 2, emoji: { name: "fire" }, user_ids: ["user_id", "other_user_id"] }];
-        const body = { content: "after", reactions: incoming } as MessageEditSchema & { reactions: Reaction[] };
+        const persisted: StoredReaction[] = [{ count: 1, emoji: { name: "thumb" }, user_ids: ["user_id"] }];
+        const incoming: StoredReaction[] = [{ count: 2, emoji: { name: "fire" }, user_ids: ["user_id", "other_user_id"] }];
+        const body = { content: "after", reactions: incoming } as MessageEditSchema & { reactions: StoredReaction[] };
 
         const options = buildMessageEditHandleMessageOptions(
             {

@@ -30,12 +30,19 @@ import {
     getRights,
     handleFile,
     Config,
+    removeChannelOrderingFromGuildSave,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { GuildCreateResponse, GuildUpdateSchema } from "@spacebar/schemas";
+import { GuildUpdateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
+
+async function handleGuildImageField(path: string, value?: string | null, current?: string | null): Promise<string | null | undefined> {
+    if (!value || value === current) return value;
+    if (!value.startsWith("data:")) throw new HTTPError("Invalid " + path);
+    return await handleFile(path, value);
+}
 
 router.get(
     "/",
@@ -107,16 +114,11 @@ router.patch(
             })
         ).channel_ordering;
 
-        // TODO: guild update check image
-
-        if (body.icon && body.icon != guild.icon) body.icon = await handleFile(`/icons/${guild_id}`, body.icon);
-
-        if (body.banner && body.banner !== guild.banner) body.banner = await handleFile(`/banners/${guild_id}`, body.banner);
-
-        if (body.splash && body.splash !== guild.splash) body.splash = await handleFile(`/splashes/${guild_id}`, body.splash);
-
-        if (body.discovery_splash && body.discovery_splash !== guild.discovery_splash)
-            body.discovery_splash = await handleFile(`/discovery-splashes/${guild_id}`, body.discovery_splash);
+        if ("icon" in body) body.icon = await handleGuildImageField(`/icons/${guild_id}`, body.icon, guild.icon);
+        if ("banner" in body) body.banner = await handleGuildImageField(`/banners/${guild_id}`, body.banner, guild.banner);
+        if ("splash" in body) body.splash = await handleGuildImageField(`/splashes/${guild_id}`, body.splash, guild.splash);
+        if ("discovery_splash" in body)
+            body.discovery_splash = (await handleGuildImageField(`/discovery-splashes/${guild_id}`, body.discovery_splash, guild.discovery_splash)) as string | undefined;
 
         if (body.features) {
             const diff = guild.features.filter((x) => !body.features?.includes(x)).concat(body.features.filter((x) => !guild.features.includes(x)));
@@ -159,8 +161,6 @@ router.patch(
                 { skipPermissionCheck: true },
             );
 
-            await Guild.insertChannelInOrder(guild.id, channel.id, 0, guild);
-
             guild.public_updates_channel_id = channel.id;
         } else if (body.public_updates_channel_id != undefined) {
             // ensure channel exists in this guild
@@ -192,8 +192,6 @@ router.patch(
                 { skipPermissionCheck: true },
             );
 
-            await Guild.insertChannelInOrder(guild.id, channel.id, 0, guild);
-
             guild.rules_channel_id = channel.id;
         } else if (body.rules_channel_id != undefined) {
             // ensure channel exists in this guild
@@ -203,24 +201,17 @@ router.patch(
             });
         }
 
-        const data = guild.toJSON();
-        // TODO: guild hashes
-        // TODO: fix vanity_url_code, template_id
-        // delete data.vanity_url_code;
-        delete data.template_id;
+        // Channel.createChannel owns guild.channel_ordering writes. Do not let this
+        // route's guild save overwrite ordering with a stale select:false value.
+        removeChannelOrderingFromGuildSave(guild);
+
+        const data = guild.toGuildUpdateEventData();
 
         await Promise.all([
             guild.save(),
             emitEvent({
                 event: "GUILD_UPDATE",
-                data: {
-                    ...data,
-                    // TODO: did i do this right?
-                    afk_channel_id: data.afk_channel_id ?? undefined,
-                    public_updates_channel_id: data.public_updates_channel_id ?? undefined,
-                    rules_channel_id: data.rules_channel_id ?? undefined,
-                    system_channel_id: data.system_channel_id ?? undefined,
-                } satisfies GuildCreateResponse, // apparently we dont have a separate schema for this
+                data,
                 guild_id,
             } satisfies GuildUpdateEvent),
         ]);

@@ -18,6 +18,9 @@
 
 export interface WebhookUpdateSchema {
     name?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     avatar?: string;
     channel_id?: string;
 }

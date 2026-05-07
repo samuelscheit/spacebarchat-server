@@ -18,6 +18,9 @@
 
 export interface EmojiCreateSchema {
     name?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     image: string;
     require_colons?: boolean | null;
     roles?: string[];

@@ -1,7 +1,6 @@
 using System.Collections.Frozen;
 using System.Linq.Expressions;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using ArcaneLibs.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -75,12 +74,12 @@ public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
                 GuildId = guildId,
                 User = mappedPartialUsers[x.Id],
                 Activities = x.Sessions.Where(s => s.Status is not ("offline" or "invisible" or "unknown"))
-                    .SelectMany(s => JsonSerializer.Deserialize<JsonObject[]>(s.Activities) ?? []).ToList(),
+                    .SelectMany(s => JsonSerializer.Deserialize<Activity[]>(s.Activities) ?? []).ToList(),
                 Status = sortedSessions.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Status))?.Status ?? "offline",
                 ClientStatus = JsonSerializer.Deserialize<Presence.ClientStatuses>(sortedSessions.First(s => !string.IsNullOrWhiteSpace(s.ClientStatus)).ClientStatus) ??
                                new()
             };
-        }).Where(x => x.Value.Activities.Count > 0).ToFrozenDictionary();
+        }).ToFrozenDictionary();
 
         var r = new GuildSyncResponse()
         {

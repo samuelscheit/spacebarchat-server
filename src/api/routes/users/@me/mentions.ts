@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Snowflake, Message, Member, Channel, Permissions, NewUrlUserSignatureData, Stopwatch, Attachment } from "@spacebar/util";
+import { Snowflake, Message, Member, Channel, Permissions, NewUrlUserSignatureData, Stopwatch, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In, LessThan, FindOptionsWhere } from "typeorm";
 
@@ -28,7 +28,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "MessageListResponse",
+                body: "APIMessageArray",
             },
             404: {
                 body: "APIErrorResponse",
@@ -116,39 +116,20 @@ router.get(
                 where: whereQuery,
                 order: { timestamp: "DESC" },
                 relations: {
-                    author: true,
-                    webhook: true,
-                    application: true,
-                    mentions: true,
-                    mention_roles: true,
-                    mention_channels: true,
-                    sticker_items: true,
-                    attachments: true,
-                    referenced_message: {
-                        author: true,
-                        webhook: true,
-                        application: true,
-                        mentions: true,
-                        mention_roles: true,
-                        mention_channels: true,
-                        sticker_items: true,
-                        attachments: true,
-                    },
+                    ...messagePublicRelations,
+                    referenced_message: messagePublicRelations,
                 },
                 take: limit,
             })
-        ).map((m) => ({
-            ...m.toJSON(),
-            attachments: m.attachments?.map((attachment: Attachment) =>
-                Attachment.prototype.signUrls.call(
-                    attachment,
-                    new NewUrlUserSignatureData({
-                        ip: req.ip,
-                        userAgent: req.headers["user-agent"] as string,
-                    }),
-                ),
+        ).map((m) =>
+            Message.prototype.withSignedAttachments.call(
+                m.toJSON(),
+                new NewUrlUserSignatureData({
+                    ip: req.ip,
+                    userAgent: req.headers["user-agent"] as string,
+                }),
             ),
-        }));
+        );
 
         console.log(`[Inbox/mentions] User ${user.id} fetched full message data for ${finalMessages.length} messages in ${sw.elapsed().totalMilliseconds}ms`);
 

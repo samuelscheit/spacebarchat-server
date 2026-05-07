@@ -17,21 +17,21 @@
 */
 
 import { CLOSECODES, setHeartbeat } from "@spacebar/gateway";
+import { Config, GATEWAY_HEARTBEAT_INTERVAL } from "@spacebar/util";
 import { IncomingMessage } from "node:http";
 import { URL } from "node:url";
 import WS from "ws";
-import { VoiceOPCodes, WebRtcWebSocket, Send } from "../util";
+import { createWebRtcMessageHandler, VoiceOPCodes, WebRtcWebSocket, Send } from "../util";
 import { onClose } from "./Close";
 import { onMessage } from "./Message";
-
-// TODO: check rate limit
-// TODO: specify rate limit in config
-// TODO: check msg max size
 
 export async function Connection(this: WS.Server, socket: WebRtcWebSocket, request: IncomingMessage) {
     try {
         socket.on("close", onClose.bind(socket));
-        socket.on("message", onMessage.bind(socket));
+        socket.on(
+            "message",
+            createWebRtcMessageHandler(socket, (buffer) => onMessage.call(socket, buffer), Config.get().limits.webrtc),
+        );
         console.log("[WebRTC] new connection", request.url);
 
         if (process.env.WS_LOGEVENTS) {
@@ -55,14 +55,14 @@ export async function Connection(this: WS.Server, socket: WebRtcWebSocket, reque
         socket.version = Number(searchParams.get("v")) || 5;
         if (socket.version < 3) return socket.close(CLOSECODES.Unknown_error, "invalid version");
 
-        setHeartbeat(socket);
+        setHeartbeat(socket, Config.get().gateway.heartbeatTimeout);
 
         socket.readyTimeout = setTimeout(() => socket.close(CLOSECODES.Session_timed_out), 1000 * 30);
 
         await Send(socket, {
             op: VoiceOPCodes.HELLO,
             d: {
-                heartbeat_interval: 1000 * 30,
+                heartbeat_interval: GATEWAY_HEARTBEAT_INTERVAL,
             },
         });
     } catch (error) {

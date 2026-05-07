@@ -16,16 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { DiscordApiErrors, EVENT, FieldErrors, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "@spacebar/util";
+import { DiscordApiErrors, EVENT, FieldError, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "@spacebar/util";
 import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
-import { ajv } from "@spacebar/schemas";
+import { ajv, nonCoercingAjv } from "@spacebar/schemas";
 import { BigNumber } from "bignumber.js";
-
-const ignoredRequestSchemas = [
-    // skip validation for settings proto JSON updates - TODO: figure out if this even possible to fix?
-    "SettingsProtoUpdateJsonSchema",
-];
+import { normalizeEmbedPayloadForSchema } from "../utility/EmbedPayload";
+import { ajvErrorsToFieldErrors } from "../utility/AjvErrorFields";
 
 declare global {
     // TODO: fix this
@@ -43,10 +40,16 @@ export type RouteResponse = {
     headers?: Record<string, string>;
 };
 export type stripNulls = { [key: string]: true | stripNulls };
+export type RouteRequestBody =
+    | `${string}Schema`
+    | {
+          schema: `${string}Schema`;
+          required?: boolean;
+      };
 export interface RouteOptions {
     permission?: PermissionResolvable;
     right?: RightResolvable;
-    requestBody?: `${string}Schema`; // typescript interface name
+    requestBody?: RouteRequestBody; // typescript interface name
     responses?: {
         [status: number]: {
             // body?: `${string}Response`;
@@ -54,6 +57,8 @@ export interface RouteOptions {
         };
     };
     stripNulls?: stripNulls | true;
+    /** Defaults to true to preserve existing route behavior. Set false for request bodies that must not coerce JSON scalar types. */
+    coerceRequestBody?: boolean;
     event?: EVENT | EVENT[];
     summary?: string;
     description?: string;
@@ -99,31 +104,42 @@ export function followNullPath(obj1: any, nullObj: stripNulls) {
             }
     }
 }
-//It's pretty safe to assume numbers over the number limit aren't really meant to be numbers, so we turn them to strings.
 export function bigNumberToString(obj1: unknown) {
-    if (obj1 && typeof obj1 === "object") {
-        for (const [key, value] of Object.entries(obj1)) {
-            if (typeof value === "object") {
-                if (value instanceof BigNumber) {
-                    //@ts-expect-error this is fine lol
-                    obj1[key] = value.toString();
-                }
+    if (!obj1 || typeof obj1 !== "object") return;
+
+    const obj = obj1 as Record<string, unknown>;
+    for (const key in obj) {
+        if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+        const value = obj[key];
+        if (typeof value === "object") {
+            if (value instanceof BigNumber) {
+                obj[key] = value.toString();
+            } else {
                 bigNumberToString(value);
             }
         }
     }
 }
+
+function normalizeRequestBody(requestBody: RouteRequestBody | undefined) {
+    if (!requestBody) return undefined;
+    if (typeof requestBody === "string") return { schema: requestBody, required: true };
+
+    return { schema: requestBody.schema, required: requestBody.required ?? true };
+}
+
 export function route(opts: RouteOptions) {
     let validate: AnyValidateFunction | undefined;
-    if (opts.requestBody) {
+    const requestBody = normalizeRequestBody(opts.requestBody);
+    if (requestBody) {
         try {
-            validate = ajv.getSchema(opts.requestBody);
+            validate = (opts.coerceRequestBody === false ? nonCoercingAjv : ajv).getSchema(requestBody.schema);
         } catch (e) {
             console.error("AJV getSchema failed!");
             throw e;
         }
 
-        if (!validate) throw new Error(`Body schema ${opts.requestBody} not found`);
+        if (!validate) throw new Error(`Body schema ${requestBody.schema} not found`);
     }
 
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -148,9 +164,14 @@ export function route(opts: RouteOptions) {
                 throw SpacebarApiErrors.MISSING_RIGHTS.withParams(opts.right as string);
             }
         }
+
         bigNumberToString(req.body);
 
-        if (validate && !ignoredRequestSchemas.includes(opts.requestBody!)) {
+        if (requestBody?.required === false && req.body === undefined) req.body = {};
+
+        if (validate && requestBody) {
+            normalizeEmbedPayloadForSchema(requestBody.schema, req.body);
+
             if (opts.stripNulls) {
                 if (opts.stripNulls === true) stripNull(req.body);
                 else followNullPath(req.body, opts.stripNulls);
@@ -158,16 +179,9 @@ export function route(opts: RouteOptions) {
 
             const valid = validate(req.body);
             if (!valid) {
-                const fields: Record<string, { code?: string; message: string }> = {};
-                validate.errors?.forEach(
-                    (x) =>
-                        (fields[x.instancePath.slice(1)] = {
-                            code: x.keyword,
-                            message: x.message || "",
-                        }),
-                );
-                if (process.env.LOG_VALIDATION_ERRORS) console.log(`[VALIDATION ERROR] ${req.method} ${req.originalUrl} - SCHEMA='${opts.requestBody}' -`, validate?.errors);
-                throw FieldErrors(fields, validate.errors!);
+                const errors = ajvErrorsToFieldErrors(validate.errors ?? []);
+                if (process.env.LOG_VALIDATION_ERRORS) console.log(`[VALIDATION ERROR] ${req.method} ${req.originalUrl} - SCHEMA='${requestBody.schema}' -`, validate?.errors);
+                throw new FieldError(50035, "Invalid Form Body", errors, validate.errors!);
             }
         }
         next();

@@ -17,11 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application } from "@spacebar/util";
+import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, ValidateWebhookName, Application, emitEvent, toAPIWebhook } from "@spacebar/util";
 import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { isTextChannel, WebhookCreateSchema, WebhookType } from "@spacebar/schemas";
+import { buildWebhooksUpdateEvent } from "../../../util/utility/WebhookEvents";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -44,10 +45,11 @@ router.get(
         });
 
         return res.json(
-            webhooks.map((webhook) => ({
-                ...webhook,
-                url: Config.get().api.endpointPublic + "/api/webhooks/" + webhook.id + "/" + webhook.token,
-            })),
+            webhooks.map((webhook) =>
+                toAPIWebhook(webhook, {
+                    url: Config.get().api.endpointPublic + "/api/webhooks/" + webhook.id + "/" + webhook.token,
+                }),
+            ),
         );
     },
 );
@@ -82,12 +84,7 @@ router.post(
         if (maxWebhooks && webhook_count > maxWebhooks) throw DiscordApiErrors.MAXIMUM_WEBHOOKS.withParams(maxWebhooks);
 
         let { avatar, name } = req.body as WebhookCreateSchema;
-        name = trimSpecial(name);
-
-        // TODO: move this
-        if (name) {
-            ValidateName(name);
-        }
+        name = ValidateWebhookName(name);
 
         if (avatar) avatar = await handleFile(`/avatars/${channel_id}`, avatar);
 
@@ -102,12 +99,14 @@ router.post(
             token: crypto.randomBytes(24).toString("base64url"),
         }).save();
 
-        const user = await User.getPublicUser(req.user_id);
-
-        return res.json({
-            ...hook,
-            user: user,
+        const webhooksUpdateEvent = buildWebhooksUpdateEvent({
+            channel_id: hook.channel_id,
+            guild_id: channel.guild_id,
         });
+
+        const [user] = await Promise.all([User.getPublicUser(req.user_id), webhooksUpdateEvent && emitEvent(webhooksUpdateEvent)]);
+
+        return res.json(toAPIWebhook(hook, { user }));
     },
 );
 

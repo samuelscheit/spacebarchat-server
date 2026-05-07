@@ -17,7 +17,7 @@
 */
 
 import { generateCode, route } from "@spacebar/api";
-import { Guild, Template } from "@spacebar/util";
+import { Guild, sortChannelsByChannelOrdering, Template } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -40,6 +40,14 @@ const TemplateGuildProjection: (keyof Guild)[] = [
     "system_channel_flags",
     "icon",
 ];
+const TemplateGuildProjectionWithOrdering: (keyof Guild)[] = [...TemplateGuildProjection, "channel_ordering"];
+
+function serializeTemplateGuild(guild: Guild) {
+    if (guild.channels) guild.channels = sortChannelsByChannelOrdering(guild.channels, guild.channel_ordering);
+    delete (guild as Partial<Guild>).channel_ordering;
+
+    return guild;
+}
 
 router.get(
     "/",
@@ -85,7 +93,7 @@ router.post(
         const { guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
-            select: TemplateGuildProjection,
+            select: TemplateGuildProjectionWithOrdering,
             relations: { roles: true, channels: true },
         });
         const exists = await Template.findOne({
@@ -100,7 +108,7 @@ router.post(
             created_at: new Date(),
             updated_at: new Date(),
             source_guild_id: guild_id,
-            serialized_source_guild: guild,
+            serialized_source_guild: serializeTemplateGuild(guild),
         }).save();
 
         res.json(template);
@@ -141,12 +149,13 @@ router.put(
         const { code, guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
-            select: TemplateGuildProjection,
+            select: TemplateGuildProjectionWithOrdering,
+            relations: { roles: true, channels: true },
         });
 
         const template = await Template.create({
             code,
-            serialized_source_guild: guild,
+            serialized_source_guild: serializeTemplateGuild(guild),
         }).save();
 
         res.json(template);

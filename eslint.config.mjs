@@ -18,7 +18,7 @@ const compat = new FlatCompat({
 
 export default defineConfig([
     {
-        ignores: ["./node_modules", "./dist", "**/README.md", "**/COPYING", "./scripts/", "./assets/", "./extra/", "./files/"],
+        ignores: ["**/node_modules/**", "**/dist/**", "**/README.md", "**/COPYING", "./scripts/", "./assets/", "./extra/", "./files/"],
     },
     ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended"),
     {
@@ -36,7 +36,8 @@ export default defineConfig([
             parserOptions: {
                 ecmaVersion: "latest",
                 sourceType: "module",
-                project: "./tsconfig.json",
+                projectService: true,
+                tsconfigRootDir: __dirname,
             },
         },
 
@@ -66,7 +67,7 @@ export default defineConfig([
             // "sort-imports": ["error", {}],
             "default-case": "error",
             "default-case-last": "error",
-            "yoda": "error",
+            yoda: "error",
             // unsure what the defaults are here, but we want them to error
             "for-direction": "error",
             "constructor-super": "error",
@@ -87,6 +88,17 @@ export default defineConfig([
     {
         files: ["**/*.js", "**/*.cjs", "**/*.mjs"],
         extends: typescriptEslint.configs?.disableTypeChecked ? [typescriptEslint.configs.disableTypeChecked] : [],
+    },
+    {
+        files: ["benchmarks/**/*.js"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+        rules: {
+            "@typescript-eslint/no-require-imports": "off",
+        },
     },
     {
         plugins: { "node-import": nodeImport },

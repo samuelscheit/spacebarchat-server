@@ -17,7 +17,17 @@
 */
 
 import { route } from "@spacebar/api";
-import { ChannelPinsUpdateEvent, Config, DiscordApiErrors, emitEvent, Message, MessageCreateEvent, MessageUpdateEvent, User } from "@spacebar/util";
+import {
+    ChannelPinsUpdateEvent,
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    Message,
+    MessageCreateEvent,
+    MessageUpdateEvent,
+    User,
+    messagePublicWithThreadRelations,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
 
@@ -42,7 +52,7 @@ router.put(
 
         const message = await Message.findOneOrFail({
             where: { id: message_id },
-            relations: { author: true },
+            relations: messagePublicWithThreadRelations,
         });
 
         // * in dm channels anyone can pin messages -> only check for guilds
@@ -129,7 +139,7 @@ router.delete(
 
         const message = await Message.findOneOrFail({
             where: { id: message_id },
-            relations: { author: true },
+            relations: messagePublicWithThreadRelations,
         });
 
         if (message.guild_id) req.permission?.hasThrow("MANAGE_MESSAGES");
@@ -177,21 +187,7 @@ router.get(
 
         const pins = await Message.find({
             where: { channel_id: channel_id, pinned_at: Not(IsNull()) },
-            relations: {
-                author: true,
-                webhook: true,
-                application: true,
-                mentions: true,
-                mention_roles: true,
-                mention_channels: true,
-                sticker_items: true,
-                attachments: true,
-                thread: {
-                    recipients: {
-                        user: true,
-                    },
-                },
-            },
+            relations: messagePublicWithThreadRelations,
             order: { pinned_at: "DESC" },
         });
         await Message.fillReplies(pins);

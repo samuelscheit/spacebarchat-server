@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Message, MessageDeleteBulkEvent, emitEvent, getPermission, getRights } from "@spacebar/util";
+import { Channel, Message, MessageDeleteBulkEvent, emitEvent, getPermission, getRights, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOperator, Not } from "typeorm";
@@ -74,7 +74,7 @@ router.post(
                 author_id: rights.has("SELF_DELETE_MESSAGES") ? undefined : Not(req.user_id),
                 // if you lack the right of self-deletion, you can't delete your own messages, even in purges
             },
-            relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
+            relations: messagePublicRelations,
         };
 
         const messages = await Message.find(query);

@@ -18,7 +18,7 @@
 
 import { InteractionCallbackType } from "./InteractionCallbackType";
 import { AllowedMentions, BaseMessageComponents, Embed } from "../messages";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "#schemas/uncategorised";
+import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "../../uncategorised/MessageCreateSchema";
 
 export interface InteractionCallbackSchema {
     type: InteractionCallbackType;

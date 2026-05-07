@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "@spacebar/util";
+import { assertCdnFileSizeLimit, Config } from "@spacebar/util";
 import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -36,11 +36,19 @@ const ALLOWED_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
 
 const router = Router({ mergeParams: true });
 
+function getProfileUploadPath(req: Request, hash?: string) {
+    const { guild_id } = req.params as { [key: string]: string };
+    const user_id = (req.params as { [key: string]: string }).user_id.split(".")[0];
+    const assetType = req.baseUrl.includes("/banners") ? "banners" : "avatars";
+    return `guilds/${guild_id}/users/${user_id}/${assetType}${hash ? `/${hash}` : ""}`;
+}
+
 router.post("/", multer.single("file"), async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
     const { guild_id, user_id } = req.params as { [key: string]: string };
+    assertCdnFileSizeLimit(`/${getProfileUploadPath(req)}`, size, Config.get().cdn);
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
@@ -48,7 +56,7 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
     if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
-    const path = `guilds/${guild_id}/users/${user_id}/avatars/${hash}`;
+    const path = getProfileUploadPath(req, hash);
     const endpoint = Config.get().cdn.endpointPublic;
 
     await storage.set(path, buffer);
@@ -62,10 +70,7 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
 });
 
 router.get("/", cache, async (req: Request, res: Response) => {
-    const { guild_id } = req.params as { [key: string]: string };
-    let { user_id } = req.params as { [key: string]: string };
-    user_id = user_id.split(".")[0]; // remove .file extension
-    const path = `guilds/${guild_id}/users/${user_id}/avatars`;
+    const path = getProfileUploadPath(req);
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
@@ -77,10 +82,9 @@ router.get("/", cache, async (req: Request, res: Response) => {
 });
 
 router.get("/:hash", cache, async (req: Request, res: Response) => {
-    const { guild_id, user_id } = req.params as { [key: string]: string };
     let { hash } = req.params as { [key: string]: string };
     hash = hash.split(".")[0]; // remove .file extension
-    const path = `guilds/${guild_id}/users/${user_id}/avatars/${hash}`;
+    const path = getProfileUploadPath(req, hash);
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
@@ -93,8 +97,8 @@ router.get("/:hash", cache, async (req: Request, res: Response) => {
 
 router.delete("/:id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    const { guild_id, user_id, id } = req.params as { [key: string]: string };
-    const path = `guilds/${guild_id}/users/${user_id}/avatars/${id}`;
+    const { id } = req.params as { [key: string]: string };
+    const path = getProfileUploadPath(req, id);
 
     await storage.delete(path);
 

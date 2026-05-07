@@ -17,6 +17,7 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, RelationId } from "typeorm";
+import type { ApplicationInstallParams } from "@spacebar/schemas";
 import { BaseClass } from "./BaseClass";
 import { Team } from "./Team";
 import { User } from "./User";
@@ -99,7 +100,7 @@ export class Application extends BaseClass {
     cover_image?: string; // the application's default rich presence invite cover image hash
 
     @Column({ type: "jsonb", nullable: true })
-    install_params?: { scopes: string[]; permissions: string };
+    install_params?: ApplicationInstallParams | null;
 
     @Column({ nullable: true })
     terms_of_service_url?: string;

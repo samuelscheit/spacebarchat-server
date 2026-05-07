@@ -17,7 +17,18 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, GuildRoleCreateEvent, GuildRoleUpdateEvent, Member, Role, Snowflake } from "@spacebar/util";
+import {
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    GuildRoleCreateEvent,
+    GuildRoleUpdateEvent,
+    handleFile,
+    Member,
+    Role,
+    Snowflake,
+    resolveCreatedRolePermissions,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { Not } from "typeorm";
 import { RoleModifySchema, RolePositionUpdateSchema } from "@spacebar/schemas";
@@ -64,6 +75,9 @@ router.post(
         if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
 
         const everyoneRole = await Role.findOne({ where: { id: guild_id } });
+        const id = Snowflake.generate();
+
+        if (body.icon?.length) body.icon = await handleFile(`/role-icons/${id}`, body.icon as string);
 
         const role = Role.create({
             // values before ...body are default and can be overridden
@@ -74,11 +88,14 @@ router.post(
             ...body,
             guild_id: guild_id,
             managed: false,
-            permissions: String((req.permission?.bitfield || 0n) & BigInt(body.permissions || everyoneRole?.permissions || 0)),
+            permissions: resolveCreatedRolePermissions({
+                requested: body.permissions,
+                everyone: everyoneRole?.permissions,
+                actor: req.permission?.bitfield,
+            }),
             tags: undefined,
-            icon: undefined,
             unicode_emoji: undefined,
-            id: Snowflake.generate(),
+            id,
             colors: {
                 primary_color: body.colors?.primary_color || body.color || 0,
                 secondary_color: body.colors?.secondary_color || undefined, // gradient

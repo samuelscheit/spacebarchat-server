@@ -16,33 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove dependency on entities
-import { Role } from "@spacebar/util";
-import { BaseMessageComponents, Embed, MessageType, Poll, PublicUser } from "@spacebar/schemas";
-import { PublicAttachment } from "../api/messages/Attachments";
+import { PublicMessage } from "@spacebar/schemas";
 
-export interface GuildMessagesSearchMessage {
-    id: string;
-    type: MessageType;
-    content?: string;
-    channel_id: string;
-    author: PublicUser;
-    attachments: PublicAttachment[];
-    embeds: Embed[];
-    mentions: PublicUser[];
-    mention_roles: Role[];
-    pinned: boolean;
-    mention_everyone?: boolean;
-    tts: boolean;
-    timestamp: string;
-    edited_timestamp: string | null;
-    flags: number;
-    components: BaseMessageComponents[];
-    poll: Poll;
+export interface GuildMessagesSearchMessage extends PublicMessage {
     hit: true;
 }
 
 export interface GuildMessagesSearchResponse {
-    messages: GuildMessagesSearchMessage[];
+    messages: GuildMessagesSearchMessage[][];
     total_results: number;
 }

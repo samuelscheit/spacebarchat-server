@@ -21,8 +21,8 @@ import { User } from "./User";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
 import { Activity, ClientStatus, GatewaySession, GatewaySessionClientInfo, Status } from "../interfaces";
-import { randomUpperString } from "@spacebar/api";
 import { DateBuilder, IpDataClient, TimeSpan } from "../util";
+import { randomUpperString } from "../util/Random";
 
 @Entity({
     name: "sessions",
