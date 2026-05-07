@@ -230,44 +230,4 @@ describe("JsonSerializer", () => {
         await Promise.all(tasks);
         await fs.unlink("large.json");
     });
-
-    // TODO: broken
-    // it("should be able to stream large file", async () => {
-    //     // write a massive json file
-    //     const sw = Stopwatch.startNew();
-    //     const jsonfile = await fs.open("large.json", "w");
-    //     await jsonfile.write("[");
-    //     const getLargeObj = (index: number, depth: number) => {
-    //         const obj: JsonValue = {};
-    //
-    //         if (depth === 0) {
-    //             return obj;
-    //         }
-    //         for (let i = 0; i < 10; i++) {
-    //             obj[`key${i}`] = getLargeObj(index * 10 + i, depth - 1);
-    //         }
-    //         return obj;
-    //     };
-    //     for (let i = 0; i < 100; i++) {
-    //         const entry = JSON.stringify(getLargeObj(i, 5));
-    //         await jsonfile.write(entry);
-    //         if (i < 99) {
-    //             await jsonfile.write(",");
-    //         }
-    //     }
-    //     await jsonfile.write("]");
-    //     await jsonfile.close();
-    //     process.stdout.write("Large file written in " + sw.elapsed().toString() + "\n");
-    //
-    //     const jsonData = await fs.open("large.json", "r").then((f) => f.createReadStream());
-    //
-    //     const start = process.hrtime.bigint();
-    //     const obj = await JsonSerializer.DeserializeAsync<{ key: string; value: string }[]>(jsonData);
-    //     const end = process.hrtime.bigint();
-    //     const duration = end - start;
-    //     console.log(`Deserialization took ${duration / BigInt(1e6)} ms`);
-    //
-    //     assert.equal(obj.length, 100);
-    //     await fs.unlink("large.json");
-    // });
 });
