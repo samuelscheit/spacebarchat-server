@@ -40,6 +40,11 @@ const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
 // TODO: Get channel
 
+function isStatusOnlyUpdate(payload: ChannelModifySchema) {
+    const fields = Object.keys(payload) as (keyof ChannelModifySchema)[];
+    return fields.length === 1 && fields[0] === "status";
+}
+
 router.get(
     "/",
     route({
@@ -169,6 +174,12 @@ router.patch(
         });
         const isThread = channel.isThread();
 
+        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
+            throw new FieldError(400, "Invalid form body", {
+                status: makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels"),
+            });
+        }
+
         if (isThread) {
             if (channel.owner_id !== req.user.id) {
                 req.permission!.hasThrow("MANAGE_THREADS");
@@ -178,7 +189,7 @@ router.patch(
                 throw new Error("You can't change permission overwrites for threads");
             }
         } else {
-            req.permission!.hasThrow("MANAGE_CHANNELS");
+            req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
 
         if (payload.available_tags) {
@@ -225,6 +236,8 @@ router.patch(
             errors["name"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel name must be between 1 and ${channelLimits.maxName} characters`);
         if (payload.topic !== undefined && payload.topic.length > channelLimits.maxTopic)
             errors["topic"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel topic must be less than ${channelLimits.maxTopic} characters`);
+        if (payload.status !== undefined && payload.status !== null && payload.status.length > 500)
+            errors["status"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", "Channel status must be 500 characters or fewer");
         if (payload.user_limit !== undefined && payload.user_limit < 0) errors["user_limit"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "User limit must be 0 or higher");
         if (payload.type !== undefined && payload.type !== channel.type) {
             const guildFeatures =

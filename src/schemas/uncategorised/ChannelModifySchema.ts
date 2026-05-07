@@ -56,4 +56,8 @@ export interface ChannelBaseModifySchema {
 
 export interface ChannelModifySchema extends ChannelBaseModifySchema {
     type?: ChannelModifyType;
+    /**
+     * @maxLength 500
+     */
+    status?: string | null;
 }

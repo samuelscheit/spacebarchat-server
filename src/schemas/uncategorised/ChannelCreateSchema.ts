@@ -19,6 +19,6 @@
 import { ChannelType } from "@spacebar/schemas";
 import { ChannelBaseModifySchema } from "./ChannelModifySchema";
 
-export interface ChannelCreateSchema extends Omit<ChannelBaseModifySchema, "available_tags"> {
+export interface ChannelCreateSchema extends Omit<ChannelBaseModifySchema, "available_tags" | "status"> {
     type?: ChannelType;
 }
