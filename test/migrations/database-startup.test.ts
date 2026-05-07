@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -92,6 +92,44 @@ test("CDN startup initializes isolated file storage", { timeout: 60_000 }, async
     }
 });
 
+test(
+    "Gateway startup initializes event transport and accepts websocket connections",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_gateway_startup" });
+        const config = await createStartupConfig();
+
+        try {
+            await runGatewayStartup(database.url, config.path);
+        } finally {
+            await config.close();
+            await database.close();
+        }
+    },
+);
+
+test(
+    "WebRTC startup degrades cleanly when native media library is unavailable",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_startup" });
+        const config = await createStartupConfig();
+
+        try {
+            await runWebRtcNativeMediaStartup(database.url, config.path);
+        } finally {
+            await config.close();
+            await database.close();
+        }
+    },
+);
+
 async function runDatabaseBoot(databaseUrl: string, options: { applyMigrations?: boolean } = {}) {
     const script = `
 const assert = require("node:assert/strict");
@@ -166,6 +204,181 @@ const { CDNServer, storage } = require("./dist/cdn");
     } catch (error) {
         const details = childProcessErrorDetails(error);
         assert.fail(`CDN storage startup child process failed\n${details}`);
+    }
+}
+
+async function createStartupConfig() {
+    const directory = await mkdtemp(path.join(tmpdir(), "spacebar-startup-config-"));
+    const configPath = path.join(directory, "config.json");
+    await writeFile(
+        configPath,
+        JSON.stringify(
+            {
+                general: { serverName: "localhost" },
+                api: { endpointPublic: "http://localhost:3001/api/v9" },
+                cdn: {
+                    endpointPublic: "http://localhost:3003",
+                    endpointPrivate: "http://localhost:3003",
+                },
+                gateway: { endpointPublic: "ws://localhost:3002" },
+            },
+            null,
+            2,
+        ),
+    );
+
+    return {
+        path: configPath,
+        close: () => rm(directory, { recursive: true, force: true }),
+    };
+}
+
+async function runGatewayStartup(databaseUrl: string, configPath: string) {
+    const script = `
+const assert = require("node:assert/strict");
+const { createServer } = require("node:http");
+const WebSocket = require("ws");
+const { Server } = require("./dist/gateway/Server.js");
+const { closeDatabase, events } = require("./dist/util");
+
+async function readJsonMessage(client) {
+    const raw = await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            cleanup();
+            reject(new Error("Timed out waiting for Gateway startup message"));
+        }, 10000);
+        const cleanup = () => {
+            clearTimeout(timeout);
+            client.off("message", onMessage);
+            client.off("error", onError);
+            client.off("close", onClose);
+        };
+        const onMessage = (message) => {
+            cleanup();
+            resolve(message);
+        };
+        const onError = (error) => {
+            cleanup();
+            reject(error);
+        };
+        const onClose = (code) => {
+            cleanup();
+            reject(new Error("Gateway closed before startup message: " + code));
+        };
+        client.once("message", onMessage);
+        client.once("error", onError);
+        client.once("close", onClose);
+    });
+    return JSON.parse(raw.toString());
+}
+
+async function closeClient(client) {
+    if (client.readyState === WebSocket.CLOSED) return;
+    await new Promise((resolve) => {
+        client.once("close", () => resolve());
+        client.close();
+    });
+}
+
+async function closeGateway(server) {
+    for (const client of server.ws.clients) client.close();
+    await new Promise((resolve) => server.ws.close(() => resolve()));
+    await new Promise((resolve, reject) => server.server.close((error) => error ? reject(error) : resolve()));
+}
+
+(async () => {
+    const http = createServer();
+    const server = new Server({ port: 0, server: http });
+    await server.start();
+
+    assert.equal(events.listenerCount("spacebar") > 0, true, "Gateway startup should initialize the event transport listener");
+    assert.equal(server.server.listening, true, "Gateway HTTP server should be listening after startup");
+    const address = server.server.address();
+    assert(address && typeof address === "object");
+
+    const client = new WebSocket("ws://127.0.0.1:" + address.port + "/?version=8&encoding=json", {
+        headers: { "User-Agent": "spacebar-test" },
+    });
+    const hello = await readJsonMessage(client);
+    assert.equal(hello.op, 10);
+
+    await closeClient(client);
+    await closeGateway(server);
+    await closeDatabase();
+})().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});
+`;
+
+    await runStartupChild("Gateway startup child process failed", script, {
+        APPLY_DB_MIGRATIONS: "true",
+        CONFIG_PATH: configPath,
+        CONFIG_READONLY: "true",
+        DATABASE: databaseUrl,
+    });
+}
+
+async function runWebRtcNativeMediaStartup(databaseUrl: string, configPath: string) {
+    const script = `
+const assert = require("node:assert/strict");
+const { createServer } = require("node:http");
+const { Server } = require("./dist/webrtc/Server.js");
+const { closeDatabase, events } = require("./dist/util");
+
+(async () => {
+    const http = createServer();
+    const server = new Server({ port: 0, server: http });
+    await server.start();
+
+    assert.equal(events.listenerCount("spacebar") > 0, true, "WebRTC startup should initialize the event transport before media startup");
+    assert.equal(server.ws, undefined, "WebRTC websocket server should not start without a native media library");
+    assert.equal(server.server.listening, false, "WebRTC HTTP server should remain stopped when media startup is disabled");
+
+    await closeDatabase();
+})().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});
+`;
+
+    await runStartupChild("WebRTC native media startup child process failed", script, {
+        APPLY_DB_MIGRATIONS: "true",
+        CONFIG_PATH: configPath,
+        CONFIG_READONLY: "true",
+        DATABASE: databaseUrl,
+        WRTC_LIBRARY: "",
+    });
+}
+
+async function runStartupChild(message: string, script: string, envOverrides: Record<string, string | undefined>) {
+    const env: NodeJS.ProcessEnv = {
+        ...process.env,
+        DB_SYNC: "",
+        EVENT_SOCKET_PATH: "",
+        EVENT_TRANSMISSION: "",
+        LOG_ROUTES: "false",
+        RABBITMQ_HOST: "",
+        RABBITMQ_HOST_PATH: "",
+        WRTC_LIBRARY: "",
+    };
+    delete env.CONFIG_PATH;
+    delete env.CONFIG_READONLY;
+    for (const [key, value] of Object.entries(envOverrides)) {
+        if (value === undefined) delete env[key];
+        else env[key] = value;
+    }
+
+    try {
+        await execFileAsync(process.execPath, ["-r", "dotenv/config", "-r", "module-alias/register", "--enable-source-maps", "-e", script], {
+            cwd: process.cwd(),
+            env,
+            maxBuffer: 10 * 1024 * 1024,
+            timeout: 120_000,
+        });
+    } catch (error) {
+        const details = childProcessErrorDetails(error);
+        assert.fail(`${message}\n${details}`);
     }
 }
 
