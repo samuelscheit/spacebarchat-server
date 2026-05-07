@@ -20,7 +20,9 @@ nixpkgs.lib.recursiveUpdate (
         inherit system;
       };
       lib = pkgs.lib;
-      buildSpacebarDotnetModule = import ../../nix/lib/buildSpacebarDotnetModule.nix { inherit pkgs rVersion; };
+      buildSpacebarDotnetModule = import ../../nix/lib/buildSpacebarDotnetModule.nix {
+        inherit pkgs rVersion;
+      };
       proj = self.packages.${system};
     in
     {
@@ -195,16 +197,48 @@ nixpkgs.lib.recursiveUpdate (
             proj.Spacebar-Models-Generic
           ];
         };
-        # Spacebar-AdminApi-TestClient = buildSpacebarDotnetModule {
-        #   name = "Spacebar.AdminApi.TestClient";
-        #   projectFile = "Utilities/Spacebar.AdminApi.TestClient/Spacebar.AdminApi.TestClient.csproj";
-        #   nugetDeps = Utilities/Spacebar.AdminApi.TestClient/deps.json;
-        #   projectReferences = [
-        #     proj.Spacebar-AdminApi-Models
-        #   ];
-        ##  runtimeId = "browser-wasm";
-        ##  useAppHost = false;
-        # };
+        Spacebar-AdminApi-TestClient = buildSpacebarDotnetModule {
+          name = "Spacebar.AdminApi.TestClient";
+          projectFile = "Spacebar.AdminApi.TestClient.csproj";
+          nugetDeps = Utilities/Spacebar.AdminApi.TestClient/deps.json;
+          srcRoot = Utilities/Spacebar.AdminApi.TestClient;
+          packNupkg = false;
+          runtimeId = "browser-wasm";
+          useAppHost = false;
+          dontBuild = true;
+          dontDotnetBuild = true;
+          dontDotnetFixup = true;
+          projectReferences = [
+            proj.Spacebar-Models-AdminApi
+            proj.Spacebar-Models-Config
+          ];
+
+          # buildDotnetModule's default flow splits `dotnet build` and
+          # `dotnet publish --no-build`.
+          # With the SDK-pinned Blazor WebAssembly pack used by nixpkgs, that publish
+          # phase can lose the resolved browser-wasm runtime pack metadata. Run publish
+          # as the only build step so MSBuild resolves the runtime pack and emits the
+          # complete static UI in one graph.
+          installPhase = ''
+            runHook preInstall
+
+            dotnet publish Spacebar.AdminApi.TestClient.csproj \
+              -maxcpucount:"''${NIX_BUILD_CORES:-1}" \
+              -p:ContinuousIntegrationBuild=true \
+              -p:Deterministic=true \
+              -p:OverwriteReadOnlyFiles=true \
+              -p:UseAppHost=false \
+              --configuration "''${dotnetBuildType:-Release}" \
+              --runtime browser-wasm \
+              --no-restore \
+              --output "$out/lib/Spacebar.AdminApi.TestClient"
+
+            mkdir -p $out/share/spacebar-admin-ui
+            cp -r $out/lib/Spacebar.AdminApi.TestClient/wwwroot/. $out/share/spacebar-admin-ui/
+
+            runHook postInstall
+          '';
+        };
       };
 
       containers.docker.admin-api = pkgs.dockerTools.buildLayeredImage {
