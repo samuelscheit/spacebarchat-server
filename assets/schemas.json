@@ -6947,9 +6947,6 @@
     "MessageCreateSchema": {
         "type": "object",
         "properties": {
-            "type": {
-                "type": "integer"
-            },
             "content": {
                 "type": "string"
             },
@@ -6975,16 +6972,6 @@
                         "items": {
                             "$ref": "#/definitions/Embed"
                         }
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "embed": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Embed"
                     },
                     {
                         "type": "null"
@@ -7245,16 +7232,6 @@
     "MessageEditSchema": {
         "type": "object",
         "properties": {
-            "embed": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/Embed"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
             "flags": {
                 "type": "integer"
             },
@@ -7266,18 +7243,6 @@
                 "items": {
                     "type": "string"
                 }
-            },
-            "content": {
-                "type": "string"
-            },
-            "mobile_network_type": {
-                "type": "string"
-            },
-            "nonce": {
-                "type": "string"
-            },
-            "tts": {
-                "type": "boolean"
             },
             "embeds": {
                 "anyOf": [
@@ -7291,6 +7256,18 @@
                         "type": "null"
                     }
                 ]
+            },
+            "content": {
+                "type": "string"
+            },
+            "mobile_network_type": {
+                "type": "string"
+            },
+            "nonce": {
+                "type": "string"
+            },
+            "tts": {
+                "type": "boolean"
             },
             "allowed_mentions": {
                 "anyOf": [
