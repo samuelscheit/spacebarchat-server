@@ -19,6 +19,7 @@
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import { ChannelType } from "@spacebar/schemas";
 import { Channel, Config } from "@spacebar/util";
+import { createChannelInfoPayload } from "../util/ChannelInfo";
 
 export async function onRequestChannelInfo(this: WebSocket, { d }: Payload) {
     // Schema validation can only accept either string or array, so transforming it here to support both
@@ -43,11 +44,7 @@ export async function onRequestChannelInfo(this: WebSocket, { d }: Payload) {
         t: "CHANNEL_INFO", // This is an educated guess...
         d: {
             guild_id: d.guild_id,
-            channels: channels.map((c) => ({
-                id: c.id,
-                status: d.fields.includes("status") ? null : undefined, // TODO: we dont track this
-                voice_start_time: d.fields.includes("voice_start_time") ? new Date().toISOString() : undefined, // TODO: we dont track this
-            })),
+            channels: channels.map((c) => createChannelInfoPayload(c, d.fields)),
         },
     });
 }
