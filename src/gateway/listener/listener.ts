@@ -279,7 +279,7 @@ export async function setupListener(this: WebSocket) {
     RabbitMQ.on("reconnected", handleReconnect);
     RabbitMQ.on("disconnected", handleDisconnect);
 
-    this.once("close", async () => {
+    const cleanupListener = async () => {
         // Unsubscribe from RabbitMQ events
         RabbitMQ.off("reconnected", handleReconnect);
         RabbitMQ.off("disconnected", handleDisconnect);
@@ -301,6 +301,14 @@ export async function setupListener(this: WebSocket) {
             }
             opts.channel.off("error", handleChannelError);
         }
+    };
+
+    this.once("close", () => {
+        const listenerCleanup = cleanupListener().catch((error) => {
+            console.error(`[RabbitMQ] [user-${this.user_id}] Listener cleanup failed:`, error);
+        });
+        const closeCleanup = this.closeCleanup;
+        this.closeCleanup = closeCleanup ? Promise.all([closeCleanup, listenerCleanup]).then(() => undefined) : listenerCleanup;
     });
 }
 
