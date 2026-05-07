@@ -14802,7 +14802,7 @@
             "path": "/guilds/:guild_id/templates/:code",
             "samplePath": "/guilds/100000000000000001/templates/value",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 156,
+            "line": 164,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -14891,7 +14891,7 @@
             "path": "/guilds/:guild_id/templates/:code",
             "samplePath": "/guilds/100000000000000001/templates/value",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 131,
+            "line": 134,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15601,10 +15601,11 @@
             "routeMetadata": {
                 "requestBody": "GuildUpdateWelcomeScreenSchema",
                 "responses": [
-                    "APIErrorResponse"
+                    "APIErrorResponse",
+                    "GuildWelcomeScreen"
                 ],
                 "responseStatuses": [
-                    204,
+                    200,
                     400,
                     404
                 ],

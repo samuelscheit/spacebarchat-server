@@ -7552,7 +7552,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/templates/:code",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 156,
+            "line": 164,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7596,7 +7596,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/templates/:code",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 131,
+            "line": 134,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7948,10 +7948,11 @@
                 "permission": "MANAGE_GUILD",
                 "requestBody": "GuildUpdateWelcomeScreenSchema",
                 "responseBodies": [
-                    "APIErrorResponse"
+                    "APIErrorResponse",
+                    "GuildWelcomeScreen"
                 ],
                 "responseStatuses": [
-                    204,
+                    200,
                     400,
                     404
                 ],

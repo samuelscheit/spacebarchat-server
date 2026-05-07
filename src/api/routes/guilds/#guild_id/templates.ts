@@ -89,7 +89,7 @@ router.post(
             relations: { roles: true, channels: true },
         });
         const exists = await Template.findOne({
-            where: { id: guild_id },
+            where: { source_guild_id: guild_id, name: req.body.name },
         });
         if (exists) throw new HTTPError("Template already exists", 400);
 
@@ -119,10 +119,13 @@ router.delete(
     async (req: Request, res: Response) => {
         const { code, guild_id } = req.params as { [key: string]: string };
 
-        const template = await Template.delete({
-            code,
-            source_guild_id: guild_id,
+        const template = await Template.findOneOrFail({
+            where: {
+                code,
+                source_guild_id: guild_id,
+            },
         });
+        await Template.remove(template);
 
         res.json(template);
     },
@@ -139,15 +142,20 @@ router.put(
     }),
     async (req: Request, res: Response) => {
         const { code, guild_id } = req.params as { [key: string]: string };
-        const guild = await Guild.findOneOrFail({
-            where: { id: guild_id },
-            select: TemplateGuildProjection,
-        });
+        const [guild, template] = await Promise.all([
+            Guild.findOneOrFail({
+                where: { id: guild_id },
+                select: TemplateGuildProjection,
+                relations: { roles: true, channels: true },
+            }),
+            Template.findOneOrFail({
+                where: { code, source_guild_id: guild_id },
+            }),
+        ]);
 
-        const template = await Template.create({
-            code,
-            serialized_source_guild: guild,
-        }).save();
+        template.serialized_source_guild = guild;
+        template.updated_at = new Date();
+        await template.save();
 
         res.json(template);
     },

@@ -48,6 +48,7 @@
                     "testFiles": [
                         "test/scenarios/guilds-crud.test.ts",
                         "test/scenarios/guilds-members-roles.test.ts",
+                        "test/scenarios/guilds-supplemental.test.ts",
                         "src/util/util/GuildCreate.test.ts",
                         "src/api/routes/guilds/GuildWidgetPage.test.ts",
                         "src/api/util/utility/RoleMembers.test.ts",
