@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Member, Message } from "@spacebar/util";
+import { Channel, Member, Message, messagePublicWithThreadRelations } from "@spacebar/util";
 import { PostDataSchema, PublicMessage } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
@@ -60,21 +60,7 @@ router.post(
                 where: {
                     id: In(threads.map(({ id }) => id)),
                 },
-                relations: {
-                    author: true,
-                    webhook: true,
-                    application: true,
-                    mentions: true,
-                    mention_roles: true,
-                    mention_channels: true,
-                    sticker_items: true,
-                    attachments: true,
-                    thread: {
-                        recipients: {
-                            user: true,
-                        },
-                    },
-                },
+                relations: messagePublicWithThreadRelations,
             }),
             Member.find({
                 where: {

@@ -32,7 +32,7 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send } from "../util";
+import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
@@ -48,6 +48,7 @@ import {
     unsubscribeGuildEventIds,
     unsubscribeGuildMemberEventIds,
 } from "./subscriptions";
+import { getEventPermissionLookupId } from "../util/EventPermissions";
 
 type GuildCreatePermissionData = {
     id: string;
@@ -279,7 +280,7 @@ export async function setupListener(this: WebSocket) {
     RabbitMQ.on("reconnected", handleReconnect);
     RabbitMQ.on("disconnected", handleDisconnect);
 
-    this.once("close", async () => {
+    const cleanupListener = async () => {
         // Unsubscribe from RabbitMQ events
         RabbitMQ.off("reconnected", handleReconnect);
         RabbitMQ.off("disconnected", handleDisconnect);
@@ -301,6 +302,14 @@ export async function setupListener(this: WebSocket) {
             }
             opts.channel.off("error", handleChannelError);
         }
+    };
+
+    this.once("close", () => {
+        const listenerCleanup = cleanupListener().catch((error) => {
+            console.error(`[RabbitMQ] [user-${this.user_id}] Listener cleanup failed:`, error);
+        });
+        const closeCleanup = this.closeCleanup;
+        this.closeCleanup = closeCleanup ? Promise.all([closeCleanup, listenerCleanup]).then(() => undefined) : listenerCleanup;
     });
 }
 
@@ -309,7 +318,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
     const id = data.id as string;
     const guildId = data.guild_id as string | undefined;
-    const permission = (guildId && this.permissions[guildId]) || this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
+    const permissionLookupId = getEventPermissionLookupId(event, data);
+    const permission =
+        (permissionLookupId && this.permissions[permissionLookupId]) || (guildId && this.permissions[guildId]) || this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
 
     const consumer = consume.bind(this);
     const listenOpts = opts as ListenEventOpts;
@@ -328,13 +339,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
     // special codes
     switch (event) {
         case "SB_SESSION_CLOSE":
-            // TODO: what do we even send here?
-            await Send(this, {
-                op: OPCODES.Reconnect,
-                s: this.sequence++,
-                d: opts.reconnect_delay ?? opts.data ?? 1000,
-            });
-            this.close(1000); // not a discord close code, standard WS "Normal Closure"
+            await sendReconnectAndClose(this, opts.reconnect_delay ?? opts.data ?? 1000);
             return;
         case "SB_SESSION_REMOVE":
             // TODO: what do we even send here?
@@ -453,6 +458,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "MESSAGE_REACTION_REMOVE":
         case "MESSAGE_REACTION_REMOVE_ALL":
         case "MESSAGE_REACTION_REMOVE_EMOJI":
+        case "STAGE_INSTANCE_CREATE":
+        case "STAGE_INSTANCE_UPDATE":
+        case "STAGE_INSTANCE_DELETE":
         case "TYPING_START":
             // only gets send if the user is alowed to view the current channel
             if (!permission.has("VIEW_CHANNEL")) return;

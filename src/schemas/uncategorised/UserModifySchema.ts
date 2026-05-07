@@ -24,9 +24,15 @@ export interface UserModifySchema {
      * @minLength 2
      */
     username?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     avatar?: string | null;
     bio?: string;
     accent_color?: number;
+    /**
+     * @TJS-format image-data-uri
+     */
     banner?: string | null;
     /**
      * @minLength 1

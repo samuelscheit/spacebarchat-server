@@ -16,26 +16,23 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { DiscordApiErrors, FieldErrors, generateWebAuthnTicket, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import {
+    buildWebAuthnAttestationExpectations,
+    buildWebAuthnTicketPayload,
+    encodeWebAuthnClientChallenge,
+    isWebAuthnTicketForUser,
+    parseWebAuthnCredentialResponse,
+    route,
+} from "@spacebar/api";
+import { Config, DiscordApiErrors, FieldErrors, generateWebAuthnTicket, isWebAuthnTicketPayload, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
-import { ExpectedAttestationResult } from "fido2-lib";
 import { HTTPError } from "lambert-server";
 import { CreateWebAuthnCredentialSchema, GenerateWebAuthnCredentialsSchema, WebAuthnPostSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
 const isGenerateSchema = (body: WebAuthnPostSchema): body is GenerateWebAuthnCredentialsSchema => "password" in body;
 const isCreateSchema = (body: WebAuthnPostSchema): body is CreateWebAuthnCredentialSchema => "credential" in body;
-
-function toArrayBuffer(buf: Buffer) {
-    const ab = new ArrayBuffer(buf.length);
-    const view = new Uint8Array(ab);
-    for (let i = 0; i < buf.length; ++i) {
-        view[i] = buf[i];
-    }
-    return ab;
-}
 
 router.get("/", route({}), async (req: Request, res: Response) => {
     const securityKeys = await SecurityKey.find({
@@ -95,7 +92,7 @@ router.post(
             const challenge = JSON.stringify({
                 publicKey: {
                     ...registrationOptions,
-                    challenge: Buffer.from(registrationOptions.challenge).toString("base64"),
+                    challenge: encodeWebAuthnClientChallenge(registrationOptions.challenge),
                     user: {
                         id: user.id,
                         name: user.username,
@@ -104,7 +101,9 @@ router.post(
                 },
             });
 
-            const ticket = await generateWebAuthnTicket(challenge);
+            const ticket = await generateWebAuthnTicket(
+                buildWebAuthnTicketPayload(req, registrationOptions.challenge, user.id, "credential_registration", Config.get().api.endpointPublic),
+            );
 
             return res.json({
                 ticket: ticket,
@@ -113,27 +112,33 @@ router.post(
         } else if (isCreateSchema(req.body)) {
             const { credential, name, ticket } = req.body;
 
-            const verified = await verifyWebAuthnToken(ticket);
-            if (!verified) throw new HTTPError("Invalid ticket", 400);
+            let verified: unknown;
+            try {
+                verified = await verifyWebAuthnToken(ticket);
+            } catch {
+                throw new HTTPError("Invalid ticket", 400);
+            }
 
-            const clientAttestationResponse = JSON.parse(credential);
+            if (!isWebAuthnTicketPayload(verified) || !isWebAuthnTicketForUser(verified, req.user_id, "credential_registration")) throw new HTTPError("Invalid ticket", 400);
 
-            if (!clientAttestationResponse.rawId) throw new HTTPError("Missing rawId", 400);
+            const parsedCredential = parseWebAuthnCredentialResponse(credential);
+            if (!parsedCredential) throw new HTTPError("Missing rawId", 400);
 
-            const rawIdBuffer = Buffer.from(clientAttestationResponse.rawId, "base64");
-            clientAttestationResponse.rawId = toArrayBuffer(rawIdBuffer);
-
-            const attestationExpectations: ExpectedAttestationResult = JSON.parse(Buffer.from(clientAttestationResponse.response.clientDataJSON, "base64").toString());
-
-            const regResult = await WebAuthn.fido2.attestationResult(clientAttestationResponse, {
-                ...attestationExpectations,
-                factor: "second",
-            });
+            const regResult = await WebAuthn.fido2.attestationResult(parsedCredential.credential, buildWebAuthnAttestationExpectations(verified));
 
             const authnrData = regResult.authnrData;
             const keyId = Buffer.from(authnrData.get("credId")).toString("base64");
             const counter = authnrData.get("counter");
             const publicKey = authnrData.get("credentialPublicKeyPem");
+
+            if (await SecurityKey.exists({ where: { key_id: keyId } })) {
+                throw FieldErrors({
+                    credential: {
+                        message: "Security key is already registered.",
+                        code: "SECURITY_KEY_ALREADY_REGISTERED",
+                    },
+                });
+            }
 
             const securityKey = SecurityKey.create({
                 name,

@@ -23,6 +23,9 @@ export type ChannelModifyType = ChannelType.GUILD_TEXT | ChannelType.GUILD_NEWS;
 export interface ChannelBaseModifySchema {
     name?: string;
     topic?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string | null;
     bitrate?: number;
     user_limit?: number;
@@ -36,7 +39,7 @@ export interface ChannelBaseModifySchema {
         deny: string;
     }[];
     applied_tags?: string[];
-    parent_id?: string;
+    parent_id?: string | null;
     id?: string; // is not used (only for guild create)
     nsfw?: boolean;
     rtc_region?: string;
@@ -53,4 +56,8 @@ export interface ChannelBaseModifySchema {
 
 export interface ChannelModifySchema extends ChannelBaseModifySchema {
     type?: ChannelModifyType;
+    /**
+     * @maxLength 500
+     */
+    status?: string | null;
 }

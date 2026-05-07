@@ -18,5 +18,8 @@
 
 export interface GuildTemplateCreateSchema {
     name: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string | null;
 }

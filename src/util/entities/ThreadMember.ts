@@ -77,6 +77,23 @@ export class ThreadMember extends BaseClassWithoutId {
     @Column()
     flags: ThreadMemberFlags;
 
+    static async createForUser(user_id: string, thread: Pick<Channel, "id" | "guild_id">, flags: ThreadMemberFlags = ThreadMemberFlags.NONE) {
+        if (!thread.guild_id) throw new HTTPError("Thread guild id not set", 500);
+
+        const member = await Member.findOneOrFail({
+            where: { id: user_id, guild_id: thread.guild_id },
+            select: { index: true },
+        });
+
+        return Object.assign(new ThreadMember(), {
+            id: thread.id,
+            member_idx: member.index,
+            join_timestamp: new Date(),
+            muted: false,
+            flags,
+        }).save();
+    }
+
     static async IsInThreadOrFail(member_id: string, thread_id: string) {
         if (await ThreadMember.count({ where: { id: thread_id, member_idx: member_id } })) return true;
         throw new HTTPError("You are not member of this thread", 403);

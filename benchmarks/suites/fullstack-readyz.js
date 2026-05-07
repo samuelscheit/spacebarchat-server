@@ -73,6 +73,12 @@ async function runPool(ctx, url, agent) {
 module.exports = {
     name: "fullstack-readyz",
     kind: "fullstack",
+    tier: {
+        id: "fullstack",
+        default: false,
+        requires: ["build:src", "postgres"],
+        services: ["postgres"],
+    },
     description: "Starts the API server against Postgres and measures the ready endpoint.",
     metrics: {
         requestsPerSecond: {

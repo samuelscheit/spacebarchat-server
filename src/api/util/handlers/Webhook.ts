@@ -1,9 +1,58 @@
-import { handleMessage, postHandleMessage } from "@spacebar/api";
-import { Attachment, Channel, Config, DiscordApiErrors, emitEvent, FieldErrors, Message, MessageCreateEvent, Snowflake, uploadFile, ValidateName, Webhook } from "@spacebar/util";
+import { assertMessagePayloadPermissions, handleMessage, messageToResponse, postHandleMessage } from "@spacebar/api";
+import {
+    Attachment,
+    Channel,
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    FieldErrors,
+    getPermission,
+    handleFile,
+    Message,
+    MessageCreateEvent,
+    Snowflake,
+    toAPIWebhook,
+    ValidateWebhookName,
+    Webhook,
+} from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
-import { WebhookExecuteSchema } from "@spacebar/schemas";
+import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
+import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
+import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
+import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
+
+export async function updateWebhookWithToken(req: Request, res: Response) {
+    const { webhook_id, token } = req.params as { [key: string]: string };
+    const body = req.body as WebhookTokenUpdateSchema;
+
+    const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true });
+
+    if (!body.name && !body.avatar) {
+        throw new HTTPError("Empty webhook updates are not allowed", 50006);
+    }
+
+    const update: Partial<Pick<Webhook, "name" | "avatar">> = {};
+    if (body.avatar) update.avatar = (await handleFile(`/avatars/${webhook_id}`, body.avatar)) as string;
+
+    if (body.name !== undefined) {
+        update.name = ValidateWebhookName(body.name);
+    }
+
+    webhook.assign(update);
+
+    const webhooksUpdateEvent = buildWebhooksUpdateEvent(webhook);
+
+    await webhook.save();
+    if (webhooksUpdateEvent) await emitEvent(webhooksUpdateEvent);
+
+    res.json(
+        toAPIWebhook(webhook, {
+            url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
+        }),
+    );
+}
 
 export const executeWebhook = async (req: Request, res: Response) => {
     const body = req.body as WebhookExecuteSchema;
@@ -11,23 +60,10 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     const { webhook_id, token } = req.params as { [key: string]: string };
 
-    const webhook = await Webhook.findOne({
-        where: {
-            id: webhook_id,
-        },
-        relations: { channel: true, guild: true, application: true },
-    });
-
-    if (!webhook) {
-        throw DiscordApiErrors.UNKNOWN_WEBHOOK;
-    }
-
-    if (webhook.token !== token) {
-        throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
-    }
+    const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: true });
 
     if (body.username) {
-        ValidateName(body.username);
+        body.username = ValidateWebhookName(body.username);
     }
 
     // ensure one of content, embeds, components, or file is present
@@ -37,10 +73,11 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     const wait = req.query.wait === "true";
     const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
-
-    if (!wait) {
-        res.status(204).send();
-    }
+    const acknowledgeNoWait = () => {
+        if (!wait && !res.headersSent) {
+            res.status(204).send();
+        }
+    };
 
     const attachments: Attachment[] = [];
 
@@ -48,6 +85,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
         if (wait) {
             throw new HTTPError(`Cannot send messages to channel of type ${webhook.channel.type}`, 400);
         } else {
+            acknowledgeNoWait();
             return;
         }
     }
@@ -71,6 +109,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
                     },
                 });
             } else {
+                acknowledgeNoWait();
                 return;
             }
     }
@@ -86,14 +125,29 @@ export const executeWebhook = async (req: Request, res: Response) => {
     }
 
     const files = (req.files as Express.Multer.File[]) ?? [];
-    for (const currFile of files) {
-        try {
-            const file = await uploadFile(`/attachments/${sendChannel.id}/${messageId}`, currFile);
-            attachments.push(Attachment.create(file));
-        } catch (error) {
-            if (wait) res.status(400).json({ message: error?.toString() });
-            return;
-        }
+    const permissionSubjectId = webhook.user_id ?? webhook.application_id;
+    const messagePayload = { ...body, attachments: body.attachments ?? [], uploadedFileCount: files.length };
+    if (permissionSubjectId) {
+        const permissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
+        assertMessagePayloadPermissions(permissions, messagePayload);
+    } else {
+        assertMessagePayloadPermissions(
+            {
+                hasThrow(permission) {
+                    throw new HTTPError(`Webhook cannot send media requiring ${permission} without a permission subject`, 403);
+                },
+            },
+            messagePayload,
+        );
+    }
+
+    acknowledgeNoWait();
+
+    try {
+        attachments.push(...(await uploadWebhookMessageFiles(sendChannel.id, messageId, files)));
+    } catch (error) {
+        if (wait) res.status(400).json({ message: error?.toString() });
+        return;
     }
 
     const embeds = body.embeds || [];
@@ -118,7 +172,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
         embeds,
         // TODO: Support thread_id/thread_name once threads are implemented
         channel_id: sendChannel.id,
-        attachments,
+        attachments: mergeWebhookMessageAttachments(attachments, body.attachments),
         timestamp: new Date(),
     });
 
@@ -140,6 +194,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     // no await as it shouldnt block the message send function and silently catch error
     postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
-    if (wait) res.json(message);
+    if (wait) res.json(messageToResponse(message, req));
     return;
 };

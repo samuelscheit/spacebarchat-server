@@ -26,6 +26,7 @@ import { runStartupOrExit } from "@spacebar/util";
 import { config } from "dotenv";
 import fs from "node:fs";
 import cluster from "node:cluster";
+import { installSignalShutdown } from "./util/SignalShutdown";
 config({ quiet: true });
 
 let port = Number(process.env.PORT);
@@ -37,5 +38,7 @@ const server = new Server({
 
 if (fs.existsSync("/proc/self/comm")) fs.writeFileSync("/proc/self/comm", `spacebar-gw-${cluster.worker ? cluster.worker.id : port}`);
 process.title = `sb-gw-${cluster.worker ? cluster.worker.id : port}`;
+
+installSignalShutdown(() => server.stop());
 
 void runStartupOrExit("Gateway server", () => server.start());

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import type { MessageAcknowledgeSchema } from "@spacebar/schemas";
+import { ReadStateType, type MessageAcknowledgeSchema } from "@spacebar/schemas";
 import { applyMessageAcknowledgeToReadState, emitEvent, getPermission, MessageAckEvent, ReadState } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -44,9 +44,9 @@ router.post(
         permission.hasThrow("VIEW_CHANNEL");
 
         let read_state = await ReadState.findOne({
-            where: { user_id: req.user_id, channel_id },
+            where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
         });
-        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id });
+        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
         applyMessageAcknowledgeToReadState(read_state, message_id, body);
 
         await read_state.save();

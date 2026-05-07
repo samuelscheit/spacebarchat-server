@@ -43,7 +43,7 @@ interface UserEntityPleaseRewriteThankYou {
     mfa_enabled: boolean;
     webauthn_enabled: boolean;
     created_at: Date;
-    premium_since: Date;
+    premium_since?: Date | null;
     verified: boolean;
     disabled: boolean;
     deleted: boolean;

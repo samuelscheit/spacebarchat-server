@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, Emoji, Guild, Role, Sticker } from "../entities";
-import { ChannelOverride, ChannelType, PublicMember, PublicUser, UserGuildSettings } from "@spacebar/schemas";
+import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
+import type { ChannelOverride, ChannelType, PublicMember, PublicUser, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
 
 // TODO: this is not the best place for this type
 export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
@@ -34,9 +34,19 @@ export interface ReadyPrivateChannel {
     type: ChannelType.DM | ChannelType.GROUP_DM;
 }
 
-export type GuildOrUnavailable = { id: string; unavailable: boolean } | (Guild & { joined_at?: Date; unavailable: undefined; threads: Channel[] });
+type ReadyStageInstance = StageInstance | StageInstanceResponse;
 
-const guildIsAvailable = (guild: GuildOrUnavailable): guild is Guild & { joined_at: Date; unavailable: false; threads: Channel[] } => guild.unavailable != true;
+export type GuildOrUnavailable =
+    | { id: string; unavailable: boolean }
+    | (Guild & { joined_at?: Date; unavailable: undefined; threads: Channel[]; stage_instances: ReadyStageInstance[] });
+
+const guildIsAvailable = (guild: GuildOrUnavailable): guild is Guild & { joined_at: Date; unavailable: false; threads: Channel[]; stage_instances: ReadyStageInstance[] } =>
+    guild.unavailable != true;
+
+function stageInstanceToResponse(stageInstance: ReadyStageInstance): StageInstanceResponse {
+    if ("toPublicStageInstance" in stageInstance) return stageInstance.toPublicStageInstance();
+    return stageInstance;
+}
 
 export interface IReadyGuildDTO {
     application_command_counts?: { 1: number; 2: number; 3: number }; // ????????????
@@ -87,7 +97,7 @@ export interface IReadyGuildDTO {
         id: string;
     };
     roles: Role[];
-    stage_instances: unknown[];
+    stage_instances: StageInstanceResponse[];
     stickers: Sticker[];
     threads: unknown[];
     version: string;
@@ -144,7 +154,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
         id: string;
     };
     roles: Role[];
-    stage_instances: unknown[];
+    stage_instances: StageInstanceResponse[];
     stickers: Sticker[];
     threads: unknown[];
     version: string;
@@ -211,7 +221,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             safety_alerts_channel_id: null,
         };
         this.roles = guild.roles.map((x) => x.toJSON());
-        this.stage_instances = [];
+        this.stage_instances = guild.stage_instances?.map(stageInstanceToResponse) ?? [];
         this.stickers = guild.stickers;
         this.threads = guild.threads;
         this.version = "1"; // ??????

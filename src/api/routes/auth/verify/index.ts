@@ -17,19 +17,9 @@
 */
 
 import { route, verifyCaptcha } from "@spacebar/api";
-import { checkToken, Config, FieldErrors, generateToken, User } from "@spacebar/util";
+import { Config, EmailActionTokenPurpose, FieldErrors, User, verifyEmailActionToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
-
-async function getToken(user: User) {
-    const token = await generateToken(user.id);
-
-    // Notice this will have a different token structure, than discord
-    // Discord header is just the user id as string, which is not possible with npm-jsonwebtoken package
-    // https://user-images.githubusercontent.com/6506416/81051916-dd8c9900-8ec2-11ea-8794-daf12d6f31f0.png
-
-    return { token };
-}
 
 // TODO: the response interface also returns settings, but this route doesn't actually return that.
 router.post(
@@ -37,9 +27,7 @@ router.post(
     route({
         requestBody: "VerifyEmailSchema",
         responses: {
-            200: {
-                body: "TokenResponse",
-            },
+            204: {},
             400: {
                 body: "APIErrorOrCaptchaResponse",
             },
@@ -75,11 +63,7 @@ router.post(
         let user;
 
         try {
-            const userTokenData = await checkToken(token, {
-                fingerprint: req.fingerprint,
-                ipAddress: req.ip,
-            });
-            user = userTokenData.user;
+            user = await verifyEmailActionToken(token, EmailActionTokenPurpose.verifyEmail);
         } catch {
             throw FieldErrors({
                 token: {
@@ -89,11 +73,18 @@ router.post(
             });
         }
 
-        if (user.verified) return res.json(await getToken(user));
+        if (user.verified) {
+            throw FieldErrors({
+                token: {
+                    message: req.t("auth:password_reset.INVALID_TOKEN"),
+                    code: "INVALID_TOKEN",
+                },
+            });
+        }
 
         await User.update({ id: user.id }, { verified: true });
 
-        return res.json(await getToken(user));
+        return res.sendStatus(204);
     },
 );
 

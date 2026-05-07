@@ -17,8 +17,9 @@
 */
 
 // TODO: remove entity import
-import { Sticker } from "@spacebar/util";
+import type { Sticker } from "@spacebar/util";
 import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
 
 export enum MessageType {
@@ -120,9 +121,25 @@ export interface PartialMessage {
 
 export interface Reaction {
     count: number;
-    //// not saved in the database // me: boolean; // whether the current user reacted using this emoji
+    count_details?: ReactionCountDetails;
+    me?: boolean;
+    me_burst?: boolean;
+    emoji: PartialEmoji;
+    burst_colors?: string[];
+}
+
+export interface ReactionCountDetails {
+    normal: number;
+    burst: number;
+}
+
+export interface StoredReaction {
+    count: number;
+    count_details?: ReactionCountDetails;
     emoji: PartialEmoji;
     user_ids: Snowflake[];
+    burst_user_ids?: Snowflake[];
+    burst_colors?: string[];
 }
 
 // aka { animated } & OneOf<{id},{name}>
@@ -163,11 +180,16 @@ export interface MessageSnapshot {
     };
 }
 
+export type PublicMessageMember = Omit<PublicMember, "user"> & {
+    user?: PublicMember["user"];
+};
+
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;
     lobby_id?: Snowflake;
     author: PartialUser;
+    member?: PublicMessageMember;
     content: string;
     timestamp: string;
     edited_timestamp: string | null;
@@ -199,7 +221,7 @@ export interface PublicMessage {
     // purchase_notification?: MessagePurchaseNotification;
     // gift_info?: MessageGiftInfo;
     components: MessageComponent[];
-    // sticker_items?: StickerItem[]; // TODO: ???
+    sticker_items?: Sticker[];
     stickers?: Sticker[]; // TODO: dont use db entity
     poll?: Poll;
     changelog_id?: Snowflake;

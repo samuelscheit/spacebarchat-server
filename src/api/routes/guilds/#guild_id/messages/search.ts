@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, FieldErrors, Member, Message, Snowflake, getPermission } from "@spacebar/util";
+import { messageToSearchResult, route } from "@spacebar/api";
+import { Channel, FieldErrors, Member, Message, Snowflake, getPermission, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThan, Like, MoreThan } from "typeorm";
@@ -156,42 +156,14 @@ router.get(
                       },
                   ]
                 : where,
-            relations: { author: true, webhook: true, application: true, mentions: true, mention_roles: true, mention_channels: true, sticker_items: true, attachments: true },
+            relations: messagePublicRelations,
         };
 
         const messages: Message[] = await Message.find({ ...query, take: parsedLimit || 0, skip: offset ? Number(offset) : 0 });
         delete query.take;
         const total_results = await Message.count(query);
 
-        const messagesDto = messages.map((x) => [
-            {
-                id: x.id,
-                type: x.type,
-                content: x.content,
-                channel_id: x.channel_id,
-                author: {
-                    id: x.author?.id,
-                    username: x.author?.username,
-                    avatar: x.author?.avatar,
-                    avatar_decoration: null,
-                    discriminator: x.author?.discriminator,
-                    public_flags: x.author?.public_flags,
-                },
-                attachments: x.attachments,
-                embeds: x.embeds,
-                mentions: x.mentions,
-                mention_roles: x.mention_roles,
-                pinned: x.pinned,
-                mention_everyone: x.mention_everyone,
-                tts: x.tts,
-                timestamp: x.timestamp,
-                edited_timestamp: x.edited_timestamp,
-                flags: x.flags,
-                components: x.components,
-                poll: x.poll,
-                hit: true,
-            },
-        ]);
+        const messagesDto = messages.map((x) => [messageToSearchResult(x)]);
 
         return res.json({
             messages: messagesDto,

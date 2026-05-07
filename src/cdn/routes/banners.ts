@@ -17,7 +17,7 @@
 */
 
 import { Router, Response, Request } from "express";
-import { Config } from "@spacebar/util";
+import { assertCdnFileSizeLimit, Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
@@ -42,6 +42,7 @@ router.post("/:guild_id", multer.single("file"), async (req: Request, res: Respo
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
     const { guild_id } = req.params as { [key: string]: string };
+    assertCdnFileSizeLimit(`/banners/${guild_id}`, size, Config.get().cdn);
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 

@@ -18,15 +18,15 @@
 
 import fs from "node:fs/promises";
 import { OrmUtils } from "..";
-import { ConfigValue } from "../config";
+import { DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, GATEWAY_HEARTBEAT_INTERVAL, ConfigValue, isValidGatewayHeartbeatTimeout } from "../config";
 import { ConfigEntity } from "../entities";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
+import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";
+import { applyEnvConfigOverrides } from "./EnvConfig";
 import { readJsonConfigFile } from "./JsonConfigFile";
 
 // TODO: yaml instead of json
-const overridePath = process.env.CONFIG_PATH ?? "";
-
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
@@ -57,7 +57,7 @@ export class Config {
         // If a config doesn't exist, create it.
         if (Object.keys(config).length == 0) config = new ConfigValue();
 
-        config = OrmUtils.mergeDeep({}, { ...new ConfigValue() }, config);
+        config = normalizeConfig(mergeConfigDefaults(new ConfigValue(), config));
 
         // TODO: factor this out someday
         if (process.env.CDN_SIGNATURE_PATH) config.security.cdnSignatureKey = await Config.readSecret("CDN_SIGNATURE_PATH");
@@ -66,6 +66,8 @@ export class Config {
         if (process.env.MAILJET_API_SECRET_PATH) config.email.mailjet.apiSecret = await Config.readSecret("MAILJET_API_SECRET_PATH");
         if (process.env.SMTP_PASSWORD_PATH) config.email.smtp.password = await Config.readSecret("SMTP_PASSWORD_PATH");
         if (process.env.GIF_API_KEY_PATH) config.gif.apiKey = await Config.readSecret("GIF_API_KEY_PATH");
+        if (process.env.DISCORD_ATTACHMENT_REFRESH_BOT_TOKEN_PATH)
+            config.external.discordAttachmentRefreshBotToken = await Config.readSecret("DISCORD_ATTACHMENT_REFRESH_BOT_TOKEN_PATH");
         if (process.env.RABBITMQ_HOST) config.rabbitmq.host = process.env.RABBITMQ_HOST.trim();
         if (process.env.RABBITMQ_HOST_PATH) config.rabbitmq.host = await Config.readSecret("RABBITMQ_HOST_PATH");
         if (process.env.ABUSEIPDB_API_KEY_PATH) config.security.abuseIpDbApiKey = await Config.readSecret("ABUSEIPDB_API_KEY_PATH");
@@ -75,6 +77,7 @@ export class Config {
         if (process.env.REQUEST_SIGNATURE_PATH) config.security.requestSignature = await Config.readSecret("REQUEST_SIGNATURE_PATH");
 
         await this.set(config);
+        await applyEnvConfigOverrides(config as unknown as Record<string, unknown>);
         validateFinalConfig(config);
         return config;
     }
@@ -125,8 +128,9 @@ const generatePairs = (obj: object | null, key = ""): ConfigEntity[] => {
 };
 
 async function applyConfig(val: ConfigValue) {
-    if (process.env.CONFIG_PATH)
-        if (!process.env.CONFIG_READONLY) await fs.writeFile(overridePath, JSON.stringify(val, null, 4));
+    const configPath = process.env.CONFIG_PATH;
+    if (configPath)
+        if (!process.env.CONFIG_READONLY) await fs.writeFile(configPath, JSON.stringify(val, null, 4));
         else console.log("[WARNING] JSON config file in use, and writing is disabled! Programmatic config changes will not be persisted, and your config will not get updated!");
     else {
         const pairs = generatePairs(val);
@@ -222,6 +226,11 @@ function validateFinalConfig(config: ConfigValue) {
     assertConfig("cdn_endpointPublic", (v) => v != null, 'A valid public CDN endpoint URL, eg. "http://localhost:3003/"');
     assertConfig("cdn_endpointPrivate", (v) => v != null, 'A valid private CDN endpoint URL, eg. "http://localhost:3003/" - must be routable from the API server!');
     assertConfig("gateway_endpointPublic", (v) => v != null, 'A valid public gateway endpoint URL, eg. "ws://localhost:3002/"');
+    assertConfig(
+        "gateway_heartbeatTimeout",
+        isValidGatewayHeartbeatTimeout,
+        `${DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT} (must be greater than the advertised heartbeat interval of ${GATEWAY_HEARTBEAT_INTERVAL}ms)`,
+    );
 
     if (hasErrors) {
         const message = "[Config] Your config has invalid values. Fix them first https://docs.spacebar.chat/setup/server/configuration";

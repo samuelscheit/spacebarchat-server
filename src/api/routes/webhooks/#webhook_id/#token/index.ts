@@ -1,10 +1,9 @@
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, handleFile, ValidateName, Webhook, WebhooksUpdateEvent, toAPIWebhook } from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, isValidWebhookToken, Webhook, toAPIWebhook } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { executeWebhook } from "../../../../util/handlers/Webhook";
-import { WebhookUpdateSchema } from "@spacebar/schemas";
+import { executeWebhook, updateWebhookWithToken } from "../../../../util/handlers/Webhook";
+import { buildWebhooksUpdateEvent } from "../../../../util/utility/WebhookEvents";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -31,7 +30,7 @@ router.get(
             throw DiscordApiErrors.UNKNOWN_WEBHOOK;
         }
 
-        if (webhook.token !== token) {
+        if (!isValidWebhookToken(webhook.token, token)) {
             throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
         }
 
@@ -118,20 +117,14 @@ router.delete(
             throw DiscordApiErrors.UNKNOWN_WEBHOOK;
         }
 
-        if (webhook.token !== token) {
+        if (!isValidWebhookToken(webhook.token, token)) {
             throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
         }
-        const channel_id = webhook.channel_id;
+
         await Webhook.delete({ id: webhook_id });
 
-        await emitEvent({
-            event: "WEBHOOKS_UPDATE",
-            channel_id,
-            data: {
-                channel_id,
-                guild_id: webhook.guild_id!, // TODO: is this even the right fix?
-            },
-        } satisfies WebhooksUpdateEvent);
+        const webhooksUpdateEvent = buildWebhooksUpdateEvent(webhook);
+        if (webhooksUpdateEvent) await emitEvent(webhooksUpdateEvent);
 
         res.sendStatus(204);
     },
@@ -140,7 +133,7 @@ router.delete(
 router.patch(
     "/",
     route({
-        requestBody: "WebhookUpdateSchema",
+        requestBody: "WebhookTokenUpdateSchema",
         responses: {
             200: {
                 body: "WebhookCreateResponse",
@@ -152,47 +145,7 @@ router.patch(
             404: {},
         },
     }),
-    async (req: Request, res: Response) => {
-        const { webhook_id, token } = req.params as { [key: string]: string };
-        const body = req.body as WebhookUpdateSchema;
-
-        const webhook = await Webhook.findOneOrFail({
-            where: { id: webhook_id },
-            relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
-        });
-        if (webhook.token !== token) {
-            throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
-        }
-
-        const channel_id = webhook.channel_id;
-        if (!body.name && !body.avatar) {
-            throw new HTTPError("Empty webhook updates are not allowed", 50006);
-        }
-        if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
-
-        if (body.name) {
-            ValidateName(body.name);
-        }
-
-        webhook.assign(body);
-
-        await Promise.all([
-            webhook.save(),
-            emitEvent({
-                event: "WEBHOOKS_UPDATE",
-                channel_id,
-                data: {
-                    channel_id,
-                    guild_id: webhook.guild_id!, //TODO: is this even the right fix?
-                },
-            } satisfies WebhooksUpdateEvent),
-        ]);
-        res.json(
-            toAPIWebhook(webhook, {
-                url: Config.get().api.endpointPublic + "/webhooks/" + webhook.id + "/" + webhook.token,
-            }),
-        );
-    },
+    updateWebhookWithToken,
 );
 
 export default router;

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Spacebar.Models.Db.Models;
 
 [Table("read_states")]
-[Index("ChannelId", "UserId", Name = "IDX_0abf8b443321bd3cf7f81ee17a", IsUnique = true)]
+[Index("ChannelId", "UserId", "ReadStateType", Name = "IDX_read_states_user_resource_type", IsUnique = true)]
 public partial class ReadState
 {
     [Key]
@@ -46,10 +46,6 @@ public partial class ReadState
 
     [Column("flags")]
     public int Flags { get; set; }
-
-    [ForeignKey("ChannelId")]
-    [InverseProperty("ReadStates")]
-    public virtual Channel Channel { get; set; } = null!;
 
     [ForeignKey("UserId")]
     [InverseProperty("ReadStates")]
