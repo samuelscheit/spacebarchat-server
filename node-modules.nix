@@ -47,6 +47,25 @@ pkgs.buildNpmPackage {
   installPhase = ''
     runHook preInstall
 
+    # npm workspaces are installed as relative symlinks that point outside
+    # node_modules. The Nix package exposes node_modules by itself, so materialize
+    # local workspace packages before the broken-link fixup phase runs.
+    while IFS= read -r -d "" link; do
+      target="$(readlink "$link")"
+      case "$target" in
+        ../../apps/*|../../packages/*)
+          resolved="$(realpath -m "$(dirname "$link")/$target")"
+          if [ ! -d "$resolved" ]; then
+            echo "Workspace link $link points to missing target $target"
+            exit 1
+          fi
+          echo "Materializing workspace package $link"
+          rm "$link"
+          cp -R "$resolved" "$link"
+          ;;
+      esac
+    done < <(find node_modules -mindepth 1 -maxdepth 2 -type l -print0)
+
     # Copy outputs
     echo "Copying node_modules as $out"
     cp -r node_modules $out

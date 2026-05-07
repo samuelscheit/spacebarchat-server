@@ -15,6 +15,8 @@ let
           ./src
           ./package.json
           ./tsconfig.json
+          ./apps
+          ./packages
           ./assets
           ./patches
           ./scripts
@@ -70,6 +72,26 @@ let
 
       # remove packages not needed for production, or at least try to...
       npm prune --omit dev --no-save --offline
+
+      # npm prune recreates workspace symlinks. The final package only installs
+      # node_modules, so materialize workspace packages again before fixup checks
+      # reject dangling links.
+      while IFS= read -r -d "" link; do
+        target="$(readlink "$link")"
+        case "$target" in
+          ../../apps/*|../../packages/*)
+            resolved="$(realpath -m "$(dirname "$link")/$target")"
+            if [ ! -d "$resolved" ]; then
+              echo "Workspace link $link points to missing target $target"
+              exit 1
+            fi
+            echo "Materializing workspace package $link"
+            rm "$link"
+            cp -R "$resolved" "$link"
+            ;;
+        esac
+      done < <(find node_modules -mindepth 1 -maxdepth 2 -type l -print0)
+
       rm -v dist/src.tsbuildinfo
       rm -rv scripts
       time ${./nix/trimNodeModules.sh}
