@@ -3,7 +3,7 @@ import { strict as assert } from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
 import { Request } from "express";
-import { getWhoAmIResponse } from "../../routes/auth/whoamiResponse";
+import { getWhoAmIResponse } from "../../util/responses/WhoAmI";
 
 describe("getWhoAmIResponse", () => {
     it("should serialize the authenticated request identity from a JWT issued-at timestamp", () => {

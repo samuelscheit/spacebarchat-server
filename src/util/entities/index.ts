@@ -18,6 +18,8 @@
 
 export * from "./Application";
 export * from "./ApplicationCommand";
+export * from "./AdminAuditRecord";
+export * from "./AdminJob";
 export * from "./Attachment";
 export * from "./AuditLog";
 export * from "./AutomodRule";
