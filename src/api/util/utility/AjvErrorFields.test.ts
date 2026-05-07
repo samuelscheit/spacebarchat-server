@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import type { ErrorObject } from "ajv";
+import Ajv, { type ErrorObject } from "ajv";
 import { ajvErrorsToFieldErrors } from "./AjvErrorFields";
 
 describe("AJV field error formatting", () => {
@@ -67,6 +67,68 @@ describe("AJV field error formatting", () => {
                 },
             },
         );
+    });
+
+    test("derives nested required fields from actual AJV errors", () => {
+        const ajv = new Ajv({ allErrors: true });
+        const validate = ajv.compile({
+            type: "object",
+            required: ["username", "profile", "items"],
+            properties: {
+                username: { type: "string" },
+                profile: {
+                    type: "object",
+                    required: ["display_name"],
+                    properties: {
+                        display_name: { type: "string" },
+                    },
+                },
+                items: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        required: ["id"],
+                        properties: {
+                            id: { type: "string" },
+                        },
+                    },
+                },
+            },
+        });
+
+        assert.equal(validate({ profile: {}, items: [{}] }), false);
+        assert.deepEqual(ajvErrorsToFieldErrors(validate.errors ?? []), {
+            username: {
+                _errors: [
+                    {
+                        code: "BASE_TYPE_REQUIRED",
+                        message: "This field is required",
+                    },
+                ],
+            },
+            profile: {
+                display_name: {
+                    _errors: [
+                        {
+                            code: "BASE_TYPE_REQUIRED",
+                            message: "This field is required",
+                        },
+                    ],
+                },
+            },
+            items: {
+                "0": {
+                    id: {
+                        _errors: [
+                            {
+                                code: "BASE_TYPE_REQUIRED",
+                                message: "This field is required",
+                            },
+                        ],
+                    },
+                },
+            },
+        });
     });
 
     test("keeps direct field validation errors on their instance path", () => {
