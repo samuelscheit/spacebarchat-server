@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AdminApiError, adminApiBase, adminFetch, getAuthorizationHeader } from "./admin-api";
 import type { AdminUser } from "./types";
@@ -40,7 +40,24 @@ export function dashboardRoutePath(path: string) {
     const route = path.startsWith("/") ? path : `/${path}`;
     const basePath = dashboardBasePath();
 
+    if (basePath !== "/" && (route === basePath || route.startsWith(`${basePath}/`))) return route;
     return basePath === "/" ? route : `${basePath}${route}`;
+}
+
+function firstForwardedHeaderValue(value: string | null) {
+    return value?.split(",")[0]?.trim() || null;
+}
+
+export async function dashboardAbsoluteUrl(path: string) {
+    const headerStore = await headers();
+    const origin = headerStore.get("origin");
+    if (origin?.startsWith("http://") || origin?.startsWith("https://")) {
+        return new URL(dashboardRoutePath(path), origin).toString();
+    }
+
+    const host = firstForwardedHeaderValue(headerStore.get("x-forwarded-host")) ?? headerStore.get("host") ?? "localhost:3000";
+    const protocol = firstForwardedHeaderValue(headerStore.get("x-forwarded-proto")) ?? (host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https");
+    return new URL(dashboardRoutePath(path), `${protocol}://${host}`).toString();
 }
 
 function normalizeAuthorization(token: string) {

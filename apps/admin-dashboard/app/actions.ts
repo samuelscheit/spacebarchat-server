@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { adminFetch } from "./lib/admin-api";
-import { setAdminSessionToken, validateAdminToken } from "./lib/admin-session";
+import { dashboardAbsoluteUrl, setAdminSessionToken, validateAdminToken } from "./lib/admin-session";
 import {
     buildCdnAttachmentFsckRequest,
     buildCdnAttachmentMigrationRequest,
@@ -67,7 +67,7 @@ export async function loginAdmin(formData: FormData) {
     }
 
     await setAdminSessionToken(token);
-    redirect("/");
+    redirect(await dashboardAbsoluteUrl("/"));
 }
 
 export async function updateConfiguration(formData: FormData) {

@@ -498,6 +498,23 @@ async function main() {
             sessionId,
             `(() => {
                 const token = document.querySelector('textarea[name="token"]');
+                token.value = "non-operator-token";
+                token.dispatchEvent(new Event("input", { bubbles: true }));
+                document.querySelector("form").requestSubmit();
+                return true;
+            })()`,
+        );
+        await waitForText(cdp, sessionId, "OPERATOR rights are required");
+        const forbiddenPath = await evaluate(cdp, sessionId, "location.pathname");
+        if (forbiddenPath !== `${basePath}/login`) {
+            throw new Error(`Login failure redirected outside dashboard base path: ${forbiddenPath}`);
+        }
+
+        await evaluate(
+            cdp,
+            sessionId,
+            `(() => {
+                const token = document.querySelector('textarea[name="token"]');
                 token.value = ${JSON.stringify(operatorToken)};
                 token.dispatchEvent(new Event("input", { bubbles: true }));
                 document.querySelector("form").requestSubmit();
@@ -505,6 +522,10 @@ async function main() {
             })()`,
         );
         await waitForText(cdp, sessionId, "Overview");
+        const overviewPath = await evaluate(cdp, sessionId, "location.pathname");
+        if (overviewPath !== basePath && overviewPath !== `${basePath}/`) {
+            throw new Error(`Login success redirected outside dashboard base path: ${overviewPath}`);
+        }
         await screenshot(cdp, sessionId, "02-overview");
 
         await navigate(cdp, sessionId, `${dashboardUrl}/users`);
