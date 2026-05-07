@@ -3296,7 +3296,7 @@
                         "$ref": "#/components/schemas/EndpointConfiguration"
                     },
                     "gateway": {
-                        "$ref": "#/components/schemas/EndpointConfiguration"
+                        "$ref": "#/components/schemas/GatewayConfiguration"
                     },
                     "cdn": {
                         "$ref": "#/components/schemas/CdnConfiguration"
@@ -5488,6 +5488,9 @@
                     "channel": {
                         "$ref": "#/components/schemas/ChannelLimits"
                     },
+                    "gateway": {
+                        "$ref": "#/components/schemas/GatewayLimits"
+                    },
                     "webrtc": {
                         "$ref": "#/components/schemas/WebRtcLimits"
                     },
@@ -5501,6 +5504,7 @@
                 "required": [
                     "absoluteRate",
                     "channel",
+                    "gateway",
                     "guild",
                     "message",
                     "rate",
@@ -10384,6 +10388,8 @@
                                 "type": "string"
                             },
                             "size": {
+                                "minItems": 2,
+                                "maxItems": 2,
                                 "type": "array",
                                 "items": {
                                     "type": "integer"
@@ -10485,6 +10491,7 @@
                     0,
                     1,
                     2,
+                    3,
                     4,
                     5
                 ]
@@ -17561,6 +17568,33 @@
                     "endpointPublic"
                 ]
             },
+            "GatewayConfiguration": {
+                "type": "object",
+                "properties": {
+                    "heartbeatTimeout": {
+                        "type": "integer"
+                    },
+                    "endpointPrivate": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "endpointPublic": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "endpointPrivate",
+                    "endpointPublic",
+                    "heartbeatTimeout"
+                ]
+            },
             "CdnConfiguration": {
                 "type": "object",
                 "properties": {
@@ -17834,6 +17868,9 @@
                     "channel": {
                         "$ref": "#/components/schemas/ChannelLimits"
                     },
+                    "gateway": {
+                        "$ref": "#/components/schemas/GatewayLimits"
+                    },
                     "webrtc": {
                         "$ref": "#/components/schemas/WebRtcLimits"
                     },
@@ -17847,6 +17884,7 @@
                 "required": [
                     "absoluteRate",
                     "channel",
+                    "gateway",
                     "guild",
                     "message",
                     "rate",
@@ -17995,6 +18033,28 @@
                     "maxPins",
                     "maxTopic",
                     "maxWebhooks"
+                ]
+            },
+            "GatewayLimits": {
+                "type": "object",
+                "properties": {
+                    "maxMessageSize": {
+                        "type": "integer",
+                        "default": 15360
+                    },
+                    "rateLimitCount": {
+                        "type": "integer",
+                        "default": 120
+                    },
+                    "rateLimitWindow": {
+                        "type": "integer",
+                        "default": 60000
+                    }
+                },
+                "required": [
+                    "maxMessageSize",
+                    "rateLimitCount",
+                    "rateLimitWindow"
                 ]
             },
             "WebRtcLimits": {
@@ -19240,7 +19300,7 @@
                         "$ref": "#/components/schemas/EndpointConfiguration"
                     },
                     "gateway": {
-                        "$ref": "#/components/schemas/EndpointConfiguration"
+                        "$ref": "#/components/schemas/GatewayConfiguration"
                     },
                     "cdn": {
                         "$ref": "#/components/schemas/CdnConfiguration"

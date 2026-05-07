@@ -3445,7 +3445,7 @@
                 "$ref": "#/definitions/EndpointConfiguration"
             },
             "gateway": {
-                "$ref": "#/definitions/EndpointConfiguration"
+                "$ref": "#/definitions/GatewayConfiguration"
             },
             "cdn": {
                 "$ref": "#/definitions/CdnConfiguration"
@@ -5731,6 +5731,9 @@
             "channel": {
                 "$ref": "#/definitions/ChannelLimits"
             },
+            "gateway": {
+                "$ref": "#/definitions/GatewayLimits"
+            },
             "webrtc": {
                 "$ref": "#/definitions/WebRtcLimits"
             },
@@ -5745,6 +5748,7 @@
         "required": [
             "absoluteRate",
             "channel",
+            "gateway",
             "guild",
             "message",
             "rate",
@@ -10863,6 +10867,8 @@
                         "type": "string"
                     },
                     "size": {
+                        "minItems": 2,
+                        "maxItems": 2,
                         "type": "array",
                         "items": {
                             "type": "integer"
@@ -10966,6 +10972,7 @@
             0,
             1,
             2,
+            3,
             4,
             5
         ],
@@ -18334,6 +18341,35 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GatewayConfiguration": {
+        "type": "object",
+        "properties": {
+            "heartbeatTimeout": {
+                "type": "integer"
+            },
+            "endpointPrivate": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "endpointPublic": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "endpointPrivate",
+            "endpointPublic",
+            "heartbeatTimeout"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CdnConfiguration": {
         "type": "object",
         "properties": {
@@ -18617,6 +18653,9 @@
             "channel": {
                 "$ref": "#/definitions/ChannelLimits"
             },
+            "gateway": {
+                "$ref": "#/definitions/GatewayLimits"
+            },
             "webrtc": {
                 "$ref": "#/definitions/WebRtcLimits"
             },
@@ -18631,6 +18670,7 @@
         "required": [
             "absoluteRate",
             "channel",
+            "gateway",
             "guild",
             "message",
             "rate",
@@ -18787,6 +18827,30 @@
             "maxPins",
             "maxTopic",
             "maxWebhooks"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GatewayLimits": {
+        "type": "object",
+        "properties": {
+            "maxMessageSize": {
+                "type": "integer",
+                "default": 15360
+            },
+            "rateLimitCount": {
+                "type": "integer",
+                "default": 120
+            },
+            "rateLimitWindow": {
+                "type": "integer",
+                "default": 60000
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "maxMessageSize",
+            "rateLimitCount",
+            "rateLimitWindow"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -20113,7 +20177,7 @@
                 "$ref": "#/definitions/EndpointConfiguration"
             },
             "gateway": {
-                "$ref": "#/definitions/EndpointConfiguration"
+                "$ref": "#/definitions/GatewayConfiguration"
             },
             "cdn": {
                 "$ref": "#/definitions/CdnConfiguration"
