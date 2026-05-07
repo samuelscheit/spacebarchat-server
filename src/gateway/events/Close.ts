@@ -120,7 +120,8 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     if (this.readyTimeout) clearTimeout(this.readyTimeout);
     this.deflate?.close();
     this.inflate?.close();
-    this.removeAllListeners();
+    this.removeAllListeners("message");
+    this.removeAllListeners("error");
 
     const authSessionId = this.session?.session_id;
     if (this.user_id && authSessionId) {

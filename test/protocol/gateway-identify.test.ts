@@ -3,7 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, events, generateToken, initDatabase, User } from "@spacebar/util";
+import { closeDatabase, emitEvent, events, generateToken, initDatabase, User, type UserUpdateEvent } from "@spacebar/util";
 import ws from "ws";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { startGateway } from "../server/startGateway";
@@ -188,6 +188,15 @@ test(
             assert.deepEqual((resumed.d as { _trace: unknown[] })._trace, []);
 
             await waitForEventListener(readyData.session_id);
+            await emitEvent({
+                event: "USER_UPDATE",
+                session_id: readyData.session_id,
+                data: user.toPrivateUser() as unknown as UserUpdateEvent["data"],
+            } satisfies UserUpdateEvent);
+
+            const userUpdate = await readUntil(resumedClient, (payload) => payload.op === 0 && payload.t === "USER_UPDATE");
+            assert.equal(userUpdate.s, lastSeq + 2);
+            assert.equal((userUpdate.d as { id: string }).id, user.id);
         } finally {
             if (firstClient) await closeClient(firstClient);
             if (resumedClient) await closeClient(resumedClient);
