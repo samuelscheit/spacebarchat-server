@@ -112,6 +112,23 @@ export default defineConfig([
         },
     },
     {
+        files: ["test/**/*.ts"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+
+            parser: tsParser,
+            parserOptions: {
+                ecmaVersion: "latest",
+                sourceType: "module",
+                projectService: false,
+                project: "./tsconfig.test.json",
+                tsconfigRootDir: __dirname,
+            },
+        },
+    },
+    {
         plugins: { "node-import": nodeImport },
         rules: {
             "node-import/prefer-node-protocol": "error",
