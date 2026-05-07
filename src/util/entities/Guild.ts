@@ -43,10 +43,11 @@ import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import { setVanityUrlFeature } from "../util/GuildFeatures";
 import type { GuildCreateResponse } from "@spacebar/schemas";
-import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
+import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
+import { setVanityUrlFeature } from "../util/GuildFeatures";
+import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
@@ -64,6 +65,8 @@ import { moveChannelInOrder } from "../util/ChannelOrdering";
 // 		"miHoYo",
 // 		"Gacha"
 // 	],
+
+type GuildCreateChannelInput = Omit<Partial<Channel>, "permission_overwrites"> & TemplateChannelLike;
 
 export const PublicGuildRelations = [
     "channels",
@@ -380,7 +383,7 @@ export class Guild extends BaseClass {
         icon?: string | null;
         owner_id?: string;
         roles?: GuildCreateRoleInput[];
-        channels?: Partial<Channel>[];
+        channels?: GuildCreateChannelInput[];
         source_guild_id: string | null;
         verification_level?: number | null;
         default_message_notifications?: number | null;
@@ -392,8 +395,7 @@ export class Guild extends BaseClass {
         rules_channel_id?: string | null;
     }) {
         const guild_id = Snowflake.generate();
-        const roleIds = new Map<string, string>([["0", guild_id]]);
-        if (body.source_guild_id) roleIds.set(body.source_guild_id, guild_id);
+        const roleIds = createTemplateRoleIdMap(body.roles ?? [], body.source_guild_id, guild_id, () => Snowflake.generate());
         const defaultFeatures = setVanityUrlFeature(Config.get().guild.defaultFeatures, false);
 
         if (body.channels?.length) {
@@ -460,7 +462,7 @@ export class Guild extends BaseClass {
         if (customRoles.length) {
             await Promise.all(
                 customRoles.map((role, index) => {
-                    const id = Snowflake.generate();
+                    const id = getMappedTemplateRoleId(role.id, roleIds) ?? Snowflake.generate();
                     const normalized = normalizeGuildCreateRole(role, {
                         color: 0,
                         colors: { primary_color: 0 },
@@ -473,8 +475,6 @@ export class Guild extends BaseClass {
                         flags: 0,
                     });
 
-                    if (role.id) roleIds.set(role.id, id);
-
                     return Role.create({
                         ...normalized,
                         guild_id,
@@ -484,20 +484,19 @@ export class Guild extends BaseClass {
             );
         }
 
-        if (!body.channels || !body.channels.length) {
-            body.channels = [{ id: "01", type: 0, name: "general", nsfw: false }];
-        }
+        const templateChannels: GuildCreateChannelInput[] = body.channels?.length ? body.channels : [{ id: "01", type: 0, name: "general", nsfw: false }];
+        const channels = remapTemplateChannelPermissionOverwrites(templateChannels, roleIds);
 
         const ids = new Map<string, string>();
         const createdChannelIds = new Map<Partial<Channel>, string>();
 
-        body.channels.forEach((x) => {
+        channels.forEach((x) => {
             if (x.id) {
                 ids.set(x.id, Snowflake.generate());
             }
         });
 
-        for (const channel of sortTemplateChannelsForCreation(body.channels)) {
+        for (const channel of sortTemplateChannelsForCreation(channels)) {
             const id = channel.id ? ids.get(channel.id) || Snowflake.generate() : Snowflake.generate();
 
             const parent_id = channel.parent_id ? ids.get(channel.parent_id) : undefined;
@@ -515,7 +514,7 @@ export class Guild extends BaseClass {
         }
 
         const channelReferences = resolveGuildCreateChannelReferences(body, ids);
-        guild.channel_ordering = mapTemplateChannelOrdering(body.channels, (channel) => createdChannelIds.get(channel));
+        guild.channel_ordering = mapTemplateChannelOrdering(channels, (channel) => createdChannelIds.get(channel));
         const guildUpdate: {
             afk_channel_id?: string | null;
             channel_ordering: string[];
