@@ -30,14 +30,17 @@ export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
         return this.close(CLOSECODES.Decode_error);
     }
 
+    if (!data || typeof data !== "object" || !Number.isInteger(data.op)) {
+        console.error("[WebRTC] Invalid payload shape", data);
+        return this.close(CLOSECODES.Decode_error);
+    }
+
     if (data.op !== VoiceOPCodes.IDENTIFY && !this.user_id) return this.close(CLOSECODES.Not_authenticated);
 
     const OPCodeHandler = OPCodeHandlers[data.op];
     if (!OPCodeHandler) {
         console.error("[WebRTC] Unknown opcode " + VoiceOPCodes[data.op]);
-        // TODO: if all opcodes are implemented comment this out:
-        // this.close(CloseCodes.Unknown_opcode);
-        return;
+        return this.close(CLOSECODES.Unknown_opcode);
     }
 
     if (![VoiceOPCodes.HEARTBEAT, VoiceOPCodes.SPEAKING].includes(data.op as VoiceOPCodes)) {
@@ -48,6 +51,7 @@ export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
         return await OPCodeHandler.call(this, data);
     } catch (error) {
         console.error("[WebRTC] Error: Op " + data.op, error);
+        if (Array.isArray(error)) return this.close(CLOSECODES.Decode_error);
         return this.close(CLOSECODES.Unknown_error);
     }
 }

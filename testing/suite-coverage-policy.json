@@ -172,8 +172,19 @@
                         "src/webrtc/util/WebRtcMessageGuard.test.ts"
                     ],
                     "selectors": [{ "service": "webrtc", "type": "opcode" }],
-                    "fixtures": ["users", "sessions", "voice-states", "fake-media-server"],
-                    "checks": ["auth-required", "heartbeat", "backend-version", "identify", "select-protocol", "speaking", "video", "guard-size-rate"]
+                    "fixtures": ["users", "sessions", "voice-states", "streams", "fake-media-server"],
+                    "checks": [
+                        "auth-required",
+                        "heartbeat",
+                        "backend-version",
+                        "identify",
+                        "select-protocol",
+                        "speaking",
+                        "video",
+                        "guard-size-rate",
+                        "malformed-payload-close",
+                        "close-cleanup"
+                    ]
                 }
             ]
         },

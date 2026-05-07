@@ -48,6 +48,128 @@ describe("WebRTC Server transport", () => {
         }
     });
 
+    test("closes invalid JSON signaling payloads over a real websocket", async () => {
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+        server.configureWebSocketServer();
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            client.send("{not-json");
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Decode_error);
+        } finally {
+            await closeWebRtc(server);
+        }
+    });
+
+    test("closes non-object signaling payloads over a real websocket", async () => {
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+        server.configureWebSocketServer();
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            client.send("null");
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Decode_error);
+        } finally {
+            await closeWebRtc(server);
+        }
+    });
+
+    test("closes missing opcode signaling payloads over a real websocket", async () => {
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+        server.configureWebSocketServer();
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            client.send(JSON.stringify({ d: {} }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Decode_error);
+        } finally {
+            await closeWebRtc(server);
+        }
+    });
+
+    test("closes unknown authenticated opcodes over a real websocket", async () => {
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+        server.configureWebSocketServer();
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            const [serverSocket] = server.ws?.clients ?? [];
+            assert(serverSocket);
+            (serverSocket as WebRtcWebSocket).user_id = "user-fixture";
+
+            client.send(JSON.stringify({ op: 999, d: {} }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Unknown_opcode);
+        } finally {
+            await closeWebRtc(server);
+        }
+    });
+
+    test("closes malformed identify payloads over a real websocket", async () => {
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+        server.configureWebSocketServer();
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            client.send(JSON.stringify({ op: VoiceOPCodes.IDENTIFY, d: {} }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Decode_error);
+        } finally {
+            await closeWebRtc(server);
+        }
+    });
+
+    test("closes malformed authenticated heartbeat payloads over a real websocket", async () => {
+        const http = createServer();
+        const server = new WebRtcServer({ port: 0, server: http });
+        server.configureWebSocketServer();
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?v=5`);
+            await readJsonMessage(client);
+
+            const [serverSocket] = server.ws?.clients ?? [];
+            assert(serverSocket);
+            (serverSocket as WebRtcWebSocket).user_id = "user-fixture";
+
+            client.send(JSON.stringify({ op: VoiceOPCodes.HEARTBEAT, d: "not-a-number" }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Decode_error);
+        } finally {
+            await closeWebRtc(server);
+        }
+    });
+
     test("closes oversized signaling messages over a real websocket", async () => {
         const restoreConfig = withWebRtcLimits({ maxMessageSize: 32 });
         const http = createServer();

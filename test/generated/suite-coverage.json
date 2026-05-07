@@ -1419,6 +1419,7 @@
                         "users",
                         "sessions",
                         "voice-states",
+                        "streams",
                         "fake-media-server"
                     ],
                     "checks": [
@@ -1429,7 +1430,9 @@
                         "select-protocol",
                         "speaking",
                         "video",
-                        "guard-size-rate"
+                        "guard-size-rate",
+                        "malformed-payload-close",
+                        "close-cleanup"
                     ],
                     "manifestIds": [
                         "webrtc:opcode:HEARTBEAT",

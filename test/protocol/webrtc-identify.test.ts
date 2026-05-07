@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { CLOSECODES } from "@spacebar/gateway";
-import { closeDatabase, initDatabase, Snowflake, type Channel, type Guild, User, VoiceState } from "@spacebar/util";
+import { closeDatabase, initDatabase, Snowflake, Stream, StreamSession, type Channel, type Guild, User, VoiceState } from "@spacebar/util";
 import { mediaServer, setMediaServerForTesting, VoiceOPCodes } from "@spacebar/webrtc";
 import { ChannelType } from "@spacebar/schemas";
 import type { Codec, SignalingDelegate, SSRCs, VideoStream, WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
@@ -110,6 +110,64 @@ test(
 );
 
 test(
+    "WebRTC SELECT_PROTOCOL malformed payload closes without sending offers to the media server",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_select_malformed" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-select-malformed-"));
+        const previous = snapshotProcessState();
+        const previousMediaServer = mediaServer;
+        const fakeMediaServer = new FakeSignalingDelegate();
+        let server: Awaited<ReturnType<typeof startWebRtc>> | undefined;
+        let client: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            setMediaServerForTesting(fakeMediaServer);
+            await initDatabase();
+
+            const fixture = await createVoiceStateFixture({ usernamePrefix: "badselect" });
+            server = await startWebRtc();
+            const connection = await connectIdentifiedClient(server.url, fixture);
+            client = connection.client;
+
+            client.send(
+                JSON.stringify({
+                    op: VoiceOPCodes.SELECT_PROTOCOL,
+                    d: {
+                        protocol: "webrtc",
+                        data: "",
+                        codecs: [],
+                    },
+                }),
+            );
+
+            const close = await readClose(client);
+            assert.equal(close.code, CLOSECODES.Decode_error);
+            await waitForCloseHandlers();
+            assert.deepEqual(fakeMediaServer.offers, []);
+            assert.equal(fakeMediaServer.getClientsForRtcServer(fixture.channel.id).size, 0);
+        } finally {
+            if (client) await closeClient(client);
+            if (server) await server.stop();
+            setMediaServerForTesting(previousMediaServer);
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+test(
     "WebRTC IDENTIFY closes unmatched voice tokens with authentication failure",
     {
         skip: !hasPostgresAdminUrl(),
@@ -154,6 +212,54 @@ test(
             const close = await readClose(client);
             assert.equal(close.code, CLOSECODES.Authentication_failed);
             assert.deepEqual(fakeMediaServer.joinCalls, []);
+        } finally {
+            if (client) await closeClient(client);
+            if (server) await server.stop();
+            setMediaServerForTesting(previousMediaServer);
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+test(
+    "WebRTC VIDEO malformed payload closes without publishing media",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_video_malformed" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-video-malformed-"));
+        const previous = snapshotProcessState();
+        const previousMediaServer = mediaServer;
+        const fakeMediaServer = new FakeSignalingDelegate();
+        let server: Awaited<ReturnType<typeof startWebRtc>> | undefined;
+        let client: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            setMediaServerForTesting(fakeMediaServer);
+            await initDatabase();
+
+            const fixture = await createVoiceStateFixture({ usernamePrefix: "badvideo" });
+            server = await startWebRtc();
+            const connection = await connectIdentifiedClient(server.url, fixture);
+            client = connection.client;
+
+            client.send(JSON.stringify({ op: VoiceOPCodes.VIDEO, d: {} }));
+
+            const close = await readClose(client);
+            assert.equal(close.code, CLOSECODES.Decode_error);
+            await waitForCloseHandlers();
+            assert.equal(fakeMediaServer.getClientsForRtcServer(fixture.channel.id).size, 0);
         } finally {
             if (client) await closeClient(client);
             if (server) await server.stop();
@@ -251,6 +357,60 @@ test(
             await waitForCloseHandlers();
             clients.length = 0;
             assert.equal(fakeMediaServer.getClientsForRtcServer(speaker.channel.id).size, 0);
+        } finally {
+            await Promise.all(clients.map((client) => closeClient(client)));
+            if (server) await server.stop();
+            setMediaServerForTesting(previousMediaServer);
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+test(
+    "WebRTC SPEAKING malformed payload closes without fanning out to peers",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_speaking_malformed" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-speaking-malformed-"));
+        const previous = snapshotProcessState();
+        const previousMediaServer = mediaServer;
+        const fakeMediaServer = new FakeSignalingDelegate();
+        const clients: ws[] = [];
+        let server: Awaited<ReturnType<typeof startWebRtc>> | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            setMediaServerForTesting(fakeMediaServer);
+            await initDatabase();
+
+            const speaker = await createVoiceStateFixture({ usernamePrefix: "badspeaker" });
+            const listener = await createVoiceStateFixture({ guild: speaker.guild, channel: speaker.channel, usernamePrefix: "badlistener" });
+            server = await startWebRtc();
+            const speakerConnection = await connectIdentifiedClient(server.url, speaker);
+            clients.push(speakerConnection.client);
+            const listenerConnection = await connectIdentifiedClient(server.url, listener);
+            clients.push(listenerConnection.client);
+
+            speakerConnection.client.send(JSON.stringify({ op: VoiceOPCodes.SPEAKING, d: {} }));
+
+            const close = await readClose(speakerConnection.client);
+            assert.equal(close.code, CLOSECODES.Decode_error);
+            await waitForCloseHandlers();
+            await assertNoWebRtcMessage(listenerConnection.client);
+            assert.equal(fakeMediaServer.getClientsForRtcServer(speaker.channel.id).size, 1);
+
+            clients.splice(clients.indexOf(speakerConnection.client), 1);
         } finally {
             await Promise.all(clients.map((client) => closeClient(client)));
             if (server) await server.stop();
@@ -381,6 +541,77 @@ test(
     },
 );
 
+test(
+    "WebRTC stream IDENTIFY marks stream sessions used and removes them on close",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_stream_cleanup" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-stream-cleanup-"));
+        const previous = snapshotProcessState();
+        const previousMediaServer = mediaServer;
+        const fakeMediaServer = new FakeSignalingDelegate();
+        let server: Awaited<ReturnType<typeof startWebRtc>> | undefined;
+        let client: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            setMediaServerForTesting(fakeMediaServer);
+            await initDatabase();
+
+            const fixture = await createStreamSessionFixture();
+            server = await startWebRtc();
+            client = new ws(`${server.url}/?v=5`, { headers: { "User-Agent": "spacebar-test" } });
+            const hello = await readJsonMessage(client);
+            assert.equal(hello.op, VoiceOPCodes.HELLO);
+
+            client.send(
+                JSON.stringify({
+                    op: VoiceOPCodes.IDENTIFY,
+                    d: {
+                        server_id: fixture.stream.id,
+                        user_id: fixture.user.id,
+                        session_id: fixture.sessionId,
+                        token: fixture.token,
+                        video: true,
+                        streams: [{ type: "video", rid: "100", quality: 100 }],
+                    },
+                }),
+            );
+
+            const ready = await readJsonMessage(client);
+            assert.equal(ready.op, VoiceOPCodes.READY);
+            assert.deepEqual(fakeMediaServer.joinCalls, [{ roomId: fixture.stream.id, userId: fixture.user.id, type: "stream" }]);
+            assert.equal(fakeMediaServer.getClientsForRtcServer(fixture.stream.id).size, 1);
+
+            const usedSession = await StreamSession.findOneByOrFail({ id: fixture.streamSession.id });
+            assert.equal(usedSession.used, true);
+
+            await closeClient(client);
+            await waitForCloseHandlers();
+            client = undefined;
+
+            assert.equal(await StreamSession.findOneBy({ id: fixture.streamSession.id }), null);
+            assert.equal(fakeMediaServer.getClientsForRtcServer(fixture.stream.id).size, 0);
+        } finally {
+            if (client) await closeClient(client);
+            if (server) await server.stop();
+            setMediaServerForTesting(previousMediaServer);
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
 interface VoiceStateFixture {
     user: User;
     guild: Guild;
@@ -430,6 +661,38 @@ async function createVoiceStateFixture(options: VoiceStateFixtureOptions = {}): 
     }).save();
 
     return { user, guild, channel, sessionId, token };
+}
+
+async function createStreamSessionFixture() {
+    const suffix = `${process.pid}${Date.now()}`;
+    const user = await User.register({
+        username: `streamwebrtc${suffix.slice(-8)}`,
+        email: `stream-webrtc-${suffix}-${Snowflake.generate()}@example.com`,
+        password: "webrtc-password-fixture",
+    });
+    const guild = await makeGuild(user, { id: Snowflake.generate(), name: "WebRTC Stream Fixture Guild" }).save();
+    const channel = await makeChannel(guild, {
+        id: Snowflake.generate(),
+        name: "stream",
+        type: ChannelType.GUILD_VOICE,
+    }).save();
+    const stream = await Stream.create({
+        id: Snowflake.generate(),
+        owner_id: user.id,
+        channel_id: channel.id,
+        endpoint: "127.0.0.1:3004",
+    }).save();
+    const id = Snowflake.generate();
+    const sessionId = `stream-session-${id}`;
+    const token = `stream-token-${id}`;
+    const streamSession = await StreamSession.create({
+        stream_id: stream.id,
+        user_id: user.id,
+        session_id: sessionId,
+        token,
+    }).save();
+
+    return { user, guild, channel, stream, streamSession, sessionId, token };
 }
 
 async function connectIdentifiedClient(serverUrl: string, fixture: VoiceStateFixture) {
@@ -670,6 +933,36 @@ async function readClose(client: ws) {
         };
         client.once("close", onClose);
         client.once("error", onError);
+    });
+}
+
+async function assertNoWebRtcMessage(client: ws) {
+    await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            cleanup();
+            resolve();
+        }, 100);
+        const cleanup = () => {
+            clearTimeout(timeout);
+            client.off("message", onMessage);
+            client.off("error", onError);
+            client.off("close", onClose);
+        };
+        const onMessage = (message: ws.RawData) => {
+            cleanup();
+            reject(new Error(`Unexpected WebRTC message: ${message.toString()}`));
+        };
+        const onError = (error: Error) => {
+            cleanup();
+            reject(error);
+        };
+        const onClose = () => {
+            cleanup();
+            resolve();
+        };
+        client.once("message", onMessage);
+        client.once("error", onError);
+        client.once("close", onClose);
     });
 }
 
