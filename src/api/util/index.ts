@@ -41,3 +41,4 @@ export * from "./utility/MessageHistoryPagination";
 export * from "./utility/EmbedPayload";
 export * from "./utility/MessageResponse";
 export * from "./utility/MessageSearch";
+export * from "./utility/LinkEmbeds";
