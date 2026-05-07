@@ -13864,7 +13864,7 @@
             "method": "GET",
             "path": "/guild-profiles/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 79,
+            "line": 75,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -13895,7 +13895,7 @@
             "method": "DELETE",
             "path": "/guild-profiles/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 94,
+            "line": 89,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -13926,7 +13926,7 @@
             "method": "GET",
             "path": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 64,
+            "line": 63,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -13988,7 +13988,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 79,
+            "line": 75,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -14020,7 +14020,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 94,
+            "line": 89,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -14052,7 +14052,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 64,
+            "line": 63,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -14116,7 +14116,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 79,
+            "line": 75,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -14148,7 +14148,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/banners/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 94,
+            "line": 89,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -14180,7 +14180,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 64,
+            "line": 63,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {

@@ -40,7 +40,6 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
-    const { guild_id, user_id } = req.params as { [key: string]: string };
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
@@ -48,7 +47,7 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
     if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
-    const path = `guilds/${guild_id}/users/${user_id}/avatars/${hash}`;
+    const path = `${profileAssetPrefix(req)}/${hash}`;
     const endpoint = Config.get().cdn.endpointPublic;
 
     await storage.set(path, buffer);
@@ -57,15 +56,12 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
         id: hash,
         content_type: type.mime,
         size,
-        url: `${endpoint}${req.baseUrl}/${user_id}/${hash}`,
+        url: `${endpoint}${req.baseUrl}/${hash}`,
     });
 });
 
 router.get("/", cache, async (req: Request, res: Response) => {
-    const { guild_id } = req.params as { [key: string]: string };
-    let { user_id } = req.params as { [key: string]: string };
-    user_id = user_id.split(".")[0]; // remove .file extension
-    const path = `guilds/${guild_id}/users/${user_id}/avatars`;
+    const path = profileAssetPrefix(req);
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
@@ -77,10 +73,9 @@ router.get("/", cache, async (req: Request, res: Response) => {
 });
 
 router.get("/:hash", cache, async (req: Request, res: Response) => {
-    const { guild_id, user_id } = req.params as { [key: string]: string };
     let { hash } = req.params as { [key: string]: string };
     hash = hash.split(".")[0]; // remove .file extension
-    const path = `guilds/${guild_id}/users/${user_id}/avatars/${hash}`;
+    const path = `${profileAssetPrefix(req)}/${hash}`;
 
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
@@ -93,12 +88,20 @@ router.get("/:hash", cache, async (req: Request, res: Response) => {
 
 router.delete("/:id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    const { guild_id, user_id, id } = req.params as { [key: string]: string };
-    const path = `guilds/${guild_id}/users/${user_id}/avatars/${id}`;
+    const { id } = req.params as { [key: string]: string };
+    const path = `${profileAssetPrefix(req)}/${id}`;
 
     await storage.delete(path);
 
     return res.send({ success: true });
 });
+
+function profileAssetPrefix(req: Request) {
+    const assetType = req.baseUrl.endsWith("/banners") ? "banners" : req.baseUrl.endsWith("/avatars") ? "avatars" : "guild-profiles";
+    if (assetType === "guild-profiles") return assetType;
+
+    const { guild_id, user_id } = req.params as { [key: string]: string };
+    return `guilds/${guild_id}/users/${user_id}/${assetType}`;
+}
 
 export default router;

@@ -137,7 +137,13 @@
                     "title": "CDN uploads, downloads, deletes, signed URLs, and object metadata",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["test/scenarios/cdn-attachments.test.ts", "src/cdn/index.test.ts", "src/cdn/util/FileStorage.test.ts", "src/util/util/CdnRoutes.test.ts"],
+                    "testFiles": [
+                        "test/scenarios/cdn-assets.test.ts",
+                        "test/scenarios/cdn-attachments.test.ts",
+                        "src/cdn/index.test.ts",
+                        "src/cdn/util/FileStorage.test.ts",
+                        "src/util/util/CdnRoutes.test.ts"
+                    ],
                     "selectors": [
                         { "service": "api", "type": "http-route", "pathPrefix": "/attachments" },
                         { "service": "cdn", "type": "http-route" }
