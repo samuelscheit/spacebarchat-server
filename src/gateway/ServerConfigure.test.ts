@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { describe, test } from "node:test";
+import { Decoder, Encoder } from "@toondepauw/node-zstd";
+import { Deflate, Inflate } from "fast-zlib";
 import ws from "ws";
 import { Server as GatewayServer } from "./Server";
 import { CLOSECODES, OPCODES, type Payload } from "./util/Constants";
@@ -51,6 +53,54 @@ describe("Gateway Server transport", () => {
         }
     });
 
+    test("responds to heartbeat over a zlib-stream compressed real websocket before authentication", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+        const deflate = new Deflate();
+        const inflate = new Inflate();
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json&compress=zlib-stream`, { headers: { "User-Agent": "spacebar-test" } });
+            const hello = await readCompressedJsonMessage(client, (message) => inflate.process(message) as Buffer);
+
+            assert.equal(hello.op, OPCODES.Hello);
+
+            client.send(deflate.process(Buffer.from(JSON.stringify({ op: OPCODES.Heartbeat, d: null }))) as Buffer);
+            const ack = await readCompressedJsonMessage(client, (message) => inflate.process(message) as Buffer);
+
+            assert.equal(ack.op, OPCODES.Heartbeat_ACK);
+
+            await closeClient(client);
+        } finally {
+            await closeGateway(server);
+        }
+    });
+
+    test("responds to heartbeat over a zstd-stream compressed real websocket before authentication", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+        const encoder = new Encoder(6);
+        const decoder = new Decoder();
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json&compress=zstd-stream`, { headers: { "User-Agent": "spacebar-test" } });
+            const hello = await readCompressedJsonMessage(client, async (message) => Buffer.from(await decoder.decode(message)));
+
+            assert.equal(hello.op, OPCODES.Hello);
+
+            client.send((await encoder.encode(Buffer.from(JSON.stringify({ op: OPCODES.Heartbeat, d: null })))) as Buffer);
+            const ack = await readCompressedJsonMessage(client, async (message) => Buffer.from(await decoder.decode(message)));
+
+            assert.equal(ack.op, OPCODES.Heartbeat_ACK);
+
+            await closeClient(client);
+        } finally {
+            await closeGateway(server);
+        }
+    });
+
     test("responds to QoS heartbeat over a real websocket before authentication", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
@@ -81,6 +131,37 @@ describe("Gateway Server transport", () => {
         } finally {
             await closeGateway(server);
         }
+    });
+
+    test("closes invalid JSON payloads over a real websocket", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            await readJsonMessage(client);
+
+            client.send("{not-json");
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Decode_error);
+        } finally {
+            await closeGateway(server);
+        }
+    });
+
+    test("closes malformed compressed JSON payloads over real websockets", async () => {
+        await assertGatewayCompressedPayloadClose(
+            "/?version=8&encoding=json&compress=zlib-stream",
+            (message) => new Inflate().process(message) as Buffer,
+            async (message) => new Deflate().process(message) as Buffer,
+        );
+        await assertGatewayCompressedPayloadClose(
+            "/?version=8&encoding=json&compress=zstd-stream",
+            async (message) => Buffer.from(await new Decoder().decode(message)),
+            async (message) => (await new Encoder(6).encode(message)) as Buffer,
+        );
     });
 
     test("closes malformed heartbeat payloads over a real websocket", async () => {
@@ -152,6 +233,26 @@ async function assertGatewayHandshakeClose(path: string, expectedCode: CLOSECODE
     }
 }
 
+async function assertGatewayCompressedPayloadClose(path: string, decode: (message: Buffer) => Buffer | Promise<Buffer>, encode: (message: Buffer) => Buffer | Promise<Buffer>) {
+    const http = createServer();
+    const server = new GatewayServer({ port: 0, server: http });
+    const port = await listen(http);
+
+    try {
+        const client = new ws(`ws://127.0.0.1:${port}${path}`, { headers: { "User-Agent": "spacebar-test" } });
+        const hello = await readCompressedJsonMessage(client, decode);
+
+        assert.equal(hello.op, OPCODES.Hello);
+
+        client.send(await encode(Buffer.from("{not-json")));
+        const close = await readClose(client);
+
+        assert.equal(close.code, CLOSECODES.Decode_error);
+    } finally {
+        await closeGateway(server);
+    }
+}
+
 async function listen(server: ReturnType<typeof createServer>) {
     await new Promise<void>((resolve, reject) => {
         server.once("error", reject);
@@ -164,7 +265,18 @@ async function listen(server: ReturnType<typeof createServer>) {
 }
 
 async function readJsonMessage(client: ws) {
-    const raw = await new Promise<ws.RawData>((resolve, reject) => {
+    const raw = await readRawMessage(client);
+    return JSON.parse(raw.toString()) as Payload;
+}
+
+async function readCompressedJsonMessage(client: ws, decode: (message: Buffer) => Buffer | Promise<Buffer>) {
+    const raw = await readRawMessage(client);
+    const payload = await decode(rawDataToBuffer(raw));
+    return JSON.parse(payload.toString()) as Payload;
+}
+
+async function readRawMessage(client: ws) {
+    return await new Promise<ws.RawData>((resolve, reject) => {
         const timeout = setTimeout(() => {
             cleanup();
             reject(new Error("Timed out waiting for Gateway message"));
@@ -191,8 +303,12 @@ async function readJsonMessage(client: ws) {
         client.once("error", onError);
         client.once("close", onClose);
     });
+}
 
-    return JSON.parse(raw.toString()) as Payload;
+function rawDataToBuffer(raw: ws.RawData) {
+    if (Buffer.isBuffer(raw)) return raw;
+    if (Array.isArray(raw)) return Buffer.concat(raw);
+    return Buffer.from(raw);
 }
 
 async function closeClient(client: ws) {

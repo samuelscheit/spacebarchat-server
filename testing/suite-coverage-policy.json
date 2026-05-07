@@ -164,6 +164,8 @@
                         "resume",
                         "bad-payload-close",
                         "unsupported-handshake-close",
+                        "compressed-json-zlib-zstd",
+                        "compressed-malformed-close",
                         "event-fanout",
                         "channel-status-info",
                         "stream-create-watch-delete"

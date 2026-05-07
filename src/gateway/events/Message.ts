@@ -46,22 +46,28 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         (Buffer.isBuffer(buffer) && buffer[0] === 123) || // ASCII 123 = `{`. Bad check for JSON
         typeof buffer === "string"
     ) {
-        data = bigIntJson.parse(buffer.toString());
+        const parsed = parseJsonPayload.call(this, buffer);
+        if (!parsed) return;
+        data = parsed;
     } else if (this.encoding === "json" && Buffer.isBuffer(buffer)) {
         if (this.compress === "zlib-stream") {
             try {
                 buffer = this.inflate!.process(buffer);
-            } catch {
-                buffer = buffer.toString();
+            } catch (error) {
+                console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Failed to decode zlib payload`, error);
+                return this.close(CLOSECODES.Decode_error);
             }
         } else if (this.compress === "zstd-stream") {
             try {
                 buffer = await this.zstdDecoder!.decode(buffer);
-            } catch {
-                buffer = buffer.toString();
+            } catch (error) {
+                console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Failed to decode zstd payload`, error);
+                return this.close(CLOSECODES.Decode_error);
             }
         }
-        data = bigIntJson.parse(buffer as string);
+        const parsed = parseJsonPayload.call(this, buffer);
+        if (!parsed) return;
+        data = parsed;
     } else if (this.encoding === "etf" && Buffer.isBuffer(buffer) && erlpack) {
         try {
             // cast is ~safe: unpack returns the parsed data in the shape it was provided, @yukikaze-bot/erlpack got around this by returning `any` instead of an actual type union.
@@ -86,7 +92,11 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         if (!this.session_id) console.log(`[Gateway/${this.user_id ?? this.ipAddress}] Unknown session id, dumping to unknown folder`);
     }
 
-    check.call(this, PayloadSchema, data);
+    try {
+        check.call(this, PayloadSchema, data);
+    } catch {
+        return;
+    }
 
     const OPCodeHandler = OPCodeHandlers[data.op];
     if (!OPCodeHandler) {
@@ -105,5 +115,15 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
         console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Error: Op ${data.op}`, error);
         // if (!this.CLOSED && this.CLOSING)
         return this.close(CLOSECODES.Unknown_error);
+    }
+}
+
+function parseJsonPayload(this: WebSocket, buffer: Buffer | string) {
+    try {
+        return bigIntJson.parse(buffer.toString()) as Payload;
+    } catch (error) {
+        console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Failed to decode JSON payload`, error);
+        this.close(CLOSECODES.Decode_error);
+        return undefined;
     }
 }

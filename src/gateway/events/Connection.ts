@@ -79,8 +79,12 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
     try {
         // @ts-ignore
         socket.on("close", Close);
-        // @ts-ignore
-        socket.on("message", Message);
+        socket.on("message", (buffer) => {
+            void Message.call(socket, buffer).catch((error) => {
+                console.error(`[Gateway/${socket.user_id ?? socket.ipAddress}] Failed to handle payload`, error);
+                socket.close(CLOSECODES.Decode_error);
+            });
+        });
 
         socket.on("error", (err) => console.error(`[Gateway/${socket.user_id ?? socket.ipAddress}]`, err));
 
