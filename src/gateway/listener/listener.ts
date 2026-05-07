@@ -48,6 +48,7 @@ import {
     unsubscribeGuildEventIds,
     unsubscribeGuildMemberEventIds,
 } from "./subscriptions";
+import { getEventPermissionLookupId } from "../util/EventPermissions";
 
 type GuildCreatePermissionData = {
     id: string;
@@ -317,7 +318,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
     const id = data.id as string;
     const guildId = data.guild_id as string | undefined;
-    const permission = (guildId && this.permissions[guildId]) || this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
+    const permissionLookupId = getEventPermissionLookupId(event, data);
+    const permission =
+        (permissionLookupId && this.permissions[permissionLookupId]) || (guildId && this.permissions[guildId]) || this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
 
     const consumer = consume.bind(this);
     const listenOpts = opts as ListenEventOpts;

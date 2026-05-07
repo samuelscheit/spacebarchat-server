@@ -1,8 +1,9 @@
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, isValidWebhookToken, Webhook, WebhooksUpdateEvent, toAPIWebhook } from "@spacebar/util";
+import { Config, DiscordApiErrors, emitEvent, isValidWebhookToken, Webhook, toAPIWebhook } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import multer from "multer";
 import { executeWebhook, updateWebhookWithToken } from "../../../../util/handlers/Webhook";
+import { buildWebhooksUpdateEvent } from "../../../../util/utility/WebhookEvents";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -119,17 +120,11 @@ router.delete(
         if (!isValidWebhookToken(webhook.token, token)) {
             throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
         }
-        const channel_id = webhook.channel_id;
+
         await Webhook.delete({ id: webhook_id });
 
-        await emitEvent({
-            event: "WEBHOOKS_UPDATE",
-            channel_id,
-            data: {
-                channel_id,
-                guild_id: webhook.guild_id!, // TODO: is this even the right fix?
-            },
-        } satisfies WebhooksUpdateEvent);
+        const webhooksUpdateEvent = buildWebhooksUpdateEvent(webhook);
+        if (webhooksUpdateEvent) await emitEvent(webhooksUpdateEvent);
 
         res.sendStatus(204);
     },

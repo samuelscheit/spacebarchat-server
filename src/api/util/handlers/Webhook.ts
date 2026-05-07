@@ -14,7 +14,6 @@ import {
     toAPIWebhook,
     ValidateName,
     Webhook,
-    WebhooksUpdateEvent,
 } from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
@@ -22,6 +21,7 @@ import { MoreThan } from "typeorm";
 import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
 import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
+import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
@@ -29,7 +29,6 @@ export async function updateWebhookWithToken(req: Request, res: Response) {
 
     const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true });
 
-    const channel_id = webhook.channel_id;
     if (!body.name && !body.avatar) {
         throw new HTTPError("Empty webhook updates are not allowed", 50006);
     }
@@ -44,17 +43,10 @@ export async function updateWebhookWithToken(req: Request, res: Response) {
 
     webhook.assign(update);
 
-    await Promise.all([
-        webhook.save(),
-        emitEvent({
-            event: "WEBHOOKS_UPDATE",
-            channel_id,
-            data: {
-                channel_id,
-                guild_id: webhook.guild_id!, //TODO: is this even the right fix?
-            },
-        } satisfies WebhooksUpdateEvent),
-    ]);
+    const webhooksUpdateEvent = buildWebhooksUpdateEvent(webhook);
+
+    await webhook.save();
+    if (webhooksUpdateEvent) await emitEvent(webhooksUpdateEvent);
 
     res.json(
         toAPIWebhook(webhook, {

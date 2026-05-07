@@ -17,11 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application, toAPIWebhook } from "@spacebar/util";
+import { Channel, Config, DiscordApiErrors, User, Webhook, handleFile, trimSpecial, ValidateName, Application, emitEvent, toAPIWebhook } from "@spacebar/util";
 import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { isTextChannel, WebhookCreateSchema, WebhookType } from "@spacebar/schemas";
+import { buildWebhooksUpdateEvent } from "../../../util/utility/WebhookEvents";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -103,7 +104,12 @@ router.post(
             token: crypto.randomBytes(24).toString("base64url"),
         }).save();
 
-        const user = await User.getPublicUser(req.user_id);
+        const webhooksUpdateEvent = buildWebhooksUpdateEvent({
+            channel_id: hook.channel_id,
+            guild_id: channel.guild_id,
+        });
+
+        const [user] = await Promise.all([User.getPublicUser(req.user_id), webhooksUpdateEvent && emitEvent(webhooksUpdateEvent)]);
 
         return res.json(toAPIWebhook(hook, { user }));
     },
