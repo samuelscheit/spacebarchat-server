@@ -50,6 +50,7 @@ import {
     getCloudAttachmentCdnUrl,
     getDatabase,
     messagePublicRelations,
+    getCloudAttachmentAccessError,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -729,6 +730,8 @@ interface MessageOptions extends MessageCreateSchema {
     reactions?: Reaction[];
     channel_id?: string;
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
+    attachment_user_id?: string;
+    attachment_channel_ids?: string[];
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;
@@ -747,7 +750,11 @@ export async function processMessageOptionAttachments(source: MessageOptions, de
     const tasks = source.attachments?.map(async (src): Promise<Attachment> => {
         if (src instanceof Attachment) return logPassthru(src, logp, `Got Attachment instance`);
         if (isCloudAttachment(src))
-            return logPassthru(await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id), logp, "Got MessageCreateCloudAttachment contents");
+            return logPassthru(
+                await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id, source.attachment_channel_ids, source.attachment_user_id),
+                logp,
+                "Got MessageCreateCloudAttachment contents",
+            );
         throw new Error(logp + " Unhandled attachment: " + JSON.stringify(src));
     });
 
@@ -761,12 +768,22 @@ export function isCloudAttachment(attachment: MessageOptionAttachment) {
     return "uploaded_filename" in attachment;
 }
 
-export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateCloudAttachment, destinationChannelId: string, destinationMessageId: string) {
-    const attEnt = await CloudAttachment.findOneOrFail({
+export async function convertCloudAttachmentToAttachment(
+    cAtt: MessageCreateCloudAttachment,
+    destinationChannelId: string,
+    destinationMessageId: string,
+    sourceChannelIds: string[] = [destinationChannelId],
+    expectedUserId?: string,
+) {
+    const attEnt = await CloudAttachment.findOne({
         where: {
             uploadFilename: cAtt.uploaded_filename,
         },
     });
+
+    if (!attEnt) throw new HTTPError("Unknown attachment", 400);
+    const accessError = getCloudAttachmentAccessError(attEnt, sourceChannelIds, expectedUserId);
+    if (accessError) throw new HTTPError(accessError.message, accessError.status);
 
     const cloneResponse = await fetch(getCloudAttachmentCloneCdnUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, destinationMessageId), {
         method: "POST",

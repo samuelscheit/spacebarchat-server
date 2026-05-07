@@ -21,7 +21,9 @@ import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandT
 
 export type MessageCreateAttachment = {
     id: string;
-    filename: string;
+    filename?: string;
+    name?: string;
+    file?: string;
 };
 
 export type MessageCreateCloudAttachment = {
@@ -29,6 +31,13 @@ export type MessageCreateCloudAttachment = {
     filename: string;
     uploaded_filename: string;
     original_content_type?: string;
+};
+
+export type MessageCreateFile = {
+    id?: string;
+    file?: string;
+    name?: string;
+    filename?: string;
 };
 
 export interface MessageCreateSchema {
@@ -46,6 +55,7 @@ export interface MessageCreateSchema {
     message_reference?: MessageReference | null;
     payload_json?: string;
     file?: { filename: string };
+    files?: MessageCreateFile[];
     // TODO: we should create an interface for attachments
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
     sticker_ids?: string[] | null; // null check: fixes Discord-Go

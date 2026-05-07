@@ -4887,6 +4887,10 @@
                     },
                     "discovery_excluded": {
                         "type": "boolean"
+                    },
+                    "toGuildUpdateEventData": {
+                        "type": "object",
+                        "additionalProperties": false
                     }
                 },
                 "required": [
@@ -4909,6 +4913,7 @@
                     "public_updates_channel_id",
                     "roles",
                     "stickers",
+                    "toGuildUpdateEventData",
                     "unavailable",
                     "voice_states",
                     "webhooks",
@@ -6280,6 +6285,27 @@
                             "filename"
                         ]
                     },
+                    "files": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "file": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "filename": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
                     "attachments": {
                         "type": "array",
                         "items": {
@@ -6292,11 +6318,16 @@
                                         },
                                         "filename": {
                                             "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "file": {
+                                            "type": "string"
                                         }
                                     },
                                     "additionalProperties": false,
                                     "required": [
-                                        "filename",
                                         "id"
                                     ]
                                 },
@@ -6477,18 +6508,6 @@
                             }
                         ]
                     },
-                    "file": {
-                        "type": "object",
-                        "properties": {
-                            "filename": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "filename"
-                        ]
-                    },
                     "flags": {
                         "type": "integer"
                     },
@@ -6546,9 +6565,6 @@
                             }
                         ]
                     },
-                    "payload_json": {
-                        "type": "string"
-                    },
                     "attachments": {
                         "type": "array",
                         "items": {
@@ -6561,11 +6577,16 @@
                                         },
                                         "filename": {
                                             "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "file": {
+                                            "type": "string"
                                         }
                                     },
                                     "additionalProperties": false,
                                     "required": [
-                                        "filename",
                                         "id"
                                     ]
                                 },
@@ -7602,11 +7623,16 @@
                                 },
                                 "filename": {
                                     "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "file": {
+                                    "type": "string"
                                 }
                             },
                             "additionalProperties": false,
                             "required": [
-                                "filename",
                                 "id"
                             ]
                         }
@@ -7819,11 +7845,16 @@
                                                 },
                                                 "filename": {
                                                     "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "file": {
+                                                    "type": "string"
                                                 }
                                             },
                                             "additionalProperties": false,
                                             "required": [
-                                                "filename",
                                                 "id"
                                             ]
                                         },
@@ -8166,6 +8197,9 @@
                 "required": [
                     "user_sessions"
                 ]
+            },
+            "JsonSchema": {
+                "type": "object"
             },
             "ApplicationCommandOption": {
                 "type": "object",
@@ -15517,11 +15551,16 @@
                                         },
                                         "filename": {
                                             "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "file": {
+                                            "type": "string"
                                         }
                                     },
                                     "additionalProperties": false,
                                     "required": [
-                                        "filename",
                                         "id"
                                     ]
                                 },
