@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { test } from "node:test";
 import { getMetadataArgsStorage } from "typeorm";
 
@@ -12,4 +14,10 @@ test("User.badge_ids TypeORM metadata matches the string badge id migration", as
     assert.equal(badgeIdsColumn.options.type, "varchar");
     assert.equal(badgeIdsColumn.options.array, true);
     assert.equal(badgeIdsColumn.options.nullable, true);
+});
+
+test("User.premium_since keeps nullable Date column metadata", () => {
+    const source = readFileSync(path.join(process.cwd(), "src/util/entities/User.ts"), "utf8");
+
+    assert.match(source, /@Column\(\{\s*nullable:\s*true,\s*type:\s*Date\s*\}\)\s+premium_since\?: Date \| null;/);
 });

@@ -5855,8 +5855,15 @@
                         "type": "boolean"
                     },
                     "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "premium_type": {
                         "type": "integer"
@@ -5894,7 +5901,6 @@
                     "bot",
                     "discriminator",
                     "id",
-                    "premium_since",
                     "premium_type",
                     "public_flags",
                     "username"
@@ -5935,8 +5941,15 @@
                         "type": "boolean"
                     },
                     "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "premium_type": {
                         "type": "integer"
@@ -6009,7 +6022,6 @@
                     "mfa_enabled",
                     "nsfw_allowed",
                     "premium",
-                    "premium_since",
                     "premium_type",
                     "premium_usage_flags",
                     "public_flags",
@@ -6074,8 +6086,15 @@
                         "type": "boolean"
                     },
                     "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "premium_type": {
                         "type": "integer"
@@ -6148,7 +6167,6 @@
                     "mfa_enabled",
                     "nsfw_allowed",
                     "premium",
-                    "premium_since",
                     "premium_type",
                     "premium_usage_flags",
                     "public_flags",
@@ -6679,12 +6697,18 @@
                         }
                     },
                     "premium_guild_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "type": "integer"
                     },
                     "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "mutual_guilds": {
                         "type": "array",
@@ -6695,7 +6719,10 @@
                                     "type": "string"
                                 },
                                 "nick": {
-                                    "type": "string"
+                                    "type": [
+                                        "null",
+                                        "string"
+                                    ]
                                 }
                             },
                             "additionalProperties": false,
@@ -6703,6 +6730,15 @@
                                 "id"
                             ]
                         }
+                    },
+                    "mutual_friends": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicUser"
+                        }
+                    },
+                    "mutual_friends_count": {
+                        "type": "integer"
                     },
                     "premium_type": {
                         "type": "integer"
@@ -6736,7 +6772,6 @@
                     "badges",
                     "connected_accounts",
                     "guild_badges",
-                    "mutual_guilds",
                     "premium_type",
                     "profile_themes_experiment_bucket",
                     "user",
@@ -11372,8 +11407,15 @@
                         "format": "date-time"
                     },
                     "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "verified": {
                         "type": "boolean"
@@ -11500,7 +11542,6 @@
                     "mobile",
                     "nsfw_allowed",
                     "premium",
-                    "premium_since",
                     "premium_type",
                     "premium_usage_flags",
                     "public_flags",
@@ -15380,8 +15421,15 @@
                         "type": "boolean"
                     },
                     "premium_since": {
-                        "type": "string",
-                        "format": "date-time"
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "premium_type": {
                         "type": "integer"
@@ -15419,7 +15467,6 @@
                     "bot",
                     "discriminator",
                     "id",
-                    "premium_since",
                     "premium_type",
                     "public_flags",
                     "username"
@@ -17650,11 +17697,20 @@
                             }
                         ]
                     }
-                }
+                },
+                "required": [
+                    "bio"
+                ]
             },
             "PublicMemberProfile": {
                 "type": "object",
                 "properties": {
+                    "accent_color": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
                     "banner": {
                         "type": [
                             "null",
@@ -17666,14 +17722,13 @@
                     },
                     "guild_id": {
                         "type": "string"
-                    },
-                    "accent_color": {
-                        "type": "null"
                     }
                 },
                 "required": [
                     "accent_color",
-                    "bio"
+                    "banner",
+                    "bio",
+                    "guild_id"
                 ]
             },
             "ProfileBadge": {
@@ -17689,10 +17744,7 @@
                         "type": "string"
                     },
                     "link": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
+                        "type": "string"
                     }
                 },
                 "required": [

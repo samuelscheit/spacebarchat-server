@@ -20,8 +20,17 @@ import { route } from "@spacebar/api";
 import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, profilePronouns, Relationship, User, UserUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { PartialConnectedAccountResponse, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, UserProfileModifySchema } from "@spacebar/schemas";
+import {
+    PartialConnectedAccountResponse,
+    PrivateUserProjection,
+    PublicUser,
+    PublicUserProjection,
+    RelationshipType,
+    type UserProfileResponse,
+    UserProfileModifySchema,
+} from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
+import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -60,8 +69,8 @@ router.get(
             },
         });
 
-        const mutual_guilds: object[] = [];
-        let premium_guild_since;
+        const mutual_guilds: NonNullable<UserProfileResponse["mutual_guilds"]> = [];
+        let premium_guild_since: UserProfileResponse["premium_guild_since"];
 
         if (with_mutual_guilds == "true") {
             const requested_member = await Member.find({
@@ -104,12 +113,14 @@ router.get(
             theme_colors: user.theme_colors?.map((t) => Number(t)), // these are strings for some reason, they should be numbers
         };
 
-        const guildMemberProfile = {
-            accent_color: null,
-            banner: guild_member?.banner || null,
-            bio: guild_member?.bio || "",
-            guild_id: guildId,
-        };
+        const guildMemberProfile: UserProfileResponse["guild_member_profile"] | undefined = guild_member
+            ? {
+                  accent_color: null,
+                  banner: guild_member.banner || null,
+                  bio: guild_member.bio || "",
+                  guild_id: guild_member.guild_id,
+              }
+            : undefined;
 
         const badges = user.badge_ids?.length ? await Badge.find({ where: { id: In(user.badge_ids) } }) : [];
 
@@ -120,50 +131,36 @@ router.get(
             const relationshipsSelf = await Relationship.find({ where: { from_id: req.user_id, type: RelationshipType.friends } });
             const relationshipsUser = await Relationship.find({ where: { from_id: user_id, type: RelationshipType.friends } });
             const relationshipsIntersection = relationshipsSelf.filter((r1) => relationshipsUser.some((r2) => r2.to_id === r1.to_id));
-            if (with_mutual_friends_count) mutual_friends_count = relationshipsIntersection.length;
-            if (with_mutual_friends) {
+            if (with_mutual_friends_count == "true") mutual_friends_count = relationshipsIntersection.length;
+            if (with_mutual_friends == "true") {
                 const users = await User.find({ where: { id: In(relationshipsIntersection.map((r) => r.to_id)) }, select: PublicUserProjection });
                 mutual_friends = users.map((u) => u.toPublicUser());
             }
         }
 
         // Only expose public properties to response
-        const publicUserConnections: PartialConnectedAccountResponse[] = [];
+        const publicUserConnections: PartialConnectedAccountResponse[] = user.connected_accounts.filter((x) => x.visibility != 0).map(toPartialConnectedAccountResponse);
+        const profileBadges: UserProfileResponse["badges"] = badges.map(toProfileBadgeResponse);
+        const guildBadges: UserProfileResponse["guild_badges"] = [];
 
-        user.connected_accounts
-            .filter((x) => x.visibility != 0)
-            .forEach((x) => {
-                const publicUserConnection = {
-                    id: x.id,
-                    type: x.type,
-                    name: x.name,
-                    verified: x.verified ?? false,
-                } satisfies PartialConnectedAccountResponse;
-
-                if (x.metadata_visibility != 0) {
-                    // @ts-expect-error idk
-                    publicUserConnection.metadata = x.metadata_;
-                }
-
-                publicUserConnections.push(publicUserConnection);
-            });
-
-        res.json({
+        const response = {
             connected_accounts: publicUserConnections,
             premium_guild_since: premium_guild_since, // TODO
             premium_since: user.premium_since, // TODO
-            mutual_guilds: with_mutual_guilds ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
-            mutual_friends: with_mutual_friends ? mutual_friends : undefined,
-            mutual_friends_count: with_mutual_friends_count ? mutual_friends_count : undefined,
+            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
+            mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,
+            mutual_friends_count: with_mutual_friends_count == "true" ? mutual_friends_count : undefined,
             user: user.toPublicUser(),
             premium_type: user.premium_type,
             profile_themes_experiment_bucket: 4, // TODO: This doesn't make it available, for some reason?
             user_profile: userProfile,
-            guild_member: { ...guild_member?.toPublicMember(), user: user.toPublicUser() },
-            guild_member_profile: guildId && guildMemberProfile,
-            badges,
-            guild_badges: [],
-        });
+            guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
+            guild_member_profile: guildMemberProfile,
+            badges: profileBadges,
+            guild_badges: guildBadges,
+        } satisfies UserProfileResponse;
+
+        res.json(response);
     },
 );
 

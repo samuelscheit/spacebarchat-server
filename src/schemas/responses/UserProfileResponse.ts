@@ -20,18 +20,18 @@ import { PartialConnectedAccountResponse, PublicMember, PublicUser } from "@spac
 
 export type MutualGuild = {
     id: string;
-    nick?: string;
+    nick?: string | null;
 };
 
 export interface PublicMemberProfile {
-    banner?: string | null;
+    accent_color: number | null;
+    banner: string | null;
     bio: string;
-    guild_id?: string;
-    accent_color: null; // TODO
+    guild_id: string;
 }
 
 export interface UserProfile {
-    bio?: string | null;
+    bio: string | null;
     accent_color?: number | null;
     banner?: string | null;
     pronouns?: string | null;
@@ -42,15 +42,17 @@ export interface ProfileBadge {
     id: string;
     description: string;
     icon: string;
-    link?: string | null;
+    link?: string;
 }
 
 export interface UserProfileResponse {
     user: PublicUser;
     connected_accounts: PartialConnectedAccountResponse[];
-    premium_guild_since?: Date;
-    premium_since?: Date;
-    mutual_guilds: MutualGuild[];
+    premium_guild_since?: number;
+    premium_since?: Date | null;
+    mutual_guilds?: MutualGuild[];
+    mutual_friends?: PublicUser[];
+    mutual_friends_count?: number;
     premium_type: number;
     profile_themes_experiment_bucket: number;
     user_profile: UserProfile;
