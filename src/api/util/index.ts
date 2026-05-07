@@ -43,6 +43,7 @@ export * from "./handlers/Voice";
 export * from "./utility/captcha";
 export * from "./utility/BillingLocationInfo";
 export * from "./utility/EmbedHandlers";
+export * from "./utility/RoleMembers";
 export * from "./utility/GuildDiscoveryMetadata";
 export * from "./utility/MessagePayloadPermissions";
 export * from "./utility/MessageNotifications";

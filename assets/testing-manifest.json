@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 395,
+        "totalEntries": 396,
         "byService": {
-            "api": 330,
+            "api": 331,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 370,
+            "http-route": 371,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 235,
+            "stateful-domain": 236,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -42,7 +42,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 15,
-            "route-class": 290,
+            "route-class": 291,
             "hot-path": 25,
             "none": 1,
             "cdn-hot-path": 41,
@@ -7154,13 +7154,62 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 28,
+            "line": 82,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "MANAGE_ROLES",
-                "responseBodies": [],
-                "responseStatuses": [],
+                "requestBody": "RoleMembersUpdateSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    403
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/guilds/:guild_id/roles/:role_id/members/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/guilds/:guild_id/roles/:role_id/members/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
+            "line": 96,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "MANAGE_ROLES",
+                "requestBody": "RoleMembersUpdateSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    403
+                ],
                 "hasQuery": false
             },
             "coverage": {
