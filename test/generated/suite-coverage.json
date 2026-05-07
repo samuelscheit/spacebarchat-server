@@ -861,6 +861,7 @@
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "test/scenarios/guilds-crud.test.ts",
                         "src/util/util/GuildCreate.test.ts",
                         "src/api/routes/guilds/GuildWidgetPage.test.ts",
                         "src/api/util/utility/RoleMembers.test.ts",
