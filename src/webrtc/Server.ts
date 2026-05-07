@@ -51,7 +51,7 @@ export class Server {
         // });
     }
 
-    private initializeWebSocketServer() {
+    configureWebSocketServer() {
         if (this.ws) return;
 
         this.ws = new ws.Server({
@@ -75,7 +75,7 @@ export class Server {
             return;
         }
 
-        this.initializeWebSocketServer();
+        this.configureWebSocketServer();
 
         if (!this.server.listening) {
             this.server.listen(this.port);
