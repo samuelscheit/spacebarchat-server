@@ -81,11 +81,19 @@ router.post(
 
         const message = Message.create({
             channel_id: channel_id,
+            guild_id: channel.guild_id,
             author_id: req.user_id,
             type: MessageType.REPLY,
             message_reference: { ...payload.message_reference, type: 0 },
             referenced_message: targetMessage,
             sticker_items: randomSticker ? [{ id: randomSticker.id, name: randomSticker.name, format_type: randomSticker.format_type }] : [],
+            attachments: [],
+            embeds: [],
+            reactions: [],
+            mentions: [],
+            mention_channels: [],
+            mention_roles: [],
+            mention_everyone: false,
         });
 
         channel.last_message_id = message.id;

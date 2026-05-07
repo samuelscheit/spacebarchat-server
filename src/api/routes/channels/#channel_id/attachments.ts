@@ -101,7 +101,7 @@ router.delete("/:cloud_attachment_url", route({}), async (req: Request, res: Res
 
     const user = req.user;
     const channel = await Channel.findOneOrFail({ where: { id: channel_id } });
-    const att = await CloudAttachment.findOneOrFail({ where: { uploadFilename: decodeURI(cloud_attachment_url) } });
+    const att = await CloudAttachment.findOneOrFail({ where: { uploadFilename: decodeURIComponent(cloud_attachment_url) } });
     if (att.userId !== user.id) {
         return res.status(403).json({
             code: 403,
