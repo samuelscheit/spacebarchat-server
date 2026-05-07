@@ -18,6 +18,7 @@
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import {
+    assertChannelNamePresent,
     Config,
     GuildCreateRoleInput,
     GuildWelcomeScreen,
@@ -25,6 +26,7 @@ import {
     getGuildCreateCustomRoles,
     getGuildCreateEveryoneRole,
     handleFile,
+    normalizeChannelName,
     normalizeGuildCreateRole,
     resolveGuildCreateChannelReferences,
     resolveGuildCreatePermissionOverwrites,
@@ -391,6 +393,15 @@ export class Guild extends BaseClass {
         const guild_id = Snowflake.generate();
         const roleIds = new Map<string, string>([["0", guild_id]]);
         if (body.source_guild_id) roleIds.set(body.source_guild_id, guild_id);
+        const defaultFeatures = setVanityUrlFeature(Config.get().guild.defaultFeatures, false);
+
+        if (body.channels?.length) {
+            body.channels = body.channels.map((channel) => ({
+                ...channel,
+                name: normalizeChannelName(channel.name, channel.type, defaultFeatures),
+            }));
+            body.channels.forEach((channel) => assertChannelNamePresent(channel.name, defaultFeatures));
+        }
 
         const guild = await Guild.create({
             id: guild_id,
@@ -415,7 +426,7 @@ export class Guild extends BaseClass {
             afk_timeout: body.afk_timeout ?? Config.get().defaults.guild.afkTimeout,
             default_message_notifications: body.default_message_notifications ?? Config.get().defaults.guild.defaultMessageNotifications,
             explicit_content_filter: body.explicit_content_filter ?? Config.get().defaults.guild.explicitContentFilter,
-            features: setVanityUrlFeature(Config.get().guild.defaultFeatures, false),
+            features: defaultFeatures,
             max_members: Config.get().limits.guild.maxMembers,
             max_presences: Config.get().defaults.guild.maxPresences,
             max_video_channel_users: Config.get().defaults.guild.maxVideoChannelUsers,

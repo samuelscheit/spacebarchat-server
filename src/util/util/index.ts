@@ -38,6 +38,7 @@ export * from "./GuildCreate";
 export * from "./InternalCdnRoutes";
 export * from "./Intents";
 export * from "./InvisibleCharacters";
+export * from "./ChannelName";
 export * from "./InviteCreate";
 export * from "./InviteUsage";
 export * from "./JSON";

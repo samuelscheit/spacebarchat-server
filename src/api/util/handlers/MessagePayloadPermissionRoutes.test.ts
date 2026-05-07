@@ -21,9 +21,9 @@ describe("message media permission route integration", () => {
     test("message edit resolves retained attachment references before handleMessage", () => {
         const source = readSource("src/api/routes/channels/#channel_id/messages/#message_id/index.ts");
 
-        assertBefore(source, "const existingAttachmentsById = new Map", "const new_message = await handleMessage({");
+        assertBefore(source, "const existingAttachmentsById = new Map", "const new_message = await handleMessage(");
         assertBefore(source, "if (isNewMessagePayloadAttachment(attachment)) return attachment;", "const retained = existingAttachmentsById.get(attachment.id);");
-        assertBefore(source, 'throw new HTTPError("Unknown attachment", 400);', "const new_message = await handleMessage({");
+        assertBefore(source, 'throw new HTTPError("Unknown attachment", 400);', "const new_message = await handleMessage(");
     });
 
     test("normal message create checks media permissions before thread side effects", () => {
