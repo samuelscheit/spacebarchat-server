@@ -425,9 +425,23 @@ export class Message extends BaseClass {
             interaction_metadata?: unknown;
         };
 
+        const author = serializeMessageMentions([publicMessage.author] as unknown as object[])[0];
+        if (!author.id) {
+            const fallbackAuthorId = this.author_id ?? this.webhook_id;
+            if (!fallbackAuthorId) throw new Error(`Cannot serialize message ${this.id} search result without an author or webhook`);
+            author.id = fallbackAuthorId;
+        }
+        author.username ??= this.username ?? this.author?.username ?? this.webhook?.name ?? "";
+        author.discriminator ??= this.webhook_id ? "0000" : (this.author?.discriminator ?? "0000");
+        author.avatar ??= this.avatar ?? this.author?.avatar ?? this.webhook?.avatar ?? null;
+        if (this.webhook_id) {
+            author.bot ??= true;
+            author.public_flags ??= 0;
+        }
+
         return {
             ...searchResult,
-            author: serializeMessageMentions([publicMessage.author] as unknown as object[])[0],
+            author,
             mentions: serializeMessageMentions(this.mentions) as PartialUser[],
             mention_roles: serializeMessageRoleMentions(this.mention_roles),
             hit: true,

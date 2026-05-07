@@ -28,6 +28,31 @@ describe("messageToSearchResult", () => {
         assert.equal("email" in result.mentions[0], false);
         assert.equal("toPublicUser" in result.mentions[0], false);
     });
+
+    test("serializes webhook messages without a loaded author relation", async () => {
+        const message = await createMessage();
+        Object.assign(message, {
+            author: undefined,
+            author_id: undefined,
+            webhook_id: "901",
+            username: "Webhook Override",
+            avatar: "webhook-avatar",
+            webhook: {
+                id: "901",
+                name: "Webhook Default",
+                avatar: "default-avatar",
+            },
+        });
+
+        assert.deepEqual(messageToSearchResult(message).author, {
+            id: "901",
+            username: "Webhook Override",
+            discriminator: "0000",
+            avatar: "webhook-avatar",
+            bot: true,
+            public_flags: 0,
+        });
+    });
 });
 
 async function createMessage(mentions?: unknown[]) {
