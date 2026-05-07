@@ -31,6 +31,7 @@
                         "test/scenarios/users-profile-settings.test.ts",
                         "test/scenarios/users-relationships.test.ts",
                         "test/scenarios/users-notes.test.ts",
+                        "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
                         "src/util/dtos/ConnectedAccountDTO.test.ts"
@@ -111,7 +112,12 @@
                     "title": "OAuth and connected accounts",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/util/connections/Connection.test.ts", "src/connections/Reddit/Reddit.test.ts", "src/connections/Twitter/Twitter.test.ts"],
+                    "testFiles": [
+                        "test/scenarios/oauth-connections.test.ts",
+                        "src/util/connections/Connection.test.ts",
+                        "src/connections/Reddit/Reddit.test.ts",
+                        "src/connections/Twitter/Twitter.test.ts"
+                    ],
                     "selectors": [
                         { "service": "api", "type": "http-route", "pathPrefix": "/oauth2" },
                         { "service": "api", "type": "http-route", "pathPrefix": "/connections" }
