@@ -19,6 +19,7 @@
 import type { WebSocket } from "@spacebar/gateway";
 import {
     emitEvent,
+    getDatabase,
     getMostRelevantSession,
     Member,
     PresenceUpdateEvent,
@@ -125,8 +126,9 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     if (this.user_id && authSessionId) {
         const closedAt = Date.now();
 
-        setTimeout(async () => {
+        const presenceCleanupTimer = setTimeout(async () => {
             console.log("Handling presence update after disconnect");
+            if (!getDatabase()) return;
             try {
                 const updated = await cleanupClosedSessionPresence(this.user_id, authSessionId, closedAt);
                 if (updated) console.log("... done!");
@@ -135,6 +137,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                 console.error("[WebSocket] Close session cleanup failed", code, e);
             }
         }, 10_000);
+        presenceCleanupTimer.unref();
 
         const voiceState = await VoiceState.findOne({
             where: { user_id: this.user_id },

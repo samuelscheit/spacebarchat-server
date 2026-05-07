@@ -136,6 +136,7 @@
                     "kind": "protocol-integration",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "test/protocol/gateway-identify.test.ts",
                         "src/gateway/ServerConfigure.test.ts",
                         "src/gateway/opcodes/Heartbeat.test.ts",
                         "src/gateway/events/Close.test.ts",

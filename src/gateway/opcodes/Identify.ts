@@ -87,13 +87,22 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     this.large_threshold = identify.large_threshold || 250;
     const parseAndValidateTime = taskSw.getElapsedAndReset();
 
-    const { result: tokenData, elapsed: checkTokenTime } = await timePromise(() =>
-        checkToken(identify.token, {
-            // relations: {"relationships", "relationships.to", "settings"],
-            // select: [...PrivateUserProjection, "relationships", "rights"],
-            select: [...PrivateUserProjection, "rights"],
-        }),
-    );
+    let tokenData: Awaited<ReturnType<typeof checkToken>>;
+    let checkTokenTime = new ElapsedTime(0n);
+    try {
+        const checkedToken = await timePromise(() =>
+            checkToken(identify.token, {
+                // relations: {"relationships", "relationships.to", "settings"],
+                // select: [...PrivateUserProjection, "relationships", "rights"],
+                select: [...PrivateUserProjection, "rights"],
+            }),
+        );
+        tokenData = checkedToken.result;
+        checkTokenTime = checkedToken.elapsed;
+    } catch (error) {
+        console.log(`[Gateway/${this.ipAddress}] Failed to identify user`, error);
+        return this.close(CLOSECODES.Authentication_failed);
+    }
 
     this.accessToken = identify.token;
 
