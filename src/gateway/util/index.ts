@@ -25,3 +25,4 @@ export * from "./WebSocket";
 export * from "./Capabilities";
 export * from "./Utils";
 export * from "./ReadyReadState";
+export * from "./LazyMemberList";

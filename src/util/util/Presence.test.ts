@@ -16,9 +16,11 @@ describe("getMostRelevantSession", () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1/spacebar";
         const { getMostRelevantSession } = await import("./Presence.js");
         const offline = createSession("offline", []);
+        const online = createSession("online", [createActivity("game"), createActivity("music"), createActivity("stream")]);
         const idle = createSession("idle", [createActivity("game"), createActivity("music")]);
         const dnd = createSession("dnd", [createActivity("game"), createActivity("music")]);
 
+        assert.equal(getMostRelevantSession([idle, online]), online);
         assert.equal(getMostRelevantSession([offline, idle]), idle);
         assert.equal(getMostRelevantSession([offline, dnd]), dnd);
     });
