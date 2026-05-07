@@ -8598,10 +8598,11 @@
             "method": "POST",
             "path": "/interactions/",
             "sourceFile": "src/api/routes/interactions/index.ts",
-            "line": 40,
+            "line": 48,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "requestBody": "InteractionSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
                 "hasQuery": false

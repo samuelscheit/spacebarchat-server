@@ -16,38 +16,55 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { AllowedMentions, ApplicationCommandOption, Embed, Snowflake, UploadAttachmentRequestSchema } from "@spacebar/schemas";
+import { Snowflake } from "../../Identifiers";
+import { AllowedMentions, Embed } from "../messages";
+import { SendableApplicationCommandDataSchema } from "./SendableApplicationCommandDataSchema";
+import { SendableMessageComponentDataSchema } from "./SendableMessageComponentDataSchema";
+import { SendableModalSubmitDataSchema } from "./SendableModalSubmitDataSchema";
 
-export interface InteractionSchema {
-    type: InteractionType;
+interface BaseInteractionRequest {
     application_id: Snowflake;
     guild_id?: Snowflake;
     channel_id: Snowflake;
     message_id?: Snowflake;
     message_flags?: number;
     session_id?: string;
-    data: InteractionData;
-    files?: object[]; // idk the type
     nonce?: string;
     analytics_location?: string;
     section_name?: string;
     source?: string;
 }
 
-interface InteractionData {
-    application_command: object;
-    attachments: UploadAttachmentRequestSchema[];
-    id: string;
-    name: string;
-    options: ApplicationCommandOption[];
-    type: number;
-    version: string;
+export interface PingInteractionSchema extends BaseInteractionRequest {
+    type: 1;
 }
+
+export interface ApplicationCommandInteractionSchema extends BaseInteractionRequest {
+    type: 2 | 4;
+    data: SendableApplicationCommandDataSchema;
+}
+
+export interface MessageComponentInteractionSchema extends BaseInteractionRequest {
+    type: 3;
+    message_id: Snowflake;
+    data: SendableMessageComponentDataSchema;
+}
+
+export interface ModalSubmitInteractionSchema extends BaseInteractionRequest {
+    type: 5;
+    data: SendableModalSubmitDataSchema;
+}
+
+export type InteractionData = SendableApplicationCommandDataSchema | SendableMessageComponentDataSchema | SendableModalSubmitDataSchema;
+
+export type DataInteractionRequest = ApplicationCommandInteractionSchema | MessageComponentInteractionSchema | ModalSubmitInteractionSchema;
+
+export type InteractionSchema = PingInteractionSchema | DataInteractionRequest;
 
 export interface Interaction {
     id: string;
     type: InteractionType;
-    data?: object; // TODO typing
+    data?: InteractionData;
     guild_id: string;
     channel_id: string;
     member_id: string;

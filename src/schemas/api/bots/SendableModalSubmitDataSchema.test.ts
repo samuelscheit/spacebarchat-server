@@ -69,16 +69,16 @@ test("SendableModalSubmitDataSchema exposes submitted modal components", () => {
         "#/definitions/ModalSubmitSelectComponentData",
         "#/definitions/ModalSubmitTextInputComponentData",
     ]);
-    assert.deepEqual(schemas.ModalSubmitTextInputComponentData.required?.toSorted(), ["custom_id", "id", "type", "value"]);
-    assert.deepEqual(schemas.ModalSubmitRadioGroupComponentData.required?.toSorted(), ["custom_id", "id", "type", "value"]);
-    assert.deepEqual(schemas.ModalSubmitActionRowComponentData.required?.toSorted(), ["components", "id", "type"]);
-    assert.deepEqual(schemas.ModalSubmitLabelComponentData.required?.toSorted(), ["component", "id", "type"]);
-    assert.equal(schemas.ModalSubmitTextDisplayComponentData.properties?.content, undefined);
-    assert.deepEqual(schemas.ModalSubmitTextDisplayComponentData.required?.toSorted(), ["id", "type"]);
+    assert.deepEqual(schemas.ModalSubmitTextInputComponentData.required?.toSorted(), ["custom_id", "type", "value"]);
+    assert.deepEqual(schemas.ModalSubmitRadioGroupComponentData.required?.toSorted(), ["custom_id", "type", "value"]);
+    assert.deepEqual(schemas.ModalSubmitActionRowComponentData.required?.toSorted(), ["components", "type"]);
+    assert.deepEqual(schemas.ModalSubmitLabelComponentData.required?.toSorted(), ["component", "type"]);
+    assert.deepEqual(schemas.ModalSubmitTextDisplayComponentData.properties?.content, { type: "string" });
+    assert.deepEqual(schemas.ModalSubmitTextDisplayComponentData.required?.toSorted(), ["content", "type"]);
     assert.deepEqual(schemas.SendableModalSubmitDataSchema.required, ["components", "custom_id"]);
     assert.deepEqual(Object.keys(schemas.ModalSubmitResolvedData.properties ?? {}).sort(), ["attachments", "channels", "members", "messages", "roles", "users"]);
-    assert.deepEqual(Object.keys(schemas.SendableModalSubmitDataSchema.properties ?? {}).sort(), ["components", "custom_id", "resolved"]);
-    assert.equal(schemas.SendableModalSubmitDataSchema.properties?.id, undefined);
+    assert.deepEqual(Object.keys(schemas.SendableModalSubmitDataSchema.properties ?? {}).sort(), ["attachments", "components", "custom_id", "id", "resolved"]);
+    assert.equal(schemas.SendableModalSubmitDataSchema.properties?.id?.type, "string");
 });
 
 test("SendableModalSubmitDataSchema validates submitted text input values", () => {
@@ -144,6 +144,7 @@ test("SendableModalSubmitDataSchema validates submitted text input values", () =
                 {
                     type: 10,
                     id: 1,
+                    content: "Read-only modal context",
                 },
                 {
                     type: 18,
@@ -190,7 +191,24 @@ test("SendableModalSubmitDataSchema validates submitted text input values", () =
     assert.equal(
         ajv.validate("SendableModalSubmitDataSchema", {
             ...modalSubmit,
-            id: "100",
+            id: "100000000000000100",
+            attachments: [
+                {
+                    files: [
+                        {
+                            filename: "bug.png",
+                            file_size: 12,
+                        },
+                    ],
+                },
+            ],
+        }),
+        true,
+    );
+    assert.equal(
+        ajv.validate("SendableModalSubmitDataSchema", {
+            ...modalSubmit,
+            unexpected: true,
         }),
         false,
     );
@@ -219,6 +237,13 @@ test("SendableModalSubmitDataSchema validates submitted text input values", () =
         ajv.validate("SendableModalSubmitDataSchema", {
             ...modalSubmit,
             components: [{ type: 10, content: "creation payload text" }],
+        }),
+        true,
+    );
+    assert.equal(
+        ajv.validate("SendableModalSubmitDataSchema", {
+            ...modalSubmit,
+            components: [{ type: 10 }],
         }),
         false,
     );

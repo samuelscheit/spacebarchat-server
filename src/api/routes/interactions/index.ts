@@ -17,7 +17,7 @@
 */
 
 import { randomBytes } from "node:crypto";
-import { InteractionFailureReason, InteractionSchema, InteractionType } from "@spacebar/schemas";
+import { DataInteractionRequest, InteractionFailureReason, InteractionSchema, InteractionType } from "@spacebar/schemas";
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
@@ -37,7 +37,15 @@ import { getAuthorizingIntegrationOwners, InteractionCreateSchema } from "@space
 
 const router = Router({ mergeParams: true });
 
-router.post("/", route({}), async (req: Request, res: Response) => {
+function hasInteractionData(body: InteractionSchema): body is DataInteractionRequest {
+    return body.type !== InteractionType.Ping;
+}
+
+type RoutedInteractionCreatePayload = Omit<Partial<InteractionCreateSchema>, "data"> & {
+    data?: DataInteractionRequest["data"];
+};
+
+router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Request, res: Response) => {
     const body = req.body as InteractionSchema;
 
     const interactionId = Snowflake.generate();
@@ -54,7 +62,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
 
     const user = req.user;
 
-    const interactionData: Partial<InteractionCreateSchema> = {
+    const interactionData: RoutedInteractionCreatePayload = {
         id: interactionId,
         application_id: body.application_id,
         channel_id: body.channel_id,
@@ -71,12 +79,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         attachment_size_limit: Config.get().cdn.maxAttachmentSize,
     };
 
-    if (
-        body.type === InteractionType.ApplicationCommand ||
-        body.type === InteractionType.ApplicationCommandAutocomplete ||
-        body.type === InteractionType.MessageComponent ||
-        body.type === InteractionType.ModalSubmit
-    ) {
+    if (hasInteractionData(body)) {
         interactionData.data = body.data;
     }
 
@@ -111,7 +114,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         }
     }
 
-    if (body.type === InteractionType.MessageComponent || (body.type === InteractionType.ModalSubmit && body.message_id)) {
+    if ((body.type === InteractionType.MessageComponent || body.type === InteractionType.ModalSubmit) && body.message_id) {
         interactionData.message = (
             await Message.findOneOrFail({
                 where: { id: body.message_id, flags: undefined },
@@ -150,8 +153,8 @@ router.post("/", route({}), async (req: Request, res: Response) => {
         guildId: body.guild_id,
         channelId: body.channel_id,
         type: body.type,
-        commandType: body.data.type,
-        commandName: body.data.name,
+        commandType: hasInteractionData(body) && "type" in body.data ? body.data.type : undefined,
+        commandName: hasInteractionData(body) && "name" in body.data ? body.data.name : undefined,
         messageId: body.message_id,
     });
 

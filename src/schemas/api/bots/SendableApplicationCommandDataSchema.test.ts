@@ -78,8 +78,13 @@ function messageDescriptorCommandData() {
 }
 
 describe("SendableApplicationCommandDataSchema", () => {
-    test("reuses the upload attachment reservation schema", () => {
-        assert.deepEqual(schemaProperty(sendableApplicationCommandDataSchema, "attachments"), schemaProperty(schemas.InteractionData, "attachments"));
+    test("uses the upload attachment reservation schema", () => {
+        assert.deepEqual(schemaProperty(sendableApplicationCommandDataSchema, "attachments"), {
+            type: "array",
+            items: {
+                $ref: "#/definitions/UploadAttachmentRequestSchema",
+            },
+        });
     });
 
     test("accepts upload attachment reservations", () => {
