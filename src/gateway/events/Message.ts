@@ -89,9 +89,7 @@ export async function Message(this: WebSocket, buffer: WS.Data) {
     const OPCodeHandler = OPCodeHandlers[data.op];
     if (!OPCodeHandler) {
         console.error(`[Gateway/${this.user_id ?? this.ipAddress}] Unknown opcode`, data.op);
-        // TODO: if all opcodes are implemented comment this out:
-        // this.close(CLOSECODES.Unknown_opcode);
-        return;
+        return this.close(CLOSECODES.Unknown_opcode);
     }
 
     try {

@@ -100,6 +100,24 @@ describe("Gateway Server transport", () => {
             await closeGateway(server);
         }
     });
+
+    test("closes bad opcodes over a real websocket", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            await readJsonMessage(client);
+
+            client.send(JSON.stringify({ op: 999, d: {} }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Unknown_opcode);
+        } finally {
+            await closeGateway(server);
+        }
+    });
 });
 
 async function assertGatewayHandshakeClose(path: string, expectedCode: CLOSECODES) {
@@ -129,8 +147,31 @@ async function listen(server: ReturnType<typeof createServer>) {
 
 async function readJsonMessage(client: ws) {
     const raw = await new Promise<ws.RawData>((resolve, reject) => {
-        client.once("message", resolve);
-        client.once("error", reject);
+        const timeout = setTimeout(() => {
+            cleanup();
+            reject(new Error("Timed out waiting for Gateway message"));
+        }, 10_000);
+        const cleanup = () => {
+            clearTimeout(timeout);
+            client.off("message", onMessage);
+            client.off("error", onError);
+            client.off("close", onClose);
+        };
+        const onMessage = (message: ws.RawData) => {
+            cleanup();
+            resolve(message);
+        };
+        const onError = (error: Error) => {
+            cleanup();
+            reject(error);
+        };
+        const onClose = (code: number) => {
+            cleanup();
+            reject(new Error(`Gateway closed before message: ${code}`));
+        };
+        client.once("message", onMessage);
+        client.once("error", onError);
+        client.once("close", onClose);
     });
 
     return JSON.parse(raw.toString()) as Payload;
@@ -147,8 +188,25 @@ async function closeClient(client: ws) {
 
 async function readClose(client: ws) {
     return await new Promise<{ code: number; reason: Buffer }>((resolve, reject) => {
-        client.once("close", (code, reason) => resolve({ code, reason }));
-        client.once("error", reject);
+        const timeout = setTimeout(() => {
+            cleanup();
+            reject(new Error("Timed out waiting for Gateway close"));
+        }, 10_000);
+        const cleanup = () => {
+            clearTimeout(timeout);
+            client.off("close", onClose);
+            client.off("error", onError);
+        };
+        const onClose = (code: number, reason: Buffer) => {
+            cleanup();
+            resolve({ code, reason });
+        };
+        const onError = (error: Error) => {
+            cleanup();
+            reject(error);
+        };
+        client.once("close", onClose);
+        client.once("error", onError);
     });
 }
 
