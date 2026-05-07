@@ -16,27 +16,26 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicChannel, PublicMessage, Snowflake } from "@spacebar/schemas";
+import type { PublicChannel, PublicMessage, Snowflake } from "@spacebar/schemas";
 
-export interface ChannelThreadsSearchMemberMuteConfig {
+export interface ThreadSearchMemberMuteConfig {
     end_time?: string;
     selected_time_window?: number;
 }
 
-export interface ChannelThreadsSearchMember {
-    index: number;
+export interface ThreadSearchMember {
     id: Snowflake;
-    member_idx: number;
+    user_id: Snowflake;
     join_timestamp: string;
-    muted: boolean;
-    mute_config?: ChannelThreadsSearchMemberMuteConfig;
     flags: number;
+    muted?: boolean;
+    mute_config?: ThreadSearchMemberMuteConfig;
 }
 
-export interface ChannelThreadsSearchResponse {
+export interface ThreadSearchResponse {
     threads: PublicChannel[];
-    members: ChannelThreadsSearchMember[];
-    messages: PublicMessage[];
+    members: ThreadSearchMember[];
+    first_messages: PublicMessage[];
     total_results: number;
     has_more: boolean;
 }

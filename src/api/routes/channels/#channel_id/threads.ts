@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { assertMessagePayloadPermissions, handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, postHandleMessage, route, sendMessage, serializeThreadSearchMember } from "@spacebar/api";
 import {
     Channel,
     emitEvent,
@@ -34,7 +34,7 @@ import {
     Snowflake,
     messagePublicRelations,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -298,7 +298,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "ChannelThreadsSearchResponse",
+                body: "ThreadSearchResponse",
             },
             403: {
                 body: "APIErrorResponse",
@@ -346,7 +346,8 @@ router.get(
 
         const permissions = await getPermission(req.user_id, channel.guild_id, channel);
         permissions.hasThrow("VIEW_CHANNEL");
-        if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], messages: [], has_more: false });
+        if (!permissions.has("READ_MESSAGE_HISTORY"))
+            return res.json({ threads: [], total_results: 0, members: [], first_messages: [], has_more: false } satisfies ThreadSearchResponse);
         const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });
 
         const query: FindManyOptions<Channel> = {
@@ -383,15 +384,18 @@ router.get(
             },
             relations: messagePublicRelations,
         });
+        const threadMembers = (await members).map((threadMember) => serializeThreadSearchMember(threadMember, req.user_id));
 
         const left = total_results - threads.length - +(offset || 0);
-        return res.json({
+        const response = {
             threads: threads.map((_) => _.toJSON()),
-            members: (await members).map((_) => _.toJSON()),
-            messages: (await messages).map((_) => _.toJSON()),
+            members: threadMembers,
+            first_messages: (await messages).map((_) => _.toJSON()),
             total_results,
             has_more: left > 0,
-        });
+        } satisfies ThreadSearchResponse;
+
+        return res.json(response);
     },
 );
 

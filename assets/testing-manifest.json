@@ -4247,7 +4247,7 @@
                 "present": true,
                 "responseBodies": [
                     "APIErrorResponse",
-                    "ChannelThreadsSearchResponse"
+                    "ThreadSearchResponse"
                 ],
                 "responseStatuses": [
                     200,
