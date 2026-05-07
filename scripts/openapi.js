@@ -25,7 +25,7 @@ require("module-alias/register");
 const getRouteDescriptions = require("./util/getRouteDescriptions");
 const path = require("path");
 const fs = require("fs");
-const { NO_AUTHORIZATION_ROUTES } = require("../dist/api/middlewares/Authentication");
+const { isNoAuthorizationRoute } = require("../dist/api/middlewares/NoAuthorizationRoutes");
 require("../dist/util/util/extensions");
 const { bgRedBright, bgYellow, black, bgYellowBright, blue, white } = require("picocolors");
 
@@ -142,12 +142,7 @@ function apiRoutes(missingRoutes) {
         obj["x-permission-required"] = route.permission;
         obj["x-fires-event"] = route.event;
 
-        if (
-            !NO_AUTHORIZATION_ROUTES.some((x) => {
-                if (typeof x === "string") return (method.toUpperCase() + " " + path).startsWith(x);
-                return x.test(method.toUpperCase() + " " + path);
-            })
-        ) {
+        if (!isNoAuthorizationRoute(method.toUpperCase(), path)) {
             obj.security = [{ bearer: [] }];
         }
 
