@@ -18,7 +18,18 @@
 
 import { Request } from "express";
 import { Column, Entity, EntityManager, JoinColumn, OneToMany, OneToOne } from "typeorm";
-import { Channel, Config, emailAlreadyRegisteredFieldError, Email, FieldErrors, isNormalizedEmailUniqueViolation, normalizeOptionalEmail, Snowflake, trimSpecial } from "..";
+import {
+    Channel,
+    Config,
+    emailAlreadyRegisteredFieldError,
+    Email,
+    FieldErrors,
+    getDefaultUserRights,
+    isNormalizedEmailUniqueViolation,
+    normalizeOptionalEmail,
+    Snowflake,
+    trimSpecial,
+} from "..";
 import { bigintNumberTransformer, Random } from "../util";
 import { profilePronouns } from "../util/UserProfile";
 import { BaseClass } from "./BaseClass";
@@ -345,7 +356,7 @@ export class User extends BaseClass {
             settings: settings,
 
             premium_since: Config.get().defaults.user.premium ? new Date() : undefined,
-            rights: Config.get().register.defaultRights,
+            rights: getDefaultUserRights(bot, Config.get().register),
             premium: Config.get().defaults.user.premium ?? false,
             premium_type: Config.get().defaults.user.premiumType ?? 0,
             verified: Config.get().defaults.user.verified ?? true,

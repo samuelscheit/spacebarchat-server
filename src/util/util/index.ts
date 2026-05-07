@@ -28,6 +28,7 @@ export * from "./CdnRoutes";
 export * from "./Database";
 export * from "./DatabaseTransformers";
 export * from "./DateBuilder";
+export * from "./DefaultUserRights";
 export * from "./EmailAddress";
 export * from "./email";
 export * from "./ElapsedTime";

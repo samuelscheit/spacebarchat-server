@@ -109,6 +109,9 @@ public class RegisterConfiguration {
     [JsonPropertyName("defaultRights")]
     public string DefaultRights { get; set; } = "875069521787904"; // See `npm run generate:rights`
 
+    [JsonPropertyName("defaultBotRights")]
+    public string? DefaultBotRights { get; set; } // Falls back to DefaultRights when unset
+
     [JsonPropertyName("checkIp")]
     public bool CheckIp { get; set; } = true;
 }
