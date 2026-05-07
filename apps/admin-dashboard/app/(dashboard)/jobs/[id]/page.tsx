@@ -5,7 +5,13 @@ import type { AdminAuditRecord, AdminJob, PageResult } from "../../../lib/types"
 
 export const dynamic = "force-dynamic";
 
-export default async function JobDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ actionSuccess?: string; actionError?: string }> }) {
+export default async function JobDetailPage({
+    params,
+    searchParams,
+}: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ actionSuccess?: string; actionError?: string }>;
+}) {
     const { id } = await params;
     const actionParams = await searchParams;
     const [job, activity] = await Promise.all([

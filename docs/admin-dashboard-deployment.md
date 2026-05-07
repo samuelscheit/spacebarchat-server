@@ -48,22 +48,22 @@ npm run dev:admin-dashboard
 
 ## Environment
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `SPACEBAR_ADMIN_API_URL` | `http://localhost:3001/_spacebar/admin/api` | Internal URL the dashboard uses for admin API SSR and server actions. |
-| `SPACEBAR_ADMIN_API_TIMEOUT_MS` | `2500` | Fetch timeout for dashboard SSR and server actions. |
-| `SPACEBAR_ADMIN_DASHBOARD_BASE_PATH` | `/_spacebar/admin` | Public dashboard base path. This is a Next.js build-time setting; rebuild the dashboard after changing it. |
-| `SPACEBAR_ADMIN_TOKEN_COOKIE` | `spacebar_admin_token` | Cookie name checked first for dashboard admin token forwarding. |
-| `SPACEBAR_ADMIN_LOGOUT_COOKIE` | `spacebar_admin_logged_out` | Logout marker that suppresses fallback `spacebar_token` forwarding after dashboard logout. |
-| `SPACEBAR_ADMIN_SESSION_MAX_AGE_SECONDS` | `43200` | Dashboard admin session cookie lifetime. |
-| `SPACEBAR_ADMIN_COOKIE_SECURE` | production-only | Set to `false` to allow dashboard cookies on local plain HTTP. |
-| `SPACEBAR_TOKEN_COOKIE` | `spacebar_token` | Fallback cookie name for compatibility with existing Spacebar token cookies. |
-| `PORT` | Next.js default | Dashboard listen port. |
-| `HOSTNAME` | Next.js default | Dashboard listen host. |
-| `SPACEBAR_ADMIN_DASHBOARD_URL` | `http://127.0.0.1:3300/_spacebar/admin` | URL used by `npm run smoke:admin-dashboard`. |
-| `SPACEBAR_ADMIN_TOKEN` | unset | Optional token used by the smoke script to verify authenticated SSR. |
-| `ADMIN_JOB_CLAIM_TIMEOUT_MS` | `300000` | API-side lease timeout before a `running` admin job is considered stale and eligible for restart recovery. |
-| `ADMIN_JOB_RECOVERY_INTERVAL_MS` | `60000` | API-side interval for checking queued jobs and stale running job claims. |
+| Variable                                 | Default                                     | Purpose                                                                                                    |
+| ---------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `SPACEBAR_ADMIN_API_URL`                 | `http://localhost:3001/_spacebar/admin/api` | Internal URL the dashboard uses for admin API SSR and server actions.                                      |
+| `SPACEBAR_ADMIN_API_TIMEOUT_MS`          | `2500`                                      | Fetch timeout for dashboard SSR and server actions.                                                        |
+| `SPACEBAR_ADMIN_DASHBOARD_BASE_PATH`     | `/_spacebar/admin`                          | Public dashboard base path. This is a Next.js build-time setting; rebuild the dashboard after changing it. |
+| `SPACEBAR_ADMIN_TOKEN_COOKIE`            | `spacebar_admin_token`                      | Cookie name checked first for dashboard admin token forwarding.                                            |
+| `SPACEBAR_ADMIN_LOGOUT_COOKIE`           | `spacebar_admin_logged_out`                 | Logout marker that suppresses fallback `spacebar_token` forwarding after dashboard logout.                 |
+| `SPACEBAR_ADMIN_SESSION_MAX_AGE_SECONDS` | `43200`                                     | Dashboard admin session cookie lifetime.                                                                   |
+| `SPACEBAR_ADMIN_COOKIE_SECURE`           | production-only                             | Set to `false` to allow dashboard cookies on local plain HTTP.                                             |
+| `SPACEBAR_TOKEN_COOKIE`                  | `spacebar_token`                            | Fallback cookie name for compatibility with existing Spacebar token cookies.                               |
+| `PORT`                                   | Next.js default                             | Dashboard listen port.                                                                                     |
+| `HOSTNAME`                               | Next.js default                             | Dashboard listen host.                                                                                     |
+| `SPACEBAR_ADMIN_DASHBOARD_URL`           | `http://127.0.0.1:3300/_spacebar/admin`     | URL used by `npm run smoke:admin-dashboard`.                                                               |
+| `SPACEBAR_ADMIN_TOKEN`                   | unset                                       | Optional token used by the smoke script to verify authenticated SSR.                                       |
+| `ADMIN_JOB_CLAIM_TIMEOUT_MS`             | `300000`                                    | API-side lease timeout before a `running` admin job is considered stale and eligible for restart recovery. |
+| `ADMIN_JOB_RECOVERY_INTERVAL_MS`         | `60000`                                     | API-side interval for checking queued jobs and stale running job claims.                                   |
 
 ## Reverse Proxy Example
 

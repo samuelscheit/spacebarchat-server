@@ -378,10 +378,10 @@ What changed:
 
 - Started the required completion audit against `docs/admin-api-next-dashboard-plan.md`.
 - Found incomplete Feature Track 4 evidence in the current dashboard implementation:
-  - Activity page only showed a table plus a recent payload dump, not per-record detail or expandable metadata/related job rows.
-  - Server actions revalidated pages but did not surface success or failure results in-page.
-  - Configuration editing used a raw textarea without client-side JSON validation, formatting, or diff/preview before save.
-  - Media job forms hid `missingLimit` instead of exposing it intentionally.
+    - Activity page only showed a table plus a recent payload dump, not per-record detail or expandable metadata/related job rows.
+    - Server actions revalidated pages but did not surface success or failure results in-page.
+    - Configuration editing used a raw textarea without client-side JSON validation, formatting, or diff/preview before save.
+    - Media job forms hid `missingLimit` instead of exposing it intentionally.
 - Added dashboard action-result redirects and shared banners so server-action success and failure states are visible on the page that submitted the action.
 - Added hidden `returnTo` fields to mutation forms so action result banners preserve the operator's current dashboard page and query state.
 - Added a client-side configuration editor with JSON validation, a formatting action, parsed preview, and a path-level diff before save.

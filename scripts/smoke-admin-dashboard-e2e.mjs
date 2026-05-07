@@ -433,11 +433,7 @@ async function waitForText(cdp, sessionId, text) {
     try {
         await waitFor(() => evaluate(cdp, sessionId, `document.body && document.body.innerText.includes(${JSON.stringify(text)})`), `text ${text}`);
     } catch (error) {
-        const diagnostic = await evaluate(
-            cdp,
-            sessionId,
-            `({ href: location.href, text: document.body ? document.body.innerText.slice(0, 800) : "" })`,
-        );
+        const diagnostic = await evaluate(cdp, sessionId, `({ href: location.href, text: document.body ? document.body.innerText.slice(0, 800) : "" })`);
         throw new Error(`${error instanceof Error ? error.message : String(error)} at ${diagnostic.href}\n${diagnostic.text}`);
     }
 }

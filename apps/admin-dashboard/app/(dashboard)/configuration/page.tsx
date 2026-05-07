@@ -16,11 +16,7 @@ export default async function ConfigurationPage({ searchParams }: { searchParams
             <PageHeader
                 title="Configuration"
                 description="Edit the active server configuration through the same persistence mode used by the API process."
-                action={
-                    configuration.data ? (
-                        <DatabaseMode source={configuration.data.source} readonly={configuration.data.readonly} />
-                    ) : null
-                }
+                action={configuration.data ? <DatabaseMode source={configuration.data.source} readonly={configuration.data.readonly} /> : null}
             />
             <ErrorBanner message={configuration.error} />
             <ActionResultBanner success={params.actionSuccess} error={params.actionError} />

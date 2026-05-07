@@ -1,12 +1,7 @@
 /* global FormData */
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import {
-    buildCdnAttachmentMigrationRequest,
-    buildUpdateConfigurationRequest,
-    buildUserDeletionRequest,
-    submitActionRequest,
-} from "./action-requests.mjs";
+import { buildCdnAttachmentMigrationRequest, buildUpdateConfigurationRequest, buildUserDeletionRequest, submitActionRequest } from "./action-requests.mjs";
 
 function form(entries) {
     const formData = new FormData();
@@ -62,7 +57,7 @@ describe("admin dashboard action requests", () => {
     test("propagates admin API mutation failures", async () => {
         const request = buildUpdateConfigurationRequest(
             form([
-                ["configuration", "{\"features\":{\"ok\":true}}"],
+                ["configuration", '{"features":{"ok":true}}'],
                 ["reason", "test failure"],
                 ["confirmation", "SAVE CONFIGURATION"],
             ]),

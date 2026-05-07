@@ -92,7 +92,9 @@ export default async function MediaPage({
                             ))}
                         </tbody>
                     </table>
-                    {stickers.data ? <PaginationControls pagination={stickers.data.pagination} params={{ q: params.q, userId: params.userId, attachmentsOffset }} offsetParam="stickersOffset" /> : null}
+                    {stickers.data ? (
+                        <PaginationControls pagination={stickers.data.pagination} params={{ q: params.q, userId: params.userId, attachmentsOffset }} offsetParam="stickersOffset" />
+                    ) : null}
                 </Panel>
                 <Panel title={`User Attachments${attachments.data ? ` · ${attachments.data.pagination.total}` : ""}`}>
                     <form className="panel-body search-form">
@@ -126,7 +128,13 @@ export default async function MediaPage({
                             </tbody>
                         </table>
                     ) : null}
-                    {attachments.data ? <PaginationControls pagination={attachments.data.pagination} params={{ q: params.q, userId: params.userId, stickersOffset }} offsetParam="attachmentsOffset" /> : null}
+                    {attachments.data ? (
+                        <PaginationControls
+                            pagination={attachments.data.pagination}
+                            params={{ q: params.q, userId: params.userId, stickersOffset }}
+                            offsetParam="attachmentsOffset"
+                        />
+                    ) : null}
                 </Panel>
             </div>
         </>

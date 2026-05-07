@@ -5,7 +5,13 @@ import type { AdminGuild } from "../../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function GuildDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ actionSuccess?: string; actionError?: string }> }) {
+export default async function GuildDetailPage({
+    params,
+    searchParams,
+}: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ actionSuccess?: string; actionError?: string }>;
+}) {
     const { id } = await params;
     const actionParams = await searchParams;
     const guild = await safeAdminFetch<AdminGuild>(`/guilds/${id}`);
