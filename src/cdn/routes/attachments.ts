@@ -16,12 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, hasValidSignature, NewUrlUserSignatureData, UrlSignResult } from "@spacebar/util";
+import { Attachment, Config, hasValidSignature, NewUrlUserSignatureData, UrlSignResult } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
+import { hasValidAttachmentRequestAuthorization } from "../util/AttachmentAuthorization";
+import { getAttachmentFileFromStorage } from "../util/AttachmentStorage";
 
 const router = Router({ mergeParams: true });
 
@@ -31,29 +33,40 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     const { channel_id, message_id, filename } = req.params as { [key: string]: string };
     // const { format } = req.query;
 
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
-
     const fullUrl = (req.headers["x-forwarded-proto"] ?? req.protocol) + "://" + (req.headers["x-forwarded-host"] ?? req.hostname) + req.originalUrl;
 
-    let hasValidAuth = false;
-    if (req.headers.signature) {
-        hasValidAuth = req.headers.signature !== Config.get().security.requestSignature;
-        if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid signature header");
-    } else if (!Config.get().security.cdnSignUrls) hasValidAuth = true;
-    else {
-        hasValidAuth = hasValidSignature(
-            new NewUrlUserSignatureData({
-                ip: req.ip,
-                userAgent: req.headers["user-agent"] as string,
-            }),
-            UrlSignResult.fromUrl(fullUrl),
-        );
-        if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid attachment URL signature");
-    }
+    const securityConfig = Config.get().security;
+    const hasValidAuth = hasValidAttachmentRequestAuthorization({
+        signatureHeader: req.headers.signature,
+        requestSignature: securityConfig.requestSignature,
+        cdnSignUrls: securityConfig.cdnSignUrls,
+        fullUrl,
+        ip: req.ip,
+        userAgent: req.headers["user-agent"] as string | undefined,
+        validateSignature: (request, signature) => hasValidSignature(new NewUrlUserSignatureData(request), new UrlSignResult(signature)),
+        warn: console.warn,
+    });
 
     if (!hasValidAuth) return res.status(404).send("This content is no longer available.");
 
-    const file = await storage.get(path);
+    const file = await getAttachmentFileFromStorage({
+        storage,
+        channelId: channel_id,
+        messageId: message_id,
+        filename,
+        log: console.log,
+        findAttachment: async ({ channelId, messageId, filename }) =>
+            Attachment.findOne({
+                where: {
+                    channel_id: channelId,
+                    message_id: messageId,
+                    filename,
+                },
+                select: {
+                    id: true,
+                },
+            }),
+    });
     if (!file) throw new HTTPError("File not found");
     const type = await fileTypeFromBuffer(file);
     let content_type = type?.mime || "application/octet-stream";

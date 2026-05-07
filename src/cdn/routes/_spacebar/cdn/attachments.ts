@@ -5,6 +5,7 @@ import { HTTPError } from "lambert-server";
 import { multer } from "../../../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
+import { attachmentStoragePath } from "../../../util/AttachmentStorage";
 
 const router = Router({ mergeParams: true });
 
@@ -73,7 +74,7 @@ router.post("/:channel_id/:message_id", multer.single("file"), async (req: Reque
     const { buffer, mimetype, size, originalname } = req.file;
     const { channel_id, message_id } = req.params as { [key: string]: string };
     const filename = originalname.replaceAll(" ", "_").replace(/[^a-zA-Z0-9._]+/g, "");
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
+    const path = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
 
     const endpoint = Config.get()?.cdn.endpointPublic;
 
@@ -110,7 +111,7 @@ router.delete("/:channel_id/:message_id/:filename", async (req: Request, res: Re
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
 
     const { channel_id, message_id, filename } = req.params as { [key: string]: string };
-    const path = `attachments/${channel_id}/${message_id}/${filename}`;
+    const path = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
 
     await storage.delete(path);
 
@@ -147,7 +148,7 @@ router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:m
 
     const { channel_id, batch_id, attachment_id, filename, message_id } = req.params as { [key: string]: string };
     const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
-    const newPath = `attachments/${channel_id}/${message_id}/${filename}`;
+    const newPath = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
 
     const att = await CloudAttachment.findOne({
         where: {
