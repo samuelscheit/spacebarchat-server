@@ -35,7 +35,9 @@ describe("guild discovery metadata OpenAPI", () => {
         const schema = openapi.components.schemas.GuildDiscoveryMetadataUpdateSchema;
 
         assert.deepEqual(Object.keys(schema.properties).sort(), ["about", "is_published", "primary_category_id"]);
-        assert.equal(schema.properties.primary_category_id.nullable, true);
-        assert.equal(schema.properties.about.nullable, true);
+        assert.deepEqual(schema.properties.primary_category_id.type, ["null", "integer"]);
+        assert.deepEqual(schema.properties.about.type, ["null", "string"]);
+        assert.equal(Object.hasOwn(schema.properties.primary_category_id, "nullable"), false);
+        assert.equal(Object.hasOwn(schema.properties.about, "nullable"), false);
     });
 });

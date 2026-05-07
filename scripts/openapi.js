@@ -28,6 +28,7 @@ const fs = require("fs");
 const { isNoAuthorizationRoute } = require("../dist/api/middlewares/NoAuthorizationRoutes");
 require("../dist/util/util/extensions");
 const { bgRedBright, bgYellow, black, bgYellowBright, blue, white } = require("picocolors");
+const { normalizeNullableTypes } = require("./util/openapiSchema");
 
 const openapiPath = path.join(__dirname, "..", "assets", "openapi.json");
 const SchemaPath = path.join(__dirname, "..", "assets", "schemas.json");
@@ -99,18 +100,7 @@ function combineSchemas(schemas) {
         specification.components.schemas[key] = definitions[key];
         if (definitions[key].additionalProperties === false) delete definitions[key].additionalProperties;
         delete definitions[key].$schema;
-        const definition = definitions[key];
-
-        if (typeof definition.properties === "object") {
-            for (const property of Object.values(definition.properties)) {
-                if (Array.isArray(property.type)) {
-                    if (property.type.includes("null")) {
-                        property.type = property.type.find((x) => x !== "null");
-                        property.nullable = true;
-                    }
-                }
-            }
-        }
+        normalizeNullableTypes(definitions[key], specification.openapi);
     }
 
     return definitions;
