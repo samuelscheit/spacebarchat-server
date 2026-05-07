@@ -51,6 +51,7 @@ const state: {
     guildMembers: unknown[];
     memberCount: number;
     memberListResult: MockMemberListResult;
+    permissionError: Error | undefined;
     permissionChecks: string[];
     sentPayloads: DispatchPayload[];
     subscriptions: string[];
@@ -61,6 +62,7 @@ const state: {
     guildMembers: [],
     memberCount: 0,
     memberListResult: { groups: [], online_count: 0, ops: [] },
+    permissionError: undefined,
     permissionChecks: [],
     sentPayloads: [],
     subscriptions: [],
@@ -98,10 +100,32 @@ const mockUtil = {
         async count() {
             return state.memberCount;
         },
+        async findOne({ where }: { where: { guild_id: string; id: string } }) {
+            return state.guildMembers.some((member) => (member as { id?: string }).id === where.id) ? { id: where.id } : null;
+        },
     },
     Permissions: {
         FLAGS: {
             VIEW_CHANNEL: 1n,
+        },
+        finalPermission({
+            user,
+            guild,
+            channel,
+        }: {
+            channel: { overwrites?: { allow: string; deny: string; id: string }[] };
+            guild: { roles: { id: string; permissions?: string }[] };
+            user: { roles: string[] };
+        }) {
+            let bitfield = guild.roles.filter((role) => user.roles.includes(role.id)).reduce((permissions, role) => permissions | BigInt(role.permissions ?? "0"), 0n);
+            for (const overwrite of channel.overwrites ?? []) {
+                if (user.roles.includes(overwrite.id)) bitfield = (bitfield & ~BigInt(overwrite.deny)) | BigInt(overwrite.allow);
+            }
+            return {
+                has(permission: string) {
+                    return permission === "VIEW_CHANNEL" && (bitfield & 1n) === 1n;
+                },
+            };
         },
     },
     Presence: undefined,
@@ -129,10 +153,23 @@ const mockUtil = {
     getMostRelevantSession() {
         return undefined;
     },
-    async getPermission() {
+    async getPermission(userId: string, guildId: string, channelId: string) {
+        if (userId !== "viewer" && !state.guildMembers.some((member) => (member as { id?: string }).id === userId)) throw new Error("missing guild access");
+
         return {
+            cache: {
+                channel: {
+                    guild_id: guildId,
+                    id: channelId,
+                    permission_overwrites: state.channelOverwrites,
+                },
+                guild: {
+                    owner_id: "owner",
+                },
+            },
             hasThrow(permission: string) {
                 state.permissionChecks.push(permission);
+                if (state.permissionError) throw state.permissionError;
             },
         };
     },
@@ -177,13 +214,28 @@ after(() => {
     moduleLoader._load = originalLoad;
 });
 
+function memberRole(id: string, permissions: string, position = 0) {
+    return { guild_id: "guild", id, permissions, position };
+}
+
+function viewableMember(id: string, roles = [memberRole("guild", mockUtil.Permissions.FLAGS.VIEW_CHANNEL.toString())]) {
+    return {
+        id,
+        guild_id: "guild",
+        communication_disabled_until: null,
+        roles,
+        user: { flags: 0 },
+    };
+}
+
 beforeEach(() => {
     state.buildCalls = [];
     state.channelOverwrites = undefined;
     state.getManyCalls = 0;
-    state.guildMembers = [{ id: "online-user" }, { id: "offline-user" }];
+    state.guildMembers = [viewableMember("online-user"), viewableMember("offline-user")];
     state.memberCount = 3;
     state.memberListResult = { groups: [], online_count: 0, ops: [] };
+    state.permissionError = undefined;
     state.permissionChecks = [];
     state.sentPayloads = [];
     state.subscriptions = [];
@@ -245,7 +297,7 @@ describe("lazy request member list loading", () => {
             ],
         );
         assert.equal(payload.d.online_count, 1);
-        assert.equal(payload.d.member_count, 3);
+        assert.equal(payload.d.member_count, 2);
         assert.deepEqual(payload.d.groups, [{ count: 1, id: "online" }]);
         assert.deepEqual(state.subscriptions, ["online-user"]);
     });
@@ -268,10 +320,95 @@ describe("lazy request member list loading", () => {
         const payload = sentUpdate();
         assert.deepEqual(payload.d.ops, []);
         assert.equal(payload.d.online_count, 1);
-        assert.equal(payload.d.member_count, 3);
+        assert.equal(payload.d.member_count, 2);
         assert.deepEqual(payload.d.groups, [
             { count: 1, id: "online" },
             { count: 2, id: "offline" },
         ]);
+    });
+
+    test("checks channel visibility before subscribing to requested member presences", async () => {
+        state.permissionError = new Error("missing VIEW_CHANNEL");
+
+        await assert.rejects(
+            onLazyRequest.call(socket(), {
+                d: {
+                    channels: { private: [[0, 0]] },
+                    guild_id: "guild",
+                    members: ["target-user"],
+                },
+            }),
+            /missing VIEW_CHANNEL/,
+        );
+
+        assert.deepEqual(state.permissionChecks, ["VIEW_CHANNEL"]);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.sentPayloads, []);
+        assert.equal(state.getManyCalls, 0);
+    });
+
+    test("does not subscribe to requested presences for users outside the authorized guild", async () => {
+        state.guildMembers = [viewableMember("guild-member")];
+
+        await onLazyRequest.call(socket(), {
+            d: {
+                channels: { channel: [] },
+                guild_id: "guild",
+                members: ["outside-user"],
+            },
+        });
+
+        assert.deepEqual(state.permissionChecks, ["VIEW_CHANNEL"]);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(
+            state.sentPayloads.filter((payload) => payload.t === "PRESENCE_UPDATE"),
+            [],
+        );
+    });
+
+    test("filters member list entries through the authorized channel overwrites", async () => {
+        const view = mockUtil.Permissions.FLAGS.VIEW_CHANNEL.toString();
+        state.channelOverwrites = [{ id: "denied-role", allow: "0", deny: view }];
+        state.guildMembers = [viewableMember("visible-user"), viewableMember("hidden-user", [memberRole("guild", view), memberRole("denied-role", "0", 1)])];
+        state.memberListResult = {
+            groups: [{ count: 1, id: "online" }],
+            online_count: 1,
+            ops: [memberListOp([0, 1], [{ user: { id: "visible-user" } }])],
+        };
+
+        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 1]] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: [state.guildMembers[0]], ranges: [[0, 1]] }]);
+        const payload = sentUpdate();
+        assert.equal(payload.d.member_count, 1);
+    });
+
+    test("filters member list entries that lack base channel visibility", async () => {
+        state.guildMembers = [viewableMember("visible-user"), viewableMember("hidden-user", [memberRole("guild", "0")])];
+        state.memberListResult = {
+            groups: [{ count: 1, id: "online" }],
+            online_count: 1,
+            ops: [memberListOp([0, 1], [{ user: { id: "visible-user" } }])],
+        };
+
+        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 1]] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: [state.guildMembers[0]], ranges: [[0, 1]] }]);
+        const payload = sentUpdate();
+        assert.equal(payload.d.member_count, 1);
+    });
+
+    test("ignores member presence requests that do not include an authorized channel", async () => {
+        await onLazyRequest.call(socket(), {
+            d: {
+                guild_id: "guild",
+                members: ["target-user"],
+            },
+        });
+
+        assert.deepEqual(state.permissionChecks, []);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.sentPayloads, []);
+        assert.equal(state.getManyCalls, 0);
     });
 });

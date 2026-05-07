@@ -3,13 +3,12 @@ import { Config, emitEvent, Stream, StreamCreateEvent, StreamServerUpdateEvent, 
 import { check } from "./instanceOf";
 import { Not } from "typeorm";
 import { StreamWatchSchema } from "@spacebar/schemas";
+import { assertCallStreamKeyMatchesChannel, assertGatewayChannelAccess, assertGatewayVoiceChannel, assertGuildStreamKeyMatchesChannel } from "../util/Authorization";
 
 export async function onStreamWatch(this: WebSocket, data: Payload) {
     const startTime = Date.now();
     check.call(this, StreamWatchSchema, data.d);
     const body = data.d as StreamWatchSchema;
-
-    // TODO: apply perms: check if user is allowed to watch
 
     let parsedKey: {
         type: "guild" | "call";
@@ -26,6 +25,22 @@ export async function onStreamWatch(this: WebSocket, data: Payload) {
 
     const { type, channelId, guildId, userId } = parsedKey;
 
+    let channel;
+    try {
+        ({ channel } = await assertGatewayChannelAccess({
+            userId: this.user_id,
+            guildId,
+            channelId,
+            permission: "CONNECT",
+        }));
+        assertGatewayVoiceChannel(channel);
+
+        if (type === "guild") assertGuildStreamKeyMatchesChannel(guildId, channel);
+        else assertCallStreamKeyMatchesChannel(channel);
+    } catch {
+        return this.close(4000, "Invalid stream key");
+    }
+
     const stream = await Stream.findOne({
         where: { channel_id: channelId, owner_id: userId },
         relations: { channel: true },
@@ -33,6 +48,7 @@ export async function onStreamWatch(this: WebSocket, data: Payload) {
 
     if (!stream) return this.close(4000, "Invalid stream key");
 
+    if (stream.channel_id !== channel.id) return this.close(4000, "Invalid stream key");
     if (type === "guild" && stream.channel.guild_id != guildId) return this.close(4000, "Invalid stream key");
 
     const regions = Config.get().regions;
