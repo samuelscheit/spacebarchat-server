@@ -17,6 +17,7 @@
 */
 
 import { Snowflake } from "../../Identifiers";
+import { UploadAttachmentRequestSchema } from "../../uncategorised";
 import { ApplicationCommandOption } from "../developers";
 import { ApplicationCommandType } from "./ApplicationCommandSchema";
 
@@ -28,5 +29,5 @@ export interface SendableApplicationCommandDataSchema {
     application_command?: object;
     options?: ApplicationCommandOption[];
     target_id?: Snowflake;
-    attachments?: object[]; // idk the type
+    attachments?: UploadAttachmentRequestSchema[];
 }
