@@ -17,7 +17,23 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Config, ErrorList, FieldError, Guild, Recipient, emitEvent, handleFile, makeObjectErrorContent } from "@spacebar/util";
+import {
+    Channel,
+    ChannelDeleteEvent,
+    ChannelUpdateEvent,
+    assertChannelNamePresent,
+    Config,
+    ErrorList,
+    FieldError,
+    Guild,
+    Recipient,
+    emitEvent,
+    getChannelOrderInsertPoint,
+    getInvalidThreadChannelOrderFields,
+    handleFile,
+    makeObjectErrorContent,
+    normalizeChannelName,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
@@ -25,6 +41,11 @@ import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } f
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
 // TODO: Get channel
+
+function isStatusOnlyUpdate(payload: ChannelModifySchema) {
+    const fields = Object.keys(payload) as (keyof ChannelModifySchema)[];
+    return fields.length === 1 && fields[0] === "status";
+}
 
 router.get(
     "/",
@@ -86,7 +107,7 @@ router.delete(
             await Channel.removeRecipientFromChannel(channel, req.user_id);
         } else if (channel.isThread()) {
             await Promise.all([
-                Channel.delete({ id: channel_id }),
+                Channel.deleteChannel(channel),
                 emitEvent({
                     event: "THREAD_DELETE",
                     data: {
@@ -153,8 +174,15 @@ router.patch(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
+        const isThread = channel.isThread();
 
-        if (channel.isThread()) {
+        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
+            throw new FieldError(400, "Invalid form body", {
+                status: makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels"),
+            });
+        }
+
+        if (isThread) {
             if (channel.owner_id !== req.user.id) {
                 req.permission!.hasThrow("MANAGE_THREADS");
             }
@@ -163,7 +191,7 @@ router.patch(
                 throw new Error("You can't change permission overwrites for threads");
             }
         } else {
-            req.permission!.hasThrow("MANAGE_CHANNELS");
+            req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
 
         if (payload.available_tags) {
@@ -206,10 +234,22 @@ router.patch(
         const channelLimits = Config.get().limits.channel;
 
         const errors: ErrorList = {};
-        if (payload.name && (payload.name.length < 1 || payload.name.length > channelLimits.maxName))
+        let allowUnnamedChannels = false;
+        if (payload.name !== undefined && channel.guild_id) {
+            const guild = await Guild.findOneOrFail({
+                where: { id: channel.guild_id },
+                select: { features: true },
+            });
+            allowUnnamedChannels = guild.features.includes("ALLOW_UNNAMED_CHANNELS");
+            payload.name = normalizeChannelName(payload.name, payload.type ?? channel.type, guild.features);
+            assertChannelNamePresent(payload.name, guild.features);
+        }
+        if (payload.name !== undefined && ((Boolean(channel.guild_id) && !allowUnnamedChannels && payload.name.length < 1) || payload.name.length > channelLimits.maxName))
             errors["name"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel name must be between 1 and ${channelLimits.maxName} characters`);
         if (payload.topic !== undefined && payload.topic.length > channelLimits.maxTopic)
             errors["topic"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel topic must be less than ${channelLimits.maxTopic} characters`);
+        if (payload.status !== undefined && payload.status !== null && payload.status.length > 500)
+            errors["status"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", "Channel status must be 500 characters or fewer");
         if (payload.user_limit !== undefined && payload.user_limit < 0) errors["user_limit"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "User limit must be 0 or higher");
         if (payload.type !== undefined && payload.type !== channel.type) {
             const guildFeatures =
@@ -224,12 +264,17 @@ router.patch(
             const typeError = getChannelModifyTypeConversionError(channel.type, payload.type, guildFeatures);
             if (typeError) errors["type"] = typeError;
         }
+        for (const field of getInvalidThreadChannelOrderFields(payload, isThread)) {
+            errors[field] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", `Threads cannot update ${field}`);
+        }
 
         if (Object.keys(errors).length) {
             throw new FieldError(400, "Invalid form body", errors);
         }
 
+        const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);
+
         if (channel.thread_metadata) {
             if (payload.archived !== undefined) {
                 channel.thread_metadata.archived = payload.archived;
@@ -244,14 +289,16 @@ router.patch(
             }
         }
 
-        await Promise.all([
-            channel.save(),
-            emitEvent({
-                event: "CHANNEL_UPDATE",
-                data: channel.toJSON(),
-                channel_id,
-            } satisfies ChannelUpdateEvent),
-        ]);
+        await channel.save();
+        if (channel.guild_id && orderInsertPoint !== undefined) {
+            channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, orderInsertPoint);
+        }
+
+        await emitEvent({
+            event: "CHANNEL_UPDATE",
+            data: channel.toJSON(),
+            channel_id,
+        } satisfies ChannelUpdateEvent);
 
         res.send(channel);
     },

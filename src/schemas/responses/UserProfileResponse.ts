@@ -16,31 +16,48 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity imports
-import { Badge, Member, User } from "@spacebar/util";
-import { PublicConnectedAccount, PublicMember, PublicUser } from "@spacebar/schemas";
+import { PartialConnectedAccountResponse, PublicMember, PublicUser } from "@spacebar/schemas";
 
 export type MutualGuild = {
     id: string;
-    nick?: string;
+    nick?: string | null;
 };
 
-export type PublicMemberProfile = Pick<Member, "banner" | "bio" | "guild_id"> & {
-    accent_color: null; // TODO
-};
+export interface PublicMemberProfile {
+    accent_color: number | null;
+    banner: string | null;
+    bio: string;
+    guild_id: string;
+}
 
-export type UserProfile = Pick<User, "bio" | "accent_color" | "banner" | "pronouns" | "theme_colors">;
+export interface UserProfile {
+    bio: string | null;
+    accent_color?: number | null;
+    banner?: string | null;
+    pronouns?: string | null;
+    theme_colors?: number[] | null;
+}
+
+export interface ProfileBadge {
+    id: string;
+    description: string;
+    icon: string;
+    link?: string;
+}
 
 export interface UserProfileResponse {
     user: PublicUser;
-    connected_accounts: PublicConnectedAccount;
-    premium_guild_since?: Date;
-    premium_since?: Date;
-    mutual_guilds: MutualGuild[];
+    connected_accounts: PartialConnectedAccountResponse[];
+    premium_guild_since?: number;
+    premium_since?: Date | null;
+    mutual_guilds?: MutualGuild[];
+    mutual_friends?: PublicUser[];
+    mutual_friends_count?: number;
     premium_type: number;
     profile_themes_experiment_bucket: number;
     user_profile: UserProfile;
     guild_member?: PublicMember;
     guild_member_profile?: PublicMemberProfile;
-    badges: Badge[];
+    badges: ProfileBadge[];
+    guild_badges: ProfileBadge[];
 }

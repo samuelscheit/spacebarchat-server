@@ -46,12 +46,16 @@ import {
     Session,
     MessageFlags,
     FieldErrors,
-    getCloudAttachmentCloneCdnUrl,
     getCloudAttachmentCdnUrl,
     getDatabase,
+    messagePublicRelations,
+    getCloudAttachmentAccessError,
+    getAttachmentMutationPath,
+    getCdnMutationUrl,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
+import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
 import {
     ActionRowComponent,
     ButtonStyle,
@@ -63,12 +67,14 @@ import {
     MessageCreateCloudAttachment,
     MessageCreateSchema,
     MessageType,
-    Reaction,
     ReadStateType,
+    StoredReaction,
     UnfurledMediaItem,
     BaseMessageComponents,
     v1CompTypes,
 } from "@spacebar/schemas";
+import { collectMessageComponentMedia } from "../utility/MessagePayloadPermissions";
+import { findCloudAttachmentForChannel, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
@@ -150,7 +156,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
         delWhenDone = true;
     }
 
-    const cloneResponse = await fetch(getCloudAttachmentCloneCdnUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, messageId), {
+    const cloneResponse = await fetch(getCloudAttachmentCloneUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, messageId, channel.id), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",
@@ -189,13 +195,11 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
 
     if (delWhenDone) {
         return () =>
-            fetch(getCloudAttachmentCdnUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename), {
+            fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, getAttachmentMutationPath(attEnt.uploadFilename)), {
                 headers: {
                     signature: Config.get().security.requestSignature,
                 },
                 method: "DELETE",
-            }).then(() => {
-                attEnt.remove();
             });
     }
 }
@@ -211,20 +215,15 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         const bad = components.reduce((bad, comp) => bad || !v1CompTypes.has(comp.type), false);
         if (bad) throw new HTTPError("Must be comp v2");
     }
-    const medias: UnfurledMediaItem[] = [];
     for (const comp of components || []) {
         if (comp.type === MessageComponentType.ActionRow) {
             checkActionRow(comp, knownComponentIds, errors, components!.indexOf(comp));
         } else if (comp.type === MessageComponentType.Section) {
-            const accessory = comp.accessory;
             if (comp.components.length < 1 || comp.components.length > actionRowLimit) {
                 errors[`data.components[${components!.indexOf(comp)}].components`] = {
                     code: "TOO_LONG",
                     message: "Component list is too long",
                 };
-            }
-            if (accessory.type === MessageComponentType.Thumbnail) {
-                medias.push(accessory.media);
             }
         } else if (comp.type === MessageComponentType.TextDisplay) {
             //Here to make sure everything is checked
@@ -235,9 +234,8 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
                     message: "Media list is too long",
                 };
             }
-            medias.push(...comp.items.map(({ media }) => media));
         } else if (comp.type === MessageComponentType.File) {
-            medias.push(comp.file);
+            //Here to make sure everything is checked
         } else if (comp.type === MessageComponentType.Separator) {
             //Here to make sure everything is checked
         } else if (comp.type === MessageComponentType.Container) {
@@ -247,15 +245,11 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
                     case MessageComponentType.TextDisplay:
                         break;
                     case MessageComponentType.Section: {
-                        const accessory = elm.accessory;
                         if (elm.components.length < 1 || elm.components.length > actionRowLimit) {
                             errors[`data.components[${components!.indexOf(comp)}].components[${comp.components!.indexOf(elm)}].components`] = {
                                 code: "TOO_LONG",
                                 message: "Component list is too long",
                             };
-                        }
-                        if (accessory.type === MessageComponentType.Thumbnail) {
-                            medias.push(accessory.media);
                         }
                         break;
                     }
@@ -266,10 +260,8 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
                                 message: "Media list is too long",
                             };
                         }
-                        medias.push(...elm.items.map(({ media }) => media));
                         break;
                     case MessageComponentType.File: {
-                        medias.push(elm.file);
                         break;
                     }
                     case MessageComponentType.ActionRow:
@@ -287,14 +279,28 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
     if (Object.keys(errors).length > 0) {
         throw FieldErrors(errors);
     }
+    const medias = collectMessageComponentMedia(components);
     return async (messageId: string, user: User, channel: Channel) => {
         const batchId = `CLOUD_compUploads_${randomString(128)}`;
         (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
     };
 }
-export async function handleMessage(opts: MessageOptions): Promise<Message> {
+export function isMessageEditOperation(opts: Pick<MessageOptions, "is_edit">): boolean {
+    return opts.is_edit === true;
+}
+
+export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id" | "webhook_id">): boolean {
+    return !!opts.author_id && !opts.webhook_id;
+}
+
+export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     const conf = Config.get();
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
+    const isEdit = isMessageEditOperation(opts);
+    const messageOptions = { ...opts };
+    delete messageOptions.attachment_channel_ids;
+    delete messageOptions.attachment_user_id;
+    delete messageOptions.cloud_attachment_upload_channel_id;
 
     const channel = await Channel.findOneOrFail({
         where: { id: opts.channel_id },
@@ -305,7 +311,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     let permission: null | Permissions = null;
     const limit = channel.rate_limit_per_user;
 
-    if (limit) {
+    if (!isEdit && limit) {
         const lastMsgTime = (await Message.findOne({ where: { channel_id: channel.id, author_id: opts.author_id }, select: { timestamp: true }, order: { timestamp: "DESC" } }))
             ?.timestamp;
         if (lastMsgTime && Date.now() - limit * 1000 < +lastMsgTime) {
@@ -320,7 +326,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     const stickers = opts.sticker_ids ? await Sticker.find({ where: { id: In(opts.sticker_ids) } }) : undefined;
 
     const message = Message.create({
-        ...opts,
+        ...messageOptions,
         message_reference: opts.message_reference ?? undefined,
         poll: opts.poll,
         sticker_items: stickers,
@@ -336,22 +342,23 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
     message.channel = channel;
     await processMessageOptionAttachments(opts, message);
 
-    if (opts.author_id) {
+    if (shouldResolveMessageAuthor(opts)) {
+        const author_id = opts.author_id!;
         message.author = await User.findOneOrFail({
-            where: { id: opts.author_id },
+            where: { id: author_id },
         });
-        const rights = await getRights(opts.author_id);
+        const rights = await getRights(author_id);
         message.author.clean_data();
         rights.hasThrow("SEND_MESSAGES");
     }
 
     const ephermal = (message.flags & (1 << 6)) !== 0;
-    if (!ephermal && channel.type === ChannelType.GUILD_PUBLIC_THREAD) {
+    if (!isEdit && !ephermal && channel.type === ChannelType.GUILD_PUBLIC_THREAD) {
         const rep = Channel.getRepository();
         await rep.increment({ id: channel.id }, "message_count", 1);
         await rep.increment({ id: channel.id }, "total_message_sent", 1);
     }
-    if (!ephermal) {
+    if (!isEdit && !ephermal) {
         channel.last_message_id = message.id;
         await channel.save();
     }
@@ -443,16 +450,7 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                         where: {
                             id: opts.message_reference.message_id,
                         },
-                        relations: {
-                            author: true,
-                            webhook: true,
-                            application: true,
-                            mentions: true,
-                            mention_roles: true,
-                            mention_channels: true,
-                            sticker_items: true,
-                            attachments: true,
-                        },
+                        relations: messagePublicRelations,
                     });
 
                     if (
@@ -572,15 +570,19 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
         const states = await ReadState.findBy({
             user_id: Or(...ids.map((id) => Equal(id))),
             channel_id: channel.id,
+            read_state_type: ReadStateType.CHANNEL,
         });
         const users = new Set(ids);
         states.forEach((state) => users.delete(state.user_id));
         if (!users.size) {
             return;
         }
-        return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id }).save()));
+        return Promise.all([...users].map((user_id) => ReadState.create({ user_id, channel_id: channel.id, read_state_type: ReadStateType.CHANNEL }).save()));
     }
-    if (ephermal) {
+    const incrementMentionCount = !isEdit && shouldIncrementMentionCount(notificationOptions);
+    if (isEdit) {
+        // Edits recalculate mentions for serialization but must not create new mention notifications.
+    } else if (ephermal) {
         const id = message.interaction_metadata?.user_id;
         if (id) {
             let pinged = mention_everyone || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM;
@@ -590,38 +592,40 @@ export async function handleMessage(opts: MessageOptions): Promise<Message> {
                 //stuff
             }
         }
-    } else if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
-        if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
-            if (channel.recipients) {
-                await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
+    } else if (incrementMentionCount) {
+        if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+            if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+                if (channel.recipients) {
+                    await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
+                }
+            } else {
+                await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
             }
-        } else {
-            await fillInMissingIDs((await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id));
-        }
-        const repository = ReadState.getRepository();
-        const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-        await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
-        await repository.increment(condition, "mention_count", 1);
-    } else {
-        const users = new Set<string>([
-            ...(message.mention_roles.length
-                ? await Member.find({
-                      where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
-                  })
-                : []
-            ).map((member) => member.id),
-            ...message.mentions.map((user) => user.id),
-        ]);
-        if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
-            const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
-            (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
-        }
-        if (users.size) {
             const repository = ReadState.getRepository();
-            const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
-
-            await fillInMissingIDs([...users]);
+            const condition = { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
+            await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
             await repository.increment(condition, "mention_count", 1);
+        } else {
+            const users = new Set<string>([
+                ...(message.mention_roles.length
+                    ? await Member.find({
+                          where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
+                      })
+                    : []
+                ).map((member) => member.id),
+                ...message.mentions.map((user) => user.id),
+            ]);
+            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
+                const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
+                (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
+            }
+            if (users.size) {
+                const repository = ReadState.getRepository();
+                const condition = { user_id: Or(...[...users].map((id) => Equal(id))), channel_id: channel.id, read_state_type: ReadStateType.CHANNEL };
+
+                await fillInMissingIDs([...users]);
+                await repository.increment(condition, "mention_count", 1);
+            }
         }
     }
 
@@ -730,13 +734,17 @@ interface MessageOptions extends MessageCreateSchema {
     webhook_id?: string;
     application_id?: string;
     embeds?: Embed[] | null;
-    reactions?: Reaction[];
+    reactions?: StoredReaction[];
     channel_id?: string;
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
+    attachment_user_id?: string;
+    attachment_channel_ids?: string[];
+    cloud_attachment_upload_channel_id?: string;
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;
     avatar_url?: string;
+    is_edit?: boolean;
 }
 
 // Makes for concise code, inspired by Nix' lib.trace
@@ -748,10 +756,23 @@ export async function processMessageOptionAttachments(source: MessageOptions, de
     if (!source.attachments || source.attachments.length == 0) return;
     const logp = `[Message/${destination.id}/Attachments]`;
     console.log("[Message] Processing attachments for message", source.id, "->", source.attachments);
+    const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(destination.channel_id!, source.cloud_attachment_upload_channel_id);
+    const cloudAttachmentAllowedChannelIds = source.attachment_channel_ids ?? [cloudAttachmentLookupChannelId];
     const tasks = source.attachments?.map(async (src): Promise<Attachment> => {
         if (src instanceof Attachment) return logPassthru(src, logp, `Got Attachment instance`);
         if (isCloudAttachment(src))
-            return logPassthru(await convertCloudAttachmentToAttachment(src, destination.channel_id!, destination.id), logp, "Got MessageCreateCloudAttachment contents");
+            return logPassthru(
+                await convertCloudAttachmentToAttachment(
+                    src,
+                    cloudAttachmentLookupChannelId,
+                    destination.channel_id!,
+                    destination.id,
+                    cloudAttachmentAllowedChannelIds,
+                    source.attachment_user_id,
+                ),
+                logp,
+                "Got MessageCreateCloudAttachment contents",
+            );
         throw new Error(logp + " Unhandled attachment: " + JSON.stringify(src));
     });
 
@@ -765,14 +786,26 @@ export function isCloudAttachment(attachment: MessageOptionAttachment) {
     return "uploaded_filename" in attachment;
 }
 
-export async function convertCloudAttachmentToAttachment(cAtt: MessageCreateCloudAttachment, destinationChannelId: string, destinationMessageId: string) {
-    const attEnt = await CloudAttachment.findOneOrFail({
-        where: {
-            uploadFilename: cAtt.uploaded_filename,
+export async function convertCloudAttachmentToAttachment(
+    cAtt: MessageCreateCloudAttachment,
+    cloudAttachmentLookupChannelId: string,
+    destinationChannelId: string,
+    destinationMessageId: string,
+    sourceChannelIds: string[] = [cloudAttachmentLookupChannelId],
+    expectedUserId?: string,
+) {
+    const attEnt = await findCloudAttachmentForChannel(
+        {
+            findOne: (options) => CloudAttachment.findOne(options),
         },
-    });
+        cAtt.uploaded_filename,
+        cloudAttachmentLookupChannelId,
+    );
 
-    const cloneResponse = await fetch(getCloudAttachmentCloneCdnUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, destinationMessageId), {
+    const accessError = getCloudAttachmentAccessError(attEnt, sourceChannelIds, expectedUserId);
+    if (accessError) throw new HTTPError(accessError.message, accessError.status);
+
+    const cloneResponse = await fetch(getCloudAttachmentCloneUrl(Config.get().cdn.endpointPrivate!, attEnt.uploadFilename, destinationMessageId, destinationChannelId), {
         method: "POST",
         headers: {
             signature: Config.get().security.requestSignature || "",

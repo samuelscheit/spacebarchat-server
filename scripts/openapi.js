@@ -25,9 +25,10 @@ require("module-alias/register");
 const getRouteDescriptions = require("./util/getRouteDescriptions");
 const path = require("path");
 const fs = require("fs");
-const { NO_AUTHORIZATION_ROUTES } = require("../dist/api/middlewares/Authentication");
+const { isNoAuthorizationRoute } = require("../dist/api/middlewares/NoAuthorizationRoutes");
 require("../dist/util/util/extensions");
 const { bgRedBright, bgYellow, black, bgYellowBright, blue, white } = require("picocolors");
+const { normalizeNullableTypes } = require("./util/openapiSchema");
 
 const openapiPath = path.join(__dirname, "..", "assets", "openapi.json");
 const SchemaPath = path.join(__dirname, "..", "assets", "schemas.json");
@@ -99,18 +100,7 @@ function combineSchemas(schemas) {
         specification.components.schemas[key] = definitions[key];
         if (definitions[key].additionalProperties === false) delete definitions[key].additionalProperties;
         delete definitions[key].$schema;
-        const definition = definitions[key];
-
-        if (typeof definition.properties === "object") {
-            for (const property of Object.values(definition.properties)) {
-                if (Array.isArray(property.type)) {
-                    if (property.type.includes("null")) {
-                        property.type = property.type.find((x) => x !== "null");
-                        property.nullable = true;
-                    }
-                }
-            }
-        }
+        normalizeNullableTypes(definitions[key], specification.openapi);
     }
 
     return definitions;
@@ -118,6 +108,13 @@ function combineSchemas(schemas) {
 
 function getTag(key) {
     return key.match(/\/([\w-]+)/)[1];
+}
+
+function normalizeRequestBody(requestBody) {
+    if (!requestBody) return undefined;
+    if (typeof requestBody === "string") return { schema: requestBody, required: true };
+
+    return { schema: requestBody.schema, required: requestBody.required ?? true };
 }
 
 function apiRoutes(missingRoutes) {
@@ -142,12 +139,7 @@ function apiRoutes(missingRoutes) {
         obj["x-permission-required"] = route.permission;
         obj["x-fires-event"] = route.event;
 
-        if (
-            !NO_AUTHORIZATION_ROUTES.some((x) => {
-                if (typeof x === "string") return (method.toUpperCase() + " " + path).startsWith(x);
-                return x.test(method.toUpperCase() + " " + path);
-            })
-        ) {
+        if (!isNoAuthorizationRoute(method.toUpperCase(), path)) {
             obj.security = [{ bearer: [] }];
         }
 
@@ -155,20 +147,21 @@ function apiRoutes(missingRoutes) {
         if (route.summary) obj.summary = route.summary;
         if (route.deprecated) obj.deprecated = route.deprecated;
 
-        if (route.requestBody) {
+        const requestBody = normalizeRequestBody(route.requestBody);
+        if (requestBody) {
             obj.requestBody = {
-                required: true,
+                required: requestBody.required,
                 content: {
                     "application/json": {
                         schema: {
-                            $ref: `#/components/schemas/${route.requestBody}`,
+                            $ref: `#/components/schemas/${requestBody.schema}`,
                         },
                     },
                 },
             };
-            if (!specification.components.schemas[route.requestBody]) {
+            if (!specification.components.schemas[requestBody.schema]) {
                 missingRequestSchemaCount++;
-                console.log(`\x1b[91m${white("\x1b[48;5;208mERROR")}\x1b[0m\x1b[95m`, "Route", method, path, "missing request schema:", route.requestBody, "\x1b[0m");
+                console.log(`\x1b[91m${white("\x1b[48;5;208mERROR")}\x1b[0m\x1b[95m`, "Route", method, path, "missing request schema:", requestBody.schema, "\x1b[0m");
             }
         }
 

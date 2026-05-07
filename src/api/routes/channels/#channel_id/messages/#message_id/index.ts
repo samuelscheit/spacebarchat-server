@@ -18,24 +18,26 @@
 
 import {
     Attachment,
+    buildMessageEditHandleMessageOptions,
     Channel,
     Message,
     MessageCreateEvent,
     MessageDeleteEvent,
     MessageUpdateEvent,
+    NewUrlUserSignatureData,
     Snowflake,
     SpacebarApiErrors,
     emitEvent,
     getPermission,
     getRights,
+    messagePublicWithThreadRelations,
     uploadFile,
-    NewUrlUserSignatureData,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, postHandleMessage, route } from "@spacebar/api";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
+import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
+import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: message content/embed string length limit
@@ -57,7 +59,7 @@ router.patch(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -87,18 +89,30 @@ router.patch(
             }
         } else rights.hasThrow("SELF_EDIT_MESSAGES");
 
-        // no longer necessary, somehow resolved by updating the type of `attachments`...?
-        // //@ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
-        const new_message = await handleMessage({
-            ...message,
-            // TODO: should message_reference be overridable?
-            message_reference: message.message_reference,
-            ...body,
-            author_id: message.author_id,
-            channel_id,
-            id: message_id,
-            edited_timestamp: new Date(),
-        });
+        assertMessagePayloadPermissions(permissions, body);
+
+        const normalizedBody = { ...body } as MessageEditSchema & {
+            attachments?: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[];
+        };
+        if (body.attachments) {
+            const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
+            normalizedBody.attachments = body.attachments.map((attachment) => {
+                if (isNewMessagePayloadAttachment(attachment)) return attachment;
+                if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
+                const retained = existingAttachmentsById.get(attachment.id);
+                if (!retained) throw new HTTPError("Unknown attachment", 400);
+                return retained;
+            });
+        }
+
+        const new_message = await handleMessage(
+            buildMessageEditHandleMessageOptions(message, normalizedBody, channel_id, message_id, new Date(), {
+                attachment_user_id: req.user_id,
+                attachment_channel_ids: [channel_id],
+                is_edit: true,
+            }),
+            { suppress_notifications: true },
+        );
 
         await new_message.save();
         await emitEvent({
@@ -112,35 +126,7 @@ router.patch(
 
         postHandleMessage(new_message).catch((e) => console.error("[Message] post-message handler failed", e));
 
-        // TODO: a DTO?
-        const responseMessage = {
-            ...new_message.toJSON(),
-            id: new_message.id,
-            type: new_message.type,
-            channel_id: new_message.channel_id,
-            member: new_message.member?.toPublicMember(),
-            author: new_message.author?.toPublicUser(),
-            attachments: new_message.attachments,
-            embeds: new_message.embeds,
-            mentions: new_message.embeds,
-            mention_roles: new_message.mention_roles,
-            mention_everyone: new_message.mention_everyone,
-            pinned: new_message.pinned,
-            timestamp: new_message.timestamp,
-            edited_timestamp: new_message.edited_timestamp,
-
-            // these are not in the Discord.com response
-            mention_channels: new_message.mention_channels,
-        };
-        return res.json(
-            Message.prototype.withSignedAttachments.call(
-                responseMessage,
-                new NewUrlUserSignatureData({
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"] as string,
-                }),
-            ),
-        );
+        return res.json(messageToResponse(new_message, req));
     },
 );
 
@@ -153,6 +139,7 @@ router.put(
             req.body = JSON.parse(req.body.payload_json);
         }
 
+        normalizeMessageCreateSchema(req.body);
         next();
     },
     route({
@@ -161,7 +148,7 @@ router.put(
         right: "SEND_BACKDATED_EVENTS",
         responses: {
             200: {
-                body: "Message",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -196,6 +183,8 @@ router.put(
             throw SpacebarApiErrors.CANNOT_REPLACE_BY_BACKFILL;
         }
 
+        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: req.file ? 1 : 0 });
+
         if (req.file) {
             try {
                 const file = await uploadFile(`/attachments/${req.params.channel_id}/${message_id}`, req.file);
@@ -209,17 +198,17 @@ router.put(
             relations: { recipients: { user: true } },
         });
 
-        const embeds = body.embeds || [];
-        if (body.embed) embeds.push(body.embed);
         const message = await handleMessage({
             ...body,
             type: 0,
             pinned: false,
             author_id: req.user_id,
             id: message_id,
-            embeds,
+            embeds: body.embeds || [],
             channel_id: channel_id!,
             attachments,
+            attachment_user_id: req.user_id,
+            attachment_channel_ids: [channel_id],
             edited_timestamp: undefined,
             timestamp: new Date(snowflake.timestamp),
         });
@@ -241,15 +230,7 @@ router.put(
         // no await as it shouldnt block the message send function and silently catch error
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
 
-        return res.json(
-            Message.prototype.withSignedAttachments.call(
-                message.toJSON(),
-                new NewUrlUserSignatureData({
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"] as string,
-                }),
-            ),
-        );
+        return res.json(messageToResponse(message, req));
     },
 );
 
@@ -259,7 +240,7 @@ router.get(
         permission: "VIEW_CHANNEL",
         responses: {
             200: {
-                body: "Message",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -273,24 +254,14 @@ router.get(
 
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: {
-                attachments: true,
-                author: true,
-            },
+            relations: messagePublicWithThreadRelations,
         });
 
         const permissions = await getPermission(req.user_id, undefined, channel_id);
 
         if (message.author_id !== req.user_id) permissions.hasThrow("READ_MESSAGE_HISTORY");
 
-        return res.json(
-            message.withSignedAttachments(
-                new NewUrlUserSignatureData({
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"] as string,
-                }),
-            ),
-        );
+        return res.json(messageToResponse(message, req));
     },
 );
 

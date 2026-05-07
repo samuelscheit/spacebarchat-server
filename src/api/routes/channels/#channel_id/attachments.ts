@@ -17,7 +17,7 @@
 */
 
 import { randomString, route } from "@spacebar/api";
-import { CloudAttachment, Channel, Config, getCloudAttachmentCdnUrl, Permissions } from "@spacebar/util";
+import { CloudAttachment, Channel, Config, deleteFile, getAttachmentMutationPath, getCloudAttachmentCdnUrl, Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { UploadAttachmentRequestSchema, UploadAttachmentResponseSchema } from "@spacebar/schemas";
 
@@ -116,15 +116,8 @@ router.delete("/:cloud_attachment_url", route({}), async (req: Request, res: Res
         });
     }
 
-    const response = await fetch(getCloudAttachmentCdnUrl(Config.get().cdn.endpointPrivate!, att.uploadFilename), {
-        headers: {
-            signature: Config.get().security.requestSignature,
-        },
-        method: "DELETE",
-    });
-
-    await att.remove();
-    return res.status(response.status).send(response.body);
+    const result = await deleteFile(getAttachmentMutationPath(att.uploadFilename));
+    return res.json(result);
 });
 
 export default router;

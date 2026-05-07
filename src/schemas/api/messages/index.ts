@@ -18,5 +18,6 @@
 
 export * from "./Components";
 export * from "./Embeds";
+export * from "./Attachments";
 export * from "./Message";
 export * from "./Polls";

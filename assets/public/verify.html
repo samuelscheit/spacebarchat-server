@@ -108,6 +108,7 @@
 			</div>
 		</div>
 
+		<script src="/verify-response.js"></script>
 		<script>
 			window.onload = verify;
 
@@ -162,8 +163,14 @@
 					},
 					body: JSON.stringify(requestBody),
 				})
-					.then((response) => response.json())
+					.then((response) => parseVerificationResponse(response))
 					.then((data) => {
+						if (data === null) {
+							title.innerText = "Email Verified";
+							subtitle.innerText = "You can now login.";
+							return;
+						}
+
 						// check for captcha requirement
 						if (data.captcha_key && data.captcha_key.includes("captcha-required")) {
 							captchaConfig = {

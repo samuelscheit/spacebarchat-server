@@ -38,13 +38,16 @@ import {
     PartialMessage,
     Poll,
     PublicMessage,
-    Reaction,
+    StoredReaction,
     UnfurledMediaItem,
     PartialUser,
     InteractionType,
+    GuildMessagesSearchMessage,
 } from "@spacebar/schemas";
-import { MessageFlags } from "@spacebar/util";
+import { MessageFlags, serializeMessageMentions, serializeMessageRoleMentions } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
+import { serializePublicMember } from "../util/MemberRoles";
+import { messageToPublicMessage } from "../util/MessagePublic";
 
 type AttachmentUrlFields = {
     url?: string;
@@ -261,6 +264,11 @@ export class Message extends BaseClass {
     @ManyToMany(() => User)
     mentions: User[];
 
+    /**
+     * Public message payloads serialize role mentions as role ids.
+     *
+     * @items.type string
+     */
     @JoinTable({ name: "message_role_mentions" })
     @ManyToMany(() => Role)
     mention_roles: Role[];
@@ -286,7 +294,7 @@ export class Message extends BaseClass {
 
     @Column({ type: "jsonb" })
     @JsonRemoveEmpty
-    reactions: Reaction[];
+    reactions: StoredReaction[];
 
     @Column({ type: "text", nullable: true })
     @JsonRemoveEmpty
@@ -382,53 +390,7 @@ export class Message extends BaseClass {
     }
 
     toJSON(shallow = false): PublicMessage {
-        // this.clean_data();
-        return {
-            ...this,
-            channel_id: this.channel_id ?? this.channel.id,
-            channel: undefined,
-
-            timestamp: this.timestamp.toISOString(),
-            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
-
-            author_id: undefined,
-            member_id: undefined,
-            webhook_id: this.webhook_id ?? undefined,
-            application_id: undefined,
-            mentions: this.mentions?.map((user) => {
-                if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
-                return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
-            }),
-
-            mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
-            mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
-            attachments: this.attachments?.map((att) => att.toJSON()) ?? [],
-
-            nonce: this.nonce ?? undefined,
-            tts: this.tts ?? false,
-            guild: this.guild ?? undefined,
-            webhook: this.webhook ?? undefined,
-            interaction: this.interaction ?? undefined,
-            interaction_metadata: this.interaction_metadata ?? undefined,
-            reactions: this.reactions ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
-            message_reference: this.message_reference ?? undefined,
-            mention_everyone: this.mention_everyone ?? false,
-            author: {
-                ...(this.author?.toPublicUser() ?? undefined),
-                // Webhooks
-                username: this.username ?? this.author?.username ?? null,
-                avatar: this.avatar ?? this.author?.avatar ?? null,
-            },
-            activity: this.activity ?? undefined,
-            application: this.application ?? undefined,
-            components: this.components ?? [],
-            poll: this.poll ?? undefined,
-            content: this.content ?? "",
-            pinned: this.pinned,
-            thread: this.thread ? this.thread.toJSON() : this.thread,
-            referenced_message: this.referenced_message && !shallow ? this.referenced_message.toJSON(true) : undefined,
-        };
+        return messageToPublicMessage(this, shallow);
     }
 
     toPartialMessage(): PartialMessage {
@@ -446,6 +408,46 @@ export class Message extends BaseClass {
         };
     }
 
+    toSearchResult(): GuildMessagesSearchMessage {
+        const publicMessage = this.toJSON();
+        const {
+            webhook: _webhook,
+            guild: _guild,
+            application: _application,
+            interaction: _interaction,
+            interaction_metadata: _interactionMetadata,
+            ...searchResult
+        } = publicMessage as PublicMessage & {
+            webhook?: unknown;
+            guild?: unknown;
+            application?: unknown;
+            interaction?: unknown;
+            interaction_metadata?: unknown;
+        };
+
+        const author = serializeMessageMentions([publicMessage.author] as unknown as object[])[0];
+        if (!author.id) {
+            const fallbackAuthorId = this.author_id ?? this.webhook_id;
+            if (!fallbackAuthorId) throw new Error(`Cannot serialize message ${this.id} search result without an author or webhook`);
+            author.id = fallbackAuthorId;
+        }
+        author.username ??= this.username ?? this.author?.username ?? this.webhook?.name ?? "";
+        author.discriminator ??= this.webhook_id ? "0000" : (this.author?.discriminator ?? "0000");
+        author.avatar ??= this.avatar ?? this.author?.avatar ?? this.webhook?.avatar ?? null;
+        if (this.webhook_id) {
+            author.bot ??= true;
+            author.public_flags ??= 0;
+        }
+
+        return {
+            ...searchResult,
+            author,
+            mentions: serializeMessageMentions(this.mentions) as PartialUser[],
+            mention_roles: serializeMessageRoleMentions(this.mention_roles),
+            hit: true,
+        };
+    }
+
     toSnapshot(): MessageSnapshot {
         return {
             message: {
@@ -455,8 +457,8 @@ export class Message extends BaseClass {
                 edited_timestamp: this.edited_timestamp,
                 embeds: this.embeds,
                 flags: this.flags,
-                mention_roles: this.mention_roles?.map((x) => x.id),
-                mentions: this.mentions.map((x) => x.toPublicUser() as unknown as PartialUser), // TODO: write a proper method for this
+                mention_roles: serializeMessageRoleMentions(this.mention_roles),
+                mentions: serializeMessageMentions(this.mentions) as PartialUser[],
                 timestamp: this.timestamp,
                 type: this.type,
             },
@@ -464,8 +466,15 @@ export class Message extends BaseClass {
     }
 
     withSignedAttachments(data: NewUrlUserSignatureData) {
-        const publicMessage = this instanceof Message ? this.toJSON() : this;
-        return signMessageAttachmentUrls(publicMessage, data);
+        const publicMessage = this instanceof Message ? this.toJSON() : (this as unknown as PublicMessage);
+        return signMessageAttachmentUrls(
+            {
+                ...publicMessage,
+                member: serializePublicMember(publicMessage.member),
+                mention_roles: serializeMessageRoleMentions(publicMessage.mention_roles),
+            },
+            data,
+        );
     }
 
     static async createWithDefaults(opts: Partial<Message>): Promise<Message> {

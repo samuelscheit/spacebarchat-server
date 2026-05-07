@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { BackupCode, User, generateToken, isValidTotpCode } from "@spacebar/util";
+import { assertMfaCode, consumeMfaBackupCode, route } from "@spacebar/api";
+import { BackupCode, User, generateToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { TotpDisableSchema } from "@spacebar/schemas";
@@ -45,10 +45,13 @@ router.post(
             select: { id: true, totp_secret: true },
         });
 
-        const backup = await BackupCode.findOne({ where: { code: body.code } });
-        if (!backup) {
-            if (!isValidTotpCode(user.totp_secret, body.code)) throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
-        }
+        await assertMfaCode({
+            code: body.code,
+            mfa_enabled: true,
+            totp_secret: user.totp_secret,
+            invalidCodeError: () => new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008),
+            consumeBackupCode: (code) => consumeMfaBackupCode({ code, userId: req.user_id }),
+        });
 
         await User.update(
             { id: req.user_id },

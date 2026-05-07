@@ -17,20 +17,27 @@
 */
 
 import { Server, ServerOptions } from "lambert-server";
-import { Attachment, Config, initStartupConfigAndDatabase, registerRoutes } from "@spacebar/util";
+import { Attachment, Config, getProcessMetricSamples, initStartupConfigAndDatabase, type MetricSample, registerPrometheusMetricsRoute, registerRoutes } from "@spacebar/util";
 import { CORS, BodyParser } from "@spacebar/api";
 import path from "node:path";
 import guildProfilesRoute from "./routes/guild-profiles";
 import morgan from "morgan";
 import { storage } from "./util";
+import { attachmentStoragePath, legacyAttachmentStoragePath, moveLegacyAttachmentFile } from "./util/AttachmentStorage";
 
-export type CDNServerOptions = ServerOptions;
+export type CDNServerOptions = ServerOptions & {
+    registerMetricsEndpoint?: boolean;
+};
 
 export class CDNServer extends Server {
     declare public options: CDNServerOptions;
 
     constructor(options?: Partial<CDNServerOptions>) {
         super(options);
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("cdn");
     }
 
     async start() {
@@ -64,6 +71,10 @@ export class CDNServer extends Server {
 
         await registerRoutes(this, path.join(__dirname, "routes/"));
 
+        if (this.options.registerMetricsEndpoint !== false) {
+            registerPrometheusMetricsRoute(this.app, () => this.getMetricSamples());
+        }
+
         this.app.use("/guilds/:guild_id/users/:user_id/avatars", guildProfilesRoute);
         if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /guilds/:guild_id/users/:user_id/avatars registered");
 
@@ -76,13 +87,24 @@ export class CDNServer extends Server {
     async migrateAttachments() {
         if (await storage.exists(".mig_complete.attachments1")) return;
         for await (const attachment of await Attachment.createQueryBuilder("attachments").where("message_id is not null").select().stream()) {
-            const oldPath = `attachments/${attachment.attachments_channel_id}/${attachment.attachments_id}/${attachment.attachments_filename}`;
-            const newPath = `attachments/${attachment.attachments_channel_id}/${attachment.attachments_message_id}/${attachment.attachments_filename}`;
-            if (!(await storage.exists(oldPath))) {
+            const oldPath = legacyAttachmentStoragePath({
+                channelId: attachment.attachments_channel_id,
+                attachmentId: attachment.attachments_id,
+                filename: attachment.attachments_filename,
+            });
+            const newPath = attachmentStoragePath({
+                channelId: attachment.attachments_channel_id,
+                messageId: attachment.attachments_message_id,
+                filename: attachment.attachments_filename,
+            });
+            const migrated = await moveLegacyAttachmentFile({
+                storage,
+                legacyPath: oldPath,
+                currentPath: newPath,
+            });
+            if (!migrated) {
                 console.log(`[CDN/Attachments] Attachment migration: could not find old path, skipping migration: ` + oldPath);
-                continue;
             }
-            await storage.move(oldPath, newPath);
         }
         await storage.set(".mig_complete.attachments1", Buffer.from([1]));
     }

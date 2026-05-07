@@ -16,7 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { crosspostMessage, route } from "@spacebar/api";
+import { Channel, Message, emitEvent, getRights } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
@@ -24,40 +25,41 @@ const router = Router({ mergeParams: true });
 router.post(
     "/",
     route({
-        permission: "MANAGE_MESSAGES",
+        permission: "VIEW_CHANNEL",
         responses: {
             200: {
-                body: "Message",
+                body: "APIPublicMessage",
             },
         },
     }),
-    (req: Request, res: Response) => {
-        // TODO:
-        res.json({
-            id: "",
-            type: 0,
-            content: "",
-            channel_id: "",
-            author: {
-                id: "",
-                username: "",
-                avatar: "",
-                discriminator: "",
-                public_flags: 64,
-            },
-            attachments: [],
-            embeds: [],
-            mentions: [],
-            mention_roles: [],
-            pinned: false,
-            mention_everyone: false,
-            tts: false,
-            timestamp: "",
-            edited_timestamp: null,
-            flags: 1,
-            components: [],
-            poll: {},
-        }).status(200);
+    async (req: Request, res: Response) => {
+        const { channel_id, message_id } = req.params as { [key: string]: string };
+
+        const [channel, message] = await Promise.all([
+            Channel.findOneOrFail({ where: { id: channel_id } }),
+            Message.findOneOrFail({
+                where: { id: message_id, channel_id },
+                relations: {
+                    attachments: true,
+                    author: true,
+                    mentions: true,
+                    mention_roles: true,
+                    mention_channels: true,
+                },
+            }),
+        ]);
+
+        const response = await crosspostMessage({
+            channel,
+            channelId: channel_id,
+            emitEvent,
+            getRights,
+            message,
+            permission: req.permission!,
+            userId: req.user_id,
+        });
+
+        return res.status(200).json(response);
     },
 );
 

@@ -19,7 +19,7 @@
 import { route } from "@spacebar/api";
 import { Emoji, DiscordApiErrors, Guild, Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { APIErrorResponse, EmojiGuild, EmojiSourceResponse } from "@spacebar/schemas";
+import { APIErrorResponse, type EmojiSourceResponse } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -48,25 +48,60 @@ router.get(
             return;
         }
 
-        // TODO: emojis can be owned by applications these days, account for this when we get there?
-        res.json({
+        const guild = await Guild.findOne({
+            where: {
+                id: emoji.guild_id,
+            },
+            relations: {
+                emojis: true,
+            },
+            select: {
+                id: true,
+                name: true,
+                icon: true,
+                description: true,
+                features: true,
+                premium_tier: true,
+                premium_subscription_count: true,
+                emojis: {
+                    id: true,
+                    animated: true,
+                    available: true,
+                    managed: true,
+                    name: true,
+                    require_colons: true,
+                    roles: true,
+                },
+            },
+        });
+        if (!guild) {
+            res.status(404).json({
+                code: DiscordApiErrors.UNKNOWN_EMOJI.code,
+                message: `No emoji with ID ${emoji_id} appear to exist. Are you sure you didn't mistype it?`,
+                errors: {},
+            } as APIErrorResponse);
+            return;
+        }
+
+        const response: EmojiSourceResponse = {
             type: "GUILD",
             guild: {
-                ...(await Guild.findOne({
-                    where: {
-                        id: emoji.guild_id,
-                    },
-                    select: {
-                        id: true,
-                        name: true,
-                        icon: true,
-                        description: true,
-                        features: true,
-                        emojis: true,
-                        premium_tier: true,
-                        premium_subscription_count: true,
-                    },
+                id: guild.id,
+                name: guild.name,
+                icon: guild.icon ?? null,
+                description: guild.description ?? null,
+                features: guild.features,
+                emojis: guild.emojis.map((guildEmoji) => ({
+                    id: guildEmoji.id,
+                    animated: guildEmoji.animated,
+                    available: guildEmoji.available,
+                    managed: guildEmoji.managed,
+                    name: guildEmoji.name,
+                    require_colons: guildEmoji.require_colons,
+                    roles: guildEmoji.roles,
                 })),
+                premium_tier: guild.premium_tier ?? 0,
+                premium_subscription_count: guild.premium_subscription_count ?? null,
                 approximate_member_count: await Member.countBy({
                     guild_id: emoji.guild_id,
                 }),
@@ -78,8 +113,10 @@ router.get(
                         },
                     },
                 }),
-            } as EmojiGuild,
-        } as EmojiSourceResponse);
+            },
+        };
+
+        res.json(response);
     },
 );
 

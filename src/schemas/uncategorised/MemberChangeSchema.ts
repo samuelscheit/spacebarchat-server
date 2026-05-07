@@ -19,6 +19,9 @@
 export interface MemberChangeSchema {
     roles?: string[];
     nick?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     avatar?: string | null;
     bio?: string;
     communication_disabled_until?: string | null;

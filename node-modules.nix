@@ -5,6 +5,17 @@
 }:
 
 let
+  packageLock = builtins.fromJSON (builtins.readFile ./package-lock.json);
+  workspaceNodeModuleLinks = map (path: lib.removePrefix "node_modules/" path) (
+    builtins.filter (path: (packageLock.packages.${path}.link or false) && lib.hasPrefix "node_modules/" path) (builtins.attrNames packageLock.packages)
+  );
+  removeWorkspaceNodeModuleLinks = lib.concatMapStringsSep "\n" (path: ''
+    if [ -L "$out/${path}" ]; then
+      echo "Removing npm workspace symlink: $out/${path}"
+      rm -f "$out/${path}"
+    fi
+  '') workspaceNodeModuleLinks;
+
   filteredSrc = lib.fileset.toSource {
     root = ./.;
     fileset = (
@@ -12,6 +23,8 @@ let
         lib.fileset.unions [
           ./package.json
           ./package-lock.json
+          ./apps
+          ./packages
           ./patches
         ]
       )
@@ -34,6 +47,7 @@ pkgs.buildNpmPackage {
   src = filteredSrc;
   npmDeps = pkgs.importNpmLock { npmRoot = filteredSrc; };
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+  npmInstallFlags = [ "--workspaces=false" ];
 
   dontNpmBuild = true;
   makeCacheWritable = true;
@@ -47,7 +61,16 @@ pkgs.buildNpmPackage {
 
     # Copy outputs
     echo "Copying node_modules as $out"
-    cp -r node_modules $out
+    mkdir -p $out
+    cp -r node_modules/. $out/
+
+    # npm workspaces are represented as symlinks from node_modules to the
+    # workspace source directories. This derivation packages node_modules as a
+    # standalone output, so remove only the lockfile-declared workspace links;
+    # Nix's noBrokenSymlinks fixup still catches any unrelated broken package
+    # symlinks.
+    ${removeWorkspaceNodeModuleLinks}
+
     echo -n 'Disk usage: '
     du -sh node_modules/
 

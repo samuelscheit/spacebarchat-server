@@ -18,6 +18,7 @@
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import {
+    assertChannelNamePresent,
     Config,
     GuildCreateRoleInput,
     GuildWelcomeScreen,
@@ -25,6 +26,7 @@ import {
     getGuildCreateCustomRoles,
     getGuildCreateEveryoneRole,
     handleFile,
+    normalizeChannelName,
     normalizeGuildCreateRole,
     resolveGuildCreateChannelReferences,
     resolveGuildCreatePermissionOverwrites,
@@ -41,7 +43,10 @@ import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import { insertChannelInOrdering } from "@spacebar/util";
+import type { GuildCreateResponse } from "@spacebar/schemas";
+import { moveChannelInOrder } from "../util/ChannelOrdering";
+import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
+import { setVanityUrlFeature } from "../util/GuildFeatures";
 import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
@@ -106,8 +111,8 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     default_message_notifications?: number;
 
-    @Column({ nullable: true })
-    description?: string;
+    @Column({ nullable: true, type: "varchar" })
+    description?: string | null;
 
     @Column({ nullable: true })
     discovery_splash?: string;
@@ -119,8 +124,8 @@ export class Guild extends BaseClass {
     features: string[] = []; //TODO use enum
     //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
-    @Column({ nullable: true })
-    primary_category_id?: string; // TODO: this was number?
+    @Column({ nullable: true, type: "int8" })
+    primary_category_id?: string | null; // TODO: this was number?
 
     @Column({ nullable: true })
     icon?: string;
@@ -309,7 +314,7 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     premium_progress_bar_enabled: boolean = false;
 
-    @Column({ select: false, type: "int8", array: true })
+    @Column(getGuildChannelOrderingColumnOptions())
     channel_ordering: string[];
 
     @Column()
@@ -357,6 +362,21 @@ export class Guild extends BaseClass {
         };
     }
 
+    toGuildUpdateEventData(): GuildCreateResponse {
+        const data = this.toJSON();
+        delete data.template_id;
+
+        return {
+            ...data,
+            // TODO: did i do this right?
+            afk_channel_id: data.afk_channel_id ?? undefined,
+            description: data.description ?? undefined,
+            public_updates_channel_id: data.public_updates_channel_id ?? undefined,
+            rules_channel_id: data.rules_channel_id ?? undefined,
+            system_channel_id: data.system_channel_id ?? undefined,
+        } satisfies GuildCreateResponse;
+    }
+
     static async createGuild(body: {
         name?: string;
         region?: string | null;
@@ -376,6 +396,15 @@ export class Guild extends BaseClass {
     }) {
         const guild_id = Snowflake.generate();
         const roleIds = createTemplateRoleIdMap(body.roles ?? [], body.source_guild_id, guild_id, () => Snowflake.generate());
+        const defaultFeatures = setVanityUrlFeature(Config.get().guild.defaultFeatures, false);
+
+        if (body.channels?.length) {
+            body.channels = body.channels.map((channel) => ({
+                ...channel,
+                name: normalizeChannelName(channel.name, channel.type, defaultFeatures),
+            }));
+            body.channels.forEach((channel) => assertChannelNamePresent(channel.name, defaultFeatures));
+        }
 
         const guild = await Guild.create({
             id: guild_id,
@@ -400,7 +429,7 @@ export class Guild extends BaseClass {
             afk_timeout: body.afk_timeout ?? Config.get().defaults.guild.afkTimeout,
             default_message_notifications: body.default_message_notifications ?? Config.get().defaults.guild.defaultMessageNotifications,
             explicit_content_filter: body.explicit_content_filter ?? Config.get().defaults.guild.explicitContentFilter,
-            features: Config.get().guild.defaultFeatures,
+            features: defaultFeatures,
             max_members: Config.get().limits.guild.maxMembers,
             max_presences: Config.get().defaults.guild.maxPresences,
             max_video_channel_users: Config.get().defaults.guild.maxVideoChannelUsers,
@@ -458,7 +487,8 @@ export class Guild extends BaseClass {
         const templateChannels: GuildCreateChannelInput[] = body.channels?.length ? body.channels : [{ id: "01", type: 0, name: "general", nsfw: false }];
         const channels = remapTemplateChannelPermissionOverwrites(templateChannels, roleIds);
 
-        const ids = new Map();
+        const ids = new Map<string, string>();
+        const createdChannelIds = new Map<Partial<Channel>, string>();
 
         channels.forEach((x) => {
             if (x.id) {
@@ -466,10 +496,10 @@ export class Guild extends BaseClass {
             }
         });
 
-        for (const channel of channels.sort((a) => (a.parent_id ? 1 : -1))) {
-            const id = ids.get(channel.id) || Snowflake.generate();
+        for (const channel of sortTemplateChannelsForCreation(channels)) {
+            const id = channel.id ? ids.get(channel.id) || Snowflake.generate() : Snowflake.generate();
 
-            const parent_id = ids.get(channel.parent_id);
+            const parent_id = channel.parent_id ? ids.get(channel.parent_id) : undefined;
             const permission_overwrites = resolveGuildCreatePermissionOverwrites(channel.permission_overwrites, roleIds);
 
             const saved = await Channel.createChannel({ ...channel, guild_id, id, parent_id, permission_overwrites }, body.owner_id, {
@@ -477,16 +507,25 @@ export class Guild extends BaseClass {
                 skipExistsCheck: true,
                 skipPermissionCheck: true,
                 skipEventEmit: true,
+                skipOrdering: true,
             });
 
-            await Guild.insertChannelInOrder(guild.id, saved.id, parent_id ?? channel.position ?? 0, guild);
+            createdChannelIds.set(channel, saved.id);
         }
 
         const channelReferences = resolveGuildCreateChannelReferences(body, ids);
-        if (Object.values(channelReferences).some((channelId) => channelId !== undefined)) {
-            Object.assign(guild, channelReferences);
-            await guild.save();
-        }
+        guild.channel_ordering = mapTemplateChannelOrdering(channels, (channel) => createdChannelIds.get(channel));
+        const guildUpdate: {
+            afk_channel_id?: string | null;
+            channel_ordering: string[];
+            rules_channel_id?: string | null;
+            system_channel_id?: string | null;
+        } = { channel_ordering: guild.channel_ordering };
+        if (channelReferences.afk_channel_id !== undefined) guildUpdate.afk_channel_id = channelReferences.afk_channel_id;
+        if (channelReferences.rules_channel_id !== undefined) guildUpdate.rules_channel_id = channelReferences.rules_channel_id;
+        if (channelReferences.system_channel_id !== undefined) guildUpdate.system_channel_id = channelReferences.system_channel_id;
+        Object.assign(guild, guildUpdate);
+        await Guild.update({ id: guild.id }, guildUpdate);
 
         return guild;
     }
@@ -502,9 +541,10 @@ export class Guild extends BaseClass {
                 select: { channel_ordering: true },
             });
 
-        const { ordering, position } = insertChannelInOrdering(guild.channel_ordering, channel_id, insertPoint);
-        guild.channel_ordering = ordering;
-        await Guild.update({ id: guild_id }, { channel_ordering: guild.channel_ordering });
+        const { channel_ordering, position } = moveChannelInOrder(guild.channel_ordering, channel_id, insertPoint);
+
+        guild.channel_ordering = channel_ordering;
+        await Guild.update({ id: guild_id }, { channel_ordering });
         return position;
     }
 

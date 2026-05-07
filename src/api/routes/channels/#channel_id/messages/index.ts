@@ -16,7 +16,16 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getMessageHistoryQueryOrder, handleMessage, postHandleMessage, route, sortMessagesNewestFirst } from "@spacebar/api";
+import {
+    assertMessagePayloadPermissions,
+    getMessageHistoryQueryOrder,
+    handleMessage,
+    messageToResponse,
+    postHandleMessage,
+    route,
+    sortMessagesNewestFirst,
+    toPublicReactions,
+} from "@spacebar/api";
 import {
     Attachment,
     Channel,
@@ -25,10 +34,15 @@ import {
     DmChannelDTO,
     emitEvent,
     FieldErrors,
+    getAttachmentFilename,
+    getUploadInputForMultipartFile,
     getPermission,
+    MessageAttachmentUploadInput,
+    normalizeMessageAttachmentInputs,
     Member,
     Message,
     MessageCreateEvent,
+    messagePublicWithThreadRelations,
     NewUrlUserSignatureData,
     ReadState,
     Relationship,
@@ -48,12 +62,11 @@ import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } fr
 import {
     AcknowledgeDeleteSchema,
     isTextChannel,
-    MessageCreateAttachment,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
+    normalizeMessageCreateSchema,
     PartialUser,
     PublicMessage,
-    Reaction,
     ReadStateType,
     RelationshipType,
 } from "@spacebar/schemas";
@@ -116,21 +129,7 @@ router.get(
             order: getMessageHistoryQueryOrder({}),
             take: limit,
             where: { channel_id },
-            relations: {
-                author: true,
-                webhook: true,
-                application: true,
-                mentions: true,
-                mention_roles: true,
-                mention_channels: true,
-                sticker_items: true,
-                attachments: true,
-                thread: {
-                    recipients: {
-                        user: true,
-                    },
-                },
-            },
+            relations: messagePublicWithThreadRelations,
         };
 
         let messages: Message[];
@@ -179,12 +178,7 @@ router.get(
         const ret = messages.map((msg) => {
             const x = msg.toJSON();
 
-            (x.reactions || []).forEach((y: Partial<Reaction>) => {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                if ((y.user_ids || []).includes(req.user_id)) y.me = true;
-                delete y.user_ids;
-            });
+            x.reactions = toPublicReactions(msg.reactions, req.user_id);
             if (!x.author)
                 x.author = {
                     id: "4",
@@ -254,6 +248,8 @@ router.post(
         if (req.body.payload_json) {
             req.body = JSON.parse(req.body.payload_json);
         }
+
+        normalizeMessageCreateSchema(req.body);
         next();
     },
     route({
@@ -266,7 +262,7 @@ router.post(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -279,13 +275,21 @@ router.post(
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
         const messageId = Snowflake.generate();
-        const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        const attachmentInputs = normalizeMessageAttachmentInputs(body.attachments, body.files);
+        const uploadedAttachments = new Map<MessageAttachmentUploadInput, Attachment>();
+        const consumedUploadInputs = new Set<MessageAttachmentUploadInput>();
+        const unmatchedUploadedAttachments: Attachment[] = [];
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
             relations: { recipients: { user: true } },
         });
         if (channel.thread_metadata?.locked) throw DiscordApiErrors.THREAD_IS_LOCKED;
+
+        const files = (req.files as Express.Multer.File[]) ?? [];
+        const attachments = attachmentInputs.map((input) => input.metadata);
+        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });
+
         if (channel.isThread()) {
             req.permission!.hasThrow("SEND_MESSAGES_IN_THREADS");
             if (channel.recipients && !channel.recipients.find(({ id }) => id === req.user_id)) {
@@ -332,7 +336,8 @@ router.post(
             throw new HTTPError(`Cannot send messages to channel of type ${channel.type}`, 400);
         }
 
-        // handle blocked users in dms
+        // Handle blocked users in DMs, and prevent direct channel-id sends from reopening a closed
+        // one-to-one DM after the recipient restricted server DMs.
         if (channel.recipients?.length == 2) {
             const otherUser = channel.recipients.find((r) => r.user_id != req.user_id)?.user;
             if (otherUser) {
@@ -348,6 +353,7 @@ router.post(
                 }
             }
         }
+        await Channel.checkServerDmReopenPrivacy(channel, req.user_id);
 
         if (body.nonce) {
             const existing = await Message.findOne({
@@ -382,27 +388,47 @@ router.post(
             }
         }
 
-        const files = (req.files as Express.Multer.File[]) ?? [];
         for (const currFile of files) {
             try {
-                const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, currFile);
-                attachments.push(Attachment.create(file));
+                const uploadInput = getUploadInputForMultipartFile(currFile, attachmentInputs, consumedUploadInputs);
+                const originalname = getAttachmentFilename(uploadInput?.metadata) ?? currFile.originalname;
+                const file = await uploadFile(`/attachments/${channel.id}/${messageId}`, { ...currFile, originalname });
+                const attachment = Attachment.create(file);
+
+                if (uploadInput) {
+                    consumedUploadInputs.add(uploadInput);
+                    uploadedAttachments.set(uploadInput, attachment);
+                } else {
+                    unmatchedUploadedAttachments.push(attachment);
+                }
             } catch (error) {
                 return res.status(400).json({ message: error?.toString() });
             }
         }
 
-        const embeds = body.embeds || [];
-        if (body.embed) embeds.push(body.embed);
+        const messageAttachments: (Attachment | MessageCreateCloudAttachment)[] = [];
+        for (const input of attachmentInputs) {
+            if (input.type === "cloud") {
+                messageAttachments.push(input.metadata);
+                continue;
+            }
+
+            const uploadedAttachment = uploadedAttachments.get(input);
+            if (uploadedAttachment) messageAttachments.push(uploadedAttachment);
+        }
+        messageAttachments.push(...unmatchedUploadedAttachments);
+
         const message = await handleMessage({
             ...body,
             id: messageId,
             type: 0,
             pinned: false,
             author_id: req.user_id,
-            embeds,
+            embeds: body.embeds || [],
             channel_id,
-            attachments,
+            attachments: messageAttachments,
+            attachment_user_id: req.user_id,
+            attachment_channel_ids: [channel.id],
             timestamp: new Date(),
         });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -464,9 +490,9 @@ router.post(
         }
 
         let read_state = await ReadState.findOne({
-            where: { user_id: req.user_id, channel_id },
+            where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
         });
-        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id });
+        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
         read_state.last_message_id = message.id;
         //It's a little more complicated than this but this'll do
         read_state.mention_count = 0;
@@ -484,14 +510,7 @@ router.post(
 
         // no await as it shouldnt block the message send function and silently catch error
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
-        return res.json(
-            message.withSignedAttachments(
-                new NewUrlUserSignatureData({
-                    ip: req.ip,
-                    userAgent: req.headers["user-agent"] as string,
-                }),
-            ),
-        );
+        return res.json(messageToResponse(message, req));
     },
 );
 
@@ -507,10 +526,9 @@ router.delete(
         const { channel_id } = req.params as { [key: string]: string }; // not really a channel id if read_state_type != CHANNEL
         const body = req.body as AcknowledgeDeleteSchema;
         if (body.version != 2) return res.status(204).send();
-        // TODO: handle other read state types
-        if (body.read_state_type != ReadStateType.CHANNEL) return res.status(204).send();
+        const read_state_type = body.read_state_type ?? ReadStateType.CHANNEL;
 
-        const readState = await ReadState.findOne({ where: { channel_id, user_id: req.user_id } });
+        const readState = await ReadState.findOne({ where: { channel_id, user_id: req.user_id, read_state_type } });
         if (readState) {
             await readState.remove();
         }

@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, ChannelUpdateEvent, Guild, emitEvent } from "@spacebar/util";
+import { assertGuildMember, filterViewableChannels, route } from "@spacebar/api";
+import { Channel, ChannelUpdateEvent, getGuildChannelOrdering, Guild, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelCreateSchema, ChannelReorderSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
@@ -26,17 +26,30 @@ router.get(
     "/",
     route({
         responses: {
-            201: {
+            200: {
                 body: "APIChannelArray",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
-        const channels = await Channel.find({ where: { guild_id } });
+        const guild = await Guild.findOneOrFail({
+            where: { id: guild_id },
+            select: { channel_ordering: true },
+        });
+        await assertGuildMember(req.user_id, guild_id);
 
-        for await (const channel of channels) {
-            channel.position = await Channel.calculatePosition(channel.id, guild_id, channel.guild);
+        const channels = await filterViewableChannels(req.user_id, await Channel.find({ where: { guild_id } }));
+        const channelOrdering = getGuildChannelOrdering(guild);
+
+        for (const channel of channels) {
+            channel.position = channelOrdering.indexOf(channel.id);
         }
         channels.sort((a, b) => a.position - b.position);
 
@@ -98,14 +111,16 @@ router.patch(
             select: { channel_ordering: true },
         });
 
+        const channelOrdering = getGuildChannelOrdering(guild);
+
         body = body.sort((a, b) => {
-            const apos = a.position || (a.parent_id ? guild.channel_ordering.findIndex((_) => _ === a.parent_id) + 1 : 0);
-            const bpos = b.position || (b.parent_id ? guild.channel_ordering.findIndex((_) => _ === b.parent_id) + 1 : 0);
+            const apos = a.position || (a.parent_id ? channelOrdering.findIndex((_) => _ === a.parent_id) + 1 : 0);
+            const bpos = b.position || (b.parent_id ? channelOrdering.findIndex((_) => _ === b.parent_id) + 1 : 0);
             return apos - bpos;
         });
 
         // The channels not listed for this query
-        const notMentioned = guild.channel_ordering.filter((x) => !body.find((c) => c.id == x));
+        const notMentioned = channelOrdering.filter((x) => !body.find((c) => c.id == x));
 
         const withParents = body.filter((x) => x.parent_id !== undefined);
         const withPositions = body.filter((x) => x.position !== undefined);

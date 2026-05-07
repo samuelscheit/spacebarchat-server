@@ -18,6 +18,7 @@
 
 import { Channel } from "amqplib";
 import { RabbitMQ } from "./RabbitMQ";
+import { decodeRabbitMqPayload, encodeRabbitMqPayload } from "./RabbitMqPayloadCodec";
 import EventEmitter from "node:events";
 import { EVENT, Event } from "../interfaces";
 import { randomUUID } from "node:crypto";
@@ -37,7 +38,7 @@ export async function emitEvent(payload: Omit<Event, "created_at">) {
     if (!id) return console.error("event doesn't contain any id", payload);
 
     if (RabbitMQ.connection) {
-        const data = typeof payload.data === "object" ? JSON.stringify(payload.data) : payload.data; // use rabbitmq for event transmission
+        const encodedPayload = encodeRabbitMqPayload(payload.data); // use rabbitmq for event transmission
 
         const publishEvent = async (retryCount = 0): Promise<void> => {
             const channel = await RabbitMQ.getSafeChannel();
@@ -47,7 +48,7 @@ export async function emitEvent(payload: Omit<Event, "created_at">) {
                 });
 
                 // assertQueue isn't needed, because a queue will automatically created if it doesn't exist
-                const successful = channel.publish(id, "", Buffer.from(`${data}`), { type: payload.event });
+                const successful = channel.publish(id, "", encodedPayload.body, { type: payload.event, contentType: encodedPayload.contentType });
                 if (!successful) throw new Error("failed to send event");
             } catch (e) {
                 // Check if this is a channel closed error and if we should retry
@@ -203,7 +204,7 @@ async function rabbitListen(channel: Channel, id: string, callback: (event: Even
         (opts) => {
             if (!opts) return;
 
-            const data = JSON.parse(opts.content.toString());
+            const data = decodeRabbitMqPayload(opts.content, opts.properties.contentType);
             const event = opts.properties.type as EVENT;
 
             callback({

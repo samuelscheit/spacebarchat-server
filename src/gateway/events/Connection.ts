@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import WS from "ws";
-import { genSessionId, WebSocket } from "@spacebar/gateway";
+import { createGatewayMessageHandler, genSessionId, WebSocket } from "@spacebar/gateway";
 import { Send } from "../util/Send";
 import { CLOSECODES, OPCODES } from "../util/Constants";
 import { setHeartbeat } from "../util/Heartbeat";
@@ -27,7 +27,7 @@ import { Close } from "./Close";
 import { Message } from "./Message";
 import { Deflate, Inflate } from "fast-zlib";
 import { URL } from "node:url";
-import { Config, ErlpackType } from "@spacebar/util";
+import { Config, ErlpackType, GATEWAY_HEARTBEAT_INTERVAL } from "@spacebar/util";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
 
 let erlpack: ErlpackType | null = null;
@@ -36,10 +36,6 @@ try {
 } catch (e) {
     console.log("Failed to import @yukikaze-bot/erlpack: ", e);
 }
-
-// TODO: check rate limit
-// TODO: specify rate limit in config
-// TODO: check msg max size
 
 export const openConnections: WebSocket[] = [];
 
@@ -77,10 +73,15 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
     socket.session_id = "TEMP_" + genSessionId(); //Set the session of the WebSocket object
 
     try {
-        // @ts-ignore
-        socket.on("close", Close);
-        // @ts-ignore
-        socket.on("message", Message);
+        socket.on("close", (code: number, reason: Buffer) => {
+            socket.closeCleanup = Close.call(socket, code, reason).catch((error) => {
+                console.error("[WebSocket] Close cleanup failed", code, error);
+            });
+        });
+        socket.on(
+            "message",
+            createGatewayMessageHandler(socket, (buffer) => Message.call(socket, buffer), Config.get().limits.gateway),
+        );
 
         socket.on("error", (err) => console.error(`[Gateway/${socket.user_id ?? socket.ipAddress}]`, err));
 
@@ -140,12 +141,12 @@ export async function Connection(this: WS.Server, socket: WebSocket, request: In
         socket.permissions = {};
         socket.sequence = 0;
 
-        setHeartbeat(socket);
+        setHeartbeat(socket, Config.get().gateway.heartbeatTimeout);
 
         await Send(socket, {
             op: OPCODES.Hello,
             d: {
-                heartbeat_interval: 1000 * 30,
+                heartbeat_interval: GATEWAY_HEARTBEAT_INTERVAL,
             },
         });
 

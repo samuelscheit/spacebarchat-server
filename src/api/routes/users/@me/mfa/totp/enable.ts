@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { clearRecentMfaCookie, createMfaRequiredResponse, generateMfaTicket, hasRecentMfaToken, MFA_ACTION_TOTP_ENABLE, type MfaTokenContext, route } from "@spacebar/api";
 import { User, generateMfaBackupCodes, generateToken, isValidTotpCode } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
@@ -34,7 +34,7 @@ router.post(
                 body: "TokenWithBackupCodesResponse",
             },
             400: {
-                body: "APIErrorResponse",
+                body: "MfaRequiredResponse",
             },
             404: {
                 body: "APIErrorResponse",
@@ -51,8 +51,24 @@ router.post(
 
         // TODO: Are guests allowed to enable 2fa?
         if (user.data.hash) {
-            if (!(await bcrypt.compare(body.password, user.data.hash))) {
-                throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
+            const mfaContext: MfaTokenContext = {
+                userId: user.id,
+                action: MFA_ACTION_TOTP_ENABLE,
+                sessionId: req.token.did,
+            };
+            const hasRecentMfa = await hasRecentMfaToken(req.headers, mfaContext);
+            if (!hasRecentMfa) {
+                if (!body.password) {
+                    if (!mfaContext.sessionId) throw new HTTPError("Session-bound authorization is required for MFA");
+
+                    const ticket = await generateMfaTicket(mfaContext);
+                    res.setHeader("Set-Cookie", clearRecentMfaCookie());
+                    return res.status(400).json(createMfaRequiredResponse(ticket));
+                }
+
+                if (!(await bcrypt.compare(body.password, user.data.hash))) {
+                    throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
+                }
             }
         }
 

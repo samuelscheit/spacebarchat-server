@@ -18,10 +18,12 @@
 
 import { CLOSECODES } from "./Constants";
 import { WebSocket } from "./WebSocket";
+import { DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT } from "../../util/config/types/GatewayConfiguration";
 
-// TODO: make heartbeat timeout configurable
-export function setHeartbeat(socket: WebSocket) {
+export { DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT } from "../../util/config/types/GatewayConfiguration";
+
+export function setHeartbeat(socket: WebSocket, timeout = DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT) {
     if (socket.heartbeatTimeout) clearTimeout(socket.heartbeatTimeout);
 
-    socket.heartbeatTimeout = setTimeout(() => socket.close(CLOSECODES.Session_timed_out), 1000 * 45);
+    socket.heartbeatTimeout = setTimeout(() => socket.close(CLOSECODES.Session_timed_out), timeout);
 }

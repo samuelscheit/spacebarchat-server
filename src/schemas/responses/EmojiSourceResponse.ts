@@ -16,13 +16,20 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity import
-import { Emoji } from "@spacebar/util";
+import { EmojiResponse } from "../api/guilds/Emoji";
 
-export interface EmojiSourceResponse {
-    type: "GUILD" | "APPLICATION";
-    guild?: EmojiGuild | null;
-    application?: EmojiApplication | null;
+export type EmojiSourceResponse = EmojiGuildSourceResponse | EmojiApplicationSourceResponse;
+
+export interface EmojiGuildSourceResponse {
+    type: "GUILD";
+    guild: EmojiGuild;
+    application?: null;
+}
+
+export interface EmojiApplicationSourceResponse {
+    type: "APPLICATION";
+    guild?: null;
+    application: EmojiApplication;
 }
 
 // keep in sync with
@@ -32,11 +39,11 @@ export interface EmojiGuild {
     icon?: string | null;
     description?: string | null;
     features: string[];
-    emojis: Emoji[];
+    emojis: EmojiResponse[];
     premium_tier: number;
-    premium_subscription_count?: number;
-    approximate_member_count?: number;
-    approximate_presence_count?: number;
+    premium_subscription_count: number | null;
+    approximate_member_count: number;
+    approximate_presence_count: number;
 }
 
 export interface EmojiApplication {

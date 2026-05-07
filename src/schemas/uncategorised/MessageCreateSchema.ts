@@ -21,7 +21,9 @@ import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandT
 
 export type MessageCreateAttachment = {
     id: string;
-    filename: string;
+    filename?: string;
+    name?: string;
+    file?: string;
 };
 
 export type MessageCreateCloudAttachment = {
@@ -31,8 +33,14 @@ export type MessageCreateCloudAttachment = {
     original_content_type?: string;
 };
 
+export type MessageCreateFile = {
+    id?: string;
+    file?: string;
+    name?: string;
+    filename?: string;
+};
+
 export interface MessageCreateSchema {
-    type?: number;
     content?: string;
     mobile_network_type?: string;
     nonce?: string;
@@ -40,12 +48,11 @@ export interface MessageCreateSchema {
     tts?: boolean;
     flags?: number;
     embeds?: Embed[] | null;
-    embed?: Embed | null;
-    // TODO: ^ embed is deprecated in favor of embeds (https://discord.com/developers/docs/resources/channel#message-object)
     allowed_mentions?: AllowedMentions | null;
     message_reference?: MessageReference | null;
     payload_json?: string;
     file?: { filename: string };
+    files?: MessageCreateFile[];
     // TODO: we should create an interface for attachments
     attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
     sticker_ids?: string[] | null; // null check: fixes Discord-Go
@@ -83,4 +90,26 @@ interface MessageInteractionSchema {
     triggering_interaction_metadata?: MessageInteractionSchema;
     target_user?: PublicUser;
     target_message_id?: Snowflake;
+}
+
+export type LegacyMessageCreateBody = Omit<MessageCreateSchema, "embeds"> & {
+    embeds?: unknown;
+    embed?: unknown;
+    type?: number;
+};
+
+export function normalizeMessageCreateSchema(body: LegacyMessageCreateBody): LegacyMessageCreateBody;
+export function normalizeMessageCreateSchema(body: unknown): unknown;
+export function normalizeMessageCreateSchema(body: unknown): unknown {
+    if (!body || typeof body !== "object") return body;
+
+    const messageBody = body as LegacyMessageCreateBody;
+    if (messageBody.embed != null) {
+        if (Array.isArray(messageBody.embeds)) messageBody.embeds = [...messageBody.embeds, messageBody.embed];
+        else if (messageBody.embeds == null) messageBody.embeds = [messageBody.embed];
+    }
+
+    delete messageBody.embed;
+    delete messageBody.type;
+    return body;
 }

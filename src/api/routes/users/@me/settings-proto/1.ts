@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { parseSettingsProtoJson, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { emitEvent, OrmUtils, UserSettingsProtos } from "@spacebar/util";
 import { PreloadedUserSettings } from "discord-protos";
@@ -117,7 +117,7 @@ router.patch(
     async (req: Request, res: Response) => {
         const { settings, required_data_version } = req.body as SettingsProtoUpdateJsonSchema;
         const { atomic } = req.query;
-        const updatedSettings = PreloadedUserSettings.fromJson(settings);
+        const updatedSettings = parseSettingsProtoJson(PreloadedUserSettings, settings);
 
         const resultObj = await patchUserSettings(req.user_id, updatedSettings, required_data_version, atomic == "true");
 
