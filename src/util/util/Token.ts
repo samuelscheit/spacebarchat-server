@@ -143,7 +143,7 @@ export const checkToken = (
         };
 
         const dec = jwt.decode(token, { complete: true });
-        if (!dec) return void rejectAndLog(reject, 500, "Failed to decode token");
+        if (!dec) return void rejectAndLog(reject, 401, "Invalid Token");
         logAuth("Decoded token: " + JSON.stringify(dec));
 
         if (dec.header.alg == "HS256" && Config.get().security.jwtSecret !== null) {

@@ -9,6 +9,7 @@
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 274,
+        "runtimeMalformedAuthContracts": 274,
         "runtimePublicAuthBoundaryContracts": 36,
         "runtimePublicInvalidBodyContracts": 11
     },
@@ -569,6 +570,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -642,6 +650,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -723,6 +738,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -797,6 +819,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -876,6 +905,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -944,6 +980,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1016,6 +1059,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -1083,6 +1133,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1157,6 +1214,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -1224,6 +1288,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1296,6 +1367,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1376,6 +1454,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -1451,6 +1536,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -1517,6 +1609,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1589,6 +1688,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -1656,6 +1762,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1730,6 +1843,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -1797,6 +1917,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1869,6 +1996,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -1947,6 +2081,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -2019,6 +2160,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -2098,6 +2246,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -2173,6 +2328,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -2244,6 +2406,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -2322,6 +2491,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -2394,6 +2570,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -2597,6 +2780,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -2810,6 +3000,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -3165,6 +3362,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-public-auth-boundary",
                     "checks": [
                         "public-auth-boundary"
@@ -3233,6 +3437,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -3383,6 +3594,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -3466,6 +3684,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -3540,6 +3765,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-public-auth-boundary",
                     "checks": [
                         "public-auth-boundary"
@@ -3604,6 +3836,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -3675,6 +3914,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -3760,6 +4006,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -3851,6 +4104,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -3929,6 +4189,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -4017,6 +4284,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -4102,6 +4376,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -4182,6 +4463,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -4271,6 +4559,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -4355,6 +4650,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -4448,6 +4750,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -4536,6 +4845,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -4619,6 +4935,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -4709,6 +5032,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -4805,6 +5135,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -4891,6 +5228,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -4972,6 +5316,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -5062,6 +5413,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -5146,6 +5504,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -5235,6 +5600,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -5318,6 +5690,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -5409,6 +5788,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -5494,6 +5880,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -5584,6 +5977,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -5665,6 +6065,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -5757,6 +6164,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -5845,6 +6259,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -5927,6 +6348,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -6017,6 +6445,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -6104,6 +6539,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -6188,6 +6630,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -6279,6 +6728,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -6367,6 +6823,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -6445,6 +6908,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -6533,6 +7003,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -6625,6 +7102,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -6709,6 +7193,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -6800,6 +7291,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -6883,6 +7381,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -6975,6 +7480,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -7055,6 +7567,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -7132,6 +7651,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -7218,6 +7744,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -7301,6 +7834,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -7392,6 +7932,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -7474,6 +8021,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -7561,6 +8115,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -7641,6 +8202,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -7727,6 +8295,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -7807,6 +8382,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -7893,6 +8475,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -7974,6 +8563,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -8065,6 +8661,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -8160,6 +8763,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -8248,6 +8858,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -8327,6 +8944,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -8419,6 +9043,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -8502,6 +9133,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -8593,6 +9231,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -8681,6 +9326,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -8759,6 +9411,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -8823,6 +9482,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -8880,6 +9546,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -8946,6 +9619,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -9087,6 +9767,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -9156,6 +9843,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -9216,6 +9910,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -9347,6 +10048,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -9469,6 +10177,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -9597,6 +10312,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -9657,6 +10379,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -9723,6 +10452,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -9786,6 +10522,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -9846,6 +10589,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -9917,6 +10667,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -10007,6 +10764,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -10088,6 +10852,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -10162,6 +10933,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -10248,6 +11026,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -10343,6 +11128,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -10432,6 +11224,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -10527,6 +11326,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -10617,6 +11423,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -10704,6 +11517,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -10788,6 +11608,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -10879,6 +11706,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -10962,6 +11796,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -11056,6 +11897,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -11144,6 +11992,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -11226,6 +12081,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -11319,6 +12181,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -11406,6 +12275,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -11484,6 +12360,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -11567,6 +12450,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -11656,6 +12546,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -11738,6 +12635,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -11828,6 +12732,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -11914,6 +12825,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -11992,6 +12910,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -12074,6 +12999,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -12160,6 +13092,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -12239,6 +13178,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -12323,6 +13269,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -12412,6 +13365,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -12495,6 +13455,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -12583,6 +13550,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -12668,6 +13642,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -12748,6 +13729,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -12836,6 +13824,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -12920,6 +13915,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -12994,6 +13996,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -13082,6 +14091,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -13163,6 +14179,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -13239,6 +14262,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -13324,6 +14354,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -13413,6 +14450,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -13495,6 +14539,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -13581,6 +14632,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -13671,6 +14729,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -13752,6 +14817,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -13827,6 +14899,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -13906,6 +14985,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -13992,6 +15078,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -14085,6 +15178,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -14163,6 +15263,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -14336,6 +15443,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -14418,6 +15532,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -14504,6 +15625,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -14594,6 +15722,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -14677,6 +15812,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -14768,6 +15910,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -14852,6 +16001,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -14943,6 +16099,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -15023,6 +16186,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -15110,6 +16280,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -15202,6 +16379,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -15287,6 +16471,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -15379,6 +16570,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -15460,6 +16658,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -15548,6 +16753,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -15631,6 +16843,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -15897,6 +17116,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -15980,6 +17206,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -16073,6 +17306,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -16158,6 +17398,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -16247,6 +17494,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -16333,6 +17587,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -16408,6 +17669,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -16546,6 +17814,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -16731,6 +18006,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-token-auth-boundary",
                     "checks": [
                         "token-auth-boundary"
@@ -16793,6 +18075,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -16926,6 +18215,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "authorization-denied",
                     "checks": [
                         "permission-denied",
@@ -16997,6 +18293,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -17076,6 +18379,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -17162,6 +18472,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -17238,6 +18555,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -17309,6 +18633,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -17365,6 +18696,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -17807,6 +19145,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -17930,6 +19275,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -17995,6 +19347,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -18057,6 +19416,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -18237,6 +19603,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -18297,6 +19670,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -18363,6 +19743,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -18423,6 +19810,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -18488,6 +19882,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -18558,6 +19959,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -18614,6 +20022,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -18676,6 +20091,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -18732,6 +20154,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -18798,6 +20227,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -18859,6 +20295,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -19054,6 +20497,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -19128,6 +20578,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -19216,6 +20673,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -19289,6 +20753,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -19356,6 +20827,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -19436,6 +20914,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -19506,6 +20991,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -19586,6 +21078,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -19654,6 +21153,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -19726,6 +21232,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -19792,6 +21305,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -19864,6 +21384,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -19930,6 +21457,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -20006,6 +21540,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -20074,6 +21615,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -20150,6 +21698,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -20220,6 +21775,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -20296,6 +21858,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -20369,6 +21938,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -20435,6 +22011,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -20511,6 +22094,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -20582,6 +22172,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -20664,6 +22261,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -20741,6 +22345,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -20807,6 +22418,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -20877,6 +22495,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -20951,6 +22576,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -21017,6 +22649,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -21095,6 +22734,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -21161,6 +22807,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -21239,6 +22892,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -21305,6 +22965,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -21377,6 +23044,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -21446,6 +23120,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -21522,6 +23203,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -21602,6 +23290,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -21675,6 +23370,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -21744,6 +23446,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -21810,6 +23519,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -21887,6 +23603,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -21969,6 +23692,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -22044,6 +23774,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -22126,6 +23863,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -22199,6 +23943,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -22265,6 +24016,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -22341,6 +24099,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -22421,6 +24186,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -22493,6 +24265,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -22573,6 +24352,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -22646,6 +24432,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -22727,6 +24520,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -22801,6 +24601,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -22880,6 +24687,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "invalid-request-body",
                     "checks": [
                         "schema-validation",
@@ -22955,6 +24769,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -23026,6 +24847,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -23104,6 +24932,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -23175,6 +25010,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -23253,6 +25095,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -23324,6 +25173,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -23402,6 +25258,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -23473,6 +25336,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -23553,6 +25423,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-ownership-boundary",
                     "checks": [
                         "ownership-boundary"
@@ -23627,6 +25504,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -23759,6 +25643,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-auth-boundary",
                     "checks": [
                         "auth-boundary"
@@ -23817,6 +25708,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -24305,6 +26203,13 @@
                     ]
                 },
                 {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
+                    ]
+                },
+                {
                     "id": "policy-token-auth-boundary",
                     "checks": [
                         "token-auth-boundary"
@@ -24383,6 +26288,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {
@@ -24468,6 +26380,13 @@
                     "id": "response-shape",
                     "checks": [
                         "response-shape"
+                    ]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": [
+                        "invalid-auth",
+                        "error-shape"
                     ]
                 },
                 {

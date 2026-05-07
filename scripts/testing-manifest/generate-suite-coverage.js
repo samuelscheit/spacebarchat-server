@@ -245,10 +245,7 @@ describe("generated suite coverage matrix", () => {
 
             assert.equal(group.summary.totalRequiredManifestEntries, group.requiredManifestIds.length);
             assert.equal(group.summary.totalCoveredManifestEntries, group.coveredManifestIds.length);
-            assert.equal(
-                group.summary.totalCoveredRequiredManifestEntries,
-                group.coveredManifestIds.filter((id) => group.requiredManifestIds.includes(id)).length,
-            );
+            assert.equal(group.summary.totalCoveredRequiredManifestEntries, group.coveredManifestIds.filter((id) => group.requiredManifestIds.includes(id)).length);
         }
     });
 

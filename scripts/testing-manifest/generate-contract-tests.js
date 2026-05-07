@@ -67,6 +67,13 @@ function contractCases(entry) {
         },
     ];
 
+    if (entry.service === "api" && entry.authMode === "bearer" && entry.method !== "OPTIONS") {
+        cases.push({
+            id: "malformed-auth",
+            checks: ["invalid-auth", "error-shape"],
+        });
+    }
+
     if (hasRouteMetadata(entry, "requestBody")) {
         cases.push({
             id: "invalid-request-body",
@@ -147,6 +154,7 @@ function contractForEntry(entry) {
 function buildContractMatrix(manifest) {
     const contracts = manifest.entries.filter((entry) => entry.type === "http-route").map(contractForEntry);
     const runtimeAuthBoundaryContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS").length;
+    const runtimeMalformedAuthContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS").length;
     const runtimePublicAuthBoundaryContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "public" && contract.method !== "OPTIONS").length;
     const runtimePublicInvalidBodyContracts = contracts.filter(supportsRuntimePublicInvalidBodyContract).length;
 
@@ -161,6 +169,7 @@ function buildContractMatrix(manifest) {
                 return acc;
             }, {}),
             runtimeAuthBoundaryContracts,
+            runtimeMalformedAuthContracts,
             runtimePublicAuthBoundaryContracts,
             runtimePublicInvalidBodyContracts,
         },
@@ -263,6 +272,7 @@ type GeneratedHttpContract = {
 type GeneratedHttpContractMatrix = {
     summary: {
         runtimeAuthBoundaryContracts: number;
+        runtimeMalformedAuthContracts: number;
         runtimePublicAuthBoundaryContracts: number;
         runtimePublicInvalidBodyContracts: number;
     };
@@ -320,6 +330,37 @@ test("generated HTTP auth contracts reject missing bearer tokens through the rea
         }
     } finally {
         await api.stop();
+    }
+});
+
+test("generated HTTP auth contracts reject malformed bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
+    assert.equal(protectedApiContracts.length, matrix.summary.runtimeMalformedAuthContracts);
+    assert.ok(protectedApiContracts.length > 0, "expected protected API routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    let api: Awaited<ReturnType<typeof startApi>> | undefined;
+    try {
+        api = await startApi();
+        for (const contract of protectedApiContracts) {
+            const response = await fetch(\`\${api.apiBaseUrl}\${contract.samplePath}\`, {
+                method: contract.method,
+                headers: {
+                    accept: "application/json",
+                    authorization: "Bearer not-a-token",
+                },
+            });
+
+            assert.equal(response.status, 401, \`\${contract.manifestId} should reject malformed bearer tokens\`);
+            assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON auth error\`);
+
+            const body = (await response.json()) as Record<string, unknown>;
+            assert.equal(body.code, 401, \`\${contract.manifestId} should return the invalid token error code\`);
+            assert.equal(body.message, "Error: Invalid Token", \`\${contract.manifestId} should return the invalid token error message\`);
+            assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
+        }
+    } finally {
+        restoreConsole();
+        if (api) await api.stop();
     }
 });
 
