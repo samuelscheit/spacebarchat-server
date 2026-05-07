@@ -248,6 +248,7 @@ export class Channel extends BaseClass {
             case ChannelType.GUILD_FORUM:
             case ChannelType.GUILD_MEDIA:
             case ChannelType.GUILD_NEWS:
+            case ChannelType.GUILD_STAGE_VOICE:
             case ChannelType.GUILD_VOICE:
                 if (channel.parent_id && !opts?.skipExistsCheck) {
                     const exists = await Channel.findOneOrFail({
