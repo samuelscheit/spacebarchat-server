@@ -22,7 +22,9 @@ export async function getAuthorizationHeader() {
     const headerStore = await headers();
     const cookieStore = await cookies();
     const forwarded = headerStore.get("authorization");
-    const cookieToken = cookieStore.get("spacebar_admin_token")?.value ?? cookieStore.get("spacebar_token")?.value;
+    const adminCookieName = process.env.SPACEBAR_ADMIN_TOKEN_COOKIE ?? "spacebar_admin_token";
+    const fallbackCookieName = process.env.SPACEBAR_TOKEN_COOKIE ?? "spacebar_token";
+    const cookieToken = cookieStore.get(adminCookieName)?.value ?? cookieStore.get(fallbackCookieName)?.value;
     const token = forwarded ?? cookieToken;
 
     if (!token) return null;

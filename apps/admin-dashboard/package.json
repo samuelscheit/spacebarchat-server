@@ -6,7 +6,8 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
-        "start": "next start"
+        "start": "next start",
+        "smoke": "node ../../scripts/smoke-admin-dashboard.mjs"
     },
     "dependencies": {
         "lucide-react": "^1.9.0",

@@ -6,36 +6,48 @@ Update it before and after each meaningful work block. Keep entries factual and 
 
 The previous first-slice implementation history remains available in git history before this reset.
 
-## 2026-05-07 22:02 CEST - Follow-up Plan Reset
+## 2026-05-07 22:05 CEST - Deployment Wiring
 
 Status: complete
 
 Changed files:
 
-- `docs/admin-api-next-dashboard-plan.md`
-- `docs/admin-api-next-dashboard-progress.md`
+- `apps/admin-dashboard/app/health/route.ts`
+- `apps/admin-dashboard/app/lib/admin-api.ts`
+- `apps/admin-dashboard/next.config.mjs`
+- `apps/admin-dashboard/package.json`
+- `docs/admin-dashboard-deployment.md`
+- `package.json`
+- `scripts/smoke-admin-dashboard.mjs`
 
 What changed:
 
-- Replaced the completed first-slice admin API/dashboard plan with a new follow-up plan for the next missing dashboard features.
-- Reset the progress log for future follow-up work.
+- Started the first follow-up slice from the next-feature plan: dashboard deployment wiring, scripts, health/smoke checks, and production topology documentation.
+- Added root scripts for dashboard dev/build/start/smoke commands.
+- Added a dashboard health route at `/_spacebar/admin/health`.
+- Added a smoke script that checks the dashboard health endpoint and can optionally check authenticated SSR with `SPACEBAR_ADMIN_TOKEN`.
+- Made dashboard base path and token cookie names configurable through documented environment variables.
+- Added deployment documentation with topology, start commands, reverse-proxy routing, smoke checks, misconfiguration behavior, and release note.
 
 Verification:
 
-- Command: `sed -n '1,260p' docs/admin-api-next-dashboard-plan.md`
+- Command: `npm run build:admin-dashboard`
 - Result: pass
-- Notes: Confirmed the plan now targets next features instead of the completed first-slice reimplementation.
-- Command: `sed -n '1,120p' docs/admin-api-next-dashboard-progress.md`
+- Notes: Next.js production build passed and included the dynamic `/health` route.
+- Command: `PORT=3310 SPACEBAR_ADMIN_API_URL=http://127.0.0.1:3001/_spacebar/admin/api npm run start:admin-dashboard`
 - Result: pass
-- Notes: Confirmed the progress log has been reset to a fresh follow-up entry.
-- Command: `rg -n "A[d]min API and Dashboard Reimplementation Plan|P[o]rt the C# AdminApi surface first|I[n]itial admin routes|A[d]min Backend Implementation|P[R] Packaging|Status: in[-]progress|p[e]nding" docs/admin-api-next-dashboard-plan.md docs/admin-api-next-dashboard-progress.md`
+- Notes: Started the built dashboard on a temporary local port for smoke verification.
+- Command: `SPACEBAR_ADMIN_DASHBOARD_URL=http://127.0.0.1:3310/_spacebar/admin npm run smoke:admin-dashboard`
 - Result: pass
-- Notes: No old first-slice plan/history markers remain after this entry is marked complete.
+- Notes: Health check passed; authenticated SSR check was skipped because `SPACEBAR_ADMIN_TOKEN` was not set.
+- Command: `lsof -ti tcp:3310`
+- Result: pass
+- Notes: Returned no process after stopping the temporary dashboard server.
 
 Risks or blockers:
 
-- None for the documentation reset.
+- Authenticated SSR reachability still needs an OPERATOR token to verify with `SPACEBAR_ADMIN_TOKEN`.
 
 Next step:
 
-- Start the first follow-up implementation slice: deployment wiring documentation/scripts or admin session UX.
+- Start the next follow-up slice: admin login/session UX or durable jobs/audit storage.

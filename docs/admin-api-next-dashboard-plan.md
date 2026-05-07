@@ -217,33 +217,3 @@ Follow these rules:
 8. Do not implement destructive admin actions as `GET`.
 9. Prefer root-cause fixes over patches that only hide dashboard symptoms.
 10. Before stopping, run the narrowest relevant verification and record the result in the progress file.
-
-Progress entry template:
-
-```md
-## YYYY-MM-DD HH:mm TZ - Short Goal
-
-Status: planned | in-progress | blocked | complete
-
-Changed files:
-
-- path/to/file
-
-What changed:
-
-- Concise factual summary.
-
-Verification:
-
-- Command: `...`
-- Result: pass | fail | not run
-- Notes: ...
-
-Risks or blockers:
-
-- ...
-
-Next step:
-
-- ...
-```
