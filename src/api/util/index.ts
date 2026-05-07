@@ -53,3 +53,5 @@ export * from "./utility/Mfa";
 export * from "./handlers/AuthTokenResponse";
 export * from "./handlers/AuthTokenResponseSettings";
 export * from "./utility/SettingsProtoJson";
+export * from "./utility/ChannelVisibility";
+export * from "./utility/PreloadMessages";

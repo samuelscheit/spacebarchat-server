@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, toPreloadMessageResponse } from "@spacebar/api";
+import { getChannelIdSetWithPermissions, preloadAuthorizedMessages, route, toPreloadMessageResponse } from "@spacebar/api";
 import { Config, Message, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { PreloadMessagesRequestSchema, type PreloadMessagesResponse } from "@spacebar/schemas";
@@ -44,19 +44,19 @@ router.post(
                 message: `Cannot preload more than ${Config.get().limits.message.maxPreloadCount} channels at once.`,
             });
 
-        const messages = (
-            await Promise.all(
-                body.channels.map((channelId) =>
-                    Message.findOne({
-                        where: { channel_id: channelId },
-                        order: { timestamp: "DESC" },
-                        relations: messagePublicRelations,
-                    }),
-                ),
-            )
-        ).filter((x) => x !== null) as Message[];
-
-        const filteredMessages: PreloadMessagesResponse = messages.map(toPreloadMessageResponse);
+        const filteredMessages: PreloadMessagesResponse = await preloadAuthorizedMessages<Message, PreloadMessagesResponse[number]>(body.channels, {
+            getAuthorizedChannelIds: (channelIds) =>
+                getChannelIdSetWithPermissions(req.user_id, channelIds, {
+                    requiredPermissions: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
+                }),
+            findLatestMessage: (channelId) =>
+                Message.findOne({
+                    where: { channel_id: channelId },
+                    order: { timestamp: "DESC" },
+                    relations: messagePublicRelations,
+                }),
+            serializeMessage: toPreloadMessageResponse,
+        });
 
         return res.status(200).send(filteredMessages);
     },
