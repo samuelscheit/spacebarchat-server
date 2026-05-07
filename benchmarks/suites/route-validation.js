@@ -88,6 +88,12 @@ async function runPool(ctx, url, agent) {
 module.exports = {
     name: "route-validation",
     kind: "pr",
+    tier: {
+        id: "pr",
+        default: true,
+        requires: ["build:src"],
+        services: [],
+    },
     description: 'Express JSON body parsing plus route({ requestBody: "MessageCreateSchema" }) validation.',
     metrics: {
         requestsPerSecond: {
