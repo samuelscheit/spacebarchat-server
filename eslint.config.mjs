@@ -101,6 +101,17 @@ export default defineConfig([
         },
     },
     {
+        files: ["test/**/*.js"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+        rules: {
+            "@typescript-eslint/no-require-imports": "off",
+        },
+    },
+    {
         plugins: { "node-import": nodeImport },
         rules: {
             "node-import/prefer-node-protocol": "error",

@@ -60,6 +60,7 @@ jobs:
         run: |
           npm ci
           npm run test:manifest
+          npm run test:contracts
 
       - name: Benchmark base
         working-directory: base
