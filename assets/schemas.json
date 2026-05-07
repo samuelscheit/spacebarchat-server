@@ -7405,10 +7405,15 @@
         "type": "object",
         "properties": {
             "attachment_urls": {
-                "type": "array",
+                "minItems": 1,
+                "maxItems": 50,
                 "items": {
-                    "type": "string"
-                }
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2048,
+                    "format": "uri"
+                },
+                "type": "array"
             }
         },
         "additionalProperties": false,
@@ -17798,12 +17803,16 @@
             "channel": {
                 "$ref": "#/definitions/RateLimitOptions"
             },
+            "attachmentRefresh": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
             "auth": {
                 "$ref": "#/definitions/AuthRateLimit"
             }
         },
         "additionalProperties": false,
         "required": [
+            "attachmentRefresh",
             "auth",
             "channel",
             "guild",

@@ -326,6 +326,9 @@ public class RegionConfiguration {
 }
 
 public class ExternalTokensConfiguration {
+    [JsonPropertyName("discordAttachmentRefreshBotToken")]
+    public string? DiscordAttachmentRefreshBotToken { get; set; } = null;
+
     [JsonPropertyName("twitter")]
     public string? Twitter { get; set; } = null;
 }

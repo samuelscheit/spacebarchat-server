@@ -6920,10 +6920,15 @@
                 "type": "object",
                 "properties": {
                     "attachment_urls": {
-                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 50,
                         "items": {
-                            "type": "string"
-                        }
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 2048,
+                            "format": "uri"
+                        },
+                        "type": "array"
                     }
                 },
                 "required": [
@@ -16640,11 +16645,15 @@
                     "channel": {
                         "$ref": "#/components/schemas/RateLimitOptions"
                     },
+                    "attachmentRefresh": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
                     "auth": {
                         "$ref": "#/components/schemas/AuthRateLimit"
                     }
                 },
                 "required": [
+                    "attachmentRefresh",
                     "auth",
                     "channel",
                     "guild",
@@ -29874,6 +29883,46 @@
                         }
                     },
                     "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
                         "description": "",
                         "content": {
                             "application/json": {
