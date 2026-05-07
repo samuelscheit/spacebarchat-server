@@ -3354,6 +3354,202 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PublicInstanceConfigResponse": {
+        "type": "object",
+        "properties": {
+            "limits_user_maxGuilds": {
+                "type": "integer"
+            },
+            "limits_user_maxBio": {
+                "type": "integer"
+            },
+            "limits_guild_maxEmojis": {
+                "type": "integer"
+            },
+            "limits_guild_maxRoles": {
+                "type": "integer"
+            },
+            "limits_message_maxCharacters": {
+                "type": "integer"
+            },
+            "limits_message_maxAttachmentSize": {
+                "type": "integer"
+            },
+            "limits_message_maxEmbedDownloadSize": {
+                "type": "integer"
+            },
+            "limits_channel_maxWebhooks": {
+                "type": "integer"
+            },
+            "register_dateOfBirth_requiredc": {
+                "type": "boolean"
+            },
+            "register_password_required": {
+                "type": "boolean"
+            },
+            "register_disabled": {
+                "type": "boolean"
+            },
+            "register_requireInvite": {
+                "type": "boolean"
+            },
+            "register_allowNewRegistration": {
+                "type": "boolean"
+            },
+            "register_allowMultipleAccounts": {
+                "type": "boolean"
+            },
+            "guild_autoJoin_canLeave": {
+                "type": "boolean"
+            },
+            "guild_autoJoin_guilds_x": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "register_email_required": {
+                "type": "boolean"
+            },
+            "can_recover_account": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "can_recover_account",
+            "guild_autoJoin_canLeave",
+            "guild_autoJoin_guilds_x",
+            "limits_channel_maxWebhooks",
+            "limits_guild_maxEmojis",
+            "limits_guild_maxRoles",
+            "limits_message_maxAttachmentSize",
+            "limits_message_maxCharacters",
+            "limits_message_maxEmbedDownloadSize",
+            "limits_user_maxBio",
+            "limits_user_maxGuilds",
+            "register_allowMultipleAccounts",
+            "register_allowNewRegistration",
+            "register_dateOfBirth_requiredc",
+            "register_disabled",
+            "register_email_required",
+            "register_password_required",
+            "register_requireInvite"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FullInstanceConfigResponse": {
+        "type": "object",
+        "properties": {
+            "admin": {
+                "$ref": "#/definitions/EndpointConfiguration"
+            },
+            "gateway": {
+                "$ref": "#/definitions/EndpointConfiguration"
+            },
+            "cdn": {
+                "$ref": "#/definitions/CdnConfiguration"
+            },
+            "api": {
+                "$ref": "#/definitions/ApiConfiguration"
+            },
+            "general": {
+                "$ref": "#/definitions/GeneralConfiguration"
+            },
+            "limits": {
+                "$ref": "#/definitions/LimitsConfiguration"
+            },
+            "security": {
+                "$ref": "#/definitions/SecurityConfiguration"
+            },
+            "login": {
+                "$ref": "#/definitions/LoginConfiguration"
+            },
+            "register": {
+                "$ref": "#/definitions/RegisterConfiguration"
+            },
+            "regions": {
+                "$ref": "#/definitions/RegionConfiguration"
+            },
+            "guild": {
+                "$ref": "#/definitions/GuildConfiguration"
+            },
+            "gif": {
+                "$ref": "#/definitions/GifConfiguration"
+            },
+            "rabbitmq": {
+                "$ref": "#/definitions/RabbitMQConfiguration"
+            },
+            "templates": {
+                "$ref": "#/definitions/TemplateConfiguration"
+            },
+            "updates": {
+                "$ref": "#/definitions/UpdateCheckConfiguration"
+            },
+            "defaults": {
+                "$ref": "#/definitions/DefaultsConfiguration"
+            },
+            "external": {
+                "$ref": "#/definitions/ExternalTokensConfiguration"
+            },
+            "email": {
+                "$ref": "#/definitions/EmailConfiguration"
+            },
+            "passwordReset": {
+                "$ref": "#/definitions/PasswordResetConfiguration"
+            },
+            "user": {
+                "$ref": "#/definitions/UserConfiguration"
+            },
+            "offload": {
+                "$ref": "#/definitions/OffloadConfiguration"
+            },
+            "components": {
+                "$ref": "#/definitions/ComponentConfiguration"
+            },
+            "embeds": {
+                "$ref": "#/definitions/EmbedConfiguration"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "admin",
+            "api",
+            "cdn",
+            "components",
+            "defaults",
+            "email",
+            "embeds",
+            "external",
+            "gateway",
+            "general",
+            "gif",
+            "guild",
+            "limits",
+            "login",
+            "offload",
+            "passwordReset",
+            "rabbitmq",
+            "regions",
+            "register",
+            "security",
+            "templates",
+            "updates",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InstanceConfigResponse": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/ConfigValue"
+            },
+            {
+                "$ref": "#/definitions/PublicInstanceConfigResponse"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "InstancePingResponse": {
         "type": "object",
         "properties": {
@@ -18001,6 +18197,1904 @@
         "const": 0,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "EndpointConfiguration": {
+        "type": "object",
+        "properties": {
+            "endpointPrivate": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "endpointPublic": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "endpointPrivate",
+            "endpointPublic"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CdnConfiguration": {
+        "type": "object",
+        "properties": {
+            "resizeHeightMax": {
+                "type": "integer",
+                "default": 1000
+            },
+            "resizeWidthMax": {
+                "type": "integer",
+                "default": 1000
+            },
+            "imagorServerUrl": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "proxyCacheHeaderSeconds": {
+                "type": "integer",
+                "default": 86400
+            },
+            "maxAttachmentSize": {
+                "type": "integer",
+                "default": 26214400
+            },
+            "limits": {
+                "$ref": "#/definitions/CdnLimitsConfiguration"
+            },
+            "endpointPrivate": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "endpointPublic": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "endpointPrivate",
+            "endpointPublic",
+            "imagorServerUrl",
+            "limits",
+            "maxAttachmentSize",
+            "proxyCacheHeaderSeconds",
+            "resizeHeightMax",
+            "resizeWidthMax"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CdnLimitsConfiguration": {
+        "type": "object",
+        "properties": {
+            "icon": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "roleIcon": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "emoji": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "sticker": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "banner": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "splash": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "avatar": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "discoverySplash": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "appIcon": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "discoverSplash": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "teamIcon": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "channelIcon": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            },
+            "guildAvatar": {
+                "$ref": "#/definitions/CdnImageLimitsConfiguration"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "appIcon",
+            "avatar",
+            "banner",
+            "channelIcon",
+            "discoverSplash",
+            "discoverySplash",
+            "emoji",
+            "guildAvatar",
+            "icon",
+            "roleIcon",
+            "splash",
+            "sticker",
+            "teamIcon"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CdnImageLimitsConfiguration": {
+        "type": "object",
+        "properties": {
+            "maxHeight": {
+                "type": "integer",
+                "default": 8192
+            },
+            "maxWidth": {
+                "type": "integer",
+                "default": 8192
+            },
+            "maxSize": {
+                "type": "integer",
+                "default": 10485760
+            },
+            "allowAnimated": {
+                "enum": [
+                    "always",
+                    "never",
+                    "premium"
+                ],
+                "type": "string",
+                "default": "always"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowAnimated",
+            "maxHeight",
+            "maxSize",
+            "maxWidth"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApiConfiguration": {
+        "type": "object",
+        "properties": {
+            "defaultVersion": {
+                "type": "string",
+                "default": "9"
+            },
+            "activeVersions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "endpointPrivate": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "endpointPublic": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "activeVersions",
+            "defaultVersion",
+            "endpointPrivate",
+            "endpointPublic"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GeneralConfiguration": {
+        "type": "object",
+        "properties": {
+            "instanceName": {
+                "type": "string",
+                "default": "Spacebar Instance"
+            },
+            "serverName": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "instanceDescription": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": "This is a Spacebar instance made in the pre-release days"
+            },
+            "frontPage": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "tosPage": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "correspondenceEmail": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "correspondenceUserID": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "image": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "instanceId": {
+                "type": "string"
+            },
+            "autoCreateBotUsers": {
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "autoCreateBotUsers",
+            "correspondenceEmail",
+            "correspondenceUserID",
+            "frontPage",
+            "image",
+            "instanceDescription",
+            "instanceId",
+            "instanceName",
+            "serverName",
+            "tosPage"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "LimitsConfiguration": {
+        "type": "object",
+        "properties": {
+            "user": {
+                "$ref": "#/definitions/UserLimits"
+            },
+            "guild": {
+                "$ref": "#/definitions/GuildLimits"
+            },
+            "message": {
+                "$ref": "#/definitions/MessageLimits"
+            },
+            "channel": {
+                "$ref": "#/definitions/ChannelLimits"
+            },
+            "webrtc": {
+                "$ref": "#/definitions/WebRtcLimits"
+            },
+            "rate": {
+                "$ref": "#/definitions/RateLimits"
+            },
+            "absoluteRate": {
+                "$ref": "#/definitions/GlobalRateLimits"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "absoluteRate",
+            "channel",
+            "guild",
+            "message",
+            "rate",
+            "user",
+            "webrtc"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserLimits": {
+        "type": "object",
+        "properties": {
+            "maxGuilds": {
+                "type": "integer",
+                "default": 1048576
+            },
+            "maxUsername": {
+                "type": "integer",
+                "default": 32
+            },
+            "maxFriends": {
+                "type": "integer",
+                "default": 5000
+            },
+            "maxBio": {
+                "type": "integer",
+                "default": 190
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "maxBio",
+            "maxFriends",
+            "maxGuilds",
+            "maxUsername"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildLimits": {
+        "type": "object",
+        "properties": {
+            "maxRoles": {
+                "type": "integer",
+                "default": 1000
+            },
+            "maxEmojis": {
+                "type": "integer",
+                "default": 2000
+            },
+            "maxStickers": {
+                "type": "integer",
+                "default": 500
+            },
+            "maxMembers": {
+                "type": "integer",
+                "default": 25000000
+            },
+            "maxChannels": {
+                "type": "integer",
+                "default": 65535
+            },
+            "maxBulkBanUsers": {
+                "type": "integer",
+                "default": 200
+            },
+            "maxChannelsInCategory": {
+                "type": "integer",
+                "default": 65535
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "maxBulkBanUsers",
+            "maxChannels",
+            "maxChannelsInCategory",
+            "maxEmojis",
+            "maxMembers",
+            "maxRoles",
+            "maxStickers"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageLimits": {
+        "type": "object",
+        "properties": {
+            "maxCharacters": {
+                "type": "integer",
+                "default": 1048576
+            },
+            "maxTTSCharacters": {
+                "type": "integer",
+                "default": 160
+            },
+            "maxReactions": {
+                "type": "integer",
+                "default": 2048
+            },
+            "maxAttachmentSize": {
+                "type": "integer",
+                "default": 1073741824
+            },
+            "maxBulkDelete": {
+                "type": "integer",
+                "default": 1000
+            },
+            "maxEmbedDownloadSize": {
+                "type": "integer",
+                "default": 5242880
+            },
+            "maxPreloadCount": {
+                "type": "integer",
+                "default": 100
+            },
+            "maxEmbeds": {
+                "type": "integer",
+                "default": 20
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "maxAttachmentSize",
+            "maxBulkDelete",
+            "maxCharacters",
+            "maxEmbedDownloadSize",
+            "maxEmbeds",
+            "maxPreloadCount",
+            "maxReactions",
+            "maxTTSCharacters"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ChannelLimits": {
+        "type": "object",
+        "properties": {
+            "maxPins": {
+                "type": "integer",
+                "default": 500
+            },
+            "maxTopic": {
+                "type": "integer",
+                "default": 1024
+            },
+            "maxWebhooks": {
+                "type": "integer",
+                "default": 100
+            },
+            "maxName": {
+                "type": "integer",
+                "default": 32
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "maxName",
+            "maxPins",
+            "maxTopic",
+            "maxWebhooks"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "WebRtcLimits": {
+        "type": "object",
+        "properties": {
+            "maxMessageSize": {
+                "description": "Maximum inbound WebRTC websocket signaling payload size, in bytes.",
+                "type": "integer",
+                "default": 65536
+            },
+            "rateLimitCount": {
+                "description": "Maximum inbound WebRTC websocket messages per rateLimitWindow.",
+                "type": "integer",
+                "default": 120
+            },
+            "rateLimitWindow": {
+                "description": "WebRTC websocket message rate limit window, in milliseconds.",
+                "type": "integer",
+                "default": 60000
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "maxMessageSize",
+            "rateLimitCount",
+            "rateLimitWindow"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RateLimits": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": false
+            },
+            "ip": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "global": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "error": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "routes": {
+                "$ref": "#/definitions/RouteRateLimit"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "enabled",
+            "error",
+            "global",
+            "ip",
+            "routes"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RateLimitOptions": {
+        "type": "object",
+        "properties": {
+            "bot": {
+                "type": "integer"
+            },
+            "count": {
+                "type": "integer"
+            },
+            "window": {
+                "type": "integer"
+            },
+            "onyIp": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "count",
+            "window"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RouteRateLimit": {
+        "type": "object",
+        "properties": {
+            "guild": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "webhook": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "channel": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "attachmentRefresh": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "auth": {
+                "$ref": "#/definitions/AuthRateLimit"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "attachmentRefresh",
+            "auth",
+            "channel",
+            "guild",
+            "webhook"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AuthRateLimit": {
+        "type": "object",
+        "properties": {
+            "login": {
+                "$ref": "#/definitions/RateLimitOptions"
+            },
+            "register": {
+                "$ref": "#/definitions/RateLimitOptions"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "login",
+            "register"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GlobalRateLimits": {
+        "type": "object",
+        "properties": {
+            "register": {
+                "$ref": "#/definitions/GlobalRateLimit"
+            },
+            "sendMessage": {
+                "$ref": "#/definitions/GlobalRateLimit"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "register",
+            "sendMessage"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GlobalRateLimit": {
+        "type": "object",
+        "properties": {
+            "limit": {
+                "type": "integer",
+                "default": 100
+            },
+            "window": {
+                "type": "integer",
+                "default": 3600000
+            },
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "enabled",
+            "limit",
+            "window"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SecurityConfiguration": {
+        "type": "object",
+        "properties": {
+            "captcha": {
+                "$ref": "#/definitions/CaptchaConfiguration"
+            },
+            "twoFactor": {
+                "$ref": "#/definitions/TwoFactorConfiguration"
+            },
+            "requestSignature": {
+                "type": "string"
+            },
+            "jwtSecret": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "forwardedFor": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "trustedProxies": {
+                "type": [
+                    "null",
+                    "string",
+                    "boolean"
+                ],
+                "default": null
+            },
+            "abuseIpDbApiKey": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "abuseipdbBlacklistRatelimit": {
+                "type": "integer",
+                "default": 5
+            },
+            "abuseipdbConfidenceScoreTreshold": {
+                "type": "integer",
+                "default": 50
+            },
+            "ipdataApiKey": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "mfaBackupCodeCount": {
+                "type": "integer",
+                "default": 10
+            },
+            "statsWorldReadable": {
+                "type": "boolean",
+                "default": true
+            },
+            "defaultRegistrationTokenExpiration": {
+                "type": "integer",
+                "default": 604800000
+            },
+            "cdnSignUrls": {
+                "type": "boolean",
+                "default": false
+            },
+            "cdnSignatureKey": {
+                "type": "string"
+            },
+            "cdnSignatureDuration": {
+                "type": "string",
+                "default": "24h"
+            },
+            "cdnSignatureIncludeIp": {
+                "type": "boolean",
+                "default": true
+            },
+            "cdnSignatureIncludeUserAgent": {
+                "type": "boolean",
+                "default": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "abuseIpDbApiKey",
+            "abuseipdbBlacklistRatelimit",
+            "abuseipdbConfidenceScoreTreshold",
+            "captcha",
+            "cdnSignUrls",
+            "cdnSignatureDuration",
+            "cdnSignatureIncludeIp",
+            "cdnSignatureIncludeUserAgent",
+            "cdnSignatureKey",
+            "defaultRegistrationTokenExpiration",
+            "forwardedFor",
+            "ipdataApiKey",
+            "jwtSecret",
+            "mfaBackupCodeCount",
+            "requestSignature",
+            "statsWorldReadable",
+            "trustedProxies",
+            "twoFactor"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CaptchaConfiguration": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": false
+            },
+            "service": {
+                "anyOf": [
+                    {
+                        "enum": [
+                            "hcaptcha",
+                            "recaptcha"
+                        ],
+                        "type": "string"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ],
+                "default": null
+            },
+            "sitekey": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "secret": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "enabled",
+            "secret",
+            "service",
+            "sitekey"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "TwoFactorConfiguration": {
+        "type": "object",
+        "properties": {
+            "generateBackupCodes": {
+                "type": "boolean",
+                "default": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "generateBackupCodes"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "LoginConfiguration": {
+        "type": "object",
+        "properties": {
+            "requireCaptcha": {
+                "type": "boolean",
+                "default": false
+            },
+            "requireVerification": {
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "requireCaptcha",
+            "requireVerification"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RegisterConfiguration": {
+        "type": "object",
+        "properties": {
+            "email": {
+                "$ref": "#/definitions/RegistrationEmailConfiguration"
+            },
+            "dateOfBirth": {
+                "$ref": "#/definitions/DateOfBirthConfiguration"
+            },
+            "password": {
+                "$ref": "#/definitions/PasswordConfiguration"
+            },
+            "disabled": {
+                "type": "boolean",
+                "default": false
+            },
+            "requireCaptcha": {
+                "type": "boolean",
+                "default": true
+            },
+            "requireInvite": {
+                "type": "boolean",
+                "default": false
+            },
+            "guestsRequireInvite": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowNewRegistration": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowMultipleAccounts": {
+                "type": "boolean",
+                "default": true
+            },
+            "blockIpDataCoThreatTypes": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "tor",
+                    "icloud_relay",
+                    "proxy",
+                    "datacenter",
+                    "anonymous",
+                    "known_attacker",
+                    "known_abuser",
+                    "threat"
+                ]
+            },
+            "blockAsnTypes": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    ""
+                ]
+            },
+            "blockAsns": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    ""
+                ]
+            },
+            "blockAbuseIpDbAboveScore": {
+                "type": "integer",
+                "default": 75
+            },
+            "incrementingDiscriminators": {
+                "type": "boolean",
+                "default": false
+            },
+            "defaultRights": {
+                "type": "string",
+                "default": "875069521787904"
+            },
+            "defaultBotRights": {
+                "type": "string"
+            },
+            "enableAbuseIpDb": {
+                "type": "boolean",
+                "default": false
+            },
+            "enableIpData": {
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowMultipleAccounts",
+            "allowNewRegistration",
+            "blockAbuseIpDbAboveScore",
+            "blockAsnTypes",
+            "blockAsns",
+            "blockIpDataCoThreatTypes",
+            "dateOfBirth",
+            "defaultRights",
+            "disabled",
+            "email",
+            "enableAbuseIpDb",
+            "enableIpData",
+            "guestsRequireInvite",
+            "incrementingDiscriminators",
+            "password",
+            "requireCaptcha",
+            "requireInvite"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RegistrationEmailConfiguration": {
+        "type": "object",
+        "properties": {
+            "required": {
+                "type": "boolean",
+                "default": false
+            },
+            "allowlist": {
+                "type": "boolean",
+                "default": false
+            },
+            "blocklist": {
+                "type": "boolean",
+                "default": true
+            },
+            "domains": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": []
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowlist",
+            "blocklist",
+            "domains",
+            "required"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DateOfBirthConfiguration": {
+        "type": "object",
+        "properties": {
+            "required": {
+                "type": "boolean",
+                "default": true
+            },
+            "minimum": {
+                "type": "integer",
+                "default": 13
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "minimum",
+            "required"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PasswordConfiguration": {
+        "type": "object",
+        "properties": {
+            "required": {
+                "type": "boolean",
+                "default": false
+            },
+            "minLength": {
+                "type": "integer",
+                "default": 8
+            },
+            "minNumbers": {
+                "type": "integer",
+                "default": 2
+            },
+            "minUpperCase": {
+                "type": "integer",
+                "default": 2
+            },
+            "minSymbols": {
+                "type": "integer",
+                "default": 0
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "minLength",
+            "minNumbers",
+            "minSymbols",
+            "minUpperCase",
+            "required"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RegionConfiguration": {
+        "type": "object",
+        "properties": {
+            "default": {
+                "type": "string",
+                "default": "spacebar"
+            },
+            "useDefaultAsOptimal": {
+                "type": "boolean",
+                "default": true
+            },
+            "available": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Region"
+                },
+                "default": [
+                    {
+                        "id": "spacebar",
+                        "name": "spacebar",
+                        "endpoint": "127.0.0.1:3004",
+                        "vip": false,
+                        "custom": false,
+                        "deprecated": false
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "available",
+            "default",
+            "useDefaultAsOptimal"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "Region": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "endpoint": {
+                "type": "string"
+            },
+            "location": {
+                "type": "object",
+                "properties": {
+                    "latitude": {
+                        "type": "integer"
+                    },
+                    "longitude": {
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "latitude",
+                    "longitude"
+                ]
+            },
+            "vip": {
+                "type": "boolean"
+            },
+            "custom": {
+                "type": "boolean"
+            },
+            "deprecated": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "custom",
+            "deprecated",
+            "endpoint",
+            "id",
+            "name",
+            "vip"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildConfiguration": {
+        "type": "object",
+        "properties": {
+            "discovery": {
+                "$ref": "#/definitions/DiscoveryConfiguration"
+            },
+            "autoJoin": {
+                "$ref": "#/definitions/AutoJoinConfiguration"
+            },
+            "defaultFeatures": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": []
+            },
+            "publicThreadsInvitable": {
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "autoJoin",
+            "defaultFeatures",
+            "discovery",
+            "publicThreadsInvitable"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DiscoveryConfiguration": {
+        "type": "object",
+        "properties": {
+            "showAllGuilds": {
+                "type": "boolean",
+                "default": false
+            },
+            "useRecommendation": {
+                "type": "boolean",
+                "default": false
+            },
+            "offset": {
+                "type": "integer",
+                "default": 0
+            },
+            "limit": {
+                "type": "integer",
+                "default": 24
+            },
+            "hideJoinedGuilds": {
+                "type": "boolean",
+                "default": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "hideJoinedGuilds",
+            "limit",
+            "offset",
+            "showAllGuilds",
+            "useRecommendation"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AutoJoinConfiguration": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "guilds": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": []
+            },
+            "canLeave": {
+                "type": "boolean",
+                "default": true
+            },
+            "bots": {
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "bots",
+            "canLeave",
+            "enabled",
+            "guilds"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GifConfiguration": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "provider": {
+                "type": "string",
+                "const": "tenor"
+            },
+            "apiKey": {
+                "type": "string",
+                "default": "LIVDSRZULELA"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "enabled",
+            "provider"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RabbitMQConfiguration": {
+        "type": "object",
+        "properties": {
+            "host": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "host"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "TemplateConfiguration": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowTemplateCreation": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowDiscordTemplates": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowRaws": {
+                "type": "boolean",
+                "default": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowDiscordTemplates",
+            "allowRaws",
+            "allowTemplateCreation",
+            "enabled"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UpdateCheckConfiguration": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "repository": {
+                "type": "string",
+                "default": "spacebarchat/server"
+            },
+            "branch": {
+                "type": "string",
+                "default": "mistress"
+            },
+            "intervalSeconds": {
+                "type": "integer",
+                "default": 21600
+            },
+            "requestTimeoutSeconds": {
+                "type": "integer",
+                "default": 15
+            },
+            "lastNotifiedCommit": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "branch",
+            "enabled",
+            "intervalSeconds",
+            "lastNotifiedCommit",
+            "repository",
+            "requestTimeoutSeconds"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DefaultsConfiguration": {
+        "type": "object",
+        "properties": {
+            "guild": {
+                "$ref": "#/definitions/GuildDefaults"
+            },
+            "user": {
+                "$ref": "#/definitions/UserDefaults"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildDefaults": {
+        "type": "object",
+        "properties": {
+            "maxPresences": {
+                "type": "integer",
+                "default": 250000
+            },
+            "maxVideoChannelUsers": {
+                "type": "integer",
+                "default": 200
+            },
+            "afkTimeout": {
+                "type": "integer",
+                "default": 300
+            },
+            "defaultMessageNotifications": {
+                "type": "integer",
+                "default": 1
+            },
+            "explicitContentFilter": {
+                "type": "integer",
+                "default": 0
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "afkTimeout",
+            "defaultMessageNotifications",
+            "explicitContentFilter",
+            "maxPresences",
+            "maxVideoChannelUsers"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserDefaults": {
+        "type": "object",
+        "properties": {
+            "premium": {
+                "type": "boolean",
+                "default": true
+            },
+            "premiumType": {
+                "type": "integer",
+                "default": 2
+            },
+            "verified": {
+                "type": "boolean",
+                "default": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "premium",
+            "premiumType",
+            "verified"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ExternalTokensConfiguration": {
+        "type": "object",
+        "properties": {
+            "discordAttachmentRefreshBotToken": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "twitter": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "discordAttachmentRefreshBotToken",
+            "twitter"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmailConfiguration": {
+        "type": "object",
+        "properties": {
+            "provider": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "senderAddress": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "smtp": {
+                "$ref": "#/definitions/SMTPConfiguration"
+            },
+            "mailgun": {
+                "$ref": "#/definitions/MailGunConfiguration"
+            },
+            "mailjet": {
+                "$ref": "#/definitions/MailJetConfiguration"
+            },
+            "sendgrid": {
+                "$ref": "#/definitions/SendGridConfiguration"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "mailgun",
+            "mailjet",
+            "provider",
+            "senderAddress",
+            "sendgrid",
+            "smtp"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SMTPConfiguration": {
+        "type": "object",
+        "properties": {
+            "host": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "port": {
+                "type": [
+                    "null",
+                    "integer"
+                ],
+                "default": null
+            },
+            "secure": {
+                "type": [
+                    "null",
+                    "boolean"
+                ],
+                "default": null
+            },
+            "starttls": {
+                "type": "boolean",
+                "default": false
+            },
+            "allowInsecure": {
+                "type": "boolean",
+                "default": false
+            },
+            "username": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "password": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowInsecure",
+            "host",
+            "password",
+            "port",
+            "secure",
+            "starttls",
+            "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MailGunConfiguration": {
+        "type": "object",
+        "properties": {
+            "username": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "apiKey": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "domain": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "isEuropean": {
+                "type": "boolean",
+                "default": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "apiKey",
+            "domain",
+            "isEuropean",
+            "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MailJetConfiguration": {
+        "type": "object",
+        "properties": {
+            "apiKey": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "apiSecret": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "apiKey",
+            "apiSecret"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SendGridConfiguration": {
+        "type": "object",
+        "properties": {
+            "apiKey": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "apiKey"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PasswordResetConfiguration": {
+        "type": "object",
+        "properties": {
+            "requireCaptcha": {
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "requireCaptcha"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserConfiguration": {
+        "type": "object",
+        "properties": {
+            "blockedContains": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "discord",
+                    "clyde",
+                    "spacebar",
+                    "steam",
+                    "community",
+                    "support",
+                    "ticket"
+                ]
+            },
+            "blockedEquals": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "everyone",
+                    "here"
+                ]
+            },
+            "botsCanUseInvites": {
+                "type": "boolean",
+                "default": false
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "blockedContains",
+            "blockedEquals",
+            "botsCanUseInvites"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OffloadConfiguration": {
+        "type": "object",
+        "properties": {
+            "gateway": {
+                "$ref": "#/definitions/GatewayOffloadConfiguration"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "gateway"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GatewayOffloadConfiguration": {
+        "type": "object",
+        "properties": {
+            "guildMembersUrl": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "guildSyncUrl": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "lazyRequestUrl": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "channelStatusesUrl": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "channelInfoUrl": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channelInfoUrl",
+            "channelStatusesUrl",
+            "guildMembersUrl",
+            "guildSyncUrl",
+            "lazyRequestUrl"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ComponentConfiguration": {
+        "type": "object",
+        "properties": {
+            "mediaGalleryLimit": {
+                "type": "integer"
+            },
+            "actionRowLimit": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmbedConfiguration": {
+        "type": "object",
+        "properties": {
+            "defaultUserAgent": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "maxLinkEmbeds": {
+                "type": "integer",
+                "default": 5
+            },
+            "youtube": {
+                "$ref": "#/definitions/YoutubeEmbedConfiguration"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "defaultUserAgent",
+            "maxLinkEmbeds",
+            "youtube"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "YoutubeEmbedConfiguration": {
+        "type": "object",
+        "properties": {
+            "useCurlUserAgent": {
+                "type": "boolean",
+                "default": false
+            },
+            "userAgent": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            },
+            "cookie": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "cookie",
+            "useCurlUserAgent",
+            "userAgent"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ConfigValue": {
+        "type": "object",
+        "properties": {
+            "admin": {
+                "$ref": "#/definitions/EndpointConfiguration"
+            },
+            "gateway": {
+                "$ref": "#/definitions/EndpointConfiguration"
+            },
+            "cdn": {
+                "$ref": "#/definitions/CdnConfiguration"
+            },
+            "api": {
+                "$ref": "#/definitions/ApiConfiguration"
+            },
+            "general": {
+                "$ref": "#/definitions/GeneralConfiguration"
+            },
+            "limits": {
+                "$ref": "#/definitions/LimitsConfiguration"
+            },
+            "security": {
+                "$ref": "#/definitions/SecurityConfiguration"
+            },
+            "login": {
+                "$ref": "#/definitions/LoginConfiguration"
+            },
+            "register": {
+                "$ref": "#/definitions/RegisterConfiguration"
+            },
+            "regions": {
+                "$ref": "#/definitions/RegionConfiguration"
+            },
+            "guild": {
+                "$ref": "#/definitions/GuildConfiguration"
+            },
+            "gif": {
+                "$ref": "#/definitions/GifConfiguration"
+            },
+            "rabbitmq": {
+                "$ref": "#/definitions/RabbitMQConfiguration"
+            },
+            "templates": {
+                "$ref": "#/definitions/TemplateConfiguration"
+            },
+            "updates": {
+                "$ref": "#/definitions/UpdateCheckConfiguration"
+            },
+            "defaults": {
+                "$ref": "#/definitions/DefaultsConfiguration"
+            },
+            "external": {
+                "$ref": "#/definitions/ExternalTokensConfiguration"
+            },
+            "email": {
+                "$ref": "#/definitions/EmailConfiguration"
+            },
+            "passwordReset": {
+                "$ref": "#/definitions/PasswordResetConfiguration"
+            },
+            "user": {
+                "$ref": "#/definitions/UserConfiguration"
+            },
+            "offload": {
+                "$ref": "#/definitions/OffloadConfiguration"
+            },
+            "components": {
+                "$ref": "#/definitions/ComponentConfiguration"
+            },
+            "embeds": {
+                "$ref": "#/definitions/EmbedConfiguration"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "admin",
+            "api",
+            "cdn",
+            "components",
+            "defaults",
+            "email",
+            "embeds",
+            "external",
+            "gateway",
+            "general",
+            "gif",
+            "guild",
+            "limits",
+            "login",
+            "offload",
+            "passwordReset",
+            "rabbitmq",
+            "regions",
+            "register",
+            "security",
+            "templates",
+            "updates",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PinnedMessageItem": {
         "type": "object",
         "properties": {
@@ -18565,324 +20659,6 @@
             "id",
             "name",
             "optimal"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "UserLimits": {
-        "type": "object",
-        "properties": {
-            "maxGuilds": {
-                "type": "integer",
-                "default": 1048576
-            },
-            "maxUsername": {
-                "type": "integer",
-                "default": 32
-            },
-            "maxFriends": {
-                "type": "integer",
-                "default": 5000
-            },
-            "maxBio": {
-                "type": "integer",
-                "default": 190
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "maxBio",
-            "maxFriends",
-            "maxGuilds",
-            "maxUsername"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "GuildLimits": {
-        "type": "object",
-        "properties": {
-            "maxRoles": {
-                "type": "integer",
-                "default": 1000
-            },
-            "maxEmojis": {
-                "type": "integer",
-                "default": 2000
-            },
-            "maxStickers": {
-                "type": "integer",
-                "default": 500
-            },
-            "maxMembers": {
-                "type": "integer",
-                "default": 25000000
-            },
-            "maxChannels": {
-                "type": "integer",
-                "default": 65535
-            },
-            "maxBulkBanUsers": {
-                "type": "integer",
-                "default": 200
-            },
-            "maxChannelsInCategory": {
-                "type": "integer",
-                "default": 65535
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "maxBulkBanUsers",
-            "maxChannels",
-            "maxChannelsInCategory",
-            "maxEmojis",
-            "maxMembers",
-            "maxRoles",
-            "maxStickers"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageLimits": {
-        "type": "object",
-        "properties": {
-            "maxCharacters": {
-                "type": "integer",
-                "default": 1048576
-            },
-            "maxTTSCharacters": {
-                "type": "integer",
-                "default": 160
-            },
-            "maxReactions": {
-                "type": "integer",
-                "default": 2048
-            },
-            "maxAttachmentSize": {
-                "type": "integer",
-                "default": 1073741824
-            },
-            "maxBulkDelete": {
-                "type": "integer",
-                "default": 1000
-            },
-            "maxEmbedDownloadSize": {
-                "type": "integer",
-                "default": 5242880
-            },
-            "maxPreloadCount": {
-                "type": "integer",
-                "default": 100
-            },
-            "maxEmbeds": {
-                "type": "integer",
-                "default": 20
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "maxAttachmentSize",
-            "maxBulkDelete",
-            "maxCharacters",
-            "maxEmbedDownloadSize",
-            "maxEmbeds",
-            "maxPreloadCount",
-            "maxReactions",
-            "maxTTSCharacters"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ChannelLimits": {
-        "type": "object",
-        "properties": {
-            "maxPins": {
-                "type": "integer",
-                "default": 500
-            },
-            "maxTopic": {
-                "type": "integer",
-                "default": 1024
-            },
-            "maxWebhooks": {
-                "type": "integer",
-                "default": 100
-            },
-            "maxName": {
-                "type": "integer",
-                "default": 32
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "maxName",
-            "maxPins",
-            "maxTopic",
-            "maxWebhooks"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "WebRtcLimits": {
-        "type": "object",
-        "properties": {
-            "maxMessageSize": {
-                "description": "Maximum inbound WebRTC websocket signaling payload size, in bytes.",
-                "type": "integer",
-                "default": 65536
-            },
-            "rateLimitCount": {
-                "description": "Maximum inbound WebRTC websocket messages per rateLimitWindow.",
-                "type": "integer",
-                "default": 120
-            },
-            "rateLimitWindow": {
-                "description": "WebRTC websocket message rate limit window, in milliseconds.",
-                "type": "integer",
-                "default": 60000
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "maxMessageSize",
-            "rateLimitCount",
-            "rateLimitWindow"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "RateLimits": {
-        "type": "object",
-        "properties": {
-            "enabled": {
-                "type": "boolean",
-                "default": false
-            },
-            "ip": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "global": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "error": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "routes": {
-                "$ref": "#/definitions/RouteRateLimit"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "enabled",
-            "error",
-            "global",
-            "ip",
-            "routes"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "RateLimitOptions": {
-        "type": "object",
-        "properties": {
-            "bot": {
-                "type": "integer"
-            },
-            "count": {
-                "type": "integer"
-            },
-            "window": {
-                "type": "integer"
-            },
-            "onyIp": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "count",
-            "window"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "RouteRateLimit": {
-        "type": "object",
-        "properties": {
-            "guild": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "webhook": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "channel": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "attachmentRefresh": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "auth": {
-                "$ref": "#/definitions/AuthRateLimit"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "attachmentRefresh",
-            "auth",
-            "channel",
-            "guild",
-            "webhook"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "AuthRateLimit": {
-        "type": "object",
-        "properties": {
-            "login": {
-                "$ref": "#/definitions/RateLimitOptions"
-            },
-            "register": {
-                "$ref": "#/definitions/RateLimitOptions"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "login",
-            "register"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "GlobalRateLimits": {
-        "type": "object",
-        "properties": {
-            "register": {
-                "$ref": "#/definitions/GlobalRateLimit"
-            },
-            "sendMessage": {
-                "$ref": "#/definitions/GlobalRateLimit"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "register",
-            "sendMessage"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "GlobalRateLimit": {
-        "type": "object",
-        "properties": {
-            "limit": {
-                "type": "integer",
-                "default": 100
-            },
-            "window": {
-                "type": "integer",
-                "default": 3600000
-            },
-            "enabled": {
-                "type": "boolean",
-                "default": true
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "enabled",
-            "limit",
-            "window"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

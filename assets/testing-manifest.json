@@ -9145,12 +9145,12 @@
             "method": "GET",
             "path": "/policies/instance/config/",
             "sourceFile": "src/api/routes/policies/instance/config.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "Object"
+                    "InstanceConfigResponse"
                 ],
                 "responseStatuses": [
                     200

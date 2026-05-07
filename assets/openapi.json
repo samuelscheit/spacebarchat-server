@@ -3207,6 +3207,197 @@
                     "gateway"
                 ]
             },
+            "PublicInstanceConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "limits_user_maxGuilds": {
+                        "type": "integer"
+                    },
+                    "limits_user_maxBio": {
+                        "type": "integer"
+                    },
+                    "limits_guild_maxEmojis": {
+                        "type": "integer"
+                    },
+                    "limits_guild_maxRoles": {
+                        "type": "integer"
+                    },
+                    "limits_message_maxCharacters": {
+                        "type": "integer"
+                    },
+                    "limits_message_maxAttachmentSize": {
+                        "type": "integer"
+                    },
+                    "limits_message_maxEmbedDownloadSize": {
+                        "type": "integer"
+                    },
+                    "limits_channel_maxWebhooks": {
+                        "type": "integer"
+                    },
+                    "register_dateOfBirth_requiredc": {
+                        "type": "boolean"
+                    },
+                    "register_password_required": {
+                        "type": "boolean"
+                    },
+                    "register_disabled": {
+                        "type": "boolean"
+                    },
+                    "register_requireInvite": {
+                        "type": "boolean"
+                    },
+                    "register_allowNewRegistration": {
+                        "type": "boolean"
+                    },
+                    "register_allowMultipleAccounts": {
+                        "type": "boolean"
+                    },
+                    "guild_autoJoin_canLeave": {
+                        "type": "boolean"
+                    },
+                    "guild_autoJoin_guilds_x": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "register_email_required": {
+                        "type": "boolean"
+                    },
+                    "can_recover_account": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "can_recover_account",
+                    "guild_autoJoin_canLeave",
+                    "guild_autoJoin_guilds_x",
+                    "limits_channel_maxWebhooks",
+                    "limits_guild_maxEmojis",
+                    "limits_guild_maxRoles",
+                    "limits_message_maxAttachmentSize",
+                    "limits_message_maxCharacters",
+                    "limits_message_maxEmbedDownloadSize",
+                    "limits_user_maxBio",
+                    "limits_user_maxGuilds",
+                    "register_allowMultipleAccounts",
+                    "register_allowNewRegistration",
+                    "register_dateOfBirth_requiredc",
+                    "register_disabled",
+                    "register_email_required",
+                    "register_password_required",
+                    "register_requireInvite"
+                ]
+            },
+            "FullInstanceConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "admin": {
+                        "$ref": "#/components/schemas/EndpointConfiguration"
+                    },
+                    "gateway": {
+                        "$ref": "#/components/schemas/EndpointConfiguration"
+                    },
+                    "cdn": {
+                        "$ref": "#/components/schemas/CdnConfiguration"
+                    },
+                    "api": {
+                        "$ref": "#/components/schemas/ApiConfiguration"
+                    },
+                    "general": {
+                        "$ref": "#/components/schemas/GeneralConfiguration"
+                    },
+                    "limits": {
+                        "$ref": "#/components/schemas/LimitsConfiguration"
+                    },
+                    "security": {
+                        "$ref": "#/components/schemas/SecurityConfiguration"
+                    },
+                    "login": {
+                        "$ref": "#/components/schemas/LoginConfiguration"
+                    },
+                    "register": {
+                        "$ref": "#/components/schemas/RegisterConfiguration"
+                    },
+                    "regions": {
+                        "$ref": "#/components/schemas/RegionConfiguration"
+                    },
+                    "guild": {
+                        "$ref": "#/components/schemas/GuildConfiguration"
+                    },
+                    "gif": {
+                        "$ref": "#/components/schemas/GifConfiguration"
+                    },
+                    "rabbitmq": {
+                        "$ref": "#/components/schemas/RabbitMQConfiguration"
+                    },
+                    "templates": {
+                        "$ref": "#/components/schemas/TemplateConfiguration"
+                    },
+                    "updates": {
+                        "$ref": "#/components/schemas/UpdateCheckConfiguration"
+                    },
+                    "defaults": {
+                        "$ref": "#/components/schemas/DefaultsConfiguration"
+                    },
+                    "external": {
+                        "$ref": "#/components/schemas/ExternalTokensConfiguration"
+                    },
+                    "email": {
+                        "$ref": "#/components/schemas/EmailConfiguration"
+                    },
+                    "passwordReset": {
+                        "$ref": "#/components/schemas/PasswordResetConfiguration"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserConfiguration"
+                    },
+                    "offload": {
+                        "$ref": "#/components/schemas/OffloadConfiguration"
+                    },
+                    "components": {
+                        "$ref": "#/components/schemas/ComponentConfiguration"
+                    },
+                    "embeds": {
+                        "$ref": "#/components/schemas/EmbedConfiguration"
+                    }
+                },
+                "required": [
+                    "admin",
+                    "api",
+                    "cdn",
+                    "components",
+                    "defaults",
+                    "email",
+                    "embeds",
+                    "external",
+                    "gateway",
+                    "general",
+                    "gif",
+                    "guild",
+                    "limits",
+                    "login",
+                    "offload",
+                    "passwordReset",
+                    "rabbitmq",
+                    "regions",
+                    "register",
+                    "security",
+                    "templates",
+                    "updates",
+                    "user"
+                ]
+            },
+            "InstanceConfigResponse": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/ConfigValue"
+                    },
+                    {
+                        "$ref": "#/components/schemas/PublicInstanceConfigResponse"
+                    }
+                ]
+            },
             "InstancePingResponse": {
                 "type": "object",
                 "properties": {
@@ -17237,6 +17428,1800 @@
                 "type": "number",
                 "const": 0
             },
+            "EndpointConfiguration": {
+                "type": "object",
+                "properties": {
+                    "endpointPrivate": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "endpointPublic": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "endpointPrivate",
+                    "endpointPublic"
+                ]
+            },
+            "CdnConfiguration": {
+                "type": "object",
+                "properties": {
+                    "resizeHeightMax": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "resizeWidthMax": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "imagorServerUrl": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "proxyCacheHeaderSeconds": {
+                        "type": "integer",
+                        "default": 86400
+                    },
+                    "maxAttachmentSize": {
+                        "type": "integer",
+                        "default": 26214400
+                    },
+                    "limits": {
+                        "$ref": "#/components/schemas/CdnLimitsConfiguration"
+                    },
+                    "endpointPrivate": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "endpointPublic": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "endpointPrivate",
+                    "endpointPublic",
+                    "imagorServerUrl",
+                    "limits",
+                    "maxAttachmentSize",
+                    "proxyCacheHeaderSeconds",
+                    "resizeHeightMax",
+                    "resizeWidthMax"
+                ]
+            },
+            "CdnLimitsConfiguration": {
+                "type": "object",
+                "properties": {
+                    "icon": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "roleIcon": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "emoji": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "sticker": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "banner": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "splash": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "avatar": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "discoverySplash": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "appIcon": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "discoverSplash": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "teamIcon": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "channelIcon": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    },
+                    "guildAvatar": {
+                        "$ref": "#/components/schemas/CdnImageLimitsConfiguration"
+                    }
+                },
+                "required": [
+                    "appIcon",
+                    "avatar",
+                    "banner",
+                    "channelIcon",
+                    "discoverSplash",
+                    "discoverySplash",
+                    "emoji",
+                    "guildAvatar",
+                    "icon",
+                    "roleIcon",
+                    "splash",
+                    "sticker",
+                    "teamIcon"
+                ]
+            },
+            "CdnImageLimitsConfiguration": {
+                "type": "object",
+                "properties": {
+                    "maxHeight": {
+                        "type": "integer",
+                        "default": 8192
+                    },
+                    "maxWidth": {
+                        "type": "integer",
+                        "default": 8192
+                    },
+                    "maxSize": {
+                        "type": "integer",
+                        "default": 10485760
+                    },
+                    "allowAnimated": {
+                        "enum": [
+                            "always",
+                            "never",
+                            "premium"
+                        ],
+                        "type": "string",
+                        "default": "always"
+                    }
+                },
+                "required": [
+                    "allowAnimated",
+                    "maxHeight",
+                    "maxSize",
+                    "maxWidth"
+                ]
+            },
+            "ApiConfiguration": {
+                "type": "object",
+                "properties": {
+                    "defaultVersion": {
+                        "type": "string",
+                        "default": "9"
+                    },
+                    "activeVersions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "endpointPrivate": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "endpointPublic": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "activeVersions",
+                    "defaultVersion",
+                    "endpointPrivate",
+                    "endpointPublic"
+                ]
+            },
+            "GeneralConfiguration": {
+                "type": "object",
+                "properties": {
+                    "instanceName": {
+                        "type": "string",
+                        "default": "Spacebar Instance"
+                    },
+                    "serverName": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "instanceDescription": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": "This is a Spacebar instance made in the pre-release days"
+                    },
+                    "frontPage": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "tosPage": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "correspondenceEmail": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "correspondenceUserID": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "image": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "instanceId": {
+                        "type": "string"
+                    },
+                    "autoCreateBotUsers": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "autoCreateBotUsers",
+                    "correspondenceEmail",
+                    "correspondenceUserID",
+                    "frontPage",
+                    "image",
+                    "instanceDescription",
+                    "instanceId",
+                    "instanceName",
+                    "serverName",
+                    "tosPage"
+                ]
+            },
+            "LimitsConfiguration": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/UserLimits"
+                    },
+                    "guild": {
+                        "$ref": "#/components/schemas/GuildLimits"
+                    },
+                    "message": {
+                        "$ref": "#/components/schemas/MessageLimits"
+                    },
+                    "channel": {
+                        "$ref": "#/components/schemas/ChannelLimits"
+                    },
+                    "webrtc": {
+                        "$ref": "#/components/schemas/WebRtcLimits"
+                    },
+                    "rate": {
+                        "$ref": "#/components/schemas/RateLimits"
+                    },
+                    "absoluteRate": {
+                        "$ref": "#/components/schemas/GlobalRateLimits"
+                    }
+                },
+                "required": [
+                    "absoluteRate",
+                    "channel",
+                    "guild",
+                    "message",
+                    "rate",
+                    "user",
+                    "webrtc"
+                ]
+            },
+            "UserLimits": {
+                "type": "object",
+                "properties": {
+                    "maxGuilds": {
+                        "type": "integer",
+                        "default": 1048576
+                    },
+                    "maxUsername": {
+                        "type": "integer",
+                        "default": 32
+                    },
+                    "maxFriends": {
+                        "type": "integer",
+                        "default": 5000
+                    },
+                    "maxBio": {
+                        "type": "integer",
+                        "default": 190
+                    }
+                },
+                "required": [
+                    "maxBio",
+                    "maxFriends",
+                    "maxGuilds",
+                    "maxUsername"
+                ]
+            },
+            "GuildLimits": {
+                "type": "object",
+                "properties": {
+                    "maxRoles": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "maxEmojis": {
+                        "type": "integer",
+                        "default": 2000
+                    },
+                    "maxStickers": {
+                        "type": "integer",
+                        "default": 500
+                    },
+                    "maxMembers": {
+                        "type": "integer",
+                        "default": 25000000
+                    },
+                    "maxChannels": {
+                        "type": "integer",
+                        "default": 65535
+                    },
+                    "maxBulkBanUsers": {
+                        "type": "integer",
+                        "default": 200
+                    },
+                    "maxChannelsInCategory": {
+                        "type": "integer",
+                        "default": 65535
+                    }
+                },
+                "required": [
+                    "maxBulkBanUsers",
+                    "maxChannels",
+                    "maxChannelsInCategory",
+                    "maxEmojis",
+                    "maxMembers",
+                    "maxRoles",
+                    "maxStickers"
+                ]
+            },
+            "MessageLimits": {
+                "type": "object",
+                "properties": {
+                    "maxCharacters": {
+                        "type": "integer",
+                        "default": 1048576
+                    },
+                    "maxTTSCharacters": {
+                        "type": "integer",
+                        "default": 160
+                    },
+                    "maxReactions": {
+                        "type": "integer",
+                        "default": 2048
+                    },
+                    "maxAttachmentSize": {
+                        "type": "integer",
+                        "default": 1073741824
+                    },
+                    "maxBulkDelete": {
+                        "type": "integer",
+                        "default": 1000
+                    },
+                    "maxEmbedDownloadSize": {
+                        "type": "integer",
+                        "default": 5242880
+                    },
+                    "maxPreloadCount": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxEmbeds": {
+                        "type": "integer",
+                        "default": 20
+                    }
+                },
+                "required": [
+                    "maxAttachmentSize",
+                    "maxBulkDelete",
+                    "maxCharacters",
+                    "maxEmbedDownloadSize",
+                    "maxEmbeds",
+                    "maxPreloadCount",
+                    "maxReactions",
+                    "maxTTSCharacters"
+                ]
+            },
+            "ChannelLimits": {
+                "type": "object",
+                "properties": {
+                    "maxPins": {
+                        "type": "integer",
+                        "default": 500
+                    },
+                    "maxTopic": {
+                        "type": "integer",
+                        "default": 1024
+                    },
+                    "maxWebhooks": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "maxName": {
+                        "type": "integer",
+                        "default": 32
+                    }
+                },
+                "required": [
+                    "maxName",
+                    "maxPins",
+                    "maxTopic",
+                    "maxWebhooks"
+                ]
+            },
+            "WebRtcLimits": {
+                "type": "object",
+                "properties": {
+                    "maxMessageSize": {
+                        "description": "Maximum inbound WebRTC websocket signaling payload size, in bytes.",
+                        "type": "integer",
+                        "default": 65536
+                    },
+                    "rateLimitCount": {
+                        "description": "Maximum inbound WebRTC websocket messages per rateLimitWindow.",
+                        "type": "integer",
+                        "default": 120
+                    },
+                    "rateLimitWindow": {
+                        "description": "WebRTC websocket message rate limit window, in milliseconds.",
+                        "type": "integer",
+                        "default": 60000
+                    }
+                },
+                "required": [
+                    "maxMessageSize",
+                    "rateLimitCount",
+                    "rateLimitWindow"
+                ]
+            },
+            "RateLimits": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "ip": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "global": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "error": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "routes": {
+                        "$ref": "#/components/schemas/RouteRateLimit"
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "error",
+                    "global",
+                    "ip",
+                    "routes"
+                ]
+            },
+            "RateLimitOptions": {
+                "type": "object",
+                "properties": {
+                    "bot": {
+                        "type": "integer"
+                    },
+                    "count": {
+                        "type": "integer"
+                    },
+                    "window": {
+                        "type": "integer"
+                    },
+                    "onyIp": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "count",
+                    "window"
+                ]
+            },
+            "RouteRateLimit": {
+                "type": "object",
+                "properties": {
+                    "guild": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "webhook": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "channel": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "attachmentRefresh": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "auth": {
+                        "$ref": "#/components/schemas/AuthRateLimit"
+                    }
+                },
+                "required": [
+                    "attachmentRefresh",
+                    "auth",
+                    "channel",
+                    "guild",
+                    "webhook"
+                ]
+            },
+            "AuthRateLimit": {
+                "type": "object",
+                "properties": {
+                    "login": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    },
+                    "register": {
+                        "$ref": "#/components/schemas/RateLimitOptions"
+                    }
+                },
+                "required": [
+                    "login",
+                    "register"
+                ]
+            },
+            "GlobalRateLimits": {
+                "type": "object",
+                "properties": {
+                    "register": {
+                        "$ref": "#/components/schemas/GlobalRateLimit"
+                    },
+                    "sendMessage": {
+                        "$ref": "#/components/schemas/GlobalRateLimit"
+                    }
+                },
+                "required": [
+                    "register",
+                    "sendMessage"
+                ]
+            },
+            "GlobalRateLimit": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "default": 100
+                    },
+                    "window": {
+                        "type": "integer",
+                        "default": 3600000
+                    },
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "limit",
+                    "window"
+                ]
+            },
+            "SecurityConfiguration": {
+                "type": "object",
+                "properties": {
+                    "captcha": {
+                        "$ref": "#/components/schemas/CaptchaConfiguration"
+                    },
+                    "twoFactor": {
+                        "$ref": "#/components/schemas/TwoFactorConfiguration"
+                    },
+                    "requestSignature": {
+                        "type": "string"
+                    },
+                    "jwtSecret": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "forwardedFor": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "trustedProxies": {
+                        "type": [
+                            "null",
+                            "string",
+                            "boolean"
+                        ],
+                        "default": null
+                    },
+                    "abuseIpDbApiKey": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "abuseipdbBlacklistRatelimit": {
+                        "type": "integer",
+                        "default": 5
+                    },
+                    "abuseipdbConfidenceScoreTreshold": {
+                        "type": "integer",
+                        "default": 50
+                    },
+                    "ipdataApiKey": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "mfaBackupCodeCount": {
+                        "type": "integer",
+                        "default": 10
+                    },
+                    "statsWorldReadable": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "defaultRegistrationTokenExpiration": {
+                        "type": "integer",
+                        "default": 604800000
+                    },
+                    "cdnSignUrls": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "cdnSignatureKey": {
+                        "type": "string"
+                    },
+                    "cdnSignatureDuration": {
+                        "type": "string",
+                        "default": "24h"
+                    },
+                    "cdnSignatureIncludeIp": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "cdnSignatureIncludeUserAgent": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "abuseIpDbApiKey",
+                    "abuseipdbBlacklistRatelimit",
+                    "abuseipdbConfidenceScoreTreshold",
+                    "captcha",
+                    "cdnSignUrls",
+                    "cdnSignatureDuration",
+                    "cdnSignatureIncludeIp",
+                    "cdnSignatureIncludeUserAgent",
+                    "cdnSignatureKey",
+                    "defaultRegistrationTokenExpiration",
+                    "forwardedFor",
+                    "ipdataApiKey",
+                    "jwtSecret",
+                    "mfaBackupCodeCount",
+                    "requestSignature",
+                    "statsWorldReadable",
+                    "trustedProxies",
+                    "twoFactor"
+                ]
+            },
+            "CaptchaConfiguration": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "service": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    "hcaptcha",
+                                    "recaptcha"
+                                ],
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "default": null
+                    },
+                    "sitekey": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "secret": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "secret",
+                    "service",
+                    "sitekey"
+                ]
+            },
+            "TwoFactorConfiguration": {
+                "type": "object",
+                "properties": {
+                    "generateBackupCodes": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "generateBackupCodes"
+                ]
+            },
+            "LoginConfiguration": {
+                "type": "object",
+                "properties": {
+                    "requireCaptcha": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "requireVerification": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "requireCaptcha",
+                    "requireVerification"
+                ]
+            },
+            "RegisterConfiguration": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "$ref": "#/components/schemas/RegistrationEmailConfiguration"
+                    },
+                    "dateOfBirth": {
+                        "$ref": "#/components/schemas/DateOfBirthConfiguration"
+                    },
+                    "password": {
+                        "$ref": "#/components/schemas/PasswordConfiguration"
+                    },
+                    "disabled": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "requireCaptcha": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "requireInvite": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "guestsRequireInvite": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowNewRegistration": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowMultipleAccounts": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "blockIpDataCoThreatTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "tor",
+                            "icloud_relay",
+                            "proxy",
+                            "datacenter",
+                            "anonymous",
+                            "known_attacker",
+                            "known_abuser",
+                            "threat"
+                        ]
+                    },
+                    "blockAsnTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            ""
+                        ]
+                    },
+                    "blockAsns": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            ""
+                        ]
+                    },
+                    "blockAbuseIpDbAboveScore": {
+                        "type": "integer",
+                        "default": 75
+                    },
+                    "incrementingDiscriminators": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "defaultRights": {
+                        "type": "string",
+                        "default": "875069521787904"
+                    },
+                    "defaultBotRights": {
+                        "type": "string"
+                    },
+                    "enableAbuseIpDb": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "enableIpData": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "allowMultipleAccounts",
+                    "allowNewRegistration",
+                    "blockAbuseIpDbAboveScore",
+                    "blockAsnTypes",
+                    "blockAsns",
+                    "blockIpDataCoThreatTypes",
+                    "dateOfBirth",
+                    "defaultRights",
+                    "disabled",
+                    "email",
+                    "enableAbuseIpDb",
+                    "enableIpData",
+                    "guestsRequireInvite",
+                    "incrementingDiscriminators",
+                    "password",
+                    "requireCaptcha",
+                    "requireInvite"
+                ]
+            },
+            "RegistrationEmailConfiguration": {
+                "type": "object",
+                "properties": {
+                    "required": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "allowlist": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "blocklist": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "domains": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    }
+                },
+                "required": [
+                    "allowlist",
+                    "blocklist",
+                    "domains",
+                    "required"
+                ]
+            },
+            "DateOfBirthConfiguration": {
+                "type": "object",
+                "properties": {
+                    "required": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "minimum": {
+                        "type": "integer",
+                        "default": 13
+                    }
+                },
+                "required": [
+                    "minimum",
+                    "required"
+                ]
+            },
+            "PasswordConfiguration": {
+                "type": "object",
+                "properties": {
+                    "required": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "minLength": {
+                        "type": "integer",
+                        "default": 8
+                    },
+                    "minNumbers": {
+                        "type": "integer",
+                        "default": 2
+                    },
+                    "minUpperCase": {
+                        "type": "integer",
+                        "default": 2
+                    },
+                    "minSymbols": {
+                        "type": "integer",
+                        "default": 0
+                    }
+                },
+                "required": [
+                    "minLength",
+                    "minNumbers",
+                    "minSymbols",
+                    "minUpperCase",
+                    "required"
+                ]
+            },
+            "RegionConfiguration": {
+                "type": "object",
+                "properties": {
+                    "default": {
+                        "type": "string",
+                        "default": "spacebar"
+                    },
+                    "useDefaultAsOptimal": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "available": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Region"
+                        },
+                        "default": [
+                            {
+                                "id": "spacebar",
+                                "name": "spacebar",
+                                "endpoint": "127.0.0.1:3004",
+                                "vip": false,
+                                "custom": false,
+                                "deprecated": false
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "available",
+                    "default",
+                    "useDefaultAsOptimal"
+                ]
+            },
+            "Region": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "endpoint": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "object",
+                        "properties": {
+                            "latitude": {
+                                "type": "integer"
+                            },
+                            "longitude": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "latitude",
+                            "longitude"
+                        ]
+                    },
+                    "vip": {
+                        "type": "boolean"
+                    },
+                    "custom": {
+                        "type": "boolean"
+                    },
+                    "deprecated": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "custom",
+                    "deprecated",
+                    "endpoint",
+                    "id",
+                    "name",
+                    "vip"
+                ]
+            },
+            "GuildConfiguration": {
+                "type": "object",
+                "properties": {
+                    "discovery": {
+                        "$ref": "#/components/schemas/DiscoveryConfiguration"
+                    },
+                    "autoJoin": {
+                        "$ref": "#/components/schemas/AutoJoinConfiguration"
+                    },
+                    "defaultFeatures": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "publicThreadsInvitable": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "autoJoin",
+                    "defaultFeatures",
+                    "discovery",
+                    "publicThreadsInvitable"
+                ]
+            },
+            "DiscoveryConfiguration": {
+                "type": "object",
+                "properties": {
+                    "showAllGuilds": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "useRecommendation": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "default": 24
+                    },
+                    "hideJoinedGuilds": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "hideJoinedGuilds",
+                    "limit",
+                    "offset",
+                    "showAllGuilds",
+                    "useRecommendation"
+                ]
+            },
+            "AutoJoinConfiguration": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "guilds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
+                    },
+                    "canLeave": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "bots": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "bots",
+                    "canLeave",
+                    "enabled",
+                    "guilds"
+                ]
+            },
+            "GifConfiguration": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "provider": {
+                        "type": "string",
+                        "const": "tenor"
+                    },
+                    "apiKey": {
+                        "type": "string",
+                        "default": "LIVDSRZULELA"
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "provider"
+                ]
+            },
+            "RabbitMQConfiguration": {
+                "type": "object",
+                "properties": {
+                    "host": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "host"
+                ]
+            },
+            "TemplateConfiguration": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowTemplateCreation": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowDiscordTemplates": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowRaws": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "allowDiscordTemplates",
+                    "allowRaws",
+                    "allowTemplateCreation",
+                    "enabled"
+                ]
+            },
+            "UpdateCheckConfiguration": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "repository": {
+                        "type": "string",
+                        "default": "spacebarchat/server"
+                    },
+                    "branch": {
+                        "type": "string",
+                        "default": "mistress"
+                    },
+                    "intervalSeconds": {
+                        "type": "integer",
+                        "default": 21600
+                    },
+                    "requestTimeoutSeconds": {
+                        "type": "integer",
+                        "default": 15
+                    },
+                    "lastNotifiedCommit": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "branch",
+                    "enabled",
+                    "intervalSeconds",
+                    "lastNotifiedCommit",
+                    "repository",
+                    "requestTimeoutSeconds"
+                ]
+            },
+            "DefaultsConfiguration": {
+                "type": "object",
+                "properties": {
+                    "guild": {
+                        "$ref": "#/components/schemas/GuildDefaults"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserDefaults"
+                    }
+                },
+                "required": [
+                    "guild",
+                    "user"
+                ]
+            },
+            "GuildDefaults": {
+                "type": "object",
+                "properties": {
+                    "maxPresences": {
+                        "type": "integer",
+                        "default": 250000
+                    },
+                    "maxVideoChannelUsers": {
+                        "type": "integer",
+                        "default": 200
+                    },
+                    "afkTimeout": {
+                        "type": "integer",
+                        "default": 300
+                    },
+                    "defaultMessageNotifications": {
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "explicitContentFilter": {
+                        "type": "integer",
+                        "default": 0
+                    }
+                },
+                "required": [
+                    "afkTimeout",
+                    "defaultMessageNotifications",
+                    "explicitContentFilter",
+                    "maxPresences",
+                    "maxVideoChannelUsers"
+                ]
+            },
+            "UserDefaults": {
+                "type": "object",
+                "properties": {
+                    "premium": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "premiumType": {
+                        "type": "integer",
+                        "default": 2
+                    },
+                    "verified": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "premium",
+                    "premiumType",
+                    "verified"
+                ]
+            },
+            "ExternalTokensConfiguration": {
+                "type": "object",
+                "properties": {
+                    "discordAttachmentRefreshBotToken": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "twitter": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "discordAttachmentRefreshBotToken",
+                    "twitter"
+                ]
+            },
+            "EmailConfiguration": {
+                "type": "object",
+                "properties": {
+                    "provider": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "senderAddress": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "smtp": {
+                        "$ref": "#/components/schemas/SMTPConfiguration"
+                    },
+                    "mailgun": {
+                        "$ref": "#/components/schemas/MailGunConfiguration"
+                    },
+                    "mailjet": {
+                        "$ref": "#/components/schemas/MailJetConfiguration"
+                    },
+                    "sendgrid": {
+                        "$ref": "#/components/schemas/SendGridConfiguration"
+                    }
+                },
+                "required": [
+                    "mailgun",
+                    "mailjet",
+                    "provider",
+                    "senderAddress",
+                    "sendgrid",
+                    "smtp"
+                ]
+            },
+            "SMTPConfiguration": {
+                "type": "object",
+                "properties": {
+                    "host": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "port": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ],
+                        "default": null
+                    },
+                    "secure": {
+                        "type": [
+                            "null",
+                            "boolean"
+                        ],
+                        "default": null
+                    },
+                    "starttls": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "allowInsecure": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "username": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "password": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "allowInsecure",
+                    "host",
+                    "password",
+                    "port",
+                    "secure",
+                    "starttls",
+                    "username"
+                ]
+            },
+            "MailGunConfiguration": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "apiKey": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "domain": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "isEuropean": {
+                        "type": "boolean",
+                        "default": true
+                    }
+                },
+                "required": [
+                    "apiKey",
+                    "domain",
+                    "isEuropean",
+                    "username"
+                ]
+            },
+            "MailJetConfiguration": {
+                "type": "object",
+                "properties": {
+                    "apiKey": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "apiSecret": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "apiKey",
+                    "apiSecret"
+                ]
+            },
+            "SendGridConfiguration": {
+                "type": "object",
+                "properties": {
+                    "apiKey": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "apiKey"
+                ]
+            },
+            "PasswordResetConfiguration": {
+                "type": "object",
+                "properties": {
+                    "requireCaptcha": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "requireCaptcha"
+                ]
+            },
+            "UserConfiguration": {
+                "type": "object",
+                "properties": {
+                    "blockedContains": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "discord",
+                            "clyde",
+                            "spacebar",
+                            "steam",
+                            "community",
+                            "support",
+                            "ticket"
+                        ]
+                    },
+                    "blockedEquals": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "everyone",
+                            "here"
+                        ]
+                    },
+                    "botsCanUseInvites": {
+                        "type": "boolean",
+                        "default": false
+                    }
+                },
+                "required": [
+                    "blockedContains",
+                    "blockedEquals",
+                    "botsCanUseInvites"
+                ]
+            },
+            "OffloadConfiguration": {
+                "type": "object",
+                "properties": {
+                    "gateway": {
+                        "$ref": "#/components/schemas/GatewayOffloadConfiguration"
+                    }
+                },
+                "required": [
+                    "gateway"
+                ]
+            },
+            "GatewayOffloadConfiguration": {
+                "type": "object",
+                "properties": {
+                    "guildMembersUrl": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "guildSyncUrl": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "lazyRequestUrl": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "channelStatusesUrl": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "channelInfoUrl": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "channelInfoUrl",
+                    "channelStatusesUrl",
+                    "guildMembersUrl",
+                    "guildSyncUrl",
+                    "lazyRequestUrl"
+                ]
+            },
+            "ComponentConfiguration": {
+                "type": "object",
+                "properties": {
+                    "mediaGalleryLimit": {
+                        "type": "integer"
+                    },
+                    "actionRowLimit": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "EmbedConfiguration": {
+                "type": "object",
+                "properties": {
+                    "defaultUserAgent": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "maxLinkEmbeds": {
+                        "type": "integer",
+                        "default": 5
+                    },
+                    "youtube": {
+                        "$ref": "#/components/schemas/YoutubeEmbedConfiguration"
+                    }
+                },
+                "required": [
+                    "defaultUserAgent",
+                    "maxLinkEmbeds",
+                    "youtube"
+                ]
+            },
+            "YoutubeEmbedConfiguration": {
+                "type": "object",
+                "properties": {
+                    "useCurlUserAgent": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "userAgent": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    },
+                    "cookie": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
+                    }
+                },
+                "required": [
+                    "cookie",
+                    "useCurlUserAgent",
+                    "userAgent"
+                ]
+            },
+            "ConfigValue": {
+                "type": "object",
+                "properties": {
+                    "admin": {
+                        "$ref": "#/components/schemas/EndpointConfiguration"
+                    },
+                    "gateway": {
+                        "$ref": "#/components/schemas/EndpointConfiguration"
+                    },
+                    "cdn": {
+                        "$ref": "#/components/schemas/CdnConfiguration"
+                    },
+                    "api": {
+                        "$ref": "#/components/schemas/ApiConfiguration"
+                    },
+                    "general": {
+                        "$ref": "#/components/schemas/GeneralConfiguration"
+                    },
+                    "limits": {
+                        "$ref": "#/components/schemas/LimitsConfiguration"
+                    },
+                    "security": {
+                        "$ref": "#/components/schemas/SecurityConfiguration"
+                    },
+                    "login": {
+                        "$ref": "#/components/schemas/LoginConfiguration"
+                    },
+                    "register": {
+                        "$ref": "#/components/schemas/RegisterConfiguration"
+                    },
+                    "regions": {
+                        "$ref": "#/components/schemas/RegionConfiguration"
+                    },
+                    "guild": {
+                        "$ref": "#/components/schemas/GuildConfiguration"
+                    },
+                    "gif": {
+                        "$ref": "#/components/schemas/GifConfiguration"
+                    },
+                    "rabbitmq": {
+                        "$ref": "#/components/schemas/RabbitMQConfiguration"
+                    },
+                    "templates": {
+                        "$ref": "#/components/schemas/TemplateConfiguration"
+                    },
+                    "updates": {
+                        "$ref": "#/components/schemas/UpdateCheckConfiguration"
+                    },
+                    "defaults": {
+                        "$ref": "#/components/schemas/DefaultsConfiguration"
+                    },
+                    "external": {
+                        "$ref": "#/components/schemas/ExternalTokensConfiguration"
+                    },
+                    "email": {
+                        "$ref": "#/components/schemas/EmailConfiguration"
+                    },
+                    "passwordReset": {
+                        "$ref": "#/components/schemas/PasswordResetConfiguration"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserConfiguration"
+                    },
+                    "offload": {
+                        "$ref": "#/components/schemas/OffloadConfiguration"
+                    },
+                    "components": {
+                        "$ref": "#/components/schemas/ComponentConfiguration"
+                    },
+                    "embeds": {
+                        "$ref": "#/components/schemas/EmbedConfiguration"
+                    }
+                },
+                "required": [
+                    "admin",
+                    "api",
+                    "cdn",
+                    "components",
+                    "defaults",
+                    "email",
+                    "embeds",
+                    "external",
+                    "gateway",
+                    "general",
+                    "gif",
+                    "guild",
+                    "limits",
+                    "login",
+                    "offload",
+                    "passwordReset",
+                    "rabbitmq",
+                    "regions",
+                    "register",
+                    "security",
+                    "templates",
+                    "updates",
+                    "user"
+                ]
+            },
             "PinnedMessageItem": {
                 "type": "object",
                 "properties": {
@@ -17769,302 +19754,6 @@
                     "id",
                     "name",
                     "optimal"
-                ]
-            },
-            "UserLimits": {
-                "type": "object",
-                "properties": {
-                    "maxGuilds": {
-                        "type": "integer",
-                        "default": 1048576
-                    },
-                    "maxUsername": {
-                        "type": "integer",
-                        "default": 32
-                    },
-                    "maxFriends": {
-                        "type": "integer",
-                        "default": 5000
-                    },
-                    "maxBio": {
-                        "type": "integer",
-                        "default": 190
-                    }
-                },
-                "required": [
-                    "maxBio",
-                    "maxFriends",
-                    "maxGuilds",
-                    "maxUsername"
-                ]
-            },
-            "GuildLimits": {
-                "type": "object",
-                "properties": {
-                    "maxRoles": {
-                        "type": "integer",
-                        "default": 1000
-                    },
-                    "maxEmojis": {
-                        "type": "integer",
-                        "default": 2000
-                    },
-                    "maxStickers": {
-                        "type": "integer",
-                        "default": 500
-                    },
-                    "maxMembers": {
-                        "type": "integer",
-                        "default": 25000000
-                    },
-                    "maxChannels": {
-                        "type": "integer",
-                        "default": 65535
-                    },
-                    "maxBulkBanUsers": {
-                        "type": "integer",
-                        "default": 200
-                    },
-                    "maxChannelsInCategory": {
-                        "type": "integer",
-                        "default": 65535
-                    }
-                },
-                "required": [
-                    "maxBulkBanUsers",
-                    "maxChannels",
-                    "maxChannelsInCategory",
-                    "maxEmojis",
-                    "maxMembers",
-                    "maxRoles",
-                    "maxStickers"
-                ]
-            },
-            "MessageLimits": {
-                "type": "object",
-                "properties": {
-                    "maxCharacters": {
-                        "type": "integer",
-                        "default": 1048576
-                    },
-                    "maxTTSCharacters": {
-                        "type": "integer",
-                        "default": 160
-                    },
-                    "maxReactions": {
-                        "type": "integer",
-                        "default": 2048
-                    },
-                    "maxAttachmentSize": {
-                        "type": "integer",
-                        "default": 1073741824
-                    },
-                    "maxBulkDelete": {
-                        "type": "integer",
-                        "default": 1000
-                    },
-                    "maxEmbedDownloadSize": {
-                        "type": "integer",
-                        "default": 5242880
-                    },
-                    "maxPreloadCount": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxEmbeds": {
-                        "type": "integer",
-                        "default": 20
-                    }
-                },
-                "required": [
-                    "maxAttachmentSize",
-                    "maxBulkDelete",
-                    "maxCharacters",
-                    "maxEmbedDownloadSize",
-                    "maxEmbeds",
-                    "maxPreloadCount",
-                    "maxReactions",
-                    "maxTTSCharacters"
-                ]
-            },
-            "ChannelLimits": {
-                "type": "object",
-                "properties": {
-                    "maxPins": {
-                        "type": "integer",
-                        "default": 500
-                    },
-                    "maxTopic": {
-                        "type": "integer",
-                        "default": 1024
-                    },
-                    "maxWebhooks": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "maxName": {
-                        "type": "integer",
-                        "default": 32
-                    }
-                },
-                "required": [
-                    "maxName",
-                    "maxPins",
-                    "maxTopic",
-                    "maxWebhooks"
-                ]
-            },
-            "WebRtcLimits": {
-                "type": "object",
-                "properties": {
-                    "maxMessageSize": {
-                        "description": "Maximum inbound WebRTC websocket signaling payload size, in bytes.",
-                        "type": "integer",
-                        "default": 65536
-                    },
-                    "rateLimitCount": {
-                        "description": "Maximum inbound WebRTC websocket messages per rateLimitWindow.",
-                        "type": "integer",
-                        "default": 120
-                    },
-                    "rateLimitWindow": {
-                        "description": "WebRTC websocket message rate limit window, in milliseconds.",
-                        "type": "integer",
-                        "default": 60000
-                    }
-                },
-                "required": [
-                    "maxMessageSize",
-                    "rateLimitCount",
-                    "rateLimitWindow"
-                ]
-            },
-            "RateLimits": {
-                "type": "object",
-                "properties": {
-                    "enabled": {
-                        "type": "boolean",
-                        "default": false
-                    },
-                    "ip": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "global": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "error": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "routes": {
-                        "$ref": "#/components/schemas/RouteRateLimit"
-                    }
-                },
-                "required": [
-                    "enabled",
-                    "error",
-                    "global",
-                    "ip",
-                    "routes"
-                ]
-            },
-            "RateLimitOptions": {
-                "type": "object",
-                "properties": {
-                    "bot": {
-                        "type": "integer"
-                    },
-                    "count": {
-                        "type": "integer"
-                    },
-                    "window": {
-                        "type": "integer"
-                    },
-                    "onyIp": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "count",
-                    "window"
-                ]
-            },
-            "RouteRateLimit": {
-                "type": "object",
-                "properties": {
-                    "guild": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "webhook": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "channel": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "attachmentRefresh": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "auth": {
-                        "$ref": "#/components/schemas/AuthRateLimit"
-                    }
-                },
-                "required": [
-                    "attachmentRefresh",
-                    "auth",
-                    "channel",
-                    "guild",
-                    "webhook"
-                ]
-            },
-            "AuthRateLimit": {
-                "type": "object",
-                "properties": {
-                    "login": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    },
-                    "register": {
-                        "$ref": "#/components/schemas/RateLimitOptions"
-                    }
-                },
-                "required": [
-                    "login",
-                    "register"
-                ]
-            },
-            "GlobalRateLimits": {
-                "type": "object",
-                "properties": {
-                    "register": {
-                        "$ref": "#/components/schemas/GlobalRateLimit"
-                    },
-                    "sendMessage": {
-                        "$ref": "#/components/schemas/GlobalRateLimit"
-                    }
-                },
-                "required": [
-                    "register",
-                    "sendMessage"
-                ]
-            },
-            "GlobalRateLimit": {
-                "type": "object",
-                "properties": {
-                    "limit": {
-                        "type": "integer",
-                        "default": 100
-                    },
-                    "window": {
-                        "type": "integer",
-                        "default": 3600000
-                    },
-                    "enabled": {
-                        "type": "boolean",
-                        "default": true
-                    }
-                },
-                "required": [
-                    "enabled",
-                    "limit",
-                    "window"
                 ]
             },
             "UserProfile": {
@@ -24346,7 +26035,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Object"
+                                    "$ref": "#/components/schemas/InstanceConfigResponse"
                                 }
                             }
                         }
