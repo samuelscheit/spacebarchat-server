@@ -5,17 +5,6 @@
 }:
 
 let
-  packageLock = builtins.fromJSON (builtins.readFile ./package-lock.json);
-  workspaceNodeModuleLinks = map (path: lib.removePrefix "node_modules/" path) (
-    builtins.filter (path: (packageLock.packages.${path}.link or false) && lib.hasPrefix "node_modules/" path) (builtins.attrNames packageLock.packages)
-  );
-  removeWorkspaceNodeModuleLinks = lib.concatMapStringsSep "\n" (path: ''
-    if [ -L "$out/${path}" ]; then
-      echo "Removing npm workspace symlink: $out/${path}"
-      rm -f "$out/${path}"
-    fi
-  '') workspaceNodeModuleLinks;
-
   filteredSrc = lib.fileset.toSource {
     root = ./.;
     fileset = (
@@ -59,18 +48,17 @@ pkgs.buildNpmPackage {
   installPhase = ''
     runHook preInstall
 
+    # npm represents local workspaces as node_modules symlinks to apps/* and
+    # packages/*. This derivation exports node_modules as a standalone Nix
+    # output, so those links become dangling after the copy into /nix/store.
+    # Remove only lockfile-declared workspace links before copying; Nix's
+    # noBrokenSymlinks fixup still catches unrelated broken package symlinks.
+    ${pkgs.nodejs_24}/bin/node ${./scripts/nix/remove-workspace-node-module-links.js} --package-lock package-lock.json --node-modules node_modules
+
     # Copy outputs
     echo "Copying node_modules as $out"
     mkdir -p $out
     cp -r node_modules/. $out/
-
-    # npm workspaces are represented as symlinks from node_modules to the
-    # workspace source directories. This derivation packages node_modules as a
-    # standalone output, so remove only the lockfile-declared workspace links;
-    # Nix's noBrokenSymlinks fixup still catches any unrelated broken package
-    # symlinks.
-    ${removeWorkspaceNodeModuleLinks}
-
     echo -n 'Disk usage: '
     du -sh node_modules/
 

@@ -22,6 +22,7 @@ import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
 import { assertGatewayChannelAccess } from "../util/Authorization";
+import { unsubscribeGuildMemberEventIds } from "../listener/subscriptions";
 
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
 // TODO: rewrite typeorm
@@ -93,6 +94,20 @@ function getRequestedRanges(ranges: unknown[]): [number, number][] {
     });
 }
 
+function getLazyMemberIds(memberList: ReturnType<typeof buildLazyMemberListOperations>) {
+    return new Set(memberList.ops.flatMap((op) => op.members.map((member) => member?.user.id).filter((userId): userId is string => Boolean(userId))));
+}
+
+async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
+    const trackedUserIds = socket.guild_member_event_ids[guildId];
+    if (!trackedUserIds?.size) return;
+
+    const staleUserIds = [...trackedUserIds].filter((userId) => !subscribedUserIds.has(userId));
+    if (!staleUserIds.length) return;
+
+    await unsubscribeGuildMemberEventIds(socket.member_events, socket.guild_member_event_ids, socket.member_event_guild_ids, guildId, staleUserIds);
+}
+
 export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
     // TODO: check data
@@ -113,6 +128,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 
     if (requiresAuthorizedChannel && !authorized) return;
 
+    const subscribedUserIds = new Set<string>();
     if (members) {
         // Client has requested a PRESENCE_UPDATE for specific member
 
@@ -121,6 +137,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
                 if (!x) return;
                 if (!(await canUserViewChannel(guild_id, authorized!.channel.id, x))) return;
 
+                subscribedUserIds.add(x);
                 const didSubscribe = await subscribeGuildMemberEvent.call(this, guild_id, x);
                 if (!didSubscribe) return;
 
@@ -160,9 +177,10 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 
     const requestedRanges = getRequestedRanges(ranges);
     const guildMembers = await getMembers(guild_id);
-    const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.permissions.cache.guild?.owner_id));
+    const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.guildOwnerId));
     const member_count = visibleGuildMembers.length;
     const memberList = buildLazyMemberListOperations(visibleGuildMembers, guild_id, requestedRanges);
+    for (const userId of getLazyMemberIds(memberList)) subscribedUserIds.add(userId);
 
     let list_id = "everyone";
 
@@ -182,9 +200,8 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         }
     }
 
-    // TODO: unsubscribe member_events that are not in op.members
-
-    await Promise.all(memberList.ops.flatMap((op) => op.members.map((member) => (member?.user.id ? subscribeGuildMemberEvent.call(this, guild_id, member.user.id) : undefined))));
+    await Promise.all([...subscribedUserIds].map((userId) => subscribeGuildMemberEvent.call(this, guild_id, userId)));
+    await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
 
     await Send(this, {
         op: OPCODES.Dispatch,

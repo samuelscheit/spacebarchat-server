@@ -36,7 +36,9 @@ interface MockSocket {
     close: () => void;
     events: Record<string, unknown>;
     listen_options: Record<string, unknown>;
-    member_events: Record<string, unknown>;
+    guild_member_event_ids: Record<string, Set<string>>;
+    member_event_guild_ids: Record<string, Set<string>>;
+    member_events: Record<string, () => Promise<unknown>>;
     sequence: number;
     user_id: string;
 }
@@ -48,24 +50,30 @@ const state: {
     buildCalls: { guildId: string; members: unknown[]; ranges: Range[] }[];
     channelOverwrites: { allow: string; deny: string; id: string }[] | undefined;
     getManyCalls: number;
+    guildOwnerLookups: number;
     guildMembers: unknown[];
     memberCount: number;
     memberListResult: MockMemberListResult;
+    omitPermissionGuildCache: boolean;
     permissionError: Error | undefined;
     permissionChecks: string[];
     sentPayloads: DispatchPayload[];
     subscriptions: string[];
+    unsubscriptions: string[];
 } = {
     buildCalls: [],
     channelOverwrites: undefined,
     getManyCalls: 0,
+    guildOwnerLookups: 0,
     guildMembers: [],
     memberCount: 0,
     memberListResult: { groups: [], online_count: 0, ops: [] },
+    omitPermissionGuildCache: false,
     permissionError: undefined,
     permissionChecks: [],
     sentPayloads: [],
     subscriptions: [],
+    unsubscriptions: [],
 };
 
 const queryBuilder = {
@@ -96,6 +104,12 @@ const mockUtil = {
             return { permission_overwrites: state.channelOverwrites };
         },
     },
+    Guild: {
+        async findOneOrFail() {
+            state.guildOwnerLookups++;
+            return { id: "guild", owner_id: "owner" };
+        },
+    },
     Member: {
         async count() {
             return state.memberCount;
@@ -114,9 +128,17 @@ const mockUtil = {
             channel,
         }: {
             channel: { overwrites?: { allow: string; deny: string; id: string }[] };
-            guild: { roles: { id: string; permissions?: string }[] };
-            user: { roles: string[] };
+            guild: { owner_id: string; roles: { id: string; permissions?: string }[] };
+            user: { id: string; roles: string[] };
         }) {
+            if (guild.owner_id === user.id) {
+                return {
+                    has(permission: string) {
+                        return permission === "VIEW_CHANNEL";
+                    },
+                };
+            }
+
             let bitfield = guild.roles.filter((role) => user.roles.includes(role.id)).reduce((permissions, role) => permissions | BigInt(role.permissions ?? "0"), 0n);
             for (const overwrite of channel.overwrites ?? []) {
                 if (user.roles.includes(overwrite.id)) bitfield = (bitfield & ~BigInt(overwrite.deny)) | BigInt(overwrite.allow);
@@ -163,9 +185,7 @@ const mockUtil = {
                     id: channelId,
                     permission_overwrites: state.channelOverwrites,
                 },
-                guild: {
-                    owner_id: "owner",
-                },
+                guild: state.omitPermissionGuildCache ? undefined : { owner_id: "owner" },
             },
             hasThrow(permission: string) {
                 state.permissionChecks.push(permission);
@@ -191,7 +211,16 @@ const mockGateway = {
         state.buildCalls.push({ guildId, members, ranges });
         return state.memberListResult;
     },
-    async subscribeGuildMemberEvent(_guildId: string, userId: string) {
+    async subscribeGuildMemberEvent(this: MockSocket, guildId: string, userId: string) {
+        if (this.guild_member_event_ids[guildId]?.has(userId)) return false;
+
+        this.guild_member_event_ids[guildId] ??= new Set();
+        this.guild_member_event_ids[guildId].add(userId);
+        this.member_event_guild_ids[userId] ??= new Set();
+        this.member_event_guild_ids[userId].add(guildId);
+        this.member_events[userId] ??= async () => {
+            state.unsubscriptions.push(userId);
+        };
         state.subscriptions.push(userId);
         return true;
     },
@@ -232,13 +261,16 @@ beforeEach(() => {
     state.buildCalls = [];
     state.channelOverwrites = undefined;
     state.getManyCalls = 0;
+    state.guildOwnerLookups = 0;
     state.guildMembers = [viewableMember("online-user"), viewableMember("offline-user")];
     state.memberCount = 3;
     state.memberListResult = { groups: [], online_count: 0, ops: [] };
+    state.omitPermissionGuildCache = false;
     state.permissionError = undefined;
     state.permissionChecks = [];
     state.sentPayloads = [];
     state.subscriptions = [];
+    state.unsubscriptions = [];
 });
 
 function socket(): MockSocket {
@@ -247,7 +279,9 @@ function socket(): MockSocket {
             throw new Error("validation should be mocked in LazyRequest tests");
         },
         events: {},
+        guild_member_event_ids: {},
         listen_options: {},
+        member_event_guild_ids: {},
         member_events: {},
         sequence: 0,
         user_id: "viewer",
@@ -396,6 +430,67 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: [state.guildMembers[0]], ranges: [[0, 1]] }]);
         const payload = sentUpdate();
         assert.equal(payload.d.member_count, 1);
+    });
+
+    test("uses the authorized guild owner id when permission cache omits guild data", async () => {
+        state.omitPermissionGuildCache = true;
+        state.guildMembers = [
+            {
+                id: "owner",
+                guild_id: "guild",
+                communication_disabled_until: null,
+                roles: [],
+                user: { flags: 0 },
+            },
+            viewableMember("hidden-user", [memberRole("guild", "0")]),
+        ];
+        state.memberListResult = {
+            groups: [{ count: 1, id: "online" }],
+            online_count: 1,
+            ops: [memberListOp([0, 1], [{ user: { id: "owner" } }])],
+        };
+
+        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 1]] }, guild_id: "guild" } });
+
+        assert.equal(state.guildOwnerLookups, 1);
+        assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: [state.guildMembers[0]], ranges: [[0, 1]] }]);
+        const payload = sentUpdate();
+        assert.equal(payload.d.member_count, 1);
+    });
+
+    test("unsubscribes stale lazy presence subscriptions outside the authorized member list", async () => {
+        state.memberListResult = {
+            groups: [{ count: 1, id: "online" }],
+            online_count: 1,
+            ops: [memberListOp([0, 0], [{ user: { id: "visible-user" } }])],
+        };
+        const activeSocket = socket();
+        activeSocket.member_events = {
+            "shared-user": async () => state.unsubscriptions.push("shared-user"),
+            "stale-user": async () => state.unsubscriptions.push("stale-user"),
+        };
+        activeSocket.guild_member_event_ids = {
+            guild: new Set(["shared-user", "stale-user"]),
+            "other-guild": new Set(["shared-user"]),
+        };
+        activeSocket.member_event_guild_ids = {
+            "shared-user": new Set(["guild", "other-guild"]),
+            "stale-user": new Set(["guild"]),
+        };
+
+        await onLazyRequest.call(activeSocket, { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.subscriptions, ["visible-user"]);
+        assert.deepEqual(state.unsubscriptions, ["stale-user"]);
+        assert.deepEqual(activeSocket.guild_member_event_ids, {
+            guild: new Set(["visible-user"]),
+            "other-guild": new Set(["shared-user"]),
+        });
+        assert.deepEqual(activeSocket.member_event_guild_ids, {
+            "shared-user": new Set(["other-guild"]),
+            "visible-user": new Set(["guild"]),
+        });
+        assert.deepEqual(Object.keys(activeSocket.member_events).sort(), ["shared-user", "visible-user"]);
     });
 
     test("ignores member presence requests that do not include an authorized channel", async () => {

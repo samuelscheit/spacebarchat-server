@@ -66,6 +66,13 @@ type GuildCreatePermissionData = {
     >;
 };
 
+export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<string, Set<string>>, guildId: string | undefined, presenceUserId: string | undefined) {
+    if (!guildId) return true;
+    if (!presenceUserId) return false;
+
+    return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
+}
+
 // TODO: close connection on Invalidated Token
 // TODO: check intent
 // TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
@@ -442,7 +449,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "GUILD_MEMBER_ADD":
         case "GUILD_MEMBER_REMOVE":
         case "GUILD_MEMBER_UPDATE": // only send them, if the user subscribed for this part of the member list, or is a bot
-        case "PRESENCE_UPDATE": // exception if user is friend
+            break;
+        case "PRESENCE_UPDATE": // direct user routes cover friends/DMs; guild routes require an authorized lazy member-list subscription.
+            if (!canDispatchGuildPresenceUpdate(this.guild_member_event_ids, guildId, data.user?.id)) return;
             break;
         case "GUILD_BAN_ADD":
         case "GUILD_BAN_REMOVE":

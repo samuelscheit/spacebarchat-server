@@ -141,6 +141,9 @@ const mockUtil = {
         async findOne() {
             return { id: "guild", region: "local" };
         },
+        async findOneOrFail() {
+            return { id: "guild", owner_id: "owner", region: "local" };
+        },
     },
     Member: {
         async findOne(options: unknown) {
@@ -227,6 +230,7 @@ const mockUtil = {
         return {
             cache: {
                 channel: state.channels[channelId],
+                guild: guildId ? { id: guildId, owner_id: "owner" } : undefined,
             },
             hasThrow(permission: unknown) {
                 state.permissionCalls.push({ channelId, guildId, permission, userId });

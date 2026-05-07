@@ -1,8 +1,9 @@
-import { Channel, getPermission, type PermissionResolvable, type Permissions } from "@spacebar/util";
+import { Channel, getPermission, Guild, type PermissionResolvable, type Permissions } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 
 export interface GatewayChannelAccess {
     channel: Channel;
+    guildOwnerId?: string;
     permissions: Permissions;
 }
 
@@ -39,7 +40,18 @@ export async function assertGatewayChannelAccess({ userId, guildId, channelId, p
         throw new Error("channel_id does not belong to guild_id");
     }
 
-    return { channel, permissions };
+    const guildOwnerId =
+        permissions.cache.guild?.owner_id ??
+        (actualGuildId
+            ? (
+                  await Guild.findOneOrFail({
+                      where: { id: actualGuildId },
+                      select: ["id", "owner_id"],
+                  })
+              ).owner_id
+            : undefined);
+
+    return { channel, guildOwnerId, permissions };
 }
 
 export function assertGuildStreamKeyMatchesChannel(guildId: string | undefined, channel: Channel) {
