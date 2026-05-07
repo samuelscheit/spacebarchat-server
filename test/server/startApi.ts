@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { SpacebarServer, type SpacebarServerOptions } from "../../src/api/Server";
+import { SpacebarServer, type SpacebarServerOptions } from "@spacebar/api";
 
 export interface StartedApiServer {
     baseUrl: string;

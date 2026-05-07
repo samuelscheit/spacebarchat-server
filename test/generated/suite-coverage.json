@@ -729,6 +729,7 @@
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "test/scenarios/auth-register-login.test.ts",
                         "src/api/tests/auth/whoami.test.ts",
                         "src/api/util/utility/Totp.test.ts",
                         "src/util/util/Totp.test.ts",

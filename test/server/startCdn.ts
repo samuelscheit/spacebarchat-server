@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { CDNServer, type CDNServerOptions } from "../../src/cdn/Server";
+import { CDNServer, type CDNServerOptions } from "@spacebar/cdn";
 
 export interface StartedCdnServer {
     baseUrl: string;

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { Server as GatewayServer } from "../../src/gateway/Server";
+import { Server as GatewayServer } from "@spacebar/gateway";
 
 export interface StartedGatewayServer {
     url: string;
