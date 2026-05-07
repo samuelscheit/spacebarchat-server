@@ -28,7 +28,7 @@ import {
     emitEvent,
     Emoji,
     EVENTEnum,
-    generateToken,
+    generateTokenForSession,
     getDatabase,
     Guild,
     GuildOrUnavailable,
@@ -46,6 +46,8 @@ import {
     Role,
     Session,
     SessionsReplace,
+    isRealGatewaySessionId,
+    serializePrivateGatewaySessions,
     Sticker,
     Stopwatch,
     ThreadMember,
@@ -130,16 +132,17 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const validateIntentsAndShardingTime = taskSw.getElapsedAndReset();
 
     // Generate a new gateway session if needed (id is already made, just save it in db )
-    const { session, isNewSession } = tokenData.session
-        ? { session: tokenData.session, isNewSession: false }
+    const tokenSession = isRealGatewaySessionId(tokenData.session?.session_id) ? tokenData.session : undefined;
+    const { session, isNewSession } = tokenSession
+        ? { session: tokenSession, isNewSession: false }
         : {
               session: Session.create({
                   user_id: this.user_id,
-                  session_id: this.session_id,
                   status: "offline", // ??? why wasnt this required before
               }),
               isNewSession: true,
           };
+    const shouldRefreshAuthToken = tokenData.tokenVersion != CurrentTokenFormatVersion || tokenData.decoded.did !== session.session_id;
 
     if (isNewSession)
         console.warn(
@@ -588,7 +591,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const appendRelationshipsTime = taskSw.getElapsedAndReset();
 
     // Send SESSIONS_REPLACE and PRESENCE_UPDATE
-    const allSessions = sessions.concat(this.session!).map((x) => x.toPrivateGatewayDeviceInfo());
+    const allSessions = serializePrivateGatewaySessions(sessions.concat(this.session!));
     const findAndGenerateSessionReplaceTime = taskSw.getElapsedAndReset();
 
     const [{ elapsed: emitSessionsReplaceTime }, { elapsed: emitPresenceUpdateTime }] = await Promise.all([
@@ -702,8 +705,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             }) satisfies ReadyEventData,
     );
 
-    if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && tokenData.tokenVersion != CurrentTokenFormatVersion) {
-        d.auth_token = this.accessToken = (await generateToken(this.user_id))!;
+    if (this.capabilities.has(Capabilities.FLAGS.AUTH_TOKEN_REFRESH) && shouldRefreshAuthToken) {
+        d.auth_token = this.accessToken = (await generateTokenForSession(this.user_id, this.session!))!;
     }
     // const buildReadyEventDataTime = taskSw.getElapsedAndReset();
 

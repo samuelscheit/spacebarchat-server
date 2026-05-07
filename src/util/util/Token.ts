@@ -17,20 +17,21 @@
 */
 
 import jwt from "jsonwebtoken";
-import { Config } from "./Config";
-import { InstanceBan, Session, User } from "../entities";
+import type { InstanceBan } from "../entities/InstanceBan";
+import type { Session } from "../entities/Session";
+import type { User } from "../entities/User";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
 // TODO: dont use deprecated APIs lol
 import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
-import { randomUpperString } from "@spacebar/api";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
 import path from "node:path";
 import { createTokenPayload, CurrentTokenFormatVersion, getTokenUserId, TokenPayload } from "./TokenPayload";
+import { isRealGatewaySessionId } from "./GatewaySessions";
 
-export { CurrentTokenFormatVersion };
+export { createTokenPayload, CurrentTokenFormatVersion };
 
 export type UserTokenData = {
     user: User;
@@ -47,6 +48,37 @@ function logAuth(text: string) {
 function rejectAndLog(rejectFunction: (reason?: unknown) => void, httpCode: number | undefined, reason: string) {
     console.error(reason);
     rejectFunction(new HTTPError(reason, httpCode ?? 400));
+}
+
+function randomUpperString(length: number = 10) {
+    return (require("@spacebar/api") as { randomUpperString(length?: number): string }).randomUpperString(length);
+}
+
+export type TokenEntityStores = {
+    InstanceBan: typeof InstanceBan;
+    Session: typeof Session;
+    User: typeof User;
+};
+
+let tokenEntityStores: TokenEntityStores | undefined;
+
+function getTokenEntityStores() {
+    return (tokenEntityStores ??= require("../entities") as TokenEntityStores);
+}
+
+function getConfig() {
+    return (require("./Config") as typeof import("./Config")).Config;
+}
+
+export function setTokenEntityStoresForTests(stores: TokenEntityStores | undefined) {
+    tokenEntityStores = stores;
+}
+
+export function getInvalidCurrentTokenSessionReason(decoded: Pick<UserTokenData["decoded"], "did">, tokenVersion: number, session?: Pick<Session, "session_id">) {
+    if (tokenVersion !== CurrentTokenFormatVersion) return undefined;
+    if (!isRealGatewaySessionId(decoded.did)) return "Current token has no real session id";
+    if (!session || session.session_id !== decoded.did) return "Current token session was not found";
+    return undefined;
 }
 
 export const checkToken = (
@@ -75,6 +107,8 @@ export const checkToken = (
                 logAuth("validateUser rejected: Missing user id claim");
                 return rejectAndLog(reject, 401, "Invalid Token");
             }
+
+            const { InstanceBan, Session, User } = getTokenEntityStores();
 
             // eslint-disable-next-line prefer-const
             let [user, session] = await Promise.all([
@@ -107,6 +141,13 @@ export const checkToken = (
                 return rejectAndLog(reject, 401, "User not found");
             }
 
+            const tokenVersion = decoded.ver ?? legacyVersion ?? 2;
+            const invalidCurrentTokenSessionReason = getInvalidCurrentTokenSessionReason(decoded, tokenVersion, session ?? undefined);
+            if (invalidCurrentTokenSessionReason) {
+                logAuth("validateUser rejected: " + invalidCurrentTokenSessionReason);
+                return rejectAndLog(reject, 401, "Invalid Token");
+            }
+
             const banReasons = await InstanceBan.findInstanceBans({ userId: user.id, ipAddress: opts?.ipAddress, fingerprint: opts?.fingerprint, propagateBan: true });
             if (banReasons.length > 0) {
                 logAuth("validateUser rejected: User banned for reasons: " + banReasons.join(", "));
@@ -128,7 +169,7 @@ export const checkToken = (
                 session: session ?? undefined,
                 user,
                 // v1 can be told apart, v2 cant outside of missing device id and version
-                tokenVersion: decoded.ver ?? legacyVersion ?? 2,
+                tokenVersion,
             };
 
             if (process.env.LOG_TOKEN_VERSION) console.log("User", user.id, "logged in with token version", result.tokenVersion);
@@ -141,9 +182,9 @@ export const checkToken = (
         if (!dec) return void rejectAndLog(reject, 500, "Failed to decode token");
         logAuth("Decoded token: " + JSON.stringify(dec));
 
-        if (dec.header.alg == "HS256" && Config.get().security.jwtSecret !== null) {
+        if (dec.header.alg == "HS256" && getConfig().get().security.jwtSecret !== null) {
             legacyVersion = 1;
-            jwt.verify(token, Config.get().security.jwtSecret!, { algorithms: ["HS256"] }, validateUser);
+            jwt.verify(token, getConfig().get().security.jwtSecret!, { algorithms: ["HS256"] }, validateUser);
         } else if (dec.header.alg == "ES512") {
             loadOrGenerateKeypair().then((keyPair) => {
                 jwt.verify(token, keyPair.publicKey, { algorithms: ["ES512"] }, validateUser);
@@ -151,10 +192,29 @@ export const checkToken = (
         } else return void rejectAndLog(reject, 400, "Unsupported token algorithm: " + dec.header.alg);
     });
 
-export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
-    const iat = Math.floor(Date.now() / 1000);
+export async function generateTokenForSession(id: string, session: Pick<Session, "session_id"> | string): Promise<string | undefined> {
     const keyPair = await loadOrGenerateKeypair();
+    const session_id = typeof session === "string" ? session : session.session_id;
+    if (!isRealGatewaySessionId(session_id)) throw new Error("Cannot generate a token for an invalid session id");
+    const iat = Math.floor(Date.now() / 1000);
 
+    return new Promise((res, rej) => {
+        jwt.sign(
+            createTokenPayload(id, iat, keyPair.fingerprint, session_id),
+            keyPair.privateKey,
+            {
+                algorithm: "ES512",
+            },
+            (err, token) => {
+                if (err) return rej(err);
+                return res(token);
+            },
+        );
+    });
+}
+
+export async function generateToken(id: string, isAdminSession: boolean = false): Promise<string | undefined> {
+    const { Session } = getTokenEntityStores();
     let newSession;
     do {
         newSession = Session.create({
@@ -169,20 +229,7 @@ export async function generateToken(id: string, isAdminSession: boolean = false)
 
     await newSession.save();
 
-    return new Promise((res, rej) => {
-        const payload = createTokenPayload(id, iat, keyPair.fingerprint, newSession.session_id);
-        jwt.sign(
-            payload,
-            keyPair.privateKey,
-            {
-                algorithm: "ES512",
-            },
-            (err, token) => {
-                if (err) return rej(err);
-                return res(token);
-            },
-        );
-    });
+    return generateTokenForSession(id, newSession);
 }
 
 let lastFsCheck: number;

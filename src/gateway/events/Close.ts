@@ -28,11 +28,13 @@ import {
     VoiceState,
     VoiceStateUpdateEvent,
     distributePresenceUpdate,
+    serializePrivateGatewaySessions,
 } from "@spacebar/util";
 import { randomString } from "@spacebar/api";
 import { runDelayedGatewayCloseCleanup } from "../util/Shutdown";
 
 export interface CloseSessionRecord {
+    session_id?: string;
     last_seen?: Date;
     activities: PresenceUpdateEvent["data"]["activities"];
     client_status: PresenceUpdateEvent["data"]["client_status"];
@@ -44,7 +46,7 @@ export interface CloseSessionRecord {
 export interface CloseSessionCleanupDependencies {
     findSessions(userId: string): Promise<CloseSessionRecord[]>;
     markSessionOffline(userId: string, sessionId: string, closedAt: number): Promise<boolean>;
-    findPublicUser(userId: string): Promise<unknown>;
+    findPublicUser(userId: string): Promise<unknown | undefined>;
     emitSessionsReplace(userId: string, sessions: CloseSessionRecord[]): Promise<void>;
     distributePresenceUpdate(userId: string, event: PresenceUpdateEvent): Promise<void>;
     getMostRelevantSession(sessions: CloseSessionRecord[]): CloseSessionRecord | undefined;
@@ -67,12 +69,12 @@ const closeSessionCleanupDependencies: CloseSessionCleanupDependencies = {
 
         return (result.affected ?? 0) > 0;
     },
-    findPublicUser: async (userId) => (await User.findOneOrFail({ where: { id: userId } })).toPublicUser(),
+    findPublicUser: async (userId) => User.getPublicUser(userId).catch(() => undefined),
     emitSessionsReplace: async (userId, sessions) => {
         await emitEvent({
             event: "SESSIONS_REPLACE",
             user_id: userId,
-            data: sessions.map((x) => x.toPrivateGatewayDeviceInfo()),
+            data: serializePrivateGatewaySessions(sessions),
         } as SessionsReplace);
     },
     distributePresenceUpdate,
@@ -99,10 +101,13 @@ export async function cleanupClosedSessionPresence(
     };
     await deps.emitSessionsReplace(userId, sessions);
 
+    const user = await deps.findPublicUser(userId);
+    if (user === undefined) return true;
+
     await deps.distributePresenceUpdate(userId, {
         event: "PRESENCE_UPDATE",
         data: {
-            user: (await deps.findPublicUser(userId)) as PresenceUpdateEvent["data"]["user"],
+            user: user as PresenceUpdateEvent["data"]["user"],
             status: relevantSession.getPublicStatus(),
             client_status: relevantSession.client_status,
             activities: relevantSession.activities,

@@ -33,6 +33,7 @@ export * from "./email";
 export * from "./ElapsedTime";
 export * from "./Event";
 export * from "./FieldError";
+export * from "./GatewaySessions";
 export * from "./GuildCreate";
 export * from "./Intents";
 export * from "./InvisibleCharacters";
