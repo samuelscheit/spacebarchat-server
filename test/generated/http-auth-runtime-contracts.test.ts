@@ -1,15 +1,22 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import Ajv, { type AnySchema } from "ajv";
+import addFormats from "ajv-formats";
+import { Config } from "@spacebar/util";
 import { startApi } from "../server/startApi";
 
 type GeneratedHttpContract = {
     manifestId: string;
     service: string;
     method: string;
+    path: string;
     samplePath: string;
     authMode: string;
+    fixtureRequirements: string[];
     routeMetadata: {
         requestBody?: string;
+        responses: string[];
+        responseStatuses: number[];
     };
 };
 
@@ -19,6 +26,7 @@ type GeneratedHttpContractMatrix = {
         runtimeMalformedAuthContracts: number;
         runtimePublicAuthBoundaryContracts: number;
         runtimePublicInvalidBodyContracts: number;
+        runtimePublicResponseSchemaContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -29,6 +37,7 @@ const matrix = require("../../../test/generated/http-contracts.json") as Generat
 const protectedApiContracts = matrix.contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS");
 const publicApiContracts = matrix.contracts.filter((contract) => contract.service === "api" && contract.authMode === "public" && contract.method !== "OPTIONS");
 const publicRequestBodyValidationExclusions = new Set(["api:http:POST:/webhooks/:webhook_id/:token/github/"]);
+const publicResponseSchemaExclusions = new Set(["api:http:GET:/download/", "api:http:GET:/policies/stats/", "api:http:GET:/updates/"]);
 const publicInvalidBodyContracts = matrix.contracts.filter(
     (contract) =>
         contract.service === "api" &&
@@ -36,6 +45,30 @@ const publicInvalidBodyContracts = matrix.contracts.filter(
         contract.method !== "OPTIONS" &&
         contract.routeMetadata.requestBody &&
         !publicRequestBodyValidationExclusions.has(contract.manifestId),
+);
+const schemas = JSON.parse(JSON.stringify(require("../../../assets/schemas.json")).replaceAll("#/definitions/", "")) as Record<string, AnySchema>;
+const ajv = new Ajv({
+    allErrors: true,
+    parseDate: true,
+    allowDate: true,
+    schemas,
+    coerceTypes: true,
+    messages: true,
+    strict: true,
+    strictRequired: true,
+    allowUnionTypes: true,
+});
+addFormats(ajv);
+const publicResponseSchemaContracts = matrix.contracts.filter(
+    (contract) =>
+        contract.service === "api" &&
+        contract.authMode === "public" &&
+        contract.method === "GET" &&
+        !contract.path.includes(":") &&
+        JSON.stringify(contract.fixtureRequirements) === JSON.stringify(["config"]) &&
+        contract.routeMetadata.responseStatuses.includes(200) &&
+        contract.routeMetadata.responses.some((schema) => !["APIErrorResponse", "Object"].includes(schema) && schemas[schema]) &&
+        !publicResponseSchemaExclusions.has(contract.manifestId),
 );
 
 function silenceConsole() {
@@ -50,6 +83,29 @@ function silenceConsole() {
         console.error = previous.error;
         console.log = previous.log;
     };
+}
+
+function configurePublicResponseSchemaRuntime() {
+    const config = Config.get();
+    const previous = {
+        apiEndpointPublic: config.api.endpointPublic,
+        cdnEndpointPublic: config.cdn.endpointPublic,
+        gatewayEndpointPublic: config.gateway.endpointPublic,
+    };
+
+    config.api.endpointPublic = "https://api.example/api/v9";
+    config.cdn.endpointPublic = "https://cdn.example";
+    config.gateway.endpointPublic = "wss://gateway.example";
+
+    return () => {
+        config.api.endpointPublic = previous.apiEndpointPublic;
+        config.cdn.endpointPublic = previous.cdnEndpointPublic;
+        config.gateway.endpointPublic = previous.gatewayEndpointPublic;
+    };
+}
+
+function responseSchemaForContract(contract: GeneratedHttpContract) {
+    return contract.routeMetadata.responses.find((schema) => !["APIErrorResponse", "Object"].includes(schema) && schemas[schema]);
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -127,6 +183,39 @@ test("generated HTTP auth contracts keep public API routes out of bearer middlew
             assert.equal(failedInBearerMiddleware, false, `${contract.manifestId} should not require bearer Authorization`);
         }
     } finally {
+        restoreConsole();
+        if (api) await api.stop();
+    }
+});
+
+test("generated HTTP public response-schema contracts match real API responses", { timeout: 60_000 }, async () => {
+    assert.equal(publicResponseSchemaContracts.length, matrix.summary.runtimePublicResponseSchemaContracts);
+    assert.ok(publicResponseSchemaContracts.length > 0, "expected public response-schema API routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    const restoreConfig = configurePublicResponseSchemaRuntime();
+    let api: Awaited<ReturnType<typeof startApi>> | undefined;
+    try {
+        api = await startApi();
+        for (const contract of publicResponseSchemaContracts) {
+            const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, {
+                method: contract.method,
+                headers: { accept: "application/json" },
+            });
+
+            assert.equal(response.status, 200, `${contract.manifestId} should return a successful response for schema validation`);
+            assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON response`);
+
+            const schema = responseSchemaForContract(contract);
+            assert.ok(schema, `${contract.manifestId} should declare a known response schema`);
+            const validate = ajv.getSchema(schema);
+            assert.ok(validate, `${contract.manifestId} should resolve response schema ${schema}`);
+            const body = (await response.json()) as unknown;
+
+            assert.equal(validate(body), true, `${contract.manifestId} response should match ${schema}: ${JSON.stringify(validate.errors)}`);
+        }
+    } finally {
+        restoreConfig();
         restoreConsole();
         if (api) await api.stop();
     }
