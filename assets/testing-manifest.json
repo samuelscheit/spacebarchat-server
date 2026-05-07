@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 397,
+        "totalEntries": 400,
         "byService": {
-            "api": 332,
+            "api": 335,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 372,
+            "http-route": 375,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 237,
+            "stateful-domain": 240,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -43,7 +43,7 @@
             "micro": 2,
             "startup-health": 15,
             "route-class": 292,
-            "hot-path": 25,
+            "hot-path": 28,
             "none": 1,
             "cdn-hot-path": 41,
             "protocol-load": 21
@@ -2395,7 +2395,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 276,
+            "line": 277,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2437,7 +2437,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 245,
+            "line": 246,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2529,7 +2529,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 142,
+            "line": 143,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12809,6 +12809,127 @@
                 ],
                 "responseStatuses": [
                     204,
+                    400,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-webhooks",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "guilds",
+                    "channels",
+                    "webhooks",
+                    "messages"
+                ],
+                "contractChecks": [
+                    "token-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/webhooks/:webhook_id/:token/messages/:message_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
+            "line": 108,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [],
+                "responseStatuses": [
+                    204,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-webhooks",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "guilds",
+                    "channels",
+                    "webhooks",
+                    "messages"
+                ],
+                "contractChecks": [
+                    "token-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/webhooks/:webhook_id/:token/messages/:message_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
+            "line": 40,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-webhooks",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "guilds",
+                    "channels",
+                    "webhooks",
+                    "messages"
+                ],
+                "contractChecks": [
+                    "token-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PATCH:/webhooks/:webhook_id/:token/messages/:message_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PATCH",
+            "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
+            "line": 67,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "WebhookMessageEditSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
                     400,
                     404
                 ],

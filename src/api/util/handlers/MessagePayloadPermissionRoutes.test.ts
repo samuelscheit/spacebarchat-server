@@ -55,8 +55,8 @@ describe("message media permission route integration", () => {
 
         assert.notEqual(indexOf(source, "if (!wait && !res.headersSent)"), -1);
         assert.equal(source.match(/acknowledgeNoWait\(\);\n\s+return;/g)?.length, 2);
-        assertBefore(source, "assertMessagePayloadPermissions(permissions, messagePayload);", "    acknowledgeNoWait();\n\n    for (const currFile");
-        assertBefore(source, "assertMessagePayloadPermissions(permissions, messagePayload);", "uploadFile(`/attachments/");
+        assertBefore(source, "assertMessagePayloadPermissions(permissions, messagePayload);", "    acknowledgeNoWait();\n\n    try {");
+        assertBefore(source, "assertMessagePayloadPermissions(permissions, messagePayload);", "uploadWebhookMessageFiles(sendChannel.id, messageId, files)");
     });
 
     test("interaction callbacks check media permissions before success and message side effects", () => {

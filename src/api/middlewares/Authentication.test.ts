@@ -49,11 +49,20 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/abc-DEF_123/github/"), true);
     });
 
+    test("allows token-auth webhook message routes with query strings", () => {
+        assert.equal(isNoAuthorizationRoute("GET", "/webhooks/123/-abc_DEF/messages/456?thread_id=789"), true);
+        assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/123/-abc_DEF/messages/456?thread_id=789"), true);
+        assert.equal(isNoAuthorizationRoute("DELETE", "/webhooks/123/-abc_DEF/messages/456?thread_id=789"), true);
+    });
+
     test("does not partially match webhook token routes", () => {
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/123/abc-DEF_123/extra"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/webhooks/123/abc.DEF/messages/456"), false);
+        assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/abc.DEF?wait=true"), false);
     });
 
     test("allows generated OpenAPI webhook token route templates", () => {
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/{webhook_id}/{token}/"), true);
+        assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/{webhook_id}/{token}/messages/{message_id}/"), true);
     });
 });

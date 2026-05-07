@@ -8,12 +8,10 @@ import {
     FieldErrors,
     getPermission,
     handleFile,
-    isValidWebhookToken,
     Message,
     MessageCreateEvent,
     Snowflake,
     toAPIWebhook,
-    uploadFile,
     ValidateName,
     Webhook,
     WebhooksUpdateEvent,
@@ -23,22 +21,13 @@ import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
 import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
+import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
     const body = req.body as WebhookTokenUpdateSchema;
 
-    const webhook = await Webhook.findOne({
-        where: { id: webhook_id },
-        relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
-    });
-    if (!webhook) {
-        throw DiscordApiErrors.UNKNOWN_WEBHOOK;
-    }
-
-    if (!isValidWebhookToken(webhook.token, token)) {
-        throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
-    }
+    const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true });
 
     const channel_id = webhook.channel_id;
     if (!body.name && !body.avatar) {
@@ -80,20 +69,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     const { webhook_id, token } = req.params as { [key: string]: string };
 
-    const webhook = await Webhook.findOne({
-        where: {
-            id: webhook_id,
-        },
-        relations: { channel: true, guild: true, application: true },
-    });
-
-    if (!webhook) {
-        throw DiscordApiErrors.UNKNOWN_WEBHOOK;
-    }
-
-    if (!isValidWebhookToken(webhook.token, token)) {
-        throw DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED;
-    }
+    const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: true });
 
     if (body.username) {
         ValidateName(body.username);
@@ -176,14 +152,11 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     acknowledgeNoWait();
 
-    for (const currFile of files) {
-        try {
-            const file = await uploadFile(`/attachments/${sendChannel.id}/${messageId}`, currFile);
-            attachments.push(Attachment.create(file));
-        } catch (error) {
-            if (wait) res.status(400).json({ message: error?.toString() });
-            return;
-        }
+    try {
+        attachments.push(...(await uploadWebhookMessageFiles(sendChannel.id, messageId, files)));
+    } catch (error) {
+        if (wait) res.status(400).json({ message: error?.toString() });
+        return;
     }
 
     const embeds = body.embeds || [];

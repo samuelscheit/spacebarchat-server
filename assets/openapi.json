@@ -7640,6 +7640,116 @@
                     }
                 }
             },
+            "WebhookMessageEditSchema": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "embeds": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Embed"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "allowed_mentions": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AllowedMentions"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "components": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/BaseMessageComponents"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "payload_json": {
+                        "type": "string"
+                    },
+                    "attachments": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "filename": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "file": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "id"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "filename": {
+                                                    "type": "string"
+                                                },
+                                                "uploaded_filename": {
+                                                    "type": "string"
+                                                },
+                                                "original_content_type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "additionalProperties": false,
+                                            "required": [
+                                                "filename",
+                                                "uploaded_filename"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
+                }
+            },
             "WebhookTokenUpdateSchema": {
                 "type": "object",
                 "properties": {
@@ -21764,6 +21874,195 @@
                             "type": "string"
                         },
                         "description": "webhook_id"
+                    }
+                ],
+                "tags": [
+                    "webhooks"
+                ]
+            }
+        },
+        "/webhooks/{webhook_id}/{token}/messages/{message_id}/": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIPublicMessage"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "webhook_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "webhook_id"
+                    },
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "token"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    },
+                    {
+                        "name": "thread_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Get a webhook message in the specified thread."
+                    }
+                ],
+                "tags": [
+                    "webhooks"
+                ]
+            },
+            "patch": {
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WebhookMessageEditSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIPublicMessage"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "webhook_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "webhook_id"
+                    },
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "token"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    },
+                    {
+                        "name": "thread_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Edit a webhook message in the specified thread."
+                    }
+                ],
+                "tags": [
+                    "webhooks"
+                ]
+            },
+            "delete": {
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "webhook_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "webhook_id"
+                    },
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "token"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
+                    },
+                    {
+                        "name": "thread_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Delete a webhook message in the specified thread."
                     }
                 ],
                 "tags": [

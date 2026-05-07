@@ -118,6 +118,7 @@ router.patch(
                 attachment_user_id: req.user_id,
                 attachment_channel_ids: [channel_id],
                 edited_timestamp: new Date(),
+                is_edit: true,
             },
             { suppress_notifications: true },
         );
