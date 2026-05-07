@@ -38,6 +38,8 @@ import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
 import { Duplex } from "node:stream";
 import { closeGatewayServer } from "./util/Shutdown";
+import { broadcastReconnect } from "./util/Reconnect";
+import type { WebSocket } from "./util/WebSocket";
 
 export class Server {
     public ws?: ws.Server;
@@ -261,7 +263,10 @@ export class Server {
         this.stopping = true;
         this.server.off("upgrade", this.upgradeHandler);
 
-        if (this.ws) await closeGatewayServer(this.ws);
+        if (this.ws) {
+            await broadcastReconnect(this.ws.clients as Iterable<WebSocket>);
+            await closeGatewayServer(this.ws);
+        }
 
         if (this.ownsHttpServer) {
             if (this.server.listening) await closeHttpServer(this.server);

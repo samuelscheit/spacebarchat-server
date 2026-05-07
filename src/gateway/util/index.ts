@@ -28,3 +28,5 @@ export * from "./Utils";
 export * from "./ReadyReadState";
 export * from "./LazyMemberList";
 export * from "./ChannelInfo";
+export * from "./Reconnect";
+export * from "./ReconnectPayload";

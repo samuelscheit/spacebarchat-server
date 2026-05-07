@@ -32,7 +32,7 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send } from "../util";
+import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
@@ -339,13 +339,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
     // special codes
     switch (event) {
         case "SB_SESSION_CLOSE":
-            // TODO: what do we even send here?
-            await Send(this, {
-                op: OPCODES.Reconnect,
-                s: this.sequence++,
-                d: opts.reconnect_delay ?? opts.data ?? 1000,
-            });
-            this.close(1000); // not a discord close code, standard WS "Normal Closure"
+            await sendReconnectAndClose(this, opts.reconnect_delay ?? opts.data ?? 1000);
             return;
         case "SB_SESSION_REMOVE":
             // TODO: what do we even send here?

@@ -14,7 +14,7 @@ type ServerWithInitializer = {
 class CapturingWebSocketServer {
     static options: ServerOptions[] = [];
 
-    clients = new Set<{ close: () => void }>();
+    clients = new Set<unknown>();
 
     constructor(options: ServerOptions) {
         CapturingWebSocketServer.options.push(options);
@@ -105,5 +105,51 @@ describe("Gateway Server shutdown", () => {
         await Promise.all([gateway.stop(), gateway.stop()]);
 
         assert.equal(sharedServer.listenerCount("upgrade"), 0);
+    });
+
+    test("stop sends reconnect payloads before closing websocket clients", async () => {
+        const originalWebSocketServer = ws.Server;
+        const sharedServer = http.createServer();
+        const closeListeners: (() => void)[] = [];
+        const events: string[] = [];
+        const client = {
+            OPEN: 1,
+            readyState: 1,
+            encoding: "json",
+            compress: undefined,
+            sequence: 7,
+            send(data: string, callback: (error?: Error) => void) {
+                const payload = JSON.parse(data) as { op: number; s: number; d: number };
+                events.push(`send:${payload.op}:${payload.s}:${payload.d}`);
+                callback();
+            },
+            close(code?: number) {
+                events.push(`close:${code}`);
+                this.readyState = 3;
+                while (closeListeners.length) closeListeners.pop()?.();
+            },
+            once(event: string, listener: () => void) {
+                if (event === "close") closeListeners.push(listener);
+                return this;
+            },
+        };
+
+        try {
+            (ws as unknown as { Server: typeof CapturingWebSocketServer }).Server = CapturingWebSocketServer;
+            CapturingWebSocketServer.options = [];
+
+            const gateway = new Server({ port: 0, server: sharedServer }) as unknown as ServerWithInitializer & {
+                ws?: CapturingWebSocketServer;
+            };
+            gateway.initializeWebSocketServer();
+            gateway.ws!.clients.add(client);
+
+            await (gateway as unknown as InstanceType<typeof Server>).stop();
+
+            assert.deepEqual(events, ["send:7:7:1000", "close:1001"]);
+            assert.equal(client.sequence, 8);
+        } finally {
+            (ws as unknown as { Server: typeof originalWebSocketServer }).Server = originalWebSocketServer;
+        }
     });
 });
