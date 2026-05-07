@@ -141,6 +141,61 @@ export function SearchForm({ defaultValue, placeholder = "Search" }: { defaultVa
     );
 }
 
+export function PaginationControls({
+    pagination,
+    params = {},
+    offsetParam = "offset",
+}: {
+    pagination: { limit: number; offset: number; total: number };
+    params?: Record<string, string | number | boolean | undefined>;
+    offsetParam?: string;
+}) {
+    const currentPage = pagination.total === 0 ? 0 : Math.floor(pagination.offset / pagination.limit) + 1;
+    const totalPages = pagination.total === 0 ? 0 : Math.ceil(pagination.total / pagination.limit);
+    const previousOffset = Math.max(0, pagination.offset - pagination.limit);
+    const nextOffset = pagination.offset + pagination.limit;
+    const hasPrevious = pagination.offset > 0;
+    const hasNext = nextOffset < pagination.total;
+
+    function hrefFor(offset: number) {
+        const search = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined && value !== "") search.set(key, String(value));
+        }
+        if (offset > 0) {
+            search.set(offsetParam, String(offset));
+        } else {
+            search.delete(offsetParam);
+        }
+        const value = search.toString();
+        return value ? `?${value}` : "?";
+    }
+
+    return (
+        <nav className="pagination" aria-label="Pagination">
+            <span>
+                Page {currentPage} of {totalPages} · {pagination.total} total
+            </span>
+            <div className="row-actions">
+                {hasPrevious ? (
+                    <Link href={hrefFor(previousOffset)} className="button secondary">
+                        Previous
+                    </Link>
+                ) : (
+                    <span className="button secondary button-disabled">Previous</span>
+                )}
+                {hasNext ? (
+                    <Link href={hrefFor(nextOffset)} className="button secondary">
+                        Next
+                    </Link>
+                ) : (
+                    <span className="button secondary button-disabled">Next</span>
+                )}
+            </div>
+        </nav>
+    );
+}
+
 export function RowLink({ href }: { href: string }) {
     return (
         <Link href={href} className="row-link" aria-label="Open detail">

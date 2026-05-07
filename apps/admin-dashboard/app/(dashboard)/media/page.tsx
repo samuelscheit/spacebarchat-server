@@ -1,15 +1,19 @@
 import { startCdnAttachmentFsck, startCdnAttachmentMigration } from "../../actions";
-import { ErrorBanner, PageHeader, Panel, SearchForm, StatusPill } from "../../components";
-import { queryString, safeAdminFetch } from "../../lib/admin-api";
+import { ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
+import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminAttachment, AdminSticker, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function MediaPage({ searchParams }: { searchParams: Promise<{ q?: string; userId?: string }> }) {
+export default async function MediaPage({ searchParams }: { searchParams: Promise<{ q?: string; userId?: string; stickersOffset?: string; attachmentsOffset?: string }> }) {
     const params = await searchParams;
+    const stickersOffset = parseOffsetParam(params.stickersOffset);
+    const attachmentsOffset = parseOffsetParam(params.attachmentsOffset);
     const [stickers, attachments] = await Promise.all([
-        safeAdminFetch<PageResult<AdminSticker>>(`/media/stickers${queryString({ q: params.q, limit: 50 })}`),
-        params.userId ? safeAdminFetch<PageResult<AdminAttachment>>(`/media/users/${params.userId}/attachments${queryString({ q: params.q, limit: 50 })}`) : Promise.resolve({ data: null, error: null }),
+        safeAdminFetch<PageResult<AdminSticker>>(`/media/stickers${queryString({ q: params.q, limit: 50, offset: stickersOffset })}`),
+        params.userId
+            ? safeAdminFetch<PageResult<AdminAttachment>>(`/media/users/${params.userId}/attachments${queryString({ q: params.q, limit: 50, offset: attachmentsOffset })}`)
+            : Promise.resolve({ data: null, error: null }),
     ]);
 
     return (
@@ -70,10 +74,12 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
                             ))}
                         </tbody>
                     </table>
+                    {stickers.data ? <PaginationControls pagination={stickers.data.pagination} params={{ q: params.q, userId: params.userId, attachmentsOffset }} offsetParam="stickersOffset" /> : null}
                 </Panel>
                 <Panel title={`User Attachments${attachments.data ? ` · ${attachments.data.pagination.total}` : ""}`}>
                     <form className="panel-body search-form">
                         <span />
+                        {params.q ? <input type="hidden" name="q" value={params.q} /> : null}
                         <input name="userId" defaultValue={params.userId} placeholder="User ID" />
                         <button type="submit">Load</button>
                     </form>
@@ -102,6 +108,7 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
                             </tbody>
                         </table>
                     ) : null}
+                    {attachments.data ? <PaginationControls pagination={attachments.data.pagination} params={{ q: params.q, userId: params.userId, stickersOffset }} offsetParam="attachmentsOffset" /> : null}
                 </Panel>
             </div>
         </>

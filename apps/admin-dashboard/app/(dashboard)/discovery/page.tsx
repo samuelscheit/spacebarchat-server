@@ -1,13 +1,14 @@
 import { updateDiscoveryGuild } from "../../actions";
-import { ErrorBanner, PageHeader, Panel, SearchForm, StatusPill } from "../../components";
-import { queryString, safeAdminFetch } from "../../lib/admin-api";
+import { ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
+import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminGuildListItem, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function DiscoveryPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function DiscoveryPage({ searchParams }: { searchParams: Promise<{ q?: string; offset?: string }> }) {
     const params = await searchParams;
-    const guilds = await safeAdminFetch<PageResult<AdminGuildListItem>>(`/discovery/guilds${queryString({ q: params.q, include_excluded: true, limit: 50 })}`);
+    const offset = parseOffsetParam(params.offset);
+    const guilds = await safeAdminFetch<PageResult<AdminGuildListItem>>(`/discovery/guilds${queryString({ q: params.q, include_excluded: true, limit: 50, offset })}`);
 
     return (
         <>
@@ -50,6 +51,7 @@ export default async function DiscoveryPage({ searchParams }: { searchParams: Pr
                         ))}
                     </tbody>
                 </table>
+                {guilds.data ? <PaginationControls pagination={guilds.data.pagination} params={{ q: params.q }} /> : null}
             </Panel>
         </>
     );

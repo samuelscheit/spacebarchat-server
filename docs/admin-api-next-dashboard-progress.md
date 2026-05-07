@@ -116,3 +116,51 @@ Risks or blockers:
 Next step:
 
 - Start the next follow-up slice: durable jobs/audit storage or dashboard operations UX.
+
+## 2026-05-07 22:13 CEST - Dashboard Pagination and Job Detail
+
+Status: complete
+
+Changed files:
+
+- `apps/admin-dashboard/app/(dashboard)/**`
+- `apps/admin-dashboard/app/components.tsx`
+- `apps/admin-dashboard/app/lib/admin-api.ts`
+- `docs/admin-api-next-dashboard-progress.md`
+
+What changed:
+
+- Started the dashboard operations UX slice: shared pagination controls for list pages and a dedicated job detail page.
+- Added shared `PaginationControls` plus query parsing helpers.
+- Wired `offset` support and pagination controls into users, guilds, discovery, jobs, activity, stickers, and user attachments.
+- Added search/filter controls for jobs and activity.
+- Added `/jobs/:id` with job state, input, result, errors, cancellation, timestamps, and related audit payloads.
+
+Verification:
+
+- Command: `npm run build:admin-dashboard`
+- Result: pass
+- Notes: Next.js production build passed and included `/jobs/[id]`.
+- Command: `PORT=3312 SPACEBAR_ADMIN_API_URL=http://127.0.0.1:3001/_spacebar/admin/api SPACEBAR_ADMIN_COOKIE_SECURE=false npm run start:admin-dashboard`
+- Result: pass
+- Notes: Started the built dashboard on a temporary local port for runtime checks.
+- Command: `SPACEBAR_ADMIN_DASHBOARD_URL=http://127.0.0.1:3312/_spacebar/admin npm run smoke:admin-dashboard`
+- Result: pass
+- Notes: Health check passed; authenticated SSR check was skipped because `SPACEBAR_ADMIN_TOKEN` was not set.
+- Command: `curl -i --max-time 5 'http://127.0.0.1:3312/_spacebar/admin/jobs?offset=50&q=user'`
+- Result: pass
+- Notes: Jobs route accepted query state and returned `307` to login when unauthenticated.
+- Command: `curl -i --max-time 5 'http://127.0.0.1:3312/_spacebar/admin/jobs/example-job-id'`
+- Result: pass
+- Notes: Job detail route exists and returned `307` to login when unauthenticated.
+- Command: `test -z "$(lsof -ti tcp:3312)"`
+- Result: pass
+- Notes: No temporary dashboard server remained after runtime checks.
+
+Risks or blockers:
+
+- Pagination and job detail authenticated data rendering still need a live admin API/token smoke check.
+
+Next step:
+
+- Continue dashboard operations UX with action result banners, richer filters, or begin durable jobs/audit storage.

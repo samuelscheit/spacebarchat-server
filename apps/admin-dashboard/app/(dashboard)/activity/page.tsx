@@ -1,16 +1,19 @@
-import { CodeBlock, ErrorBanner, PageHeader, Panel, StatusPill } from "../../components";
-import { safeAdminFetch } from "../../lib/admin-api";
+import { CodeBlock, ErrorBanner, PageHeader, PaginationControls, Panel, SearchForm, StatusPill } from "../../components";
+import { parseOffsetParam, queryString, safeAdminFetch } from "../../lib/admin-api";
 import type { AdminAuditRecord, PageResult } from "../../lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function ActivityPage() {
-    const activity = await safeAdminFetch<PageResult<AdminAuditRecord>>("/activity?limit=100");
+export default async function ActivityPage({ searchParams }: { searchParams: Promise<{ q?: string; offset?: string }> }) {
+    const params = await searchParams;
+    const offset = parseOffsetParam(params.offset);
+    const activity = await safeAdminFetch<PageResult<AdminAuditRecord>>(`/activity${queryString({ q: params.q, limit: 50, offset })}`);
 
     return (
         <>
             <PageHeader title="Activity" description="Admin audit activity with actor, target, status, and operation metadata." />
             <ErrorBanner message={activity.error} />
+            <SearchForm defaultValue={params.q} placeholder="Search actor, operation, target, or job id" />
             <Panel title="Activity Feed">
                 <table>
                     <thead>
@@ -41,6 +44,7 @@ export default async function ActivityPage() {
                         ))}
                     </tbody>
                 </table>
+                {activity.data ? <PaginationControls pagination={activity.data.pagination} params={{ q: params.q }} /> : null}
             </Panel>
             <Panel title="Recent Activity Payloads">
                 <CodeBlock value={(activity.data?.items ?? []).slice(0, 10)} />

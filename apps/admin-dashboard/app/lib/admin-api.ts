@@ -85,3 +85,15 @@ export function queryString(params: Record<string, string | number | boolean | u
     const value = search.toString();
     return value ? `?${value}` : "";
 }
+
+export function firstSearchParam(value: string | string[] | undefined) {
+    if (Array.isArray(value)) return value[0];
+    return value;
+}
+
+export function parseOffsetParam(value: string | string[] | undefined) {
+    const parsed = Number.parseInt(firstSearchParam(value) ?? "0", 10);
+    if (!Number.isFinite(parsed) || parsed < 0) return 0;
+
+    return parsed;
+}
