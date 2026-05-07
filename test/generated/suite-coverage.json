@@ -1177,14 +1177,19 @@
                         "files",
                         "request-signature",
                         "signed-urls",
-                        "attachments"
+                        "attachments",
+                        "cloud-attachments"
                     ],
                     "checks": [
                         "upload-download-delete",
                         "cache-headers",
                         "mime",
                         "missing-file",
-                        "oversized-upload"
+                        "oversized-upload",
+                        "clone-to-message",
+                        "db-metadata",
+                        "raw-upload-body-parser-bypass",
+                        "missing-source"
                     ],
                     "manifestIds": [
                         "api:http:POST:/attachments/refresh-urls/",

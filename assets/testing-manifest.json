@@ -12592,7 +12592,7 @@
             "method": "POST",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 90,
+            "line": 94,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -12623,7 +12623,7 @@
             "method": "DELETE",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 66,
+            "line": 70,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false

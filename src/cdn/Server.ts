@@ -55,7 +55,11 @@ export class CDNServer extends Server {
         this.app.disable("x-powered-by");
 
         this.app.use(CORS);
-        this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
+        const bodyParser = BodyParser({ inflate: true, limit: "10mb" });
+        this.app.use((req, res, next) => {
+            if (req.method === "PUT" && req.path.startsWith("/_spacebar/cdn/attachments/")) return next();
+            return bodyParser(req, res, next);
+        });
 
         await registerRoutes(this, path.join(__dirname, "routes/"));
 

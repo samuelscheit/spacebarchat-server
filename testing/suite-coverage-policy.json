@@ -110,8 +110,18 @@
                         { "service": "api", "type": "http-route", "pathPrefix": "/attachments" },
                         { "service": "cdn", "type": "http-route" }
                     ],
-                    "fixtures": ["files", "request-signature", "signed-urls", "attachments"],
-                    "checks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"]
+                    "fixtures": ["files", "request-signature", "signed-urls", "attachments", "cloud-attachments"],
+                    "checks": [
+                        "upload-download-delete",
+                        "cache-headers",
+                        "mime",
+                        "missing-file",
+                        "oversized-upload",
+                        "clone-to-message",
+                        "db-metadata",
+                        "raw-upload-body-parser-bypass",
+                        "missing-source"
+                    ]
                 },
                 {
                     "id": "middleware-and-events",
