@@ -80,6 +80,7 @@ export * from "./TotpSchema";
 export * from "./UploadAttachmentRequestSchema";
 export * from "./UserDeleteSchema";
 export * from "./UserGuildSettingsSchema";
+export * from "./UserInviteCreateSchema";
 export * from "./UserModifySchema";
 export * from "./UserNoteUpdateSchema";
 export * from "./UserProfileModifySchema";

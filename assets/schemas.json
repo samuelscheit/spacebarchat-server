@@ -2914,6 +2914,72 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserInviteResponse": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer",
+                "const": 2
+            },
+            "code": {
+                "type": "string"
+            },
+            "temporary": {
+                "type": "boolean"
+            },
+            "uses": {
+                "type": "integer"
+            },
+            "max_uses": {
+                "type": "integer"
+            },
+            "max_age": {
+                "type": "integer"
+            },
+            "created_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "expires_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "inviter_id": {
+                "type": "string"
+            },
+            "inviter": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "code",
+            "created_at",
+            "expires_at",
+            "flags",
+            "inviter",
+            "max_age",
+            "max_uses",
+            "temporary",
+            "type",
+            "uses"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "InviteResponse": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/Invite"
+            },
+            {
+                "$ref": "#/definitions/UserInviteResponse"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "LocationMetadataResponse": {
         "type": "object",
         "properties": {
@@ -7802,6 +7868,19 @@
             "notify_highlights": {
                 "const": 0,
                 "type": "number"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserInviteCreateSchema": {
+        "type": "object",
+        "properties": {
+            "code": {
+                "minLength": 1,
+                "maxLength": 20,
+                "pattern": "^[A-Za-z0-9]+$",
+                "type": "string"
             }
         },
         "additionalProperties": false,

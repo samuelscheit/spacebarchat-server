@@ -18,7 +18,7 @@
 
 import { Column, Entity, FindOptionsWhere, In, JoinColumn, ManyToOne, PrimaryColumn, RelationId, type EntityManager } from "typeorm";
 import type { GuildUpdateEvent, InviteDeleteEvent } from "../interfaces";
-import { emitEvent, getDatabase, getVanityUrlFeatureState } from "../util";
+import { DiscordApiErrors, emitEvent, getDatabase, getVanityUrlFeatureState } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
 import { Guild } from "./Guild";
@@ -190,8 +190,9 @@ export class Invite extends BaseClassWithoutId {
         return updatedGuilds;
     }
 
-    static async joinGuild(user_id: string, code: string) {
-        const invite = await Invite.findOneOrFail({ where: { code } });
+    static async acceptGuildInvite(user_id: string, invite: Invite) {
+        if (!invite.guild_id) throw DiscordApiErrors.UNKNOWN_INVITE;
+
         if (invite.isExpired()) {
             await Invite.deleteWithVanityUrlFeatureSync(invite);
             throw new Error("Invite is expired");
@@ -202,6 +203,10 @@ export class Invite extends BaseClassWithoutId {
 
         await Member.addToGuild(user_id, invite.guild_id);
         return invite;
+    }
+
+    static async joinGuild(user_id: string, code: string) {
+        return Invite.acceptGuildInvite(user_id, await Invite.findOneOrFail({ where: { code } }));
     }
 
     static createForChannel(code: string, context: InviteCreateContext, options: NormalizedInviteCreateOptions) {

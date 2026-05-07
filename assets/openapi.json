@@ -2725,6 +2725,69 @@
                     "counts"
                 ]
             },
+            "UserInviteResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer",
+                        "const": 2
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "temporary": {
+                        "type": "boolean"
+                    },
+                    "uses": {
+                        "type": "integer"
+                    },
+                    "max_uses": {
+                        "type": "integer"
+                    },
+                    "max_age": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "inviter_id": {
+                        "type": "string"
+                    },
+                    "inviter": {
+                        "$ref": "#/components/schemas/PublicUser"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "code",
+                    "created_at",
+                    "expires_at",
+                    "flags",
+                    "inviter",
+                    "max_age",
+                    "max_uses",
+                    "temporary",
+                    "type",
+                    "uses"
+                ]
+            },
+            "InviteResponse": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/Invite"
+                    },
+                    {
+                        "$ref": "#/components/schemas/UserInviteResponse"
+                    }
+                ]
+            },
             "LocationMetadataResponse": {
                 "type": "object",
                 "properties": {
@@ -7283,6 +7346,17 @@
                     "notify_highlights": {
                         "const": 0,
                         "type": "number"
+                    }
+                }
+            },
+            "UserInviteCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "minLength": 1,
+                        "maxLength": 20,
+                        "pattern": "^[A-Za-z0-9]+$",
+                        "type": "string"
                     }
                 }
             },
@@ -18300,6 +18374,51 @@
                 ]
             }
         },
+        "/users/@me/invites/": {
+            "post": {
+                "x-right-required": "INVITE_USERS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserInviteCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserInviteResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/": {
             "get": {
                 "security": [
@@ -21156,7 +21275,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Invite"
+                                    "$ref": "#/components/schemas/InviteResponse"
                                 }
                             }
                         }
@@ -21188,7 +21307,6 @@
                 ]
             },
             "post": {
-                "x-right-required": "USE_MASS_INVITES",
                 "security": [
                     {
                         "bearer": []
@@ -21200,7 +21318,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Invite"
+                                    "$ref": "#/components/schemas/InviteResponse"
                                 }
                             }
                         }
