@@ -49,6 +49,7 @@ export * from "./InviteUsage";
 export * from "./JSON";
 export * from "./KittyLogo";
 export * from "./Logo";
+export * from "./MessageEdit";
 export * from "./MemberRoles";
 export * from "./MessageAttachmentInputs";
 export * from "./MessageFlags";

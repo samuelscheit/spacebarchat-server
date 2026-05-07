@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 404,
+        "totalEntries": 405,
         "byService": {
-            "api": 339,
+            "api": 340,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 379,
+            "http-route": 380,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 244,
+            "stateful-domain": 245,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -42,7 +42,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 15,
-            "route-class": 296,
+            "route-class": 297,
             "hot-path": 28,
             "none": 1,
             "cdn-hot-path": 41,
@@ -82,7 +82,7 @@
             "method": "GET",
             "path": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 157,
+            "line": 160,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -111,7 +111,7 @@
             "method": "GET",
             "path": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 153,
+            "line": 156,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -140,7 +140,7 @@
             "method": "GET",
             "path": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 161,
+            "line": 164,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -227,7 +227,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 180,
+            "line": 183,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -256,7 +256,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 173,
+            "line": 176,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -2395,7 +2395,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 277,
+            "line": 268,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2437,7 +2437,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 246,
+            "line": 237,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2482,7 +2482,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 53,
+            "line": 54,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2529,7 +2529,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 143,
+            "line": 134,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8737,7 +8737,7 @@
             "method": "GET",
             "path": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 220,
+            "line": 223,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -8806,7 +8806,7 @@
             "method": "USE",
             "path": "/imageproxy/:hash/:size/:url",
             "sourceFile": "src/api/Server.ts",
-            "line": 149,
+            "line": 152,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -9497,7 +9497,7 @@
             "method": "GET",
             "path": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 219,
+            "line": 222,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -10478,7 +10478,7 @@
             "method": "GET",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 40,
+            "line": 41,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10516,7 +10516,7 @@
             "method": "PATCH",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 59,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10666,6 +10666,46 @@
                 "present": true,
                 "responseBodies": [],
                 "responseStatuses": [],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/avatars/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/avatars/",
+            "sourceFile": "src/api/routes/users/@me/avatars.ts",
+            "line": 26,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "RecentAvatarsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
+                ],
                 "hasQuery": false
             },
             "coverage": {

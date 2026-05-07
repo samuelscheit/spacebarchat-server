@@ -18,6 +18,7 @@
 
 import {
     Attachment,
+    buildMessageEditHandleMessageOptions,
     Channel,
     Message,
     MessageCreateEvent,
@@ -104,22 +105,12 @@ router.patch(
             });
         }
 
-        // no longer necessary, somehow resolved by updating the type of `attachments`...?
-        // //@ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
         const new_message = await handleMessage(
-            {
-                ...message,
-                // TODO: should message_reference be overridable?
-                message_reference: message.message_reference,
-                ...normalizedBody,
-                author_id: message.author_id,
-                channel_id,
-                id: message_id,
+            buildMessageEditHandleMessageOptions(message, normalizedBody, channel_id, message_id, new Date(), {
                 attachment_user_id: req.user_id,
                 attachment_channel_ids: [channel_id],
-                edited_timestamp: new Date(),
                 is_edit: true,
-            },
+            }),
             { suppress_notifications: true },
         );
 

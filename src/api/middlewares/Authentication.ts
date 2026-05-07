@@ -39,30 +39,16 @@ declare global {
     }
 }
 
-async function authenticateRequest(req: Request) {
-    const { decoded, user, session } = (req.tokenData = await checkToken(req.headers.authorization!, {
-        ipAddress: req.ip,
-        fingerprint: req.fingerprint,
-    }));
-
-    req.token = decoded;
-    req.user_id = user.id;
-    req.user_bot = user.bot;
-    req.user = user;
-    req.session = session;
-    req.rights = new Rights(Number(user.rights));
-}
-
 function toAuthenticationError(error: unknown) {
     if (error instanceof HTTPError) {
         return error;
     }
 
-    return new HTTPError(error!.toString(), 400);
+    return new HTTPError(String(error), 400);
 }
 
-export async function Authentication(req: Request, res: Response, next: NextFunction) {
-    if (req.method === "OPTIONS") return res.sendStatus(204);
+export async function hydrateRequestFingerprint(req: Request, res: Response) {
+    if (req.fingerprint) return;
 
     if (req.headers.cookie?.split("; ").find((x) => x.startsWith("__sb_sessid=")))
         req.fingerprint = req.headers.cookie
@@ -71,6 +57,34 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
             .split("=")[1];
     // for some reason we need to require here, else the openapi generator fails with "route is not a function"
     else res.setHeader("Set-Cookie", `__sb_sessid=${(req.fingerprint = (await require("../util")).randomString(32))}; Secure; HttpOnly; SameSite=None; Path=/`);
+}
+
+export async function authenticateRequestToken(req: Request, res: Response) {
+    await hydrateRequestFingerprint(req, res);
+
+    if (!req.headers.authorization) throw new HTTPError("Missing Authorization Header", 401);
+
+    try {
+        const { decoded, user, session } = (req.tokenData = await checkToken(req.headers.authorization, {
+            ipAddress: req.ip,
+            fingerprint: req.fingerprint,
+        }));
+
+        req.token = decoded;
+        req.user_id = user.id;
+        req.user_bot = user.bot;
+        req.user = user;
+        req.session = session;
+        req.rights = new Rights(user.rights);
+    } catch (error) {
+        throw toAuthenticationError(error);
+    }
+}
+
+export async function Authentication(req: Request, res: Response, next: NextFunction) {
+    if (req.method === "OPTIONS") return res.sendStatus(204);
+
+    await hydrateRequestFingerprint(req, res);
 
     const noAuthorizationRequired = isNoAuthorizationRoute(req.method, req.url);
 
@@ -78,7 +92,7 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
     if (!req.headers.authorization) return next(new HTTPError("Missing Authorization Header", 401));
 
     try {
-        await authenticateRequest(req);
+        await authenticateRequestToken(req, res);
         return next();
     } catch (error) {
         if (noAuthorizationRequired) return next();
