@@ -112,3 +112,126 @@ describe("executeWebhook", () => {
         assert.equal(channel.last_message_id, "message-id");
     });
 });
+
+describe("PATCH /webhooks/:webhook_id/:token", () => {
+    test("returns the Discord unknown webhook error when the id is missing", async (t) => {
+        const util = require("../../../util") as typeof import("../../../util");
+        const { updateWebhookWithToken } = require("./Webhook") as typeof import("./Webhook");
+
+        t.mock.method(util.Webhook, "findOne", async () => null);
+
+        const req = {
+            params: { webhook_id: "missing_webhook_id", token: "valid_token" },
+            body: { name: "Renamed webhook" },
+        };
+        const res = {};
+
+        await assert.rejects(
+            () => updateWebhookWithToken(req as never, res as never),
+            (error) => {
+                assert.equal(error, util.DiscordApiErrors.UNKNOWN_WEBHOOK);
+                return true;
+            },
+        );
+    });
+
+    test("rejects an invalid webhook token before applying metadata updates", async (t) => {
+        const util = require("../../../util") as typeof import("../../../util");
+        const { updateWebhookWithToken } = require("./Webhook") as typeof import("./Webhook");
+        let assigned = false;
+        let saved = false;
+
+        t.mock.method(util.Webhook, "findOne", async (options: unknown) => {
+            assert.deepEqual(options, {
+                where: { id: "webhook_id" },
+                relations: { user: true, channel: true, source_channel: true, guild: true, source_guild: true, application: true },
+            });
+
+            return {
+                id: "webhook_id",
+                token: "valid_token",
+                channel_id: "channel_id",
+                guild_id: "guild_id",
+                assign: () => {
+                    assigned = true;
+                },
+                save: async () => {
+                    saved = true;
+                },
+            };
+        });
+
+        const req = {
+            params: { webhook_id: "webhook_id", token: "wrong_token" },
+            body: { name: "Renamed webhook" },
+        };
+        const res = {};
+
+        await assert.rejects(
+            () => updateWebhookWithToken(req as never, res as never),
+            (error) => {
+                assert.equal(error, util.DiscordApiErrors.INVALID_WEBHOOK_TOKEN_PROVIDED);
+                return true;
+            },
+        );
+        assert.equal(assigned, false);
+        assert.equal(saved, false);
+    });
+
+    test("only applies token-auth metadata fields and returns the updated webhook", async (t) => {
+        const util = require("../../../util") as typeof import("../../../util");
+        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
+        let assigned: unknown;
+        let saved = false;
+        let responseBody: unknown;
+
+        t.mock.method(util.Config, "get", () => ({
+            api: { endpointPublic: "https://api.example.test" },
+            limits: { user: { maxUsername: 32 } },
+            user: { blockedContains: [], blockedEquals: [] },
+        }));
+        t.mock.method(eventUtil, "emitEvent", async () => undefined);
+        t.mock.method(util.Webhook, "findOne", async () => {
+            const webhook = {
+                id: "webhook_id",
+                type: 1,
+                token: "valid_token",
+                channel_id: "original_channel_id",
+                guild_id: "guild_id",
+                name: "Original webhook",
+                avatar: null,
+                assign(update: unknown) {
+                    assigned = update;
+                    Object.assign(this, update);
+                },
+                save: async () => {
+                    saved = true;
+                },
+            };
+
+            return webhook;
+        });
+        const { updateWebhookWithToken } = require("./Webhook") as typeof import("./Webhook");
+
+        const req = {
+            params: { webhook_id: "webhook_id", token: "valid_token" },
+            body: { name: "Renamed webhook", channel_id: "attacker_channel_id" },
+        };
+        const res = {
+            json(body: unknown) {
+                responseBody = body;
+                return this;
+            },
+        };
+
+        await updateWebhookWithToken(req as never, res as never);
+
+        assert.deepEqual(assigned, { name: "Renamed webhook" });
+        assert.equal(saved, true);
+        assert.equal((responseBody as { id: string }).id, "webhook_id");
+        assert.equal((responseBody as { token: string }).token, "valid_token");
+        assert.equal((responseBody as { channel_id: string }).channel_id, "original_channel_id");
+        assert.equal((responseBody as { name: string }).name, "Renamed webhook");
+        assert.match((responseBody as { url: string }).url, /\/webhooks\/webhook_id\/valid_token$/);
+    });
+});

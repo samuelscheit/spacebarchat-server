@@ -41,4 +41,19 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/mfa/finish/extra"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/mfa/finish/"), false);
     });
+
+    test("allows token-auth webhook routes with base64url tokens", () => {
+        assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/-abc_DEF"), true);
+        assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/123/abc-DEF_123"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/webhooks/123/abc-DEF_123?wait=true"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/abc-DEF_123/github/"), true);
+    });
+
+    test("does not partially match webhook token routes", () => {
+        assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/123/abc-DEF_123/extra"), false);
+    });
+
+    test("allows generated OpenAPI webhook token route templates", () => {
+        assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/{webhook_id}/{token}/"), true);
+    });
 });

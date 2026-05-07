@@ -68,6 +68,7 @@ export * from "./Timespan";
 export * from "./Token";
 export * from "./Totp";
 export * from "./TraverseDirectory";
+export * from "./WebhookToken";
 export * from "./WebAuthn";
 export * from "./ChannelFlags";
 export * from "./ChannelOrdering";
