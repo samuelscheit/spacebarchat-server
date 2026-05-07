@@ -24,11 +24,6 @@ import { BigNumber } from "bignumber.js";
 import { normalizeEmbedPayloadForSchema } from "../utility/EmbedPayload";
 import { ajvErrorsToFieldErrors } from "../utility/AjvErrorFields";
 
-const ignoredRequestSchemas = [
-    // skip validation for settings proto JSON updates - TODO: figure out if this even possible to fix?
-    "SettingsProtoUpdateJsonSchema",
-];
-
 declare global {
     // TODO: fix this
     // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -172,7 +167,7 @@ export function route(opts: RouteOptions) {
 
         if (requestBody?.required === false && req.body === undefined) req.body = {};
 
-        if (validate && requestBody && !ignoredRequestSchemas.includes(requestBody.schema)) {
+        if (validate && requestBody) {
             normalizeEmbedPayloadForSchema(requestBody.schema, req.body);
 
             if (opts.stripNulls) {
