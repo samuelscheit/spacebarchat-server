@@ -79,6 +79,7 @@ export * from "./Gifs";
 export * from "./GuildFeatures";
 export * from "./GuildChannelOrdering";
 export * from "./Application";
+export * from "./ApplicationModify";
 export * from "./NameValidation";
 export * from "../../schemas/HelperTypes";
 export * from "./extensions";

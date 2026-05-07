@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import http from "node:http";
 import { describe, test } from "node:test";
-import express from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import { BigNumber } from "bignumber.js";
 import { BodyParser, ErrorHandler } from "../../middlewares";
 import { bigNumberToString, route } from "./route";
@@ -60,6 +60,15 @@ function postJson(url: string, body: string): Promise<{ statusCode: number | und
 
         req.on("error", reject);
         req.end(body);
+    });
+}
+
+async function getApplicationModifyRoute() {
+    process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+    return route({
+        requestBody: "ApplicationModifySchema",
+        coerceRequestBody: false,
     });
 }
 
@@ -177,6 +186,83 @@ describe("bigNumberToString", () => {
             await new Promise<void>((resolve, reject) => {
                 server.close((error) => (error ? reject(error) : resolve()));
             });
+        }
+    });
+});
+
+describe("route body coercion", () => {
+    test("rejects numeric install param permissions without mutating them", async () => {
+        const middleware = await getApplicationModifyRoute();
+        const req = {
+            body: {
+                install_params: {
+                    scopes: ["bot"],
+                    permissions: 9007199254740992,
+                },
+            },
+        } as Request;
+
+        await assert.rejects(
+            () => middleware(req, {} as Response, assert.fail as NextFunction),
+            (error: { code?: number; _ajvErrors?: { instancePath: string; keyword: string }[] }) => {
+                assert.equal(error.code, 50035);
+                assert.equal(
+                    error._ajvErrors?.some((ajvError) => ajvError.instancePath === "/install_params/permissions" && ajvError.keyword === "type"),
+                    true,
+                );
+                return true;
+            },
+        );
+        assert.equal(typeof req.body.install_params.permissions, "number");
+    });
+
+    test("rejects scalar install params instead of coercing them to null", async () => {
+        const middleware = await getApplicationModifyRoute();
+        for (const body of [{ install_params: 0 }, { install_params: false }, { install_params: "" }]) {
+            const req = { body } as Request;
+
+            await assert.rejects(
+                () => middleware(req, {} as Response, assert.fail as NextFunction),
+                (error: { code?: number; _ajvErrors?: { instancePath: string; keyword: string }[] }) => {
+                    assert.equal(error.code, 50035);
+                    assert.equal(
+                        error._ajvErrors?.some((ajvError) => ajvError.instancePath === "/install_params" && ajvError.keyword === "anyOf"),
+                        true,
+                    );
+                    return true;
+                },
+            );
+            assert.notEqual(req.body.install_params, null);
+        }
+    });
+
+    test("allows install param permissions that are already strings", async () => {
+        const middleware = await getApplicationModifyRoute();
+        const req = {
+            body: {
+                install_params: {
+                    scopes: ["bot"],
+                    permissions: "9007199254740993",
+                },
+            },
+        } as Request;
+        let nextCalled = false;
+
+        await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+        assert.equal(nextCalled, true);
+        assert.equal(req.body.install_params.permissions, "9007199254740993");
+    });
+
+    test("allows omitted and null install params", async () => {
+        const middleware = await getApplicationModifyRoute();
+        for (const body of [{}, { install_params: null }]) {
+            const req = { body } as Request;
+            let nextCalled = false;
+
+            await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+            assert.equal(nextCalled, true);
         }
     });
 });

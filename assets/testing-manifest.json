@@ -758,7 +758,7 @@
             "method": "POST",
             "path": "/applications/:application_id/delete",
             "sourceFile": "src/api/routes/applications/#application_id/index.ts",
-            "line": 112,
+            "line": 113,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

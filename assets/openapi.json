@@ -4717,6 +4717,16 @@
                     },
                     "guild_id": {
                         "type": "string"
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             },
@@ -4778,6 +4788,16 @@
                     },
                     "guild_id": {
                         "type": "string"
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 }
             },
@@ -14488,22 +14508,13 @@
                         "type": "string"
                     },
                     "install_params": {
-                        "type": "object",
-                        "properties": {
-                            "scopes": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
                             },
-                            "permissions": {
-                                "type": "string"
+                            {
+                                "type": "null"
                             }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "permissions",
-                            "scopes"
                         ]
                     },
                     "terms_of_service_url": {
@@ -14545,6 +14556,31 @@
                     "summary",
                     "verification_state",
                     "verify_key"
+                ]
+            },
+            "ApplicationInstallParams": {
+                "type": "object",
+                "properties": {
+                    "scopes": {
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "applications.commands",
+                                "bot"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    "permissions": {
+                        "pattern": "^(?:0|[1-9][0-9]*)$",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "permissions",
+                    "scopes"
                 ]
             },
             "Team": {

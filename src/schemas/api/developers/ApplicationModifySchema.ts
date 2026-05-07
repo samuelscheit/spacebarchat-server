@@ -16,6 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+export interface ApplicationInstallParams {
+    /**
+     * @minItems 1
+     * @uniqueItems true
+     */
+    scopes: ("applications.commands" | "bot")[];
+    /**
+     * @pattern ^(?:0|[1-9][0-9]*)$
+     */
+    permissions: string;
+}
+
 export interface ApplicationModifySchema {
     description?: string;
     /**
@@ -38,8 +50,5 @@ export interface ApplicationModifySchema {
     flags?: number;
     custom_install_url?: string;
     guild_id?: string;
-    /*install_params?: { TODO: Validation
-		scopes: string[];
-		permissions: string;
-	};*/
+    install_params?: ApplicationInstallParams | null;
 }

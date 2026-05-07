@@ -19,7 +19,7 @@
 import { DiscordApiErrors, EVENT, FieldError, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "@spacebar/util";
 import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
-import { ajv } from "@spacebar/schemas";
+import { ajv, nonCoercingAjv } from "@spacebar/schemas";
 import { BigNumber } from "bignumber.js";
 import { normalizeEmbedPayloadForSchema } from "../utility/EmbedPayload";
 import { ajvErrorsToFieldErrors } from "../utility/AjvErrorFields";
@@ -57,6 +57,8 @@ export interface RouteOptions {
         };
     };
     stripNulls?: stripNulls | true;
+    /** Defaults to true to preserve existing route behavior. Set false for request bodies that must not coerce JSON scalar types. */
+    coerceRequestBody?: boolean;
     event?: EVENT | EVENT[];
     summary?: string;
     description?: string;
@@ -131,7 +133,7 @@ export function route(opts: RouteOptions) {
     const requestBody = normalizeRequestBody(opts.requestBody);
     if (requestBody) {
         try {
-            validate = ajv.getSchema(requestBody.schema);
+            validate = (opts.coerceRequestBody === false ? nonCoercingAjv : ajv).getSchema(requestBody.schema);
         } catch (e) {
             console.error("AJV getSchema failed!");
             throw e;
