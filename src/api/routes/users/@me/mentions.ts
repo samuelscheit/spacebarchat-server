@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Snowflake, Message, Member, Channel, Permissions, NewUrlUserSignatureData, Stopwatch } from "@spacebar/util";
+import { Snowflake, Message, Member, Channel, Permissions, NewUrlUserSignatureData, Stopwatch, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In, LessThan, FindOptionsWhere } from "typeorm";
 
@@ -116,24 +116,8 @@ router.get(
                 where: whereQuery,
                 order: { timestamp: "DESC" },
                 relations: {
-                    author: true,
-                    webhook: true,
-                    application: true,
-                    mentions: true,
-                    mention_roles: true,
-                    mention_channels: true,
-                    sticker_items: true,
-                    attachments: true,
-                    referenced_message: {
-                        author: true,
-                        webhook: true,
-                        application: true,
-                        mentions: true,
-                        mention_roles: true,
-                        mention_channels: true,
-                        sticker_items: true,
-                        attachments: true,
-                    },
+                    ...messagePublicRelations,
+                    referenced_message: messagePublicRelations,
                 },
                 take: limit,
             })

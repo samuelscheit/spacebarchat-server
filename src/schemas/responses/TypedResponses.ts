@@ -20,8 +20,9 @@
 import { GeneralConfiguration, LimitsConfiguration } from "../../util/config/types";
 import { DmChannelDTO } from "../../util/dtos";
 // TODO: remove entity imports
-import { Application, BackupCode, Categories, Channel, Guild, Invite, Member, Message, Role, Template } from "@spacebar/util";
+import { Application, BackupCode, Categories, Channel, Guild, Invite, Member, Role, Template } from "@spacebar/util";
 import { APIWebhook } from "../api/channels";
+import type { PublicMessage } from "../api/messages/Message";
 import { GuildVoiceRegion } from "./GuildVoiceRegionsResponse";
 import { GuildCreateResponse, PrivateUser, PublicMember, PublicUser } from "@spacebar/schemas";
 
@@ -43,7 +44,7 @@ export type ApplicationEntitlementsResponse = unknown[];
 export type ApplicationSkusResponse = unknown[];
 export type APIApplicationArray = Application[];
 export type APIInviteArray = Invite[];
-export type APIMessageArray = Message[];
+export type APIMessageArray = PublicMessage[];
 export type APIWebhookArray = APIWebhook[];
 export type APIDiscoveryCategoryArray = Categories[];
 export type APIGeneralConfiguration = GeneralConfiguration;

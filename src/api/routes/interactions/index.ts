@@ -20,7 +20,18 @@ import { randomBytes } from "node:crypto";
 import { InteractionFailureReason, InteractionSchema, InteractionType } from "@spacebar/schemas";
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Config, emitEvent, getPermission, Guild, InteractionCreateEvent, InteractionFailureEvent, Member, Message, Snowflake } from "@spacebar/util";
+import {
+    Config,
+    emitEvent,
+    getPermission,
+    Guild,
+    InteractionCreateEvent,
+    InteractionFailureEvent,
+    Member,
+    Message,
+    Snowflake,
+    messagePublicWithThreadRelations,
+} from "@spacebar/util";
 import { pendingInteractions } from "@spacebar/util/imports/Interactions";
 import { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 
@@ -93,21 +104,7 @@ router.post("/", route({}), async (req: Request, res: Response) => {
     if (body.type === InteractionType.MessageComponent || body.data.type === InteractionType.ModalSubmit) {
         interactionData.message = await Message.findOneOrFail({
             where: { id: body.message_id, flags: undefined },
-            relations: {
-                author: true,
-                webhook: true,
-                application: true,
-                mentions: true,
-                mention_roles: true,
-                mention_channels: true,
-                sticker_items: true,
-                attachments: true,
-                thread: {
-                    recipients: {
-                        user: true,
-                    },
-                },
-            },
+            relations: messagePublicWithThreadRelations,
         });
     }
 

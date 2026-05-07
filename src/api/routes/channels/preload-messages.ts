@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, Message } from "@spacebar/util";
+import { Config, Message, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
@@ -28,7 +28,7 @@ router.post(
         requestBody: "PreloadMessagesRequestSchema",
         responses: {
             200: {
-                body: "PreloadMessagesResponse",
+                body: "PreloadMessagesResponseSchema",
             },
             400: {
                 body: "APIErrorResponse",
@@ -50,6 +50,7 @@ router.post(
                     Message.findOne({
                         where: { channel_id: channelId },
                         order: { timestamp: "DESC" },
+                        relations: messagePublicRelations,
                     }),
                 ),
             )

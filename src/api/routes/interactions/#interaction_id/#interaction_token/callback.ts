@@ -19,7 +19,17 @@
 import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
 import { handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Config, emitEvent, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, InteractionFailureEvent } from "@spacebar/util";
+import {
+    Config,
+    emitEvent,
+    InteractionSuccessEvent,
+    Message,
+    MessageUpdateEvent,
+    pendingInteractions,
+    User,
+    InteractionFailureEvent,
+    messagePublicWithThreadRelations,
+} from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
 
 const router = Router({ mergeParams: true });
@@ -137,19 +147,7 @@ router.post(
                     if (!interaction.messageId) throw new HTTPError("no. That was not a message");
                     const message = await Message.findOneOrFail({
                         relations: {
-                            author: true,
-                            webhook: true,
-                            application: true,
-                            mentions: true,
-                            mention_roles: true,
-                            mention_channels: true,
-                            sticker_items: true,
-                            attachments: true,
-                            thread: {
-                                recipients: {
-                                    user: true,
-                                },
-                            },
+                            ...messagePublicWithThreadRelations,
                             channel: true,
                         },
                         where: {

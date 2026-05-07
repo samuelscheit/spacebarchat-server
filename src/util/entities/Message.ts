@@ -43,7 +43,7 @@ import {
     PartialUser,
     InteractionType,
 } from "@spacebar/schemas";
-import { MessageFlags, serializeMessageMentions } from "@spacebar/util";
+import { MessageFlags, serializeMessageMentions, serializeMessageRoleMentions } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
 
 type AttachmentUrlFields = {
@@ -261,6 +261,11 @@ export class Message extends BaseClass {
     @ManyToMany(() => User)
     mentions: User[];
 
+    /**
+     * Public message payloads serialize role mentions as role ids.
+     *
+     * @items.type string
+     */
     @JoinTable({ name: "message_role_mentions" })
     @ManyToMany(() => Role)
     mention_roles: Role[];
@@ -397,7 +402,7 @@ export class Message extends BaseClass {
             application_id: undefined,
             mentions: serializeMessageMentions(this.mentions) as PartialUser[],
 
-            mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
+            mention_roles: serializeMessageRoleMentions(this.mention_roles),
             mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
             attachments: this.attachments?.map((att) => att.toJSON()) ?? [],
 
@@ -452,7 +457,7 @@ export class Message extends BaseClass {
                 edited_timestamp: this.edited_timestamp,
                 embeds: this.embeds,
                 flags: this.flags,
-                mention_roles: this.mention_roles?.map((x) => x.id),
+                mention_roles: serializeMessageRoleMentions(this.mention_roles),
                 mentions: serializeMessageMentions(this.mentions) as PartialUser[],
                 timestamp: this.timestamp,
                 type: this.type,
@@ -461,8 +466,14 @@ export class Message extends BaseClass {
     }
 
     withSignedAttachments(data: NewUrlUserSignatureData) {
-        const publicMessage = this instanceof Message ? this.toJSON() : this;
-        return signMessageAttachmentUrls(publicMessage, data);
+        const publicMessage = this instanceof Message ? this.toJSON() : (this as unknown as PublicMessage);
+        return signMessageAttachmentUrls(
+            {
+                ...publicMessage,
+                mention_roles: serializeMessageRoleMentions(publicMessage.mention_roles),
+            },
+            data,
+        );
     }
 
     static async createWithDefaults(opts: Partial<Message>): Promise<Message> {

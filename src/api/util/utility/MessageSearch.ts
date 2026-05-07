@@ -5,7 +5,7 @@ export function messageToSearchResult(message: Message) {
 
     return {
         ...publicMessage,
-        mention_roles: message.mention_roles ?? [],
+        mention_roles: publicMessage.mention_roles ?? [],
         hit: true as const,
     };
 }
