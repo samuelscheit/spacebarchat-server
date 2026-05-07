@@ -30,7 +30,7 @@ describe("Generated public Message schema", () => {
             assert.equal(mentionRoleSchema.items?.type, "string");
         }
         assert.deepEqual(singleMessageGet, {
-            $ref: "#/components/schemas/PublicMessage",
+            $ref: "#/components/schemas/APIPublicMessage",
         });
     });
 });

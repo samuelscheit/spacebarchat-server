@@ -253,7 +253,7 @@ router.post(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "PublicMessage",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",

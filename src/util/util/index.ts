@@ -40,6 +40,7 @@ export * from "./InviteCreate";
 export * from "./JSON";
 export * from "./KittyLogo";
 export * from "./Logo";
+export * from "./MemberRoles";
 export * from "./MessageFlags";
 export * from "./MessageReactions";
 export * from "./MessageMentions";

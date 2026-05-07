@@ -22,9 +22,8 @@ import { DmChannelDTO } from "../../util/dtos";
 // TODO: remove entity imports
 import { Application, BackupCode, Categories, Channel, Guild, Invite, Member, Role, Template } from "@spacebar/util";
 import { APIWebhook } from "../api/channels";
-import type { PublicMessage } from "../api/messages/Message";
 import { GuildVoiceRegion } from "./GuildVoiceRegionsResponse";
-import { GuildCreateResponse, PrivateUser, PublicMember, PublicUser } from "@spacebar/schemas";
+import { GuildCreateResponse, PrivateUser, PublicMember, PublicMessage, PublicUser } from "@spacebar/schemas";
 
 // TODO: remove this entire file!
 // removes internal properties from the guild class
@@ -44,7 +43,9 @@ export type ApplicationEntitlementsResponse = unknown[];
 export type ApplicationSkusResponse = unknown[];
 export type APIApplicationArray = Application[];
 export type APIInviteArray = Invite[];
-export type APIMessageArray = PublicMessage[];
+export type APIPublicMessage = PublicMessage;
+export type APIMessageArray = APIPublicMessage[];
+export type MessageListResponse = APIPublicMessage[];
 export type APIWebhookArray = APIWebhook[];
 export type APIDiscoveryCategoryArray = Categories[];
 export type APIGeneralConfiguration = GeneralConfiguration;

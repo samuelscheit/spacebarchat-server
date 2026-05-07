@@ -45,6 +45,7 @@ import {
 } from "@spacebar/schemas";
 import { MessageFlags, serializeMessageMentions, serializeMessageRoleMentions } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
+import { serializePublicMember } from "../util/MemberRoles";
 
 type AttachmentUrlFields = {
     url?: string;
@@ -398,6 +399,7 @@ export class Message extends BaseClass {
 
             author_id: undefined,
             member_id: undefined,
+            member: serializePublicMember(this.member),
             webhook_id: this.webhook_id ?? undefined,
             application_id: undefined,
             mentions: serializeMessageMentions(this.mentions) as PartialUser[],
@@ -470,6 +472,7 @@ export class Message extends BaseClass {
         return signMessageAttachmentUrls(
             {
                 ...publicMessage,
+                member: serializePublicMember(publicMessage.member),
                 mention_roles: serializeMessageRoleMentions(publicMessage.mention_roles),
             },
             data,

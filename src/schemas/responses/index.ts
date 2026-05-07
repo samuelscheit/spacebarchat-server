@@ -51,6 +51,7 @@ export * from "./InstanceStatsResponse";
 export * from "./LocationMetadataResponse";
 export * from "./MemberJoinGuildResponse";
 export * from "./OAuthAuthorizeResponse";
+export * from "./PinnedMessagesResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PaymentSourceResponse";
 export * from "./PreloadMessagesResponseSchema";

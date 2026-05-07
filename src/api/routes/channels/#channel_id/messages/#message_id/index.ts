@@ -58,7 +58,7 @@ router.patch(
         right: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "PublicMessage",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -116,10 +116,7 @@ router.patch(
 
         postHandleMessage(new_message).catch((e) => console.error("[Message] post-message handler failed", e));
 
-        return res.json({
-            ...messageToResponse(new_message, req),
-            member: new_message.member?.toPublicMember(),
-        });
+        return res.json(messageToResponse(new_message, req));
     },
 );
 
@@ -140,7 +137,7 @@ router.put(
         right: "SEND_BACKDATED_EVENTS",
         responses: {
             200: {
-                body: "PublicMessage",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
@@ -230,7 +227,7 @@ router.get(
         permission: "VIEW_CHANNEL",
         responses: {
             200: {
-                body: "PublicMessage",
+                body: "APIPublicMessage",
             },
             400: {
                 body: "APIErrorResponse",
