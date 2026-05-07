@@ -23,6 +23,7 @@ import {
     ChannelRecipientRemoveEvent,
     emitEvent,
     Emoji,
+    getGroupDMOwnerAfterRecipientRemoval,
     Guild,
     InstanceBan,
     Member,
@@ -119,9 +120,12 @@ router.post(
                     await Channel.deleteChannel(channel);
                     console.log(`[Instance ban] Deleted empty group channel ${channel.id}`);
                 } else {
-                    // otherwise, if the banned user was the owner, reassign ownership
-                    if (channel.owner_id === user.id) {
-                        channel.owner_id = remainingRecipients[0].user_id;
+                    const nextOwnerId = getGroupDMOwnerAfterRecipientRemoval(
+                        channel.owner_id,
+                        remainingRecipients.map((recipient) => recipient.user_id),
+                    );
+                    if (channel.owner_id !== nextOwnerId) {
+                        channel.owner_id = nextOwnerId;
                         await channel.save();
                         console.log(`[Instance ban] Reassigned ownership of group channel ${channel.id} to user ${channel.owner_id}`);
                     }

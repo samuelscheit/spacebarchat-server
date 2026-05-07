@@ -1,5 +1,6 @@
-export function getGroupDMOwnerAfterRecipientRemoval(currentOwnerId: string | undefined, removedUserId: string, remainingRecipientIds: string[]) {
-    if (currentOwnerId !== removedUserId) return currentOwnerId;
+export function getGroupDMOwnerAfterRecipientRemoval(currentOwnerId: string | undefined, remainingRecipientIds: string[]): string | undefined {
+    if (currentOwnerId && remainingRecipientIds.includes(currentOwnerId)) return currentOwnerId;
 
-    return remainingRecipientIds[0];
+    const [firstRemainingRecipientId] = [...remainingRecipientIds].sort();
+    return firstRemainingRecipientId;
 }

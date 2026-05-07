@@ -520,23 +520,26 @@ export class Channel extends BaseClass {
             return;
         }
 
+        const nextOwnerId = getGroupDMOwnerAfterRecipientRemoval(channel.owner_id, channel.recipients?.map((recipient) => recipient.user_id) ?? []);
+        const ownerChanged = channel.owner_id !== nextOwnerId;
+        if (ownerChanged) {
+            channel.owner_id = nextOwnerId;
+            await channel.save();
+        }
+
         await emitEvent({
             event: "CHANNEL_DELETE",
             data: await DmChannelDTO.from(channel, [user_id]),
             user_id: user_id,
         });
 
-        const nextOwnerId = getGroupDMOwnerAfterRecipientRemoval(channel.owner_id, user_id, channel.recipients?.map((recipient) => recipient.user_id) ?? []);
-        if (channel.owner_id !== nextOwnerId) {
-            channel.owner_id = nextOwnerId;
+        if (ownerChanged) {
             await emitEvent({
                 event: "CHANNEL_UPDATE",
                 data: await DmChannelDTO.from(channel, [user_id]),
                 channel_id: channel.id,
             });
         }
-
-        await channel.save();
 
         await emitEvent({
             event: "CHANNEL_RECIPIENT_REMOVE",
