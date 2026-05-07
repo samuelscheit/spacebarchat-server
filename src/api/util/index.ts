@@ -19,6 +19,7 @@
 export * from "./utility/Base64";
 export * from "./utility/AjvErrorFields";
 export * from "./utility/AttachmentRefresh";
+export * from "./utility/DiscoverableGuildCategories";
 export * from "./utility/Experiments";
 export * from "./utility/Fingerprint";
 export * from "./utility/ipAddress";

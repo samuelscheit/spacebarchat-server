@@ -26182,6 +26182,32 @@
                         }
                     }
                 },
+                "parameters": [
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The number of discoverable guilds to skip before returning results."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The maximum number of discoverable guilds to return."
+                    },
+                    {
+                        "name": "categories",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter by one or more primary category IDs. May be repeated or comma-separated."
+                    }
+                ],
                 "tags": [
                     "discoverable-guilds"
                 ]
