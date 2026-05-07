@@ -22,6 +22,7 @@ describe("messageToSearchResult", () => {
             {
                 id: "40",
                 username: "mentioned",
+                avatar: null,
             },
         ]);
         assert.equal("email" in result.mentions[0], false);

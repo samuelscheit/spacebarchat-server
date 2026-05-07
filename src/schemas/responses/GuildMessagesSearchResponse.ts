@@ -16,31 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseMessageComponents, Embed, MessageType, Poll, PublicUser, Snowflake } from "@spacebar/schemas";
-import { PublicAttachment } from "../api/messages/Attachments";
+import { PublicMessage } from "@spacebar/schemas";
 
-export interface GuildMessagesSearchMessage {
-    id: string;
-    type: MessageType;
-    content?: string;
-    channel_id: string;
-    author: PublicUser;
-    attachments: PublicAttachment[];
-    embeds: Embed[];
-    mentions: PublicUser[];
-    mention_roles: Snowflake[];
-    pinned: boolean;
-    mention_everyone?: boolean;
-    tts: boolean;
-    timestamp: string;
-    edited_timestamp: string | null;
-    flags: number;
-    components: BaseMessageComponents[];
-    poll: Poll;
+export interface GuildMessagesSearchMessage extends PublicMessage {
     hit: true;
 }
 
 export interface GuildMessagesSearchResponse {
-    messages: GuildMessagesSearchMessage[];
+    messages: GuildMessagesSearchMessage[][];
     total_results: number;
 }

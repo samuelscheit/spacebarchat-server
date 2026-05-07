@@ -42,6 +42,7 @@ import {
     UnfurledMediaItem,
     PartialUser,
     InteractionType,
+    GuildMessagesSearchMessage,
 } from "@spacebar/schemas";
 import { MessageFlags, serializeMessageMentions, serializeMessageRoleMentions } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
@@ -447,6 +448,32 @@ export class Message extends BaseClass {
             application_id: this.application_id,
             //channel: this.channel, // TODO: ephemeral DM channels
             // recipient_id: this.recipient_id, // TODO: ephemeral DM channels
+        };
+    }
+
+    toSearchResult(): GuildMessagesSearchMessage {
+        const publicMessage = this.toJSON();
+        const {
+            webhook: _webhook,
+            guild: _guild,
+            application: _application,
+            interaction: _interaction,
+            interaction_metadata: _interactionMetadata,
+            ...searchResult
+        } = publicMessage as PublicMessage & {
+            webhook?: unknown;
+            guild?: unknown;
+            application?: unknown;
+            interaction?: unknown;
+            interaction_metadata?: unknown;
+        };
+
+        return {
+            ...searchResult,
+            author: serializeMessageMentions([publicMessage.author] as unknown as object[])[0],
+            mentions: serializeMessageMentions(this.mentions) as PartialUser[],
+            mention_roles: serializeMessageRoleMentions(this.mention_roles),
+            hit: true,
         };
     }
 

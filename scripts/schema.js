@@ -306,6 +306,7 @@ async function main() {
     for (const defKey in definitions) {
         filterSchema(definitions[defKey]);
     }
+    aliasPublicMessageSchema(definitions);
 
     if (process.env.WRITE_SCHEMA_DIR === "true") {
         await Promise.all(writePromises);
@@ -361,6 +362,15 @@ function filterSchema(schema) {
             filterSchema(schema.definitions[defKey]);
         }
     }
+}
+
+function aliasPublicMessageSchema(definitions) {
+    if (!definitions.PublicMessage) return;
+
+    // `Message` is the route-level response schema used by most message endpoints.
+    // Several legacy response schemas still pull in the TypeORM Message entity as a
+    // nested definition; keep the public API contract tied to PublicMessage instead.
+    definitions.Message = structuredClone(definitions.PublicMessage);
 }
 
 function deepEqual(a, b) {
