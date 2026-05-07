@@ -34,7 +34,9 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
     // const { format } = req.query;
 
     const fullUrl = (req.headers["x-forwarded-proto"] ?? req.protocol) + "://" + (req.headers["x-forwarded-host"] ?? req.hostname) + req.originalUrl;
+    res.vary("signature");
 
+    const userAgent = Array.isArray(req.headers["user-agent"]) ? req.headers["user-agent"][0] : req.headers["user-agent"];
     const securityConfig = Config.get().security;
     const hasValidAuth = hasValidAttachmentRequestAuthorization({
         signatureHeader: req.headers.signature,
@@ -42,7 +44,7 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
         cdnSignUrls: securityConfig.cdnSignUrls,
         fullUrl,
         ip: req.ip,
-        userAgent: req.headers["user-agent"] as string | undefined,
+        userAgent,
         validateSignature: (request, signature) => hasValidSignature(new NewUrlUserSignatureData(request), new UrlSignResult(signature)),
         warn: console.warn,
     });

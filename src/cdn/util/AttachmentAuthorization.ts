@@ -1,3 +1,5 @@
+import { timingSafeEqual } from "node:crypto";
+
 export type AttachmentUrlSignature = {
     path: string;
     hash: string;
@@ -21,6 +23,15 @@ export type AttachmentRequestAuthorizationOptions = {
     userAgent?: string;
     validateSignature?: AttachmentSignatureValidator;
     warn?: (message: string) => void;
+};
+
+export const hasMatchingRequestSignature = (signatureHeader: string | string[] | undefined, requestSignature: string) => {
+    if (typeof signatureHeader !== "string" || requestSignature.length === 0) return false;
+
+    const received = Buffer.from(signatureHeader);
+    const expected = Buffer.from(requestSignature);
+
+    return received.length === expected.length && timingSafeEqual(received, expected);
 };
 
 export const parseAttachmentUrlSignature = (fullUrl: string): AttachmentUrlSignature => {
@@ -49,16 +60,12 @@ export const hasValidAttachmentRequestAuthorization = ({
     validateSignature,
     warn,
 }: AttachmentRequestAuthorizationOptions) => {
-    if (signatureHeader !== undefined) {
-        const isValid = typeof signatureHeader === "string" && signatureHeader === requestSignature;
-        if (!isValid) warn?.("[CDN/Attachments] Client sent invalid signature header");
-        return isValid;
-    }
+    if (hasMatchingRequestSignature(signatureHeader, requestSignature)) return true;
 
     if (!cdnSignUrls) return true;
 
     if (!validateSignature) {
-        warn?.("[CDN/Attachments] Client sent invalid attachment URL signature");
+        warn?.(signatureHeader !== undefined ? "[CDN/Attachments] Client sent invalid signature header" : "[CDN/Attachments] Client sent invalid attachment URL signature");
         return false;
     }
 
@@ -70,10 +77,11 @@ export const hasValidAttachmentRequestAuthorization = ({
             },
             parseAttachmentUrlSignature(fullUrl),
         );
-        if (!isValid) warn?.("[CDN/Attachments] Client sent invalid attachment URL signature");
+        if (!isValid)
+            warn?.(signatureHeader !== undefined ? "[CDN/Attachments] Client sent invalid signature header" : "[CDN/Attachments] Client sent invalid attachment URL signature");
         return isValid;
     } catch {
-        warn?.("[CDN/Attachments] Client sent invalid attachment URL signature");
+        warn?.(signatureHeader !== undefined ? "[CDN/Attachments] Client sent invalid signature header" : "[CDN/Attachments] Client sent invalid attachment URL signature");
         return false;
     }
 };
