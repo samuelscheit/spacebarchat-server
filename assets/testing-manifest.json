@@ -11518,7 +11518,7 @@
             "method": "DELETE",
             "path": "/users/@me/relationships/:user_id",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 148,
+            "line": 149,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11680,7 +11680,7 @@
             "method": "POST",
             "path": "/users/@me/relationships/",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 118,
+            "line": 119,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
