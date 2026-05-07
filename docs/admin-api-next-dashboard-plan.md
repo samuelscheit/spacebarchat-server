@@ -1,200 +1,199 @@
-# Admin API and Dashboard Reimplementation Plan
+# Admin Dashboard Next Features Plan
 
 ## Objective
 
-Reimplement the C# `extra/admin-api` admin surface as a TypeScript admin backend plus a Next.js dashboard, while reusing the existing Spacebar server auth, entities, config, and event systems.
+Turn the current TypeScript admin API and Next.js dashboard into a production-ready admin surface.
 
-This plan is for the separate worktree at:
-
-```text
-/Users/user/Developer/Developer/spacebarchat/server-admin-api-next-plan
-```
-
-Branch:
+The first parity slice already exists on branch:
 
 ```text
 admin-api-next-dashboard-plan
 ```
 
-## Core Decision
+Current PR:
 
-Build a dedicated admin boundary in TypeScript instead of directly copying the C# project structure.
+```text
+https://github.com/samuelscheit2/spacebarchat-server/pull/182
+```
 
-- UI: `apps/admin-dashboard`
-- Server-only admin domain code: `src/admin`
-- Data access: existing TypeORM entities from `@spacebar/util`
-- Auth and rights: existing `checkToken`, `Rights`, and API auth patterns
-- Events: existing `emitEvent` transport
-- Admin API route prefix: `/_spacebar/admin/api/*`
-- Dashboard route prefix: `/_spacebar/admin/*`
+This document replaces the completed reimplementation plan. Do not redo the already implemented C# AdminApi parity work unless a follow-up feature requires changing it.
 
-Do not merge AdminApi, UApi, CDN, and gateway offload into one feature. They have different audiences and safety properties.
+## Baseline
 
-## Backend Scope
+Already implemented:
 
-Port the C# AdminApi surface first, then build the dashboard against it.
+- TypeScript admin API mounted at `/_spacebar/admin/api`.
+- Next.js dashboard under `apps/admin-dashboard` with `basePath: "/_spacebar/admin"`.
+- OPERATOR-only admin auth for API routes.
+- Explicit admin DTOs and paginated/searchable list endpoints.
+- Users, guilds, discovery, channels, media, configuration, jobs, and activity dashboard sections.
+- Destructive user deletion and CDN attachment work modeled as jobs.
+- Process-local job and audit/activity storage.
+- C# `Spacebar.AdminApi` runtime deprecation warning.
 
-Initial admin routes:
+Known gaps:
 
-- `GET /ping`
-- `GET /whoami`
-- `GET /users`
-- `GET /users/:id`
-- `POST /users/:id/delete`
-- `GET /guilds`
-- `POST /guilds/:id/force-join`
-- `DELETE /channels/:id`
-- `GET /discovery/guilds`
-- `GET /discovery/guilds/:id`
-- `PATCH /discovery/guilds/:id`
-- `GET /configuration`
-- `PUT /configuration`
-- `POST /configuration/reload`
-- `GET /media/users/:id/attachments`
-- `GET /media/stickers`
+- No dedicated admin login or session UI.
+- Dashboard deployment/reverse-proxy wiring is not packaged.
+- Jobs and audit/activity records are process-local and disappear on restart.
+- Multi-worker job coordination is not implemented.
+- Dashboard list pages show totals but lack next/previous pagination controls.
+- Destructive actions need stronger confirmation, reason capture, and result feedback.
+- Browser visual QA and end-to-end destructive workflow tests are incomplete.
+- The deprecated C# admin service is still present for rollback.
 
-Keep UApi and gateway offload separate. Only port them if the explicit objective becomes replacing those services too.
+## Non-Goals
 
-## Module Boundaries
+- Do not merge UApi, CDN, gateway offload, or unrelated services into this dashboard.
+- Do not restore unsafe destructive `GET` behavior from the old C# admin surface.
+- Do not expose raw TypeORM entities to the dashboard.
+- Do not add a separate admin rights model until the OPERATOR-based flow is hardened.
+- Do not remove the C# admin service until TypeScript admin deployment and rollback are proven.
 
-### `admin/auth`
+## Feature Track 1: Admin Session UX
 
-Validate Spacebar tokens using the existing TS token path, then enforce `OPERATOR`.
+Add a first-class dashboard authentication flow.
 
-Rules:
+Deliverables:
 
-- Never trust UI-only checks.
-- Reject disabled/deleted users through the normal token path.
-- Do not duplicate right math.
-- Prefer existing `route({ right: ... })` style where it fits.
+- Admin login page under `/_spacebar/admin/login`.
+- Logout route/action that clears dashboard auth cookies.
+- HttpOnly, secure, same-site cookie for dashboard admin sessions.
+- Existing header/cookie token forwarding preserved for automation and reverse proxies.
+- `GET /_spacebar/admin/api/whoami` used to validate the session on every dashboard request.
+- Clear missing-token, expired-token, and non-OPERATOR error states.
+- No UI-only authorization; all server actions must continue using the admin API auth boundary.
 
-### `admin/dto`
+Acceptance criteria:
 
-Return explicit admin DTOs.
+- Visiting dashboard pages without auth redirects or renders a login state.
+- A valid OPERATOR token opens the dashboard.
+- A valid non-OPERATOR token is rejected.
+- Logout prevents later server actions from reusing the old session.
+- Session cookie attributes are covered by tests or a documented manual check.
 
-Rules:
+## Feature Track 2: Deployment Wiring
 
-- Do not return raw TypeORM entities to the dashboard.
-- Keep private fields intentional.
-- Use projections for list views.
-- Include counts needed by the UI without loading entire relation graphs.
+Make the dashboard deployable alongside the Spacebar server.
 
-### `admin/db`
+Deliverables:
 
-Thin repository/query helpers over existing entities.
+- Documented production topology for `/_spacebar/admin` and `/_spacebar/admin/api`.
+- Build/start scripts for the dashboard workspace.
+- Environment variable documentation for `SPACEBAR_ADMIN_API_URL`, timeout, cookie settings, and public base path.
+- Reverse-proxy examples for routing dashboard requests and API requests.
+- Health/smoke endpoint or documented smoke command for the dashboard process.
+- Release note explaining that the TS server serves the admin API while Next serves the dashboard UI.
 
-Rules:
+Acceptance criteria:
 
-- Use pagination and search on every list endpoint.
-- Avoid unbounded `find()` on `User`, `Guild`, `Message`, `Attachment`, and `Session`.
-- Prefer query builders for count-heavy admin tables.
+- `npm run build --workspace apps/admin-dashboard` still passes.
+- A documented start command serves the dashboard at `/_spacebar/admin`.
+- Dashboard SSR can reach the configured admin API URL.
+- Misconfigured API URL fails with an actionable dashboard error.
 
-### `admin/events`
+## Feature Track 3: Durable Jobs and Audit
 
-Central wrapper around `emitEvent` for admin-triggered changes.
+Move admin jobs and audit/activity out of process memory.
 
-Required event parity:
+Deliverables:
 
-- Channel deletion emits `CHANNEL_DELETE`.
-- User deletion/session invalidation emits `SB_SESSION_REMOVE` where applicable.
-- Bulk message removal emits `MESSAGE_DELETE_BULK` or the existing project event spelling expected by listeners.
-- Config updates emit `SB_RELOAD_CONFIG`.
+- Database-backed admin job records with status, input, progress, result, errors, idempotency key, actor, timestamps, and cancellation request state.
+- Database-backed audit records with actor, action, target, severity, status, job ID, reason, metadata, and timestamps.
+- Migration or schema update using the repo's established database workflow.
+- Worker-safe job claiming so multiple API workers do not run the same job.
+- Restart recovery for queued/running jobs.
+- Retention and pagination policy for job and audit history.
+- Existing process-local implementation either removed or kept only as a test helper.
 
-### `admin/config`
+Acceptance criteria:
 
-Support the existing TS config system intentionally.
+- Jobs remain visible after process restart.
+- Audit/activity remains visible after process restart.
+- Idempotency prevents duplicate dangerous jobs.
+- Cancellation requests survive restart.
+- Tests cover job creation, progress update, failure, cancellation, idempotency, and audit persistence.
 
-Rules:
+## Feature Track 4: Dashboard Operations UX
 
-- Handle DB-backed config.
-- Handle `CONFIG_PATH` JSON config.
-- Make readonly JSON config failures explicit.
-- Never silently write config to the wrong backend.
+Add the interaction polish operators need for repeated use.
 
-### `admin/jobs`
+Deliverables:
 
-Long-running and destructive admin work belongs in jobs, not request handlers.
+- Shared pagination controls for every list page.
+- Filter controls for jobs, activity, users, guilds, discovery, and media.
+- Job detail page with input, progress, result, errors, actor, timestamps, cancellation state, and related audit records.
+- Activity detail or expandable rows for metadata and related job records.
+- Action result banners for successful and failed server actions.
+- Configuration editor with validation, formatted JSON, and diff/preview before save.
+- Media job controls that expose dry-run, force, and missing-limit inputs intentionally.
 
-Job candidates:
+Acceptance criteria:
 
-- User deletion and message cleanup
-- Channel cleanup
-- CDN fsck
-- CDN migration
-- Large attachment/user media scans
+- List pages can navigate beyond the first page.
+- Query state is represented in the URL.
+- Server action success/failure is visible without inspecting logs.
+- Large job/audit payloads remain readable and do not break layout.
 
-Jobs need:
+## Feature Track 5: Destructive Action Safety
 
-- ID
-- status
-- progress counters
-- structured result
-- error list
-- cancellation story where practical
-- idempotency key for dangerous operations
+Harden high-risk admin actions.
 
-## Dashboard Scope
+Deliverables:
 
-Build a dense operational dashboard, not a marketing UI.
+- Typed confirmation for user delete, channel delete, CDN migration force mode, and config writes.
+- Required operator reason for destructive actions.
+- Audit reason included in job/audit metadata.
+- Idempotency keys generated for dangerous dashboard actions.
+- Clear dry-run defaults for migration-style jobs.
+- Rate limit or debounce where repeated submissions could create duplicate work.
 
-Initial sections:
+Acceptance criteria:
 
-- Overview
-- Users
-- User detail
-- Guilds
-- Guild detail
-- Discovery management
-- Channels
-- Media: stickers and user attachments
-- Configuration editor
-- Jobs
-- Audit/activity
+- Destructive actions cannot be submitted accidentally from a single click.
+- Audit records contain the operator reason.
+- Duplicate form submissions do not create duplicate dangerous jobs.
+- Tests cover reason/idempotency propagation.
 
-Next.js implementation rules:
+## Feature Track 6: Verification and Release Gates
 
-- Use Server Components for list/detail data loading.
-- Keep mutations in Server Actions or route handlers.
-- Recheck admin auth in every mutation.
-- Use client components only for interactive tables, filters, modals, and progress views.
-- Avoid client-side direct privileged calls to the main API.
-- Keep payloads small; do not serialize full entity graphs into client components.
+Add confidence beyond build-only checks.
 
-## Behavioral Changes From C#
+Deliverables:
 
-These are intentional breaking changes:
+- Backend integration tests against a real test database for destructive admin operations.
+- Dashboard server-action tests for auth forwarding and mutation failures.
+- Browser or Playwright visual smoke checks for the dashboard shell and key pages.
+- E2E smoke path covering login, users list, jobs list, and a safe dry-run media job.
+- PR checklist for admin dashboard changes.
 
-- Replace destructive `GET` routes with `POST` or `DELETE`.
-- Replace streaming delete responses with job progress.
-- Add pagination to admin list endpoints.
-- Add explicit audit metadata for destructive actions.
-- Make config persistence mode visible and enforced.
+Acceptance criteria:
 
-## Migration Order
+- Required checks run locally with documented commands.
+- Visual smoke tests produce screenshots or a clear pass/fail artifact.
+- Destructive integration tests assert database and event side effects, not only HTTP status codes.
 
-1. Create `admin-core` or `src/admin` with auth guard, DTOs, query helpers, event wrapper, and config helpers.
-2. Port read-only routes: users, guilds, discovery, configuration, stickers, attachments.
-3. Port small mutations: discovery patch, config reload, channel delete.
-4. Convert destructive flows into jobs: user delete, bulk message cleanup, CDN fsck/migration.
-5. Build `apps/admin-dashboard` as a Next app against the admin API.
-6. Add tests for auth boundaries, DTO projections, event emission, config persistence, and job progress.
-7. Remove or deprecate the C# admin surface only after TS parity is verified.
+## Suggested Implementation Order
+
+1. Add deployment wiring documentation and scripts so reviewers can run the dashboard consistently.
+2. Add admin login/session UX while preserving existing token forwarding.
+3. Implement durable jobs and audit storage behind the existing API contracts.
+4. Add dashboard pagination, filters, job detail, and action result feedback.
+5. Add typed confirmations, reasons, and idempotency propagation for destructive actions.
+6. Add browser/e2e verification and destructive operation integration tests.
+7. Decide whether to remove the deprecated C# admin service after the TS dashboard has production deployment evidence.
 
 ## Verification Plan
 
-Required checks before considering the implementation complete:
+Minimum checks for future implementation PRs:
 
-- Admin routes reject unauthenticated users.
-- Admin routes reject authenticated non-`OPERATOR` users.
-- Admin list endpoints are paginated.
-- Admin DTOs do not expose raw sensitive fields by accident.
-- Channel delete emits the expected event and removes the channel.
-- Config reload emits `SB_RELOAD_CONFIG`.
-- Config writes behave correctly in DB and JSON config modes.
-- User deletion runs as a job and records progress/errors.
-- Dashboard cannot perform mutations without server-side admin auth.
-- Existing `npm run build:src` still passes.
-- Dashboard build passes.
+- `npm run build`
+- `npm run build --workspace apps/admin-dashboard`
+- Focused backend tests for touched admin modules.
+- Dashboard tests for touched server actions or pages.
+- Database integration tests when job/audit persistence or destructive operations change.
+- Browser or Playwright smoke check when dashboard UI changes.
+- Manual or automated check that non-OPERATOR users cannot access the dashboard or run server actions.
 
 ## Working Prompt For Future Agents
 
@@ -204,19 +203,19 @@ You are working in:
 /Users/user/Developer/Developer/spacebarchat/server-admin-api-next-plan
 ```
 
-Your task is to implement the TypeScript admin API and Next.js admin dashboard described in `docs/admin-api-next-dashboard-plan.md`.
+Your task is to implement the next admin dashboard features described in `docs/admin-api-next-dashboard-plan.md`.
 
 Follow these rules:
 
-1. Update `docs/admin-api-next-dashboard-progress.md` before and after each meaningful work block.
-2. Keep the progress file factual: current goal, changed files, verification run, blockers, and next step.
-3. Do not edit the original `server` worktree.
-4. Reuse existing TS server auth, entities, config, and event systems.
-5. Do not expose raw TypeORM entities from admin endpoints.
-6. Do not implement destructive admin actions as `GET`.
-7. Prefer breaking changes over symptom patches when the C# behavior is unsafe.
-8. Add tests around auth boundaries and destructive operations before wiring the UI.
-9. Keep UApi, CDN, and gateway offload separate unless the objective explicitly expands.
+1. Treat the existing TypeScript admin API and dashboard as the baseline.
+2. Update `docs/admin-api-next-dashboard-progress.md` before and after each meaningful work block.
+3. Keep the progress file factual: current goal, changed files, verification run, blockers, and next step.
+4. Do not edit the original `/Users/user/Developer/Developer/spacebarchat/server` worktree.
+5. Push only to `samuelscheit2/spacebarchat-server` when pushing is explicitly needed.
+6. Reuse existing TS server auth, entities, config, event, and migration patterns.
+7. Do not expose raw TypeORM entities from admin endpoints.
+8. Do not implement destructive admin actions as `GET`.
+9. Prefer root-cause fixes over patches that only hide dashboard symptoms.
 10. Before stopping, run the narrowest relevant verification and record the result in the progress file.
 
 Progress entry template:
