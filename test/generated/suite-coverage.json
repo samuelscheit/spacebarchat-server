@@ -772,6 +772,7 @@
                     "testFiles": [
                         "test/scenarios/users-profile-settings.test.ts",
                         "test/scenarios/users-relationships.test.ts",
+                        "test/scenarios/users-notes.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
                         "src/util/dtos/ConnectedAccountDTO.test.ts"
