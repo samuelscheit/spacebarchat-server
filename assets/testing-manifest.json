@@ -5076,7 +5076,7 @@
             "method": "GET",
             "path": "/guild-recommendations/",
             "sourceFile": "src/api/routes/guild-recommendations.ts",
-            "line": 27,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

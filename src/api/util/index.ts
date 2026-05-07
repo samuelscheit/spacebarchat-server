@@ -55,3 +55,4 @@ export * from "./handlers/AuthTokenResponseSettings";
 export * from "./utility/SettingsProtoJson";
 export * from "./utility/ChannelVisibility";
 export * from "./utility/PreloadMessages";
+export * from "./utility/GuildRecommendations";
