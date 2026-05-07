@@ -8,7 +8,8 @@
             "api": 321,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 275
+        "runtimeAuthBoundaryContracts": 275,
+        "runtimePublicAuthBoundaryContracts": 35
     },
     "contracts": [
         {
@@ -16624,7 +16625,7 @@
             "service": "api",
             "method": "POST",
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
-            "samplePath": "/interactions/value/test_token/callback/",
+            "samplePath": "/interactions/100000000000000011/test_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
             "line": 27,
             "authMode": "public",
