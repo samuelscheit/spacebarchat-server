@@ -1375,6 +1375,7 @@
                         "heartbeat",
                         "resume",
                         "bad-payload-close",
+                        "unsupported-handshake-close",
                         "event-fanout"
                     ],
                     "manifestIds": [
@@ -1413,6 +1414,9 @@
                         "fake-media-server"
                     ],
                     "checks": [
+                        "auth-required",
+                        "heartbeat",
+                        "backend-version",
                         "identify",
                         "select-protocol",
                         "speaking",

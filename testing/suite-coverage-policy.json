@@ -145,7 +145,7 @@
                     ],
                     "selectors": [{ "service": "gateway", "type": "opcode" }],
                     "fixtures": ["users", "sessions", "guilds", "channels", "event-bus"],
-                    "checks": ["hello", "identify", "heartbeat", "resume", "bad-payload-close", "event-fanout"]
+                    "checks": ["hello", "identify", "heartbeat", "resume", "bad-payload-close", "unsupported-handshake-close", "event-fanout"]
                 },
                 {
                     "id": "webrtc",
@@ -155,7 +155,7 @@
                     "testFiles": ["src/webrtc/Server.test.ts", "src/webrtc/ServerConfigure.test.ts", "src/webrtc/util/Send.test.ts", "src/webrtc/util/WebRtcMessageGuard.test.ts"],
                     "selectors": [{ "service": "webrtc", "type": "opcode" }],
                     "fixtures": ["users", "sessions", "voice-states", "fake-media-server"],
-                    "checks": ["identify", "select-protocol", "speaking", "video", "guard-size-rate"]
+                    "checks": ["auth-required", "heartbeat", "backend-version", "identify", "select-protocol", "speaking", "video", "guard-size-rate"]
                 }
             ]
         },

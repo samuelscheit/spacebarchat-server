@@ -4,7 +4,7 @@ import type { AddressInfo } from "node:net";
 import { describe, test } from "node:test";
 import ws from "ws";
 import { Server as GatewayServer } from "./Server";
-import { OPCODES, type Payload } from "./util/Constants";
+import { CLOSECODES, OPCODES, type Payload } from "./util/Constants";
 
 describe("Gateway Server transport", () => {
     test("accepts a real websocket client and sends HELLO without startup database initialization", async () => {
@@ -23,6 +23,12 @@ describe("Gateway Server transport", () => {
         } finally {
             await closeGateway(server);
         }
+    });
+
+    test("rejects unsupported handshake options over a real websocket", async () => {
+        await assertGatewayHandshakeClose("/?version=8&encoding=xml", CLOSECODES.Decode_error);
+        await assertGatewayHandshakeClose("/?version=8&encoding=json&compress=unsupported", CLOSECODES.Decode_error);
+        await assertGatewayHandshakeClose("/?version=7&encoding=json", CLOSECODES.Invalid_API_version);
     });
 
     test("responds to heartbeat over a real websocket before authentication", async () => {
@@ -44,7 +50,39 @@ describe("Gateway Server transport", () => {
             await closeGateway(server);
         }
     });
+
+    test("closes malformed heartbeat payloads over a real websocket", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            await readJsonMessage(client);
+
+            client.send(JSON.stringify({ op: OPCODES.Heartbeat, d: {} }));
+            const close = await readClose(client);
+
+            assert.equal(close.code, CLOSECODES.Decode_error);
+        } finally {
+            await closeGateway(server);
+        }
+    });
 });
+
+async function assertGatewayHandshakeClose(path: string, expectedCode: CLOSECODES) {
+    const http = createServer();
+    const server = new GatewayServer({ port: 0, server: http });
+    const port = await listen(http);
+
+    try {
+        const client = new ws(`ws://127.0.0.1:${port}${path}`, { headers: { "User-Agent": "spacebar-test" } });
+        const close = await readClose(client);
+        assert.equal(close.code, expectedCode);
+    } finally {
+        await closeGateway(server);
+    }
+}
 
 async function listen(server: ReturnType<typeof createServer>) {
     await new Promise<void>((resolve, reject) => {
@@ -73,6 +111,13 @@ async function closeClient(client: ws) {
             client.once("close", () => resolve());
         });
     }
+}
+
+async function readClose(client: ws) {
+    return await new Promise<{ code: number; reason: Buffer }>((resolve, reject) => {
+        client.once("close", (code, reason) => resolve({ code, reason }));
+        client.once("error", reject);
+    });
 }
 
 async function closeGateway(server: GatewayServer) {
