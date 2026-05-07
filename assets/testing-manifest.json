@@ -9018,8 +9018,8 @@
             "method": "GET",
             "path": "/policies/stats/",
             "sourceFile": "src/api/routes/policies/stats.ts",
-            "line": 24,
-            "authMode": "bearer",
+            "line": 25,
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [

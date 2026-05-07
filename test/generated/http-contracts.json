@@ -8,8 +8,8 @@
             "api": 321,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 275,
-        "runtimePublicAuthBoundaryContracts": 35,
+        "runtimeAuthBoundaryContracts": 274,
+        "runtimePublicAuthBoundaryContracts": 36,
         "runtimePublicInvalidBodyContracts": 11
     },
     "contracts": [
@@ -17698,8 +17698,8 @@
             "path": "/policies/stats/",
             "samplePath": "/policies/stats/",
             "sourceFile": "src/api/routes/policies/stats.ts",
-            "line": 24,
-            "authMode": "bearer",
+            "line": 25,
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": [
@@ -17724,8 +17724,7 @@
                 {
                     "id": "auth-boundary",
                     "checks": [
-                        "authenticated",
-                        "unauthenticated-rejection",
+                        "public-auth-boundary",
                         "status"
                     ]
                 },

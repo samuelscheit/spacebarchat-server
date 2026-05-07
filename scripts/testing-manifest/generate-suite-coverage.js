@@ -73,7 +73,20 @@ function validatePolicy(policy, manifest, repoRoot) {
             continue;
         }
 
-        const requiredIds = manifest.entries.filter((entry) => group.requiredTestTiers.includes(entry.coverage?.testTier)).map((entry) => entry.id);
+        const additionalRequiredManifestIds = group.additionalRequiredManifestIds || [];
+        if (!Array.isArray(additionalRequiredManifestIds)) {
+            errors.push(`${group.id} additionalRequiredManifestIds must be an array when present`);
+        }
+
+        for (const id of additionalRequiredManifestIds) {
+            if (!entryById.has(id)) errors.push(`${group.id} additionalRequiredManifestIds references unknown manifest id ${id}`);
+        }
+
+        const requiredIds = uniqueSorted([
+            ...manifest.entries.filter((entry) => group.requiredTestTiers.includes(entry.coverage?.testTier)).map((entry) => entry.id),
+            ...(Array.isArray(additionalRequiredManifestIds) ? additionalRequiredManifestIds : []),
+        ]);
+        const requiredIdSet = new Set(requiredIds);
         const coveredIds = new Set();
 
         for (const suite of group.suites) {
@@ -101,8 +114,8 @@ function validatePolicy(policy, manifest, repoRoot) {
                 }
 
                 coveredIds.add(id);
-                if (!group.requiredTestTiers.includes(entry.coverage?.testTier)) {
-                    errors.push(`${qualifiedSuiteId} covers ${id} with tier ${entry.coverage?.testTier}, outside ${group.id} required tiers`);
+                if (!requiredIdSet.has(id)) {
+                    errors.push(`${qualifiedSuiteId} covers ${id} outside ${group.id} required manifest entries`);
                 }
             }
         }
@@ -118,7 +131,11 @@ function validatePolicy(policy, manifest, repoRoot) {
 function buildSuiteCoverage(manifest, policy) {
     const entryById = new Map(manifest.entries.map((entry) => [entry.id, entry]));
     const groups = policy.groups.map((group) => {
-        const requiredManifestIds = manifest.entries.filter((entry) => group.requiredTestTiers.includes(entry.coverage?.testTier)).map((entry) => entry.id);
+        const requiredManifestIds = uniqueSorted([
+            ...manifest.entries.filter((entry) => group.requiredTestTiers.includes(entry.coverage?.testTier)).map((entry) => entry.id),
+            ...(group.additionalRequiredManifestIds || []),
+        ]);
+        const requiredManifestIdSet = new Set(requiredManifestIds);
         const suites = group.suites.map((suite) => {
             const manifestIds = expandSuiteManifestIds(suite, manifest.entries);
             return {
@@ -133,14 +150,17 @@ function buildSuiteCoverage(manifest, policy) {
             };
         });
         const coveredManifestIds = uniqueSorted(suites.flatMap((suite) => suite.manifestIds));
+        const coveredRequiredManifestIds = coveredManifestIds.filter((id) => requiredManifestIdSet.has(id));
 
         return {
             id: group.id,
             command: group.command,
             requiredTestTiers: group.requiredTestTiers,
+            additionalRequiredManifestIds: group.additionalRequiredManifestIds || [],
             summary: {
                 totalRequiredManifestEntries: requiredManifestIds.length,
                 totalCoveredManifestEntries: coveredManifestIds.length,
+                totalCoveredRequiredManifestEntries: coveredRequiredManifestIds.length,
                 totalSuites: suites.length,
             },
             requiredManifestIds,
@@ -225,6 +245,10 @@ describe("generated suite coverage matrix", () => {
 
             assert.equal(group.summary.totalRequiredManifestEntries, group.requiredManifestIds.length);
             assert.equal(group.summary.totalCoveredManifestEntries, group.coveredManifestIds.length);
+            assert.equal(
+                group.summary.totalCoveredRequiredManifestEntries,
+                group.coveredManifestIds.filter((id) => group.requiredManifestIds.includes(id)).length,
+            );
         }
     });
 
@@ -242,7 +266,7 @@ describe("generated suite coverage matrix", () => {
                 for (const id of suite.manifestIds) {
                     const entry = entryById.get(id);
                     assert.ok(entry, \`\${group.id}:\${suite.id} references unknown manifest id \${id}\`);
-                    assert.ok(group.requiredTestTiers.includes(entry.coverage?.testTier), \`\${group.id}:\${suite.id} covers \${id} outside required tiers\`);
+                    assert.ok(group.requiredManifestIds.includes(id), \`\${group.id}:\${suite.id} covers \${id} outside required manifest entries\`);
                 }
             }
         }
@@ -292,7 +316,9 @@ function main() {
         }
 
         const selected = group ? matrix.groups.find((candidate) => candidate.id === group) : undefined;
-        const suffix = selected ? ` (${selected.summary.totalCoveredManifestEntries}/${selected.summary.totalRequiredManifestEntries} ${group} entries)` : "";
+        const suffix = selected
+            ? ` (${selected.summary.totalCoveredRequiredManifestEntries}/${selected.summary.totalRequiredManifestEntries} required ${group} entries, ${selected.summary.totalCoveredManifestEntries} total)`
+            : "";
         process.stdout.write(`Generated suite coverage verified${suffix}\n`);
         return;
     }

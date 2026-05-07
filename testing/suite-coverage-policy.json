@@ -5,6 +5,24 @@
             "id": "scenarios",
             "command": "test:scenarios",
             "requiredTestTiers": ["auth-scenario", "stateful-domain", "integration", "cdn-integration", "middleware-contract"],
+            "additionalRequiredManifestIds": [
+                "api:http:GET:/apex/experiments/",
+                "api:http:GET:/discovery/categories",
+                "api:http:GET:/discoverable-guilds/",
+                "api:http:GET:/experiments/",
+                "api:http:GET:/gateway/",
+                "api:http:GET:/gateway/bot/",
+                "api:http:GET:/gifs/search/",
+                "api:http:GET:/gifs/trending-gifs/",
+                "api:http:GET:/gifs/trending/",
+                "api:http:GET:/guild-recommendations/",
+                "api:http:GET:/policies/instance/",
+                "api:http:GET:/policies/instance/config/",
+                "api:http:GET:/policies/instance/domains/",
+                "api:http:GET:/policies/instance/limits/",
+                "api:http:GET:/policies/stats/",
+                "api:http:GET:/scheduled-maintenances/upcoming.json/"
+            ],
             "suites": [
                 {
                     "id": "auth-sessions",
@@ -131,6 +149,33 @@
                     ],
                     "fixtures": ["users", "applications", "oauth-clients", "connected-accounts"],
                     "checks": ["auth-boundary", "redirects", "provider-state", "token-state"]
+                },
+                {
+                    "id": "search-discovery-public",
+                    "title": "Search, discovery, public policy, and gateway discovery",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/search-discovery-public.test.ts"],
+                    "manifestIds": [
+                        "api:http:GET:/apex/experiments/",
+                        "api:http:GET:/discovery/categories",
+                        "api:http:GET:/discoverable-guilds/",
+                        "api:http:GET:/experiments/",
+                        "api:http:GET:/gateway/",
+                        "api:http:GET:/gateway/bot/",
+                        "api:http:GET:/gifs/search/",
+                        "api:http:GET:/gifs/trending-gifs/",
+                        "api:http:GET:/gifs/trending/",
+                        "api:http:GET:/guild-recommendations/",
+                        "api:http:GET:/policies/instance/",
+                        "api:http:GET:/policies/instance/config/",
+                        "api:http:GET:/policies/instance/domains/",
+                        "api:http:GET:/policies/instance/limits/",
+                        "api:http:GET:/policies/stats/",
+                        "api:http:GET:/scheduled-maintenances/upcoming.json/"
+                    ],
+                    "fixtures": ["config", "users", "guilds", "categories", "gif-provider"],
+                    "checks": ["auth-boundary", "response-shape", "db-state", "provider-stub"]
                 },
                 {
                     "id": "cdn",

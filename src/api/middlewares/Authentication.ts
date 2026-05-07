@@ -50,6 +50,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "POST /track",
     // Public policy pages
     "GET /policies/instance/",
+    "GET /policies/stats",
     // Oauth callback
     "/oauth2/callback",
     // Asset delivery
@@ -125,22 +126,22 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
     // for some reason we need to require here, else the openapi generator fails with "route is not a function"
     else res.setHeader("Set-Cookie", `__sb_sessid=${(req.fingerprint = (await require("../util")).randomString(32))}; Secure; HttpOnly; SameSite=None; Path=/`);
 
-    if (isNoAuthorizationRoute(req.method, req.url)) return next();
+    if (isNoAuthorizationRoute(req.method, req.url)) {
+        if (!req.headers.authorization) return next();
+
+        try {
+            await populateAuthenticatedRequest(req);
+        } catch {
+            // Public routes stay public: invalid optional auth is treated as anonymous.
+        }
+
+        return next();
+    }
 
     if (!req.headers.authorization) return next(new HTTPError("Missing Authorization Header", 401));
 
     try {
-        const { decoded, user, session } = (req.tokenData = await checkToken(req.headers.authorization, {
-            ipAddress: req.ip,
-            fingerprint: req.fingerprint,
-        }));
-
-        req.token = decoded;
-        req.user_id = user.id;
-        req.user_bot = user.bot;
-        req.user = user;
-        req.session = session;
-        req.rights = new Rights(Number(user.rights));
+        await populateAuthenticatedRequest(req);
         return next();
     } catch (error) {
         if (error instanceof HTTPError) {
@@ -148,4 +149,18 @@ export async function Authentication(req: Request, res: Response, next: NextFunc
         }
         return next(new HTTPError(error!.toString(), 400));
     }
+}
+
+async function populateAuthenticatedRequest(req: Request) {
+    const { decoded, user, session } = (req.tokenData = await checkToken(req.headers.authorization!, {
+        ipAddress: req.ip,
+        fingerprint: req.fingerprint,
+    }));
+
+    req.token = decoded;
+    req.user_id = user.id;
+    req.user_bot = user.bot;
+    req.user = user;
+    req.session = session;
+    req.rights = new Rights(Number(user.rights));
 }

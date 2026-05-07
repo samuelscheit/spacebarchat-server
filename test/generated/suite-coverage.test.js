@@ -48,6 +48,7 @@ describe("generated suite coverage matrix", () => {
 
             assert.equal(group.summary.totalRequiredManifestEntries, group.requiredManifestIds.length);
             assert.equal(group.summary.totalCoveredManifestEntries, group.coveredManifestIds.length);
+            assert.equal(group.summary.totalCoveredRequiredManifestEntries, group.coveredManifestIds.filter((id) => group.requiredManifestIds.includes(id)).length);
         }
     });
 
@@ -65,7 +66,7 @@ describe("generated suite coverage matrix", () => {
                 for (const id of suite.manifestIds) {
                     const entry = entryById.get(id);
                     assert.ok(entry, `${group.id}:${suite.id} references unknown manifest id ${id}`);
-                    assert.ok(group.requiredTestTiers.includes(entry.coverage?.testTier), `${group.id}:${suite.id} covers ${id} outside required tiers`);
+                    assert.ok(group.requiredManifestIds.includes(id), `${group.id}:${suite.id} covers ${id} outside required manifest entries`);
                 }
             }
         }
