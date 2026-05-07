@@ -35,7 +35,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { handleMessage, messageToResponse, postHandleMessage, route } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -88,23 +88,36 @@ router.patch(
             }
         } else rights.hasThrow("SELF_EDIT_MESSAGES");
 
+        assertMessagePayloadPermissions(permissions, body);
+
+        const normalizedBody = { ...body } as MessageEditSchema & {
+            attachments?: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[];
+        };
+        if (body.attachments) {
+            const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
+            normalizedBody.attachments = body.attachments.map((attachment) => {
+                if (isNewMessagePayloadAttachment(attachment)) return attachment;
+                if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
+                const retained = existingAttachmentsById.get(attachment.id);
+                if (!retained) throw new HTTPError("Unknown attachment", 400);
+                return retained;
+            });
+        }
+
         // no longer necessary, somehow resolved by updating the type of `attachments`...?
         // //@ts-expect-error Something is wrong with message_reference here, TS complains since "channel_id" is optional in MessageCreateSchema
-        const new_message = await handleMessage(
-            {
-                ...message,
-                // TODO: should message_reference be overridable?
-                message_reference: message.message_reference,
-                ...body,
-                author_id: message.author_id,
-                channel_id,
-                id: message_id,
-                attachment_user_id: req.user_id,
-                attachment_channel_ids: [channel_id],
-                edited_timestamp: new Date(),
-            },
-            { suppress_notifications: true },
-        );
+        const new_message = await handleMessage({
+            ...message,
+            // TODO: should message_reference be overridable?
+            message_reference: message.message_reference,
+            ...normalizedBody,
+            author_id: message.author_id,
+            channel_id,
+            id: message_id,
+            attachment_user_id: req.user_id,
+            attachment_channel_ids: [channel_id],
+            edited_timestamp: new Date(),
+        }, { suppress_notifications: true });
 
         await new_message.save();
         await emitEvent({
@@ -173,6 +186,8 @@ router.put(
         if (exists) {
             throw SpacebarApiErrors.CANNOT_REPLACE_BY_BACKFILL;
         }
+
+        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: req.file ? 1 : 0 });
 
         if (req.file) {
             try {

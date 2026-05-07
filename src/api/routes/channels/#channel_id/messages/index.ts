@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getMessageHistoryQueryOrder, handleMessage, messageToResponse, postHandleMessage, route, sortMessagesNewestFirst } from "@spacebar/api";
+import { assertMessagePayloadPermissions, getMessageHistoryQueryOrder, handleMessage, messageToResponse, postHandleMessage, route, sortMessagesNewestFirst } from "@spacebar/api";
 import {
     Attachment,
     Channel,
@@ -279,6 +279,11 @@ router.post(
             relations: { recipients: { user: true } },
         });
         if (channel.thread_metadata?.locked) throw DiscordApiErrors.THREAD_IS_LOCKED;
+
+        const files = (req.files as Express.Multer.File[]) ?? [];
+        const attachments = attachmentInputs.map((input) => input.metadata);
+        assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });
+
         if (channel.isThread()) {
             req.permission!.hasThrow("SEND_MESSAGES_IN_THREADS");
             if (channel.recipients && !channel.recipients.find(({ id }) => id === req.user_id)) {
@@ -375,7 +380,6 @@ router.post(
             }
         }
 
-        const files = (req.files as Express.Multer.File[]) ?? [];
         for (const currFile of files) {
             try {
                 const uploadInput = getUploadInputForMultipartFile(currFile, attachmentInputs, consumedUploadInputs);
@@ -394,17 +398,17 @@ router.post(
             }
         }
 
-        const attachments: (Attachment | MessageCreateCloudAttachment)[] = [];
+        const messageAttachments: (Attachment | MessageCreateCloudAttachment)[] = [];
         for (const input of attachmentInputs) {
             if (input.type === "cloud") {
-                attachments.push(input.metadata);
+                messageAttachments.push(input.metadata);
                 continue;
             }
 
             const uploadedAttachment = uploadedAttachments.get(input);
-            if (uploadedAttachment) attachments.push(uploadedAttachment);
+            if (uploadedAttachment) messageAttachments.push(uploadedAttachment);
         }
-        attachments.push(...unmatchedUploadedAttachments);
+        messageAttachments.push(...unmatchedUploadedAttachments);
 
         const embeds = body.embeds || [];
         if (body.embed) embeds.push(body.embed);
@@ -416,7 +420,7 @@ router.post(
             author_id: req.user_id,
             embeds,
             channel_id,
-            attachments,
+            attachments: messageAttachments,
             attachment_user_id: req.user_id,
             attachment_channel_ids: [channel.id],
             timestamp: new Date(),

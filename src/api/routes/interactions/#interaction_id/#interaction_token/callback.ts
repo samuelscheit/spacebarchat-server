@@ -16,12 +16,13 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BaseMessageComponents, InteractionCallbackSchema, InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { handleComps, route, sendMessage } from "@spacebar/api";
+import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
+import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
     Config,
     emitEvent,
+    getPermission,
     InteractionSuccessEvent,
     Message,
     MessageUpdateEvent,
@@ -48,6 +49,17 @@ router.post(
 
         if (!interaction) {
             return;
+        }
+
+        if (
+            body.type === InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE ||
+            body.type === InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE ||
+            body.type === InteractionCallbackType.UPDATE_MESSAGE ||
+            body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
+        ) {
+            if (!interaction.channelId) throw new HTTPError("Interaction channel not found", 400);
+            const permissions = await getPermission(interaction.applicationId, interaction.guildId, interaction.channelId);
+            assertMessagePayloadPermissions(permissions, body.data);
         }
 
         clearTimeout(interaction.timeout);
