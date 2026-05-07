@@ -48,6 +48,7 @@ import {
     PublicUser,
     PublicVoiceState,
     RelationshipType,
+    StageInstanceResponse,
     UserPrivate,
 } from "@spacebar/schemas";
 
@@ -226,7 +227,7 @@ export interface GuildCreateEvent extends Event {
         guild_scheduled_events: never[];
         guild_hashes: unknown;
         presences: never[];
-        stage_instances: never[];
+        stage_instances: StageInstanceResponse[];
         threads: never[];
         embedded_activities: never[];
         // Only when not using PRIORITISED_READY_PAYLOAD capability
@@ -501,6 +502,21 @@ export interface VoiceServerUpdateEvent extends Event {
     };
 }
 
+export interface StageInstanceCreateEvent extends Event {
+    event: "STAGE_INSTANCE_CREATE";
+    data: StageInstanceResponse;
+}
+
+export interface StageInstanceUpdateEvent extends Event {
+    event: "STAGE_INSTANCE_UPDATE";
+    data: StageInstanceResponse;
+}
+
+export interface StageInstanceDeleteEvent extends Event {
+    event: "STAGE_INSTANCE_DELETE";
+    data: StageInstanceResponse;
+}
+
 export interface StreamCreateEvent extends Event {
     event: "STREAM_CREATE";
     data: {
@@ -735,6 +751,9 @@ export type EventData =
     | UserConnectionsUpdateEvent
     | VoiceStateUpdateEvent
     | VoiceServerUpdateEvent
+    | StageInstanceCreateEvent
+    | StageInstanceUpdateEvent
+    | StageInstanceDeleteEvent
     | WebhooksUpdateEvent
     | ApplicationCommandCreateEvent
     | ApplicationCommandUpdateEvent
@@ -800,6 +819,9 @@ export enum EVENTEnum {
     InteractionFailure = "INTERACTION_FAILURE",
     VoiceStateUpdate = "VOICE_STATE_UPDATE",
     VoiceServerUpdate = "VOICE_SERVER_UPDATE",
+    StageInstanceCreate = "STAGE_INSTANCE_CREATE",
+    StageInstanceUpdate = "STAGE_INSTANCE_UPDATE",
+    StageInstanceDelete = "STAGE_INSTANCE_DELETE",
     ApplicationCommandCreate = "APPLICATION_COMMAND_CREATE",
     ApplicationCommandUpdate = "APPLICATION_COMMAND_UPDATE",
     ApplicationCommandDelete = "APPLICATION_COMMAND_DELETE",
@@ -862,6 +884,9 @@ export type EVENT =
     | "INTERACTION_FAILURE"
     | "VOICE_STATE_UPDATE"
     | "VOICE_SERVER_UPDATE"
+    | "STAGE_INSTANCE_CREATE"
+    | "STAGE_INSTANCE_UPDATE"
+    | "STAGE_INSTANCE_DELETE"
     | "STREAM_CREATE"
     | "STREAM_SERVER_UPDATE"
     | "STREAM_DELETE"

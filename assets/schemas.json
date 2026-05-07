@@ -3952,6 +3952,48 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StageInstanceResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "topic": {
+                "type": "string"
+            },
+            "privacy_level": {
+                "$ref": "#/definitions/StageInstancePrivacyLevel"
+            },
+            "discoverable_disabled": {
+                "type": "boolean"
+            },
+            "guild_scheduled_event_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "discoverable_disabled",
+            "guild_id",
+            "id",
+            "privacy_level",
+            "topic"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "TeamListResponse": {
         "type": "array",
         "items": {
@@ -7904,6 +7946,52 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StageInstanceCreateSchema": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "topic": {
+                "type": "string"
+            },
+            "privacy_level": {
+                "enum": [
+                    1,
+                    2
+                ],
+                "type": "number"
+            },
+            "send_start_notification": {
+                "type": "boolean"
+            },
+            "guild_scheduled_event_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "topic"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StageInstanceModifySchema": {
+        "type": "object",
+        "properties": {
+            "privacy_level": {
+                "enum": [
+                    1,
+                    2
+                ],
+                "type": "number"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "TeamCreateSchema": {
         "type": "object",
         "properties": {
@@ -8869,6 +8957,9 @@
             "flags": {
                 "type": "integer"
             },
+            "topic": {
+                "type": "string"
+            },
             "icon": {
                 "format": "image-data-uri",
                 "type": [
@@ -8926,9 +9017,6 @@
             },
             "rate_limit_per_user": {
                 "type": "integer"
-            },
-            "topic": {
-                "type": "string"
             },
             "default_thread_rate_limit_per_user": {
                 "type": "integer"
@@ -16647,6 +16735,14 @@
         "additionalProperties": {
             "$ref": "#/definitions/JsonValue"
         },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StageInstancePrivacyLevel": {
+        "type": "number",
+        "enum": [
+            1,
+            2
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "InteractionCallbackType": {

@@ -31,6 +31,7 @@ export * from "./utility/ApplicationAuthorization";
 export * from "./utility/ApplicationCommands";
 export * from "./utility/Relationships";
 export * from "./handlers/route";
+export * from "./handlers/StageInstance";
 export * from "./utility/String";
 export * from "./utility/Totp";
 export * from "./utility/UserInvites";

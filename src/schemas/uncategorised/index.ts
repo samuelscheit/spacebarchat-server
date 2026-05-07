@@ -75,6 +75,8 @@ export * from "./RoleModifySchema";
 export * from "./RolePositionUpdateSchema";
 export * from "./SelectProtocolSchema";
 export * from "./SettingsProtoUpdateSchema";
+export * from "./StageInstanceCreateSchema";
+export * from "./StageInstanceModifySchema";
 export * from "./TeamCreateSchema";
 export * from "./TemplateCreateSchema";
 export * from "./TemplateModifySchema";

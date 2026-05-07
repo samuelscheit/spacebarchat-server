@@ -49,6 +49,7 @@ import {
     SessionsReplace,
     isRealGatewaySessionId,
     serializePrivateGatewaySessions,
+    StageInstance,
     Sticker,
     Stopwatch,
     ThreadMember,
@@ -343,6 +344,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         { result: memberGuildEmojis, elapsed: queryGuildEmojisTime },
         { result: memberGuildRoles, elapsed: queryGuildRolesTime },
         { result: memberGuildStickers, elapsed: queryGuildStickersTime },
+        { result: memberGuildStageInstances, elapsed: queryGuildStageInstancesTime },
         { result: memberGuildVoiceStates, elapsed: queryGuildVoiceStatesTime },
         { result: threadMembers, elapsed: threadMemberTime },
         { result: allThreadsRaw, elapsed: queryThreadsTime },
@@ -386,6 +388,12 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             }),
         ),
         timePromise(() =>
+            StageInstance.find({
+                where: { guild_id: In(memberGuildIds) },
+                order: { guild_id: "ASC" },
+            }),
+        ),
+        timePromise(() =>
             VoiceState.find({
                 where: { guild_id: In(memberGuildIds) },
                 order: { guild_id: "ASC" },
@@ -415,6 +423,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const { result: emojisByGuild, elapsed: groupEmojisTime } = timeFunction(() => arrayGroupBy(memberGuildEmojis, (e) => e.guild_id!));
     const { result: rolesByGuild, elapsed: groupRolesTime } = timeFunction(() => arrayGroupBy(memberGuildRoles, (r) => r.guild_id!));
     const { result: stickersByGuild, elapsed: groupStickersTime } = timeFunction(() => arrayGroupBy(memberGuildStickers, (s) => s.guild_id!));
+    const { result: stageInstancesByGuild, elapsed: groupStageInstancesTime } = timeFunction(() => arrayGroupBy(memberGuildStageInstances, (s) => s.guild_id));
     const { result: voiceStatesByGuild, elapsed: groupVoiceStatesTime } = timeFunction(() => arrayGroupBy(memberGuildVoiceStates, (v) => v.guild_id!));
     const { result: threadsByGuild, elapsed: groupThreadsTime } = timeFunction(() => arrayGroupBy(allThreads, (t) => t.guild_id!));
 
@@ -422,6 +431,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const queryGuildEmojisTimeTotal = new ElapsedTime(queryGuildEmojisTime.totalNanoseconds + groupEmojisTime.totalNanoseconds);
     const queryGuildRolesTimeTotal = new ElapsedTime(queryGuildRolesTime.totalNanoseconds + groupRolesTime.totalNanoseconds);
     const queryGuildStickersTimeTotal = new ElapsedTime(queryGuildStickersTime.totalNanoseconds + groupStickersTime.totalNanoseconds);
+    const queryGuildStageInstancesTimeTotal = new ElapsedTime(queryGuildStageInstancesTime.totalNanoseconds + groupStageInstancesTime.totalNanoseconds);
     const queryGuildVoiceStatesTimeTotal = new ElapsedTime(queryGuildVoiceStatesTime.totalNanoseconds + groupVoiceStatesTime.totalNanoseconds);
     const queryThreadsTimeTotal = new ElapsedTime(queryThreadsTime.totalNanoseconds + groupThreadsTime.totalNanoseconds);
 
@@ -456,6 +466,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
             g.stickers = stickersByGuild.get(m.guild_id) ?? [];
             trace.calls.push(`getStickers(${g.stickers.length}/${memberGuildStickers.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
+
+            const guildStageInstances = stageInstancesByGuild.get(m.guild_id) ?? [];
+            trace.calls.push(`getStageInstances(${guildStageInstances.length}/${memberGuildStageInstances.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
 
             g.voice_states = voiceStatesByGuild.get(m.guild_id) ?? [];
             trace.calls.push(`getVoiceStates(${g.voice_states.length}/${memberGuildVoiceStates.length})`, { micros: sw.getElapsedAndReset().totalMicroseconds });
@@ -525,6 +538,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             }),
             guild_scheduled_events: [],
             presences: [],
+            stage_instances: (stageInstancesByGuild.get(member.guild_id) ?? []).map((stageInstance) => stageInstance.toPublicStageInstance()),
         };
 
         if (user.bot) {
@@ -768,6 +782,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     queryGuildEmojisTime: queryGuildEmojisTimeTotal,
                     queryGuildRolesTime: queryGuildRolesTimeTotal,
                     queryGuildStickersTime: queryGuildStickersTimeTotal,
+                    queryGuildStageInstancesTime: queryGuildStageInstancesTimeTotal,
                     queryGuildVoiceStatesTime: queryGuildVoiceStatesTimeTotal,
                     threadMemberTime,
                     queryThreadsTime: queryThreadsTimeTotal,
