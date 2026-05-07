@@ -1690,42 +1690,52 @@
                         "type": "string"
                     },
                     "errors": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {
-                                "_errors": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "message": {
-                                                "type": "string"
-                                            },
-                                            "code": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "additionalProperties": false,
-                                        "required": [
-                                            "code",
-                                            "message"
-                                        ]
-                                    }
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "_errors"
-                            ]
-                        }
+                        "$ref": "#/components/schemas/APIErrorResponseErrorTree"
                     }
                 },
                 "required": [
                     "code",
-                    "errors",
                     "message"
                 ]
+            },
+            "APIErrorResponseFieldError": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "message"
+                ]
+            },
+            "APIErrorResponseErrorTree": {
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/components/schemas/APIErrorResponseErrorTree"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/APIErrorResponseFieldError"
+                            }
+                        }
+                    ]
+                },
+                "properties": {
+                    "_errors": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/APIErrorResponseFieldError"
+                        }
+                    }
+                }
             },
             "CaptchaRequiredResponse": {
                 "type": "object",
@@ -8535,7 +8545,54 @@
                 ]
             },
             "ErrorList": {
-                "type": "object"
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/components/schemas/ErrorList"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "code",
+                                    "message"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "properties": {
+                    "_errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "code",
+                                "message"
+                            ]
+                        }
+                    }
+                }
             },
             "Status": {
                 "enum": [

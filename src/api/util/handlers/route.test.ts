@@ -172,7 +172,7 @@ describe("bigNumberToString", () => {
             assert.equal(response.statusCode, 400);
             assert.equal(body.code, 50035);
             assert.equal(body.message, "Invalid Form Body");
-            assert.equal(body.errors.tts._errors[0].code, "type");
+            assert.equal(body.errors.tts._errors[0].code, "BASE_TYPE_INVALID");
         } finally {
             await new Promise<void>((resolve, reject) => {
                 server.close((error) => (error ? reject(error) : resolve()));

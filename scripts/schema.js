@@ -94,7 +94,8 @@ const excludedLambdas = [
         }
     },
     (n, s) => {
-        if (s["$ref"] === `#/definitions/${n}`) {
+        const isOnlySelfReference = s["$ref"] === `#/definitions/${n}` && Object.keys(s).every((key) => key === "$ref" || key === "$schema");
+        if (isOnlySelfReference) {
             console.log(`\r${redBright("[WARN]")} Omitting schema ${n} as it is a self-reference only schema.`);
             exclusionList.auto.push({ value: n, reason: "Self-reference only schema" });
             // fs.writeFileSync(`fucked/${n}.json`, JSON.stringify(s, null, 4));
