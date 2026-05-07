@@ -1,0 +1,27 @@
+import type { Member } from "./Member";
+
+export const MemberPrivateProjection = [
+    "id",
+    "guild",
+    "guild_id",
+    "deaf",
+    "joined_at",
+    "last_message_id",
+    "mute",
+    "nick",
+    "pending",
+    "premium_since",
+    "roles",
+    "settings",
+    "user",
+    "avatar",
+    "banner",
+    "bio",
+    "theme_colors",
+    "pronouns",
+    "communication_disabled_until",
+    "avatar_decoration_data",
+    "display_name_styles",
+    "collectibles",
+    "flags",
+] as const satisfies readonly (keyof Member)[];

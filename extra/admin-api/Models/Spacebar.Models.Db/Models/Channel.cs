@@ -23,7 +23,7 @@ public partial class Channel
     public string? Icon { get; set; }
 
     [Column("type")]
-    public int Type { get; set; }
+    public ChannelType Type { get; set; }
 
     [Column("last_message_id")]
     public long? LastMessageId { get; set; }
@@ -135,9 +135,6 @@ public partial class Channel
     [ForeignKey("ParentId")]
     [InverseProperty("InverseParent")]
     public virtual Channel? Parent { get; set; }
-
-    [InverseProperty("Channel")]
-    public virtual ICollection<ReadState> ReadStates { get; set; } = new List<ReadState>();
 
     [InverseProperty("Channel")]
     public virtual ICollection<Recipient> Recipients { get; set; } = new List<Recipient>();

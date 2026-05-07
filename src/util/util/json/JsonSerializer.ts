@@ -4,48 +4,141 @@ import { join } from "node:path";
 import os from "node:os";
 import { ReadStream, WriteStream } from "node:fs";
 
-// const worker = new Worker(join(process.cwd(), 'dist', 'util', 'util', 'json', 'jsonWorker.js'));
-const workerPool: Worker[] = [];
-const numWorkers = process.env.JSON_WORKERS ? parseInt(process.env.JSON_WORKERS) : os.cpus().length;
+type JsonWorkerMessage = {
+    id: number;
+    result?: string;
+    error?: string;
+};
 
-for (let i = 0; i < numWorkers; i++) {
-    console.log("[JsonSerializer] Starting JSON worker", i);
-    workerPool.push(new Worker(join(__dirname, "jsonWorker.js")));
-    workerPool[i].unref();
-    workerPool[i].setMaxListeners(64);
+type JsonArrayStreamState = "awaitArrayStart" | "awaitValueOrEnd" | "readValue" | "done";
+type JsonStreamParsedValue<T> = { hasValue: false } | { hasValue: true; value: T };
+
+function isJsonWhitespace(char: string): boolean {
+    return char === " " || char === "\n" || char === "\r" || char === "\t";
 }
+
+type PendingJsonWorkerRequest = {
+    resolve: (value: string) => void;
+    reject: (error: Error) => void;
+    timeout: NodeJS.Timeout;
+    worker: Worker;
+};
+
+const DEFAULT_WORKER_COUNT_LIMIT = 8;
+const WORKER_TIMEOUT_MS = 60000;
+const workerPool: Worker[] = [];
+const pendingRequests = new Map<number, PendingJsonWorkerRequest>();
 let currentWorkerIndex = 0;
+let requestId = 0;
+
+function getJsonWorkerCount() {
+    const configuredWorkers = process.env.JSON_WORKERS?.trim();
+    const parsedConfiguredWorkers = configuredWorkers ? Number.parseInt(configuredWorkers, 10) : undefined;
+    if (parsedConfiguredWorkers !== undefined && Number.isFinite(parsedConfiguredWorkers)) return Math.max(1, parsedConfiguredWorkers);
+
+    return Math.max(1, Math.min(os.availableParallelism?.() ?? os.cpus().length, DEFAULT_WORKER_COUNT_LIMIT));
+}
+
+function rejectPendingRequests(worker: Worker, error: Error) {
+    for (const [id, request] of pendingRequests) {
+        if (request.worker !== worker) continue;
+
+        clearTimeout(request.timeout);
+        pendingRequests.delete(id);
+        request.reject(error);
+    }
+}
+
+function removeWorkerFromPool(worker: Worker) {
+    const workerIndex = workerPool.indexOf(worker);
+    if (workerIndex === -1) return;
+
+    workerPool.splice(workerIndex, 1);
+    if (workerPool.length === 0) {
+        currentWorkerIndex = 0;
+    } else if (currentWorkerIndex > workerIndex) {
+        currentWorkerIndex--;
+    } else if (currentWorkerIndex >= workerPool.length) {
+        currentWorkerIndex = 0;
+    }
+}
+
+function createJsonWorker() {
+    const worker = new Worker(join(__dirname, "jsonWorker.js"));
+    worker.unref();
+    worker.on("message", (msg: JsonWorkerMessage) => {
+        const request = pendingRequests.get(msg.id);
+        if (!request) return;
+
+        clearTimeout(request.timeout);
+        pendingRequests.delete(msg.id);
+        if (msg.error) request.reject(new Error(msg.error));
+        else request.resolve(msg.result!);
+    });
+    worker.on("error", (error) => rejectPendingRequests(worker, error instanceof Error ? error : new Error(String(error))));
+    worker.on("exit", (code) => {
+        removeWorkerFromPool(worker);
+        rejectPendingRequests(worker, new Error(`JSON worker exited with code ${code}`));
+    });
+    return worker;
+}
+
+function initializeWorkerPool() {
+    if (workerPool.length) return;
+
+    for (let i = 0; i < getJsonWorkerCount(); i++) {
+        workerPool.push(createJsonWorker());
+    }
+}
 
 function getNextWorker(): Worker {
+    initializeWorkerPool();
     const worker = workerPool[currentWorkerIndex];
-    currentWorkerIndex = (currentWorkerIndex + 1) % numWorkers;
+    currentWorkerIndex = (currentWorkerIndex + 1) % workerPool.length;
     return worker;
+}
+
+function runWorkerTask(message: { type: "serialize"; value: unknown } | { type: "deserialize"; json: string }) {
+    const id = requestId++;
+    const worker = getNextWorker();
+
+    return new Promise<string>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            pendingRequests.delete(id);
+            reject(new Error("Worker timeout"));
+        }, WORKER_TIMEOUT_MS);
+
+        pendingRequests.set(id, { resolve, reject, timeout, worker });
+        try {
+            worker.postMessage({ ...message, id });
+        } catch (error) {
+            clearTimeout(timeout);
+            pendingRequests.delete(id);
+            reject(error instanceof Error ? error : new Error(String(error)));
+        }
+    });
 }
 
 // noinspection JSUnusedLocalSymbols - TODO: implement options
 export class JsonSerializer {
+    public static async ShutdownAsync(): Promise<void> {
+        const workers = workerPool.splice(0);
+        currentWorkerIndex = 0;
+
+        for (const [id, request] of pendingRequests) {
+            clearTimeout(request.timeout);
+            pendingRequests.delete(id);
+            request.reject(new Error("JSON serializer worker pool is shutting down"));
+        }
+
+        await Promise.all(workers.map((worker) => worker.terminate()));
+    }
+
     public static Serialize<T>(value: T, opts?: JsonSerializerOptions): string {
         return JSON.stringify(value);
     }
     public static async SerializeAsync<T>(value: T, opts?: JsonSerializerOptions): Promise<string> {
-        const worker = getNextWorker();
-        worker.postMessage({ type: "serialize", value });
-        return new Promise((resolve, reject) => {
-            const handler = (msg: { result?: string; error?: string }) => {
-                clearTimeout(timeout);
-                worker.removeListener("message", handler);
-                if (msg.error) {
-                    reject(new Error(msg.error));
-                } else {
-                    resolve(msg.result!);
-                }
-            };
-            worker.on("message", handler);
-            const timeout = setTimeout(() => {
-                worker.removeListener("message", handler);
-                reject(new Error("Worker timeout"));
-            }, 60000);
-        });
+        return runWorkerTask({ type: "serialize", value });
     }
     public static Deserialize<T>(json: string, opts?: JsonSerializerOptions): T {
         return JSON.parse(json) as T;
@@ -54,24 +147,7 @@ export class JsonSerializer {
         if (json instanceof ReadableStream) return this.DeserializeAsyncReadableStream<T>(json, opts);
         if (json instanceof ReadStream) return this.DeserializeAsyncReadStream<T>(json, opts);
 
-        const worker = getNextWorker();
-        worker.postMessage({ type: "deserialize", json });
-        return new Promise((resolve, reject) => {
-            const handler = (msg: { result?: string; error?: string }) => {
-                clearTimeout(timeout);
-                worker.removeListener("message", handler);
-                if (msg.error) {
-                    reject(new Error(msg.error));
-                } else {
-                    resolve(JSON.parse(msg.result!) as T);
-                }
-            };
-            worker.on("message", handler);
-            const timeout = setTimeout(() => {
-                worker.removeListener("message", handler);
-                reject(new Error("Worker timeout"));
-            }, 60000);
-        });
+        return JSON.parse(await runWorkerTask({ type: "deserialize", json })) as T;
     }
 
     private static async DeserializeAsyncReadableStream<T>(jsonStream: ReadableStream, opts?: JsonSerializerOptions): Promise<T> {
@@ -104,14 +180,267 @@ export class JsonSerializer {
     }
 
     private static async *DeserializeAsyncEnumerableReadableStream<T>(json: ReadableStream, opts?: JsonSerializerOptions) {
-        const reader = json.getReader();
-        //TODO: implement
-        yield undefined as unknown as T;
+        yield* this.DeserializeAsyncEnumerableFromChunks<T>(this.DecodeJsonStreamChunks(this.ReadReadableStreamChunks(json)), opts);
     }
 
     private static async *DeserializeAsyncEnumerableReadStream<T>(json: ReadStream, opts?: JsonSerializerOptions) {
-        // TODO: implement
-        yield undefined as unknown as T;
+        yield* this.DeserializeAsyncEnumerableFromChunks<T>(this.DecodeJsonStreamChunks(json as AsyncIterable<unknown>), opts);
+    }
+
+    private static async *ReadReadableStreamChunks(json: ReadableStream): AsyncGenerator<unknown, void, unknown> {
+        const reader = json.getReader();
+        let doneReading = false;
+
+        try {
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    doneReading = true;
+                    break;
+                }
+
+                yield value;
+            }
+        } finally {
+            if (!doneReading) {
+                await reader.cancel();
+            }
+
+            reader.releaseLock();
+        }
+    }
+
+    private static async *DecodeJsonStreamChunks(chunks: AsyncIterable<unknown>): AsyncGenerator<string, void, unknown> {
+        const decoder = new TextDecoder();
+
+        for await (const chunk of chunks) {
+            if (typeof chunk === "string") {
+                const pending = decoder.decode();
+                if (pending) yield pending;
+
+                yield chunk;
+                continue;
+            }
+
+            if (chunk instanceof Uint8Array) {
+                const text = decoder.decode(chunk, { stream: true });
+                if (text) yield text;
+                continue;
+            }
+
+            if (chunk instanceof ArrayBuffer) {
+                const text = decoder.decode(chunk, { stream: true });
+                if (text) yield text;
+                continue;
+            }
+
+            throw new TypeError("JSON streams must yield string, Uint8Array, or ArrayBuffer chunks.");
+        }
+
+        const pending = decoder.decode();
+        if (pending) yield pending;
+    }
+
+    private static async *DeserializeAsyncEnumerableFromChunks<T>(chunks: AsyncIterable<string>, opts?: JsonSerializerOptions): AsyncGenerator<T, void, unknown> {
+        let state: JsonArrayStreamState = "awaitArrayStart";
+        let currentValue = "";
+        let depth = 0;
+        let inString = false;
+        let escaped = false;
+        let valueComplete = false;
+        let canEndArray = true;
+
+        const noValue = { hasValue: false } as const;
+        const resetValue = () => {
+            currentValue = "";
+            depth = 0;
+            inString = false;
+            escaped = false;
+            valueComplete = false;
+        };
+        const parseValue = () => {
+            const json = currentValue.trim();
+            if (!json) {
+                throw new SyntaxError("Expected JSON value in array.");
+            }
+
+            const value = this.Deserialize<T>(json, opts);
+            resetValue();
+            return value;
+        };
+        const processValueChar = (char: string): JsonStreamParsedValue<T> => {
+            if (valueComplete) {
+                if (isJsonWhitespace(char)) {
+                    return noValue;
+                }
+
+                if (char === ",") {
+                    const value = parseValue();
+                    state = "awaitValueOrEnd";
+                    canEndArray = false;
+                    return { hasValue: true, value };
+                }
+
+                if (char === "]") {
+                    const value = parseValue();
+                    state = "done";
+                    return { hasValue: true, value };
+                }
+
+                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+            }
+
+            if (inString) {
+                currentValue += char;
+
+                if (escaped) {
+                    escaped = false;
+                } else if (char === "\\") {
+                    escaped = true;
+                } else if (char === '"') {
+                    inString = false;
+                    if (depth === 0) {
+                        valueComplete = true;
+                    }
+                }
+
+                return noValue;
+            }
+
+            if (char === '"') {
+                currentValue += char;
+                inString = true;
+                return noValue;
+            }
+
+            if (char === "{" || char === "[") {
+                currentValue += char;
+                depth++;
+                return noValue;
+            }
+
+            if (char === "}" || char === "]") {
+                if (depth > 0) {
+                    currentValue += char;
+                    depth--;
+                    if (depth === 0) {
+                        valueComplete = true;
+                    }
+
+                    return noValue;
+                }
+
+                if (char === "]") {
+                    const value = parseValue();
+                    state = "done";
+                    return { hasValue: true, value };
+                }
+
+                throw new SyntaxError("Unexpected '}' in JSON array.");
+            }
+
+            if (char === ",") {
+                if (depth > 0) {
+                    currentValue += char;
+                    return noValue;
+                }
+
+                const value = parseValue();
+                state = "awaitValueOrEnd";
+                canEndArray = false;
+                return { hasValue: true, value };
+            }
+
+            if (isJsonWhitespace(char)) {
+                if (depth > 0) {
+                    currentValue += char;
+                    return noValue;
+                }
+
+                valueComplete = true;
+                return noValue;
+            }
+
+            currentValue += char;
+            return noValue;
+        };
+
+        for await (const chunk of chunks) {
+            for (const char of chunk) {
+                if (state === "done") {
+                    if (!isJsonWhitespace(char)) {
+                        throw new SyntaxError("Unexpected non-whitespace data after JSON array.");
+                    }
+
+                    continue;
+                }
+
+                if (state === "awaitArrayStart") {
+                    if (isJsonWhitespace(char)) {
+                        continue;
+                    }
+
+                    if (char !== "[") {
+                        throw new SyntaxError("Expected JSON array.");
+                    }
+
+                    state = "awaitValueOrEnd";
+                    canEndArray = true;
+                    continue;
+                }
+
+                if (state === "awaitValueOrEnd") {
+                    if (isJsonWhitespace(char)) {
+                        continue;
+                    }
+
+                    if (char === "]") {
+                        if (!canEndArray) {
+                            throw new SyntaxError("Trailing comma in JSON array.");
+                        }
+
+                        state = "done";
+                        continue;
+                    }
+
+                    if (char === ",") {
+                        throw new SyntaxError("Unexpected comma in JSON array.");
+                    }
+
+                    resetValue();
+                    state = "readValue";
+                }
+
+                const result = processValueChar(char);
+                if (result.hasValue) {
+                    yield result.value;
+                }
+            }
+        }
+
+        if (state === "awaitArrayStart") {
+            throw new SyntaxError("Expected JSON array.");
+        }
+
+        if (state === "awaitValueOrEnd") {
+            throw new SyntaxError("Unexpected end of JSON array.");
+        }
+
+        if (state === "readValue") {
+            if (inString) {
+                throw new SyntaxError("Unterminated string in JSON array item.");
+            }
+
+            if (depth > 0) {
+                throw new SyntaxError("Unterminated JSON array item.");
+            }
+
+            if (valueComplete) {
+                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+            }
+
+            throw new SyntaxError("Unexpected end of JSON array item.");
+        }
     }
 
     public static async SerializeAsyncEnumerableToStringAsync<T>(items: AsyncIterable<T>, opts?: JsonSerializerOptions): Promise<string> {

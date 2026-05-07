@@ -51,9 +51,8 @@ public class ServerConfiguration {
     [JsonPropertyName("external")]
     public ExternalTokensConfiguration External { get; set; } = new();
 
-    // TODO: lazy
-    // [JsonPropertyName("email")]
-    // public EmailConfiguration Email { get; set; } = new EmailConfiguration();
+    [JsonPropertyName("email")]
+    public EmailConfiguration Email { get; set; } = new();
 
     [JsonPropertyName("passwordReset")]
     public PasswordResetConfiguration PasswordReset { get; set; } = new PasswordResetConfiguration();
@@ -109,6 +108,9 @@ public class RegisterConfiguration {
 
     [JsonPropertyName("defaultRights")]
     public string DefaultRights { get; set; } = "875069521787904"; // See `npm run generate:rights`
+
+    [JsonPropertyName("defaultBotRights")]
+    public string? DefaultBotRights { get; set; } // Falls back to DefaultRights when unset
 
     [JsonPropertyName("checkIp")]
     public bool CheckIp { get; set; } = true;
@@ -228,7 +230,8 @@ public class CdnConfiguration : EndpointConfiguration {
     [JsonPropertyName("maxAttachmentSize")]
     public int MaxAttachmentSize { get; set; } = 25 * 1024 * 1024; // 25 MB
 
-    // limits: CdnLimitsConfiguration {get;set;}=new CdnLimitsConfiguration();
+    [JsonPropertyName("limits")]
+    public CdnLimitsConfiguration Limits { get; set; } = new();
 }
 
 public class CdnLimitsConfiguration {
@@ -327,6 +330,9 @@ public class RegionConfiguration {
 }
 
 public class ExternalTokensConfiguration {
+    [JsonPropertyName("discordAttachmentRefreshBotToken")]
+    public string? DiscordAttachmentRefreshBotToken { get; set; } = null;
+
     [JsonPropertyName("twitter")]
     public string? Twitter { get; set; } = null;
 }

@@ -29,7 +29,6 @@ import {
     Presence,
     UserSettings,
     IReadyGuildDTO,
-    ReadState,
     ReadyUserGuildSettingsEntries,
     ReadyPrivateChannel,
     GuildOrUnavailable,
@@ -49,6 +48,7 @@ import {
     PublicUser,
     PublicVoiceState,
     RelationshipType,
+    StageInstanceResponse,
     UserPrivate,
 } from "@spacebar/schemas";
 
@@ -80,6 +80,25 @@ export interface PublicRelationship {
 }
 
 // ! END Custom Events that shouldn't get sent to the client but processed by the server
+
+export interface ReadyChannelReadState {
+    id: string;
+    mention_count: number;
+    last_viewed: number;
+    last_message_id?: string | null;
+    last_pin_timestamp: Date | string;
+    flags: number;
+}
+
+export interface ReadyNonChannelReadState {
+    id: string;
+    read_state_type: number;
+    badge_count: number;
+    last_viewed: number;
+    last_acked_id?: string | null;
+}
+
+export type ReadyReadState = ReadyChannelReadState | ReadyNonChannelReadState;
 
 export interface ReadyEventData {
     v: number;
@@ -115,11 +134,7 @@ export interface ReadyEventData {
     user_settings_proto?: string;
     user_settings_proto_json?: JsonValue;
     relationships?: PublicRelationship[]; // TODO
-    read_state: {
-        entries: ReadState[]; // TODO
-        partial: boolean;
-        version: number;
-    };
+    read_state: ReadyReadState[];
     user_guild_settings?: {
         entries: ReadyUserGuildSettingsEntries[];
         version: number;
@@ -212,7 +227,7 @@ export interface GuildCreateEvent extends Event {
         guild_scheduled_events: never[];
         guild_hashes: unknown;
         presences: never[];
-        stage_instances: never[];
+        stage_instances: StageInstanceResponse[];
         threads: never[];
         embedded_activities: never[];
         // Only when not using PRIORITISED_READY_PAYLOAD capability
@@ -255,6 +270,14 @@ export interface GuildEmojisUpdateEvent extends Event {
     data: {
         guild_id: string;
         emojis: Emoji[];
+    };
+}
+
+export interface GuildEmojiUpdateEvent extends Event {
+    event: "GUILD_EMOJI_UPDATE";
+    data: {
+        guild_id: string;
+        emoji: Emoji;
     };
 }
 
@@ -395,6 +418,8 @@ export interface MessageReactionAddEvent extends Event {
         guild_id?: string;
         member?: PublicMember;
         emoji: PartialEmoji;
+        burst: boolean;
+        burst_colors?: string[];
         type: ReactionType;
     };
 }
@@ -407,6 +432,7 @@ export interface MessageReactionRemoveEvent extends Event {
         message_id: string;
         guild_id?: string;
         emoji: PartialEmoji;
+        burst: boolean;
         type: ReactionType;
     };
 }
@@ -477,6 +503,21 @@ export interface VoiceServerUpdateEvent extends Event {
         endpoint: string;
         channel_id?: string;
     };
+}
+
+export interface StageInstanceCreateEvent extends Event {
+    event: "STAGE_INSTANCE_CREATE";
+    data: StageInstanceResponse;
+}
+
+export interface StageInstanceUpdateEvent extends Event {
+    event: "STAGE_INSTANCE_UPDATE";
+    data: StageInstanceResponse;
+}
+
+export interface StageInstanceDeleteEvent extends Event {
+    event: "STAGE_INSTANCE_DELETE";
+    data: StageInstanceResponse;
 }
 
 export interface StreamCreateEvent extends Event {
@@ -685,6 +726,7 @@ export type EventData =
     | GuildDeleteEvent
     | GuildBanAddEvent
     | GuildBanRemoveEvent
+    | GuildEmojiUpdateEvent
     | GuildEmojisUpdateEvent
     | GuildIntegrationUpdateEvent
     | GuildMemberAddEvent
@@ -712,6 +754,9 @@ export type EventData =
     | UserConnectionsUpdateEvent
     | VoiceStateUpdateEvent
     | VoiceServerUpdateEvent
+    | StageInstanceCreateEvent
+    | StageInstanceUpdateEvent
+    | StageInstanceDeleteEvent
     | WebhooksUpdateEvent
     | ApplicationCommandCreateEvent
     | ApplicationCommandUpdateEvent
@@ -777,6 +822,9 @@ export enum EVENTEnum {
     InteractionFailure = "INTERACTION_FAILURE",
     VoiceStateUpdate = "VOICE_STATE_UPDATE",
     VoiceServerUpdate = "VOICE_SERVER_UPDATE",
+    StageInstanceCreate = "STAGE_INSTANCE_CREATE",
+    StageInstanceUpdate = "STAGE_INSTANCE_UPDATE",
+    StageInstanceDelete = "STAGE_INSTANCE_DELETE",
     ApplicationCommandCreate = "APPLICATION_COMMAND_CREATE",
     ApplicationCommandUpdate = "APPLICATION_COMMAND_UPDATE",
     ApplicationCommandDelete = "APPLICATION_COMMAND_DELETE",
@@ -802,6 +850,7 @@ export type EVENT =
     | "GUILD_DELETE"
     | "GUILD_BAN_ADD"
     | "GUILD_BAN_REMOVE"
+    | "GUILD_EMOJI_UPDATE"
     | "GUILD_EMOJIS_UPDATE"
     | "GUILD_STICKERS_UPDATE"
     | "GUILD_INTEGRATIONS_UPDATE"
@@ -838,6 +887,9 @@ export type EVENT =
     | "INTERACTION_FAILURE"
     | "VOICE_STATE_UPDATE"
     | "VOICE_SERVER_UPDATE"
+    | "STAGE_INSTANCE_CREATE"
+    | "STAGE_INSTANCE_UPDATE"
+    | "STAGE_INSTANCE_DELETE"
     | "STREAM_CREATE"
     | "STREAM_SERVER_UPDATE"
     | "STREAM_DELETE"

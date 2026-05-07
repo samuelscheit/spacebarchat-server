@@ -16,11 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Ban, Config, DiscordApiErrors, emitEvent, getPermission, Guild, Invite, InviteDeleteEvent, PublicInviteRelation } from "@spacebar/util";
+import { acceptUserInvite, isUserInvite, revokeUserInvite, route, toUserInviteResponse } from "@spacebar/api";
+import { Config, DiscordApiErrors, getPermission, getRights, Invite, PublicInviteRelation, SpacebarApiErrors, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { UserFlags } from "@spacebar/schemas";
+import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -29,7 +29,7 @@ router.get(
     route({
         responses: {
             "200": {
-                body: "Invite",
+                body: "InviteResponse",
             },
             404: {
                 body: "APIErrorResponse",
@@ -44,6 +44,11 @@ router.get(
             relations: PublicInviteRelation,
         });
 
+        if (!invite.guild_id) {
+            if (!isUserInvite(invite)) throw DiscordApiErrors.UNKNOWN_INVITE;
+            return res.status(200).send(toUserInviteResponse(invite, await User.getPublicUser(invite.inviter_id)));
+        }
+
         res.status(200).send(invite.toPublicJSON());
     },
 );
@@ -51,10 +56,9 @@ router.get(
 router.post(
     "/:invite_code",
     route({
-        right: "USE_MASS_INVITES",
         responses: {
             "200": {
-                body: "Invite",
+                body: "InviteResponse",
             },
             401: {
                 body: "APIErrorResponse",
@@ -71,45 +75,37 @@ router.post(
         if (req.user_bot && !Config.get().user.botsCanUseInvites) throw DiscordApiErrors.BOT_PROHIBITED_ENDPOINT;
 
         const { invite_code } = req.params as { [key: string]: string };
-        const { public_flags } = req.user;
-        const { guild_id } = await Invite.findOneOrFail({
+        const rights = await getRights(req.user_id);
+        requireAnyInviteRight(rights);
+
+        const invite = await Invite.findOneOrFail({
             where: { code: invite_code },
         });
-        const { features } = await Guild.findOneOrFail({
-            where: { id: guild_id },
-        });
-        const ban = await Ban.findOne({
-            where: [
-                { guild_id: guild_id, user_id: req.user_id },
-                { guild_id: guild_id, ip: req.ip },
-            ],
-        });
 
-        if (ban) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but is banned by ${ban.user_id === req.user_id ? "User ID" : "IP address"}.`);
-            throw DiscordApiErrors.USER_BANNED;
+        if (!invite.guild_id) {
+            requireInviteRight(rights, "ACCEPT_INVITES");
+            return res.json(await acceptUserInvite(req.user_id, invite));
         }
 
-        if ((BigInt(public_flags) & UserFlags.FLAGS.QUARANTINED) === UserFlags.FLAGS.QUARANTINED) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but is quarantined.`);
-            throw DiscordApiErrors.UNKNOWN_INVITE;
-        }
+        requireInviteRight(rights, "USE_MASS_INVITES");
 
-        if (features.includes("INTERNAL_EMPLOYEE_ONLY") && (public_flags & 1) !== 1) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but is not staff.`);
-            throw new HTTPError("Only intended for the staff of this instance.", 401);
-        }
+        await assertInviteAcceptanceAllowed({ guildId: invite.guild_id, userId: req.user_id, ip: req.ip, publicFlags: req.user.public_flags });
 
-        if (features.includes("INVITES_DISABLED")) {
-            console.log(`[Invite] User ${req.user_id} tried to join guild ${guild_id} but joins are closed.`);
-            throw new HTTPError("Sorry, this guild has joins closed.", 403);
-        }
-
-        const invite = await Invite.joinGuild(req.user_id, invite_code);
-
-        res.json(invite);
+        res.json(await Invite.joinGuild(req.user_id, invite_code));
     },
 );
+
+function requireAnyInviteRight(rights: Awaited<ReturnType<typeof getRights>>) {
+    if (!rights.has("ACCEPT_INVITES") && !rights.has("USE_MASS_INVITES")) {
+        throw SpacebarApiErrors.MISSING_RIGHTS.withParams("ACCEPT_INVITES or USE_MASS_INVITES");
+    }
+}
+
+function requireInviteRight(rights: Awaited<ReturnType<typeof getRights>>, right: "ACCEPT_INVITES" | "USE_MASS_INVITES") {
+    if (!rights.has(right)) {
+        throw SpacebarApiErrors.MISSING_RIGHTS.withParams(right);
+    }
+}
 
 // * cant use permission of route() function because path doesn't have guild_id/channel_id
 router.delete(
@@ -132,22 +128,16 @@ router.delete(
         const invite = await Invite.findOneOrFail({ where: { code: invite_code } });
         const { guild_id, channel_id } = invite;
 
+        if (!guild_id) {
+            await revokeUserInvite(req.user_id, invite);
+            return res.json({ invite });
+        }
+
         const permission = await getPermission(req.user_id, guild_id, channel_id);
 
         if (!permission.has("MANAGE_GUILD") && !permission.has("MANAGE_CHANNELS")) throw new HTTPError("You missing the MANAGE_GUILD or MANAGE_CHANNELS permission", 401);
 
-        await Promise.all([
-            Invite.delete({ code: invite_code }),
-            emitEvent({
-                event: "INVITE_DELETE",
-                guild_id: guild_id,
-                data: {
-                    channel_id: channel_id,
-                    guild_id: guild_id,
-                    code: invite_code,
-                },
-            } satisfies InviteDeleteEvent),
-        ]);
+        await Invite.deleteWithVanityUrlFeatureSync(invite, { emitDeleteEvents: true });
 
         res.json({ invite: invite });
     },

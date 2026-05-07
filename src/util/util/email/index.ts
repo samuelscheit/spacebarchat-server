@@ -20,7 +20,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { User } from "../../entities";
 import { Config } from "../Config";
-import { generateToken } from "../Token";
+import { EmailActionTokenPurpose } from "../EmailActionToken";
+import { generateEmailActionToken } from "../Token";
 import { IEmail, IEmailClient } from "./clients/IEmailClient";
 import { SendGridEmailClient } from "./clients/SendGridEmailClient";
 import { SMTPEmailClient } from "./clients/SMTPEmailClient";
@@ -35,10 +36,23 @@ export enum MailTypes {
     changePassword = "changePassword",
 }
 
+export type EmailActionMailType = Exclude<MailTypes, MailTypes.changePassword>;
+
+export function getEmailActionTokenPurpose(type: EmailActionMailType) {
+    return type === MailTypes.verifyEmail ? EmailActionTokenPurpose.verifyEmail : EmailActionTokenPurpose.resetPassword;
+}
+
+export function buildEmailActionLink(type: EmailActionMailType, token: string, endpointPublic: string | null | undefined = Config.get().api.endpointPublic) {
+    // puyodead1: this is set to api endpoint because the verification page is on the server since no clients have one, and not all 3rd party clients will have one
+    const instanceUrl = endpointPublic?.replace("/api", "");
+    const dashedType = type.replace(/([A-Z])/g, "-$1").toLowerCase();
+    return `${instanceUrl}/${dashedType}#token=${token}`;
+}
+
 export const Email: {
     transporter: IEmailClient | null;
     init: () => Promise<void>;
-    generateLink: (type: Omit<MailTypes, "changePassword">, id: string) => Promise<string>;
+    generateLink: (type: EmailActionMailType, id: string, email?: string) => Promise<string>;
     sendMail: (type: MailTypes, user: User, email: string) => Promise<void>;
     sendVerifyEmail: (user: User, email: string) => Promise<void>;
     sendResetPassword: (user: User, email: string) => Promise<void>;
@@ -128,13 +142,10 @@ export const Email: {
      * @param type the MailType to generate a link for
      * @param id user id
      */
-    generateLink: async function (type, id) {
-        const token = (await generateToken(id)) as string;
-        // puyodead1: this is set to api endpoint because the verification page is on the server since no clients have one, and not all 3rd party clients will have one
-        const instanceUrl = Config.get().api.endpointPublic?.replace("/api", "");
-        const dashedType = type.replace(/([A-Z])/g, "-$1").toLowerCase();
-        const link = `${instanceUrl}/${dashedType}#token=${token}`;
-        return link;
+    generateLink: async function (type, id, email) {
+        const purpose = getEmailActionTokenPurpose(type);
+        const token = await generateEmailActionToken(id, purpose, email);
+        return buildEmailActionLink(type, token);
     },
 
     /**
@@ -163,20 +174,13 @@ export const Email: {
 
         const textTemplate = await fs.readFile(path.join(ASSET_FOLDER_PATH, "email_templates", textTemplateNames[type]), { encoding: "utf-8" });
 
-        // replace email template placeholders
-        const html = this.doReplacements(
-            htmlTemplate,
-            user,
-            // password change emails don't have links
-            type != MailTypes.changePassword ? await this.generateLink(type, user.id) : undefined,
-        );
+        // password change emails don't have links
+        const actionUrl = type != MailTypes.changePassword ? await this.generateLink(type, user.id, email) : undefined;
 
-        const text = this.doReplacements(
-            textTemplate,
-            user,
-            // password change emails don't have links
-            type != MailTypes.changePassword ? await this.generateLink(type, user.id) : undefined,
-        );
+        // replace email template placeholders
+        const html = this.doReplacements(htmlTemplate, user, actionUrl);
+
+        const text = this.doReplacements(textTemplate, user, actionUrl);
 
         // extract the title from the email template to use as the email subject
         const subject = html.match(/<title>(.*)<\/title>/)?.[1] || "";

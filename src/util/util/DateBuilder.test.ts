@@ -21,10 +21,11 @@ describe("DateBuilder", () => {
     });
 
     test("should be able to build timestamp", () => {
-        const now = new Date();
+        const before = Date.now();
         const db = new DateBuilder();
         const built = db.buildTimestamp();
-        assert.equal(built, now.getTime());
+        const after = Date.now();
+        assert.ok(built >= before && built <= after, `Timestamp ${built} should be between ${before} and ${after}`);
     });
 
     test("should be able to add days", () => {

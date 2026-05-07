@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Application, Guild, handleFile } from "@spacebar/util";
+import { Application, Guild, applyApplicationModifySchema, handleFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ApplicationModifySchema } from "@spacebar/schemas";
@@ -51,6 +51,7 @@ router.patch(
     "/",
     route({
         requestBody: "ApplicationModifySchema",
+        coerceRequestBody: false,
         responses: {
             200: {
                 body: "Application",
@@ -88,7 +89,7 @@ router.patch(
             await app.bot.save();
         }
 
-        app.assign(body);
+        applyApplicationModifySchema(app, body);
 
         await app.save();
 

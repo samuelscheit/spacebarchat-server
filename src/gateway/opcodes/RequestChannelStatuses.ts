@@ -17,7 +17,41 @@
 */
 
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
-import { Config } from "@spacebar/util";
+import { Channel, Config, getPermission } from "@spacebar/util";
+import { ChannelType } from "@spacebar/schemas";
+import { And, IsNull, Not } from "typeorm";
+
+export type ChannelStatus = {
+    id: string;
+    status: string;
+};
+
+export async function getChannelStatuses(guild_id: string, user_id: string): Promise<ChannelStatus[]> {
+    const permissions = await getPermission(user_id, guild_id);
+
+    const channels = await Channel.find({
+        where: {
+            guild_id,
+            type: ChannelType.GUILD_VOICE,
+            status: And(Not(IsNull()), Not("")),
+        },
+        select: {
+            id: true,
+            status: true,
+            permission_overwrites: true,
+        },
+        order: {
+            id: "ASC",
+        },
+    });
+
+    return channels
+        .filter((channel) => permissions.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL"))
+        .map((channel) => ({
+            id: channel.id,
+            status: channel.status!,
+        }));
+}
 
 export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) {
     // Schema validation can only accept either string or array, so transforming it here to support both
@@ -27,13 +61,14 @@ export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) 
         return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.channelStatusesUrl!, d);
     }
 
-    // TODO: implement
+    const channels = await getChannelStatuses(d.guild_id, this.user_id);
+
     await Send(this, {
         op: OPCODES.Dispatch,
         t: "CHANNEL_STATUSES",
         d: {
             guild_id: d.guild_id,
-            channels: [],
+            channels,
         },
     });
 }

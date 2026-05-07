@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, emitEvent, Message, MessageCreateEvent, Permissions, Sticker } from "@spacebar/util";
+import { Channel, emitEvent, Member, Message, MessageCreateEvent, Permissions, Sticker, User, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import { GreetRequestSchema, MessageType } from "@spacebar/schemas";
@@ -31,7 +31,7 @@ router.post(
         permission: "SEND_MESSAGES",
         responses: {
             200: {
-                body: "Message",
+                body: "APIPublicMessage",
             },
             404: {},
             400: {
@@ -53,6 +53,7 @@ router.post(
                 channel_id: payload.message_reference?.channel_id,
                 guild_id: payload.message_reference?.guild_id,
             },
+            relations: messagePublicRelations,
         });
 
         if (!channel.isDm() && targetMessage.type != MessageType.GUILD_MEMBER_JOIN)
@@ -75,13 +76,20 @@ router.post(
                 message: "Must include exactly one sticker.",
             });
 
-        const stickers = await Sticker.find({ where: { id: In(payload.sticker_ids) } });
+        const [stickers, author, member] = await Promise.all([
+            Sticker.find({ where: { id: In(payload.sticker_ids) } }),
+            User.findOneOrFail({ where: { id: req.user_id } }),
+            channel.guild_id ? Member.findOneOrFail({ where: { id: req.user_id, guild_id: channel.guild_id }, relations: { roles: true } }) : Promise.resolve(undefined),
+        ]);
 
         const randomSticker = stickers[Math.floor(Math.random() * stickers.length)];
 
         const message = Message.create({
             channel_id: channel_id,
+            guild_id: channel.guild_id,
             author_id: req.user_id,
+            author,
+            member,
             type: MessageType.REPLY,
             message_reference: { ...payload.message_reference, type: 0 },
             referenced_message: targetMessage,
@@ -101,7 +109,7 @@ router.post(
             channel.save(),
         ]);
 
-        res.send(message);
+        res.send(publicMsg);
     },
 );
 

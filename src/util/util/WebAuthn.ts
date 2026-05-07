@@ -40,10 +40,38 @@ export const WebAuthn: {
     },
 };
 
-export async function generateWebAuthnTicket(challenge: string): Promise<string> {
+export type WebAuthnTicketPurpose = "login_mfa" | "credential_registration";
+
+export type WebAuthnTicketPayload = {
+    challenge: string;
+    user_id?: string;
+    origin?: string;
+    rpId?: string;
+    purpose?: WebAuthnTicketPurpose;
+    allowCredentialIds?: string[];
+};
+
+export function isWebAuthnTicketPayload(value: unknown): value is WebAuthnTicketPayload {
+    if (!value || typeof value !== "object") return false;
+
+    const payload = value as Record<string, unknown>;
+
+    return (
+        typeof payload.challenge === "string" &&
+        (payload.user_id === undefined || typeof payload.user_id === "string") &&
+        (payload.origin === undefined || typeof payload.origin === "string") &&
+        (payload.rpId === undefined || typeof payload.rpId === "string") &&
+        (payload.purpose === undefined || payload.purpose === "login_mfa" || payload.purpose === "credential_registration") &&
+        (payload.allowCredentialIds === undefined || (Array.isArray(payload.allowCredentialIds) && payload.allowCredentialIds.every((id) => typeof id === "string")))
+    );
+}
+
+export async function generateWebAuthnTicket(challengeOrPayload: string | WebAuthnTicketPayload): Promise<string> {
+    const payload = typeof challengeOrPayload === "string" ? { challenge: challengeOrPayload } : challengeOrPayload;
+
     return new Promise((res, rej) => {
         loadOrGenerateKeypair().then((kp) =>
-            jwt.sign({ challenge }, kp.privateKey, jwtSignOptions, (err, token) => {
+            jwt.sign(payload, kp.privateKey, jwtSignOptions, (err, token) => {
                 if (err || !token) return rej(err || "no token");
                 return res(token);
             }),
@@ -51,7 +79,7 @@ export async function generateWebAuthnTicket(challenge: string): Promise<string>
     });
 }
 
-export async function verifyWebAuthnToken(token: string) {
+export async function verifyWebAuthnToken(token: string): Promise<unknown> {
     return new Promise((res, rej) => {
         loadOrGenerateKeypair().then((kp) =>
             jwt.verify(token, kp.publicKey, jwtVerifyOptions, (err, decoded) => {

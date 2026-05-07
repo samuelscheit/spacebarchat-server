@@ -17,9 +17,11 @@
 */
 
 export * from "./ChannelLimits";
+export * from "./GatewayLimits";
 export * from "./GlobalRateLimits";
 export * from "./GuildLimits";
 export * from "./MessageLimits";
 export * from "./RateLimits";
 export * from "./UserLimits";
+export * from "./WebRtcLimits";
 export * from "./ratelimits/index";

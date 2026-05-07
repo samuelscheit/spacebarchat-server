@@ -16,13 +16,15 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelLimits, GlobalRateLimits, GuildLimits, MessageLimits, RateLimits, UserLimits } from ".";
+import { ChannelLimits, GatewayLimits, GlobalRateLimits, GuildLimits, MessageLimits, RateLimits, UserLimits, WebRtcLimits } from ".";
 
 export class LimitsConfiguration {
     user: UserLimits = new UserLimits();
     guild: GuildLimits = new GuildLimits();
     message: MessageLimits = new MessageLimits();
     channel: ChannelLimits = new ChannelLimits();
+    gateway: GatewayLimits = new GatewayLimits();
+    webrtc: WebRtcLimits = new WebRtcLimits();
     rate: RateLimits = new RateLimits();
     absoluteRate: GlobalRateLimits = new GlobalRateLimits();
 }

@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Config, Message } from "@spacebar/util";
+import { getChannelIdSetWithPermissions, preloadAuthorizedMessages, route, toPreloadMessageResponse } from "@spacebar/api";
+import { Config, Message, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { PreloadMessagesRequestSchema, PreloadMessagesResponseSchema } from "@spacebar/schemas";
+import { PreloadMessagesRequestSchema, type PreloadMessagesResponse } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
 router.post(
@@ -44,23 +44,19 @@ router.post(
                 message: `Cannot preload more than ${Config.get().limits.message.maxPreloadCount} channels at once.`,
             });
 
-        const messages = (
-            await Promise.all(
-                body.channels.map((channelId) =>
-                    Message.findOne({
-                        where: { channel_id: channelId },
-                        order: { timestamp: "DESC" },
-                    }),
-                ),
-            )
-        ).filter((x) => x !== null) as Message[];
-
-        const filteredMessages = messages.map((message) => {
-            const x = message.toJSON();
-            // https://docs.discord.food/resources/message#preload-messages - reactions are not included in the response
-            x.reactions = undefined;
-            return x;
-        }) as unknown as PreloadMessagesResponseSchema;
+        const filteredMessages: PreloadMessagesResponse = await preloadAuthorizedMessages<Message, PreloadMessagesResponse[number]>(body.channels, {
+            getAuthorizedChannelIds: (channelIds) =>
+                getChannelIdSetWithPermissions(req.user_id, channelIds, {
+                    requiredPermissions: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
+                }),
+            findLatestMessage: (channelId) =>
+                Message.findOne({
+                    where: { channel_id: channelId },
+                    order: { timestamp: "DESC" },
+                    relations: messagePublicRelations,
+                }),
+            serializeMessage: toPreloadMessageResponse,
+        });
 
         return res.status(200).send(filteredMessages);
     },

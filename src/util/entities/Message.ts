@@ -26,7 +26,7 @@ import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Webhook } from "./Webhook";
 import { Sticker } from "./Sticker";
-import { Attachment } from "./Attachment";
+import { Attachment, signAttachmentUrl } from "./Attachment";
 import { NewUrlUserSignatureData } from "../Signing";
 import {
     ApplicationCommandType,
@@ -38,13 +38,134 @@ import {
     PartialMessage,
     Poll,
     PublicMessage,
-    Reaction,
+    StoredReaction,
     UnfurledMediaItem,
     PartialUser,
     InteractionType,
+    GuildMessagesSearchMessage,
 } from "@spacebar/schemas";
-import { MessageFlags } from "@spacebar/util";
+import { MessageFlags, serializeMessageMentions, serializeMessageRoleMentions } from "@spacebar/util";
 import { JsonRemoveEmpty } from "../util/Decorators";
+import { serializePublicMember } from "../util/MemberRoles";
+import { messageToPublicMessage } from "../util/MessagePublic";
+
+type AttachmentUrlFields = {
+    url?: string;
+    proxy_url?: string;
+};
+
+type AttachmentIconUrlFields = {
+    icon_url?: string;
+    proxy_icon_url?: string;
+};
+
+type SignableAttachment = Attachment | { url?: string; proxy_url?: string };
+
+type SignableMessagePayload = {
+    attachments?: SignableAttachment[];
+    embeds?: Embed[];
+    components?: BaseMessageComponents[];
+    referenced_message?: SignableMessagePayload | null;
+    message_snapshots?: MessageSnapshot[];
+};
+
+function signAttachmentUrlFields<T extends AttachmentUrlFields>(media: T | undefined, data: NewUrlUserSignatureData): T | undefined {
+    if (!media) return media;
+
+    return {
+        ...media,
+        url: signAttachmentUrl(media.url, data),
+        proxy_url: signAttachmentUrl(media.proxy_url, data),
+    };
+}
+
+function signAttachmentIconUrlFields<T extends AttachmentIconUrlFields>(media: T | undefined, data: NewUrlUserSignatureData): T | undefined {
+    if (!media) return media;
+
+    return {
+        ...media,
+        icon_url: signAttachmentUrl(media.icon_url, data),
+        proxy_icon_url: signAttachmentUrl(media.proxy_icon_url, data),
+    };
+}
+
+function signEmbedAttachmentUrls(embed: Embed, data: NewUrlUserSignatureData): Embed {
+    return {
+        ...embed,
+        footer: signAttachmentIconUrlFields(embed.footer, data),
+        image: signAttachmentUrlFields(embed.image, data),
+        thumbnail: signAttachmentUrlFields(embed.thumbnail, data),
+        video: signAttachmentUrlFields(embed.video, data),
+        author: signAttachmentIconUrlFields(embed.author, data),
+    };
+}
+
+function signAttachmentUrls<T extends SignableAttachment>(attachment: T, data: NewUrlUserSignatureData): T {
+    return Attachment.prototype.signUrls.call(attachment, data) as unknown as T;
+}
+
+function signComponentAttachmentUrls(component: BaseMessageComponents, data: NewUrlUserSignatureData): BaseMessageComponents {
+    function signMedia(media: UnfurledMediaItem) {
+        Object.assign(media, signAttachmentUrlFields(media, data));
+    }
+
+    const comp = structuredClone(component);
+    if (comp.type === MessageComponentType.Section) {
+        const accessory = comp.accessory;
+        if (accessory.type === MessageComponentType.Thumbnail) {
+            signMedia(accessory.media);
+        }
+    } else if (comp.type === MessageComponentType.MediaGallery) {
+        comp.items.forEach(({ media }) => signMedia(media));
+    } else if (comp.type === MessageComponentType.File) {
+        signMedia(comp.file);
+    } else if (comp.type === MessageComponentType.Container) {
+        for (const elm of comp.components) {
+            switch (elm.type) {
+                case MessageComponentType.Separator:
+                case MessageComponentType.TextDisplay:
+                case MessageComponentType.ActionRow:
+                    break;
+                case MessageComponentType.Section: {
+                    const accessory = elm.accessory;
+                    if (accessory.type === MessageComponentType.Thumbnail) {
+                        signMedia(accessory.media);
+                    }
+                    break;
+                }
+                case MessageComponentType.MediaGallery:
+                    elm.items.forEach(({ media }) => signMedia(media));
+                    break;
+                case MessageComponentType.File: {
+                    signMedia(elm.file);
+                    break;
+                }
+
+                default:
+                    elm satisfies never;
+            }
+        }
+    }
+    return comp;
+}
+
+export function signMessageAttachmentUrls<T extends object>(message: T, data: NewUrlUserSignatureData): T {
+    const signableMessage = message as T & SignableMessagePayload;
+    const signed = { ...message } as T & SignableMessagePayload;
+
+    if (signableMessage.attachments) signed.attachments = signableMessage.attachments.map((attachment) => signAttachmentUrls(attachment, data));
+    if (signableMessage.embeds) signed.embeds = signableMessage.embeds.map((embed) => signEmbedAttachmentUrls(embed, data));
+    if (signableMessage.components) signed.components = signableMessage.components.map((component) => signComponentAttachmentUrls(component, data));
+    if (signableMessage.referenced_message) signed.referenced_message = signMessageAttachmentUrls(signableMessage.referenced_message, data);
+    if (signableMessage.message_snapshots) {
+        signed.message_snapshots = signableMessage.message_snapshots.map((snapshot) => ({
+            ...snapshot,
+            message: signMessageAttachmentUrls(snapshot.message, data),
+        }));
+    }
+
+    return signed as T;
+}
 
 @Entity({
     name: "messages",
@@ -143,6 +264,11 @@ export class Message extends BaseClass {
     @ManyToMany(() => User)
     mentions: User[];
 
+    /**
+     * Public message payloads serialize role mentions as role ids.
+     *
+     * @items.type string
+     */
     @JoinTable({ name: "message_role_mentions" })
     @ManyToMany(() => Role)
     mention_roles: Role[];
@@ -168,7 +294,7 @@ export class Message extends BaseClass {
 
     @Column({ type: "jsonb" })
     @JsonRemoveEmpty
-    reactions: Reaction[];
+    reactions: StoredReaction[];
 
     @Column({ type: "text", nullable: true })
     @JsonRemoveEmpty
@@ -264,53 +390,7 @@ export class Message extends BaseClass {
     }
 
     toJSON(shallow = false): PublicMessage {
-        // this.clean_data();
-        return {
-            ...this,
-            channel_id: this.channel_id ?? this.channel.id,
-            channel: undefined,
-
-            timestamp: this.timestamp.toISOString(),
-            edited_timestamp: this.edited_timestamp ? this.edited_timestamp.toISOString() : null,
-
-            author_id: undefined,
-            member_id: undefined,
-            webhook_id: this.webhook_id ?? undefined,
-            application_id: undefined,
-            mentions: this.mentions?.map((user) => {
-                if (user && !user.toPublicUser) console.trace("toPublic user missing!!!");
-                return (user?.toPublicUser?.() ?? user ?? undefined) as unknown as PartialUser;
-            }),
-
-            mention_roles: this.mention_roles?.map((role) => role.id) ?? [],
-            mention_channels: this.mention_channels?.map((ch) => ch.toJSON()) ?? [],
-            attachments: this.attachments?.map((att) => att.toJSON()) ?? [],
-
-            nonce: this.nonce ?? undefined,
-            tts: this.tts ?? false,
-            guild: this.guild ?? undefined,
-            webhook: this.webhook ?? undefined,
-            interaction: this.interaction ?? undefined,
-            interaction_metadata: this.interaction_metadata ?? undefined,
-            reactions: this.reactions ?? undefined,
-            sticker_items: this.sticker_items ?? undefined,
-            message_reference: this.message_reference ?? undefined,
-            mention_everyone: this.mention_everyone ?? false,
-            author: {
-                ...(this.author?.toPublicUser() ?? undefined),
-                // Webhooks
-                username: this.username ?? this.author?.username ?? null,
-                avatar: this.avatar ?? this.author?.avatar ?? null,
-            },
-            activity: this.activity ?? undefined,
-            application: this.application ?? undefined,
-            components: this.components ?? [],
-            poll: this.poll ?? undefined,
-            content: this.content ?? "",
-            pinned: this.pinned,
-            thread: this.thread ? this.thread.toJSON() : this.thread,
-            referenced_message: this.referenced_message && !shallow ? this.referenced_message.toJSON(true) : undefined,
-        };
+        return messageToPublicMessage(this, shallow);
     }
 
     toPartialMessage(): PartialMessage {
@@ -328,6 +408,46 @@ export class Message extends BaseClass {
         };
     }
 
+    toSearchResult(): GuildMessagesSearchMessage {
+        const publicMessage = this.toJSON();
+        const {
+            webhook: _webhook,
+            guild: _guild,
+            application: _application,
+            interaction: _interaction,
+            interaction_metadata: _interactionMetadata,
+            ...searchResult
+        } = publicMessage as PublicMessage & {
+            webhook?: unknown;
+            guild?: unknown;
+            application?: unknown;
+            interaction?: unknown;
+            interaction_metadata?: unknown;
+        };
+
+        const author = serializeMessageMentions([publicMessage.author] as unknown as object[])[0];
+        if (!author.id) {
+            const fallbackAuthorId = this.author_id ?? this.webhook_id;
+            if (!fallbackAuthorId) throw new Error(`Cannot serialize message ${this.id} search result without an author or webhook`);
+            author.id = fallbackAuthorId;
+        }
+        author.username ??= this.username ?? this.author?.username ?? this.webhook?.name ?? "";
+        author.discriminator ??= this.webhook_id ? "0000" : (this.author?.discriminator ?? "0000");
+        author.avatar ??= this.avatar ?? this.author?.avatar ?? this.webhook?.avatar ?? null;
+        if (this.webhook_id) {
+            author.bot ??= true;
+            author.public_flags ??= 0;
+        }
+
+        return {
+            ...searchResult,
+            author,
+            mentions: serializeMessageMentions(this.mentions) as PartialUser[],
+            mention_roles: serializeMessageRoleMentions(this.mention_roles),
+            hit: true,
+        };
+    }
+
     toSnapshot(): MessageSnapshot {
         return {
             message: {
@@ -337,8 +457,8 @@ export class Message extends BaseClass {
                 edited_timestamp: this.edited_timestamp,
                 embeds: this.embeds,
                 flags: this.flags,
-                mention_roles: this.mention_roles?.map((x) => x.id),
-                mentions: this.mentions.map((x) => x.toPublicUser() as unknown as PartialUser), // TODO: write a proper method for this
+                mention_roles: serializeMessageRoleMentions(this.mention_roles),
+                mentions: serializeMessageMentions(this.mentions) as PartialUser[],
                 timestamp: this.timestamp,
                 type: this.type,
             },
@@ -346,55 +466,15 @@ export class Message extends BaseClass {
     }
 
     withSignedAttachments(data: NewUrlUserSignatureData) {
-        function signMedia(media: UnfurledMediaItem) {
-            Object.assign(media, Attachment.prototype.signUrls.call(media, data));
-        }
-        return {
-            ...this,
-            attachments: this.attachments?.map((attachment: Attachment) => Attachment.prototype.signUrls.call(attachment, data)),
-            components: this.components
-                ? this.components.map((comp) => {
-                      comp = structuredClone(comp);
-                      if (comp.type === MessageComponentType.Section) {
-                          const accessory = comp.accessory;
-                          if (accessory.type === MessageComponentType.Thumbnail) {
-                              signMedia(accessory.media);
-                          }
-                      } else if (comp.type === MessageComponentType.MediaGallery) {
-                          comp.items.forEach(({ media }) => signMedia(media));
-                      } else if (comp.type === MessageComponentType.File) {
-                          signMedia(comp.file);
-                      } else if (comp.type === MessageComponentType.Container) {
-                          for (const elm of comp.components) {
-                              switch (elm.type) {
-                                  case MessageComponentType.Separator:
-                                  case MessageComponentType.TextDisplay:
-                                  case MessageComponentType.ActionRow:
-                                      break;
-                                  case MessageComponentType.Section: {
-                                      const accessory = elm.accessory;
-                                      if (accessory.type === MessageComponentType.Thumbnail) {
-                                          signMedia(accessory.media);
-                                      }
-                                      break;
-                                  }
-                                  case MessageComponentType.MediaGallery:
-                                      elm.items.forEach(({ media }) => signMedia(media));
-                                      break;
-                                  case MessageComponentType.File: {
-                                      signMedia(elm.file);
-                                      break;
-                                  }
-
-                                  default:
-                                      elm satisfies never;
-                              }
-                          }
-                      }
-                      return comp;
-                  })
-                : this.components,
-        };
+        const publicMessage = this instanceof Message ? this.toJSON() : (this as unknown as PublicMessage);
+        return signMessageAttachmentUrls(
+            {
+                ...publicMessage,
+                member: serializePublicMember(publicMessage.member),
+                mention_roles: serializeMessageRoleMentions(publicMessage.mention_roles),
+            },
+            data,
+        );
     }
 
     static async createWithDefaults(opts: Partial<Message>): Promise<Message> {

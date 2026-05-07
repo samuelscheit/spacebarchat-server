@@ -7,6 +7,7 @@ using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.Models.AdminApi;
 using Spacebar.Models.Db.Contexts;
+using Spacebar.Models.Gateway;
 
 namespace Spacebar.AdminApi.Controllers.TestControllers;
 
@@ -40,25 +41,27 @@ public class IpcTestController(
         while (true) {
             var clr = re.Next();
             color = clr.r << 16 | clr.g << 8 | clr.b;
-            // TODO: create type
-            await replication.SendAsync<object>(new() {
+            await replication.SendAsync<GuildRoleUpdatePayload>(new() {
                 Event = "GUILD_ROLE_UPDATE",
                 GuildId = guildId,
                 Origin = "Admin API (GET /users/test)",
-                Payload = new {
-                    guild_id = guildId,
-                    role = new {
-                        id = roleId,
-                        guild_id = guildId,
-                        color,
-                        hoist = false,
-                        managed = false,
-                        mentionable = true,
-                        name = "Spacebar Maintainer",
-                        permissions = "8",
-                        position = 5,
-                        unicode_emoji = "",
-                        flags = 0
+                Payload = new() {
+                    GuildId = guildId,
+                    Role = new() {
+                        Id = long.Parse(roleId),
+                        GuildId = guildId,
+                        Color = color,
+                        Hoist = false,
+                        Managed = false,
+                        Mentionable = true,
+                        Name = "Spacebar Maintainer",
+                        Permissions = "8",
+                        Position = 5,
+                        UnicodeEmoji = "",
+                        Flags = 0,
+                        Colors = new() {
+                            PrimaryColor = color
+                        }
                     }
                 }
             });

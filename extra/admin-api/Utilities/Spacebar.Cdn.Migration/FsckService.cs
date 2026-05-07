@@ -20,6 +20,8 @@ public class FsckService(ILogger<FsckService> logger, IServiceScopeFactory servi
         await RunFsckAsync("Guild Icons", "/icons", EnumerateGuildIconPathsAsync(), cancellationToken);
         await RunFsckAsync("Stickers", "/stickers", EnumerateStickerPathsAsync(), cancellationToken);
         await RunFsckAsync("Emojis", "/emojis", EnumerateEmojiPathsAsync(), cancellationToken);
+        await RunFsckAsync("Application Icons", "/app-icons", EnumerateApplicationIconPathsAsync(), cancellationToken);
+        await RunFsckAsync("Application Covers", "/app-icons", EnumerateApplicationCoverPathsAsync(), cancellationToken);
 
         // var atts = EnumerateAttachmentPathsAsync();
         // var refreshedAtts = new List<FsckItem>();
@@ -164,31 +166,12 @@ public class FsckService(ILogger<FsckService> logger, IServiceScopeFactory servi
 
     public IQueryable<FsckItem> EnumerateApplicationCoverPathsAsync() =>
         _db.Applications
-            .Where(x => !string.IsNullOrWhiteSpace(x.Icon))
+            .Where(x => !string.IsNullOrWhiteSpace(x.CoverImage))
             .OrderBy(x => x.Id)
             .Select(x => new FsckItem {
                 Path = $"/app-icons/{x.Id}/{x.CoverImage}",
                 ItemId = x.Id.ToString()
             });
-
-    // TODO: not implemented?
-    // public IQueryable<FsckItem> EnumerateApplicationSplashPathsAsync() =>
-    //     _db.Applications
-    //         .Where(x => !string.IsNullOrWhiteSpace(x.Icon))
-    //         .OrderBy(x => x.Id)
-    //         .Select(x => new FsckItem {
-    //             Path = $"/app-icons/{x.Id}/{x.OwnerId}", // TODO - no db property for splash?
-    //             ItemId = x.Id
-    //         });
-    //
-    // public IQueryable<FsckItem> EnumerateApplicationAssets() =>
-    //     _db.Applications
-    //         .Where(x => !string.IsNullOrWhiteSpace(x.Icon))
-    //         .OrderBy(x => x.Id)
-    //         .Select(x => new FsckItem {
-    //             Path = $"/app-icons/{x.Id}/{x.Icon}",
-    //             ItemId = x.Id
-    //         });
 
 #endregion
 

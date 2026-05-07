@@ -19,7 +19,7 @@
 export interface TotpDisableSchema {
     /**
      * @minLength 6
-     * @maxLength 6
+     * @maxLength 8
      */
     code: string;
 }

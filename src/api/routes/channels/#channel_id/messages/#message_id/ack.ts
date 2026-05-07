@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { emitEvent, getPermission, MessageAckEvent, ReadState } from "@spacebar/util";
+import { ReadStateType, type MessageAcknowledgeSchema } from "@spacebar/schemas";
+import { applyMessageAcknowledgeToReadState, emitEvent, getPermission, MessageAckEvent, ReadState } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
@@ -37,17 +38,16 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         const { channel_id, message_id } = req.params as { [key: string]: string };
+        const body = req.body as MessageAcknowledgeSchema;
 
         const permission = await getPermission(req.user_id, undefined, channel_id);
         permission.hasThrow("VIEW_CHANNEL");
 
         let read_state = await ReadState.findOne({
-            where: { user_id: req.user_id, channel_id },
+            where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
         });
-        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id });
-        read_state.last_message_id = message_id;
-        //It's a little more complicated but this'll do :P
-        read_state.mention_count = 0;
+        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
+        applyMessageAcknowledgeToReadState(read_state, message_id, body);
 
         await read_state.save();
 

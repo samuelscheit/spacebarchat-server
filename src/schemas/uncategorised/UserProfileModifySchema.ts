@@ -19,6 +19,9 @@
 export interface UserProfileModifySchema {
     bio?: string;
     accent_color?: number | null;
+    /**
+     * @TJS-format image-data-uri
+     */
     banner?: string | null;
     pronouns?: string;
     /**
