@@ -23,8 +23,7 @@ import type { User } from "../entities/User";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
-// TODO: dont use deprecated APIs lol
-import { FindOptionsRelationByString, FindOptionsSelectByString } from "typeorm";
+import { FindOptionsRelations, FindOptionsSelect } from "typeorm";
 import { TimeSpan } from "./Timespan";
 import { HTTPError } from "lambert-server";
 import path from "node:path";
@@ -48,6 +47,22 @@ function logAuth(text: string) {
 function rejectAndLog(rejectFunction: (reason?: unknown) => void, httpCode: number | undefined, reason: string) {
     console.error(reason);
     rejectFunction(new HTTPError(reason, httpCode ?? 400));
+}
+
+export function userSelectFromKeys(keys: readonly (keyof User)[]): FindOptionsSelect<User> {
+    return Object.fromEntries(keys.map((key) => [key, true])) as FindOptionsSelect<User>;
+}
+
+export function getCheckTokenUserSelect(select?: FindOptionsSelect<User>): FindOptionsSelect<User> {
+    return {
+        ...select,
+        id: true,
+        bot: true,
+        disabled: true,
+        deleted: true,
+        rights: true,
+        data: true,
+    };
 }
 
 function randomUpperString(length: number = 10) {
@@ -84,8 +99,8 @@ export function getInvalidCurrentTokenSessionReason(decoded: Pick<UserTokenData[
 export const checkToken = (
     token: string,
     opts?: {
-        select?: FindOptionsSelectByString<User>;
-        relations?: FindOptionsRelationByString;
+        select?: FindOptionsSelect<User>;
+        relations?: FindOptionsRelations<User>;
         ipAddress?: string;
         fingerprint?: string;
     },
@@ -114,7 +129,7 @@ export const checkToken = (
             let [user, session] = await Promise.all([
                 User.findOne({
                     where: { id: userId },
-                    select: [...(opts?.select || []), "id", "bot", "disabled", "deleted", "rights", "data"],
+                    select: getCheckTokenUserSelect(opts?.select),
                     relations: opts?.relations,
                 }),
                 decoded.did ? Session.findOne({ where: { session_id: decoded.did, user_id: userId } }) : undefined,

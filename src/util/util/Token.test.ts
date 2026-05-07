@@ -9,9 +9,11 @@ import {
     createTokenPayload,
     CurrentTokenFormatVersion,
     generateTokenForSession,
+    getCheckTokenUserSelect,
     getInvalidCurrentTokenSessionReason,
     loadOrGenerateKeypair,
     setTokenEntityStoresForTests,
+    userSelectFromKeys,
     type TokenEntityStores,
     type UserTokenData,
 } from "./Token";
@@ -73,6 +75,28 @@ async function withTempCwd<T>(callback: () => Promise<T>) {
         await fs.rm(testDir, { recursive: true, force: true });
     }
 }
+
+describe("Token select helpers", () => {
+    test("converts user projection keys to TypeORM select notation", () => {
+        assert.deepEqual(userSelectFromKeys(["id", "email", "rights"]), {
+            id: true,
+            email: true,
+            rights: true,
+        });
+    });
+
+    test("always selects fields required by token validation", () => {
+        assert.deepEqual(getCheckTokenUserSelect({ email: true, data: false }), {
+            email: true,
+            id: true,
+            bot: true,
+            disabled: true,
+            deleted: true,
+            rights: true,
+            data: true,
+        });
+    });
+});
 
 describe("token session binding", () => {
     test("validates current-format token session references", () => {
