@@ -51,6 +51,38 @@ describe("Gateway Server transport", () => {
         }
     });
 
+    test("responds to QoS heartbeat over a real websocket before authentication", async () => {
+        const http = createServer();
+        const server = new GatewayServer({ port: 0, server: http });
+        const port = await listen(http);
+
+        try {
+            const client = new ws(`ws://127.0.0.1:${port}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+            await readJsonMessage(client);
+
+            client.send(
+                JSON.stringify({
+                    op: OPCODES.SetQoS,
+                    d: {
+                        seq: null,
+                        qos: {
+                            ver: 1,
+                            active: true,
+                            reasons: ["foregrounded"],
+                        },
+                    },
+                }),
+            );
+            const ack = await readJsonMessage(client);
+
+            assert.equal(ack.op, OPCODES.Heartbeat_ACK);
+
+            await closeClient(client);
+        } finally {
+            await closeGateway(server);
+        }
+    });
+
     test("closes malformed heartbeat payloads over a real websocket", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
