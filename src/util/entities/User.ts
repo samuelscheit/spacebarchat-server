@@ -17,7 +17,7 @@
 */
 
 import { Request } from "express";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Column, Entity, EntityManager, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import { Channel, Config, emailAlreadyRegisteredFieldError, Email, FieldErrors, isNormalizedEmailUniqueViolation, normalizeOptionalEmail, Snowflake, trimSpecial } from "..";
 import { bigintNumberTransformer, Random } from "../util";
 import { profilePronouns } from "../util/UserProfile";
@@ -234,20 +234,23 @@ export class User extends BaseClass {
         return user as UserPrivate;
     }
 
-    static async getPublicUser(user_id: string): Promise<PublicUser> {
-        const user = await User.findOneOrFail({
+    static async getPublicUser(user_id: string, manager?: EntityManager): Promise<PublicUser> {
+        const userRepository = manager?.getRepository(User) ?? User.getRepository();
+        const user = await userRepository.findOneOrFail({
             where: { id: user_id },
             select: PublicUserProjection,
         });
         return user.toPublicUser();
     }
 
-    public static async generateDiscriminator(username: string): Promise<string | undefined> {
+    public static async generateDiscriminator(username: string, manager?: EntityManager): Promise<string | undefined> {
+        const userRepository = manager?.getRepository(User) ?? User.getRepository();
+
         if (Config.get().register.incrementingDiscriminators) {
             // discriminator will be incrementally generated
 
             // First we need to figure out the currently highest discrimnator for the given username and then increment it
-            const users = await User.find({
+            const users = await userRepository.find({
                 where: { username },
                 select: { discriminator: true },
             });
@@ -264,7 +267,7 @@ export class User extends BaseClass {
 
             // randomly generates a discriminator between 1 and 9999 and checks max five times if it already exists
             // TODO: is there any better way to generate a random discriminator only once, without checking if it already exists in the database?
-            const takenDiscriminators = (await User.find({ where: { username }, select: { discriminator: true } })).map((x) => x.discriminator);
+            const takenDiscriminators = (await userRepository.find({ where: { username }, select: { discriminator: true } })).map((x) => x.discriminator);
             if (takenDiscriminators.length >= 9999) return undefined;
 
             for (let tries = 0; tries < 15; tries++) {
@@ -290,6 +293,8 @@ export class User extends BaseClass {
         id,
         req,
         bot,
+        manager,
+        emitSideEffects = true,
     }: {
         username: string;
         password?: string;
@@ -298,12 +303,17 @@ export class User extends BaseClass {
         id?: string;
         req?: Request;
         bot?: boolean;
+        manager?: EntityManager;
+        emitSideEffects?: boolean;
     }) {
         // trim special utf8 control characters -> Backspace, Newline, ...
         username = trimSpecial(username);
         email = normalizeOptionalEmail(email);
 
-        const discriminator = await User.generateDiscriminator(username);
+        const userRepository = manager?.getRepository(User) ?? User.getRepository();
+        const settingsRepository = manager?.getRepository(UserSettings) ?? UserSettings.getRepository();
+
+        const discriminator = await User.generateDiscriminator(username, manager);
         if (!discriminator) {
             // We've failed to generate a valid and unused discriminator
             throw FieldErrors({
@@ -319,11 +329,11 @@ export class User extends BaseClass {
         // if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
         const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
 
-        const settings = UserSettings.create({
+        const settings = settingsRepository.create({
             locale: language,
         });
 
-        const user = User.create({
+        const user = userRepository.create({
             username: username,
             discriminator,
             id: id || Snowflake.generate(),
@@ -345,7 +355,7 @@ export class User extends BaseClass {
 
         user.validate();
         try {
-            await user.save();
+            await userRepository.save(user);
         } catch (error) {
             if (isNormalizedEmailUniqueViolation(error)) {
                 throw emailAlreadyRegisteredFieldError(req?.t("auth:register.EMAIL_ALREADY_REGISTERED"));
@@ -353,15 +363,23 @@ export class User extends BaseClass {
             throw error;
         }
 
+        if (emitSideEffects) {
+            await User.runRegistrationSideEffects(user, { email, bot });
+        }
+
+        return user;
+    }
+
+    static async runRegistrationSideEffects(user: User, options: { email?: string; bot?: boolean }) {
         // send verification email if users aren't verified by default and we have an email
-        if (!Config.get().defaults.user.verified && email) {
-            await Email.sendVerifyEmail(user, email).catch((e) => {
+        if (!Config.get().defaults.user.verified && options.email) {
+            await Email.sendVerifyEmail(user, options.email).catch((e) => {
                 console.error(`Failed to send verification email to ${user.tag}: ${e}`);
             });
         }
 
         setImmediate(async () => {
-            if (bot) {
+            if (options.bot) {
                 const { guild } = Config.get();
                 if (!guild.autoJoin.bots) {
                     return;
@@ -373,8 +391,6 @@ export class User extends BaseClass {
                 }
             }
         });
-
-        return user;
     }
 
     async getDmChannelWith(user_id: string) {
