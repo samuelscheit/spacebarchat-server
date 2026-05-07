@@ -108,8 +108,8 @@ export class Guild extends BaseClass {
     @Column({ nullable: true })
     default_message_notifications?: number;
 
-    @Column({ nullable: true })
-    description?: string;
+    @Column({ nullable: true, type: "varchar" })
+    description?: string | null;
 
     @Column({ nullable: true })
     discovery_splash?: string;
@@ -121,8 +121,8 @@ export class Guild extends BaseClass {
     features: string[] = []; //TODO use enum
     //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
-    @Column({ nullable: true })
-    primary_category_id?: string; // TODO: this was number?
+    @Column({ nullable: true, type: "int8" })
+    primary_category_id?: string | null; // TODO: this was number?
 
     @Column({ nullable: true })
     icon?: string;
@@ -367,6 +367,7 @@ export class Guild extends BaseClass {
             ...data,
             // TODO: did i do this right?
             afk_channel_id: data.afk_channel_id ?? undefined,
+            description: data.description ?? undefined,
             public_updates_channel_id: data.public_updates_channel_id ?? undefined,
             rules_channel_id: data.rules_channel_id ?? undefined,
             system_channel_id: data.system_channel_id ?? undefined,

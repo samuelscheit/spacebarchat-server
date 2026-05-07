@@ -1841,6 +1841,22 @@
                     }
                 }
             },
+            "GuildDiscoveryMetadataUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "primary_category_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "is_published": {
+                        "type": "boolean"
+                    },
+                    "about": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
             "GuildSubscriptionsBulkSchema": {
                 "type": "object",
                 "properties": {
@@ -2698,6 +2714,73 @@
                     "nsfw",
                     "welcome_screen",
                     "widget_enabled"
+                ]
+            },
+            "GuildDiscoveryMetadataResponse": {
+                "type": "object",
+                "properties": {
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "primary_category_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "category_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "keywords": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "emoji_discoverability_enabled": {
+                        "type": "boolean"
+                    },
+                    "partner_actioned_timestamp": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "partner_application_timestamp": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "is_published": {
+                        "type": "boolean"
+                    },
+                    "reasons_to_join": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "social_links": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "about": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "about",
+                    "category_ids",
+                    "emoji_discoverability_enabled",
+                    "guild_id",
+                    "is_published",
+                    "keywords",
+                    "partner_actioned_timestamp",
+                    "partner_application_timestamp",
+                    "primary_category_id",
+                    "reasons_to_join",
+                    "social_links"
                 ]
             },
             "GuildDiscoveryRequirementsResponse": {
@@ -4935,6 +5018,20 @@
                             "$ref": "#/components/schemas/Role"
                         }
                     },
+                    "primary_category_id": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
                     "icon": {
                         "type": "string"
                     },
@@ -5021,19 +5118,7 @@
                             "$ref": "#/components/schemas/Ban"
                         }
                     },
-                    "description": {
-                        "type": "string"
-                    },
                     "discovery_splash": {
-                        "type": "string"
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "primary_category_id": {
                         "type": "string"
                     },
                     "large": {
@@ -10040,7 +10125,8 @@
                         "type": "integer"
                     },
                     "description": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "discovery_splash": {
                         "type": "string"
@@ -10056,7 +10142,8 @@
                         "default": []
                     },
                     "primary_category_id": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     },
                     "icon": {
                         "type": "string"
@@ -24890,6 +24977,116 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GuildDiscoveryRequirementsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/discovery-metadata/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildDiscoveryMetadataResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            },
+            "patch": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GuildDiscoveryMetadataUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildDiscoveryMetadataResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

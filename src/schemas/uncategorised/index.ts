@@ -41,6 +41,7 @@ export * from "./ForgotPasswordSchema";
 export * from "./GreetRequestSchema";
 export * from "./GuildCreateSchema";
 export * from "./GuildDeleteSchema";
+export * from "./GuildDiscoveryMetadataUpdateSchema";
 export * from "./GuildSubscriptionsBulkSchema";
 export * from "./GuildTemplateCreateSchema";
 export * from "./GuildUpdateSchema";

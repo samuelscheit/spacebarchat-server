@@ -1,10 +1,10 @@
-import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { describe, test } from "node:test";
 import { Server } from "lambert-server";
-import { registerRoutes } from "./TraverseDirectory";
+import { isRouteFile, registerRoutes } from "./TraverseDirectory";
 
 describe("registerRoutes", () => {
     test("keeps nested underscore directories in registered route paths", async () => {
@@ -54,5 +54,21 @@ describe("registerRoutes", () => {
         } finally {
             await rm(root, { recursive: true, force: true });
         }
+    });
+});
+
+describe("route file traversal filter", () => {
+    test("includes runtime route files", () => {
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/discovery-metadata.js"), true);
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/widget.json.js"), true);
+    });
+
+    test("excludes files that are not runtime routes", () => {
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/discovery-metadata.test.js"), false);
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/discovery-metadata.openapi.test.js"), false);
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/discovery-metadata.spec.js"), false);
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/discovery-metadata.d.js"), false);
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/.hidden.js"), false);
+        assert.equal(isRouteFile("/dist/api/routes/guilds/#guild_id/discovery-metadata.js.map"), false);
     });
 });
