@@ -21,25 +21,33 @@ import OPCodeHandlers from "../opcodes";
 import { VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "../util";
 
 export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
+    let data: VoicePayload;
+
     try {
-        const data: VoicePayload = JSON.parse(buffer.toString());
-        if (data.op !== VoiceOPCodes.IDENTIFY && !this.user_id) return this.close(CLOSECODES.Not_authenticated);
+        data = JSON.parse(buffer.toString()) as VoicePayload;
+    } catch (error) {
+        console.error("[WebRTC] Failed to decode payload", error);
+        return this.close(CLOSECODES.Decode_error);
+    }
 
-        const OPCodeHandler = OPCodeHandlers[data.op];
-        if (!OPCodeHandler) {
-            console.error("[WebRTC] Unknown opcode " + VoiceOPCodes[data.op]);
-            // TODO: if all opcodes are implemented comment this out:
-            // this.close(CloseCodes.Unknown_opcode);
-            return;
-        }
+    if (data.op !== VoiceOPCodes.IDENTIFY && !this.user_id) return this.close(CLOSECODES.Not_authenticated);
 
-        if (![VoiceOPCodes.HEARTBEAT, VoiceOPCodes.SPEAKING].includes(data.op as VoiceOPCodes)) {
-            console.log("[WebRTC] Opcode " + VoiceOPCodes[data.op]);
-        }
+    const OPCodeHandler = OPCodeHandlers[data.op];
+    if (!OPCodeHandler) {
+        console.error("[WebRTC] Unknown opcode " + VoiceOPCodes[data.op]);
+        // TODO: if all opcodes are implemented comment this out:
+        // this.close(CloseCodes.Unknown_opcode);
+        return;
+    }
 
+    if (![VoiceOPCodes.HEARTBEAT, VoiceOPCodes.SPEAKING].includes(data.op as VoiceOPCodes)) {
+        console.log("[WebRTC] Opcode " + VoiceOPCodes[data.op]);
+    }
+
+    try {
         return await OPCodeHandler.call(this, data);
     } catch (error) {
-        console.error("[WebRTC] error", error);
-        // if (!this.CLOSED && this.CLOSING) return this.close(CloseCodes.Unknown_error);
+        console.error("[WebRTC] Error: Op " + data.op, error);
+        return this.close(CLOSECODES.Unknown_error);
     }
 }

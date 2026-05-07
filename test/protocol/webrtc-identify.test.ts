@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { CLOSECODES } from "@spacebar/gateway";
-import { closeDatabase, initDatabase, Snowflake, User, VoiceState } from "@spacebar/util";
+import { closeDatabase, initDatabase, Snowflake, type Channel, type Guild, User, VoiceState } from "@spacebar/util";
 import { mediaServer, setMediaServerForTesting, VoiceOPCodes } from "@spacebar/webrtc";
 import { ChannelType } from "@spacebar/schemas";
 import type { Codec, SignalingDelegate, SSRCs, VideoStream, WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
@@ -14,7 +14,7 @@ import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtur
 import { makeChannel, makeGuild } from "../fixtures/entities";
 import { startWebRtc } from "../server/startWebRtc";
 
-const coveredManifestIds = ["webrtc:opcode:IDENTIFY", "webrtc:opcode:SELECT_PROTOCOL"];
+const coveredManifestIds = ["webrtc:opcode:IDENTIFY", "webrtc:opcode:SELECT_PROTOCOL", "webrtc:opcode:SPEAKING", "webrtc:opcode:VIDEO"];
 type VoicePayload = { op: number; d?: unknown };
 
 test(
@@ -24,7 +24,7 @@ test(
         timeout: 180_000,
     },
     async () => {
-        assert.deepEqual(coveredManifestIds, ["webrtc:opcode:IDENTIFY", "webrtc:opcode:SELECT_PROTOCOL"]);
+        assert.deepEqual(coveredManifestIds, ["webrtc:opcode:IDENTIFY", "webrtc:opcode:SELECT_PROTOCOL", "webrtc:opcode:SPEAKING", "webrtc:opcode:VIDEO"]);
 
         const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_identify" });
         const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-identify-"));
@@ -166,21 +166,254 @@ test(
     },
 );
 
-async function createVoiceStateFixture() {
+test(
+    "WebRTC VIDEO publishes media updates and SPEAKING fans out to room peers",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_media" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-media-"));
+        const previous = snapshotProcessState();
+        const previousMediaServer = mediaServer;
+        const fakeMediaServer = new FakeSignalingDelegate();
+        const clients: ws[] = [];
+        let server: Awaited<ReturnType<typeof startWebRtc>> | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            setMediaServerForTesting(fakeMediaServer);
+            await initDatabase();
+
+            const speaker = await createVoiceStateFixture({ usernamePrefix: "speaker" });
+            const listener = await createVoiceStateFixture({ guild: speaker.guild, channel: speaker.channel, usernamePrefix: "listener" });
+            server = await startWebRtc();
+
+            const speakerConnection = await connectIdentifiedClient(server.url, speaker);
+            clients.push(speakerConnection.client);
+            const listenerConnection = await connectIdentifiedClient(server.url, listener);
+            clients.push(listenerConnection.client);
+
+            speakerConnection.client.send(
+                JSON.stringify({
+                    op: VoiceOPCodes.VIDEO,
+                    d: {
+                        audio_ssrc: 1111,
+                        video_ssrc: 2222,
+                        rtx_ssrc: 3333,
+                        streams: [{ type: "video", rid: "100", active: true, quality: 100 }],
+                    },
+                }),
+            );
+
+            const mediaSinkWants = await readJsonMessage(speakerConnection.client);
+            assert.equal(mediaSinkWants.op, VoiceOPCodes.MEDIA_SINK_WANTS);
+            assert.deepEqual(mediaSinkWants.d, { any: 100 });
+
+            const video = await readJsonMessage(listenerConnection.client);
+            assert.equal(video.op, VoiceOPCodes.VIDEO);
+            const videoData = assertPayloadRecord(video.d);
+            assert.equal(videoData.user_id, speaker.user.id);
+            assert.equal(videoData.audio_ssrc, 1111);
+            assert.equal(videoData.video_ssrc, 2222);
+            assert.equal(videoData.rtx_ssrc, 3333);
+            const streams = assertPayloadArray(videoData.streams);
+            const stream = assertPayloadRecord(streams[0]);
+            assert.equal(stream.type, "video");
+            assert.equal(stream.ssrc, 2222);
+            assert.equal(stream.rtx_ssrc, 3333);
+
+            speakerConnection.client.send(
+                JSON.stringify({
+                    op: VoiceOPCodes.SPEAKING,
+                    d: {
+                        speaking: 1,
+                        delay: 0,
+                        ssrc: 1111,
+                    },
+                }),
+            );
+
+            const speaking = await readJsonMessage(listenerConnection.client);
+            assert.equal(speaking.op, VoiceOPCodes.SPEAKING);
+            const speakingData = assertPayloadRecord(speaking.d);
+            assert.equal(speakingData.user_id, speaker.user.id);
+            assert.equal(speakingData.speaking, 1);
+            assert.equal(speakingData.ssrc, 1111);
+
+            await Promise.all(clients.map((client) => closeClient(client)));
+            await waitForCloseHandlers();
+            clients.length = 0;
+            assert.equal(fakeMediaServer.getClientsForRtcServer(speaker.channel.id).size, 0);
+        } finally {
+            await Promise.all(clients.map((client) => closeClient(client)));
+            if (server) await server.stop();
+            setMediaServerForTesting(previousMediaServer);
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+test(
+    "WebRTC SELECT_PROTOCOL closes when the media server cannot answer an offer",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_offer_failure" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-offer-failure-"));
+        const previous = snapshotProcessState();
+        const previousMediaServer = mediaServer;
+        const fakeMediaServer = new FakeSignalingDelegate();
+        fakeMediaServer.failOffers = true;
+        let server: Awaited<ReturnType<typeof startWebRtc>> | undefined;
+        let client: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            setMediaServerForTesting(fakeMediaServer);
+            await initDatabase();
+
+            const fixture = await createVoiceStateFixture({ usernamePrefix: "offerfail" });
+            server = await startWebRtc();
+            const connection = await connectIdentifiedClient(server.url, fixture);
+            client = connection.client;
+
+            client.send(
+                JSON.stringify({
+                    op: VoiceOPCodes.SELECT_PROTOCOL,
+                    d: {
+                        protocol: "webrtc",
+                        data: "",
+                        sdp: "failing-offer-sdp",
+                        codecs: [],
+                    },
+                }),
+            );
+
+            const close = await readClose(client);
+            assert.equal(close.code, CLOSECODES.Unknown_error);
+            assert.deepEqual(fakeMediaServer.offers, [{ offer: "failing-offer-sdp", codecs: [] }]);
+        } finally {
+            if (client) await closeClient(client);
+            if (server) await server.stop();
+            setMediaServerForTesting(previousMediaServer);
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+test(
+    "WebRTC IDENTIFY closes when the media server cannot join a valid voice state",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 180_000,
+    },
+    async () => {
+        const database = await createDisposablePostgresDatabase({ prefix: "spacebar_webrtc_join_failure" });
+        const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-webrtc-join-failure-"));
+        const previous = snapshotProcessState();
+        const previousMediaServer = mediaServer;
+        const fakeMediaServer = new FakeSignalingDelegate();
+        fakeMediaServer.failJoins = true;
+        let server: Awaited<ReturnType<typeof startWebRtc>> | undefined;
+        let client: ws | undefined;
+
+        try {
+            process.chdir(tempCwd);
+            process.env.DATABASE = database.url;
+            process.env.APPLY_DB_MIGRATIONS = "true";
+            delete process.env.CONFIG_PATH;
+            delete process.env.DB_SYNC;
+
+            setMediaServerForTesting(fakeMediaServer);
+            await initDatabase();
+
+            const fixture = await createVoiceStateFixture({ usernamePrefix: "joinfail" });
+            server = await startWebRtc();
+            client = new ws(`${server.url}/?v=5`, { headers: { "User-Agent": "spacebar-test" } });
+            const hello = await readJsonMessage(client);
+            assert.equal(hello.op, VoiceOPCodes.HELLO);
+
+            client.send(
+                JSON.stringify({
+                    op: VoiceOPCodes.IDENTIFY,
+                    d: {
+                        server_id: fixture.guild.id,
+                        user_id: fixture.user.id,
+                        session_id: fixture.sessionId,
+                        token: fixture.token,
+                    },
+                }),
+            );
+
+            const close = await readClose(client);
+            assert.equal(close.code, CLOSECODES.Unknown_error);
+            assert.deepEqual(fakeMediaServer.joinCalls, [{ roomId: fixture.channel.id, userId: fixture.user.id, type: "guild-voice" }]);
+            assert.equal(fakeMediaServer.getClientsForRtcServer(fixture.channel.id).size, 0);
+        } finally {
+            if (client) await closeClient(client);
+            if (server) await server.stop();
+            setMediaServerForTesting(previousMediaServer);
+            await closeDatabase();
+            await database.close();
+            restoreProcessState(previous);
+            await rm(tempCwd, { recursive: true, force: true });
+        }
+    },
+);
+
+interface VoiceStateFixture {
+    user: User;
+    guild: Guild;
+    channel: Channel;
+    sessionId: string;
+    token: string;
+}
+
+interface VoiceStateFixtureOptions {
+    guild?: Guild;
+    channel?: Channel;
+    usernamePrefix?: string;
+}
+
+async function createVoiceStateFixture(options: VoiceStateFixtureOptions = {}): Promise<VoiceStateFixture> {
     const suffix = `${process.pid}${Date.now()}`;
+    const usernamePrefix = options.usernamePrefix ?? "webrtc";
     const user = await User.register({
-        username: `webrtc${suffix.slice(-8)}`,
-        email: `webrtc-${suffix}@example.com`,
+        username: `${usernamePrefix}${suffix.slice(-8)}`,
+        email: `${usernamePrefix}-${suffix}-${Snowflake.generate()}@example.com`,
         password: "webrtc-password-fixture",
     });
-    const guild = await makeGuild(user, { id: Snowflake.generate(), name: "WebRTC Fixture Guild" }).save();
-    const channel = await makeChannel(guild, {
-        id: Snowflake.generate(),
-        name: "voice",
-        type: ChannelType.GUILD_VOICE,
-    }).save();
-    const sessionId = "voice-session-fixture";
-    const token = "voice-token-fixture";
+    const guild = options.guild ?? (await makeGuild(user, { id: Snowflake.generate(), name: "WebRTC Fixture Guild" }).save());
+    const channel =
+        options.channel ??
+        (await makeChannel(guild, {
+            id: Snowflake.generate(),
+            name: "voice",
+            type: ChannelType.GUILD_VOICE,
+        }).save());
+    const id = Snowflake.generate();
+    const sessionId = `voice-session-${id}`;
+    const token = `voice-token-${id}`;
 
     await VoiceState.create({
         guild_id: guild.id,
@@ -199,10 +432,39 @@ async function createVoiceStateFixture() {
     return { user, guild, channel, sessionId, token };
 }
 
+async function connectIdentifiedClient(serverUrl: string, fixture: VoiceStateFixture) {
+    const client = new ws(`${serverUrl}/?v=5`, { headers: { "User-Agent": "spacebar-test" } });
+    const hello = await readJsonMessage(client);
+    assert.equal(hello.op, VoiceOPCodes.HELLO);
+
+    client.send(
+        JSON.stringify({
+            op: VoiceOPCodes.IDENTIFY,
+            d: {
+                server_id: fixture.guild.id,
+                user_id: fixture.user.id,
+                session_id: fixture.sessionId,
+                token: fixture.token,
+                video: true,
+                streams: [{ type: "video", rid: "100", quality: 100 }],
+            },
+        }),
+    );
+
+    const ready = await readJsonMessage(client);
+    assert.equal(ready.op, VoiceOPCodes.READY);
+    return { client, readyData: assertPayloadRecord(ready.d) };
+}
+
 function assertPayloadRecord(value: unknown) {
     assert.equal(typeof value, "object");
     assert.notEqual(value, null);
     return value as Record<string, unknown>;
+}
+
+function assertPayloadArray(value: unknown) {
+    assert.equal(Array.isArray(value), true);
+    return value as unknown[];
 }
 
 class FakeWebRtcClient<T> implements WebRtcClient<T> {
@@ -214,10 +476,17 @@ class FakeWebRtcClient<T> implements WebRtcClient<T> {
     videoStream?: VideoStream;
 
     private incomingSsrcs: SSRCs = {};
+    private publishedSsrcs: SSRCs = {};
+    private outgoingSsrcsByUser = new Map<string, SSRCs>();
     private producing = new Set<"audio" | "video">();
     private subscriptions = new Map<string, Set<"audio" | "video">>();
 
-    constructor(voiceRoomId: string, userId: string, websocket: T) {
+    constructor(
+        voiceRoomId: string,
+        userId: string,
+        websocket: T,
+        private readonly getPeerSsrcs: (userId: string) => SSRCs,
+    ) {
         this.voiceRoomId = voiceRoomId;
         this.user_id = userId;
         this.websocket = websocket;
@@ -232,8 +501,12 @@ class FakeWebRtcClient<T> implements WebRtcClient<T> {
         return this.incomingSsrcs;
     }
 
-    getOutgoingStreamSSRCsForUser() {
-        return this.incomingSsrcs;
+    getPublishedStreamSSRCs() {
+        return this.publishedSsrcs;
+    }
+
+    getOutgoingStreamSSRCsForUser(userId: string) {
+        return this.outgoingSsrcsByUser.get(userId) ?? {};
     }
 
     isProducingAudio() {
@@ -244,22 +517,30 @@ class FakeWebRtcClient<T> implements WebRtcClient<T> {
         return this.producing.has("video");
     }
 
-    async publishTrack(type: "audio" | "video") {
+    async publishTrack(type: "audio" | "video", ssrc: SSRCs) {
         this.producing.add(type);
+        this.publishedSsrcs = { ...this.publishedSsrcs, ...ssrc };
     }
 
     stopPublishingTrack(type: "audio" | "video") {
         this.producing.delete(type);
+        if (type === "audio") delete this.publishedSsrcs.audio_ssrc;
+        else {
+            delete this.publishedSsrcs.video_ssrc;
+            delete this.publishedSsrcs.rtx_ssrc;
+        }
     }
 
     async subscribeToTrack(userId: string, type: "audio" | "video") {
         const subscriptions = this.subscriptions.get(userId) ?? new Set<"audio" | "video">();
         subscriptions.add(type);
         this.subscriptions.set(userId, subscriptions);
+        this.outgoingSsrcsByUser.set(userId, this.getPeerSsrcs(userId));
     }
 
     unSubscribeFromTrack(userId: string, type: "audio" | "video") {
         this.subscriptions.get(userId)?.delete(type);
+        if (!this.subscriptions.get(userId)?.size) this.outgoingSsrcsByUser.delete(userId);
     }
 
     isSubscribedToTrack(userId: string, type: "audio" | "video") {
@@ -273,10 +554,12 @@ type OfferCall = { offer: string; codecs: Codec[] };
 class FakeSignalingDelegate implements SignalingDelegate {
     answerSdp = "fake-answer-sdp";
     selectedVideoCodec = "VP8";
+    failJoins = false;
+    failOffers = false;
     joinCalls: JoinCall[] = [];
     offers: OfferCall[] = [];
 
-    private clients = new Map<string, Set<WebRtcClient<unknown>>>();
+    private clients = new Map<string, Set<FakeWebRtcClient<unknown>>>();
 
     get ip() {
         return "127.0.0.1";
@@ -294,18 +577,20 @@ class FakeSignalingDelegate implements SignalingDelegate {
 
     async join<T>(roomId: string, userId: string, websocket: T, type: "guild-voice" | "dm-voice" | "stream") {
         this.joinCalls.push({ roomId, userId, type });
-        const client = new FakeWebRtcClient(roomId, userId, websocket);
-        this.clientsFor(roomId).add(client as WebRtcClient<unknown>);
+        if (this.failJoins) throw new Error("fake media server failed to join client");
+        const client = new FakeWebRtcClient(roomId, userId, websocket, (peerUserId) => this.getPublishedSsrcsForUser(roomId, peerUserId));
+        this.clientsFor(roomId).add(client as FakeWebRtcClient<unknown>);
         return client;
     }
 
     async onOffer<T>(_client: WebRtcClient<T>, offer: string, codecs: Codec[]) {
         this.offers.push({ offer, codecs });
+        if (this.failOffers) throw new Error("fake media server failed to answer offer");
         return { sdp: this.answerSdp, selectedVideoCodec: this.selectedVideoCodec };
     }
 
     onClientClose<T>(client: WebRtcClient<T>) {
-        this.clientsFor(client.voiceRoomId).delete(client as WebRtcClient<unknown>);
+        this.clientsFor(client.voiceRoomId).delete(client as FakeWebRtcClient<unknown>);
     }
 
     updateSDP() {}
@@ -317,10 +602,18 @@ class FakeSignalingDelegate implements SignalingDelegate {
     private clientsFor(rtcServerId: string) {
         let clients = this.clients.get(rtcServerId);
         if (!clients) {
-            clients = new Set<WebRtcClient<unknown>>();
+            clients = new Set<FakeWebRtcClient<unknown>>();
             this.clients.set(rtcServerId, clients);
         }
         return clients;
+    }
+
+    private getPublishedSsrcsForUser(roomId: string, userId: string) {
+        for (const client of this.clientsFor(roomId)) {
+            if (client.user_id === userId) return client.getPublishedStreamSSRCs();
+        }
+
+        return {};
     }
 }
 
