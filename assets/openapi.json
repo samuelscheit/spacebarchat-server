@@ -313,20 +313,8 @@
                     "message"
                 ]
             },
-            "RouteResponse": {
-                "type": "object",
-                "properties": {
-                    "status": {
-                        "type": "integer"
-                    },
-                    "body": {
-                        "type": "string",
-                        "pattern": "^.*Response$"
-                    },
-                    "headers": {
-                        "$ref": "#/components/schemas/Record%3Cstring%2Cstring%3E"
-                    }
-                }
+            "InstanceUserDeleteSchema": {
+                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
             "UserSettingsUpdateSchema": {
                 "type": "object",
@@ -624,9 +612,6 @@
                     "timezone_offset",
                     "view_nsfw_guilds"
                 ]
-            },
-            "InstanceUserDeleteSchema": {
-                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
             "ActivitySchema": {
                 "type": "object",
@@ -5177,24 +5162,6 @@
                             "$ref": "#/components/schemas/Role"
                         }
                     },
-                    "primary_category_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "description": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
                     "icon": {
                         "type": "string"
                     },
@@ -5287,8 +5254,26 @@
                             "$ref": "#/components/schemas/Ban"
                         }
                     },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
                     "discovery_splash": {
                         "type": "string"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "primary_category_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "large": {
                         "type": "boolean"
@@ -8543,9 +8528,6 @@
                     "flags": {
                         "type": "integer"
                     },
-                    "topic": {
-                        "type": "string"
-                    },
                     "icon": {
                         "format": "image-data-uri",
                         "type": [
@@ -8603,6 +8585,9 @@
                     },
                     "rate_limit_per_user": {
                         "type": "integer"
+                    },
+                    "topic": {
+                        "type": "string"
                     },
                     "default_thread_rate_limit_per_user": {
                         "type": "integer"
@@ -9012,6 +8997,17 @@
                     }
                 }
             },
+            "InstanceUserDeleteSchemaContent": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string"
+                    },
+                    "persistInstanceBan": {
+                        "type": "boolean"
+                    }
+                }
+            },
             "CustomStatus": {
                 "type": "object",
                 "properties": {
@@ -9071,17 +9067,6 @@
                 "required": [
                     "guild_ids"
                 ]
-            },
-            "InstanceUserDeleteSchemaContent": {
-                "type": "object",
-                "properties": {
-                    "reason": {
-                        "type": "string"
-                    },
-                    "persistInstanceBan": {
-                        "type": "boolean"
-                    }
-                }
             },
             "Status": {
                 "enum": [
@@ -20474,21 +20459,6 @@
             }
         },
         "/stage-instances/": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "responses": {
-                    "default": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "stage-instances"
-                ]
-            },
             "post": {
                 "security": [
                     {

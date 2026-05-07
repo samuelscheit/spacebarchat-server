@@ -35,6 +35,7 @@ export * from "./RegisterConfiguration";
 export * from "./SecurityConfiguration";
 export * from "./subconfigurations";
 export * from "./TemplateConfiguration";
+export * from "./UpdateCheckConfiguration";
 export * from "./UsersConfiguration";
 export * from "./ComponentConfiguration";
 export * from "./EmbedConfiguration";

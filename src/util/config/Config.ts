@@ -37,6 +37,7 @@ import {
     RegisterConfiguration,
     SecurityConfiguration,
     TemplateConfiguration,
+    UpdateCheckConfiguration,
     UserConfiguration,
 } from "./types";
 
@@ -55,6 +56,7 @@ export class ConfigValue {
     gif: GifConfiguration = new GifConfiguration();
     rabbitmq: RabbitMQConfiguration = new RabbitMQConfiguration();
     templates: TemplateConfiguration = new TemplateConfiguration();
+    updates: UpdateCheckConfiguration = new UpdateCheckConfiguration();
     defaults: DefaultsConfiguration = new DefaultsConfiguration();
     external: ExternalTokensConfiguration = new ExternalTokensConfiguration();
     email: EmailConfiguration = new EmailConfiguration();

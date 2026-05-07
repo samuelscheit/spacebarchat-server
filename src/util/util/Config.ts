@@ -27,8 +27,6 @@ import { applyEnvConfigOverrides } from "./EnvConfig";
 import { readJsonConfigFile } from "./JsonConfigFile";
 
 // TODO: yaml instead of json
-const overridePath = process.env.CONFIG_PATH ?? "";
-
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
@@ -106,7 +104,7 @@ export class Config {
     }
     public static set(val: Partial<ConfigValue>) {
         if (!config || !val) return;
-        config = OrmUtils.mergeDeep(config);
+        config = OrmUtils.mergeDeep(config, val);
 
         return applyConfig(config);
     }
@@ -130,8 +128,9 @@ const generatePairs = (obj: object | null, key = ""): ConfigEntity[] => {
 };
 
 async function applyConfig(val: ConfigValue) {
-    if (process.env.CONFIG_PATH)
-        if (!process.env.CONFIG_READONLY) await fs.writeFile(overridePath, JSON.stringify(val, null, 4));
+    const configPath = process.env.CONFIG_PATH;
+    if (configPath)
+        if (!process.env.CONFIG_READONLY) await fs.writeFile(configPath, JSON.stringify(val, null, 4));
         else console.log("[WARNING] JSON config file in use, and writing is disabled! Programmatic config changes will not be persisted, and your config will not get updated!");
     else {
         const pairs = generatePairs(val);

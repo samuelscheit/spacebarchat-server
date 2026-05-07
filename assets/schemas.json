@@ -296,21 +296,8 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "RouteResponse": {
-        "type": "object",
-        "properties": {
-            "status": {
-                "type": "integer"
-            },
-            "body": {
-                "type": "string",
-                "pattern": "^.*Response$"
-            },
-            "headers": {
-                "$ref": "#/definitions/Record%3Cstring%2Cstring%3E"
-            }
-        },
-        "additionalProperties": false,
+    "InstanceUserDeleteSchema": {
+        "$ref": "#/definitions/InstanceUserDeleteSchemaContent",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "UserSettingsUpdateSchema": {
@@ -612,10 +599,6 @@
             "timezone_offset",
             "view_nsfw_guilds"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InstanceUserDeleteSchema": {
-        "$ref": "#/definitions/InstanceUserDeleteSchemaContent",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ActivitySchema": {
@@ -5415,24 +5398,6 @@
                     "$ref": "#/definitions/Role"
                 }
             },
-            "primary_category_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "features": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "description": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
             "icon": {
                 "type": "string"
             },
@@ -5525,8 +5490,26 @@
                     "$ref": "#/definitions/Ban"
                 }
             },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "discovery_splash": {
                 "type": "string"
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "primary_category_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "large": {
                 "type": "boolean"
@@ -8957,9 +8940,6 @@
             "flags": {
                 "type": "integer"
             },
-            "topic": {
-                "type": "string"
-            },
             "icon": {
                 "format": "image-data-uri",
                 "type": [
@@ -9017,6 +8997,9 @@
             },
             "rate_limit_per_user": {
                 "type": "integer"
+            },
+            "topic": {
+                "type": "string"
             },
             "default_thread_rate_limit_per_user": {
                 "type": "integer"
@@ -9452,6 +9435,19 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "InstanceUserDeleteSchemaContent": {
+        "type": "object",
+        "properties": {
+            "reason": {
+                "type": "string"
+            },
+            "persistInstanceBan": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CustomStatus": {
         "type": "object",
         "properties": {
@@ -9516,19 +9512,6 @@
         "required": [
             "guild_ids"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InstanceUserDeleteSchemaContent": {
-        "type": "object",
-        "properties": {
-            "reason": {
-                "type": "string"
-            },
-            "persistInstanceBan": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Status": {
