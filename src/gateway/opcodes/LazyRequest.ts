@@ -16,13 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, getPermission, Member, Session, User, Presence, Channel, Permissions, getMostRelevantSession } from "@spacebar/util";
+import { getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
 import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
+import { assertGatewayChannelAccess } from "../util/Authorization";
+import { unsubscribeGuildMemberEventIds } from "../listener/subscriptions";
 
-// TODO: only show roles/members that have access to this channel
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
 // TODO: rewrite typeorm
 
@@ -50,6 +51,39 @@ async function getMembers(guild_id: string) {
     return members ?? [];
 }
 
+function memberCanViewChannel(member: Member, channel: Channel, guildOwnerId?: string) {
+    return Permissions.finalPermission({
+        user: {
+            id: member.id,
+            roles: member.roles?.map((role) => role.id) ?? [],
+            communication_disabled_until: member.communication_disabled_until ?? null,
+            flags: member.user?.flags ?? 0,
+        },
+        guild: {
+            id: member.guild_id,
+            owner_id: guildOwnerId ?? "",
+            roles: member.roles ?? [],
+        },
+        channel: {
+            overwrites: channel.permission_overwrites,
+        },
+    }).has("VIEW_CHANNEL");
+}
+
+async function canUserViewChannel(guildId: string, channelId: string, userId: string) {
+    try {
+        await assertGatewayChannelAccess({
+            userId,
+            guildId,
+            channelId,
+            permission: "VIEW_CHANNEL",
+        });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 function getRequestedRanges(ranges: unknown[]): [number, number][] {
     return ranges.map((range) => {
         if (!Array.isArray(range) || range.length !== 2) {
@@ -60,19 +94,50 @@ function getRequestedRanges(ranges: unknown[]): [number, number][] {
     });
 }
 
+function getLazyMemberIds(memberList: ReturnType<typeof buildLazyMemberListOperations>) {
+    return new Set(memberList.ops.flatMap((op) => op.members.map((member) => member?.user.id).filter((userId): userId is string => Boolean(userId))));
+}
+
+async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
+    const trackedUserIds = socket.guild_member_event_ids[guildId];
+    if (!trackedUserIds?.size) return;
+
+    const staleUserIds = [...trackedUserIds].filter((userId) => !subscribedUserIds.has(userId));
+    if (!staleUserIds.length) return;
+
+    await unsubscribeGuildMemberEventIds(socket.member_events, socket.guild_member_event_ids, socket.member_event_guild_ids, guildId, staleUserIds);
+}
+
 export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
     // TODO: check data
     check.call(this, LazyRequestSchema, d);
     // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
     const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
+    const channel_id = Object.keys(channels || {})[0];
+    const shouldAuthorizeChannel = Boolean(channel_id);
+    const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);
+    const authorized = shouldAuthorizeChannel
+        ? await assertGatewayChannelAccess({
+              userId: this.user_id,
+              guildId: guild_id,
+              channelId: channel_id,
+              permission: "VIEW_CHANNEL",
+          })
+        : undefined;
 
+    if (requiresAuthorizedChannel && !authorized) return;
+
+    const subscribedUserIds = new Set<string>();
     if (members) {
         // Client has requested a PRESENCE_UPDATE for specific member
 
         await Promise.all(
             members.map(async (x) => {
                 if (!x) return;
+                if (!(await canUserViewChannel(guild_id, authorized!.channel.id, x))) return;
+
+                subscribedUserIds.add(x);
                 const didSubscribe = await subscribeGuildMemberEvent.call(this, guild_id, x);
                 if (!didSubscribe) return;
 
@@ -105,24 +170,21 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 
     if (!channels) return;
 
-    const channel_id = Object.keys(channels || {})[0];
     if (!channel_id) return;
-
-    const permissions = await getPermission(this.user_id, guild_id, channel_id);
-    permissions.hasThrow("VIEW_CHANNEL");
 
     const ranges = channels[channel_id];
     if (!Array.isArray(ranges)) throw new Error("Not a valid Array");
 
     const requestedRanges = getRequestedRanges(ranges);
-    const [member_count, guildMembers] = await Promise.all([Member.count({ where: { guild_id } }), getMembers(guild_id)]);
-    const memberList = buildLazyMemberListOperations(guildMembers, guild_id, requestedRanges);
+    const guildMembers = await getMembers(guild_id);
+    const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.guildOwnerId));
+    const member_count = visibleGuildMembers.length;
+    const memberList = buildLazyMemberListOperations(visibleGuildMembers, guild_id, requestedRanges);
+    for (const userId of getLazyMemberIds(memberList)) subscribedUserIds.add(userId);
 
     let list_id = "everyone";
 
-    const channel = await Channel.findOneOrFail({
-        where: { id: channel_id },
-    });
+    const channel = authorized!.channel;
     if (channel.permission_overwrites) {
         const perms: string[] = [];
 
@@ -138,9 +200,8 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         }
     }
 
-    // TODO: unsubscribe member_events that are not in op.members
-
-    await Promise.all(memberList.ops.flatMap((op) => op.members.map((member) => (member?.user.id ? subscribeGuildMemberEvent.call(this, guild_id, member.user.id) : undefined))));
+    await Promise.all([...subscribedUserIds].map((userId) => subscribeGuildMemberEvent.call(this, guild_id, userId)));
+    await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
 
     await Send(this, {
         op: OPCODES.Dispatch,
