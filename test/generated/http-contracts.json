@@ -9,7 +9,8 @@
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 275,
-        "runtimePublicAuthBoundaryContracts": 35
+        "runtimePublicAuthBoundaryContracts": 35,
+        "runtimePublicInvalidBodyContracts": 11
     },
     "contracts": [
         {
