@@ -119,15 +119,27 @@ test(
             assert.equal(oauthApplicationBody.id, applicationId);
             assert.equal((oauthApplicationBody.owner as Record<string, unknown>).id, owner.id);
 
+            const unlinkedAuthorizeInfo = await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${applicationId}`, ownerToken);
+            await assertStatus(unlinkedAuthorizeInfo, 200);
+            const unlinkedAuthorizeInfoBody = await assertJsonObject(unlinkedAuthorizeInfo);
+            assert.equal((unlinkedAuthorizeInfoBody.application as Record<string, unknown>).id, applicationId);
+            assert.equal((unlinkedAuthorizeInfoBody.application as Record<string, unknown>).guild_id, null);
+            assert.equal((unlinkedAuthorizeInfoBody.bot as Record<string, unknown>).id, applicationId);
+            assert.deepEqual(
+                (unlinkedAuthorizeInfoBody.guilds as Array<Record<string, unknown>>).map((guild) => guild.id),
+                [guildId],
+            );
+
+            const linkedApplication = await patchJson(`${api.apiBaseUrl}/applications/${applicationId}`, { guild_id: guildId }, ownerToken);
+            await assertStatus(linkedApplication, 200);
+            assert.equal((await assertJsonObject(linkedApplication)).guild_id, guildId);
+
             const authorizeInfo = await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${applicationId}`, ownerToken);
             await assertStatus(authorizeInfo, 200);
             const authorizeInfoBody = await assertJsonObject(authorizeInfo);
             assert.equal((authorizeInfoBody.application as Record<string, unknown>).id, applicationId);
+            assert.equal((authorizeInfoBody.application as Record<string, unknown>).guild_id, guildId);
             assert.equal((authorizeInfoBody.bot as Record<string, unknown>).id, applicationId);
-            assert.deepEqual(
-                (authorizeInfoBody.guilds as Array<Record<string, unknown>>).map((guild) => guild.id),
-                [guildId],
-            );
 
             const oauthAuthorize = await postJson(
                 `${api.apiBaseUrl}/oauth2/authorize?client_id=${applicationId}`,
