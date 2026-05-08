@@ -493,7 +493,7 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(Object.keys(activeSocket.member_events).sort(), ["shared-user", "visible-user"]);
     });
 
-    test("accepts typing and activities subscription flags without extra lazy side effects", async () => {
+    test("accepts no-op typing and activities compatibility flags without extra lazy side effects", async () => {
         await onLazyRequest.call(socket(), {
             d: {
                 activities: true,
