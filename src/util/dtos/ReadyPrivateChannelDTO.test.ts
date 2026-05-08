@@ -74,6 +74,24 @@ describe("serializeReadyPrivateChannel", () => {
         assert.equal(serialized.channel.last_message_id, null);
     });
 
+    test("keeps note-to-self one-to-one DMs visible after excluding the current recipient row", () => {
+        const currentUser = publicUser("current-user");
+
+        const serialized = serializeReadyPrivateChannel(
+            {
+                id: "note-to-self-dm",
+                flags: 0,
+                recipients: [recipient("current-user")],
+                type: DM_CHANNEL_TYPE,
+            },
+            "current-user",
+            currentUser,
+        );
+
+        assert.deepEqual(serialized.channel.recipients, [currentUser]);
+        assert.deepEqual(serialized.users, [currentUser]);
+    });
+
     test("does not inject the current user into empty group DMs", () => {
         const serialized = serializeReadyPrivateChannel(
             {
