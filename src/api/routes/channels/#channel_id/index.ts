@@ -29,7 +29,6 @@ import {
     Recipient,
     emitEvent,
     getChannelOrderInsertPoint,
-    getInvalidThreadChannelOrderFields,
     handleFile,
     makeObjectErrorContent,
     normalizeChannelName,
@@ -37,6 +36,7 @@ import {
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
+import { addThreadChannelModifyFieldErrors } from "../../../util/ChannelModifyThreadValidation";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
@@ -186,10 +186,6 @@ router.patch(
             if (channel.owner_id !== req.user.id) {
                 req.permission!.hasThrow("MANAGE_THREADS");
             }
-            if (payload.permission_overwrites) {
-                //TODO better error maybe?
-                throw new Error("You can't change permission overwrites for threads");
-            }
         } else {
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
@@ -264,12 +260,10 @@ router.patch(
             const typeError = getChannelModifyTypeConversionError(channel.type, payload.type, guildFeatures);
             if (typeError) errors["type"] = typeError;
         }
-        for (const field of getInvalidThreadChannelOrderFields(payload, isThread)) {
-            errors[field] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", `Threads cannot update ${field}`);
-        }
+        addThreadChannelModifyFieldErrors(errors, payload, isThread);
 
         if (Object.keys(errors).length) {
-            throw new FieldError(400, "Invalid form body", errors);
+            throw new FieldError(50035, "Invalid Form Body", errors);
         }
 
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
