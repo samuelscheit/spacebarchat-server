@@ -90,6 +90,7 @@ test("toRecommendedGuild serializes a Guild entity into the recommendation respo
     assert.equal(recommendedGuild.splash, null);
     assert.equal(recommendedGuild.description, null);
     assert.equal(Object.hasOwn(recommendedGuild, "unavailable"), false);
+    assert.equal(recommendedGuild.max_stage_video_channel_users, 50);
     assert.equal(
         ajv.validate("GuildRecommendationsResponse", {
             recommended_guilds: [recommendedGuild],
