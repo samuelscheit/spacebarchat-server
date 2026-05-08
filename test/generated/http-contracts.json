@@ -10477,7 +10477,7 @@
             "path": "/guilds/:guild_id/members/",
             "samplePath": "/guilds/100000000000000001/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/index.ts",
-            "line": 31,
+            "line": 30,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
