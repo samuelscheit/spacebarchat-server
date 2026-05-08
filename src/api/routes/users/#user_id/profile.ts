@@ -30,7 +30,7 @@ import {
     UserProfileModifySchema,
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
-import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
+import { earliestPremiumGuildSince, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -70,26 +70,17 @@ router.get(
         });
 
         const mutual_guilds: NonNullable<UserProfileResponse["mutual_guilds"]> = [];
-        let premium_guild_since: UserProfileResponse["premium_guild_since"];
+        const requested_member = await Member.find({
+            where: { id: user_id },
+        });
+        const premium_guild_since = earliestPremiumGuildSince(requested_member);
 
         if (with_mutual_guilds == "true") {
-            const requested_member = await Member.find({
-                where: { id: user_id },
-            });
             const self_member = await Member.find({
                 where: { id: req.user_id },
             });
 
             for (const rmem of requested_member) {
-                if (rmem.premium_since) {
-                    if (premium_guild_since) {
-                        if (premium_guild_since > rmem.premium_since) {
-                            premium_guild_since = rmem.premium_since;
-                        }
-                    } else {
-                        premium_guild_since = rmem.premium_since;
-                    }
-                }
                 for (const smem of self_member) {
                     if (smem.guild_id === rmem.guild_id) {
                         mutual_guilds.push({
@@ -145,7 +136,7 @@ router.get(
 
         const response = {
             connected_accounts: publicUserConnections,
-            premium_guild_since: premium_guild_since, // TODO
+            premium_guild_since,
             premium_since: user.premium_since, // TODO
             mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
             mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,

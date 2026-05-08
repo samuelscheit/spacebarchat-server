@@ -36,6 +36,23 @@ export interface ProfileBadgeSource {
     link?: string | null;
 }
 
+export interface PremiumGuildMembershipSource {
+    premium_since?: number | null;
+}
+
+export function earliestPremiumGuildSince(members: PremiumGuildMembershipSource[]): UserProfileResponse["premium_guild_since"] {
+    let earliest: number | null = null;
+
+    for (const member of members) {
+        if (member.premium_since == null) continue;
+        if (earliest == null || member.premium_since < earliest) {
+            earliest = member.premium_since;
+        }
+    }
+
+    return earliest;
+}
+
 export function toPartialConnectedAccountResponse(source: VisibleConnectedAccountSource): PartialConnectedAccountResponse {
     const response: PartialConnectedAccountResponse = {
         id: source.id,

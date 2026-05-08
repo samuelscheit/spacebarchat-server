@@ -5932,7 +5932,10 @@
                 }
             },
             "premium_guild_since": {
-                "type": "integer"
+                "type": [
+                    "null",
+                    "integer"
+                ]
             },
             "premium_since": {
                 "anyOf": [

@@ -18,7 +18,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "./userProfileResponse";
+import { earliestPremiumGuildSince, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "./userProfileResponse";
 
 test("toPartialConnectedAccountResponse only exposes visible non-null metadata", () => {
     assert.deepEqual(
@@ -103,4 +103,13 @@ test("toProfileBadgeResponse omits nullable database links", () => {
             link: "https://example.com/partner",
         },
     );
+});
+
+test("earliestPremiumGuildSince returns null when no membership is boosting", () => {
+    assert.equal(earliestPremiumGuildSince([]), null);
+    assert.equal(earliestPremiumGuildSince([{}, { premium_since: null }]), null);
+});
+
+test("earliestPremiumGuildSince returns the earliest boost timestamp", () => {
+    assert.equal(earliestPremiumGuildSince([{ premium_since: 3000 }, { premium_since: null }, { premium_since: 1000 }, { premium_since: 2000 }]), 1000);
 });
