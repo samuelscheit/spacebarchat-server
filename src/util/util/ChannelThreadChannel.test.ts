@@ -15,6 +15,11 @@ type FindOneOptionsWithId = {
     };
 };
 
+type StubThreadPersistenceOptions = {
+    parentGuildId?: string | null;
+    savedGuildId?: string | null;
+};
+
 const localRequire = createRequire(__filename);
 const GUILD_PUBLIC_THREAD = 11;
 const GUILD_PRIVATE_THREAD = 12;
@@ -134,7 +139,8 @@ afterEach(() => {
     emittedEvents.length = 0;
 });
 
-function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
+function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[], options: StubThreadPersistenceOptions = {}) {
+    const parentGuildId = Object.hasOwn(options, "parentGuildId") ? options.parentGuildId : "guild";
     Object.assign(Channel, {
         findOne: async (options: FindOneOptionsWithId) => {
             findOneCalls.push(options);
@@ -143,7 +149,7 @@ function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
         findOneOrFail: async () =>
             ({
                 id: "parent",
-                guild_id: "guild",
+                guild_id: parentGuildId ?? undefined,
                 nsfw: false,
                 permission_overwrites: [],
             }) satisfies Partial<ChannelEntity>,
@@ -151,12 +157,13 @@ function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
     Object.assign(Guild, {
         findOneOrFail: async () =>
             ({
-                id: "guild",
+                id: parentGuildId ?? "guild",
                 features: [],
             }) satisfies Partial<GuildEntity>,
     });
     Object.assign(Channel.prototype, {
         save: async function (this: ChannelEntity) {
+            if ("savedGuildId" in options) this.guild_id = options.savedGuildId ?? undefined;
             return this;
         },
     });
@@ -199,7 +206,7 @@ describe("Channel.createThreadChannel", () => {
 
     test("emits thread member updates with the persisted thread guild id", async () => {
         const findOneCalls: FindOneOptionsWithId[] = [];
-        stubThreadPersistence(findOneCalls);
+        stubThreadPersistence(findOneCalls, { savedGuildId: "persisted-guild" });
         Object.assign(Snowflake, {
             generate: () => "generated-thread-id",
         });
@@ -216,19 +223,134 @@ describe("Channel.createThreadChannel", () => {
             { skipNameChecks: true, skipPermissionCheck: true },
         );
 
-        const threadCreateEvent = emittedEvents.find(
-            (event): event is { event: "THREAD_CREATE"; guild_id: string } => typeof event === "object" && event !== null && "event" in event && event.event === "THREAD_CREATE",
+        assert.deepEqual(
+            emittedEvents.map((event) => (typeof event === "object" && event !== null && "event" in event ? event.event : undefined)),
+            ["THREAD_CREATE", "THREAD_MEMBERS_UPDATE"],
         );
-        const threadMembersUpdateEvent = emittedEvents.find(
-            (event): event is { event: "THREAD_MEMBERS_UPDATE"; guild_id: string; data: { guild_id: string; member_count: number } } =>
-                typeof event === "object" && event !== null && "event" in event && event.event === "THREAD_MEMBERS_UPDATE",
+        const [threadCreateEvent, threadMembersUpdateEvent] = emittedEvents as [
+            { event: "THREAD_CREATE"; guild_id: string; data: { guild_id: string } },
+            { event: "THREAD_MEMBERS_UPDATE"; guild_id: string; data: { guild_id: string; member_count: number } },
+        ];
+
+        assert.equal(thread.guild_id, "persisted-guild");
+        assert.equal(threadCreateEvent?.guild_id, "persisted-guild");
+        assert.equal(threadCreateEvent?.data.guild_id, "persisted-guild");
+        assert.equal(threadMembersUpdateEvent?.guild_id, "persisted-guild");
+        assert.equal(threadMembersUpdateEvent?.data.guild_id, "persisted-guild");
+        assert.equal(threadMembersUpdateEvent?.data.member_count, 1);
+    });
+
+    test("rejects a caller guild id that differs from the parent guild id before saving", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls, { parentGuildId: "parent-guild" });
+        let saveCalled = false;
+        let createForUserCalled = false;
+        Object.assign(Channel.prototype, {
+            save: async function (this: ChannelEntity) {
+                saveCalled = true;
+                return this;
+            },
+        });
+        Object.assign(ThreadMember, {
+            createForUser: async () => {
+                createForUserCalled = true;
+                throw new Error("ThreadMember.createForUser should not be called");
+            },
+        });
+
+        await assert.rejects(
+            () =>
+                Channel.createThreadChannel(
+                    {
+                        parent_id: "parent",
+                        guild_id: "input-guild",
+                        name: "event-thread",
+                        type: GUILD_PRIVATE_THREAD,
+                    },
+                    {},
+                    "user",
+                    { skipNameChecks: true, skipPermissionCheck: true },
+                ),
+            /same guild as the parent/,
         );
 
-        assert.equal(thread.guild_id, "guild");
-        assert.equal(threadCreateEvent?.guild_id, "guild");
-        assert.equal(threadMembersUpdateEvent?.guild_id, "guild");
-        assert.equal(threadMembersUpdateEvent?.data.guild_id, "guild");
-        assert.equal(threadMembersUpdateEvent?.data.member_count, 1);
+        assert.equal(saveCalled, false);
+        assert.equal(createForUserCalled, false);
+        assert.deepEqual(findOneCalls, []);
+        assert.deepEqual(emittedEvents, []);
+    });
+
+    test("rejects a parent without a guild id before saving", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls, { parentGuildId: null });
+        let saveCalled = false;
+        let createForUserCalled = false;
+        Object.assign(Channel.prototype, {
+            save: async function (this: ChannelEntity) {
+                saveCalled = true;
+                return this;
+            },
+        });
+        Object.assign(ThreadMember, {
+            createForUser: async () => {
+                createForUserCalled = true;
+                throw new Error("ThreadMember.createForUser should not be called");
+            },
+        });
+
+        await assert.rejects(
+            () =>
+                Channel.createThreadChannel(
+                    {
+                        parent_id: "parent",
+                        name: "event-thread",
+                        type: GUILD_PRIVATE_THREAD,
+                    },
+                    {},
+                    "user",
+                    { skipNameChecks: true, skipPermissionCheck: true },
+                ),
+            /Parent channel guild id not set/,
+        );
+
+        assert.equal(saveCalled, false);
+        assert.equal(createForUserCalled, false);
+        assert.deepEqual(findOneCalls, []);
+        assert.deepEqual(emittedEvents, []);
+    });
+
+    test("rejects before creating a thread member when the saved thread has no guild id", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls, { savedGuildId: null });
+        Object.assign(Snowflake, {
+            generate: () => "generated-thread-id",
+        });
+        let createForUserCalled = false;
+        Object.assign(ThreadMember, {
+            createForUser: async () => {
+                createForUserCalled = true;
+                throw new Error("ThreadMember.createForUser should not be called");
+            },
+        });
+
+        await assert.rejects(
+            () =>
+                Channel.createThreadChannel(
+                    {
+                        parent_id: "parent",
+                        guild_id: "guild",
+                        name: "event-thread",
+                        type: GUILD_PRIVATE_THREAD,
+                    },
+                    {},
+                    "user",
+                    { skipNameChecks: true, skipPermissionCheck: true },
+                ),
+            /Thread guild id not set/,
+        );
+
+        assert.equal(createForUserCalled, false);
+        assert.deepEqual(emittedEvents, []);
     });
 
     test("preserves an explicit id when keepId is set for message threads", async () => {
