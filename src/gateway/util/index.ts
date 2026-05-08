@@ -34,3 +34,4 @@ export * from "./Authorization";
 export * from "./GuildMemberOrdering";
 export * from "./ReadyConsents";
 export * from "./Shard";
+export * from "./RequestGuildMembers";
