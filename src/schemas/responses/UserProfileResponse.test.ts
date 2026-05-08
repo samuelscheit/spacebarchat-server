@@ -27,6 +27,8 @@ test("UserProfileResponse schema matches route-owned profile fields", () => {
     assert.equal(properties?.connected_accounts?.items?.$ref, "#/definitions/PartialConnectedAccountResponse");
     assert.notEqual(properties?.connected_accounts?.$ref, "#/definitions/PublicConnectedAccount");
     assert.equal(response.required?.includes("mutual_guilds"), false);
+    assert.deepEqual(properties?.mutual_guilds?.items?.required?.sort(), ["id", "nick"]);
+    assert.deepEqual(properties?.mutual_guilds?.items?.properties?.nick?.type, ["null", "string"]);
     assert.equal(properties?.mutual_friends?.type, "array");
     assert.equal(properties?.mutual_friends_count?.type, "integer");
 
@@ -82,10 +84,16 @@ test("UserProfileResponse validates visible connected accounts and optional quer
             },
         ],
         guild_badges: [],
+        mutual_guilds: [
+            { id: "guild-1", nick: null },
+            { id: "guild-2", nick: "Alice" },
+        ],
     };
 
     assert.equal(ajv.validate("UserProfileResponse", response), true);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: response.connected_accounts[0] }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: [{ ...response.connected_accounts[0], metadata: null }] }), false);
+    assert.equal(ajv.validate("UserProfileResponse", { ...response, mutual_guilds: [{ id: "guild-1" }] }), false);
+    assert.equal(ajv.validate("UserProfileResponse", { ...response, mutual_guilds: [{ id: "guild-1", nick: undefined }] }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, guild_member: { user: response.user } }), false);
 });

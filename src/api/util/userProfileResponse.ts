@@ -19,6 +19,7 @@
 import type { PartialConnectedAccountResponse, UserProfileResponse } from "@spacebar/schemas";
 
 type ProfileBadgeResponse = UserProfileResponse["badges"][number];
+type MutualGuildResponse = NonNullable<UserProfileResponse["mutual_guilds"]>[number];
 
 export interface VisibleConnectedAccountSource {
     id: string;
@@ -34,6 +35,11 @@ export interface ProfileBadgeSource {
     description: string;
     icon: string;
     link?: string | null;
+}
+
+export interface MutualGuildSource {
+    guild_id: string;
+    nick?: string | null;
 }
 
 export function toPartialConnectedAccountResponse(source: VisibleConnectedAccountSource): PartialConnectedAccountResponse {
@@ -63,4 +69,11 @@ export function toProfileBadgeResponse(source: ProfileBadgeSource): ProfileBadge
     }
 
     return response;
+}
+
+export function toMutualGuildResponse(source: MutualGuildSource): MutualGuildResponse {
+    return {
+        id: source.guild_id,
+        nick: source.nick ?? null,
+    };
 }

@@ -5962,7 +5962,8 @@
                     },
                     "additionalProperties": false,
                     "required": [
-                        "id"
+                        "id",
+                        "nick"
                     ]
                 }
             },
