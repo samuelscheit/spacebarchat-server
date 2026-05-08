@@ -1,4 +1,4 @@
-import { Config, ConfigValue, Event, emitEvent } from "@spacebar/util";
+import { Config, ConfigValue, Event, SPACEBAR_EVENT_ROUTE, emitEvent } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { AdminConfiguration, toAdminConfiguration } from "./dto";
 
@@ -39,7 +39,7 @@ export function parseAdminConfigurationUpdate(body: unknown): Partial<ConfigValu
 export function createConfigReloadEvent(origin: string): Omit<Event, "created_at"> {
     return {
         event: "SB_RELOAD_CONFIG",
-        guild_id: "0",
+        spacebar_event_id: SPACEBAR_EVENT_ROUTE,
         data: {},
         origin,
     };

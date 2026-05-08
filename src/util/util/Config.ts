@@ -30,7 +30,8 @@ import { readJsonConfigFile } from "./JsonConfigFile";
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
-// TODO: use events to inform about config updates
+// Config.set only updates local memory and persistence. Cluster-wide reloads are
+// sent explicitly with the SB_RELOAD_CONFIG event after operator-triggered changes.
 // Config keys are separated with _
 
 export class Config {

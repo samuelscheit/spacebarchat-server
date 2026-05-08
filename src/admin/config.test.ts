@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { Config } from "@spacebar/util";
+import { Config, SPACEBAR_EVENT_ROUTE } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { assertAdminConfigurationWritable, createConfigReloadEvent, parseAdminConfigurationUpdate, updateAdminConfiguration } from "./config";
 
@@ -54,7 +54,7 @@ describe("admin configuration helpers", () => {
     test("builds the reload event expected by cross-process listeners", () => {
         assert.deepEqual(createConfigReloadEvent("test"), {
             event: "SB_RELOAD_CONFIG",
-            guild_id: "0",
+            spacebar_event_id: SPACEBAR_EVENT_ROUTE,
             data: {},
             origin: "test",
         });
@@ -79,7 +79,7 @@ describe("admin configuration helpers", () => {
             assert.deepEqual(events, [
                 {
                     event: "SB_RELOAD_CONFIG",
-                    guild_id: "0",
+                    spacebar_event_id: SPACEBAR_EVENT_ROUTE,
                     data: {},
                     origin: "Admin API (PUT /configuration)",
                 },

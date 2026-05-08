@@ -64,6 +64,11 @@ export interface Event {
     reconnect_delay?: number;
     origin?: string;
     transaction_id?: string;
+    /**
+     * Internal event bus route. This is consumed by server-side listeners only
+     * and is intentionally not part of Discord gateway payload data.
+     */
+    spacebar_event_id?: string;
 }
 
 // ! Custom Events that shouldn't get sent to the client but processed by the server
