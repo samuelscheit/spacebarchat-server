@@ -23,6 +23,10 @@ import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from
 
 const router = Router({ mergeParams: true });
 
+export function memberRequiresSelfLeaveRight(member: Pick<Member, "joined_by"> | null | undefined) {
+    return !member?.joined_by;
+}
+
 router.get(
     "/",
     route({
@@ -220,12 +224,19 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const { guild_id, member_id } = req.params as { [key: string]: string };
+        const { guild_id } = req.params as { [key: string]: string };
+        const member_id = req.params.member_id === "@me" ? req.user_id : (req.params.member_id as string);
         const permission = await getPermission(req.user_id, guild_id);
         const rights = await getRights(req.user_id);
-        if (member_id === "@me" || member_id === req.user_id) {
-            // TODO: unless force-joined
-            rights.hasThrow("SELF_LEAVE_GROUPS");
+        if (member_id === req.user_id) {
+            const member = await Member.findOneOrFail({
+                where: { id: member_id, guild_id },
+                select: { joined_by: true },
+            });
+
+            if (memberRequiresSelfLeaveRight(member)) {
+                rights.hasThrow("SELF_LEAVE_GROUPS");
+            }
         } else {
             rights.hasThrow("KICK_BAN_MEMBERS");
             permission.hasThrow("KICK_MEMBERS");

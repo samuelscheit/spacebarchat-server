@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { Channel } from "@spacebar/util";
+import { Channel, Guild, Member, User } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { deleteAdminChannel } from "./mutations";
+import { deleteAdminChannel, forceJoinAdminGuild } from "./mutations";
 import { AdminChannelType, assertAdminChannelDeletionSupported, createAdminThreadDeleteEvent, parseAdminDiscoveryGuildUpdate, parseAdminForceJoinInput } from "./mutationPolicy";
 import { requireAdminActionSafety, stripAdminActionSafetyFields, unwrapAdminActionPayload } from "./safety";
 
@@ -123,6 +123,55 @@ describe("admin mutation helpers", () => {
         } finally {
             Channel.findOne = originalFindOne;
             Channel.deleteChannel = originalDeleteChannel;
+        }
+    });
+
+    test("records force-join provenance when an admin adds a missing member", async () => {
+        const memberClass = Member as unknown as {
+            findOne: (options: unknown) => Promise<unknown>;
+            findOneOrFail: (options: unknown) => Promise<unknown>;
+            addToGuild: (userId: string, guildId: string, options?: { joined_by?: string }) => Promise<unknown>;
+        };
+        const guildClass = Guild as unknown as { findOne: (options: unknown) => Promise<unknown> };
+        const userClass = User as unknown as { findOne: (options: unknown) => Promise<unknown> };
+        const originalMemberFindOne = memberClass.findOne;
+        const originalMemberFindOneOrFail = memberClass.findOneOrFail;
+        const originalMemberAddToGuild = memberClass.addToGuild;
+        const originalGuildFindOne = guildClass.findOne;
+        const originalUserFindOne = userClass.findOne;
+        const addCalls: { userId: string; guildId: string; options?: { joined_by?: string } }[] = [];
+        let memberLookupCount = 0;
+
+        try {
+            guildClass.findOne = async () => ({ id: "guild-id", owner_id: "owner-id", save: async () => undefined });
+            userClass.findOne = async () => ({ id: "target-user-id" });
+            memberClass.findOne = async () => {
+                memberLookupCount += 1;
+                return null;
+            };
+            memberClass.addToGuild = async (userId, guildId, options) => {
+                addCalls.push({ userId, guildId, options });
+            };
+            memberClass.findOneOrFail = async () => ({ id: "target-user-id", guild_id: "guild-id", roles: [] });
+
+            const result = await forceJoinAdminGuild("guild-id", { userId: "target-user-id" }, "actor-user-id");
+
+            assert.equal(memberLookupCount, 1);
+            assert.deepEqual(addCalls, [{ userId: "target-user-id", guildId: "guild-id", options: { joined_by: "actor-user-id" } }]);
+            assert.deepEqual(result, {
+                guildId: "guild-id",
+                userId: "target-user-id",
+                joined: true,
+                madeOwner: false,
+                madeAdmin: false,
+                adminRoleId: null,
+            });
+        } finally {
+            memberClass.findOne = originalMemberFindOne;
+            memberClass.findOneOrFail = originalMemberFindOneOrFail;
+            memberClass.addToGuild = originalMemberAddToGuild;
+            guildClass.findOne = originalGuildFindOne;
+            userClass.findOne = originalUserFindOne;
         }
     });
 

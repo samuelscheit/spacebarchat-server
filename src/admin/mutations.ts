@@ -123,7 +123,7 @@ export async function forceJoinAdminGuild(guildId: string, body: unknown, actorU
     let joined = false;
     let member = await Member.findOne({ where: { id: userId, guild_id: guildId }, relations: { roles: true } });
     if (!member) {
-        await Member.addToGuild(userId, guildId);
+        await Member.addToGuild(userId, guildId, { joined_by: actorUserId });
         joined = true;
         member = await Member.findOneOrFail({ where: { id: userId, guild_id: guildId }, relations: { roles: true } });
     }

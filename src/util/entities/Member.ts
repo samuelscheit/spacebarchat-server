@@ -35,6 +35,12 @@ export { MemberPrivateProjection } from "./MemberProjection";
 
 export type DeferredMemberEvent = Omit<Event, "created_at">;
 
+export interface AddToGuildOptions {
+    manager?: EntityManager;
+    deferredEvents?: DeferredMemberEvent[];
+    joined_by?: string;
+}
+
 @Entity({
     name: "members",
 })
@@ -287,7 +293,7 @@ export class Member extends BaseClassWithoutId {
         ]);
     }
 
-    static async addToGuild(user_id: string, guild_id: string, options?: { manager?: EntityManager; deferredEvents?: DeferredMemberEvent[] }) {
+    static async addToGuild(user_id: string, guild_id: string, options?: AddToGuildOptions) {
         const channelRepository = options?.manager?.getRepository(Channel) ?? Channel.getRepository();
         const guildRepository = options?.manager?.getRepository(Guild) ?? Guild.getRepository();
         const memberRepository = options?.manager?.getRepository(Member) ?? Member.getRepository();
@@ -360,6 +366,7 @@ export class Member extends BaseClassWithoutId {
             mute: false,
             pending: false,
             bio: "",
+            joined_by: options?.joined_by,
         };
 
         const newMember = memberRepository.create({
