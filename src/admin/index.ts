@@ -13,7 +13,7 @@ import {
     listAdminUsers,
 } from "./queries";
 import { reloadAdminConfiguration, updateAdminConfiguration } from "./config";
-import { getAdminJob, listAdminJobs, recoverAdminJobs, requestAdminJobCancellation } from "./jobs";
+import { drainAdminJobExecutions, getAdminJob, listAdminJobs, recoverAdminJobs, requestAdminJobCancellation } from "./jobs";
 import { deleteAdminChannel, forceJoinAdminGuild, updateAdminDiscoveryGuild } from "./mutations";
 import { parseBooleanQuery, parsePagination, parseQueryString } from "./pagination";
 import { parseUserDeletionJobInput, startUserDeletionJob } from "./userDeletion";
@@ -24,11 +24,48 @@ export interface AdminRouterOptions {
     authentication?: RequestHandler;
 }
 
-let adminJobRecoveryStarted = false;
+let adminJobRecoveryTimer: ReturnType<typeof setInterval> | undefined;
+let adminJobRecoveryInFlight: Promise<void> | undefined;
 
 function adminJobRecoveryIntervalMs() {
     const configured = Number.parseInt(process.env.ADMIN_JOB_RECOVERY_INTERVAL_MS ?? "", 10);
     return Number.isFinite(configured) && configured > 0 ? configured : 60_000;
+}
+
+function runAdminJobRecovery(options: { logErrors?: boolean } = {}) {
+    if (adminJobRecoveryInFlight) return adminJobRecoveryInFlight;
+
+    adminJobRecoveryInFlight = (async () => {
+        try {
+            await recoverAdminJobs();
+        } catch (error) {
+            if (!options.logErrors) throw error;
+            console.error("[AdminJobs] Failed to recover persisted jobs", error);
+        } finally {
+            adminJobRecoveryInFlight = undefined;
+        }
+    })();
+
+    return adminJobRecoveryInFlight;
+}
+
+export async function startAdminJobRecovery() {
+    if (!adminJobRecoveryTimer) {
+        adminJobRecoveryTimer = setInterval(() => void runAdminJobRecovery({ logErrors: true }), adminJobRecoveryIntervalMs());
+        adminJobRecoveryTimer.unref?.();
+    }
+
+    await runAdminJobRecovery();
+}
+
+export async function stopAdminJobRecovery() {
+    if (adminJobRecoveryTimer) {
+        clearInterval(adminJobRecoveryTimer);
+        adminJobRecoveryTimer = undefined;
+    }
+
+    if (adminJobRecoveryInFlight) await adminJobRecoveryInFlight;
+    await drainAdminJobExecutions();
 }
 
 function listOptions(req: Parameters<RequestHandler>[0]) {
@@ -45,12 +82,6 @@ function idempotencyKey(req: Parameters<RequestHandler>[0]) {
 export function createAdminRouter(options: AdminRouterOptions = {}) {
     const router = Router({ mergeParams: true });
     const authentication = options.authentication ?? AdminAuthentication;
-    if (!adminJobRecoveryStarted) {
-        adminJobRecoveryStarted = true;
-        void recoverAdminJobs();
-        const recoveryTimer = setInterval(() => void recoverAdminJobs(), adminJobRecoveryIntervalMs());
-        recoveryTimer.unref?.();
-    }
 
     router.use(authentication);
 
