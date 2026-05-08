@@ -1,0 +1,257 @@
+[
+	{
+		"detail": "Changed fields: request_shape",
+		"feature_id": "bootstrap.idle.session",
+		"reason": "changed_signature",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "http:open-channel:POST /science"
+	},
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /scheduled-maintenances/upcoming.json"
+	},
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "bootstrap.idle.session",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Changed fields: request_shape",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "http:open-channel:POST /science"
+	},
+	{
+		"detail": "Changed fields: request_shape",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "http:send-message:POST /science"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /scheduled-maintenances/upcoming.json"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /promotions"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /store/published-listings/skus"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/collectibles-marketing"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Traffic item added in head run.",
+		"feature_id": "message.send.basic",
+		"reason": "changed_signature",
+		"severity": "medium",
+		"step_id": "send-message",
+		"subject": "POST /users/@me/billing/user-offer"
+	}
+]

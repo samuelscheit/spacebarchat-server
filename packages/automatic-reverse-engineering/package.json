@@ -11,7 +11,12 @@
             "default": "./dist/index.js"
         }
     },
+    "bin": {
+        "discord-datamine": "./dist/cli.js"
+    },
     "scripts": {
-        "build": "tsc -p tsconfig.json"
+        "build": "tsc -p tsconfig.json",
+        "test": "npm run build && node --test dist/**/*.test.js",
+        "typecheck": "tsc -p tsconfig.json --noEmit"
     }
 }

@@ -1,0 +1,2541 @@
+{
+	"checked_at": "2026-05-07T23:05:13.678Z",
+	"ok": true,
+	"redaction": {
+		"ok": true,
+		"violations": []
+	},
+	"redaction_artifact": {
+		"checks": [
+			{
+				"id": "redaction.audit_file",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/redaction-audit.json"
+			},
+			{
+				"id": "redaction.audit_file.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/redaction-audit.json"
+			},
+			{
+				"id": "redaction.audit_file.ok",
+				"message": "redaction-audit.json must be ok with no violations",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/redaction-audit.json"
+			}
+		],
+		"ok": true
+	},
+	"run_dir": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local",
+	"runtime": {
+		"checks": [
+			{
+				"id": "runtime.features_dir",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features"
+			},
+			{
+				"id": "runtime.features.present",
+				"message": "runtime audit requires at least one feature directory or required feature id",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features"
+			},
+			{
+				"id": "runtime.feature.required.bootstrap.idle.session",
+				"message": "required feature bootstrap.idle.session was not captured",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session"
+			},
+			{
+				"id": "runtime.feature.required.message.send.basic",
+				"message": "required feature message.send.basic was not captured",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic"
+			}
+		],
+		"feature_count": 2,
+		"features": [
+			{
+				"checks": [
+					{
+						"id": "runtime.feature.file.preflight.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.file.events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.file.playwright-events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.file.summary.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.file.report.md",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.file.run-artifacts.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.file.network.redacted.har",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.file.trace.zip",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/trace.zip"
+					},
+					{
+						"id": "runtime.feature.raw_har_absent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.raw.har"
+					},
+					{
+						"id": "runtime.feature.network_har_absent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.har"
+					},
+					{
+						"id": "runtime.feature.failure_absent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/failure.json"
+					},
+					{
+						"id": "runtime.feature.screenshots",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/screenshots"
+					},
+					{
+						"id": "runtime.feature.trace_zip",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/trace.zip"
+					},
+					{
+						"id": "runtime.feature.events.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.summary.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.shape",
+						"message": "summary.json must be an object with run_id, feature_id, traffic, event counts, and generated_at",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.steps_shape",
+						"message": "summary.json steps must include valid step IDs, timestamps, and redacted action metadata",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.traffic_shape",
+						"message": "summary.json traffic entries must be valid HTTP or Gateway observations with attribution",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.expected_shape",
+						"message": "summary.json expected metadata must contain valid HTTP/Gateway expectation arrays",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.preflight.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.status",
+						"message": "complete runtime audit requires run-artifacts.json status to be passed",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.preflight_path.safe_path",
+						"message": "preflight_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.preflight_path.exists",
+						"message": "preflight_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.events_path.safe_path",
+						"message": "events_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.events_path.exists",
+						"message": "events_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.playwright_events_path.safe_path",
+						"message": "playwright_events_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.playwright_events_path.exists",
+						"message": "playwright_events_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.summary_path.safe_path",
+						"message": "summary_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.summary_path.exists",
+						"message": "summary_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.markdown_path.safe_path",
+						"message": "markdown_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.markdown_path.exists",
+						"message": "markdown_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.trace_path.safe_path",
+						"message": "trace_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.trace_path.exists",
+						"message": "trace_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/trace.zip"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.screenshots_dir.safe_path",
+						"message": "screenshots_dir must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.screenshots_dir.exists",
+						"message": "screenshots_dir must reference an existing feature-local directory",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/screenshots"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.redacted_har_path.safe_path",
+						"message": "redacted_har_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.redacted_har_path.exists",
+						"message": "redacted_har_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.preflight_path",
+						"message": "passed run-artifacts.json must reference feature-local preflight.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.events_path",
+						"message": "passed run-artifacts.json must reference feature-local events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.playwright_events_path",
+						"message": "passed run-artifacts.json must reference feature-local playwright-events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.summary_path",
+						"message": "passed run-artifacts.json must reference feature-local summary.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.markdown_path",
+						"message": "passed run-artifacts.json must reference feature-local report.md",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.trace_path",
+						"message": "passed run-artifacts.json must reference feature-local trace.zip",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.screenshots_dir",
+						"message": "passed run-artifacts.json must reference feature-local screenshots",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.redacted_har_path",
+						"message": "passed run-artifacts.json must reference feature-local network.redacted.har",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.no_failure_path",
+						"message": "passed run-artifacts.json must not include failure_path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.preflight.shape",
+						"message": "preflight.json must be a redacted runtime preflight report with ok, violations, and storage_state",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.ok",
+						"message": "preflight.json must be ok before runtime artifacts are accepted",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.violations",
+						"message": "accepted preflight.json must have no violations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.redacted",
+						"message": "preflight.json must not contain storage-state values, raw fixture IDs, or secret-looking content",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.shape",
+						"message": "preflight storage_state must contain only redacted path placeholders, counts, session status, and optional error metadata",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.path",
+						"message": "storage_state.path must be the durable placeholder, not a local path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.session",
+						"message": "accepted preflight storage_state must prove an active Discord session without exposing session material",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.counts",
+						"message": "preflight storage_state Discord/session counts must be internally consistent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.expiry_range",
+						"message": "preflight storage_state cookie expiry range must be ordered when present",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.freshness",
+						"message": "accepted preflight storage_state must be freshly generated before runtime capture",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.no_expired_auth_cookie",
+						"message": "accepted preflight storage_state must not include expired Discord auth cookies",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.no_parse_error",
+						"message": "accepted preflight storage_state must not include a parse_error",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.no_forbidden_root",
+						"message": "accepted preflight storage_state must not come from a forbidden artifact root",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.present",
+						"message": "preflight.json must include redacted fixture validation for built-in scenario requirements",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.redacted_manifest",
+						"message": "preflight fixtures.redacted_manifest must be an object without raw fixture IDs or private file paths",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.validation",
+						"message": "preflight fixtures.validation must be ok with no missing required fixtures",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.disposable_validation",
+						"message": "preflight fixtures.disposable_validation must be ok with no missing or non-disposable destructive fixtures",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.required.guild",
+						"message": "redacted fixture manifest must include required fixture guild",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.required.channels_general",
+						"message": "redacted fixture manifest must include required fixture channels.general",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/preflight.json"
+					},
+					{
+						"id": "runtime.feature.events.feature_id",
+						"message": "event stream feature_id values must match the audited feature",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.run_id",
+						"message": "event stream run_id values must match the audited run",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.non_empty",
+						"message": "events.ndjson must include captured events",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.steps",
+						"message": "events.ndjson must include balanced step.start and step.end markers",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.monotonic_timestamps",
+						"message": "events.ndjson timestamps must be monotonically non-decreasing in capture order",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.step_pairs",
+						"message": "every step.end marker must close an active matching step.start marker",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.step_windows",
+						"message": "every step.end marker must have a timestamp greater than or equal to its step.start marker",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.open_steps",
+						"message": "events.ndjson must not leave step.start markers open at the end of the stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.ui_action_step",
+						"message": "ui.action events must be attributable to an active step window",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.http_lifecycle",
+						"message": "HTTP response and failure events must correspond to a prior request event in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.websocket_lifecycle",
+						"message": "WebSocket handshake/frame/close/error events must correspond to a prior open websocket in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.ui_action",
+						"message": "events.ndjson must include redacted ui.action entries for step-by-step UI provenance",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.http",
+						"message": "events.ndjson must include CDP HTTP evidence when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.websocket",
+						"message": "events.ndjson must include CDP WebSocket evidence when feature declares Gateway expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.no_abort",
+						"message": "runtime.abort means the capture must remain quarantined",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.screenshots.png_count",
+						"message": "screenshots must include PNG step-boundary captures; expected at least 2",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/screenshots"
+					},
+					{
+						"id": "runtime.feature.screenshots.step_boundaries",
+						"message": "screenshots must include deterministic start/end captures for every audited step marker",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/screenshots"
+					},
+					{
+						"id": "runtime.feature.screenshot_png.001_open_channel_start_png",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/screenshots/001-open-channel-start.png"
+					},
+					{
+						"id": "runtime.feature.screenshot_png.002_open_channel_end_png",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/screenshots/002-open-channel-end.png"
+					},
+					{
+						"id": "runtime.feature.playwright_events.feature_id",
+						"message": "event stream feature_id values must match the audited feature",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.run_id",
+						"message": "event stream run_id values must match the audited run",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.non_empty",
+						"message": "playwright-events.ndjson must include supporting capture events when feature declares traffic expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.http",
+						"message": "playwright-events.ndjson must include request and response evidence when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.websocket",
+						"message": "playwright-events.ndjson must include WebSocket frame evidence when feature declares Gateway expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.http_lifecycle",
+						"message": "HTTP response and failure events must correspond to a prior request event in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.websocket_lifecycle",
+						"message": "WebSocket handshake/frame/close/error events must correspond to a prior open websocket in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.summary.identity",
+						"message": "summary.json feature_id/run_id does not match the audited feature/run",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.traffic",
+						"message": "summary.json must include correlated traffic",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.steps",
+						"message": "summary.json must preserve ordered feature step metadata",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.actions",
+						"message": "summary.json must preserve redacted UI action labels under feature steps",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.http",
+						"message": "summary.json must include HTTP traffic when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.gateway",
+						"message": "summary.json must include Gateway traffic when feature declares Gateway expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.steps",
+						"message": "summary.json steps must match the ordered step markers in events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.step_windows",
+						"message": "summary.json step windows must match step.start/step.end timestamps and titles from events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.actions",
+						"message": "summary.json actions must match redacted ui.action markers from events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.traffic_steps",
+						"message": "summary.json traffic step IDs must refer to audited summary steps and events.ndjson step markers",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/summary.json"
+					},
+					{
+						"id": "runtime.feature.har.shape",
+						"message": "network.redacted.har must be valid HAR JSON with log.entries",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.har.entries",
+						"message": "network.redacted.har must include entries when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.har.request_response",
+						"message": "network.redacted.har must include request and response objects for HTTP evidence",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.report.readable",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.identity",
+						"message": "report.md must render feature identity and audited scenario id",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.run_id",
+						"message": "report.md must render the summary run id",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.actions",
+						"message": "report.md must render redacted step UI actions",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.step.open_channel",
+						"message": "report.md must render summary step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.open_channel.goto-channel",
+						"message": "report.md must render action goto-channel for step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.open_channel.expect-ready",
+						"message": "report.md must render action expect-ready for step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_10",
+						"message": "report.md must render Gateway traffic opcode 10 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_11",
+						"message": "report.md must render Gateway traffic opcode 11 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_2",
+						"message": "report.md must render Gateway traffic opcode 2 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_3",
+						"message": "report.md must render Gateway traffic opcode 3 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_37",
+						"message": "report.md must render Gateway traffic opcode 37 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_4",
+						"message": "report.md must render Gateway traffic opcode 4 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_40",
+						"message": "report.md must render Gateway traffic opcode 40 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_41",
+						"message": "report.md must render Gateway traffic opcode 41 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_43",
+						"message": "report.md must render Gateway traffic opcode 43 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.CHANNEL_INFO",
+						"message": "report.md must render Gateway traffic CHANNEL_INFO in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.READY",
+						"message": "report.md must render Gateway traffic READY in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.READY_SUPPLEMENTAL",
+						"message": "report.md must render Gateway traffic READY_SUPPLEMENTAL in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.SESSIONS_REPLACE",
+						"message": "report.md must render Gateway traffic SESSIONS_REPLACE in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.THREAD_LIST_SYNC",
+						"message": "report.md must render Gateway traffic THREAD_LIST_SYNC in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_channels_channel_id",
+						"message": "report.md must render HTTP traffic GET /channels/{channel_id} in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_channels_channel_id_messages",
+						"message": "report.md must render HTTP traffic GET /channels/{channel_id}/messages in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_guilds_guild_id_entitlements",
+						"message": "report.md must render HTTP traffic GET /guilds/{guild_id}/entitlements in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_scheduled_maintenances_upcoming_json",
+						"message": "report.md must render HTTP traffic GET /scheduled-maintenances/upcoming.json in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_users_me_affinities_guilds",
+						"message": "report.md must render HTTP traffic GET /users/@me/affinities/guilds in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_users_me_survey",
+						"message": "report.md must render HTTP traffic GET /users/@me/survey in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_users_me_unclaimed_games",
+						"message": "report.md must render HTTP traffic GET /users/@me/unclaimed-games in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_guilds_guild_id_migrate_command_scope",
+						"message": "report.md must render HTTP traffic POST /guilds/{guild_id}/migrate-command-scope in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.PUT_guilds_guild_id_members_me",
+						"message": "report.md must render HTTP traffic PUT /guilds/{guild_id}/members/@me in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
+					}
+				],
+				"event_counts": {
+					"http.request": 13,
+					"http.request.extra_info": 730,
+					"http.response": 1,
+					"http.response.extra_info": 643,
+					"step.end": 1,
+					"step.start": 1,
+					"ui.action": 2,
+					"ws.created": 1,
+					"ws.frame.received": 9,
+					"ws.frame.sent": 8,
+					"ws.handshake.request": 1,
+					"ws.handshake.response": 1
+				},
+				"feature_id": "bootstrap.idle.session",
+				"gateway_traffic_count": 14,
+				"http_traffic_count": 13,
+				"ok": true,
+				"traffic_count": 27
+			},
+			{
+				"checks": [
+					{
+						"id": "runtime.feature.file.preflight.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.file.events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.file.playwright-events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.file.summary.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.file.report.md",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.file.run-artifacts.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.file.network.redacted.har",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.file.trace.zip",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/trace.zip"
+					},
+					{
+						"id": "runtime.feature.raw_har_absent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.raw.har"
+					},
+					{
+						"id": "runtime.feature.network_har_absent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.har"
+					},
+					{
+						"id": "runtime.feature.failure_absent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/failure.json"
+					},
+					{
+						"id": "runtime.feature.screenshots",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots"
+					},
+					{
+						"id": "runtime.feature.trace_zip",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/trace.zip"
+					},
+					{
+						"id": "runtime.feature.events.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.summary.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.shape",
+						"message": "summary.json must be an object with run_id, feature_id, traffic, event counts, and generated_at",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.steps_shape",
+						"message": "summary.json steps must include valid step IDs, timestamps, and redacted action metadata",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.traffic_shape",
+						"message": "summary.json traffic entries must be valid HTTP or Gateway observations with attribution",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.expected_shape",
+						"message": "summary.json expected metadata must contain valid HTTP/Gateway expectation arrays",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.preflight.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.parse",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.status",
+						"message": "complete runtime audit requires run-artifacts.json status to be passed",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.preflight_path.safe_path",
+						"message": "preflight_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.preflight_path.exists",
+						"message": "preflight_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.events_path.safe_path",
+						"message": "events_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.events_path.exists",
+						"message": "events_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.playwright_events_path.safe_path",
+						"message": "playwright_events_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.playwright_events_path.exists",
+						"message": "playwright_events_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.summary_path.safe_path",
+						"message": "summary_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.summary_path.exists",
+						"message": "summary_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.markdown_path.safe_path",
+						"message": "markdown_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.markdown_path.exists",
+						"message": "markdown_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.trace_path.safe_path",
+						"message": "trace_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.trace_path.exists",
+						"message": "trace_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/trace.zip"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.screenshots_dir.safe_path",
+						"message": "screenshots_dir must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.screenshots_dir.exists",
+						"message": "screenshots_dir must reference an existing feature-local directory",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.redacted_har_path.safe_path",
+						"message": "redacted_har_path must be a safe feature-local slash-relative path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.redacted_har_path.exists",
+						"message": "redacted_har_path must reference an existing feature-local file",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.preflight_path",
+						"message": "passed run-artifacts.json must reference feature-local preflight.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.events_path",
+						"message": "passed run-artifacts.json must reference feature-local events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.playwright_events_path",
+						"message": "passed run-artifacts.json must reference feature-local playwright-events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.summary_path",
+						"message": "passed run-artifacts.json must reference feature-local summary.json",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.markdown_path",
+						"message": "passed run-artifacts.json must reference feature-local report.md",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.trace_path",
+						"message": "passed run-artifacts.json must reference feature-local trace.zip",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.screenshots_dir",
+						"message": "passed run-artifacts.json must reference feature-local screenshots",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.redacted_har_path",
+						"message": "passed run-artifacts.json must reference feature-local network.redacted.har",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.run_artifacts.no_failure_path",
+						"message": "passed run-artifacts.json must not include failure_path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
+					},
+					{
+						"id": "runtime.feature.preflight.shape",
+						"message": "preflight.json must be a redacted runtime preflight report with ok, violations, and storage_state",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.ok",
+						"message": "preflight.json must be ok before runtime artifacts are accepted",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.violations",
+						"message": "accepted preflight.json must have no violations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.redacted",
+						"message": "preflight.json must not contain storage-state values, raw fixture IDs, or secret-looking content",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.shape",
+						"message": "preflight storage_state must contain only redacted path placeholders, counts, session status, and optional error metadata",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.path",
+						"message": "storage_state.path must be the durable placeholder, not a local path",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.session",
+						"message": "accepted preflight storage_state must prove an active Discord session without exposing session material",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.counts",
+						"message": "preflight storage_state Discord/session counts must be internally consistent",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.expiry_range",
+						"message": "preflight storage_state cookie expiry range must be ordered when present",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.freshness",
+						"message": "accepted preflight storage_state must be freshly generated before runtime capture",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.no_expired_auth_cookie",
+						"message": "accepted preflight storage_state must not include expired Discord auth cookies",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.no_parse_error",
+						"message": "accepted preflight storage_state must not include a parse_error",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.storage_state.no_forbidden_root",
+						"message": "accepted preflight storage_state must not come from a forbidden artifact root",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.present",
+						"message": "preflight.json must include redacted fixture validation for built-in scenario requirements",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.redacted_manifest",
+						"message": "preflight fixtures.redacted_manifest must be an object without raw fixture IDs or private file paths",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.validation",
+						"message": "preflight fixtures.validation must be ok with no missing required fixtures",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.disposable_validation",
+						"message": "preflight fixtures.disposable_validation must be ok with no missing or non-disposable destructive fixtures",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.required.guild",
+						"message": "redacted fixture manifest must include required fixture guild",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.preflight.fixtures.required.channels_general",
+						"message": "redacted fixture manifest must include required fixture channels.general",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/preflight.json"
+					},
+					{
+						"id": "runtime.feature.events.feature_id",
+						"message": "event stream feature_id values must match the audited feature",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.run_id",
+						"message": "event stream run_id values must match the audited run",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.non_empty",
+						"message": "events.ndjson must include captured events",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.steps",
+						"message": "events.ndjson must include balanced step.start and step.end markers",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.monotonic_timestamps",
+						"message": "events.ndjson timestamps must be monotonically non-decreasing in capture order",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.step_pairs",
+						"message": "every step.end marker must close an active matching step.start marker",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.step_windows",
+						"message": "every step.end marker must have a timestamp greater than or equal to its step.start marker",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.open_steps",
+						"message": "events.ndjson must not leave step.start markers open at the end of the stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.ui_action_step",
+						"message": "ui.action events must be attributable to an active step window",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.http_lifecycle",
+						"message": "HTTP response and failure events must correspond to a prior request event in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.websocket_lifecycle",
+						"message": "WebSocket handshake/frame/close/error events must correspond to a prior open websocket in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.ui_action",
+						"message": "events.ndjson must include redacted ui.action entries for step-by-step UI provenance",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.http",
+						"message": "events.ndjson must include CDP HTTP evidence when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.websocket",
+						"message": "events.ndjson must include CDP WebSocket evidence when feature declares Gateway expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.no_abort",
+						"message": "runtime.abort means the capture must remain quarantined",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.expected_http.POST./channels/{channel_id}/messages",
+						"message": "events.ndjson must include matching CDP request and response for POST /channels/{channel_id}/messages",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.events.expected_gateway.received.MESSAGE_CREATE",
+						"message": "events.ndjson must include matching CDP Gateway evidence for MESSAGE_CREATE",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/events.ndjson"
+					},
+					{
+						"id": "runtime.feature.screenshots.png_count",
+						"message": "screenshots must include PNG step-boundary captures; expected at least 4",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots"
+					},
+					{
+						"id": "runtime.feature.screenshots.step_boundaries",
+						"message": "screenshots must include deterministic start/end captures for every audited step marker",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots"
+					},
+					{
+						"id": "runtime.feature.screenshot_png.001_open_channel_start_png",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots/001-open-channel-start.png"
+					},
+					{
+						"id": "runtime.feature.screenshot_png.002_open_channel_end_png",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots/002-open-channel-end.png"
+					},
+					{
+						"id": "runtime.feature.screenshot_png.003_send_message_start_png",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots/003-send-message-start.png"
+					},
+					{
+						"id": "runtime.feature.screenshot_png.004_send_message_end_png",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots/004-send-message-end.png"
+					},
+					{
+						"id": "runtime.feature.playwright_events.feature_id",
+						"message": "event stream feature_id values must match the audited feature",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.run_id",
+						"message": "event stream run_id values must match the audited run",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.non_empty",
+						"message": "playwright-events.ndjson must include supporting capture events when feature declares traffic expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.http",
+						"message": "playwright-events.ndjson must include request and response evidence when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.websocket",
+						"message": "playwright-events.ndjson must include WebSocket frame evidence when feature declares Gateway expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.http_lifecycle",
+						"message": "HTTP response and failure events must correspond to a prior request event in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.websocket_lifecycle",
+						"message": "WebSocket handshake/frame/close/error events must correspond to a prior open websocket in the same stream",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.expected_http.POST./channels/{channel_id}/messages",
+						"message": "playwright-events.ndjson must include matching request and response for POST /channels/{channel_id}/messages",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.playwright_events.expected_gateway.received.MESSAGE_CREATE",
+						"message": "playwright-events.ndjson must include matching Gateway evidence for MESSAGE_CREATE",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/playwright-events.ndjson"
+					},
+					{
+						"id": "runtime.feature.summary.identity",
+						"message": "summary.json feature_id/run_id does not match the audited feature/run",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.traffic",
+						"message": "summary.json must include correlated traffic",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.steps",
+						"message": "summary.json must preserve ordered feature step metadata",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.actions",
+						"message": "summary.json must preserve redacted UI action labels under feature steps",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.http",
+						"message": "summary.json must include HTTP traffic when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.gateway",
+						"message": "summary.json must include Gateway traffic when feature declares Gateway expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.steps",
+						"message": "summary.json steps must match the ordered step markers in events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.step_windows",
+						"message": "summary.json step windows must match step.start/step.end timestamps and titles from events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.actions",
+						"message": "summary.json actions must match redacted ui.action markers from events.ndjson",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.summary.events.traffic_steps",
+						"message": "summary.json traffic step IDs must refer to audited summary steps and events.ndjson step markers",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.expected.http.POST./channels/{channel_id}/messages",
+						"message": "missing expected HTTP request/response traffic POST /channels/{channel_id}/messages",
+						"ok": true
+					},
+					{
+						"id": "runtime.feature.expected.gateway.received.MESSAGE_CREATE",
+						"message": "missing expected Gateway traffic MESSAGE_CREATE",
+						"ok": true
+					},
+					{
+						"id": "runtime.feature.expected.registry_metadata",
+						"message": "built-in summary expected metadata must include the registry expectations audited for this feature",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/summary.json"
+					},
+					{
+						"id": "runtime.feature.har.shape",
+						"message": "network.redacted.har must be valid HAR JSON with log.entries",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.har.entries",
+						"message": "network.redacted.har must include entries when feature declares HTTP expectations",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.har.request_response",
+						"message": "network.redacted.har must include request and response objects for HTTP evidence",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.har.expected_http.POST./channels/{channel_id}/messages",
+						"message": "network.redacted.har must include matching request/response entry for POST /channels/{channel_id}/messages",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.redacted.har"
+					},
+					{
+						"id": "runtime.feature.report.readable",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.identity",
+						"message": "report.md must render feature identity and audited scenario id",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.run_id",
+						"message": "report.md must render the summary run id",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.actions",
+						"message": "report.md must render redacted step UI actions",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.step.open_channel",
+						"message": "report.md must render summary step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.open_channel.goto-channel",
+						"message": "report.md must render action goto-channel for step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.open_channel.expect-ready",
+						"message": "report.md must render action expect-ready for step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.step.send_message",
+						"message": "report.md must render summary step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.send_message.fill",
+						"message": "report.md must render action fill for step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.send_message.press",
+						"message": "report.md must render action press for step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.send_message.expect-network",
+						"message": "report.md must render action expect-network for step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.action.send_message.expect-gateway",
+						"message": "report.md must render action expect-gateway for step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_10",
+						"message": "report.md must render Gateway traffic opcode 10 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_11",
+						"message": "report.md must render Gateway traffic opcode 11 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_2",
+						"message": "report.md must render Gateway traffic opcode 2 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_3",
+						"message": "report.md must render Gateway traffic opcode 3 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_37",
+						"message": "report.md must render Gateway traffic opcode 37 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_4",
+						"message": "report.md must render Gateway traffic opcode 4 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_40",
+						"message": "report.md must render Gateway traffic opcode 40 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_41",
+						"message": "report.md must render Gateway traffic opcode 41 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_43",
+						"message": "report.md must render Gateway traffic opcode 43 in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.CHANNEL_INFO",
+						"message": "report.md must render Gateway traffic CHANNEL_INFO in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.READY",
+						"message": "report.md must render Gateway traffic READY in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.READY_SUPPLEMENTAL",
+						"message": "report.md must render Gateway traffic READY_SUPPLEMENTAL in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.SESSIONS_REPLACE",
+						"message": "report.md must render Gateway traffic SESSIONS_REPLACE in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.THREAD_LIST_SYNC",
+						"message": "report.md must render Gateway traffic THREAD_LIST_SYNC in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_channels_channel_id",
+						"message": "report.md must render HTTP traffic GET /channels/{channel_id} in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_channels_channel_id_messages",
+						"message": "report.md must render HTTP traffic GET /channels/{channel_id}/messages in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_guilds_guild_id_entitlements",
+						"message": "report.md must render HTTP traffic GET /guilds/{guild_id}/entitlements in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_scheduled_maintenances_upcoming_json",
+						"message": "report.md must render HTTP traffic GET /scheduled-maintenances/upcoming.json in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_users_me_affinities_guilds",
+						"message": "report.md must render HTTP traffic GET /users/@me/affinities/guilds in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_users_me_survey",
+						"message": "report.md must render HTTP traffic GET /users/@me/survey in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_users_me_unclaimed_games",
+						"message": "report.md must render HTTP traffic GET /users/@me/unclaimed-games in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_guilds_guild_id_migrate_command_scope",
+						"message": "report.md must render HTTP traffic POST /guilds/{guild_id}/migrate-command-scope in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.PUT_guilds_guild_id_members_me",
+						"message": "report.md must render HTTP traffic PUT /guilds/{guild_id}/members/@me in step open-channel",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.opcode_8",
+						"message": "report.md must render Gateway traffic opcode 8 in step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.GUILD_MEMBERS_CHUNK",
+						"message": "report.md must render Gateway traffic GUILD_MEMBERS_CHUNK in step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.gateway.MESSAGE_CREATE",
+						"message": "report.md must render Gateway traffic MESSAGE_CREATE in step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.GET_guilds_guild_id_integrations",
+						"message": "report.md must render HTTP traffic GET /guilds/{guild_id}/integrations in step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_channels_channel_id_messages",
+						"message": "report.md must render HTTP traffic POST /channels/{channel_id}/messages in step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					},
+					{
+						"id": "runtime.feature.report.http.POST_science",
+						"message": "report.md must render HTTP traffic POST /science in step send-message",
+						"ok": true,
+						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
+					}
+				],
+				"event_counts": {
+					"http.request": 16,
+					"http.request.extra_info": 763,
+					"http.response": 15,
+					"http.response.extra_info": 762,
+					"step.end": 2,
+					"step.start": 2,
+					"ui.action": 6,
+					"ws.created": 1,
+					"ws.frame.received": 11,
+					"ws.frame.sent": 9,
+					"ws.handshake.request": 1,
+					"ws.handshake.response": 1
+				},
+				"feature_id": "message.send.basic",
+				"gateway_traffic_count": 17,
+				"http_traffic_count": 16,
+				"ok": true,
+				"traffic_count": 33
+			}
+		],
+		"ok": true
+	},
+	"static": {
+		"assets_count": 20,
+		"catalog_counts": {
+			"docs.index.json": 394,
+			"experiments.catalog.json": 0,
+			"experiments.xhyrom.catalog.json": 451,
+			"gateway.catalog.json": 83,
+			"gateway.userdoccers.catalog.json": 240,
+			"routes.catalog.json": 330,
+			"routes.source.catalog.json": 311,
+			"routes.userdoccers.catalog.json": 910,
+			"routes.xhyrom.catalog.json": 1714
+		},
+		"checks": [
+			{
+				"id": "static.file.build.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/build.json"
+			},
+			{
+				"id": "static.file.login.html",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/login.html"
+			},
+			{
+				"id": "static.file.assets.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets.json"
+			},
+			{
+				"id": "static.file.context.manifest.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.file.routes.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.catalog.json"
+			},
+			{
+				"id": "static.file.routes.source.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.source.catalog.json"
+			},
+			{
+				"id": "static.file.gateway.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.catalog.json"
+			},
+			{
+				"id": "static.file.experiments.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.catalog.json"
+			},
+			{
+				"id": "static.file.docs.index.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/docs.index.json"
+			},
+			{
+				"id": "static.file.routes.xhyrom.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.file.experiments.xhyrom.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.file.routes.userdoccers.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.file.gateway.userdoccers.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.assets.array",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets.json"
+			},
+			{
+				"id": "static.build.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/build.json"
+			},
+			{
+				"id": "static.context.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.assets.non_empty",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets.json"
+			},
+			{
+				"id": "static.assets.downloaded",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets.json"
+			},
+			{
+				"id": "static.asset_file.77c2db9bca3d1780-libdiscore-wasm-fetch.a0c4678612533061.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/77c2db9bca3d1780-libdiscore-wasm-fetch.a0c4678612533061.js"
+			},
+			{
+				"id": "static.asset_integrity.77c2db9bca3d1780-libdiscore-wasm-fetch.a0c4678612533061.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/77c2db9bca3d1780-libdiscore-wasm-fetch.a0c4678612533061.js"
+			},
+			{
+				"id": "static.asset_integrity.77c2db9bca3d1780-libdiscore-wasm-fetch.a0c4678612533061.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/77c2db9bca3d1780-libdiscore-wasm-fetch.a0c4678612533061.js"
+			},
+			{
+				"id": "static.asset_file.e5c9cdf604921a3e-fast-connect.eb4c0936b9e63033.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/e5c9cdf604921a3e-fast-connect.eb4c0936b9e63033.js"
+			},
+			{
+				"id": "static.asset_integrity.e5c9cdf604921a3e-fast-connect.eb4c0936b9e63033.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/e5c9cdf604921a3e-fast-connect.eb4c0936b9e63033.js"
+			},
+			{
+				"id": "static.asset_integrity.e5c9cdf604921a3e-fast-connect.eb4c0936b9e63033.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/e5c9cdf604921a3e-fast-connect.eb4c0936b9e63033.js"
+			},
+			{
+				"id": "static.asset_file.4ba90937df02021e-sentry.98e113da2af1b0f8.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/4ba90937df02021e-sentry.98e113da2af1b0f8.js"
+			},
+			{
+				"id": "static.asset_integrity.4ba90937df02021e-sentry.98e113da2af1b0f8.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/4ba90937df02021e-sentry.98e113da2af1b0f8.js"
+			},
+			{
+				"id": "static.asset_integrity.4ba90937df02021e-sentry.98e113da2af1b0f8.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/4ba90937df02021e-sentry.98e113da2af1b0f8.js"
+			},
+			{
+				"id": "static.asset_file.3fde4c72cef84406-52706.6412704e90bcff52.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/3fde4c72cef84406-52706.6412704e90bcff52.js"
+			},
+			{
+				"id": "static.asset_integrity.3fde4c72cef84406-52706.6412704e90bcff52.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/3fde4c72cef84406-52706.6412704e90bcff52.js"
+			},
+			{
+				"id": "static.asset_integrity.3fde4c72cef84406-52706.6412704e90bcff52.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/3fde4c72cef84406-52706.6412704e90bcff52.js"
+			},
+			{
+				"id": "static.asset_file.8b29aa78220066d1-75728.5718e2f2f7410b40.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/8b29aa78220066d1-75728.5718e2f2f7410b40.js"
+			},
+			{
+				"id": "static.asset_integrity.8b29aa78220066d1-75728.5718e2f2f7410b40.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/8b29aa78220066d1-75728.5718e2f2f7410b40.js"
+			},
+			{
+				"id": "static.asset_integrity.8b29aa78220066d1-75728.5718e2f2f7410b40.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/8b29aa78220066d1-75728.5718e2f2f7410b40.js"
+			},
+			{
+				"id": "static.asset_file.dd29413de78dfc69-81646.9ff305e4772182e3.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/dd29413de78dfc69-81646.9ff305e4772182e3.js"
+			},
+			{
+				"id": "static.asset_integrity.dd29413de78dfc69-81646.9ff305e4772182e3.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/dd29413de78dfc69-81646.9ff305e4772182e3.js"
+			},
+			{
+				"id": "static.asset_integrity.dd29413de78dfc69-81646.9ff305e4772182e3.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/dd29413de78dfc69-81646.9ff305e4772182e3.js"
+			},
+			{
+				"id": "static.asset_file.fb59da5268286238-24195.521dab18d087fe42.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/fb59da5268286238-24195.521dab18d087fe42.js"
+			},
+			{
+				"id": "static.asset_integrity.fb59da5268286238-24195.521dab18d087fe42.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/fb59da5268286238-24195.521dab18d087fe42.js"
+			},
+			{
+				"id": "static.asset_integrity.fb59da5268286238-24195.521dab18d087fe42.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/fb59da5268286238-24195.521dab18d087fe42.js"
+			},
+			{
+				"id": "static.asset_file.aceaa0bd70738239-11260.8f29da2cc9dba383.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/aceaa0bd70738239-11260.8f29da2cc9dba383.js"
+			},
+			{
+				"id": "static.asset_integrity.aceaa0bd70738239-11260.8f29da2cc9dba383.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/aceaa0bd70738239-11260.8f29da2cc9dba383.js"
+			},
+			{
+				"id": "static.asset_integrity.aceaa0bd70738239-11260.8f29da2cc9dba383.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/aceaa0bd70738239-11260.8f29da2cc9dba383.js"
+			},
+			{
+				"id": "static.asset_file.f066453b36a36f2d-41444.6b72479df7cadc32.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/f066453b36a36f2d-41444.6b72479df7cadc32.js"
+			},
+			{
+				"id": "static.asset_integrity.f066453b36a36f2d-41444.6b72479df7cadc32.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/f066453b36a36f2d-41444.6b72479df7cadc32.js"
+			},
+			{
+				"id": "static.asset_integrity.f066453b36a36f2d-41444.6b72479df7cadc32.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/f066453b36a36f2d-41444.6b72479df7cadc32.js"
+			},
+			{
+				"id": "static.asset_file.14471e5c98b42ac4-9377.a820500d06bc536f.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/14471e5c98b42ac4-9377.a820500d06bc536f.js"
+			},
+			{
+				"id": "static.asset_integrity.14471e5c98b42ac4-9377.a820500d06bc536f.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/14471e5c98b42ac4-9377.a820500d06bc536f.js"
+			},
+			{
+				"id": "static.asset_integrity.14471e5c98b42ac4-9377.a820500d06bc536f.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/14471e5c98b42ac4-9377.a820500d06bc536f.js"
+			},
+			{
+				"id": "static.asset_file.9a9b792050ef2380-8539.c11e602c6d0df356.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/9a9b792050ef2380-8539.c11e602c6d0df356.js"
+			},
+			{
+				"id": "static.asset_integrity.9a9b792050ef2380-8539.c11e602c6d0df356.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/9a9b792050ef2380-8539.c11e602c6d0df356.js"
+			},
+			{
+				"id": "static.asset_integrity.9a9b792050ef2380-8539.c11e602c6d0df356.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/9a9b792050ef2380-8539.c11e602c6d0df356.js"
+			},
+			{
+				"id": "static.asset_file.1becfd49b66b2a53-36704.c6207173d570a24f.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/1becfd49b66b2a53-36704.c6207173d570a24f.js"
+			},
+			{
+				"id": "static.asset_integrity.1becfd49b66b2a53-36704.c6207173d570a24f.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/1becfd49b66b2a53-36704.c6207173d570a24f.js"
+			},
+			{
+				"id": "static.asset_integrity.1becfd49b66b2a53-36704.c6207173d570a24f.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/1becfd49b66b2a53-36704.c6207173d570a24f.js"
+			},
+			{
+				"id": "static.asset_file.98952cd92aaff985-22604.da4bbd6bb0ae9d14.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/98952cd92aaff985-22604.da4bbd6bb0ae9d14.js"
+			},
+			{
+				"id": "static.asset_integrity.98952cd92aaff985-22604.da4bbd6bb0ae9d14.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/98952cd92aaff985-22604.da4bbd6bb0ae9d14.js"
+			},
+			{
+				"id": "static.asset_integrity.98952cd92aaff985-22604.da4bbd6bb0ae9d14.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/98952cd92aaff985-22604.da4bbd6bb0ae9d14.js"
+			},
+			{
+				"id": "static.asset_file.80180e800d5ccd37-8103.9c6441b8e77a920c.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/80180e800d5ccd37-8103.9c6441b8e77a920c.js"
+			},
+			{
+				"id": "static.asset_integrity.80180e800d5ccd37-8103.9c6441b8e77a920c.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/80180e800d5ccd37-8103.9c6441b8e77a920c.js"
+			},
+			{
+				"id": "static.asset_integrity.80180e800d5ccd37-8103.9c6441b8e77a920c.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/80180e800d5ccd37-8103.9c6441b8e77a920c.js"
+			},
+			{
+				"id": "static.asset_file.23be51a486dddaef-74926.ada202dcecf667b5.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/23be51a486dddaef-74926.ada202dcecf667b5.js"
+			},
+			{
+				"id": "static.asset_integrity.23be51a486dddaef-74926.ada202dcecf667b5.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/23be51a486dddaef-74926.ada202dcecf667b5.js"
+			},
+			{
+				"id": "static.asset_integrity.23be51a486dddaef-74926.ada202dcecf667b5.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/23be51a486dddaef-74926.ada202dcecf667b5.js"
+			},
+			{
+				"id": "static.asset_file.9ca6c1621e1696d5-10191.91db2710c1c73005.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/9ca6c1621e1696d5-10191.91db2710c1c73005.js"
+			},
+			{
+				"id": "static.asset_integrity.9ca6c1621e1696d5-10191.91db2710c1c73005.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/9ca6c1621e1696d5-10191.91db2710c1c73005.js"
+			},
+			{
+				"id": "static.asset_integrity.9ca6c1621e1696d5-10191.91db2710c1c73005.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/9ca6c1621e1696d5-10191.91db2710c1c73005.js"
+			},
+			{
+				"id": "static.asset_file.432f188f79a64337-88999.284138799e04c11f.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/432f188f79a64337-88999.284138799e04c11f.js"
+			},
+			{
+				"id": "static.asset_integrity.432f188f79a64337-88999.284138799e04c11f.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/432f188f79a64337-88999.284138799e04c11f.js"
+			},
+			{
+				"id": "static.asset_integrity.432f188f79a64337-88999.284138799e04c11f.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/432f188f79a64337-88999.284138799e04c11f.js"
+			},
+			{
+				"id": "static.asset_file.81953fc4c98f6b22-3424.086fb29581a56edb.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/81953fc4c98f6b22-3424.086fb29581a56edb.js"
+			},
+			{
+				"id": "static.asset_integrity.81953fc4c98f6b22-3424.086fb29581a56edb.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/81953fc4c98f6b22-3424.086fb29581a56edb.js"
+			},
+			{
+				"id": "static.asset_integrity.81953fc4c98f6b22-3424.086fb29581a56edb.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/81953fc4c98f6b22-3424.086fb29581a56edb.js"
+			},
+			{
+				"id": "static.asset_file.2c22b26aed114dab-47628.e731712afc376fd8.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/2c22b26aed114dab-47628.e731712afc376fd8.js"
+			},
+			{
+				"id": "static.asset_integrity.2c22b26aed114dab-47628.e731712afc376fd8.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/2c22b26aed114dab-47628.e731712afc376fd8.js"
+			},
+			{
+				"id": "static.asset_integrity.2c22b26aed114dab-47628.e731712afc376fd8.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/2c22b26aed114dab-47628.e731712afc376fd8.js"
+			},
+			{
+				"id": "static.asset_file.18c6274562ebd491-85892.589635a80ea8133a.js",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/18c6274562ebd491-85892.589635a80ea8133a.js"
+			},
+			{
+				"id": "static.asset_integrity.18c6274562ebd491-85892.589635a80ea8133a.js.local_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/18c6274562ebd491-85892.589635a80ea8133a.js"
+			},
+			{
+				"id": "static.asset_integrity.18c6274562ebd491-85892.589635a80ea8133a.js.local_bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/assets/18c6274562ebd491-85892.589635a80ea8133a.js"
+			},
+			{
+				"id": "static.build.run_id",
+				"message": "build.json must include run_id",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/build.json"
+			},
+			{
+				"id": "static.build.identity",
+				"message": "build.json must include x_build_id, build_number, or version_hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/build.json"
+			},
+			{
+				"id": "static.context.shape",
+				"message": "context.manifest.json must be a JSON object",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.files",
+				"message": "context.manifest.json must include copied catalog files",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.routes_catalog_json.shape",
+				"message": "context.manifest.json files[0] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.routes_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.catalog.json"
+			},
+			{
+				"id": "static.context.file.routes_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.catalog.json"
+			},
+			{
+				"id": "static.context.file.routes_source_catalog_json.shape",
+				"message": "context.manifest.json files[1] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.routes_source_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.source.catalog.json"
+			},
+			{
+				"id": "static.context.file.routes_source_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.source.catalog.json"
+			},
+			{
+				"id": "static.context.file.gateway_catalog_json.shape",
+				"message": "context.manifest.json files[2] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.gateway_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.catalog.json"
+			},
+			{
+				"id": "static.context.file.gateway_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.catalog.json"
+			},
+			{
+				"id": "static.context.file.experiments_catalog_json.shape",
+				"message": "context.manifest.json files[3] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.experiments_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.catalog.json"
+			},
+			{
+				"id": "static.context.file.experiments_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.catalog.json"
+			},
+			{
+				"id": "static.context.file.docs_index_json.shape",
+				"message": "context.manifest.json files[4] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.docs_index_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/docs.index.json"
+			},
+			{
+				"id": "static.context.file.docs_index_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/docs.index.json"
+			},
+			{
+				"id": "static.context.file.routes_xhyrom_catalog_json.shape",
+				"message": "context.manifest.json files[5] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.routes_xhyrom_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.context.file.routes_xhyrom_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.context.file.experiments_xhyrom_catalog_json.shape",
+				"message": "context.manifest.json files[6] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.experiments_xhyrom_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.context.file.experiments_xhyrom_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.context.file.routes_userdoccers_catalog_json.shape",
+				"message": "context.manifest.json files[7] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.routes_userdoccers_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.context.file.routes_userdoccers_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.context.file.gateway_userdoccers_catalog_json.shape",
+				"message": "context.manifest.json files[8] must include safe path, kind, sha256 hash, and byte length",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.context.file.gateway_userdoccers_catalog_json.hash",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.context.file.gateway_userdoccers_catalog_json.bytes",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.context.source_refs",
+				"message": "context.manifest.json must include source refs",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/context.manifest.json"
+			},
+			{
+				"id": "static.catalog.routes.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.catalog.json"
+			},
+			{
+				"id": "static.catalog.routes.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.catalog.json"
+			},
+			{
+				"id": "static.catalog.routes.source.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.source.catalog.json"
+			},
+			{
+				"id": "static.catalog.routes.source.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.source.catalog.json"
+			},
+			{
+				"id": "static.catalog.gateway.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.catalog.json"
+			},
+			{
+				"id": "static.catalog.gateway.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.catalog.json"
+			},
+			{
+				"id": "static.catalog.experiments.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.catalog.json"
+			},
+			{
+				"id": "static.catalog.experiments.catalog.json",
+				"message": "experiments.catalog.json has no entries",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.catalog.json"
+			},
+			{
+				"id": "static.catalog.docs.index.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/docs.index.json"
+			},
+			{
+				"id": "static.catalog.docs.index.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/docs.index.json"
+			},
+			{
+				"id": "static.catalog.routes.xhyrom.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.catalog.routes.xhyrom.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.catalog.experiments.xhyrom.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.catalog.experiments.xhyrom.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/experiments.xhyrom.catalog.json"
+			},
+			{
+				"id": "static.catalog.routes.userdoccers.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.catalog.routes.userdoccers.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/routes.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.catalog.gateway.userdoccers.catalog.json.parse",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.userdoccers.catalog.json"
+			},
+			{
+				"id": "static.catalog.gateway.userdoccers.catalog.json",
+				"ok": true,
+				"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/static/gateway.userdoccers.catalog.json"
+			}
+		],
+		"downloaded_assets_count": 20,
+		"ok": true
+	},
+	"violations": []
+}

@@ -1,0 +1,1401 @@
+[
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_gateway_event",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "CHANNEL_INFO"
+	},
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "bootstrap.idle.session",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "bootstrap.idle.session",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-expression-picker",
+		"subject": "GET /guilds/{guild_id}/top-emojis"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /store/published-listings/skus"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "expressions.picker.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "expressions.picker.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "expressions.picker.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "expressions.picker.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "expressions.picker.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "expressions.picker.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-expression-picker",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "expressions.picker.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "expressions.picker.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-emoji",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /guilds/{guild_id}/powerups"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /quests/@me"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /quests/decision"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /store/published-listings/skus"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "message.reply.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.reply.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.reply.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.reply.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.reply.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.reply.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.reply.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.reply.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-reply",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_gateway_event",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "CHANNEL_INFO"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /store/published-listings/skus"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "message.send.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.send.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "send-message",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /guilds/{guild_id}/powerups"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /quests/@me"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /quests/decision"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /store/published-listings/skus"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "message.upload.attachment",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.upload.attachment",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.upload.attachment",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.upload.attachment",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.upload.attachment",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.upload.attachment",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.upload.attachment",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "message.upload.attachment",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "upload-attachment",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "navigation.channel_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-general",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "navigation.channel_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "navigation.channel_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-general",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"feature_id": "navigation.channel_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"feature_id": "navigation.dm_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-dm",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "navigation.dm_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-dm",
+		"subject": "GET /users/@me/entitlements"
+	},
+	{
+		"feature_id": "navigation.dm_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-dm",
+		"subject": "GET /users/@me/referrals/eligibility"
+	},
+	{
+		"feature_id": "navigation.dm_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-dm",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "navigation.dm_switch",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "switch-dm",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "navigation.dm_switch",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "switch-dm",
+		"subject": "GET /users/@me/entitlements"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_gateway_event",
+		"severity": "high",
+		"step_id": "switch-guild",
+		"subject": "CHANNEL_INFO"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-primary",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-guild",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-primary",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-primary",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-primary",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "switch-guild",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "navigation.guild_switch",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-primary",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "navigation.guild_switch",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-primary",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "navigation.guild_switch",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "switch-guild",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_gateway_event",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "MESSAGE_ACK"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /store/published-listings/skus"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /users/@me/application-command-index"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "read_state.mark_unread",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.mark_unread",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.mark_unread",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.mark_unread",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.mark_unread",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.mark_unread",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.mark_unread",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.mark_unread",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "mark-unread",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_gateway_event",
+		"severity": "high",
+		"step_id": "ack-message",
+		"subject": "MESSAGE_ACK"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_gateway_event",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "MESSAGE_ACK"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /guilds/{guild_id}/powerups"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /partner-sdk/storefront-eligibility"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "ack-message",
+		"subject": "GET /quests/@me"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "ack-message",
+		"subject": "GET /quests/decision"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /store/published-listings/skus"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /users/@me/application-command-index"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "read_state.message_ack",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.message_ack",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.message_ack",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /users/@me/applications/{application_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.message_ack",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.message_ack",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.message_ack",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.message_ack",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.message_ack",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "prepare-unread",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /content-inventory/users/@me"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /games/detectable/exclusions"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /partner-sdk/storefront-config"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /promotions"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "read_state.recent_mentions",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.recent_mentions",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.recent_mentions",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /users/@me/billing/checkout-recovery"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.recent_mentions",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /users/@me/billing/payment-sources"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.recent_mentions",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /users/@me/billing/subscriptions"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.recent_mentions",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "GET /users/@me/mfa/webauthn/credentials"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "read_state.recent_mentions",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-recent-mentions",
+		"subject": "POST /users/@me/billing/user-offer"
+	},
+	{
+		"feature_id": "search.member.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "search.member.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "search.member.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "search.member.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "search.member.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "search.member.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "search.message.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	},
+	{
+		"feature_id": "search.message.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/survey"
+	},
+	{
+		"feature_id": "search.message.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /users/@me/unclaimed-games"
+	},
+	{
+		"feature_id": "search.message.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "POST /guilds/{guild_id}/migrate-command-scope"
+	},
+	{
+		"feature_id": "search.message.basic",
+		"reason": "new_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "PUT /guilds/{guild_id}/members/@me"
+	},
+	{
+		"detail": "Observed non-background traffic to a sensitive route family.",
+		"feature_id": "search.message.basic",
+		"reason": "sensitive_route",
+		"severity": "high",
+		"step_id": "open-channel",
+		"subject": "GET /guilds/{guild_id}/entitlements"
+	}
+]

@@ -1,0 +1,11 @@
+{
+	"events_path": "events.ndjson",
+	"markdown_path": "report.md",
+	"playwright_events_path": "playwright-events.ndjson",
+	"preflight_path": "preflight.json",
+	"redacted_har_path": "network.redacted.har",
+	"screenshots_dir": "screenshots",
+	"status": "passed",
+	"summary_path": "summary.json",
+	"trace_path": "trace.zip"
+}

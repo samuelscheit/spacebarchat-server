@@ -1,0 +1,156 @@
+{
+	"entries": [
+		{
+			"path": "channels.dm",
+			"placeholder": "{channel_id}"
+		},
+		{
+			"path": "channels.general",
+			"placeholder": "{channel_id}"
+		},
+		{
+			"path": "channels.secondary",
+			"placeholder": "{channel_id}"
+		},
+		{
+			"path": "channels.voice",
+			"placeholder": "{channel_id}"
+		},
+		{
+			"path": "files.small_attachment",
+			"placeholder": "{local_file_path}"
+		},
+		{
+			"path": "guild",
+			"placeholder": "{guild_id}"
+		},
+		{
+			"path": "guilds.secondary",
+			"placeholder": "{guild_id}"
+		},
+		{
+			"path": "messages.delete_target",
+			"placeholder": "{message_id}"
+		},
+		{
+			"path": "messages.edit_target",
+			"placeholder": "{message_id}"
+		},
+		{
+			"path": "messages.pin_target",
+			"placeholder": "{message_id}"
+		},
+		{
+			"path": "messages.react_target",
+			"placeholder": "{message_id}"
+		},
+		{
+			"path": "messages.read_target",
+			"placeholder": "{message_id}"
+		},
+		{
+			"path": "messages.reply_target",
+			"placeholder": "{message_id}"
+		},
+		{
+			"path": "roles.feature_test_role",
+			"placeholder": "{role_id}"
+		},
+		{
+			"path": "users.dm_peer",
+			"placeholder": "{user_id}"
+		}
+	],
+	"features": [
+		"bootstrap.idle.session",
+		"channel.permission.edit",
+		"experiments.visible_context",
+		"expressions.picker.basic",
+		"guild.role.edit.basic",
+		"message.delete.basic",
+		"message.edit.basic",
+		"message.pin.basic",
+		"message.reaction.add",
+		"message.reply.basic",
+		"message.send.basic",
+		"message.upload.attachment",
+		"navigation.channel_switch",
+		"navigation.dm_switch",
+		"navigation.guild_switch",
+		"read_state.mark_unread",
+		"read_state.message_ack",
+		"read_state.recent_mentions",
+		"search.member.basic",
+		"search.message.basic",
+		"settings.guild_notifications",
+		"thread.create.basic",
+		"voice.deafen_toggle",
+		"voice.disconnect.basic",
+		"voice.join.basic",
+		"voice.mute_toggle"
+	],
+	"required_disposable_fixtures": [
+		"channels.general",
+		"guild",
+		"messages.delete_target",
+		"messages.edit_target",
+		"messages.pin_target",
+		"messages.react_target",
+		"roles.feature_test_role"
+	],
+	"required_fixtures": [
+		"channels.dm",
+		"channels.general",
+		"channels.secondary",
+		"channels.voice",
+		"files.small_attachment",
+		"guild",
+		"guilds.secondary",
+		"messages.delete_target",
+		"messages.edit_target",
+		"messages.pin_target",
+		"messages.react_target",
+		"messages.read_target",
+		"messages.reply_target",
+		"roles.feature_test_role",
+		"users.dm_peer"
+	],
+	"template": {
+		"channels": {
+			"dm": "{channel_id}",
+			"general": "{channel_id}",
+			"secondary": "{channel_id}",
+			"voice": "{channel_id}"
+		},
+		"disposable": [
+			"channels.general",
+			"guild",
+			"messages.delete_target",
+			"messages.edit_target",
+			"messages.pin_target",
+			"messages.react_target",
+			"roles.feature_test_role"
+		],
+		"files": {
+			"small_attachment": "{local_file_path}"
+		},
+		"guild": "{guild_id}",
+		"guilds": {
+			"secondary": "{guild_id}"
+		},
+		"messages": {
+			"delete_target": "{message_id}",
+			"edit_target": "{message_id}",
+			"pin_target": "{message_id}",
+			"react_target": "{message_id}",
+			"read_target": "{message_id}",
+			"reply_target": "{message_id}"
+		},
+		"roles": {
+			"feature_test_role": "{role_id}"
+		},
+		"users": {
+			"dm_peer": "{user_id}"
+		}
+	}
+}

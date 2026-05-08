@@ -1,0 +1,658 @@
+{
+	"boundaries": [
+		"Use dedicated Discord test accounts, private test guilds, and normal browser login sessions only.",
+		"Keep bot tokens, browser storage state, cookies, raw IDs, and private content outside generated artifacts.",
+		"Use official Discord APIs only for setup resources that can safely be created by the bot/application account.",
+		"Seed runner-owned message fixtures through the dedicated runner browser session because bot-authored messages cannot prove user edit/delete behavior."
+	],
+	"features": [
+		"bootstrap.idle.session",
+		"channel.permission.edit",
+		"experiments.visible_context",
+		"expressions.picker.basic",
+		"guild.role.edit.basic",
+		"message.delete.basic",
+		"message.edit.basic",
+		"message.pin.basic",
+		"message.reaction.add",
+		"message.reply.basic",
+		"message.send.basic",
+		"message.upload.attachment",
+		"navigation.channel_switch",
+		"navigation.dm_switch",
+		"navigation.guild_switch",
+		"read_state.mark_unread",
+		"read_state.message_ack",
+		"read_state.recent_mentions",
+		"search.member.basic",
+		"search.message.basic",
+		"settings.guild_notifications",
+		"thread.create.basic",
+		"voice.deafen_toggle",
+		"voice.disconnect.basic",
+		"voice.join.basic",
+		"voice.mute_toggle"
+	],
+	"required_disposable_fixtures": [
+		"channels.general",
+		"guild",
+		"messages.delete_target",
+		"messages.edit_target",
+		"messages.pin_target",
+		"messages.react_target",
+		"roles.feature_test_role"
+	],
+	"required_fixtures": [
+		"channels.dm",
+		"channels.general",
+		"channels.secondary",
+		"channels.voice",
+		"files.small_attachment",
+		"guild",
+		"guilds.secondary",
+		"messages.delete_target",
+		"messages.edit_target",
+		"messages.pin_target",
+		"messages.react_target",
+		"messages.read_target",
+		"messages.reply_target",
+		"roles.feature_test_role",
+		"users.dm_peer"
+	],
+	"resources": [
+		{
+			"depends_on": [
+				"users.dm_peer"
+			],
+			"disposable": false,
+			"fixture_path": "channels.dm",
+			"kind": "dm_channel",
+			"notes": [
+				"Open or prepare the direct-message channel with the dedicated DM peer from the runner browser session."
+			],
+			"placeholder": "{channel_id}",
+			"required_by": [
+				"navigation.dm_switch"
+			],
+			"setup": "browser_session"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"disposable": true,
+			"fixture_path": "channels.general",
+			"kind": "text_channel",
+			"notes": [
+				"Create a text channel in the private test guild.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"placeholder": "{channel_id}",
+			"required_by": [
+				"bootstrap.idle.session",
+				"channel.permission.edit",
+				"experiments.visible_context",
+				"expressions.picker.basic",
+				"message.delete.basic",
+				"message.edit.basic",
+				"message.pin.basic",
+				"message.reaction.add",
+				"message.reply.basic",
+				"message.send.basic",
+				"message.upload.attachment",
+				"navigation.channel_switch",
+				"read_state.mark_unread",
+				"read_state.message_ack",
+				"read_state.recent_mentions",
+				"search.member.basic",
+				"search.message.basic",
+				"thread.create.basic"
+			],
+			"setup": "official_api"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"disposable": false,
+			"fixture_path": "channels.secondary",
+			"kind": "text_channel",
+			"notes": [
+				"Create a text channel in the private test guild."
+			],
+			"placeholder": "{channel_id}",
+			"required_by": [
+				"navigation.channel_switch"
+			],
+			"setup": "official_api"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"disposable": false,
+			"fixture_path": "channels.voice",
+			"kind": "voice_channel",
+			"notes": [
+				"Create a voice channel in the private test guild."
+			],
+			"placeholder": "{channel_id}",
+			"required_by": [
+				"voice.deafen_toggle",
+				"voice.disconnect.basic",
+				"voice.join.basic",
+				"voice.mute_toggle"
+			],
+			"setup": "official_api"
+		},
+		{
+			"disposable": false,
+			"fixture_path": "files.small_attachment",
+			"kind": "local_file",
+			"notes": [
+				"Use a small non-private throwaway file outside the repository and artifact directories."
+			],
+			"placeholder": "{local_file_path}",
+			"required_by": [
+				"message.upload.attachment"
+			],
+			"setup": "local_file"
+		},
+		{
+			"disposable": true,
+			"fixture_path": "guild",
+			"kind": "guild",
+			"notes": [
+				"Create a private throwaway guild and invite only the runner account, DM peer account when needed, and bot/application used for seeding.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"placeholder": "{guild_id}",
+			"required_by": [
+				"bootstrap.idle.session",
+				"channel.permission.edit",
+				"experiments.visible_context",
+				"expressions.picker.basic",
+				"guild.role.edit.basic",
+				"message.delete.basic",
+				"message.edit.basic",
+				"message.pin.basic",
+				"message.reaction.add",
+				"message.reply.basic",
+				"message.send.basic",
+				"message.upload.attachment",
+				"navigation.channel_switch",
+				"navigation.guild_switch",
+				"read_state.mark_unread",
+				"read_state.message_ack",
+				"read_state.recent_mentions",
+				"search.member.basic",
+				"search.message.basic",
+				"settings.guild_notifications",
+				"thread.create.basic",
+				"voice.deafen_toggle",
+				"voice.disconnect.basic",
+				"voice.join.basic",
+				"voice.mute_toggle"
+			],
+			"setup": "manual"
+		},
+		{
+			"disposable": false,
+			"fixture_path": "guilds.secondary",
+			"kind": "guild",
+			"notes": [
+				"Create a private throwaway guild and invite only the runner account, DM peer account when needed, and bot/application used for seeding."
+			],
+			"placeholder": "{guild_id}",
+			"required_by": [
+				"navigation.guild_switch"
+			],
+			"setup": "manual"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"disposable": true,
+			"fixture_path": "messages.delete_target",
+			"kind": "message",
+			"notes": [
+				"Seed this message as the runner account in the browser so edit/delete UI behavior exercises user-owned content.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"placeholder": "{message_id}",
+			"required_by": [
+				"message.delete.basic"
+			],
+			"setup": "browser_session"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"disposable": true,
+			"fixture_path": "messages.edit_target",
+			"kind": "message",
+			"notes": [
+				"Seed this message as the runner account in the browser so edit/delete UI behavior exercises user-owned content.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"placeholder": "{message_id}",
+			"required_by": [
+				"message.edit.basic"
+			],
+			"setup": "browser_session"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"disposable": true,
+			"fixture_path": "messages.pin_target",
+			"kind": "message",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"placeholder": "{message_id}",
+			"required_by": [
+				"message.pin.basic"
+			],
+			"setup": "official_api"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"disposable": true,
+			"fixture_path": "messages.react_target",
+			"kind": "message",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"placeholder": "{message_id}",
+			"required_by": [
+				"message.reaction.add"
+			],
+			"setup": "official_api"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"disposable": false,
+			"fixture_path": "messages.read_target",
+			"kind": "message",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership."
+			],
+			"placeholder": "{message_id}",
+			"required_by": [
+				"read_state.mark_unread",
+				"read_state.message_ack"
+			],
+			"setup": "official_api"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"disposable": false,
+			"fixture_path": "messages.reply_target",
+			"kind": "message",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership."
+			],
+			"placeholder": "{message_id}",
+			"required_by": [
+				"message.reply.basic"
+			],
+			"setup": "official_api"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"disposable": true,
+			"fixture_path": "roles.feature_test_role",
+			"kind": "role",
+			"notes": [
+				"Create a role whose permissions can be safely changed during destructive scenario runs.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"placeholder": "{role_id}",
+			"required_by": [
+				"channel.permission.edit",
+				"guild.role.edit.basic"
+			],
+			"setup": "official_api"
+		},
+		{
+			"disposable": false,
+			"fixture_path": "users.dm_peer",
+			"kind": "user",
+			"notes": [
+				"Use a dedicated test account only; do not use production users or private conversations."
+			],
+			"placeholder": "{user_id}",
+			"required_by": [
+				"navigation.dm_switch"
+			],
+			"setup": "manual"
+		}
+	],
+	"steps": [
+		{
+			"depends_on": [
+				"users.dm_peer"
+			],
+			"fixture_paths": [
+				"channels.dm"
+			],
+			"id": "seed-channels-dm",
+			"notes": [
+				"Open or prepare the direct-message channel with the dedicated DM peer from the runner browser session."
+			],
+			"setup": "browser_session",
+			"title": "Prepare channels.dm"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"fixture_paths": [
+				"channels.general"
+			],
+			"id": "seed-channels-general",
+			"notes": [
+				"Create a text channel in the private test guild.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"name": "{fixture_label}",
+					"type": "text"
+				},
+				"method": "POST",
+				"route": "/guilds/{guild_id}/channels"
+			},
+			"setup": "official_api",
+			"title": "Prepare channels.general"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"fixture_paths": [
+				"channels.secondary"
+			],
+			"id": "seed-channels-secondary",
+			"notes": [
+				"Create a text channel in the private test guild."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"name": "{fixture_label}",
+					"type": "text"
+				},
+				"method": "POST",
+				"route": "/guilds/{guild_id}/channels"
+			},
+			"setup": "official_api",
+			"title": "Prepare channels.secondary"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"fixture_paths": [
+				"channels.voice"
+			],
+			"id": "seed-channels-voice",
+			"notes": [
+				"Create a voice channel in the private test guild."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"name": "{fixture_label}",
+					"type": "voice"
+				},
+				"method": "POST",
+				"route": "/guilds/{guild_id}/channels"
+			},
+			"setup": "official_api",
+			"title": "Prepare channels.voice"
+		},
+		{
+			"fixture_paths": [
+				"files.small_attachment"
+			],
+			"id": "seed-files-small-attachment",
+			"notes": [
+				"Use a small non-private throwaway file outside the repository and artifact directories."
+			],
+			"setup": "local_file",
+			"title": "Prepare files.small_attachment"
+		},
+		{
+			"fixture_paths": [
+				"guild"
+			],
+			"id": "seed-guild",
+			"notes": [
+				"Create a private throwaway guild and invite only the runner account, DM peer account when needed, and bot/application used for seeding.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"setup": "manual",
+			"title": "Prepare guild"
+		},
+		{
+			"fixture_paths": [
+				"guilds.secondary"
+			],
+			"id": "seed-guilds-secondary",
+			"notes": [
+				"Create a private throwaway guild and invite only the runner account, DM peer account when needed, and bot/application used for seeding."
+			],
+			"setup": "manual",
+			"title": "Prepare guilds.secondary"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"fixture_paths": [
+				"messages.delete_target"
+			],
+			"id": "seed-messages-delete-target",
+			"notes": [
+				"Seed this message as the runner account in the browser so edit/delete UI behavior exercises user-owned content.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"setup": "browser_session",
+			"title": "Prepare messages.delete_target"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"fixture_paths": [
+				"messages.edit_target"
+			],
+			"id": "seed-messages-edit-target",
+			"notes": [
+				"Seed this message as the runner account in the browser so edit/delete UI behavior exercises user-owned content.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"setup": "browser_session",
+			"title": "Prepare messages.edit_target"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"fixture_paths": [
+				"messages.pin_target"
+			],
+			"id": "seed-messages-pin-target",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"content": "{redacted_seed_label}"
+				},
+				"method": "POST",
+				"route": "/channels/{channel_id}/messages"
+			},
+			"setup": "official_api",
+			"title": "Prepare messages.pin_target"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"fixture_paths": [
+				"messages.react_target"
+			],
+			"id": "seed-messages-react-target",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"content": "{redacted_seed_label}"
+				},
+				"method": "POST",
+				"route": "/channels/{channel_id}/messages"
+			},
+			"setup": "official_api",
+			"title": "Prepare messages.react_target"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"fixture_paths": [
+				"messages.read_target"
+			],
+			"id": "seed-messages-read-target",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"content": "{redacted_seed_label}"
+				},
+				"method": "POST",
+				"route": "/channels/{channel_id}/messages"
+			},
+			"setup": "official_api",
+			"title": "Prepare messages.read_target"
+		},
+		{
+			"depends_on": [
+				"channels.general"
+			],
+			"fixture_paths": [
+				"messages.reply_target"
+			],
+			"id": "seed-messages-reply-target",
+			"notes": [
+				"Seed a throwaway message in channels.general; a bot/application-created message is acceptable when the scenario does not require runner ownership."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"content": "{redacted_seed_label}"
+				},
+				"method": "POST",
+				"route": "/channels/{channel_id}/messages"
+			},
+			"setup": "official_api",
+			"title": "Prepare messages.reply_target"
+		},
+		{
+			"depends_on": [
+				"guild"
+			],
+			"fixture_paths": [
+				"roles.feature_test_role"
+			],
+			"id": "seed-roles-feature-test-role",
+			"notes": [
+				"Create a role whose permissions can be safely changed during destructive scenario runs.",
+				"List this fixture path under disposable in fixtures.local.json before running destructive scenarios."
+			],
+			"official_api": {
+				"auth": "bot_or_application",
+				"body_shape": {
+					"name": "{fixture_label}",
+					"permissions": "{minimal_permissions}"
+				},
+				"method": "POST",
+				"route": "/guilds/{guild_id}/roles"
+			},
+			"setup": "official_api",
+			"title": "Prepare roles.feature_test_role"
+		},
+		{
+			"fixture_paths": [
+				"users.dm_peer"
+			],
+			"id": "seed-users-dm-peer",
+			"notes": [
+				"Use a dedicated test account only; do not use production users or private conversations."
+			],
+			"setup": "manual",
+			"title": "Prepare users.dm_peer"
+		}
+	],
+	"template": {
+		"channels": {
+			"dm": "{channel_id}",
+			"general": "{channel_id}",
+			"secondary": "{channel_id}",
+			"voice": "{channel_id}"
+		},
+		"disposable": [
+			"channels.general",
+			"guild",
+			"messages.delete_target",
+			"messages.edit_target",
+			"messages.pin_target",
+			"messages.react_target",
+			"roles.feature_test_role"
+		],
+		"files": {
+			"small_attachment": "{local_file_path}"
+		},
+		"guild": "{guild_id}",
+		"guilds": {
+			"secondary": "{guild_id}"
+		},
+		"messages": {
+			"delete_target": "{message_id}",
+			"edit_target": "{message_id}",
+			"pin_target": "{message_id}",
+			"react_target": "{message_id}",
+			"read_target": "{message_id}",
+			"reply_target": "{message_id}"
+		},
+		"roles": {
+			"feature_test_role": "{role_id}"
+		},
+		"users": {
+			"dm_peer": "{user_id}"
+		}
+	}
+}

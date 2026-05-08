@@ -1,0 +1,73 @@
+{
+	"fixtures": {
+		"disposable_validation": {
+			"missing": [],
+			"not_disposable": [],
+			"ok": true,
+			"required": []
+		},
+		"redacted_manifest": {
+			"channels": {
+				"dm": "{channel_id}",
+				"general": "{channel_id}",
+				"secondary": "{channel_id}",
+				"secondary_guild_general": "{channel_id}",
+				"voice": "{channel_id}"
+			},
+			"disposable": [
+				"channels.general",
+				"guild",
+				"messages.delete_target",
+				"messages.edit_target",
+				"messages.pin_target",
+				"messages.react_target",
+				"roles.feature_test_role"
+			],
+			"files": {
+				"small_attachment": "{local_file_path}"
+			},
+			"guild": "{guild_id}",
+			"guilds": {
+				"secondary": "{guild_id}"
+			},
+			"messages": {
+				"delete_target": "{message_id}",
+				"edit_target": "{message_id}",
+				"pin_target": "{message_id}",
+				"react_target": "{message_id}",
+				"read_target": "{message_id}",
+				"reply_target": "{message_id}"
+			},
+			"roles": {
+				"feature_test_role": "{role_id}"
+			},
+			"users": {
+				"dm_peer": "{user_id}",
+				"runner": "{user_id}"
+			}
+		},
+		"validation": {
+			"missing": [],
+			"ok": true
+		}
+	},
+	"ok": true,
+	"storage_state": {
+		"cookie_count": 6,
+		"discord_auth_cookie_count": 0,
+		"discord_auth_storage_count": 2,
+		"discord_cookie_count": 5,
+		"discord_expired_auth_cookie_count": 0,
+		"discord_origin_count": 2,
+		"earliest_cookie_expiry": 1778197575.397612,
+		"has_discord_session": true,
+		"latest_cookie_expiry": 1809731777.386266,
+		"max_storage_state_age_ms": 604800000,
+		"origin_count": 2,
+		"path": "{storage_state_path}",
+		"storage_state_age_ms": 767,
+		"storage_state_age_source": "provided_created_at",
+		"storage_state_fresh": true
+	},
+	"violations": []
+}
