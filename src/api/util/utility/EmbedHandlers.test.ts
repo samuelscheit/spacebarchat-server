@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, test, type TestContext } from "node:test";
 import type { Embed } from "@spacebar/schemas";
-import type { Message } from "../../../util/index.js";
+import * as utilModule from "@spacebar/util";
+import type { Message } from "@spacebar/util";
 import { mergeGeneratedUrlEmbeds } from "./EmbedMerge";
 
-type UtilModule = typeof import("../../../util/index.js");
+type UtilModule = typeof utilModule;
 
 process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
 delete process.env.EVENT_TRANSMISSION;
@@ -13,14 +14,13 @@ const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
 
 async function loadEmbedModules() {
-    const util = await import("../../../util/index.js");
     const handlers = await import("./EmbedHandlers.js");
 
     return {
-        util,
-        Config: util.Config,
-        EmbedCache: util.EmbedCache,
-        Message: util.Message,
+        util: utilModule,
+        Config: utilModule.Config,
+        EmbedCache: utilModule.EmbedCache,
+        Message: utilModule.Message,
         EmbedHandlers: handlers.EmbedHandlers,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
     };
@@ -124,6 +124,36 @@ describe("mergeGeneratedUrlEmbeds", () => {
 });
 
 describe("EmbedHandlers.default", () => {
+    test("creates a direct video embed from a video content type without downloading the body", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        const fetches: { url: string; method: string | undefined }[] = [];
+        t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+            const requestUrl = input instanceof Request ? input.url : input.toString();
+            fetches.push({ url: requestUrl, method: init?.method });
+
+            if (init?.method === "HEAD") {
+                return new Response(null, {
+                    headers: { "content-type": "Video/MP4" },
+                });
+            }
+
+            throw new Error("direct video embeds should not download the video body");
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://media.example.test/video.mp4"));
+
+        assert.deepEqual(fetches, [{ url: "https://media.example.test/video.mp4", method: "HEAD" }]);
+        assert.deepEqual(embed, {
+            url: "https://media.example.test/video.mp4",
+            type: "video",
+            video: {
+                url: "https://media.example.test/video.mp4",
+            },
+        });
+    });
+
     test("creates a video embed from generic OpenGraph video metadata", async (t) => {
         const { Config, EmbedHandlers } = await loadEmbedModules();
         mockEmbedConfig(t, Config, 5, 10);
@@ -189,6 +219,137 @@ describe("EmbedHandlers.default", () => {
         });
     });
 
+    test("keeps video-only OpenGraph metadata instead of discarding it as empty content", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            if (init?.method === "HEAD") {
+                return new Response(null, {
+                    headers: { "content-type": "text/html" },
+                });
+            }
+
+            return new Response(
+                `<!doctype html>
+                <html>
+                    <head>
+                        <title>Video Only</title>
+                        <meta property="og:video" content="/media/video.mp4">
+                        <meta property="og:video:width" content="1920">
+                        <meta property="og:video:height" content="1080">
+                    </head>
+                </html>`,
+                { headers: { "content-type": "text/html" } },
+            );
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.test/watch/only-video"));
+
+        assert.deepEqual(embed, {
+            url: "https://example.test/watch/only-video",
+            type: "video",
+            title: "Video Only",
+            video: {
+                url: "https://example.test/media/video.mp4",
+                width: 1920,
+                height: 1080,
+                proxy_url: "https://example.test/media/video.mp4",
+            },
+            thumbnail: undefined,
+            description: undefined,
+            provider: undefined,
+        });
+    });
+
+    test("creates a video embed from Twitter player stream metadata", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            if (init?.method === "HEAD") {
+                return new Response(null, {
+                    headers: { "content-type": "text/html" },
+                });
+            }
+
+            return new Response(
+                `<!doctype html>
+                <html>
+                    <head>
+                        <meta name="twitter:title" content="Twitter Card Video">
+                        <meta name="twitter:description" content="Twitter card metadata only">
+                        <meta name="twitter:player" content="/player">
+                        <meta name="twitter:player:stream" content="/stream/video.mp4">
+                        <meta name="twitter:player:width" content="640">
+                        <meta name="twitter:player:height" content="360">
+                    </head>
+                </html>`,
+                { headers: { "content-type": "text/html" } },
+            );
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.test/twitter-card"));
+
+        assert.deepEqual(embed, {
+            url: "https://example.test/twitter-card",
+            type: "video",
+            title: "Twitter Card Video",
+            video: {
+                url: "https://example.test/stream/video.mp4",
+                width: 640,
+                height: 360,
+                proxy_url: "https://example.test/stream/video.mp4",
+            },
+            thumbnail: undefined,
+            description: "Twitter card metadata only",
+            provider: undefined,
+        });
+    });
+
+    test("falls back to the Twitter player URL when a stream URL is missing", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            if (init?.method === "HEAD") {
+                return new Response(null, {
+                    headers: { "content-type": "text/html" },
+                });
+            }
+
+            return new Response(
+                `<!doctype html>
+                <html>
+                    <head>
+                        <meta name="twitter:title" content="Twitter Player Video">
+                        <meta name="twitter:player" content="/player/embed">
+                        <meta name="twitter:player:width" content="800">
+                        <meta name="twitter:player:height" content="450">
+                    </head>
+                </html>`,
+                { headers: { "content-type": "text/html" } },
+            );
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.test/twitter-player"));
+
+        assert.deepEqual(embed, {
+            url: "https://example.test/twitter-player",
+            type: "video",
+            title: "Twitter Player Video",
+            video: {
+                url: "https://example.test/player/embed",
+                width: 800,
+                height: 450,
+                proxy_url: "https://example.test/player/embed",
+            },
+            thumbnail: undefined,
+            description: undefined,
+            provider: undefined,
+        });
+    });
+
     test("keeps a generic page as a link embed when video dimensions are missing", async (t) => {
         const { Config, EmbedHandlers } = await loadEmbedModules();
         mockEmbedConfig(t, Config, 5, 10);
@@ -223,6 +384,36 @@ describe("EmbedHandlers.default", () => {
             thumbnail: undefined,
             description: "The page still has link metadata",
             provider: undefined,
+        });
+    });
+
+    test("creates a direct video embed for configured generic media hosts", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        const fetches: { url: string; method: string | undefined }[] = [];
+        t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+            const requestUrl = input instanceof Request ? input.url : input.toString();
+            fetches.push({ url: requestUrl, method: init?.method });
+
+            if (init?.method === "HEAD") {
+                return new Response(null, {
+                    headers: { "content-type": "video/webm" },
+                });
+            }
+
+            throw new Error("generic media host video embeds should not download the video body");
+        });
+
+        const embed = await EmbedHandlers["media.tenor.com"](new URL("https://media.tenor.com/example.webm"));
+
+        assert.deepEqual(fetches, [{ url: "https://media.tenor.com/example.webm", method: "HEAD" }]);
+        assert.deepEqual(embed, {
+            url: "https://media.tenor.com/example.webm",
+            type: "video",
+            video: {
+                url: "https://media.tenor.com/example.webm",
+            },
         });
     });
 });

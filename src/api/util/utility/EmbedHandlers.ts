@@ -48,6 +48,26 @@ const makeEmbedImage = (url: string | undefined, width: number | undefined, heig
     };
 };
 
+const makeEmbedVideo = (url: string | undefined, width?: number, height?: number): EmbedImage | undefined => {
+    if (!url) return undefined;
+
+    const video: EmbedImage = { url };
+    if (width) video.width = width;
+    if (height) video.height = height;
+    if (width && height) video.proxy_url = getProxyUrl(new URL(url), width, height);
+
+    return video;
+};
+
+const isImageContentType = (contentType: string | null): boolean => contentType?.toLowerCase().includes("image/") ?? false;
+const isVideoContentType = (contentType: string | null): boolean => contentType?.toLowerCase().includes("video/") ?? false;
+
+const makeDirectVideoEmbed = (url: URL): Embed => ({
+    url: url.href,
+    type: EmbedType.video,
+    video: makeEmbedVideo(url.href),
+});
+
 let hasWarnedAboutImagor = false;
 
 export const getProxyUrl = (url: URL, width: number, height: number): string => {
@@ -94,13 +114,13 @@ export const getMetaDescriptions = (text: string) => {
 
     return {
         type: getMeta($, "og:type"),
-        title: getMeta($, "og:title") || $("title").first().text(),
+        title: getMeta($, "og:title") || getMeta($, "twitter:title") || $("title").first().text(),
         provider_name: getMeta($, "og:site_name"),
         author: getMeta($, "article:author"),
-        description: getMeta($, "og:description") || getMeta($, "description"),
+        description: getMeta($, "og:description") || getMeta($, "twitter:description") || getMeta($, "description"),
         image: getMeta($, "og:image") || getMeta($, "twitter:image"),
         image_fallback: $(`image`).attr("src"),
-        video: getMeta($, "og:video:secure_url") || getMeta($, "og:video:url") || getMeta($, "og:video") || getMeta($, "twitter:player"),
+        video: getMeta($, "og:video:secure_url") || getMeta($, "og:video:url") || getMeta($, "og:video") || getMeta($, "twitter:player:stream") || getMeta($, "twitter:player"),
         video_fallback: $(`video`).attr("src"),
         width: tryParseInt(getMeta($, "og:image:width")),
         height: tryParseInt(getMeta($, "og:image:height")),
@@ -129,20 +149,23 @@ const doFetch = async (url: URL, opts?: RequestInit) => {
     }
 };
 
-const genericImageHandler = async (url: URL): Promise<Embed | null> => {
-    const type = await fetch(url, {
-        ...getDefaultFetchOptions(),
-        method: "HEAD",
-    });
+const genericMediaHandler = async (url: URL, contentType?: string | null): Promise<Embed | null> => {
+    const detectedContentType =
+        contentType ??
+        (
+            await fetch(url, {
+                ...getDefaultFetchOptions(),
+                method: "HEAD",
+            })
+        ).headers.get("content-type");
 
     let image;
 
-    if (type.headers.get("content-type")?.indexOf("image") !== -1) {
+    if (isImageContentType(detectedContentType)) {
         const result = await probe(url.href);
         image = makeEmbedImage(url.href, result.width, result.height);
-    } else if (type.headers.get("content-type")?.indexOf("video") !== -1) {
-        // TODO
-        return null;
+    } else if (isVideoContentType(detectedContentType)) {
+        return makeDirectVideoEmbed(url);
     } else {
         // have to download the page, unfortunately
         const response = await doFetch(url);
@@ -169,7 +192,8 @@ export const EmbedHandlers: {
             ...getDefaultFetchOptions(),
             method: "HEAD",
         });
-        if (type.headers.get("content-type")?.indexOf("image") !== -1) return await genericImageHandler(url);
+        const contentType = type.headers.get("content-type");
+        if (isImageContentType(contentType) || isVideoContentType(contentType)) return await genericMediaHandler(url, contentType);
 
         const response = await doFetch(url);
         if (!response) return null;
@@ -179,6 +203,7 @@ export const EmbedHandlers: {
 
         if (!metas.video) metas.video = metas.video_fallback;
         if (metas.video) metas.video = new URL(metas.video, url).toString();
+        const metadataVideo = metas.video && metas.video_width && metas.video_height ? makeEmbedVideo(metas.video, metas.video_width, metas.video_height) : undefined;
 
         if (!metas.image) metas.image = metas.image_fallback;
 
@@ -189,7 +214,7 @@ export const EmbedHandlers: {
             metas.height = result.height;
         }
 
-        if (!metas.image && (!metas.title || !metas.description)) {
+        if (!metas.image && !metadataVideo && (!metas.title || !metas.description)) {
             // we don't have any content to display
             return null;
         }
@@ -198,13 +223,13 @@ export const EmbedHandlers: {
         if (metas.type == "article") embedType = EmbedType.article;
         if (metas.type == "object") embedType = EmbedType.article; // github
         if (metas.type == "rich") embedType = EmbedType.rich;
-        if (metas.video && metas.video_width && metas.video_height) embedType = EmbedType.video;
+        if (metadataVideo) embedType = EmbedType.video;
 
         return {
             url: url.href,
             type: embedType,
             title: metas.title,
-            video: embedType === EmbedType.video ? makeEmbedImage(metas.video, metas.video_width, metas.video_height) : undefined,
+            video: metadataVideo,
             thumbnail: makeEmbedImage(metas.image, metas.width, metas.height),
             description: metas.description,
             provider: metas.site_name
@@ -216,12 +241,12 @@ export const EmbedHandlers: {
         };
     },
 
-    "giphy.com": genericImageHandler,
-    "media4.giphy.com": genericImageHandler,
-    "tenor.com": genericImageHandler,
-    "c.tenor.com": genericImageHandler,
-    "media.tenor.com": genericImageHandler,
-    "media1.tenor.com": genericImageHandler,
+    "giphy.com": genericMediaHandler,
+    "media4.giphy.com": genericMediaHandler,
+    "tenor.com": genericMediaHandler,
+    "c.tenor.com": genericMediaHandler,
+    "media.tenor.com": genericMediaHandler,
+    "media1.tenor.com": genericMediaHandler,
 
     "facebook.com": (url) => EmbedHandlers["www.facebook.com"](url),
     "www.facebook.com": async (url: URL) => {
