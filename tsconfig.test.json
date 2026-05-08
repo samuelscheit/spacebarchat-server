@@ -5,6 +5,8 @@
         "src/api/ServerConfigure.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
+        "src/schemas/api/guilds/VoiceState.test.ts",
+        "src/util/entities/VoiceState.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],

@@ -24,5 +24,5 @@ test("public voice state projection exposes only Discord voice state fields", ()
 test("public voice state schema does not import util entities", () => {
     const source = readFileSync(path.join(process.cwd(), "src", "schemas", "api", "guilds", "VoiceState.ts"), "utf8");
 
-    assert.doesNotMatch(source, /from\s+["']@spacebar\/util(?:\/entities)?["']/);
+    assert.doesNotMatch(source, /from\s+["']@spacebar\/util(?:\/[^"']*)?["']/);
 });
