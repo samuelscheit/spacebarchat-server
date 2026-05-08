@@ -98,6 +98,19 @@ describe("WebhookExecuteSchema", () => {
     });
 });
 
+describe("RegisterSchema", () => {
+    test("accepts gift_code_sku_id as a registration compatibility field", () => {
+        const body = {
+            username: "giftuser",
+            password: "correct horse battery staple",
+            consent: true,
+            gift_code_sku_id: "521842865731534868",
+        };
+
+        assert.deepEqual(validateSchema("RegisterSchema", body), body);
+    });
+});
+
 describe("schema validator custom formats", () => {
     test("accepts image data URI fields with matching image bytes", () => {
         assert.deepEqual(validateSchema("WebhookCreateSchema", { name: "hook", avatar: PngDataUri }), { name: "hook", avatar: PngDataUri });
