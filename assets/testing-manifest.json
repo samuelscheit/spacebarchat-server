@@ -9529,7 +9529,7 @@
             "method": "GET",
             "path": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 29,
+            "line": 38,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

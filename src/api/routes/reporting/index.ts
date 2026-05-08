@@ -26,6 +26,15 @@ import { FieldErrors } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 if (process.env.LOG_ROUTES !== "false") console.log("[Server] Registering reporting menu routes...");
+
+function getReportMenuPath(type: string) {
+    return path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`);
+}
+
+function readReportMenu(type: string) {
+    return JSON.parse(fs.readFileSync(getReportMenuPath(type), "utf-8"));
+}
+
 router.get(
     "/",
     route({
@@ -60,7 +69,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
         (req: Request, res: Response) => {
             // TODO: implement
             // res.send([] as ReportingMenuResponseSchema);
-            res.sendFile(path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`));
+            res.sendFile(getReportMenuPath(type));
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/menu/${type} registered (reports).`);
@@ -68,7 +77,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
     router.post(
         `/${type}`,
         route({
-            description: `Get reporting menu options for ${type} reports.`,
+            description: `Submit a ${type} report menu response.`,
             requestBody: "CreateReportSchema",
             responses: {
                 200: {
@@ -89,8 +98,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
                     },
                 });
 
-            const menuPath = path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`);
-            const menuData = JSON.parse(fs.readFileSync(menuPath, "utf-8"));
+            const menuData = readReportMenu(type);
             if (body.version !== menuData.version) {
                 throw FieldErrors({
                     version: {
@@ -166,7 +174,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
             if (!requiredFields) throw new HTTPError("Unknown report menu type", 400);
             requireFields(body, requiredFields);
 
-            throw new HTTPError("Validation success - implementation TODO", 418);
+            res.json(menuData);
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/${type} registered (reports).`);
