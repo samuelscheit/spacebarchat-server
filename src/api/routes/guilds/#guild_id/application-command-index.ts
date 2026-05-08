@@ -29,7 +29,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
     const applications: Application[] = [];
 
     for (const member of members) {
-        const app = await Application.findOne({ where: { id: member.id } });
+        const app = await Application.findOne({ where: { id: member.id }, relations: { bot: true } });
         if (app) applications.push(app);
     }
 
