@@ -93,6 +93,7 @@ import {
     buildIdentifyPendingGuildCreateData,
     IdentifyPendingGuildCreateData,
 } from "../util/IdentifyGuildCreate";
+import { getOpenDmPresenceRecipientIds } from "../util/DmPresenceRecipients";
 
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
@@ -345,10 +346,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                         name: true,
                         owner_id: true,
                         recipients: {
-                            // we don't actually need this ID or any other information about the recipient info,
-                            // but typeorm does not select anything from the users relation of recipients unless we select
-                            // at least one column.
-                            id: true,
+                            // Keep recipient state so IDENTIFY presence fanout only targets users who still have this DM open.
+                            user_id: true,
+                            closed: true,
                             // We only want public user data for each dm channel
                             user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
                         },
@@ -583,9 +583,15 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     // Uses a set to dedupe for us.
     const users: Set<PublicUser> = new Set();
 
+    const openDmPresenceRecipientIdsByChannelId = new Map<string, Set<string>>();
+
     // Generate dm channels from recipients list. Append recipients to `users` list
     const currentUser = user.toPublicUser();
-    const readyPrivateChannels = recipients.filter(hasLoadedDmChannel).map((r) => serializeReadyPrivateChannel(r.channel, this.user_id, currentUser));
+    const loadedDmRecipients = recipients.filter(hasLoadedDmChannel);
+    for (const { channel } of loadedDmRecipients) {
+        openDmPresenceRecipientIdsByChannelId.set(channel.id, getOpenDmPresenceRecipientIds(channel.recipients, this.user_id));
+    }
+    const readyPrivateChannels = loadedDmRecipients.map((r) => serializeReadyPrivateChannel(r.channel, this.user_id, currentUser));
     const channels = readyPrivateChannels.map(({ channel }) => channel);
     readyPrivateChannels.forEach(({ users: channelUsers }) => channelUsers.forEach((channelUser) => users.add(channelUser)));
     const generateDmChannelsTime = taskSw.getElapsedAndReset();
@@ -865,9 +871,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             });
         }
         for (const dmChannel of d.private_channels) {
-            // TODO: check if other side has the channel still open
+            const openRecipientIds = openDmPresenceRecipientIdsByChannelId.get(dmChannel.id);
             for (const recpt of dmChannel.recipients) {
-                if (recpt.id != this.user_id)
+                if (recpt.id != this.user_id && openRecipientIds?.has(recpt.id))
                     await emitEvent({
                         ...presenceUpdateEventData,
                         user_id: recpt.id,
