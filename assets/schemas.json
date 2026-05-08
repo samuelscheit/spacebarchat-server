@@ -8437,7 +8437,9 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": "number",
+                "properties": {},
+                "additionalProperties": false
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -8456,7 +8458,9 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "type": "number",
+                    "properties": {},
+                    "additionalProperties": false
                 }
             },
             "guild_subscriptions": {
@@ -16095,9 +16099,20 @@
                 "default": ""
             },
             "type": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true
+                "anyOf": [
+                    {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "hook": {
                 "type": "boolean",
