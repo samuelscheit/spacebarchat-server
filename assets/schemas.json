@@ -10907,11 +10907,7 @@
                         "type": "integer"
                     }
                 },
-                "additionalProperties": false,
-                "required": [
-                    "end",
-                    "start"
-                ]
+                "additionalProperties": false
             },
             "application_id": {
                 "type": "string"
@@ -10935,11 +10931,7 @@
                         "type": "boolean"
                     }
                 },
-                "additionalProperties": false,
-                "required": [
-                    "animated",
-                    "name"
-                ]
+                "additionalProperties": false
             },
             "party": {
                 "type": "object",
@@ -11006,12 +10998,6 @@
             "metadata": {
                 "type": "object",
                 "properties": {
-                    "button_urls": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
                     "context_uri": {
                         "type": "string"
                     },
@@ -11023,16 +11009,13 @@
                         "items": {
                             "type": "string"
                         }
-                    },
-                    "type": {
-                        "enum": [
-                            "episode",
-                            "track"
-                        ],
-                        "type": "string"
                     }
                 },
-                "additionalProperties": false
+                "additionalProperties": false,
+                "required": [
+                    "album_id",
+                    "artist_ids"
+                ]
             },
             "session_id": {
                 "type": "string"
@@ -11040,9 +11023,7 @@
         },
         "additionalProperties": false,
         "required": [
-            "flags",
             "name",
-            "session_id",
             "type"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"

@@ -23,16 +23,16 @@ export interface Activity {
     created_at?: number; // unix timestamp of when the activity was added to the user's session
     timestamps?: {
         // unix timestamps for start and/or end of the game
-        start: number;
-        end: number;
+        start?: number;
+        end?: number;
     };
     application_id?: string; // application id for the game
     details?: string;
     state?: string;
     emoji?: {
-        name: string;
+        name?: string;
         id?: string;
-        animated: boolean;
+        animated?: boolean;
     };
     party?: {
         id?: string;
@@ -54,20 +54,18 @@ export interface Activity {
         match?: string; // the secret for a specific instanced match
     };
     instance?: boolean;
-    flags: string; // activity flags OR d together, describes what the payload includes
+    flags?: string; // activity flags OR d together, describes what the payload includes
 
     // Spotify and other rich presence data
     id?: string;
     sync_id?: string;
     metadata?: {
         // spotify
-        button_urls?: string[];
         context_uri?: string;
-        album_id?: string;
-        artist_ids?: string[];
-        type?: "track" | "episode";
+        album_id: string;
+        artist_ids: string[];
     };
-    session_id: string;
+    session_id?: string;
 }
 
 export enum ActivityType {
