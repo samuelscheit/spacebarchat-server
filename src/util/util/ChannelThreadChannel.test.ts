@@ -8,6 +8,7 @@ type SnowflakeClass = typeof import("./Snowflake").Snowflake;
 type ChannelClass = typeof import("../entities/Channel").Channel;
 type GuildClass = typeof import("../entities/Guild").Guild;
 type ThreadMemberClass = typeof import("../entities/ThreadMember").ThreadMember;
+type EmittedEvent = { event: string; data: Record<string, unknown> };
 
 type FindOneOptionsWithId = {
     where?: {
@@ -64,6 +65,8 @@ const schemasMock = new Proxy(
 
 const { Snowflake } = localRequire("./Snowflake") as { Snowflake: SnowflakeClass };
 
+const emittedEvents: EmittedEvent[] = [];
+
 const utilMock = {
     Config: {
         get: () => ({
@@ -84,7 +87,9 @@ const utilMock = {
         finalPermission: () => ({ has: () => false, hasThrow: () => undefined }),
     },
     Snowflake,
-    emitEvent: async () => undefined,
+    emitEvent: async (event: EmittedEvent) => {
+        emittedEvents.push(event);
+    },
     getDatabase: () => null,
     getPermission: async () => ({ hasThrow: () => undefined }),
     handleFile: async () => undefined,
@@ -111,6 +116,7 @@ const originals = {
 };
 
 afterEach(() => {
+    emittedEvents.length = 0;
     Object.assign(Channel, {
         findOne: originals.channelFindOne,
         findOneOrFail: originals.channelFindOneOrFail,
@@ -217,5 +223,34 @@ describe("Channel.createThreadChannel", () => {
             findOneCalls.map((call) => call.where?.id),
             ["message-id"],
         );
+    });
+
+    test("emits the creator membership update with the saved thread member count", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        Object.assign(Snowflake, {
+            generate: () => "generated-thread-id",
+        });
+
+        await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "standalone-thread",
+                type: GUILD_PRIVATE_THREAD,
+            },
+            {},
+            "user",
+            { skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        const threadMembersUpdate = emittedEvents.find((event) => event.event === "THREAD_MEMBERS_UPDATE");
+
+        assert.ok(threadMembersUpdate);
+        assert.equal(threadMembersUpdate.data.id, "generated-thread-id");
+        assert.equal(threadMembersUpdate.data.guild_id, "guild");
+        assert.equal(threadMembersUpdate.data.member_count, 1);
+        assert.deepEqual(threadMembersUpdate.data.removed_member_ids, []);
+        assert.deepEqual(threadMembersUpdate.data.added_members, [{ user_id: "user", id: "generated-thread-id" }]);
     });
 });
