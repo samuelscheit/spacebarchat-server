@@ -1,4 +1,5 @@
 import type { MessageAcknowledgeSchema } from "@spacebar/schemas";
+import { Raw, type FindOperator } from "typeorm";
 
 export interface AcknowledgeableReadState {
     last_message_id?: string | null;
@@ -7,11 +8,28 @@ export interface AcknowledgeableReadState {
     flags?: number | null;
 }
 
+export interface AdvanceOnlyNotificationCursorCondition {
+    id: string;
+    notifications_cursor: FindOperator<string>;
+}
+
+export const advanceOnlyNotificationCursorSql = "notifications_cursor IS NULL OR notifications_cursor::bigint < :messageId";
+
+export function shouldAdvanceNotificationCursor(current: string | null | undefined, next: string): boolean {
+    return current === null || current === undefined || BigInt(next) > BigInt(current);
+}
+
+export function getAdvanceOnlyNotificationCursorCondition(readStateId: string, messageId: string): AdvanceOnlyNotificationCursorCondition {
+    return {
+        id: readStateId,
+        notifications_cursor: Raw((alias) => `${alias} IS NULL OR ${alias}::bigint < :messageId`, { messageId }),
+    };
+}
+
 export function applyMessageAcknowledgeToReadState(readState: AcknowledgeableReadState, messageId: string, body: MessageAcknowledgeSchema) {
     readState.last_message_id = messageId;
     readState.mention_count = 0;
     readState.last_viewed = body.last_viewed ?? readState.last_viewed ?? 0;
     readState.flags = body.flags ?? readState.flags ?? 0;
-
     return readState;
 }

@@ -18,14 +18,13 @@
 
 import { route } from "@spacebar/api";
 import { ReadStateType, type MessageAcknowledgeSchema } from "@spacebar/schemas";
-import { applyMessageAcknowledgeToReadState, emitEvent, getPermission, MessageAckEvent, ReadState } from "@spacebar/util";
+import { applyMessageAcknowledgeToReadState, emitEvent, getAdvanceOnlyNotificationCursorCondition, getPermission, MessageAckEvent, ReadState } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -46,10 +45,24 @@ router.post(
         let read_state = await ReadState.findOne({
             where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
         });
+        const isNewReadState = !read_state;
         if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
         applyMessageAcknowledgeToReadState(read_state, message_id, body);
 
-        await read_state.save();
+        if (isNewReadState) {
+            await read_state.save();
+        } else {
+            await ReadState.update(
+                { id: read_state.id },
+                {
+                    last_message_id: read_state.last_message_id,
+                    mention_count: read_state.mention_count,
+                    last_viewed: read_state.last_viewed,
+                    flags: read_state.flags,
+                },
+            );
+        }
+        await ReadState.update(getAdvanceOnlyNotificationCursorCondition(read_state.id, message_id), { notifications_cursor: message_id });
 
         await emitEvent({
             event: "MESSAGE_ACK",
