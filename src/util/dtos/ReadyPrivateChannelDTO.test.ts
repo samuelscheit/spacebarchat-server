@@ -25,7 +25,7 @@ function recipient(id: string) {
 }
 
 describe("serializeReadyPrivateChannel", () => {
-    test("serializes READY compatibility is_spam without a persisted channel field", () => {
+    test("serializes READY is_spam from the channel spam flag", () => {
         const source: ReadyPrivateChannelSource = {
             id: "channel-id",
             flags: 32,
@@ -41,7 +41,7 @@ describe("serializeReadyPrivateChannel", () => {
 
         const serialized = serializeReadyPrivateChannel(source, "current-user", publicUser("current-user"));
 
-        assert.equal(serialized.channel.is_spam, false);
+        assert.equal(serialized.channel.is_spam, true);
         assert.equal("is_spam" in source, false);
         assert.deepEqual(
             serialized.channel.recipients.map((user) => user.id),
@@ -72,6 +72,7 @@ describe("serializeReadyPrivateChannel", () => {
         assert.deepEqual(serialized.channel.recipients, [currentUser]);
         assert.deepEqual(serialized.users, [currentUser]);
         assert.equal(serialized.channel.last_message_id, null);
+        assert.equal(serialized.channel.is_spam, false);
     });
 
     test("keeps note-to-self one-to-one DMs visible after excluding the current recipient row", () => {

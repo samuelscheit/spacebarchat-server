@@ -1,5 +1,6 @@
 import type { ChannelType, PublicUser } from "@spacebar/schemas";
 import type { ReadyPrivateChannel } from "./ReadyGuildDTO";
+import { hasChannelSpamFlag } from "../util/ChannelFlags";
 
 type ReadyPrivateChannelRecipient = {
     user: {
@@ -24,7 +25,6 @@ export type ReadyPrivateChannelSerialization = {
     users: PublicUser[];
 };
 
-const READY_PRIVATE_CHANNEL_IS_SPAM = false;
 const READY_CHANNEL_TYPE_DM = 1 as ChannelType.DM;
 const READY_CHANNEL_TYPE_GROUP_DM = 3 as ChannelType.GROUP_DM;
 
@@ -49,10 +49,7 @@ export function serializeReadyPrivateChannel(channel: ReadyPrivateChannelSource,
             recipients,
             icon: channel.icon,
             name: channel.name,
-            // Spacebar does not persist per-recipient spam classification yet.
-            // READY still requires the compatibility field, so keep the default
-            // centralized instead of selecting a nonexistent Channel column.
-            is_spam: READY_PRIVATE_CHANNEL_IS_SPAM,
+            is_spam: hasChannelSpamFlag(channel.flags),
             owner_id: channel.owner_id || undefined,
         },
         users: recipients,
