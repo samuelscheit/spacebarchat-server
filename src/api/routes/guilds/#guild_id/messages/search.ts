@@ -40,9 +40,9 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
+        const { include_nsfw } = req.query;
         const {
             content,
-            include_nsfw,
             offset,
             sort_order,
             // sort_by, // TODO: Handle 'relevance'

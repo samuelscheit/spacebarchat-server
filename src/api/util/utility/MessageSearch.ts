@@ -4,10 +4,10 @@ export function messageToSearchResult(message: Message) {
     return message.toSearchResult();
 }
 
-export function parseIncludeNsfwSearchParam(includeNsfw: string | undefined) {
+export function parseIncludeNsfwSearchParam(includeNsfw: unknown) {
     return includeNsfw === "true";
 }
 
-export function getSearchChannelNsfwFilter(includeNsfw: string | undefined) {
+export function getSearchChannelNsfwFilter(includeNsfw: unknown) {
     return parseIncludeNsfwSearchParam(includeNsfw) ? {} : { channel: { nsfw: false } };
 }
