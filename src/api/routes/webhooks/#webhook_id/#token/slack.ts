@@ -58,7 +58,10 @@ function parseSlackTimestamp(value: unknown) {
     const seconds = Number(value);
     if (!Number.isFinite(seconds)) return undefined;
 
-    return new Date(seconds * 1000).toISOString();
+    const timestamp = new Date(seconds * 1000);
+    if (!Number.isFinite(timestamp.getTime())) return undefined;
+
+    return timestamp.toISOString();
 }
 
 function slackAttachmentToEmbed(attachment: SlackAttachment): Embed | undefined {

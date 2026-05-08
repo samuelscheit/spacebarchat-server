@@ -14455,8 +14455,8 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/slack/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/slack.ts",
-            "line": 163,
-            "authMode": "bearer",
+            "line": 166,
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookExecuteSchema",

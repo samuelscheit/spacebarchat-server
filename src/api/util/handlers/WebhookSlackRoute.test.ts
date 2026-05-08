@@ -136,6 +136,25 @@ async function main() {
             ],
         });
         assert.equal(calls[1].query.wait, "false");
+
+        response = await fetch(baseUrl + "/webhooks/webhook-token-id/secret-token/slack", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                attachments: [{ fallback: "invalid timestamp", ts: "8640000000001" }],
+            }),
+        });
+        assert.equal(response.status, 200);
+        result = await response.json();
+        assert.deepEqual(result.body, {
+            embeds: [
+                {
+                    type: "rich",
+                    description: "invalid timestamp",
+                },
+            ],
+        });
+        assert.equal(calls[2].query.wait, "true");
     } finally {
         await new Promise((resolve, reject) => listener.close((error) => error ? reject(error) : resolve()));
         fs.rmSync(tempRoot, { recursive: true, force: true });

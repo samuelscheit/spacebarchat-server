@@ -47,6 +47,8 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/123/abc-DEF_123"), true);
         assert.equal(isNoAuthorizationRoute("GET", "/webhooks/123/abc-DEF_123?wait=true"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/abc-DEF_123/github/"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/abc-DEF_123/slack"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/webhooks/123/abc-DEF_123/slack/?wait=false"), true);
     });
 
     test("allows token-auth webhook message routes with query strings", () => {
@@ -57,6 +59,7 @@ describe("unauthenticated route matching", () => {
 
     test("does not partially match webhook token routes", () => {
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/123/abc-DEF_123/extra"), false);
+        assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/abc-DEF_123/slack/extra"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/webhooks/123/abc.DEF/messages/456"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/webhooks/123/abc.DEF?wait=true"), false);
     });
@@ -64,5 +67,6 @@ describe("unauthenticated route matching", () => {
     test("allows generated OpenAPI webhook token route templates", () => {
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/{webhook_id}/{token}/"), true);
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/{webhook_id}/{token}/messages/{message_id}/"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/webhooks/{webhook_id}/{token}/slack/"), true);
     });
 });
