@@ -6,6 +6,12 @@
 
 export type BitFieldResolvable = number | bigint | BitField | string | BitFieldResolvable[];
 
+type BitFieldConstructor = {
+    FLAGS: Record<string, bigint>;
+    resolve(this: BitField | BitFieldConstructor, bit?: BitFieldResolvable): bigint;
+    new (bits?: BitFieldResolvable): BitField;
+};
+
 /**
  * Data structure that makes it easy to interact with a bitfield.
  */
@@ -45,7 +51,7 @@ export class BitField {
      * Gets all given bits that are missing from the bitfield.
      */
     missing(bits: BitFieldResolvable) {
-        if (!Array.isArray(bits)) bits = new BitField(bits).toArray();
+        if (!Array.isArray(bits)) bits = new (getBitFieldConstructor(this))(bits).toArray();
         return bits.filter((p) => !this.has(p));
     }
 
@@ -66,7 +72,7 @@ export class BitField {
         for (const bit of bits) {
             total |= BitField.resolve.call(this, bit);
         }
-        if (Object.isFrozen(this)) return new BitField(this.bitfield | total);
+        if (Object.isFrozen(this)) return new (getBitFieldConstructor(this))(this.bitfield | total);
         this.bitfield |= total;
         return this;
     }
@@ -80,7 +86,7 @@ export class BitField {
         for (const bit of bits) {
             total |= BitField.resolve.call(this, bit);
         }
-        if (Object.isFrozen(this)) return new BitField(this.bitfield & ~total);
+        if (Object.isFrozen(this)) return new (getBitFieldConstructor(this))(this.bitfield & ~total);
         this.bitfield &= ~total;
         return this;
     }
@@ -91,7 +97,7 @@ export class BitField {
      */
     serialize() {
         const serialized: Record<string, boolean> = {};
-        for (const [flag, bit] of Object.entries(BitField.FLAGS)) serialized[flag] = this.has(bit);
+        for (const [flag, bit] of Object.entries(getBitFieldFlags(this))) serialized[flag] = this.has(bit);
         return serialized;
     }
 
@@ -99,7 +105,7 @@ export class BitField {
      * Gets an {@link Array} of bitfield names based on the bits available.
      */
     toArray(): string[] {
-        return Object.keys(BitField.FLAGS).filter((bit) => this.has(bit));
+        return Object.keys(getBitFieldFlags(this)).filter((bit) => this.has(bit));
     }
 
     toJSON() {
@@ -127,10 +133,8 @@ export class BitField {
      * @param {BitFieldResolvable} [bit=0] - bit(s) to resolve
      * @returns {number}
      */
-    static resolve(bit: BitFieldResolvable = BigInt(0)): bigint {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const FLAGS = this.FLAGS || this.constructor?.FLAGS;
+    static resolve(this: BitField | BitFieldConstructor, bit: BitFieldResolvable = BigInt(0)): bigint {
+        const FLAGS = getBitFieldFlags(this);
 
         if (typeof bit === "string") {
             if (typeof FLAGS[bit] !== "undefined") return FLAGS[bit];
@@ -142,14 +146,20 @@ export class BitField {
         if (bit instanceof BitField) return bit.bitfield;
 
         if (Array.isArray(bit)) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            const resolve = this.constructor?.resolve || this.resolve;
-            return bit.map((p) => resolve.call(this, p)).reduce((prev, p) => BigInt(prev) | BigInt(p), BigInt(0));
+            return bit.map((p) => BitField.resolve.call(this, p)).reduce((prev, p) => BigInt(prev) | BigInt(p), BigInt(0));
         }
 
         throw new RangeError("BITFIELD_INVALID: " + bit);
     }
+}
+
+function getBitFieldConstructor(bitField: BitField | BitFieldConstructor): BitFieldConstructor {
+    if (typeof bitField === "function") return bitField;
+    return bitField.constructor as BitFieldConstructor;
+}
+
+function getBitFieldFlags(bitField: BitField | BitFieldConstructor): Record<string, bigint> {
+    return getBitFieldConstructor(bitField).FLAGS;
 }
 
 export function BitFlag(x: bigint | number) {
