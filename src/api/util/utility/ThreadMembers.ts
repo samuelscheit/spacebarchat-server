@@ -33,11 +33,7 @@ export interface ThreadMemberCountCache {
 }
 
 export async function updateThreadMemberCountAfterRemoval(thread: ThreadMemberCountCache, countRemainingMembers: (threadId: string) => Promise<number>) {
-    if (typeof thread.member_count === "number") {
-        thread.member_count = Math.max(thread.member_count - 1, 0);
-    } else {
-        thread.member_count = await countRemainingMembers(thread.id);
-    }
+    thread.member_count = await countRemainingMembers(thread.id);
 
     await thread.save();
     return thread.member_count;

@@ -91,25 +91,38 @@ describe("thread member helpers", () => {
         assert.deepEqual(builder.calls.at(-1), ["take", 100]);
     });
 
-    test("decrements and persists a known thread member count after removal", async () => {
+    test("persists the counted remaining thread members after removal", async () => {
         const thread = createThreadCountCache("thread-id", 3);
+        const countedThreadIds: string[] = [];
 
-        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async () => {
-            throw new Error("should not recount when cached count is known");
+        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async (threadId) => {
+            countedThreadIds.push(threadId);
+            return 2;
         });
+
+        assert.equal(memberCount, 2);
+        assert.equal(thread.member_count, 2);
+        assert.deepEqual(countedThreadIds, ["thread-id"]);
+        assert.equal(thread.saveCalls, 1);
+    });
+
+    test("repairs a stale known thread member count after removal", async () => {
+        const thread = createThreadCountCache("thread-id", 10);
+
+        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async () => 2);
 
         assert.equal(memberCount, 2);
         assert.equal(thread.member_count, 2);
         assert.equal(thread.saveCalls, 1);
     });
 
-    test("does not decrement a known thread member count below zero", async () => {
+    test("repairs a stale zero thread member count after removal", async () => {
         const thread = createThreadCountCache("thread-id", 0);
 
-        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async () => 12);
+        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async () => 1);
 
-        assert.equal(memberCount, 0);
-        assert.equal(thread.member_count, 0);
+        assert.equal(memberCount, 1);
+        assert.equal(thread.member_count, 1);
         assert.equal(thread.saveCalls, 1);
     });
 

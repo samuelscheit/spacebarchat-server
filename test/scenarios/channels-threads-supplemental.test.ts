@@ -329,14 +329,18 @@ async function coverThreadMemberRoutes(
     );
     await assertThreadMember(threadId, joinedMemberIndex);
 
+    await Channel.update({ id: threadId }, { member_count: 99 });
+
     const beforeDelete = markCapturedEvents(events);
     await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, token), 204);
     await waitForEventAfter(
         events,
         beforeDelete,
-        (event) => event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.removed_member_ids?.includes(joinedUserId),
+        (event) =>
+            event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.member_count === 1 && event.data.removed_member_ids?.includes(joinedUserId),
     );
     assert.equal(await ThreadMember.findOneBy({ id: threadId, member_idx: joinedMemberIndex }), null);
+    assert.equal((await Channel.findOneByOrFail({ id: threadId })).member_count, 1);
 
     const beforePut = markCapturedEvents(events);
     await assertStatus(await putJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, {}, token), 204);
