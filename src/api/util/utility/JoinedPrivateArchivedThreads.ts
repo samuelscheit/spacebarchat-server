@@ -119,7 +119,7 @@ export function applyJoinedPrivateArchivedThreadsQuery<TBuilder extends JoinedPr
         .andWhere(`"${threadMemberAlias}"."member_idx" = :memberIndex`, { memberIndex })
         .andWhere(`${archivedExpression} = :archived`, { archived: "true" });
 
-    if (beforeThreadId) builder = builder.andWhere(`"${threadAlias}"."id" < :before`, { before: beforeThreadId });
+    if (beforeThreadId) builder = builder.andWhere(`${threadAlias}.id < :before`, { before: beforeThreadId });
 
-    return builder.orderBy(`"${threadAlias}"."id"`, "DESC").take(take);
+    return builder.orderBy(`${threadAlias}.id`, "DESC").take(take);
 }
