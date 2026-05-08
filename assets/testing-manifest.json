@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 405,
+        "totalEntries": 406,
         "byService": {
-            "api": 340,
+            "api": 341,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 380,
+            "http-route": 381,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 245,
+            "stateful-domain": 246,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -43,7 +43,7 @@
             "micro": 2,
             "startup-health": 15,
             "route-class": 297,
-            "hot-path": 28,
+            "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 41,
             "protocol-load": 21
@@ -12850,7 +12850,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 95,
+            "line": 94,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12931,7 +12931,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 133,
+            "line": 132,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12975,7 +12975,7 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 57,
+            "line": 56,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -13148,6 +13148,50 @@
                 ],
                 "responseStatuses": [
                     200,
+                    400,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-webhooks",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "guilds",
+                    "channels",
+                    "webhooks",
+                    "messages"
+                ],
+                "contractChecks": [
+                    "token-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/webhooks/:webhook_id/:token/slack/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/webhooks/:webhook_id/:token/slack/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/slack.ts",
+            "line": 163,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "WebhookExecuteSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
+                    204,
                     400,
                     404
                 ],
