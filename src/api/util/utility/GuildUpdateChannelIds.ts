@@ -40,7 +40,11 @@ function isEntityNotFoundError(error: unknown) {
     return error instanceof Error && error.name === "EntityNotFoundError";
 }
 
-export async function ensureGuildUpdateChannelIdsExistInGuild(body: GuildUpdateSchema, guild_id: string, channelFinder: ChannelFinder = (options) => Channel.findOneOrFail(options)) {
+export async function ensureGuildUpdateChannelIdsExistInGuild(
+    body: GuildUpdateSchema,
+    guild_id: string,
+    channelFinder: ChannelFinder = (options) => Channel.findOneOrFail(options),
+) {
     const invalidFields: Record<string, { code: string; message: string }> = {};
 
     for (const field of CHANNEL_REFERENCE_FIELDS) {

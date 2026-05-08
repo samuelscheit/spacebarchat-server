@@ -3,7 +3,7 @@ process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar-t
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { ensureGuildUpdateChannelIdsExistInGuild } from "./GuildUpdateChannelIds";
-import { FieldError } from "../../../util/util/FieldError";
+import { FieldError } from "@spacebar/util";
 
 type FindOneOrFailOptions = {
     where: {
