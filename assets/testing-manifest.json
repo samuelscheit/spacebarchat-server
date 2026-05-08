@@ -10070,7 +10070,7 @@
             "method": "POST",
             "path": "/interactions/",
             "sourceFile": "src/api/routes/interactions/index.ts",
-            "line": 48,
+            "line": 45,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

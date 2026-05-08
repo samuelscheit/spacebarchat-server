@@ -33,17 +33,14 @@ import {
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
 import { pendingInteractions } from "@spacebar/util/imports/Interactions";
-import { getAuthorizingIntegrationOwners, InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
+import { getAuthorizingIntegrationOwners } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
+import { buildBotInteractionCreatePayload, RoutedInteractionCreatePayload } from "../../util/handlers/InteractionCreateRouting";
 
 const router = Router({ mergeParams: true });
 
 function hasInteractionData(body: InteractionSchema): body is DataInteractionRequest {
     return body.type !== InteractionType.Ping;
 }
-
-type RoutedInteractionCreatePayload = Omit<Partial<InteractionCreateSchema>, "data"> & {
-    data?: DataInteractionRequest["data"];
-};
 
 router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Request, res: Response) => {
     const body = req.body as InteractionSchema;
@@ -126,11 +123,10 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
     await emitEvent({
         event: "INTERACTION_CREATE",
         user_id: body.application_id,
-        data: {
-            ...interactionData,
-            member_id: req.user_id, // TODO: is this correct?
-            id: interactionId,
-        },
+        data: buildBotInteractionCreatePayload(interactionData, {
+            interactionId,
+            memberId: req.user_id,
+        }),
     } satisfies InteractionCreateEvent);
 
     const interactionTimeout = setTimeout(() => {
