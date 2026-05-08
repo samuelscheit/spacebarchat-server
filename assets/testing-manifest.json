@@ -14124,7 +14124,7 @@
             "method": "DELETE",
             "path": "/attachments/:channel_id/:message_id/:filename",
             "sourceFile": "src/cdn/routes/attachments.ts",
-            "line": 114,
+            "line": 118,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false

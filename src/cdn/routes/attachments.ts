@@ -85,13 +85,17 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
         if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid signature header");
     } else if (!Config.get().security.cdnSignUrls) hasValidAuth = true;
     else {
-        hasValidAuth = hasValidSignature(
-            new NewUrlUserSignatureData({
-                ip: req.ip,
-                userAgent: req.headers["user-agent"] as string,
-            }),
-            UrlSignResult.fromUrl(fullUrl),
-        );
+        try {
+            hasValidAuth = hasValidSignature(
+                new NewUrlUserSignatureData({
+                    ip: req.ip,
+                    userAgent: req.headers["user-agent"] as string,
+                }),
+                UrlSignResult.fromUrl(fullUrl),
+            );
+        } catch {
+            hasValidAuth = false;
+        }
         if (!hasValidAuth) console.warn("[CDN/Attachments] Client sent invalid attachment URL signature");
     }
 

@@ -5,7 +5,23 @@ import path from "node:path";
 import { test } from "node:test";
 import Ajv, { type AnySchema } from "ajv";
 import addFormats from "ajv-formats";
-import { Channel, closeDatabase, CloudAttachment, Config, generateToken, Guild, initDatabase, Member, Message, Permissions, Role, Session, User } from "@spacebar/util";
+import {
+    Channel,
+    closeDatabase,
+    CloudAttachment,
+    Config,
+    generateToken,
+    getUrlSignature,
+    Guild,
+    initDatabase,
+    Member,
+    Message,
+    NewUrlSignatureData,
+    Permissions,
+    Role,
+    Session,
+    User,
+} from "@spacebar/util";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeChannel, makeGuild, makeUser } from "../fixtures/entities";
 import { withFileStorage } from "../fixtures/files";
@@ -62,6 +78,8 @@ type GeneratedHttpContractMatrix = {
         runtimeCdnUploadContracts: number;
         runtimeCdnInvalidUploadContracts: number;
         runtimeCdnInternalAttachmentContracts: number;
+        runtimeCdnSignedUrlContracts: number;
+        runtimeCdnFilenameSanitizationContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -191,7 +209,10 @@ const cdnInternalAttachmentManifestIds = [
     "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
 ];
 const cdnInternalAttachmentContracts = matrix.contracts.filter((contract) => cdnInternalAttachmentManifestIds.includes(contract.manifestId));
+const cdnSignedUrlContracts = matrix.contracts.filter((contract) => contract.manifestId === "cdn:http:GET:/attachments/:channel_id/:message_id/:filename");
+const cdnFilenameSanitizationContracts = matrix.contracts.filter((contract) => contract.manifestId === "cdn:http:POST:/attachments/:channel_id/:message_id");
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
+const cdnRuntimeSignatureKey = "generated-cdn-url-signature-key";
 const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 const generatedRateLimitCounts: Record<string, number> = {
     "auth.login": 404,
@@ -205,13 +226,16 @@ function silenceConsole() {
     const previous = {
         error: console.error,
         log: console.log,
+        warn: console.warn,
     };
     console.error = () => undefined;
     console.log = () => undefined;
+    console.warn = () => undefined;
 
     return () => {
         console.error = previous.error;
         console.log = previous.log;
+        console.warn = previous.warn;
     };
 }
 
@@ -395,7 +419,13 @@ async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeo
                 api: { endpointPublic: "http://localhost:3001/api/v9" },
                 cdn: { endpointPublic: "https://cdn.example", endpointPrivate: "http://127.0.0.1:3003" },
                 gateway: { endpointPublic: "ws://localhost:3002" },
-                security: { requestSignature: cdnRuntimeRequestSignature, cdnSignUrls: true },
+                security: {
+                    requestSignature: cdnRuntimeRequestSignature,
+                    cdnSignUrls: true,
+                    cdnSignatureKey: cdnRuntimeSignatureKey,
+                    cdnSignatureIncludeIp: false,
+                    cdnSignatureIncludeUserAgent: false,
+                },
             }),
         );
         await Config.init(true);
@@ -654,6 +684,11 @@ async function seedCdnObjectForContract(storage: GeneratedCdnStorage, contract: 
     await storage.set(storagePath, cdnRuntimePng);
 }
 
+function signedCdnUrl(baseUrl: string, pathValue: string) {
+    const url = `${baseUrl}${pathValue}`;
+    return getUrlSignature(new NewUrlSignatureData({ url })).applyToUrl(url).toString();
+}
+
 async function assertCdnValidObjectResponse(contract: GeneratedHttpContract, response: Response) {
     assert.equal(response.status, 200, `${contract.manifestId} should download seeded CDN objects`);
     assert.equal(response.headers.get("cache-control"), "public, max-age=21600, s-maxage=21600, immutable", `${contract.manifestId} should include successful CDN cache headers`);
@@ -665,6 +700,12 @@ async function assertCdnValidObjectResponse(contract: GeneratedHttpContract, res
     } else {
         assert.ok(body.length > 0, `${contract.manifestId} should return a checked-in default asset`);
     }
+}
+
+async function assertCdnSignedUrlResponse(contract: GeneratedHttpContract, unsignedResponse: Response, signedResponse: Response) {
+    assert.equal(unsignedResponse.status, 404, `${contract.manifestId} should hide signed attachment objects without URL auth`);
+    assert.match(await unsignedResponse.text(), /no longer available/i, `${contract.manifestId} should return the signed-url missing body`);
+    await assertCdnValidObjectResponse(contract, signedResponse);
 }
 
 async function assertCdnMissingSignatureResponse(contract: GeneratedHttpContract, response: Response) {
@@ -685,11 +726,11 @@ async function assertCdnDeleteResponse(contract: GeneratedHttpContract, response
     assert.deepEqual(body, { success: true }, `${contract.manifestId} should return the CDN delete success body`);
 }
 
-async function postGeneratedCdnMultipart(url: string) {
+async function postGeneratedCdnMultipart(url: string, filename = "generated.png") {
     const form = new FormData();
     const bytes = new Uint8Array(cdnRuntimePng.length);
     bytes.set(cdnRuntimePng);
-    form.set("file", new Blob([bytes], { type: "image/png" }), "generated.png");
+    form.set("file", new Blob([bytes], { type: "image/png" }), filename);
 
     return await fetch(url, {
         method: "POST",
@@ -699,6 +740,14 @@ async function postGeneratedCdnMultipart(url: string) {
         },
         body: form,
     });
+}
+
+async function assertCdnFilenameSanitizationResponse(contract: GeneratedHttpContract, response: Response, storage: GeneratedCdnStorage) {
+    const body = await assertCdnUploadResponse(contract, response);
+
+    assert.equal(body.filename, "generated_unsafe.png", `${contract.manifestId} should sanitize uploaded attachment filenames`);
+    assert.equal(body.path, "attachments/100000000000000002/100000000000000003/generated_unsafe.png", `${contract.manifestId} should return the sanitized storage path`);
+    assert.equal(await storage.exists(String(body.path)), true, `${contract.manifestId} should persist the sanitized filename path`);
 }
 
 async function postGeneratedCdnInvalidMultipart(url: string) {
@@ -1379,6 +1428,33 @@ test("generated CDN valid-object contracts download seeded objects through the r
     }
 });
 
+test("generated CDN signed URL contracts authorize attachment downloads through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnSignedUrlContracts.length, matrix.summary.runtimeCdnSignedUrlContracts);
+    assert.equal(cdnSignedUrlContracts.length, 1, "expected the attachment download CDN route to be signed-url covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        for (const contract of cdnSignedUrlContracts) {
+            await withGeneratedCdn(async ({ cdn, storage }) => {
+                await seedCdnObjectForContract(storage, contract);
+
+                const unsignedResponse = await fetch(`${cdn.baseUrl}${contract.samplePath}`, {
+                    method: "GET",
+                    headers: { accept: "application/json" },
+                });
+                const signedResponse = await fetch(signedCdnUrl(cdn.baseUrl, contract.samplePath), {
+                    method: "GET",
+                    headers: { accept: "application/json" },
+                });
+
+                await assertCdnSignedUrlResponse(contract, unsignedResponse, signedResponse);
+            });
+        }
+    } finally {
+        restoreConsole();
+    }
+});
+
 test("generated CDN signature-required contracts reject unsigned mutating requests through the real CDN stack", { timeout: 60_000 }, async () => {
     assert.equal(cdnSignatureRequiredContracts.length, matrix.summary.runtimeCdnSignatureRequiredContracts);
     assert.ok(cdnSignatureRequiredContracts.length > 0, "expected CDN signature-required routes to be covered");
@@ -1444,6 +1520,23 @@ test("generated CDN upload contracts persist multipart PNG objects through the r
 
                 assert.equal(await storage.exists(storagePath), true, `${contract.manifestId} should persist the uploaded CDN object`);
                 assert.deepEqual(await storage.get(storagePath), cdnRuntimePng, `${contract.manifestId} should persist the uploaded bytes`);
+            });
+        }
+    } finally {
+        restoreConsole();
+    }
+});
+
+test("generated CDN attachment upload contracts sanitize unsafe filenames through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnFilenameSanitizationContracts.length, matrix.summary.runtimeCdnFilenameSanitizationContracts);
+    assert.equal(cdnFilenameSanitizationContracts.length, 1, "expected the attachment upload CDN route to be filename-sanitization covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        for (const contract of cdnFilenameSanitizationContracts) {
+            await withGeneratedCdn(async ({ cdn, storage }) => {
+                const response = await postGeneratedCdnMultipart(`${cdn.baseUrl}${contract.samplePath}`, "generated unsafe?.png");
+                await assertCdnFilenameSanitizationResponse(contract, response, storage);
             });
         }
     } finally {

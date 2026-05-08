@@ -29,7 +29,9 @@
         "runtimeCdnDeleteContracts": 17,
         "runtimeCdnUploadContracts": 17,
         "runtimeCdnInvalidUploadContracts": 16,
-        "runtimeCdnInternalAttachmentContracts": 3
+        "runtimeCdnInternalAttachmentContracts": 3,
+        "runtimeCdnSignedUrlContracts": 1,
+        "runtimeCdnFilenameSanitizationContracts": 1
     },
     "contracts": [
         {
@@ -30628,7 +30630,7 @@
             "path": "/attachments/:channel_id/:message_id/:filename",
             "samplePath": "/attachments/100000000000000002/100000000000000003/file.png",
             "sourceFile": "src/cdn/routes/attachments.ts",
-            "line": 114,
+            "line": 118,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -30757,6 +30759,15 @@
                     ]
                 },
                 {
+                    "id": "cdn-signed-url",
+                    "checks": [
+                        "signed-url",
+                        "status",
+                        "mime",
+                        "cache-headers"
+                    ]
+                },
+                {
                     "id": "policy-upload-download-delete",
                     "checks": [
                         "upload-download-delete"
@@ -30828,16 +30839,17 @@
                     ]
                 },
                 {
+                    "id": "cdn-filename-sanitization",
+                    "checks": [
+                        "filename-sanitization",
+                        "upload-download-delete"
+                    ]
+                },
+                {
                     "id": "cdn-mutation-auth",
                     "checks": [
                         "request-signature",
                         "status"
-                    ]
-                },
-                {
-                    "id": "policy-upload-download-delete",
-                    "checks": [
-                        "upload-download-delete"
                     ]
                 },
                 {
