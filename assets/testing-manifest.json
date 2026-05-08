@@ -6421,12 +6421,17 @@
             "method": "GET",
             "path": "/guilds/:guild_id/integrations/",
             "sourceFile": "src/api/routes/guilds/#guild_id/integrations.ts",
-            "line": 24,
+            "line": 23,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "permission": "MANAGE_GUILD",
+                "responseBodies": [
+                    "APIGuildIntegrationArray"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "coverage": {
