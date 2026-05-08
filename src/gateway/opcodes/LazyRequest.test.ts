@@ -51,6 +51,8 @@ const state: {
     channelOverwrites: { allow: string; deny: string; id: string }[] | undefined;
     getManyCalls: number;
     guildOwnerLookups: number;
+    includeOfflineLazyMembers: boolean;
+    queryAndWhereCalls: { condition: string; params: unknown }[];
     guildMembers: unknown[];
     memberCount: number;
     memberListResult: MockMemberListResult;
@@ -65,6 +67,8 @@ const state: {
     channelOverwrites: undefined,
     getManyCalls: 0,
     guildOwnerLookups: 0,
+    includeOfflineLazyMembers: true,
+    queryAndWhereCalls: [],
     guildMembers: [],
     memberCount: 0,
     memberListResult: { groups: [], online_count: 0, ops: [] },
@@ -77,6 +81,10 @@ const state: {
 };
 
 const queryBuilder = {
+    andWhere(condition: string, params: unknown) {
+        state.queryAndWhereCalls.push({ condition, params });
+        return queryBuilder;
+    },
     addOrderBy() {
         return queryBuilder;
     },
@@ -99,6 +107,11 @@ const queryBuilder = {
 };
 
 const mockUtil = {
+    Config: {
+        get() {
+            return { gateway: { lazyMemberListIncludeOffline: state.includeOfflineLazyMembers } };
+        },
+    },
     Channel: {
         async findOneOrFail() {
             return { permission_overwrites: state.channelOverwrites };
@@ -262,6 +275,8 @@ beforeEach(() => {
     state.channelOverwrites = undefined;
     state.getManyCalls = 0;
     state.guildOwnerLookups = 0;
+    state.includeOfflineLazyMembers = true;
+    state.queryAndWhereCalls = [];
     state.guildMembers = [viewableMember("online-user"), viewableMember("offline-user")];
     state.memberCount = 3;
     state.memberListResult = { groups: [], online_count: 0, ops: [] };
@@ -334,6 +349,26 @@ describe("lazy request member list loading", () => {
         assert.equal(payload.d.member_count, 2);
         assert.deepEqual(payload.d.groups, [{ count: 1, id: "online" }]);
         assert.deepEqual(state.subscriptions, ["online-user"]);
+        assert.deepEqual(state.queryAndWhereCalls, []);
+    });
+
+    test("adds an online-only member query filter when lazy member lists exclude offline members", async () => {
+        state.includeOfflineLazyMembers = false;
+
+        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.queryAndWhereCalls, [
+            {
+                condition: "session.status IS NOT NULL AND session.status NOT IN (:...offlineStatuses)",
+                params: { offlineStatuses: ["offline", "invisible"] },
+            },
+        ]);
+    });
+
+    test("keeps the default lazy member query configured to include offline members", async () => {
+        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.queryAndWhereCalls, []);
     });
 
     test("keeps computed online count and groups when no ranges are requested", async () => {

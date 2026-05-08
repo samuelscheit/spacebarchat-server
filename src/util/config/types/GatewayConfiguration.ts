@@ -9,4 +9,5 @@ export function isValidGatewayHeartbeatTimeout(timeout: unknown): timeout is num
 
 export class GatewayConfiguration extends EndpointConfiguration {
     heartbeatTimeout: number = DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT;
+    lazyMemberListIncludeOffline: boolean = true;
 }

@@ -9,6 +9,7 @@ describe("GatewayConfiguration", () => {
         assert.equal(config.endpointPrivate, null);
         assert.equal(config.endpointPublic, null);
         assert.equal(config.heartbeatTimeout, DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT);
+        assert.equal(config.lazyMemberListIncludeOffline, true);
         assert.equal(DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, 45_000);
         assert.equal(GATEWAY_HEARTBEAT_INTERVAL, 30_000);
     });
