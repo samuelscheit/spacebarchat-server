@@ -197,16 +197,6 @@ router.patch(
 
         const errors: ErrorList = {};
 
-        if (payload.available_tags) {
-            if (channel.isForum() && channel.available_tags) {
-                //TODO maybe error if this fails, and maybe handle creating tags?
-                const filter = new Set(payload.available_tags.map(({ id }) => id));
-                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
-                tags.forEach((_) => _.remove());
-                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
-            }
-        }
-
         if (payload.applied_tags !== undefined) {
             if (channel.isThread()) {
                 const parent = await Channel.findOneOrFail({
@@ -230,8 +220,6 @@ router.patch(
                 addInvalidAppliedTagsError(payload, isThread, errors);
             }
         }
-
-        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
 
         const channelLimits = Config.get().limits.channel;
 
@@ -272,6 +260,18 @@ router.patch(
         if (Object.keys(errors).length) {
             throw new FieldError(400, "Invalid form body", errors);
         }
+
+        if (payload.available_tags) {
+            if (channel.isForum() && channel.available_tags) {
+                //TODO maybe error if this fails, and maybe handle creating tags?
+                const filter = new Set(payload.available_tags.map(({ id }) => id));
+                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
+                tags.forEach((_) => _.remove());
+                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
+            }
+        }
+
+        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
 
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);
