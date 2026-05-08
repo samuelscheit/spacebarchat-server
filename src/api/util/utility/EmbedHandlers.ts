@@ -89,6 +89,48 @@ const tryParseInt = (str: string | undefined) => {
     }
 };
 
+type YoutubeVideoObject = {
+    "@type"?: string;
+    ownerProfileUrl?: string;
+    externalChannelId?: string;
+};
+
+const findYoutubeVideoObject = (value: unknown): YoutubeVideoObject | undefined => {
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            const videoObject = findYoutubeVideoObject(item);
+            if (videoObject) return videoObject;
+        }
+        return undefined;
+    }
+
+    if (!value || typeof value !== "object") return undefined;
+    const object = value as Record<string, unknown>;
+    if (object["@type"] === "VideoObject") return object as YoutubeVideoObject;
+    return findYoutubeVideoObject(object["@graph"]);
+};
+
+const getYoutubeAuthorUrl = ($: cheerio.CheerioAPI, baseUrl: URL): string | undefined => {
+    for (const elem of $('script[type="application/ld+json"]').toArray()) {
+        try {
+            const videoObject = findYoutubeVideoObject(JSON.parse($(elem).text()));
+            if (!videoObject) continue;
+            if (videoObject.ownerProfileUrl) return new URL(videoObject.ownerProfileUrl, baseUrl).toString();
+            if (videoObject.externalChannelId) return new URL(`/channel/${videoObject.externalChannelId}`, baseUrl).toString();
+        } catch (e) {
+            continue;
+        }
+    }
+
+    const authorUrl = $('[itemprop="author"] [itemprop="url"]').first().attr("href");
+    if (authorUrl) return new URL(authorUrl, baseUrl).toString();
+
+    const channelId = $('[itemprop="channelId"]').first().attr("content") || $('[itemprop="channelId"]').first().text();
+    if (channelId) return new URL(`/channel/${channelId}`, baseUrl).toString();
+
+    return undefined;
+};
+
 export const getMetaDescriptions = (text: string) => {
     const $ = cheerio.load(text);
 
@@ -483,7 +525,7 @@ export const EmbedHandlers: {
             author: metas.author
                 ? {
                       name: metas.author,
-                      // TODO: author channel url
+                      url: getYoutubeAuthorUrl(metas.$, url),
                   }
                 : undefined,
         };
