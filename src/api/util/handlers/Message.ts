@@ -478,6 +478,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     validateMessageEmbeds(message.embeds, conf.limits.message);
 
     if (opts.application_id) {
+        message.application_id = opts.application_id;
         message.application = await Application.findOneOrFail({
             where: { id: opts.application_id },
         });
@@ -806,6 +807,13 @@ export async function postHandleMessage(message: Message) {
         // we need to handle false-y values (empty string) here, so cant use ??=
         embed.type ||= EmbedType.rich;
     });
+
+    if (message.webhook_id) {
+        await fillMessageUrlEmbeds(message);
+        return;
+    }
+
+    if (!message.author_id) return;
 
     if ((await getPermission(message.author_id, message.channel.guild_id, message.channel_id)).has(Permissions.FLAGS.EMBED_LINKS)) await fillMessageUrlEmbeds(message);
 }
