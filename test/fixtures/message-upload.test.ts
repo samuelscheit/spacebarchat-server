@@ -3,7 +3,7 @@ import http from "node:http";
 import { readFileSync } from "node:fs";
 import { afterEach, describe, test } from "node:test";
 import express, { type NextFunction, type Request, type Response } from "express";
-import { createMessageUpload } from "@spacebar/api";
+import { createMessageUpload, type MessageUploadOptions } from "@spacebar/api";
 import { Config } from "@spacebar/util";
 
 const restoreCallbacks: Array<() => void> = [];
@@ -27,9 +27,9 @@ function stubMessageAttachmentLimit(maxAttachmentSize: number) {
     });
 }
 
-async function startUploadServer() {
+async function startUploadServer(uploadOptions: MessageUploadOptions = {}) {
     const app = express();
-    const upload = createMessageUpload();
+    const upload = createMessageUpload(uploadOptions);
     let uploadHandlerReached = false;
 
     app.use((_req, _res, next) => {
@@ -77,15 +77,21 @@ async function startUploadServer() {
     };
 }
 
-async function postMultipartFile(url: string, body: string) {
+async function postMultipartFiles(url: string, bodies: string[]) {
     const form = new FormData();
     form.append("payload_json", JSON.stringify({ content: "with upload" }));
-    form.append("files[0]", new Blob([body], { type: "text/plain" }), "upload.txt");
+    bodies.forEach((body, index) => {
+        form.append(`files[${index}]`, new Blob([body], { type: "text/plain" }), index === 0 ? "upload.txt" : `upload-${index}.txt`);
+    });
 
     return await fetch(url, {
         method: "POST",
         body: form,
     });
+}
+
+async function postMultipartFile(url: string, body: string) {
+    return await postMultipartFiles(url, [body]);
 }
 
 describe("message upload middleware", () => {
@@ -121,6 +127,38 @@ describe("message upload middleware", () => {
         }
     });
 
+    test("honors route-specific message file-count limits", async () => {
+        stubMessageAttachmentLimit(100);
+        const server = await startUploadServer({ files: 1 });
+
+        try {
+            const accepted = await postMultipartFile(server.url, "1234");
+            assert.equal(accepted.status, 200);
+            assert.deepEqual(await accepted.json(), {
+                files: [
+                    {
+                        fieldname: "files[0]",
+                        originalname: "upload.txt",
+                        size: 4,
+                        body: "1234",
+                    },
+                ],
+                uploadHandlerReached: true,
+            });
+
+            const rejected = await postMultipartFiles(server.url, ["1234", "5678"]);
+            assert.equal(rejected.status, 400);
+            assert.deepEqual(await rejected.json(), {
+                name: "MulterError",
+                code: "LIMIT_FILE_COUNT",
+                message: "Too many files",
+                uploadHandlerReached: false,
+            });
+        } finally {
+            await server.close();
+        }
+    });
+
     test("message routes share the config-driven upload middleware", () => {
         const routeFiles = [
             "src/api/routes/channels/#channel_id/messages/index.ts",
@@ -137,5 +175,8 @@ describe("message upload middleware", () => {
             assert.doesNotMatch(source, /\bmulter\s*\(/, `${routeFile} should not duplicate multer upload configuration`);
             assert.doesNotMatch(source, /fileSize:\s*1024\s*\*\s*1024\s*\*\s*100/, `${routeFile} should not hard-code a message upload byte limit`);
         }
+
+        const attachmentBackfillSource = readFileSync("src/api/routes/channels/#channel_id/messages/#message_id/index.ts", "utf8");
+        assert.match(attachmentBackfillSource, /createMessageUpload\(\{\s*files:\s*1\s*\}\)/, "message attachment backfill route should keep its single-file upload limit");
     });
 });
