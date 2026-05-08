@@ -155,3 +155,9 @@ test("getReadyUserGuildSettingsVersion does not report negative stored versions"
 test("getReadyUserGuildSettingsVersion ignores missing and null stored versions", () => {
     assert.equal(getReadyUserGuildSettingsVersion([{ version: undefined }, { version: null }, {}, makeReadyUserGuildSettingsEntry(5)]), 5);
 });
+
+test("ReadyGuildDTO exposes Discord-compatible stage video limit", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.max_stage_video_channel_users, 50);
+});
