@@ -67,7 +67,17 @@ import {
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, validateSchema } from "@spacebar/schemas";
+import {
+    ChannelType,
+    DefaultUserGuildSettings,
+    DMChannel,
+    IdentifySchema,
+    PrivateUserProjection,
+    PublicUser,
+    PublicUserProjection,
+    RelationshipType,
+    validateSchema,
+} from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 
 // TODO: user sharding
