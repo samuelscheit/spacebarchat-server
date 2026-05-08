@@ -58,7 +58,7 @@ export class Application extends BaseClass {
     @ManyToOne(() => User, { onDelete: "CASCADE" })
     owner: User;
 
-    // TODO: enum this? https://discord.com/developers/docs/resources/application#application-object-application-flags
+    // Discord application flags bitfield; use ApplicationFlags for named bits.
     @Column()
     flags: number = 0;
 
