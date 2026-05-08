@@ -535,6 +535,21 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(Object.keys(activeSocket.member_events).sort(), ["shared-user", "visible-user"]);
     });
 
+    test("accepts no-op typing and activities compatibility flags without extra lazy side effects", async () => {
+        await onLazyRequest.call(socket(), {
+            d: {
+                activities: true,
+                guild_id: "guild",
+                typing: true,
+            },
+        });
+
+        assert.deepEqual(state.permissionChecks, []);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.sentPayloads, []);
+        assert.equal(state.getManyCalls, 0);
+    });
+
     test("ignores member presence requests that do not include an authorized channel", async () => {
         await onLazyRequest.call(socket(), {
             d: {
