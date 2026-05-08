@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
+import { Rights } from "@spacebar/util";
 import { defaultInstanceAdministratorBootstrapDependencies, ensureInstanceAdministrator, InstanceAdministratorBootstrapDependencies } from "./Instance";
 
 process.env.DATABASE ??= "postgres://user:password@localhost:5432/test";
@@ -79,14 +80,14 @@ describe("ensureInstanceAdministrator", () => {
     });
 
     test("looks for an active non-bot OPERATOR", async (t) => {
-        const conditions: string[] = [];
+        const clauses: { condition: string; parameters?: Record<string, string> }[] = [];
         const queryBuilder = {
-            where(condition: string) {
-                conditions.push(condition);
+            where(condition: string, parameters?: Record<string, string>) {
+                clauses.push({ condition, parameters });
                 return this;
             },
-            andWhere(condition: string) {
-                conditions.push(condition);
+            andWhere(condition: string, parameters?: Record<string, string>) {
+                clauses.push({ condition, parameters });
                 return this;
             },
             orderBy() {
@@ -105,9 +106,44 @@ describe("ensureInstanceAdministrator", () => {
 
         await defaultInstanceAdministratorBootstrapDependencies.findOperator();
 
-        assert.ok(conditions.some((condition) => condition.includes("CAST(user.rights AS bigint)")));
-        assert.ok(conditions.includes("user.bot = false"));
-        assert.ok(conditions.includes("user.deleted = false"));
-        assert.ok(conditions.includes("user.disabled = false"));
+        assert.ok(clauses.some(({ condition, parameters }) => condition.includes("CAST(user.rights AS bigint)") && parameters?.operator === Rights.FLAGS.OPERATOR.toString()));
+        assert.ok(clauses.some(({ condition }) => condition === "user.bot = false"));
+        assert.ok(clauses.some(({ condition }) => condition === "user.deleted = false"));
+        assert.ok(clauses.some(({ condition }) => condition === "user.disabled = false"));
+    });
+
+    test("finds the earliest active non-bot user to bootstrap", async (t) => {
+        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+        let findOptions: Parameters<typeof spacebarUtil.User.findOne>[0] | undefined;
+        t.mock.method(spacebarUtil.User, "findOne", async (options: Parameters<typeof spacebarUtil.User.findOne>[0]) => {
+            findOptions = options;
+            return null;
+        });
+
+        await defaultInstanceAdministratorBootstrapDependencies.findFirstUser();
+
+        assert.deepEqual(findOptions, {
+            where: { bot: false, deleted: false, disabled: false },
+            order: { created_at: "ASC", id: "ASC" },
+            select: ["id", "username", "discriminator", "rights"],
+        });
+    });
+
+    test("grants OPERATOR rights while preserving existing user rights", async (t) => {
+        const existingRights = Rights.FLAGS.SEND_MESSAGES | Rights.FLAGS.CREATE_INVITES;
+        const expectedRights = (existingRights | Rights.FLAGS.OPERATOR).toString();
+        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+        let updateCriteria: Parameters<typeof spacebarUtil.User.update>[0] | undefined;
+        let updatePatch: Parameters<typeof spacebarUtil.User.update>[1] | undefined;
+        t.mock.method(spacebarUtil.User, "update", async (criteria: Parameters<typeof spacebarUtil.User.update>[0], patch: Parameters<typeof spacebarUtil.User.update>[1]) => {
+            updateCriteria = criteria;
+            updatePatch = patch;
+            return { affected: 1 } as Awaited<ReturnType<typeof spacebarUtil.User.update>>;
+        });
+
+        await defaultInstanceAdministratorBootstrapDependencies.promoteToOperator(user({ id: "first-user", rights: existingRights.toString() }));
+
+        assert.deepEqual(updateCriteria, { id: "first-user" });
+        assert.deepEqual(updatePatch, { rights: expectedRights });
     });
 });
