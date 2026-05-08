@@ -75,3 +75,29 @@ test("GuildWelcomeScreen remains wired to the welcome-screen route and validates
         false,
     );
 });
+
+test("GuildCreateResponse keeps nullable guild channel and description fields", () => {
+    const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
+    const response = schemas.GuildCreateResponse;
+
+    for (const field of ["afk_channel_id", "description", "public_updates_channel_id", "rules_channel_id", "system_channel_id"] as const) {
+        assert.deepEqual(response.properties?.[field]?.type, ["null", "string"], `GuildCreateResponse.${field}`);
+    }
+
+    assert.equal(
+        ajv.validate("GuildCreateResponse", {
+            id: "guild",
+            name: "Nullable Guild",
+            welcome_screen: { enabled: false, description: "", welcome_channels: [] },
+            widget_enabled: true,
+            nsfw: false,
+            afk_channel_id: null,
+            description: null,
+            public_updates_channel_id: null,
+            rules_channel_id: null,
+            system_channel_id: null,
+        }),
+        true,
+        ajv.errorsText(),
+    );
+});

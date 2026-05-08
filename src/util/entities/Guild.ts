@@ -368,12 +368,6 @@ export class Guild extends BaseClass {
 
         return {
             ...data,
-            // TODO: did i do this right?
-            afk_channel_id: data.afk_channel_id ?? undefined,
-            description: data.description ?? undefined,
-            public_updates_channel_id: data.public_updates_channel_id ?? undefined,
-            rules_channel_id: data.rules_channel_id ?? undefined,
-            system_channel_id: data.system_channel_id ?? undefined,
         } satisfies GuildCreateResponse;
     }
 

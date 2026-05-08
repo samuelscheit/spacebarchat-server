@@ -315,6 +315,49 @@ describe("Guild.createGuild", () => {
 });
 
 describe("Guild entity metadata", () => {
+    test("Guild.toGuildUpdateEventData preserves nullable guild fields", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+        const { Guild } = await import("./Guild.js");
+
+        const guild = new Guild();
+        Object.assign(guild, {
+            id: "guild",
+            name: "Nullable Guild",
+            welcome_screen: { enabled: false, description: "", welcome_channels: [] },
+            widget_enabled: true,
+            nsfw: false,
+            afk_channel_id: null,
+            description: null,
+            public_updates_channel_id: null,
+            rules_channel_id: null,
+            system_channel_id: null,
+            template_id: "template",
+        });
+
+        t.mock.method(guild, "toJSON", () => ({
+            id: "guild",
+            name: "Nullable Guild",
+            welcome_screen: { enabled: false, description: "", welcome_channels: [] },
+            widget_enabled: true,
+            nsfw: false,
+            afk_channel_id: null,
+            description: null,
+            public_updates_channel_id: null,
+            rules_channel_id: null,
+            system_channel_id: null,
+            template_id: "template",
+        }));
+
+        const data = guild.toGuildUpdateEventData();
+
+        assert.equal(data.afk_channel_id, null);
+        assert.equal(data.description, null);
+        assert.equal(data.public_updates_channel_id, null);
+        assert.equal(data.rules_channel_id, null);
+        assert.equal(data.system_channel_id, null);
+        assert.equal(Object.hasOwn(data, "template_id"), false);
+    });
+
     test("uses explicit database types for nullable discovery metadata backing columns", async () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
         const { Guild } = await import("./Guild.js");
