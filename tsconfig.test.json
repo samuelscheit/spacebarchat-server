@@ -33,6 +33,7 @@
         "src/util/util/cdn.test.ts",
         "src/util/util/Intents.test.ts",
         "src/util/util/InternalCdnRoutes.test.ts",
+        "src/util/util/ReplacedCdnAsset.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],

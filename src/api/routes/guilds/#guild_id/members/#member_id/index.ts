@@ -17,7 +17,21 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, Emoji, getPermission, getRights, Guild, GuildMemberUpdateEvent, handleFile, Member, Role, Sticker } from "@spacebar/util";
+import {
+    Config,
+    deleteReplacedCdnAsset,
+    DiscordApiErrors,
+    emitEvent,
+    Emoji,
+    getPermission,
+    getRights,
+    Guild,
+    GuildMemberUpdateEvent,
+    handleFile,
+    Member,
+    Role,
+    Sticker,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
 
@@ -115,7 +129,9 @@ router.patch(
             rights.hasThrow("MANAGE_USERS");
         }
 
-        if (body.avatar) body.avatar = await handleFile(`/guilds/${guild_id}/users/${member_id}/avatars`, body.avatar as string);
+        const previousAvatar = member.avatar;
+        const memberAvatarPath = `/guilds/${guild_id}/users/${member_id}/avatars`;
+        if (body.avatar) body.avatar = await handleFile(memberAvatarPath, body.avatar as string);
 
         member.assign(body);
 
@@ -147,6 +163,8 @@ router.patch(
             guild_id,
             data: { ...member, roles: member.roles.map((x) => x.id) },
         } satisfies GuildMemberUpdateEvent);
+
+        if ("avatar" in body) await deleteReplacedCdnAsset(memberAvatarPath, previousAvatar, member.avatar);
 
         res.json(member);
     },

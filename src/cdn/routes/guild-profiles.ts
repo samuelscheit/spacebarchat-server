@@ -28,7 +28,6 @@ import { assertAnimatedImageUploadAllowed, getGuildProfileImageLimits, getPremiu
 
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
-// TODO: delete old icons
 
 const router = Router({ mergeParams: true });
 
