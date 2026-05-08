@@ -279,8 +279,28 @@ function extractEmittedEvents(source) {
     return [...new Set(events)].sort();
 }
 
-function extractFunctionEventMap(source) {
-    const eventsByFunction = new Map();
+function setEventMapValue(eventsByCall, key, events) {
+    const uniqueEvents = [...new Set(events)].sort();
+    const previous = eventsByCall.get(key) || [];
+    if (previous.length === uniqueEvents.length && previous.every((event, index) => event === uniqueEvents[index])) return false;
+    if (uniqueEvents.length) eventsByCall.set(key, uniqueEvents);
+    return true;
+}
+
+function eventMapEquals(left, right) {
+    if (left.size !== right.size) return false;
+
+    for (const [key, leftEvents] of left) {
+        const rightEvents = right.get(key);
+        if (!rightEvents || leftEvents.length !== rightEvents.length) return false;
+        if (!leftEvents.every((event, index) => event === rightEvents[index])) return false;
+    }
+
+    return true;
+}
+
+function extractFunctionBodies(source) {
+    const bodies = new Map();
     const regex = /\b(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g;
 
     for (const match of source.matchAll(regex)) {
@@ -294,8 +314,7 @@ function extractFunctionEventMap(source) {
         const bodyClose = findMatching(source, bodyOpen, "{", "}");
         if (bodyClose === -1) continue;
 
-        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
-        if (events.length) eventsByFunction.set(match[1], events);
+        bodies.set(match[1], source.slice(bodyOpen + 1, bodyClose));
     }
 
     const arrowRegex = /\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>/g;
@@ -307,16 +326,33 @@ function extractFunctionEventMap(source) {
         const bodyClose = findMatching(source, bodyOpen, "{", "}");
         if (bodyClose === -1) continue;
 
-        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
-        if (events.length) eventsByFunction.set(match[1], events);
+        bodies.set(match[1], source.slice(bodyOpen + 1, bodyClose));
+    }
+
+    return bodies;
+}
+
+function extractFunctionEventMap(source, externalEventsByCall = new Map()) {
+    const bodiesByFunction = extractFunctionBodies(source);
+    const eventsByFunction = new Map();
+    let changed = true;
+
+    while (changed) {
+        changed = false;
+
+        for (const [name, body] of bodiesByFunction) {
+            const events = [...extractEmittedEvents(body), ...extractCalledHelperEvents(body, eventsByFunction, externalEventsByCall)];
+            changed = setEventMapValue(eventsByFunction, name, events) || changed;
+        }
     }
 
     return eventsByFunction;
 }
 
-function extractClassMethodEventMap(source) {
+function extractClassMethodEventMap(source, externalEventsByCall = new Map()) {
     const eventsByCall = new Map();
     const classRegex = /\b(?:export\s+)?(?:abstract\s+)?class\s+([A-Za-z_$][\w$]*)\b/g;
+    const bodiesByCall = new Map();
 
     for (const classMatch of source.matchAll(classRegex)) {
         const className = classMatch[1];
@@ -340,8 +376,17 @@ function extractClassMethodEventMap(source) {
             const bodyClose = findMatching(classBody, bodyOpen, "{", "}");
             if (bodyClose === -1) continue;
 
-            const events = extractEmittedEvents(classBody.slice(bodyOpen + 1, bodyClose));
-            if (events.length) eventsByCall.set(`${className}.${methodName}`, events);
+            bodiesByCall.set(`${className}.${methodName}`, classBody.slice(bodyOpen + 1, bodyClose));
+        }
+    }
+
+    let changed = true;
+    while (changed) {
+        changed = false;
+
+        for (const [name, body] of bodiesByCall) {
+            const events = [...extractEmittedEvents(body), ...extractCalledHelperEvents(body, eventsByCall, externalEventsByCall)];
+            changed = setEventMapValue(eventsByCall, name, events) || changed;
         }
     }
 
@@ -360,8 +405,8 @@ function mergeEventMaps(...maps) {
     return merged;
 }
 
-function extractSourceHelperEventMap(source) {
-    const directEvents = mergeEventMaps(extractFunctionEventMap(source), extractClassMethodEventMap(source));
+function extractSourceHelperEventMap(source, externalEventsByCall = new Map()) {
+    const directEvents = mergeEventMaps(extractFunctionEventMap(source, externalEventsByCall), extractClassMethodEventMap(source, externalEventsByCall));
     const resolvedEvents = new Map();
 
     for (const match of source.matchAll(/\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\b/g)) {
@@ -495,7 +540,7 @@ function routeMetadataFromArguments(args, routeVariables, eventsByFunction = new
 function scanRouterCalls(source, externalEventsByCall = new Map()) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
-    const eventsByFunction = extractFunctionEventMap(source);
+    const eventsByFunction = extractFunctionEventMap(source, externalEventsByCall);
     const regex = /\brouter\.(get|post|put|delete|patch|head|options|all)\s*\(/g;
 
     for (const match of source.matchAll(regex)) {
@@ -522,7 +567,7 @@ function scanRouterCalls(source, externalEventsByCall = new Map()) {
 function scanAppCalls(source, appVariable = "app", externalEventsByCall = new Map()) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
-    const eventsByFunction = extractFunctionEventMap(source);
+    const eventsByFunction = extractFunctionEventMap(source, externalEventsByCall);
     const regex = new RegExp(`\\b${appVariable}\\.(get|post|put|delete|patch|use)\\s*\\(`, "g");
 
     for (const match of source.matchAll(regex)) {
@@ -772,16 +817,25 @@ function makeHttpEntry({ service, method, routePath, sourceFile, line, routeMeta
 
 function collectExternalHelperEventMap(repoRoot) {
     const sourceDirs = [path.join(repoRoot, "src", "util", "entities"), path.join(repoRoot, "src", "api", "util", "handlers")];
-    const maps = [];
+    const sources = [];
 
     for (const dir of sourceDirs) {
         if (!fs.existsSync(dir)) continue;
         for (const file of walkFiles(dir, (value) => value.endsWith(".ts") && !value.endsWith(".test.ts")).sort()) {
-            maps.push(extractSourceHelperEventMap(readText(file)));
+            sources.push(readText(file));
         }
     }
 
-    return mergeEventMaps(...maps);
+    let eventsByCall = new Map();
+    let changed = true;
+
+    while (changed) {
+        const nextEventsByCall = mergeEventMaps(...sources.map((source) => extractSourceHelperEventMap(source, eventsByCall)));
+        changed = !eventMapEquals(eventsByCall, nextEventsByCall);
+        eventsByCall = nextEventsByCall;
+    }
+
+    return eventsByCall;
 }
 
 function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules, externalEventsByCall = new Map()) {

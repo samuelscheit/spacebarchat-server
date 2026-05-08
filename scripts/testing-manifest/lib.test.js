@@ -145,6 +145,39 @@ describe("testing manifest route helpers", () => {
         assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["GUILD_MEMBER_UPDATE", "MESSAGE_CREATE"]);
     });
 
+    test("extracts imported helper events through named route handlers", () => {
+        const entityHelpers = `
+            export class Member {
+                static async removeFromGuild() {
+                    await emitEvent({ event: "GUILD_DELETE", data: {} });
+                    await emitEvent({ event: "GUILD_MEMBER_REMOVE", data: {} });
+                }
+            }
+        `;
+        const accountHelpers = `
+            export async function deleteSelfUserAccount(userId) {
+                await Member.removeFromGuild(userId, "guild-id");
+            }
+        `;
+        const source = `
+            export async function deleteSelfUserAccountRoute(req, res) {
+                await deleteSelfUserAccount(req.user_id);
+                return res.sendStatus(204);
+            }
+
+            router.post(
+                "/",
+                route({ responses: { 204: {} } }),
+                deleteSelfUserAccountRoute,
+            );
+        `;
+        const entityEvents = extractSourceHelperEventMap(entityHelpers);
+        const accountEvents = extractSourceHelperEventMap(accountHelpers, entityEvents);
+        const calls = scanRouterCalls(source, accountEvents);
+
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["GUILD_DELETE", "GUILD_MEMBER_REMOVE"]);
+    });
+
     test("skips imported helper events when route call disables helper event emission", () => {
         const helpers = `
             export class Channel {

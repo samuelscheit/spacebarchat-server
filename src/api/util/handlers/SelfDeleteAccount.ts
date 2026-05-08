@@ -8,7 +8,7 @@ export async function deleteSelfUserAccount(userId: string) {
     }
 
     const memberships = await Member.find({ where: { id: userId } });
-    await UserSettingsProtos.delete({ user_id: userId });
     await Promise.all(memberships.map((member) => Member.removeFromGuild(member.id, member.guild_id)));
+    await UserSettingsProtos.delete({ user_id: userId });
     await User.delete({ id: userId });
 }

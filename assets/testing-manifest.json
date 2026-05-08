@@ -1631,7 +1631,11 @@
                     200,
                     400
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_UPDATE",
+                    "INVITE_DELETE"
+                ]
             },
             "rateLimit": {
                 "group": "auth.register",
@@ -1986,6 +1990,7 @@
                     "CHANNEL_DELETE",
                     "CHANNEL_RECIPIENT_REMOVE",
                     "CHANNEL_UPDATE",
+                    "GUILD_UPDATE",
                     "THREAD_DELETE"
                 ]
             },
@@ -4194,7 +4199,8 @@
                 "emittedEvents": [
                     "CHANNEL_DELETE",
                     "CHANNEL_RECIPIENT_REMOVE",
-                    "CHANNEL_UPDATE"
+                    "CHANNEL_UPDATE",
+                    "GUILD_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -7267,6 +7273,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
             },
@@ -8321,7 +8328,10 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -8371,7 +8381,10 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -9228,6 +9241,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
             },
@@ -10120,6 +10134,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
             },
@@ -10193,7 +10208,11 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_UPDATE",
+                    "INVITE_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-public-contract",
@@ -11514,6 +11533,7 @@
                     "CHANNEL_UPDATE",
                     "GUILD_DELETE",
                     "GUILD_MEMBER_REMOVE",
+                    "GUILD_UPDATE",
                     "USER_DELETE"
                 ]
             },
@@ -12559,7 +12579,7 @@
             "method": "POST",
             "path": "/users/@me/delete/",
             "sourceFile": "src/api/routes/users/@me/delete.ts",
-            "line": 27,
+            "line": 51,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

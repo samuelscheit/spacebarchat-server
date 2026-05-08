@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { afterEach, describe, test } from "node:test";
 import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
-import { deleteSelfUserAccountRoute } from "../../../routes/users/@me/delete";
-import { deleteSelfUserAccount } from "../../../util/handlers/SelfDeleteAccount";
+import { deleteSelfUserAccountRoute } from "../../src/api/routes/users/@me/delete";
+import { deleteSelfUserAccount } from "../../src/api/util/handlers/SelfDeleteAccount";
 
 const util = require("@spacebar/util");
 const eventUtil = util;
@@ -139,9 +139,9 @@ describe("POST /users/@me/delete membership cleanup", () => {
             "user.findOneOrFail",
             "guild.findOne",
             "member.find",
-            "settings.delete",
             "member.remove:guild-a",
             "member.removed:guild-a",
+            "settings.delete",
             "user.delete",
         ]);
     });
@@ -180,7 +180,7 @@ describe("POST /users/@me/delete membership cleanup", () => {
         const deletion = deleteSelfUserAccount("user-id");
         await waitUntil(() => harness.membershipCleanupResolvers.length === 2);
 
-        assert.deepEqual(harness.operations, ["guild.findOne", "member.find", "settings.delete", "member.remove:guild-a", "member.remove:guild-b"]);
+        assert.deepEqual(harness.operations, ["guild.findOne", "member.find", "member.remove:guild-a", "member.remove:guild-b"]);
         assert.equal(harness.operations.includes("user.delete"), false);
 
         harness.membershipCleanupResolvers[0]();
@@ -195,11 +195,11 @@ describe("POST /users/@me/delete membership cleanup", () => {
         assert.deepEqual(harness.operations, [
             "guild.findOne",
             "member.find",
-            "settings.delete",
             "member.remove:guild-a",
             "member.remove:guild-b",
             "member.removed:guild-a",
             "member.removed:guild-b",
+            "settings.delete",
             "user.delete",
         ]);
     });
