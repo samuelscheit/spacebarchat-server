@@ -11,6 +11,7 @@ import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
+    "api:http:GET:/guilds/:guild_id/integrations/",
     "api:http:GET:/oauth2/applications/@me/",
     "api:http:GET:/oauth2/authorize/",
     "api:http:POST:/oauth2/authorize/",
@@ -33,6 +34,7 @@ test(
     },
     async () => {
         assert.deepEqual(coveredManifestIds, [
+            "api:http:GET:/guilds/:guild_id/integrations/",
             "api:http:GET:/oauth2/applications/@me/",
             "api:http:GET:/oauth2/authorize/",
             "api:http:POST:/oauth2/authorize/",
@@ -151,6 +153,22 @@ test(
                 ownerMember.roles.some((role) => role.id === managedBotRole.id),
                 false,
             );
+
+            const guildIntegrations = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/integrations`, ownerToken);
+            assert.equal(guildIntegrations.length, 1);
+            const [guildIntegration] = guildIntegrations;
+            assert.equal(guildIntegration.id, applicationId);
+            assert.equal(guildIntegration.name, "OAuth Scenario App");
+            assert.equal(guildIntegration.type, "discord");
+            assert.equal(guildIntegration.enabled, true);
+            assert.deepEqual(guildIntegration.account, { id: applicationId, name: "OAuth Scenario App" });
+            const integrationApplication = guildIntegration.application as Record<string, unknown>;
+            assert.equal(integrationApplication.id, applicationId);
+            assert.equal(integrationApplication.name, "OAuth Scenario App");
+            assert.equal(integrationApplication.bot_public, true);
+            assert.equal(integrationApplication.verify_key, "IMPLEMENTME");
+            assert.equal(Object.hasOwn(integrationApplication, "owner"), false);
+            assert.equal(Object.hasOwn(integrationApplication, "team"), false);
 
             const oauthTokens = await getJson(`${api.apiBaseUrl}/oauth2/tokens`, ownerToken);
             await assertStatus(oauthTokens, 200);
