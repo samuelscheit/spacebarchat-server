@@ -14605,7 +14605,7 @@
             "method": "POST",
             "path": "/stickers/:sticker_id",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 40,
+            "line": 39,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
