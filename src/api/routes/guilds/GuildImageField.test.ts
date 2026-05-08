@@ -73,6 +73,30 @@ describe("handleGuildImageField", () => {
 
         assert.deepEqual(deleted, ["/banners/guild-id/old-hash"]);
     });
+
+    test("logs failed old CDN image deletes without rejecting remaining cleanup", async () => {
+        const attempted: string[] = [];
+        const loggedErrors: unknown[][] = [];
+        const originalConsoleError = console.error;
+        console.error = (...args: unknown[]) => {
+            loggedErrors.push(args);
+        };
+
+        try {
+            await deleteReplacedGuildImages(["/banners/guild-id/missing-hash", "/banners/guild-id/old-hash"], async (path) => {
+                attempted.push(path);
+                if (path.endsWith("/missing-hash")) throw new Error("delete failed");
+                return { success: true };
+            });
+        } finally {
+            console.error = originalConsoleError;
+        }
+
+        assert.deepEqual(attempted, ["/banners/guild-id/missing-hash", "/banners/guild-id/old-hash"]);
+        assert.equal(loggedErrors.length, 1);
+        assert.equal(loggedErrors[0][0], "Failed to delete replaced guild image /banners/guild-id/missing-hash");
+        assert.equal((loggedErrors[0][1] as Error).message, "delete failed");
+    });
 });
 
 describe("saveGuildUpdateAndDeleteReplacedImages", () => {
