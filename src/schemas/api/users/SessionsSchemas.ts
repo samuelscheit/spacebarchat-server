@@ -30,17 +30,18 @@ export interface SessionClientStatus {
 }
 
 export type DeviceInfo = {
-    id: string;
+    id?: string;
     id_hash: string;
-    status: string;
-    activities: ActivitySchema["activities"][];
-    client_status: SessionClientStatus;
+    status?: string;
+    activities?: ActivitySchema["activities"][];
+    client_status?: SessionClientStatus;
     approx_last_used_time: string;
     client_info: {
-        client: string;
-        os: string;
-        version: number;
-        location: string;
+        client?: string;
+        os?: string;
+        version?: number;
+        platform?: string;
+        location?: string;
     };
     last_seen?: Date;
     last_seen_ip?: string;
