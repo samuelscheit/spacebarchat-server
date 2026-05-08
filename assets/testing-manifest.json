@@ -3140,7 +3140,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 78,
+            "line": 79,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3184,7 +3184,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 244,
+            "line": 245,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3231,7 +3231,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 517,
+            "line": 516,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4281,7 +4281,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 238,
+            "line": 236,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4326,7 +4326,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 297,
+            "line": 295,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4419,7 +4419,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 364,
+            "line": 362,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
