@@ -100,9 +100,12 @@ export const getMetaDescriptions = (text: string) => {
         description: getMeta($, "og:description") || getMeta($, "description"),
         image: getMeta($, "og:image") || getMeta($, "twitter:image"),
         image_fallback: $(`image`).attr("src"),
+        video: getMeta($, "og:video:secure_url") || getMeta($, "og:video:url") || getMeta($, "og:video") || getMeta($, "twitter:player"),
         video_fallback: $(`video`).attr("src"),
         width: tryParseInt(getMeta($, "og:image:width")),
         height: tryParseInt(getMeta($, "og:image:height")),
+        video_width: tryParseInt(getMeta($, "og:video:width") || getMeta($, "twitter:player:width")),
+        video_height: tryParseInt(getMeta($, "og:video:height") || getMeta($, "twitter:player:height")),
         url: getMeta($, "og:url"),
         youtube_embed: getMeta($, "og:video:secure_url"),
         site_name: getMeta($, "og:site_name"),
@@ -174,7 +177,8 @@ export const EmbedHandlers: {
         const text = await response.text();
         const metas = getMetaDescriptions(text);
 
-        // TODO: handle video
+        if (!metas.video) metas.video = metas.video_fallback;
+        if (metas.video) metas.video = new URL(metas.video, url).toString();
 
         if (!metas.image) metas.image = metas.image_fallback;
 
@@ -194,11 +198,13 @@ export const EmbedHandlers: {
         if (metas.type == "article") embedType = EmbedType.article;
         if (metas.type == "object") embedType = EmbedType.article; // github
         if (metas.type == "rich") embedType = EmbedType.rich;
+        if (metas.video && metas.video_width && metas.video_height) embedType = EmbedType.video;
 
         return {
             url: url.href,
             type: embedType,
             title: metas.title,
+            video: embedType === EmbedType.video ? makeEmbedImage(metas.video, metas.video_width, metas.video_height) : undefined,
             thumbnail: makeEmbedImage(metas.image, metas.width, metas.height),
             description: metas.description,
             provider: metas.site_name

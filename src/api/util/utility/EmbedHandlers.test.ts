@@ -21,6 +21,7 @@ async function loadEmbedModules() {
         Config: util.Config,
         EmbedCache: util.EmbedCache,
         Message: util.Message,
+        EmbedHandlers: handlers.EmbedHandlers,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
     };
 }
@@ -119,6 +120,110 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("EmbedHandlers.default", () => {
+    test("creates a video embed from generic OpenGraph video metadata", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        const fetches: { url: string; method: string | undefined }[] = [];
+        t.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+            const requestUrl = input instanceof Request ? input.url : input.toString();
+            fetches.push({ url: requestUrl, method: init?.method });
+
+            if (init?.method === "HEAD") {
+                return new Response(null, {
+                    headers: { "content-type": "text/html" },
+                });
+            }
+
+            return new Response(
+                `<!doctype html>
+                <html>
+                    <head>
+                        <meta property="og:type" content="video.other">
+                        <meta property="og:title" content="Generic Video">
+                        <meta property="og:description" content="A generic video page">
+                        <meta property="og:site_name" content="Example Videos">
+                        <meta property="og:image" content="https://media.example.test/poster.jpg">
+                        <meta property="og:image:width" content="640">
+                        <meta property="og:image:height" content="360">
+                        <meta property="og:video" content="/player/video.mp4">
+                        <meta property="og:video:width" content="1280">
+                        <meta property="og:video:height" content="720">
+                    </head>
+                </html>`,
+                { headers: { "content-type": "text/html" } },
+            );
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.test/watch/1"));
+
+        assert.deepEqual(fetches, [
+            { url: "https://example.test/watch/1", method: "HEAD" },
+            { url: "https://example.test/watch/1", method: "GET" },
+        ]);
+        assert.deepEqual(embed, {
+            url: "https://example.test/watch/1",
+            type: "video",
+            title: "Generic Video",
+            video: {
+                url: "https://example.test/player/video.mp4",
+                width: 1280,
+                height: 720,
+                proxy_url: "https://example.test/player/video.mp4",
+            },
+            thumbnail: {
+                url: "https://media.example.test/poster.jpg",
+                width: 640,
+                height: 360,
+                proxy_url: "https://media.example.test/poster.jpg",
+            },
+            description: "A generic video page",
+            provider: {
+                name: "Example Videos",
+                url: "https://example.test",
+            },
+        });
+    });
+
+    test("keeps a generic page as a link embed when video dimensions are missing", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            if (init?.method === "HEAD") {
+                return new Response(null, {
+                    headers: { "content-type": "text/html" },
+                });
+            }
+
+            return new Response(
+                `<!doctype html>
+                <html>
+                    <head>
+                        <meta property="og:title" content="Video Without Dimensions">
+                        <meta property="og:description" content="The page still has link metadata">
+                        <meta property="og:video" content="https://media.example.test/video.mp4">
+                    </head>
+                </html>`,
+                { headers: { "content-type": "text/html" } },
+            );
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.test/watch/2"));
+
+        assert.deepEqual(embed, {
+            url: "https://example.test/watch/2",
+            type: "link",
+            title: "Video Without Dimensions",
+            video: undefined,
+            thumbnail: undefined,
+            description: "The page still has link metadata",
+            provider: undefined,
+        });
     });
 });
 
