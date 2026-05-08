@@ -64,6 +64,8 @@ const schemasMock = new Proxy(
 
 const { Snowflake } = localRequire("./Snowflake") as { Snowflake: SnowflakeClass };
 
+const emittedEvents: unknown[] = [];
+
 const utilMock = {
     Config: {
         get: () => ({
@@ -84,7 +86,9 @@ const utilMock = {
         finalPermission: () => ({ has: () => false, hasThrow: () => undefined }),
     },
     Snowflake,
-    emitEvent: async () => undefined,
+    emitEvent: async (event: unknown) => {
+        emittedEvents.push(event);
+    },
     getDatabase: () => null,
     getPermission: async () => ({ hasThrow: () => undefined }),
     handleFile: async () => undefined,
@@ -127,6 +131,7 @@ afterEach(() => {
     Object.assign(ThreadMember, {
         createForUser: originals.threadMemberCreateForUser,
     });
+    emittedEvents.length = 0;
 });
 
 function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
@@ -190,6 +195,40 @@ describe("Channel.createThreadChannel", () => {
             findOneCalls.map((call) => call.where?.id),
             ["generated-1"],
         );
+    });
+
+    test("emits thread member updates with the persisted thread guild id", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        Object.assign(Snowflake, {
+            generate: () => "generated-thread-id",
+        });
+
+        const thread = await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "event-thread",
+                type: GUILD_PRIVATE_THREAD,
+            },
+            {},
+            "user",
+            { skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        const threadCreateEvent = emittedEvents.find(
+            (event): event is { event: "THREAD_CREATE"; guild_id: string } => typeof event === "object" && event !== null && "event" in event && event.event === "THREAD_CREATE",
+        );
+        const threadMembersUpdateEvent = emittedEvents.find(
+            (event): event is { event: "THREAD_MEMBERS_UPDATE"; guild_id: string; data: { guild_id: string; member_count: number } } =>
+                typeof event === "object" && event !== null && "event" in event && event.event === "THREAD_MEMBERS_UPDATE",
+        );
+
+        assert.equal(thread.guild_id, "guild");
+        assert.equal(threadCreateEvent?.guild_id, "guild");
+        assert.equal(threadMembersUpdateEvent?.guild_id, "guild");
+        assert.equal(threadMembersUpdateEvent?.data.guild_id, "guild");
+        assert.equal(threadMembersUpdateEvent?.data.member_count, 1);
     });
 
     test("preserves an explicit id when keepId is set for message threads", async () => {

@@ -384,6 +384,8 @@ export class Channel extends BaseClass {
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
         const threadMember = await ThreadMember.createForUser(user_id, thread);
+        const guildId = thread.guild_id;
+        if (!guildId) throw new HTTPError("Thread guild id not set", 500);
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
@@ -393,18 +395,18 @@ export class Channel extends BaseClass {
                         ...thread,
                         newly_created: true,
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadCreateEvent),
                 emitEvent({
                     event: "THREAD_MEMBERS_UPDATE",
                     data: {
-                        guild_id: channel.guild_id!, // TODO: is this the right fix?
+                        guild_id: guildId,
                         id: thread.id,
                         member_count: channel.member_count ?? 0, //TODO: is this the right fix?
                         added_members: [{ user_id, ...threadMember.toJSON() }],
                         removed_member_ids: [],
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadMembersUpdateEvent),
             ]);
         }
