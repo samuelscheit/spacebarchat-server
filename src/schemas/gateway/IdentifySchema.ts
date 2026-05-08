@@ -9,14 +9,12 @@
 	
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 	
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-// TODO: Need a way to allow camalCase and pascal_case without just duplicating the schema
 
 import { ActivitySchema } from "../uncategorised/ActivitySchema";
 
@@ -53,31 +51,21 @@ export const IdentifySchema = {
     // },
     $presence: ActivitySchema,
     $compress: Boolean,
-    $large_threshold: Number,
+    "$[large_threshold|largeThreshold]": Number,
     $shard: [BigInt, BigInt],
     $guild_subscriptions: Boolean,
     $capabilities: Number,
-    $client_state: {
-        $guild_hashes: Object,
-        $highest_last_message_id: Number,
-        $read_state_version: Number,
-        $user_guild_settings_version: Number,
-        $user_settings_version: undefined,
-        $useruser_guild_settings_version: undefined,
-        $private_channels_version: Number,
-        $guild_versions: Object,
-        $api_code_version: Number,
-        $initial_guild_id: String,
-    },
-    $clientState: {
-        $guildHashes: Object,
-        $highestLastMessageId: Number,
-        $readStateVersion: Number,
-        $useruserGuildSettingsVersion: undefined,
-        $userGuildSettingsVersion: undefined,
-        $guildVersions: Object,
-        $apiCodeVersion: Number,
-        $initialGuildId: String,
+    "$[client_state|clientState]": {
+        "$[guild_hashes|guildHashes]": Object,
+        "$[highest_last_message_id|highestLastMessageId]": Number,
+        "$[read_state_version|readStateVersion]": Number,
+        "$[user_guild_settings_version|userGuildSettingsVersion]": Number,
+        "$[user_settings_version|userSettingsVersion]": undefined,
+        "$[useruser_guild_settings_version|useruserGuildSettingsVersion]": undefined,
+        "$[private_channels_version|privateChannelsVersion]": Number,
+        "$[guild_versions|guildVersions]": Object,
+        "$[api_code_version|apiCodeVersion]": Number,
+        "$[initial_guild_id|initialGuildId]": String,
     },
     $v: Number,
     $version: Number,
@@ -107,7 +95,7 @@ export interface IdentifySchema {
         client_version?: string;
         system_locale?: string;
     };
-    intents?: bigint; // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
+    intents?: bigint; // discord uses a Integer for bitfields we use a bigint tho. | instanceOf will automatically convert the Number to a BigInt
     presence?: ActivitySchema;
     compress?: boolean;
     large_threshold?: number;
@@ -136,7 +124,9 @@ export interface IdentifySchema {
         highestLastMessageId?: number;
         readStateVersion?: number;
         userGuildSettingsVersion?: number;
+        userSettingsVersion?: number;
         useruserGuildSettingsVersion?: number;
+        privateChannelsVersion?: number;
         guildVersions?: unknown;
         apiCodeVersion?: number;
         initialGuildId?: string;

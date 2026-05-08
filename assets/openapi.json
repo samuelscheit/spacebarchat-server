@@ -9547,7 +9547,13 @@
                             "userGuildSettingsVersion": {
                                 "type": "integer"
                             },
+                            "userSettingsVersion": {
+                                "type": "integer"
+                            },
                             "useruserGuildSettingsVersion": {
+                                "type": "integer"
+                            },
+                            "privateChannelsVersion": {
                                 "type": "integer"
                             },
                             "guildVersions": {},

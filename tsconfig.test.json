@@ -32,6 +32,7 @@
         "src/gateway/util/Send.test.ts",
         "src/gateway/util/Shard.test.ts",
         "src/gateway/util/BotGuildCreatePayload.test.ts",
+        "src/schemas/gateway/IdentifySchema.test.ts",
         "src/schemas/uncategorised/MessageCreateSchema.test.ts",
         "src/schemas/uncategorised/MessageSchemaValidation.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
@@ -43,6 +44,7 @@
         "src/util/util/cdn.test.ts",
         "src/util/util/Intents.test.ts",
         "src/util/util/InternalCdnRoutes.test.ts",
+        "src/util/util/lambert-server/check.test.ts",
         "src/util/util/ReplacedCdnAsset.test.ts",
         "src/util/util/RoleIconPolicy.test.ts",
         "src/util/util/TraverseDirectory.test.ts"

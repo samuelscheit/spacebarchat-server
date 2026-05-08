@@ -108,7 +108,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const identify: IdentifySchema = data.d;
 
     this.capabilities = new Capabilities(identify.capabilities || 0);
-    this.large_threshold = identify.large_threshold || 250;
+    this.large_threshold = identify.large_threshold ?? identify.largeThreshold ?? 250;
     const parseAndValidateTime = taskSw.getElapsedAndReset();
 
     let tokenData: Awaited<ReturnType<typeof checkToken>>;
