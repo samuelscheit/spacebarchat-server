@@ -21,11 +21,21 @@ import { Snowflake } from "@spacebar/util";
 
 export const CLIENT_FINGERPRINT_PATTERN = /^\d+\.[A-Za-z0-9+/=]+$/;
 
+function createClientFingerprintDigest(snowflake: string) {
+    return createHash("sha512").update(snowflake).digest("base64");
+}
+
 export function isClientFingerprint(value: unknown): value is string {
-    return typeof value === "string" && CLIENT_FINGERPRINT_PATTERN.test(value);
+    if (typeof value !== "string") return false;
+
+    const match = CLIENT_FINGERPRINT_PATTERN.exec(value);
+    if (!match) return false;
+
+    const [snowflake, digest] = value.split(".", 2);
+    return digest === createClientFingerprintDigest(snowflake);
 }
 
 export function createClientFingerprint() {
     const snowflake = Snowflake.generate();
-    return `${snowflake}.${createHash("sha512").update(snowflake).digest("base64")}`;
+    return `${snowflake}.${createClientFingerprintDigest(snowflake)}`;
 }

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@spacebar/api";
+import { isClientFingerprint, route, verifyCaptcha } from "@spacebar/api";
 import {
     Config,
     DiscordApiErrors,
@@ -37,7 +37,7 @@ import {
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { MoreThan } from "typeorm";
+import { ArrayContains, MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
 import { isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
@@ -134,10 +134,10 @@ router.post(
             }
         }
 
-        if (!regTokenUsed && !register.allowMultipleAccounts) {
-            // TODO: check if fingerprint was eligible generated
+        const fingerprint = isClientFingerprint(body.fingerprint) ? body.fingerprint : undefined;
+        if (!regTokenUsed && !register.allowMultipleAccounts && fingerprint) {
             const exists = await User.findOne({
-                where: { fingerprints: body.fingerprint },
+                where: { fingerprints: ArrayContains([fingerprint]) },
                 select: { id: true },
             });
 
@@ -360,7 +360,7 @@ router.post(
                     throw DiscordApiErrors.UNKNOWN_INVITE;
                 }
 
-                const newUser = await User.register({ ...body, req, manager, emitSideEffects: false });
+                const newUser = await User.register({ ...body, fingerprint, req, manager, emitSideEffects: false });
                 await assertInviteAcceptanceAllowed({
                     guildId: invite.guild_id,
                     userId: newUser.id,
@@ -381,7 +381,7 @@ router.post(
             );
             await User.runRegistrationSideEffects(user, { email });
         } else {
-            user = await User.register({ ...body, req });
+            user = await User.register({ ...body, fingerprint, req });
         }
 
         return res.json({ token: await generateToken(user.id) });

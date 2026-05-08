@@ -305,6 +305,7 @@ export class User extends BaseClass {
         email,
         username,
         password,
+        fingerprint,
         id,
         req,
         bot,
@@ -314,6 +315,7 @@ export class User extends BaseClass {
         username: string;
         password?: string;
         email?: string;
+        fingerprint?: string;
         date_of_birth?: Date; // "2000-04-03"
         id?: string;
         req?: Request;
@@ -357,6 +359,7 @@ export class User extends BaseClass {
                 hash: password,
                 valid_tokens_since: new Date(),
             },
+            fingerprints: fingerprint ? [fingerprint] : [],
             settings: settings,
 
             premium_since: Config.get().defaults.user.premium ? new Date() : undefined,
