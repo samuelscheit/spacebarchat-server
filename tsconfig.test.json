@@ -6,10 +6,13 @@
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/gateway/opcodes/GuildSync.test.ts",
+        "src/gateway/opcodes/GatewayOpcodeAuthorization.test.ts",
         "src/gateway/opcodes/LazyRequest.test.ts",
         "src/gateway/util/LazyMemberList.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
+        "src/util/dtos/ReadyPrivateChannelDTO.test.ts",
         "src/util/config/types/GatewayConfiguration.test.ts",
+        "src/util/util/ChannelFlags.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],

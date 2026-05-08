@@ -547,7 +547,8 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(state.permissionChecks, []);
         assert.deepEqual(state.subscriptions, []);
         assert.deepEqual(state.sentPayloads, []);
-        assert.equal(state.getManyCalls, 0);
+        assert.equal(state.findCalls.length, 0);
+        assert.equal(state.buildCalls.length, 0);
     });
 
     test("ignores member presence requests that do not include an authorized channel", async () => {
