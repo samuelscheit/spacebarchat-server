@@ -4,6 +4,7 @@ import { EventOpts, Intents } from "@spacebar/util";
 import {
     canDispatchGuildPresenceUpdate,
     canDispatchIntentEvent,
+    shouldSubscribeChannelRouteEvents,
     shouldSubscribeDirectMessageEvents,
     shouldSubscribeGuildChannelEvents,
     shouldSubscribeGuildEvents,
@@ -115,6 +116,21 @@ describe("gateway listener intent filtering", () => {
         assert.equal(canDispatchIntentEvent(guilds, directChannelCreate), false);
         assert.equal(canDispatchIntentEvent(directMessages, directChannelCreate), true);
         assert.equal(canDispatchIntentEvent(directMessages, eventOpts("CHANNEL_RECIPIENT_REMOVE", { channel_id: "dm-channel" })), true);
+    });
+
+    test("keeps dynamic channel route subscriptions in the matching guild or DM intent bucket", () => {
+        const guildMessages = new Intents(Intents.FLAGS.GUILD_MESSAGES);
+        const directMessages = new Intents(Intents.FLAGS.DIRECT_MESSAGES);
+        const guildEventIds = { guild: new Set(["guild-channel"]) };
+        const guildChannelRoute = eventOpts("CHANNEL_UPDATE", { id: "guild-channel", guild_id: "guild" }, undefined, "guild-channel");
+        const trackedGuildChannelRoute = eventOpts("CHANNEL_UPDATE", { id: "guild-channel" }, undefined, "guild-channel");
+        const directChannelRoute = eventOpts("CHANNEL_UPDATE", { id: "dm-channel", type: 1 }, undefined, "dm-channel");
+
+        assert.equal(shouldSubscribeChannelRouteEvents(guildMessages, guildChannelRoute, guildEventIds), true);
+        assert.equal(shouldSubscribeChannelRouteEvents(guildMessages, trackedGuildChannelRoute, guildEventIds), true);
+        assert.equal(shouldSubscribeChannelRouteEvents(guildMessages, directChannelRoute, guildEventIds), false);
+        assert.equal(shouldSubscribeChannelRouteEvents(directMessages, guildChannelRoute, guildEventIds), false);
+        assert.equal(shouldSubscribeChannelRouteEvents(directMessages, directChannelRoute, guildEventIds), true);
     });
 
     test("uses current invite and thread member event names from the intent maps", () => {
