@@ -17185,15 +17185,15 @@
             "path": "/users/@me/email-settings/",
             "samplePath": "/users/@me/email-settings/",
             "sourceFile": "src/api/routes/users/@me/email-settings.ts",
-            "line": 24,
+            "line": 46,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
             "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
             "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": []
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [200, 401]
             },
             "cases": [
                 {
