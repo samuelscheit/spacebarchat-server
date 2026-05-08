@@ -18169,13 +18169,53 @@
                     "maxEmbeds": {
                         "type": "integer",
                         "default": 20
+                    },
+                    "maxEmbedTitle": {
+                        "type": "integer",
+                        "default": 256
+                    },
+                    "maxEmbedDescription": {
+                        "type": "integer",
+                        "default": 4096
+                    },
+                    "maxEmbedFields": {
+                        "type": "integer",
+                        "default": 25
+                    },
+                    "maxEmbedFieldName": {
+                        "type": "integer",
+                        "default": 256
+                    },
+                    "maxEmbedFieldValue": {
+                        "type": "integer",
+                        "default": 1024
+                    },
+                    "maxEmbedFooterText": {
+                        "type": "integer",
+                        "default": 2048
+                    },
+                    "maxEmbedAuthorName": {
+                        "type": "integer",
+                        "default": 256
+                    },
+                    "maxEmbedCharacters": {
+                        "type": "integer",
+                        "default": 6000
                     }
                 },
                 "required": [
                     "maxAttachmentSize",
                     "maxBulkDelete",
                     "maxCharacters",
+                    "maxEmbedAuthorName",
+                    "maxEmbedCharacters",
+                    "maxEmbedDescription",
                     "maxEmbedDownloadSize",
+                    "maxEmbedFieldName",
+                    "maxEmbedFieldValue",
+                    "maxEmbedFields",
+                    "maxEmbedFooterText",
+                    "maxEmbedTitle",
                     "maxEmbeds",
                     "maxPreloadCount",
                     "maxReactions",

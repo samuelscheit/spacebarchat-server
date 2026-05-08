@@ -25,4 +25,12 @@ export class MessageLimits {
     maxEmbedDownloadSize: number = 1024 * 1024 * 5;
     maxPreloadCount: number = 100;
     maxEmbeds: number = 20;
+    maxEmbedTitle: number = 256;
+    maxEmbedDescription: number = 4096;
+    maxEmbedFields: number = 25;
+    maxEmbedFieldName: number = 256;
+    maxEmbedFieldValue: number = 1024;
+    maxEmbedFooterText: number = 2048;
+    maxEmbedAuthorName: number = 256;
+    maxEmbedCharacters: number = 6000;
 }

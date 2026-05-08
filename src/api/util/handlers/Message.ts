@@ -79,6 +79,113 @@ const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
 // TODO: embed gifs/videos/images
 
+type MessageEmbedLimits = {
+    maxEmbeds?: number;
+    maxEmbedTitle?: number;
+    maxEmbedDescription?: number;
+    maxEmbedFields?: number;
+    maxEmbedFieldName?: number;
+    maxEmbedFieldValue?: number;
+    maxEmbedFooterText?: number;
+    maxEmbedAuthorName?: number;
+    maxEmbedCharacters?: number;
+};
+
+const defaultMessageEmbedLimits: Required<MessageEmbedLimits> = {
+    maxEmbeds: 20,
+    maxEmbedTitle: 256,
+    maxEmbedDescription: 4096,
+    maxEmbedFields: 25,
+    maxEmbedFieldName: 256,
+    maxEmbedFieldValue: 1024,
+    maxEmbedFooterText: 2048,
+    maxEmbedAuthorName: 256,
+    maxEmbedCharacters: 6000,
+};
+
+function getEmbedLimit(limits: MessageEmbedLimits, key: keyof MessageEmbedLimits): number {
+    const configured = limits[key];
+    return typeof configured === "number" && Number.isFinite(configured) ? configured : defaultMessageEmbedLimits[key];
+}
+
+function addLengthError(errors: Record<string, { code?: string; message: string }>, path: string, maxLength: number) {
+    errors[path] = {
+        code: "BASE_TYPE_BAD_LENGTH",
+        message: `Must be ${maxLength} or fewer in length.`,
+    };
+}
+
+export function validateMessageEmbeds(embeds: Embed[] | null | undefined, limits: MessageEmbedLimits = {}) {
+    if (!embeds?.length) return;
+
+    const errors: Record<string, { code?: string; message: string }> = {};
+    const maxEmbeds = getEmbedLimit(limits, "maxEmbeds");
+    const maxEmbedTitle = getEmbedLimit(limits, "maxEmbedTitle");
+    const maxEmbedDescription = getEmbedLimit(limits, "maxEmbedDescription");
+    const maxEmbedFields = getEmbedLimit(limits, "maxEmbedFields");
+    const maxEmbedFieldName = getEmbedLimit(limits, "maxEmbedFieldName");
+    const maxEmbedFieldValue = getEmbedLimit(limits, "maxEmbedFieldValue");
+    const maxEmbedFooterText = getEmbedLimit(limits, "maxEmbedFooterText");
+    const maxEmbedAuthorName = getEmbedLimit(limits, "maxEmbedAuthorName");
+    const maxEmbedCharacters = getEmbedLimit(limits, "maxEmbedCharacters");
+    let totalEmbedCharacters = 0;
+
+    if (embeds.length > maxEmbeds) {
+        errors.embeds = {
+            code: "BASE_TYPE_BAD_LENGTH",
+            message: `Must be ${maxEmbeds} or fewer in length.`,
+        };
+    }
+
+    for (const [embedIndex, embed] of embeds.entries()) {
+        if (embed.title !== undefined) {
+            totalEmbedCharacters += embed.title.length;
+            if (embed.title.length > maxEmbedTitle) addLengthError(errors, `embeds[${embedIndex}].title`, maxEmbedTitle);
+        }
+
+        if (embed.description !== undefined) {
+            totalEmbedCharacters += embed.description.length;
+            if (embed.description.length > maxEmbedDescription) addLengthError(errors, `embeds[${embedIndex}].description`, maxEmbedDescription);
+        }
+
+        if (embed.footer?.text !== undefined) {
+            totalEmbedCharacters += embed.footer.text.length;
+            if (embed.footer.text.length > maxEmbedFooterText) addLengthError(errors, `embeds[${embedIndex}].footer.text`, maxEmbedFooterText);
+        }
+
+        if (embed.author?.name !== undefined) {
+            totalEmbedCharacters += embed.author.name.length;
+            if (embed.author.name.length > maxEmbedAuthorName) addLengthError(errors, `embeds[${embedIndex}].author.name`, maxEmbedAuthorName);
+        }
+
+        if (embed.fields) {
+            if (embed.fields.length > maxEmbedFields) {
+                errors[`embeds[${embedIndex}].fields`] = {
+                    code: "BASE_TYPE_BAD_LENGTH",
+                    message: `Must be ${maxEmbedFields} or fewer in length.`,
+                };
+            }
+
+            for (const [fieldIndex, field] of embed.fields.entries()) {
+                totalEmbedCharacters += field.name.length + field.value.length;
+                if (field.name.length > maxEmbedFieldName) addLengthError(errors, `embeds[${embedIndex}].fields[${fieldIndex}].name`, maxEmbedFieldName);
+                if (field.value.length > maxEmbedFieldValue) addLengthError(errors, `embeds[${embedIndex}].fields[${fieldIndex}].value`, maxEmbedFieldValue);
+            }
+        }
+    }
+
+    if (totalEmbedCharacters > maxEmbedCharacters) {
+        errors.embeds ??= {
+            code: "BASE_TYPE_BAD_LENGTH",
+            message: `Must contain ${maxEmbedCharacters} or fewer total characters across all embeds.`,
+        };
+    }
+
+    if (Object.keys(errors).length > 0) {
+        throw FieldErrors(errors);
+    }
+}
+
 function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], errors: Record<string, { code?: string; message: string }>, rowIndex: number) {
     if (!row.components) {
         return;
@@ -368,6 +475,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     if (message.content && message.content.length > conf.limits.message.maxCharacters) {
         throw new HTTPError("Content length over max character limit");
     }
+    validateMessageEmbeds(message.embeds, conf.limits.message);
 
     if (opts.application_id) {
         message.application = await Application.findOneOrFail({

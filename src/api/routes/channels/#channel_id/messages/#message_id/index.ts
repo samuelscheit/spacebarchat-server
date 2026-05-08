@@ -40,7 +40,6 @@ import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAtta
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
-// TODO: message content/embed string length limit
 
 const messageUpload = multer({
     limits: {
