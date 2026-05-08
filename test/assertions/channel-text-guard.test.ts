@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 
 import { HTTPError } from "lambert-server";
-import { ChannelType, isTextChannel } from "./Channel";
+import { ChannelType, isTextChannel } from "../../src/schemas/api/channels/Channel";
 
 const MESSAGE_CAPABLE_CHANNEL_TYPES = new Set<ChannelType>([
     ChannelType.DM,
