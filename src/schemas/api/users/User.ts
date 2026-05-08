@@ -19,8 +19,6 @@
 import { ConnectedAccountSchema, Snowflake, UserSettingsSchema } from "@spacebar/schemas";
 // TODO: maybe move the one thing this depends on to
 import { BitField } from "@spacebar/util/util";
-// TODO: remove entity import
-import { Relationship, Session } from "@spacebar/util/entities";
 
 interface UserEntityPleaseRewriteThankYou {
     id: Snowflake;
@@ -53,8 +51,6 @@ interface UserEntityPleaseRewriteThankYou {
     purchased_flags: number;
     premium_usage_flags: number;
     rights: string;
-    sessions: Session[];
-    relationships: Relationship[];
     connected_accounts: ConnectedAccountSchema[];
     fingerprints: string[];
     settings?: UserSettingsSchema;
