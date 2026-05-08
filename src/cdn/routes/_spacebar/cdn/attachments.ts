@@ -5,7 +5,7 @@ import { HTTPError } from "lambert-server";
 import { multer } from "../../../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
-import { attachmentStoragePath } from "../../../util/AttachmentStorage";
+import { attachmentStoragePath, deleteStoragePathIfExists } from "../../../util/AttachmentStorage";
 import { getAttachmentCloneDestinationPath } from "../../../util/AttachmentClonePath";
 
 const router = Router({ mergeParams: true });
@@ -118,9 +118,9 @@ router.delete("/:channel_id/:message_id/:filename", async (req: Request, res: Re
     const { channel_id, message_id, filename } = req.params as { [key: string]: string };
     const path = attachmentStoragePath({ channelId: channel_id, messageId: message_id, filename });
 
-    await storage.delete(path);
+    const deleted = await deleteStoragePathIfExists(storage, path);
 
-    return res.send({ success: true });
+    return res.send({ success: true, deleted });
 });
 
 router.delete("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Request, res: Response) => {
@@ -139,12 +139,10 @@ router.delete("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Req
         },
     });
 
-    if (att) {
-        if (await storage.exists(path)) await storage.delete(path);
-        await att.remove();
-        return res.send({ success: true });
-    }
-    return res.status(404).send("Attachment not found");
+    if (att) await att.remove();
+
+    const deleted = await deleteStoragePathIfExists(storage, path);
+    return res.send({ success: true, deleted });
 });
 
 router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id", async (req: Request, res: Response) => {

@@ -70,7 +70,7 @@ test("CDN attachment upload, signed download, delete, and missing-object behavio
 
                 const deleted = await fetch(deleteUrl, { method: "DELETE", headers: { signature: requestSignature } });
                 await assertStatus(deleted, 200);
-                assert.deepEqual(await assertJsonObject(deleted), { success: true });
+                assert.deepEqual(await assertJsonObject(deleted), { success: true, deleted: true });
                 assert.equal(await storage.exists(uploadBody.path as string), false);
 
                 const missing = await fetch(downloadUrl, { headers: { signature: requestSignature } });
@@ -189,7 +189,7 @@ test(
 
                         const deleted = await fetch(uploadUrl, { method: "DELETE", headers: { signature: requestSignature } });
                         await assertStatus(deleted, 200);
-                        assert.deepEqual(await assertJsonObject(deleted), { success: true });
+                        assert.deepEqual(await assertJsonObject(deleted), { success: true, deleted: true });
                         assert.equal(await CloudAttachment.findOneBy({ id: fixture.attachment.id }), null);
                         assert.equal(await storage.exists(`attachments/${fixture.uploadFilename}`), false);
                         assert.equal(await storage.exists(clonedPath), true);
@@ -206,7 +206,7 @@ test(
 
                         const staleDelete = await fetch(missingSourceUrl, { method: "DELETE", headers: { signature: requestSignature } });
                         await assertStatus(staleDelete, 200);
-                        assert.deepEqual(await assertJsonObject(staleDelete), { success: true });
+                        assert.deepEqual(await assertJsonObject(staleDelete), { success: true, deleted: false });
                         assert.equal(await CloudAttachment.findOneBy({ id: missingSource.attachment.id }), null);
 
                         const oversized = await createCloudAttachmentFixture({ attachmentId: "oversized", filename: "oversized.bin" });

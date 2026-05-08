@@ -14641,7 +14641,7 @@
             "method": "POST",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 150,
+            "line": 148,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
