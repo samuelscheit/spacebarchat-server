@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash, createHmac } from "node:crypto";
 import { describe, test } from "node:test";
 
 process.env.DATABASE ??= "postgres://user:password@localhost:5432/test";
@@ -22,9 +23,19 @@ describe("client fingerprint generation", () => {
         assert.equal(isClientFingerprint("1234567890.dGhpcy1pcy1ub3QtdGhlLWhhc2g="), false);
     });
 
+    test("rejects fingerprints signed without the server secret", () => {
+        const snowflake = "1234567890";
+        const publicDigest = createHash("sha512").update(snowflake).digest("base64");
+        const wrongSecretDigest = createHmac("sha512", "not-the-server-secret").update(snowflake).digest("base64");
+
+        assert.equal(isClientFingerprint(`${snowflake}.${publicDigest}`), false);
+        assert.equal(isClientFingerprint(`${snowflake}.${wrongSecretDigest}`), false);
+    });
+
     test("rejects tampered generated fingerprints", () => {
         const [snowflake, digest] = createClientFingerprint().split(".", 2);
+        const replacement = digest.endsWith("A") ? "B" : "A";
 
-        assert.equal(isClientFingerprint(`${snowflake}.${digest.slice(0, -1)}A`), false);
+        assert.equal(isClientFingerprint(`${snowflake}.${digest.slice(0, -1)}${replacement}`), false);
     });
 });

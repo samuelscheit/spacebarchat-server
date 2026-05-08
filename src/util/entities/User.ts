@@ -31,6 +31,7 @@ import {
     trimSpecial,
 } from "..";
 import { bigintNumberTransformer, Random } from "../util";
+import { isClientFingerprint } from "../util/Fingerprint";
 import { profilePronouns } from "../util/UserProfile";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
@@ -359,7 +360,7 @@ export class User extends BaseClass {
                 hash: password,
                 valid_tokens_since: new Date(),
             },
-            fingerprints: fingerprint ? [fingerprint] : [],
+            fingerprints: isClientFingerprint(fingerprint) ? [fingerprint] : [],
             settings: settings,
 
             premium_since: Config.get().defaults.user.premium ? new Date() : undefined,

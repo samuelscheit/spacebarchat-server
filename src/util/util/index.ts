@@ -38,6 +38,7 @@ export * from "./email";
 export * from "./ElapsedTime";
 export * from "./Event";
 export * from "./FieldError";
+export * from "./Fingerprint";
 export * from "./GatewaySessions";
 export * from "./GuildCreate";
 export * from "./InternalCdnRoutes";

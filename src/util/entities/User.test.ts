@@ -22,12 +22,13 @@ test("User.premium_since keeps nullable Date column metadata", () => {
     assert.match(source, /@Column\(\{\s*nullable:\s*true,\s*type:\s*Date\s*\}\)\s+premium_since\?: Date \| null;/);
 });
 
-test("User.register persists a validated registration fingerprint on the new user", async () => {
-    const [{ User }, { UserSettings }, { Config }, { Snowflake }] = await Promise.all([
+test("User.register only persists validated registration fingerprints on new users", async () => {
+    const [{ User }, { UserSettings }, { Config }, { Snowflake }, { createClientFingerprint }] = await Promise.all([
         import("./User.js"),
         import("./UserSettings.js"),
         import("../util/Config.js"),
         import("../util/Snowflake.js"),
+        import("../util/Fingerprint.js"),
     ]);
 
     type MutableStatic = Record<string, unknown>;
@@ -42,7 +43,6 @@ test("User.register persists a validated registration fingerprint on the new use
     const originalSnowflakeGenerate = mutableSnowflake.generate;
 
     const savedUsers: unknown[] = [];
-    const fingerprint = "1234567890.example";
 
     try {
         mutableConfig.get = () => ({
@@ -64,7 +64,11 @@ test("User.register persists a validated registration fingerprint on the new use
                 defaultRights: "0",
                 incrementingDiscriminators: true,
             },
+            security: {
+                requestSignature: "user-register-fingerprint-test-secret",
+            },
         });
+        const fingerprint = createClientFingerprint();
         mutableSnowflake.generate = () => "registered-user";
         mutableUser.getRepository = () => ({
             create(entity: object) {
@@ -93,6 +97,15 @@ test("User.register persists a validated registration fingerprint on the new use
         assert.equal(savedUsers.length, 1);
         assert.equal(user.id, "registered-user");
         assert.deepEqual(user.fingerprints, [fingerprint]);
+
+        const invalidFingerprintUser = await User.register({
+            username: "invalid-fingerprint-user",
+            fingerprint: "1234567890.example",
+            emitSideEffects: false,
+        });
+
+        assert.equal(savedUsers.length, 2);
+        assert.deepEqual(invalidFingerprintUser.fingerprints, []);
     } finally {
         mutableUser.getRepository = originalUserGetRepository;
         mutableUserSettings.getRepository = originalUserSettingsGetRepository;

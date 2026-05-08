@@ -1,0 +1,68 @@
+/*
+	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published
+	by the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU Affero General Public License for more details.
+
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { Config } from "./Config";
+import { Snowflake } from "./Snowflake";
+
+export const CLIENT_FINGERPRINT_PATTERN = /^(\d+)\.([A-Za-z0-9+/=]+)$/;
+
+const uninitializedConfigClientFingerprintSecret = randomBytes(32).toString("base64");
+
+function getConfiguredClientFingerprintSecret() {
+    const requestSignature = Config.get().security?.requestSignature;
+
+    return typeof requestSignature === "string" ? requestSignature : undefined;
+}
+
+function getClientFingerprintSecret() {
+    const configuredSecret = getConfiguredClientFingerprintSecret();
+    const stableConfiguredSecret = getConfiguredClientFingerprintSecret();
+
+    if (configuredSecret && configuredSecret === stableConfiguredSecret) return configuredSecret;
+
+    return uninitializedConfigClientFingerprintSecret;
+}
+
+function createClientFingerprintDigest(snowflake: string) {
+    return createHmac("sha512", getClientFingerprintSecret()).update(snowflake).digest("base64");
+}
+
+function constantTimeEqual(left: string, right: string) {
+    const leftBuffer = Buffer.from(left);
+    const rightBuffer = Buffer.from(right);
+
+    if (leftBuffer.length !== rightBuffer.length) return false;
+
+    return timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+export function isClientFingerprint(value: unknown): value is string {
+    if (typeof value !== "string") return false;
+
+    const match = CLIENT_FINGERPRINT_PATTERN.exec(value);
+    if (!match) return false;
+
+    const [, snowflake, digest] = match;
+    return constantTimeEqual(digest, createClientFingerprintDigest(snowflake));
+}
+
+export function createClientFingerprint() {
+    const snowflake = Snowflake.generate();
+    return `${snowflake}.${createClientFingerprintDigest(snowflake)}`;
+}

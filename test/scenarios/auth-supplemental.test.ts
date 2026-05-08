@@ -9,6 +9,7 @@ import { generateSecret, generateToken as generateTotpToken } from "node-2fa";
 import {
     BackupCode,
     closeDatabase,
+    Config,
     EmailActionTokenPurpose,
     generateEmailActionToken,
     generateToken,
@@ -93,6 +94,7 @@ test(
             await initDatabase();
             WebAuthn.init();
             api = await startApi();
+            Config.get().register.allowMultipleAccounts = false;
 
             const suffix = `${process.pid}${Date.now()}`;
             const email = `auth-supplemental-${suffix}@example.com`;
@@ -129,9 +131,24 @@ test(
 
             const user = await User.findOneOrFail({
                 where: { email },
-                select: { id: true, email: true, data: true },
+                select: { id: true, email: true, data: true, fingerprints: true },
             });
             assert.ok(await bcrypt.compare(initialPassword, user.data.hash ?? ""));
+            assert.deepEqual(user.fingerprints, [fingerprint]);
+
+            const duplicateFingerprintRegister = await postJson(
+                `${api.apiBaseUrl}/auth/register`,
+                {
+                    username: `dupeauth${suffix.slice(-8)}`,
+                    email: `auth-duplicate-${suffix}@example.com`,
+                    password: "scenario-password-duplicate",
+                    consent: true,
+                    date_of_birth: "2000-04-04",
+                    fingerprint,
+                },
+                { cookie },
+            );
+            await assertJsonError(duplicateFingerprintRegister, 400);
 
             await assertStatus(await postJson(`${api.apiBaseUrl}/auth/forgot`, { login: email }, { cookie }), 204);
 
