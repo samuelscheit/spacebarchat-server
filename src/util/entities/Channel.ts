@@ -18,24 +18,20 @@
 
 import { HTTPError } from "lambert-server";
 import { Column, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { DmChannelDTO, getCreateDMChannelResponse, saveGroupDMOwnerAfterRecipientRemoval } from "../dtos";
-import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import {
-    Snowflake,
-    emitEvent,
-    getPermission,
-    trimSpecial,
-    Permissions,
-    Config,
-    DiscordApiErrors,
-    getDatabase,
-    handleFile,
-    normalizeChannelName,
-    normalizeThreadName,
-    assertChannelNamePresent,
-    canCreateServerDm,
-    shouldCheckServerDmPrivacy,
-} from "../util";
+import { getCreateDMChannelResponse } from "../dtos/DmChannelCreateResponse";
+import { DmChannelDTO } from "../dtos/DmChannelDTO";
+import { saveGroupDMOwnerAfterRecipientRemoval } from "../dtos/DmChannelOwnership";
+import type { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
+import { normalizeChannelName, normalizeThreadName, assertChannelNamePresent } from "../util/ChannelName";
+import { Config } from "../util/Config";
+import { DiscordApiErrors } from "../util/Constants";
+import { getDatabase } from "../util/Database";
+import { canCreateServerDm, shouldCheckServerDmPrivacy } from "../util/DmPrivacy";
+import { emitEvent } from "../util/Event";
+import { getPermission, isGuildOwner, Permissions } from "../util/Permissions";
+import { Snowflake } from "../util/Snowflake";
+import { trimSpecial } from "../util/String";
+import { handleFile } from "../util/cdn";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
@@ -48,7 +44,7 @@ import { Webhook } from "./Webhook";
 import { Member } from "./Member";
 import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
-import { OrmUtils } from "../imports";
+import { OrmUtils } from "../imports/OrmUtils";
 import { ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
@@ -703,10 +699,7 @@ export class Channel extends BaseClass {
         }
 
         // check if we can resolve here to short-circuit possibly calling the database unnecessarily
-        const ownerId = guild?.owner?.id ?? guild?.owner_id;
-        if (!!opts.user_id && ownerId === opts.user_id) return Permissions.ALL;
-        if (!!opts.user?.id && ownerId === opts.user?.id) return Permissions.ALL;
-        if (!!opts.member?.id && ownerId === opts.member?.id) return Permissions.ALL;
+        if (isGuildOwner(guild, opts.user_id, opts.user, opts.member)) return Permissions.ALL;
 
         let member = opts.member;
         if (!member) {
