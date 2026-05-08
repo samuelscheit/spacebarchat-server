@@ -6,6 +6,23 @@ type LoadFunction = (request: string, parent?: NodeJS.Module | null, isMain?: bo
 
 type MockRegion = { endpoint: string; id: string; name: string };
 
+type MockMember = {
+    deaf: boolean;
+    joined_at: Date;
+    mute: boolean;
+    roles: { id: string }[];
+    user: {
+        toPublicUser(): {
+            avatar: string | null;
+            discriminator: string;
+            id: string;
+            public_flags: number;
+            username: string;
+        };
+    };
+    toPublicMember(): unknown;
+};
+
 type MockChannel = {
     guild_id?: string | null;
     id: string;
@@ -40,6 +57,7 @@ const state: {
     emittedEvents: unknown[];
     generatedTokens: string[];
     memberFindOneCalls: unknown[];
+    memberFindOneResult: MockMember | null | undefined;
     permissionError: Error | undefined;
     regions: { default: string; available: MockRegion[] };
     permissionCalls: { channelId: string; guildId?: string; permission?: unknown; userId: string }[];
@@ -58,6 +76,7 @@ const state: {
     emittedEvents: [],
     generatedTokens: [],
     memberFindOneCalls: [],
+    memberFindOneResult: undefined,
     permissionError: undefined,
     regions: { default: "local", available: [{ endpoint: "rtc.local", id: "local", name: "Local" }] },
     permissionCalls: [],
@@ -125,6 +144,29 @@ function defaultChannel(id = "voice", guildId: string | null = "guild"): MockCha
     };
 }
 
+function makeMember(): MockMember {
+    return {
+        deaf: false,
+        joined_at: new Date("2026-01-02T03:04:05.000Z"),
+        mute: false,
+        roles: [{ id: "role-a" }],
+        user: {
+            toPublicUser() {
+                return {
+                    avatar: null,
+                    discriminator: "0001",
+                    id: "viewer",
+                    public_flags: 64,
+                    username: "alice",
+                };
+            },
+        },
+        toPublicMember() {
+            return { user: { id: "viewer" } };
+        },
+    };
+}
+
 const mockUtil = {
     Channel: {
         async findOneOrFail({ where }: { where: { id: string } }) {
@@ -152,50 +194,17 @@ const mockUtil = {
         async findOne(options: unknown) {
             state.memberFindOneCalls.push(options);
             if ((options as { where?: { guild_id?: string | null } }).where?.guild_id == null) return undefined;
-            return {
-                deaf: false,
-                joined_at: new Date("2026-01-02T03:04:05.000Z"),
-                mute: false,
-                roles: [{ id: "role-a" }],
-                user: {
-                    toPublicUser() {
-                        return {
-                            avatar: null,
-                            discriminator: "0001",
-                            id: "viewer",
-                            public_flags: 64,
-                            username: "alice",
-                        };
-                    },
-                },
-                toPublicMember() {
-                    return { user: { id: "viewer" } };
-                },
-            };
+            if (state.memberFindOneResult !== undefined) return state.memberFindOneResult;
+            return makeMember();
         },
         async findOneOrFail(options: unknown) {
             state.memberFindOneCalls.push(options);
             if ((options as { where?: { guild_id?: string | null } }).where?.guild_id == null) throw new Error("member not found");
-            return {
-                deaf: false,
-                joined_at: new Date("2026-01-02T03:04:05.000Z"),
-                mute: false,
-                roles: [{ id: "role-a" }],
-                user: {
-                    toPublicUser() {
-                        return {
-                            avatar: null,
-                            discriminator: "0001",
-                            id: "viewer",
-                            public_flags: 64,
-                            username: "alice",
-                        };
-                    },
-                },
-                toPublicMember() {
-                    return { user: { id: "viewer" } };
-                },
-            };
+            if (state.memberFindOneResult !== undefined) {
+                if (state.memberFindOneResult === null) throw new Error("member not found");
+                return state.memberFindOneResult;
+            }
+            return makeMember();
         },
     },
     Snowflake: {
@@ -377,6 +386,7 @@ beforeEach(() => {
     state.emittedEvents = [];
     state.generatedTokens = [];
     state.memberFindOneCalls = [];
+    state.memberFindOneResult = undefined;
     state.permissionError = undefined;
     state.regions = { default: "local", available: [{ endpoint: "rtc.local", id: "local", name: "Local" }] };
     state.permissionCalls = [];
@@ -541,6 +551,68 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.voiceSaves.length, 0);
         assert.equal(state.generatedTokens.length, 0);
         assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("VOICE_STATE_UPDATE loads and emits projected guild member when available", async () => {
+        state.memberFindOneResult = makeMember();
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "voice",
+                guild_id: "guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal(state.emittedEvents.length, 2);
+        assert.deepEqual(state.emittedEvents[0], {
+            event: "VOICE_STATE_UPDATE",
+            data: {
+                channel_id: "voice",
+                guild_id: "guild",
+                member: expectedVoiceStateMemberProjection(),
+                session_id: "session",
+                user_id: "viewer",
+            },
+            guild_id: "guild",
+            channel_id: "voice",
+            user_id: "viewer",
+        });
+    });
+
+    test("VOICE_STATE_UPDATE continues without member when guild member lookup misses", async () => {
+        state.memberFindOneResult = null;
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "voice",
+                guild_id: "guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal(state.emittedEvents.length, 2);
+        assert.deepEqual(state.emittedEvents[0], {
+            event: "VOICE_STATE_UPDATE",
+            data: {
+                channel_id: "voice",
+                guild_id: "guild",
+                member: undefined,
+                session_id: "session",
+                user_id: "viewer",
+            },
+            guild_id: "guild",
+            channel_id: "voice",
+            user_id: "viewer",
+        });
     });
 
     test("VOICE_STATE_UPDATE includes projected members on explicit leave events", async () => {
