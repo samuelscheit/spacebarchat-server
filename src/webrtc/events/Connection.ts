@@ -28,6 +28,7 @@ import { onMessage } from "./Message";
 export async function Connection(this: WS.Server, socket: WebRtcWebSocket, request: IncomingMessage) {
     try {
         socket.on("close", onClose.bind(socket));
+        socket.on("error", (err) => console.error(`[WebRTC/${socket.user_id ?? "unauthenticated"}]`, err));
         socket.on(
             "message",
             createWebRtcMessageHandler(socket, (buffer) => onMessage.call(socket, buffer), Config.get().limits.webrtc),

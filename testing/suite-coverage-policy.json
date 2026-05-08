@@ -1,0 +1,312 @@
+{
+    "schemaVersion": 1,
+    "groups": [
+        {
+            "id": "scenarios",
+            "command": "test:scenarios",
+            "requiredTestTiers": ["auth-scenario", "stateful-domain", "integration", "cdn-integration", "middleware-contract"],
+            "additionalRequiredManifestIds": [
+                "api:http:GET:/apex/experiments/",
+                "api:http:GET:/discovery/categories",
+                "api:http:GET:/discoverable-guilds/",
+                "api:http:GET:/experiments/",
+                "api:http:GET:/gateway/",
+                "api:http:GET:/gateway/bot/",
+                "api:http:GET:/gifs/search/",
+                "api:http:GET:/gifs/trending-gifs/",
+                "api:http:GET:/gifs/trending/",
+                "api:http:GET:/guild-recommendations/",
+                "api:http:GET:/policies/instance/",
+                "api:http:GET:/policies/instance/config/",
+                "api:http:GET:/policies/instance/domains/",
+                "api:http:GET:/policies/instance/limits/",
+                "api:http:GET:/policies/stats/",
+                "api:http:GET:/scheduled-maintenances/upcoming.json/"
+            ],
+            "suites": [
+                {
+                    "id": "auth-sessions",
+                    "title": "Auth and sessions",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/auth-register-login.test.ts",
+                        "test/scenarios/auth-supplemental.test.ts",
+                        "src/api/tests/auth/whoami.test.ts",
+                        "src/api/util/utility/Totp.test.ts",
+                        "src/util/util/Totp.test.ts",
+                        "src/schemas/responses/TokenResponse.test.ts"
+                    ],
+                    "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/auth" }],
+                    "fixtures": ["users", "sessions", "tokens"],
+                    "checks": ["session-state", "schema-validation", "response-shape"]
+                },
+                {
+                    "id": "users",
+                    "title": "Users, profiles, settings, relationships, and billing",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/users-profile-settings.test.ts",
+                        "test/scenarios/users-relationships.test.ts",
+                        "test/scenarios/users-notes.test.ts",
+                        "test/scenarios/users-supplemental.test.ts",
+                        "test/scenarios/oauth-connections.test.ts",
+                        "src/util/util/UserProfile.test.ts",
+                        "src/api/util/utility/PaymentSources.test.ts",
+                        "src/util/dtos/ConnectedAccountDTO.test.ts"
+                    ],
+                    "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/users" }],
+                    "fixtures": ["users", "sessions", "relationships", "settings"],
+                    "checks": ["ownership-boundary", "schema-validation", "db-state", "events"]
+                },
+                {
+                    "id": "guilds",
+                    "title": "Guilds, members, roles, bans, templates, widgets, and audit logs",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/guilds-crud.test.ts",
+                        "test/scenarios/guilds-members-roles.test.ts",
+                        "test/scenarios/guilds-supplemental.test.ts",
+                        "test/scenarios/guilds-admin-supplemental.test.ts",
+                        "src/util/util/GuildCreate.test.ts",
+                        "src/api/routes/guilds/GuildWidgetPage.test.ts",
+                        "src/api/util/utility/RoleMembers.test.ts",
+                        "src/util/util/RolePermissions.test.ts"
+                    ],
+                    "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/guilds" }],
+                    "fixtures": ["users", "guilds", "members", "roles", "permissions"],
+                    "checks": ["permission-denied", "schema-validation", "db-state", "events"]
+                },
+                {
+                    "id": "channels-messages",
+                    "title": "Channels, messages, pins, reactions, threads, invites, typing, and read states",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/channels-final-supplemental.test.ts",
+                        "test/scenarios/channels-messages.test.ts",
+                        "test/scenarios/channels-supplemental.test.ts",
+                        "test/scenarios/channels-threads-supplemental.test.ts",
+                        "src/api/tests/ChannelInviteCreate.test.ts",
+                        "src/api/util/utility/MessageHistoryPagination.test.ts",
+                        "src/api/util/utility/MessageNotifications.test.ts",
+                        "src/util/util/InviteCreate.test.ts",
+                        "src/util/util/MessageReactionRoutes.test.ts",
+                        "src/util/util/ReadStateAck.test.ts"
+                    ],
+                    "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/channels" }],
+                    "fixtures": ["users", "guilds", "channels", "messages", "permissions"],
+                    "checks": ["permission-denied", "schema-validation", "db-state", "events"]
+                },
+                {
+                    "id": "webhooks",
+                    "title": "Webhooks, token execution, compatible payloads, and attachments",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/webhooks.test.ts",
+                        "src/api/WebhookResponseSerialization.test.ts",
+                        "src/util/dtos/WebhookDTO.test.ts",
+                        "src/schemas/responses/WebhookCreateResponse.test.ts"
+                    ],
+                    "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/webhooks" }],
+                    "fixtures": ["guilds", "channels", "webhooks", "messages"],
+                    "checks": ["token-auth-boundary", "schema-validation", "response-shape", "db-state", "events"]
+                },
+                {
+                    "id": "applications-commands",
+                    "title": "Applications, commands, bot authorization, entitlements, and interactions",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/applications-commands.test.ts",
+                        "src/api/util/utility/ApplicationAuthorization.test.ts",
+                        "src/api/util/utility/ApplicationCommands.test.ts"
+                    ],
+                    "selectors": [
+                        { "service": "api", "type": "http-route", "pathPrefix": "/applications" },
+                        { "service": "api", "type": "http-route", "pathPrefix": "/interactions" }
+                    ],
+                    "fixtures": ["users", "applications", "guilds", "commands", "interactions"],
+                    "checks": ["ownership-boundary", "token-auth-boundary", "schema-validation", "db-state"]
+                },
+                {
+                    "id": "oauth-connections",
+                    "title": "OAuth and connected accounts",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/oauth-connections.test.ts",
+                        "src/util/connections/Connection.test.ts",
+                        "src/connections/Reddit/Reddit.test.ts",
+                        "src/connections/Twitter/Twitter.test.ts"
+                    ],
+                    "selectors": [
+                        { "service": "api", "type": "http-route", "pathPrefix": "/oauth2" },
+                        { "service": "api", "type": "http-route", "pathPrefix": "/connections" }
+                    ],
+                    "fixtures": ["users", "applications", "oauth-clients", "connected-accounts"],
+                    "checks": ["auth-boundary", "redirects", "provider-state", "token-state"]
+                },
+                {
+                    "id": "search-discovery-public",
+                    "title": "Search, discovery, public policy, and gateway discovery",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/search-discovery-public.test.ts"],
+                    "manifestIds": [
+                        "api:http:GET:/apex/experiments/",
+                        "api:http:GET:/discovery/categories",
+                        "api:http:GET:/discoverable-guilds/",
+                        "api:http:GET:/experiments/",
+                        "api:http:GET:/gateway/",
+                        "api:http:GET:/gateway/bot/",
+                        "api:http:GET:/gifs/search/",
+                        "api:http:GET:/gifs/trending-gifs/",
+                        "api:http:GET:/gifs/trending/",
+                        "api:http:GET:/guild-recommendations/",
+                        "api:http:GET:/policies/instance/",
+                        "api:http:GET:/policies/instance/config/",
+                        "api:http:GET:/policies/instance/domains/",
+                        "api:http:GET:/policies/instance/limits/",
+                        "api:http:GET:/policies/stats/",
+                        "api:http:GET:/scheduled-maintenances/upcoming.json/"
+                    ],
+                    "fixtures": ["config", "users", "guilds", "categories", "gif-provider"],
+                    "checks": ["auth-boundary", "response-shape", "db-state", "provider-stub"]
+                },
+                {
+                    "id": "cdn",
+                    "title": "CDN uploads, downloads, deletes, signed URLs, and object metadata",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/scenarios/cdn-assets.test.ts",
+                        "test/scenarios/cdn-attachments.test.ts",
+                        "src/cdn/index.test.ts",
+                        "src/cdn/util/FileStorage.test.ts",
+                        "src/util/util/CdnRoutes.test.ts"
+                    ],
+                    "selectors": [
+                        { "service": "api", "type": "http-route", "pathPrefix": "/attachments" },
+                        { "service": "cdn", "type": "http-route" }
+                    ],
+                    "fixtures": ["files", "request-signature", "signed-urls", "attachments", "cloud-attachments"],
+                    "checks": [
+                        "upload-download-delete",
+                        "cache-headers",
+                        "mime",
+                        "missing-file",
+                        "oversized-upload",
+                        "clone-to-message",
+                        "db-metadata",
+                        "raw-upload-body-parser-bypass",
+                        "missing-source"
+                    ]
+                },
+                {
+                    "id": "middleware-and-events",
+                    "title": "Middleware and server event bus",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["src/api/middlewares/Authentication.test.ts", "src/gateway/listener/subscriptions.test.ts", "src/util/util/Presence.test.ts"],
+                    "selectors": [{ "manifestId": "api:middleware:auth-rate-limit-error" }, { "manifestId": "server:event-bus" }],
+                    "fixtures": ["config", "users", "sessions", "event-bus"],
+                    "checks": ["auth-boundary", "rate-limit-headers", "emit-listen", "subscription-filter"]
+                }
+            ]
+        },
+        {
+            "id": "protocol",
+            "command": "test:protocol",
+            "requiredTestTiers": ["protocol-integration"],
+            "suites": [
+                {
+                    "id": "gateway",
+                    "title": "Gateway websocket protocol",
+                    "kind": "protocol-integration",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/protocol/gateway-identify.test.ts",
+                        "src/gateway/ServerConfigure.test.ts",
+                        "src/gateway/opcodes/Heartbeat.test.ts",
+                        "src/gateway/events/Close.test.ts",
+                        "src/gateway/listener/subscriptions.test.ts",
+                        "src/gateway/util/ReadyReadState.test.ts",
+                        "src/gateway/util/Send.test.ts",
+                        "src/gateway/util/StreamRegion.test.ts"
+                    ],
+                    "selectors": [{ "service": "gateway", "type": "opcode" }],
+                    "fixtures": ["users", "sessions", "guilds", "channels", "voice-states", "streams", "event-bus"],
+                    "checks": [
+                        "hello",
+                        "identify",
+                        "heartbeat",
+                        "resume",
+                        "bad-payload-close",
+                        "unsupported-handshake-close",
+                        "compressed-json-zlib-zstd",
+                        "compressed-malformed-close",
+                        "event-fanout",
+                        "channel-status-info",
+                        "stream-create-watch-delete"
+                    ]
+                },
+                {
+                    "id": "webrtc",
+                    "title": "WebRTC signaling protocol",
+                    "kind": "protocol-integration",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "test/protocol/webrtc-identify.test.ts",
+                        "src/webrtc/Server.test.ts",
+                        "src/webrtc/ServerConfigure.test.ts",
+                        "src/webrtc/util/Send.test.ts",
+                        "src/webrtc/util/WebRtcMessageGuard.test.ts"
+                    ],
+                    "selectors": [{ "service": "webrtc", "type": "opcode" }],
+                    "fixtures": ["users", "sessions", "voice-states", "streams", "fake-media-server"],
+                    "checks": [
+                        "auth-required",
+                        "heartbeat",
+                        "backend-version",
+                        "identify",
+                        "select-protocol",
+                        "speaking",
+                        "video",
+                        "guard-size-rate",
+                        "malformed-payload-close",
+                        "close-cleanup"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "migrations",
+            "command": "test:migrations",
+            "requiredTestTiers": ["migration-integration"],
+            "suites": [
+                {
+                    "id": "database-migrations-startup",
+                    "title": "Database boot, migration chain, and standalone startup",
+                    "kind": "migration-integration",
+                    "status": "partial-existing-tests",
+                    "testFiles": [
+                        "src/util/util/Database.test.ts",
+                        "src/util/util/Startup.test.ts",
+                        "src/util/util/StandaloneStartup.test.ts",
+                        "test/migrations/database-startup.test.ts",
+                        "src/util/migration/postgres/1675044825710-webauthn.test.ts",
+                        "src/util/migration/postgres/__tests__/1776204936000-JsonbForJsonColumns.test.ts",
+                        "src/util/migration/postgres/__tests__/1776400000000-CategoryLocalizationsDefault.test.ts"
+                    ],
+                    "selectors": [{ "manifestId": "server:database:migrations-startup" }],
+                    "fixtures": ["postgres"],
+                    "checks": ["fresh-boot", "full-chain", "idempotent-rerun", "apply-migrations-toggle"]
+                }
+            ]
+        }
+    ]
+}
