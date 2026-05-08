@@ -89,6 +89,23 @@ export async function renderGuildWidgetPng(data: WidgetImageData): Promise<Buffe
     return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
+export function getGuildWidgetIconStoragePath(guild_id: string, icon: string) {
+    return `icons/${guild_id}/${stripFileExtension(icon)}`;
+}
+
+export function imageBufferToDataUri(buffer: Buffer) {
+    return `data:${getImageMimeType(buffer)};base64,${buffer.toString("base64")}`;
+}
+
+export function getImageMimeType(buffer: Buffer) {
+    if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
+    if (buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return "image/jpeg";
+    if (buffer.subarray(0, 6).toString("ascii") === "GIF87a" || buffer.subarray(0, 6).toString("ascii") === "GIF89a") return "image/gif";
+    if (buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
+    if (isSvgImage(buffer)) return "image/svg+xml";
+    return "image/png";
+}
+
 function renderShieldTemplate(data: WidgetImageData): WidgetTemplate {
     const label = "SPACEBAR";
     const value = truncateText(data.presence, 0);
@@ -202,7 +219,7 @@ export function truncateText(text: string, maxcharacters: number) {
 }
 
 export function escapeSvgText(value: string) {
-    return value.replace(/[&<>"]/g, (character) => {
+    return stripInvalidXmlCharacters(value).replace(/[&<>"]/g, (character) => {
         switch (character) {
             case "&":
                 return "&amp;";
@@ -210,12 +227,21 @@ export function escapeSvgText(value: string) {
                 return "&lt;";
             case ">":
                 return "&gt;";
-            case "\"":
+            case '"':
                 return "&quot;";
             default:
                 return character;
         }
     });
+}
+
+export function stripInvalidXmlCharacters(value: string) {
+    let stripped = "";
+    for (const character of value) {
+        const codePoint = character.codePointAt(0);
+        if (codePoint && isValidXmlCharacter(codePoint)) stripped += character;
+    }
+    return stripped;
 }
 
 function escapeSvgAttribute(value: string) {
@@ -224,4 +250,17 @@ function escapeSvgAttribute(value: string) {
 
 function assertNever(value: never): never {
     throw new Error(`Unhandled widget image style: ${value}`);
+}
+
+function stripFileExtension(value: string) {
+    return value.split(".")[0];
+}
+
+function isSvgImage(buffer: Buffer) {
+    const sample = buffer.subarray(0, 512).toString("utf8").trimStart();
+    return sample.startsWith("<svg") || (sample.startsWith("<?xml") && sample.includes("<svg"));
+}
+
+function isValidXmlCharacter(codePoint: number) {
+    return codePoint === 0x09 || codePoint === 0x0a || codePoint === 0x0d || (codePoint >= 0x20 && codePoint <= 0xd7ff) || (codePoint >= 0xe000 && codePoint <= 0x10ffff);
 }

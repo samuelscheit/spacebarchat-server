@@ -19,17 +19,30 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { HTTPError } from "lambert-server";
-import { escapeSvgText, parseWidgetImageStyle, renderGuildWidgetPng, renderGuildWidgetSvg, truncateText } from "./GuildWidgetPngRenderer";
+import {
+    escapeSvgText,
+    getGuildWidgetIconStoragePath,
+    getImageMimeType,
+    imageBufferToDataUri,
+    parseWidgetImageStyle,
+    renderGuildWidgetPng,
+    renderGuildWidgetSvg,
+    stripInvalidXmlCharacters,
+    truncateText,
+} from "./GuildWidgetPngRenderer";
 
 test("guild widget PNG accepts only documented styles", () => {
     assert.equal(parseWidgetImageStyle("shield"), "shield");
     assert.equal(parseWidgetImageStyle("banner4"), "banner4");
 
-    assert.throws(() => parseWidgetImageStyle("unknown"), (error) => {
-        assert.ok(error instanceof HTTPError);
-        assert.equal(error.code, 400);
-        return true;
-    });
+    assert.throws(
+        () => parseWidgetImageStyle("unknown"),
+        (error) => {
+            assert.ok(error instanceof HTTPError);
+            assert.equal(error.code, 400);
+            return true;
+        },
+    );
 });
 
 test("guild widget SVG renderer uses inline templates for every supported style", () => {
@@ -70,6 +83,19 @@ test("guild widget SVG renderer escapes dynamic text and truncates banner names"
     assert.equal(escapeSvgText('a&b<c>d"'), "a&amp;b&lt;c&gt;d&quot;");
 });
 
+test("guild widget SVG renderer strips XML-invalid dynamic text", async () => {
+    const template = renderGuildWidgetSvg({
+        style: "banner1",
+        name: "bad\u0001guild",
+        presence: "1\u0000 ONLINE",
+    });
+
+    assert.equal(template.svg.includes("\u0000"), false);
+    assert.equal(template.svg.includes("\u0001"), false);
+    assert.equal(stripInvalidXmlCharacters("bad\u0001guild\u0000"), "badguild");
+    await assert.doesNotReject(renderGuildWidgetPng({ style: "banner1", name: "bad\u0001guild", presence: "1\u0000 ONLINE" }));
+});
+
 test("guild widget SVG renderer embeds icons only when provided", () => {
     const withoutIcon = renderGuildWidgetSvg({ style: "banner1", name: "Guild", presence: "1 ONLINE" });
     assert.doesNotMatch(withoutIcon.svg, /<image /);
@@ -89,4 +115,36 @@ test("guild widget PNG renderer produces PNG bytes from the SVG template", async
     const png = await renderGuildWidgetPng({ style: "shield", name: "Guild", presence: "12 ONLINE" });
 
     assert.equal(png.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
+});
+
+test("guild widget PNG renderer rasterizes embedded PNG icon data URIs", async () => {
+    const iconDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAEUlEQVR4nGP4z8DwH4QZYAwAR8oH+WdZbrcAAAAASUVORK5CYII=";
+    const png = await renderGuildWidgetPng({ style: "banner2", name: "Guild", presence: "1 ONLINE", iconDataUri });
+    const { default: sharp } = await import("sharp");
+    const { data, info } = await sharp(png).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const centerPixelOffset = (37 * info.width + 31) * info.channels;
+    const [red, green, blue, alpha] = data.subarray(centerPixelOffset, centerPixelOffset + 4);
+
+    assert.equal(info.width, 170);
+    assert.equal(info.height, 70);
+    assert.ok(red > 200);
+    assert.ok(green < 50);
+    assert.ok(blue < 50);
+    assert.equal(alpha, 255);
+});
+
+test("guild widget PNG renderer uses guild icon storage paths and SVG data URI MIME types", async () => {
+    const icon = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"><rect width="2" height="2" fill="red"/></svg>');
+    const png = await renderGuildWidgetPng({ style: "banner2", name: "Guild", presence: "1 ONLINE", iconDataUri: imageBufferToDataUri(icon) });
+    const { default: sharp } = await import("sharp");
+    const { data, info } = await sharp(png).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const centerPixelOffset = (37 * info.width + 31) * info.channels;
+    const [red, green, blue, alpha] = data.subarray(centerPixelOffset, centerPixelOffset + 4);
+
+    assert.equal(getGuildWidgetIconStoragePath("123", "icon-hash.png"), "icons/123/icon-hash");
+    assert.equal(getImageMimeType(icon), "image/svg+xml");
+    assert.ok(red > 200);
+    assert.ok(green < 50);
+    assert.ok(blue < 50);
+    assert.equal(alpha, 255);
 });

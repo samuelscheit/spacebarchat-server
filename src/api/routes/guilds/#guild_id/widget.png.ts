@@ -20,7 +20,7 @@ import { route } from "@spacebar/api";
 import { DiscordApiErrors, Guild } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { storage } from "@spacebar/cdn";
-import { parseWidgetImageStyle, renderGuildWidgetPng } from "../GuildWidgetPngRenderer";
+import { getGuildWidgetIconStoragePath, imageBufferToDataUri, parseWidgetImageStyle, renderGuildWidgetPng } from "../GuildWidgetPngRenderer";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -61,19 +61,11 @@ router.get(
 );
 
 async function getGuildIconDataUri(guild_id: string, icon: string): Promise<string | undefined> {
-    const iconPath = `avatars/${guild_id}/${icon}`;
+    const iconPath = getGuildWidgetIconStoragePath(guild_id, icon);
     const iconBuffer = await storage.get(iconPath).catch(() => undefined);
     if (!iconBuffer) return undefined;
 
-    return `data:${getImageMimeType(iconBuffer)};base64,${iconBuffer.toString("base64")}`;
-}
-
-function getImageMimeType(buffer: Buffer) {
-    if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
-    if (buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return "image/jpeg";
-    if (buffer.subarray(0, 6).toString("ascii") === "GIF87a" || buffer.subarray(0, 6).toString("ascii") === "GIF89a") return "image/gif";
-    if (buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
-    return "image/png";
+    return imageBufferToDataUri(iconBuffer);
 }
 
 export default router;

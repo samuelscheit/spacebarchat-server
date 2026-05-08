@@ -57,13 +57,14 @@
         "test:protocol:integration": "npm run build:src:tsgo && npm run build:test-fixtures && node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/test/protocol/*.test.js",
         "test:migrations": "node scripts/testing-manifest/generate-suite-coverage.js --check --group migrations && node --test test/generated/suite-coverage.test.js && npm run test:migrations:integration",
         "test:migrations:integration": "npm run build:src:tsgo && npm run build:test-fixtures && node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/test/migrations/*.test.js",
-        "test:ci": "npm run test:manifest && npm run test:contracts && npm run test:harness && npm run test:scenarios && npm run test:protocol && npm run test:migrations && npm run bench:test",
-        "node:tests": "npm run build:src:tsgo && node -r dotenv/config -r module-alias/register --enable-source-maps --test --experimental-test-coverage dist/**/*.test.js",
+        "test:ci": "npm run test:manifest && npm run test:guild-widget-png && npm run test:contracts && npm run test:harness && npm run test:scenarios && npm run test:protocol && npm run test:migrations && npm run bench:test",
+        "node:tests": "npm run build:src:tsgo && node -r dotenv/config -r module-alias/register --enable-source-maps --test --experimental-test-coverage \"dist/**/*.test.js\"",
         "apply:migrations": "node --enable-source-maps dist/apply-migrations.js",
         "bench:ci": "node --expose-gc -r dotenv/config -r module-alias/register --enable-source-maps scripts/benchmarks/run.js --ci --profile",
         "bench:compare": "node scripts/benchmarks/compare.js",
         "bench:profile": "node --expose-gc -r dotenv/config -r module-alias/register --enable-source-maps scripts/benchmarks/run.js --profile",
-        "bench:test": "node --test scripts/benchmarks/*.test.js"
+        "bench:test": "node --test scripts/benchmarks/*.test.js",
+        "test:guild-widget-png": "npm run build:src:tsgo && npm run build:test-fixtures && node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/src/api/routes/guilds/GuildWidgetPng.test.js"
     },
     "main": "dist/bundle/index.js",
     "types": "src/bundle/index.ts",
