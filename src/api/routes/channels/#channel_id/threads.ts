@@ -76,7 +76,7 @@ router.post(
     },
     route({
         requestBody: "ThreadCreationSchema",
-        permission: "CREATE_PUBLIC_THREADS",
+        permission: "VIEW_CHANNEL",
         responses: {
             200: {},
             403: {},
@@ -90,6 +90,9 @@ router.post(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
+        const threadType = body.type || (channel.threadOnly() ? ChannelType.GUILD_PUBLIC_THREAD : ChannelType.GUILD_PRIVATE_THREAD);
+        const permissions = req.permission!;
+        permissions.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD ? "CREATE_PRIVATE_THREADS" : "CREATE_PUBLIC_THREADS");
         if (!body.applied_tags?.length) {
             const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
             //TODO better error
@@ -101,7 +104,7 @@ router.post(
             if (bad) throw new Error("Invalid tag " + bad);
             const permsNeeded = body.applied_tags.find((_) => realTags.get(_)?.moderated);
             if (permsNeeded) {
-                req.permission?.hasThrow("MANAGE_THREADS");
+                permissions.hasThrow("MANAGE_THREADS");
             }
         }
         const files = (req.files as Express.Multer.File[]) ?? [];
@@ -121,7 +124,7 @@ router.post(
                 parent_id: channel.id,
                 guild_id: channel.guild_id,
                 rate_limit_per_user: body.rate_limit_per_user,
-                type: body.type || (channel.threadOnly() ? ChannelType.GUILD_PUBLIC_THREAD : ChannelType.GUILD_PRIVATE_THREAD),
+                type: threadType,
                 applied_tags: body.applied_tags || [],
                 recipients: [],
             },

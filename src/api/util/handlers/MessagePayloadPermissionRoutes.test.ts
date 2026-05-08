@@ -50,6 +50,25 @@ describe("message media permission route integration", () => {
         );
     });
 
+    test("thread creation dynamically scopes public and private thread permissions before side effects", () => {
+        const source = readSource("src/api/routes/channels/#channel_id/threads.ts");
+
+        assert.equal(source.includes('permission: "CREATE_PUBLIC_THREADS"'), false);
+        assert.notEqual(indexOf(source, 'permission: "VIEW_CHANNEL"'), -1);
+        assert.notEqual(indexOf(source, 'permissions.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD ? "CREATE_PRIVATE_THREADS" : "CREATE_PUBLIC_THREADS");'), -1);
+        assertBefore(source, "const threadType = body.type", "permissions.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD");
+        assertBefore(source, "permissions.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD", "Channel.createThreadChannel(");
+        assertBefore(source, "permissions.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD", "uploadFile(`/attachments/");
+    });
+
+    test("thread routes no longer reference the superseded PR 876 implementation", () => {
+        const standaloneThreadSource = readSource("src/api/routes/channels/#channel_id/threads.ts");
+        const messageThreadSource = readSource("src/api/routes/channels/#channel_id/messages/#message_id/threads.ts");
+
+        assert.equal(standaloneThreadSource.includes("github.com/spacebarchat/server/pull/876"), false);
+        assert.equal(messageThreadSource.includes("github.com/spacebarchat/server/pull/876"), false);
+    });
+
     test("webhooks check media permissions before success responses and upload side effects", () => {
         const source = readSource("src/api/util/handlers/Webhook.ts");
 
