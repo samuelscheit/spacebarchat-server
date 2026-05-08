@@ -120,6 +120,89 @@ describe("mergeGeneratedUrlEmbeds", () => {
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
     });
+
+    test("keeps multiple generated embeds from one URL when capacity allows", () => {
+        const firstGeneratedEmbed = {
+            type: "rich",
+            url: "https://twitter.com/spacebar/status/123",
+            title: "Tweet",
+        } as Embed;
+        const secondGeneratedEmbed = {
+            type: "rich",
+            url: "https://twitter.com/spacebar/status/123",
+            image: { url: "https://pbs.twimg.com/media/photo-2.jpg" },
+        } as Embed;
+
+        const result = mergeGeneratedUrlEmbeds([], [firstGeneratedEmbed, secondGeneratedEmbed], 10);
+
+        assert.equal(result.changed, true);
+        assert.deepEqual(result.embeds, [firstGeneratedEmbed, secondGeneratedEmbed]);
+    });
+});
+
+describe("EmbedHandlers.twitter.com", () => {
+    test("returns additional rich embeds for tweet photos beyond the first", async (t) => {
+        const { Config } = await loadEmbedModules();
+        const { EmbedHandlers } = await import("./EmbedHandlers.js");
+        const config = Config.get();
+        config.external.twitter = "test-twitter-token";
+        config.cdn.imagorServerUrl = null;
+
+        t.mock.method(Config, "get", () => config);
+        t.mock.method(globalThis, "fetch", async (url: string | URL, init?: RequestInit) => {
+            assert.equal(
+                url.toString(),
+                "https://api.twitter.com/2/tweets/1234567890?expansions=author_id,attachments.media_keys&media.fields=url,width,height&tweet.fields=created_at,public_metrics&user.fields=profile_image_url",
+            );
+            assert.deepEqual(init?.headers, { authorization: "Bearer test-twitter-token" });
+
+            return new Response(
+                JSON.stringify({
+                    includes: {
+                        users: [
+                            {
+                                profile_image_url: "https://pbs.twimg.com/profile_images/avatar.jpg",
+                                username: "spacebar",
+                                name: "Spacebar",
+                            },
+                        ],
+                        media: [
+                            {
+                                type: "photo",
+                                width: 1200,
+                                height: 900,
+                                url: "https://pbs.twimg.com/media/photo-1.jpg",
+                            },
+                            {
+                                type: "photo",
+                                width: 800,
+                                height: 600,
+                                url: "https://pbs.twimg.com/media/photo-2.jpg",
+                            },
+                        ],
+                    },
+                    data: {
+                        text: "Tweet text",
+                        created_at: "2026-05-08T12:00:00.000Z",
+                        public_metrics: {
+                            like_count: 10,
+                            retweet_count: 2,
+                        },
+                    },
+                }),
+                { headers: { "content-type": "application/json" } },
+            );
+        });
+
+        const result = await EmbedHandlers["twitter.com"](new URL("https://twitter.com/spacebar/status/1234567890"));
+
+        assert.ok(Array.isArray(result));
+        assert.equal(result.length, 2);
+        assert.equal(result[0].image?.url, "https://pbs.twimg.com/media/photo-1.jpg");
+        assert.equal(result[1].type, "rich");
+        assert.equal(result[1].url, "https://twitter.com/spacebar/status/1234567890");
+        assert.equal(result[1].image?.url, "https://pbs.twimg.com/media/photo-2.jpg");
+    });
 });
 
 describe("fillMessageUrlEmbeds", () => {
@@ -175,6 +258,46 @@ describe("fillMessageUrlEmbeds", () => {
         assert.deepEqual(message.embeds, [richEmbed]);
         assert.equal(persistedEmbeds.length, 1);
         assert.deepEqual(persistedEmbeds[0], { embeds: [richEmbed] });
+        assert.equal(emittedEvents.length, 1);
+    });
+
+    test("adds every generated embed from a cached URL entry", async (t) => {
+        const { Config, EmbedCache, Message, fillMessageUrlEmbeds, util } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+        const firstGeneratedEmbed = {
+            type: linkEmbedType,
+            url: "https://twitter.com/spacebar/status/123",
+            title: "Tweet",
+        };
+        const secondGeneratedEmbed = {
+            type: linkEmbedType,
+            url: "https://twitter.com/spacebar/status/123",
+            image: { url: "https://pbs.twimg.com/media/photo-2.jpg" },
+        };
+
+        t.mock.method(EmbedCache, "find", async () => [
+            {
+                id: "cache-id",
+                url: "https://twitter.com/spacebar/status/123",
+                embeds: [firstGeneratedEmbed, secondGeneratedEmbed],
+                createdAt: new Date("2026-05-08T12:00:00.000Z"),
+            },
+        ]);
+        t.mock.method(EmbedCache, "delete", async () => ({ affected: 0, raw: [] }));
+
+        const persistedEmbeds: unknown[] = [];
+        const emittedEvents = captureMessageEvents(t, util);
+        t.mock.method(Message, "update", async (_criteria: unknown, update: unknown) => {
+            persistedEmbeds.push(update);
+        });
+
+        const message = createMessage("https://twitter.com/spacebar/status/123", []);
+
+        await fillMessageUrlEmbeds(message);
+
+        assert.deepEqual(message.embeds, [firstGeneratedEmbed, secondGeneratedEmbed]);
+        assert.equal(persistedEmbeds.length, 1);
+        assert.deepEqual(persistedEmbeds[0], { embeds: [firstGeneratedEmbed, secondGeneratedEmbed] });
         assert.equal(emittedEvents.length, 1);
     });
 

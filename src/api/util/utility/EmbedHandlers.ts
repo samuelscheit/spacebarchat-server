@@ -325,23 +325,26 @@ export const EmbedHandlers: {
                 url: media[0].url,
                 proxy_url: getProxyUrl(new URL(media[0].url), media[0].width, media[0].height),
             };
-            media.shift();
+            const additionalMedia = media.slice(1);
+
+            if (additionalMedia.length == 0) return embed;
+
+            return [
+                embed,
+                ...additionalMedia.map((x) => ({
+                    type: EmbedType.rich,
+                    url: `${url.origin}${url.pathname}`,
+                    image: {
+                        width: x.width,
+                        height: x.height,
+                        url: x.url,
+                        proxy_url: getProxyUrl(new URL(x.url), x.width, x.height),
+                    },
+                })),
+            ];
         }
 
         return embed;
-
-        // TODO: Client won't merge these into a single embed, for some reason.
-        // return [embed, ...media.map((x: any) => ({
-        // 	// generate new embeds for each additional attachment
-        // 	type: EmbedType.rich,
-        // 	url: url.href,
-        // 	image: {
-        // 		width: x.width,
-        // 		height: x.height,
-        // 		url: x.url,
-        // 		proxy_url: getProxyUrl(new URL(x.url), x.width, x.height)
-        // 	}
-        // }))];
     },
 
     "open.spotify.com": async (url: URL) => {
