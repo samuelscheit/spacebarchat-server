@@ -1,6 +1,5 @@
 import type { ThreadMemberSettingsUpdateSchema } from "@spacebar/schemas";
-import { FieldErrors, ThreadMemberFlags } from "@spacebar/util";
-import type { ThreadMember } from "@spacebar/util";
+import { FieldErrors, type ThreadMember, ThreadMemberFlags } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 
 export const DEFAULT_THREAD_MEMBER_LIMIT = 100;
