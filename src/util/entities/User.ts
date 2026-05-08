@@ -419,13 +419,17 @@ export class User extends BaseClass {
     }
 
     async getDmChannelWith(user_id: string) {
+        const user_ids = [...new Set([this.id, user_id])];
         const qry = await Channel.getRepository()
-            .createQueryBuilder()
-            .leftJoinAndSelect("Channel.recipients", "rcp")
-            .where("Channel.type = :type", { type: ChannelType.DM })
-            .andWhere("rcp.user_id IN (:...user_ids)", { user_ids: [this.id, user_id] })
-            .groupBy("Channel.id")
-            .having("COUNT(rcp.user_id) = 2")
+            .createQueryBuilder("channel")
+            .innerJoin("channel.recipients", "matchedRecipient", "matchedRecipient.user_id IN (:...user_ids)", { user_ids })
+            .where("channel.type = :type", { type: ChannelType.DM })
+            .andWhere((qb) => {
+                const recipientCount = qb.subQuery().select("COUNT(*)").from("recipients", "recipient").where("recipient.channel_id = channel.id").getQuery();
+                return `${recipientCount} = :recipientCount`;
+            })
+            .groupBy("channel.id")
+            .having("COUNT(DISTINCT matchedRecipient.user_id) = :recipientCount", { recipientCount: user_ids.length })
             .getMany();
 
         // Emma [it/its]@Rory&: is this technically a bug, or am I being too over-cautious?
@@ -443,12 +447,8 @@ export class User extends BaseClass {
     async getDmChannels() {
         const qry = await Channel.getRepository()
             .createQueryBuilder("channel")
-            .leftJoinAndSelect("channel.recipients", "rcp")
+            .innerJoin("channel.recipients", "recipient", "recipient.user_id = :user_id", { user_id: this.id })
             .where("channel.type = :type", { type: ChannelType.DM })
-            .andWhere("rcp.user_id = :user_id", { user_id: this.id })
-            .groupBy("channel.id")
-            .addGroupBy("rcp.id")
-            .having("COUNT(rcp.id) = 2")
             .getMany();
 
         return qry;

@@ -88,7 +88,7 @@ router.patch(
         }
 
         await ApplicationCommand.update(where, commandForDb);
-        res.send(commandForDb);
+        res.send(await ApplicationCommand.findOneOrFail({ where }));
     },
 );
 
