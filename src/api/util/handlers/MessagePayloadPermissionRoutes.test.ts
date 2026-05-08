@@ -18,6 +18,15 @@ function assertBefore(source: string, first: string, second: string): void {
 }
 
 describe("message media permission route integration", () => {
+    test("message handler validates payload lengths before persistence side effects", () => {
+        const source = readSource("src/api/util/handlers/Message.ts");
+
+        assertBefore(source, "validateMessagePayloadLengths(opts, conf.limits.message);", "const handle = opts.components ? handleComps");
+        assertBefore(source, "validateMessagePayloadLengths(opts, conf.limits.message);", "const channel = await Channel.findOneOrFail");
+        assertBefore(source, "validateMessagePayloadLengths(opts, conf.limits.message);", "const message = Message.create({");
+        assertBefore(source, "validateMessagePayloadLengths(opts, conf.limits.message);", "await processMessageOptionAttachments(opts, message);");
+    });
+
     test("message edit resolves retained attachment references before handleMessage", () => {
         const source = readSource("src/api/routes/channels/#channel_id/messages/#message_id/index.ts");
 
@@ -65,9 +74,12 @@ describe("message media permission route integration", () => {
         assert.notEqual(indexOf(source, "InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE"), -1);
         assert.notEqual(indexOf(source, "InteractionCallbackType.DEFERRED_UPDATE_MESSAGE"), -1);
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "clearTimeout(interaction.timeout);");
+        assertBefore(source, "validateMessagePayloadLengths(body.data, Config.get().limits.message);", "clearTimeout(interaction.timeout);");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", 'event: "INTERACTION_SUCCESS"');
+        assertBefore(source, "validateMessagePayloadLengths(body.data, Config.get().limits.message);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await sendMessage({");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
+        assertBefore(source, "validateMessagePayloadLengths(body.data, Config.get().limits.message);", "message.embeds = body.data.embeds || [];");
     });
 
     test("component media extraction is shared between permission gates and message handling", () => {

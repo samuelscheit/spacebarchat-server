@@ -80,6 +80,7 @@ const allow_empty = false;
 // TODO: embed gifs/videos/images
 
 type MessageEmbedLimits = {
+    maxCharacters?: number;
     maxEmbeds?: number;
     maxEmbedTitle?: number;
     maxEmbedDescription?: number;
@@ -91,7 +92,13 @@ type MessageEmbedLimits = {
     maxEmbedCharacters?: number;
 };
 
-const defaultMessageEmbedLimits: Required<MessageEmbedLimits> = {
+type MessageLengthPayload = {
+    content?: string | null;
+    embeds?: Embed[] | null;
+};
+
+const defaultMessageLimits: Required<MessageEmbedLimits> = {
+    maxCharacters: 1048576,
     maxEmbeds: 20,
     maxEmbedTitle: 256,
     maxEmbedDescription: 4096,
@@ -103,9 +110,9 @@ const defaultMessageEmbedLimits: Required<MessageEmbedLimits> = {
     maxEmbedCharacters: 6000,
 };
 
-function getEmbedLimit(limits: MessageEmbedLimits, key: keyof MessageEmbedLimits): number {
+function getMessageLimit(limits: MessageEmbedLimits, key: keyof MessageEmbedLimits): number {
     const configured = limits[key];
-    return typeof configured === "number" && Number.isFinite(configured) ? configured : defaultMessageEmbedLimits[key];
+    return typeof configured === "number" && Number.isFinite(configured) ? configured : defaultMessageLimits[key];
 }
 
 function addLengthError(errors: Record<string, { code?: string; message: string }>, path: string, maxLength: number) {
@@ -119,15 +126,15 @@ export function validateMessageEmbeds(embeds: Embed[] | null | undefined, limits
     if (!embeds?.length) return;
 
     const errors: Record<string, { code?: string; message: string }> = {};
-    const maxEmbeds = getEmbedLimit(limits, "maxEmbeds");
-    const maxEmbedTitle = getEmbedLimit(limits, "maxEmbedTitle");
-    const maxEmbedDescription = getEmbedLimit(limits, "maxEmbedDescription");
-    const maxEmbedFields = getEmbedLimit(limits, "maxEmbedFields");
-    const maxEmbedFieldName = getEmbedLimit(limits, "maxEmbedFieldName");
-    const maxEmbedFieldValue = getEmbedLimit(limits, "maxEmbedFieldValue");
-    const maxEmbedFooterText = getEmbedLimit(limits, "maxEmbedFooterText");
-    const maxEmbedAuthorName = getEmbedLimit(limits, "maxEmbedAuthorName");
-    const maxEmbedCharacters = getEmbedLimit(limits, "maxEmbedCharacters");
+    const maxEmbeds = getMessageLimit(limits, "maxEmbeds");
+    const maxEmbedTitle = getMessageLimit(limits, "maxEmbedTitle");
+    const maxEmbedDescription = getMessageLimit(limits, "maxEmbedDescription");
+    const maxEmbedFields = getMessageLimit(limits, "maxEmbedFields");
+    const maxEmbedFieldName = getMessageLimit(limits, "maxEmbedFieldName");
+    const maxEmbedFieldValue = getMessageLimit(limits, "maxEmbedFieldValue");
+    const maxEmbedFooterText = getMessageLimit(limits, "maxEmbedFooterText");
+    const maxEmbedAuthorName = getMessageLimit(limits, "maxEmbedAuthorName");
+    const maxEmbedCharacters = getMessageLimit(limits, "maxEmbedCharacters");
     let totalEmbedCharacters = 0;
 
     if (embeds.length > maxEmbeds) {
@@ -184,6 +191,15 @@ export function validateMessageEmbeds(embeds: Embed[] | null | undefined, limits
     if (Object.keys(errors).length > 0) {
         throw FieldErrors(errors);
     }
+}
+
+export function validateMessagePayloadLengths(payload: MessageLengthPayload, limits: MessageEmbedLimits = {}) {
+    const maxCharacters = getMessageLimit(limits, "maxCharacters");
+    if (typeof payload.content === "string" && payload.content.length > maxCharacters) {
+        throw new HTTPError("Content length over max character limit");
+    }
+
+    validateMessageEmbeds(payload.embeds, limits);
 }
 
 function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], errors: Record<string, { code?: string; message: string }>, rowIndex: number) {
@@ -402,6 +418,7 @@ export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id
 
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     const conf = Config.get();
+    validateMessagePayloadLengths(opts, conf.limits.message);
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const isEdit = isMessageEditOperation(opts);
     const messageOptions = { ...opts };
@@ -471,11 +488,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     }
 
     // TODO: Removed cloud attachment handling being inline - handle components!
-
-    if (message.content && message.content.length > conf.limits.message.maxCharacters) {
-        throw new HTTPError("Content length over max character limit");
-    }
-    validateMessageEmbeds(message.embeds, conf.limits.message);
 
     if (opts.application_id) {
         message.application_id = opts.application_id;

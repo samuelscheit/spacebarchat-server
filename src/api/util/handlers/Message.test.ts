@@ -32,7 +32,7 @@ function mockHandleMessageDependencies(t: TestContext, messageLimits: Record<str
             message: messageLimits,
         },
     }));
-    t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
+    const findChannelMock = t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
     const createMessageMock = t.mock.method(spacebarUtil.Message, "create", (input: Record<string, unknown>) => ({
         ...input,
         flags: (input.flags as number | undefined) ?? 0,
@@ -62,7 +62,7 @@ function mockHandleMessageDependencies(t: TestContext, messageLimits: Record<str
     t.mock.method(permissionsModule, "getPermission", async () => permission);
     t.mock.method(rightsModule, "getRights", async () => rights);
 
-    return { createMessageMock };
+    return { createMessageMock, findChannelMock };
 }
 
 describe("message embed payload validation", () => {
@@ -164,7 +164,7 @@ describe("handleMessage", () => {
     });
 
     test("rejects content over the configured message character limit", async (t) => {
-        mockHandleMessageDependencies(t, { maxCharacters: 5 });
+        const { createMessageMock, findChannelMock } = mockHandleMessageDependencies(t, { maxCharacters: 5 });
 
         const { handleMessage } = (await import("./Message.js")) as typeof import("./Message");
 
@@ -178,10 +178,12 @@ describe("handleMessage", () => {
                 }),
             /Content length over max character limit/,
         );
+        assert.equal(findChannelMock.mock.callCount(), 0);
+        assert.equal(createMessageMock.mock.callCount(), 0);
     });
 
     test("rejects explicit embeds over configured limits before persisting", async (t) => {
-        mockHandleMessageDependencies(t, {
+        const { createMessageMock, findChannelMock } = mockHandleMessageDependencies(t, {
             maxCharacters: 2000,
             maxEmbeds: 1,
             maxEmbedDescription: 5,
@@ -206,5 +208,7 @@ describe("handleMessage", () => {
                 return true;
             },
         );
+        assert.equal(findChannelMock.mock.callCount(), 0);
+        assert.equal(createMessageMock.mock.callCount(), 0);
     });
 });
