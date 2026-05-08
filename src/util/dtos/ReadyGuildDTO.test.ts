@@ -118,3 +118,22 @@ test("getReadyUserGuildSettingsVersion ignores non-finite stored versions", () =
         7,
     );
 });
+
+test("getReadyUserGuildSettingsVersion returns 0 when all stored versions are non-finite", () => {
+    assert.equal(
+        getReadyUserGuildSettingsVersion([
+            makeReadyUserGuildSettingsEntry(Number.NaN),
+            makeReadyUserGuildSettingsEntry(Number.POSITIVE_INFINITY),
+            makeReadyUserGuildSettingsEntry(Number.NEGATIVE_INFINITY),
+        ]),
+        0,
+    );
+});
+
+test("getReadyUserGuildSettingsVersion does not report negative stored versions", () => {
+    assert.equal(getReadyUserGuildSettingsVersion([makeReadyUserGuildSettingsEntry(-3), makeReadyUserGuildSettingsEntry(-1)]), 0);
+});
+
+test("getReadyUserGuildSettingsVersion ignores missing and null stored versions", () => {
+    assert.equal(getReadyUserGuildSettingsVersion([{ version: undefined }, { version: null }, {}, makeReadyUserGuildSettingsEntry(5)]), 5);
+});

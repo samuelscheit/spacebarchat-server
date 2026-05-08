@@ -24,9 +24,9 @@ export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_ove
     channel_overrides: (ChannelOverride & { channel_id: string })[];
 };
 
-export function getReadyUserGuildSettingsVersion(entries: Pick<ReadyUserGuildSettingsEntries, "version">[]): number {
+export function getReadyUserGuildSettingsVersion(entries: ReadonlyArray<{ readonly version?: number | null }>): number {
     return entries.reduce((version, entry) => {
-        if (!Number.isFinite(entry.version)) return version;
+        if (typeof entry.version !== "number" || !Number.isFinite(entry.version)) return version;
         return Math.max(version, entry.version);
     }, 0);
 }
