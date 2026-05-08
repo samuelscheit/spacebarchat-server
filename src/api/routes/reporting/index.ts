@@ -21,11 +21,107 @@ import path from "node:path";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { route } from "@spacebar/api";
-import { ReportMenuType, ReportMenuTypeNames, CreateReportSchema, CreateReportRequiredFields } from "@spacebar/schemas";
+import { ReportMenuType, ReportMenuTypeNames, CreateReportSchema, CreateReportRequiredFields, ReportingMenuResponse } from "@spacebar/schemas";
 import { FieldErrors } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 if (process.env.LOG_ROUTES !== "false") console.log("[Server] Registering reporting menu routes...");
+
+const reportMenuDirectory = path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses");
+
+function getReportMenuType(type: string): ReportMenuType {
+    const reportType = Number(Object.entries(ReportMenuTypeNames).find((x) => x[1] === type)?.[0]) as ReportMenuType;
+    if (!(reportType in CreateReportRequiredFields)) throw new HTTPError("Unknown report menu type", 400);
+    return reportType;
+}
+
+function loadReportMenu(type: string): ReportingMenuResponse {
+    const menuPath = path.join(reportMenuDirectory, `${type}.json`);
+    return JSON.parse(fs.readFileSync(menuPath, "utf-8")) as ReportingMenuResponse;
+}
+
+function assertRequiredFields(obj: CreateReportSchema, fields: (keyof CreateReportSchema)[]) {
+    const missingFields = fields.filter((field) => !(field in obj));
+
+    if (missingFields.length > 0)
+        throw FieldErrors(
+            Object.fromEntries(
+                missingFields.map((field) => [
+                    field,
+                    {
+                        message: `Missing required field ${field}.`,
+                        code: "MISSING_FIELD",
+                    },
+                ]),
+            ),
+        );
+}
+
+function validateBreadcrumbs(menuData: ReportingMenuResponse, breadcrumbs: number[]): boolean {
+    let node = menuData.nodes[menuData.root_node_id];
+    if (!node || breadcrumbs[0] !== menuData.root_node_id) return false;
+
+    for (let i = 1; i < breadcrumbs.length; i++) {
+        const crumb = breadcrumbs[i];
+        const nextNode = node.children.find((child) => child[1] === crumb);
+        if (!nextNode) return false;
+
+        const nextNodeData = menuData.nodes[crumb];
+        if (!nextNodeData) return false;
+        node = nextNodeData;
+    }
+
+    return true;
+}
+
+export function validateCreateReport(type: string, body: CreateReportSchema) {
+    const menuData = loadReportMenu(type);
+    if (body.name !== type)
+        throw FieldErrors({
+            name: {
+                message: `Expected report type ${type} but got ${body.name}`,
+                code: "INVALID_REPORT_TYPE",
+            },
+        });
+
+    if (body.version !== menuData.version) {
+        throw FieldErrors({
+            version: {
+                message: `Expected report menu version ${menuData.version} but got ${body.version}`,
+                code: "INVALID_REPORT_MENU_VERSION",
+            },
+        });
+    }
+
+    if (body.variant !== menuData.variant) {
+        throw FieldErrors({
+            variant: {
+                message: `Expected report menu variant ${menuData.variant} but got ${body.variant}`,
+                code: "INVALID_REPORT_MENU_VARIANT",
+            },
+        });
+    }
+
+    if (body.breadcrumbs.find((breadcrumb) => !(breadcrumb in menuData.nodes))) {
+        throw FieldErrors({
+            breadcrumbs: {
+                message: `Invalid report menu breadcrumbs.`,
+                code: "INVALID_REPORT_MENU_BREADCRUMBS",
+            },
+        });
+    }
+
+    if (!validateBreadcrumbs(menuData, body.breadcrumbs))
+        throw FieldErrors({
+            breadcrumbs: {
+                message: `Invalid report menu breadcrumbs path.`,
+                code: "INVALID_REPORT_MENU_BREADCRUMBS_PATH",
+            },
+        });
+
+    assertRequiredFields(body, CreateReportRequiredFields[getReportMenuType(type)]);
+}
+
 router.get(
     "/",
     route({
@@ -60,11 +156,10 @@ for (const type of Object.values(ReportMenuTypeNames)) {
         (req: Request, res: Response) => {
             // TODO: implement
             // res.send([] as ReportingMenuResponseSchema);
-            res.sendFile(path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`));
+            res.sendFile(path.join(reportMenuDirectory, `${type}.json`));
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/menu/${type} registered (reports).`);
-    // noinspection JSUnusedLocalSymbols - TODO: implement
     router.post(
         `/${type}`,
         route({
@@ -79,94 +174,8 @@ for (const type of Object.values(ReportMenuTypeNames)) {
             spacebarOnly: false, // Maps to /reporting/:id
         }),
         (req: Request, res: Response) => {
-            // TODO: implement
-            const body = req.body as CreateReportSchema;
-            if (body.name !== type)
-                throw FieldErrors({
-                    name: {
-                        message: `Expected report type ${type} but got ${body.name}`,
-                        code: "INVALID_REPORT_TYPE",
-                    },
-                });
-
-            const menuPath = path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`);
-            const menuData = JSON.parse(fs.readFileSync(menuPath, "utf-8"));
-            if (body.version !== menuData.version) {
-                throw FieldErrors({
-                    version: {
-                        message: `Expected report menu version ${menuData.version} but got ${body.version}`,
-                        code: "INVALID_REPORT_MENU_VERSION",
-                    },
-                });
-            }
-
-            if (body.variant !== menuData.variant) {
-                throw FieldErrors({
-                    variant: {
-                        message: `Expected report menu variant ${menuData.variant} but got ${body.variant}`,
-                        code: "INVALID_REPORT_MENU_VARIANT",
-                    },
-                });
-            }
-
-            if (body.breadcrumbs.find((_) => !(_ in menuData.nodes))) {
-                console.log(menuData);
-                throw FieldErrors({
-                    breadcrumbs: {
-                        message: `Invalid report menu breadcrumbs.`,
-                        code: "INVALID_REPORT_MENU_BREADCRUMBS",
-                    },
-                });
-            }
-
-            const validateBreadcrumbs = (currentNode: unknown, breadcrumbs: number[]): boolean => {
-                // navigate via node.children ([name, id][]) according to breadcrumbs
-                let node = currentNode as { children: [string, number][] };
-                for (let i = 1; i < breadcrumbs.length; i++) {
-                    const crumb = breadcrumbs[i];
-                    if (!node || !node.children || !Array.isArray(node.children)) return false;
-                    const nextNode = node.children.find((child: [string, number]) => child[1] === crumb);
-                    if (!nextNode) return false;
-                    // load next node
-                    const nextNodeData = menuData.nodes[crumb];
-                    if (!nextNodeData) return false;
-                    node = nextNodeData;
-                }
-                return true;
-            };
-
-            if (!validateBreadcrumbs(menuData.nodes[menuData.root_node_id], body.breadcrumbs))
-                throw FieldErrors({
-                    breadcrumbs: {
-                        message: `Invalid report menu breadcrumbs path.`,
-                        code: "INVALID_REPORT_MENU_BREADCRUMBS_PATH",
-                    },
-                });
-
-            const requireFields = (obj: CreateReportSchema, fields: string[]) => {
-                const missingFields: string[] = [];
-                for (const field of fields) if (!(field in obj)) missingFields.push(field);
-
-                if (missingFields.length > 0)
-                    throw FieldErrors(
-                        Object.fromEntries(
-                            missingFields.map((f) => [
-                                f,
-                                {
-                                    message: `Missing required field ${f}.`,
-                                    code: "MISSING_FIELD",
-                                },
-                            ]),
-                        ),
-                    );
-            };
-
-            const t = Number(Object.entries(ReportMenuTypeNames).find((x) => x[1] === type)?.[0]) as ReportMenuType;
-            const requiredFields = CreateReportRequiredFields[t];
-            if (!requiredFields) throw new HTTPError("Unknown report menu type", 400);
-            requireFields(body, requiredFields);
-
-            throw new HTTPError("Validation success - implementation TODO", 418);
+            validateCreateReport(type, req.body as CreateReportSchema);
+            res.status(204).send();
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/${type} registered (reports).`);
