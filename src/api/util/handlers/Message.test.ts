@@ -4,6 +4,57 @@ import assert from "node:assert/strict";
 const requireModule = require;
 
 describe("handleMessage", () => {
+    test("resolves stickers from the message guild and global sticker scope", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
+
+        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+        const stickers = [
+            { id: "global_sticker", guild_id: null },
+            { id: "guild_sticker", guild_id: "guild_id" },
+        ];
+
+        const findMock = t.mock.method(spacebarUtil.Sticker, "find", async () => stickers);
+
+        const { resolveMessageStickers } = (await import("./Message.js")) as typeof import("./Message");
+        const resolved = await resolveMessageStickers(["global_sticker", "guild_sticker"], { guild_id: "guild_id" });
+
+        assert.equal(resolved, stickers);
+        const where = (findMock.mock.calls[0].arguments[0] as { where: unknown }).where as Array<Record<string, unknown>>;
+        assert.equal(where.length, 2);
+        assert.equal(where[1].guild_id, "guild_id");
+    });
+
+    test("rejects missing or out-of-guild stickers instead of silently dropping them", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
+
+        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+        t.mock.method(spacebarUtil.Sticker, "find", async () => [{ id: "available_sticker", guild_id: "guild_id" }]);
+
+        const { resolveMessageStickers } = (await import("./Message.js")) as typeof import("./Message");
+
+        await assert.rejects(() => resolveMessageStickers(["available_sticker", "missing_sticker"], { guild_id: "guild_id" }), {
+            code: spacebarUtil.DiscordApiErrors.UNKNOWN_STICKER.code,
+            message: spacebarUtil.DiscordApiErrors.UNKNOWN_STICKER.message,
+        });
+    });
+
+    test("rejects payloads with too many or duplicate stickers", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
+
+        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+        const { resolveMessageStickers } = (await import("./Message.js")) as typeof import("./Message");
+
+        await assert.rejects(() => resolveMessageStickers(["one", "two", "three", "four"], { guild_id: "guild_id" }), {
+            code: spacebarUtil.DiscordApiErrors.INVALID_STICKER_SENT.code,
+            message: spacebarUtil.DiscordApiErrors.INVALID_STICKER_SENT.message,
+        });
+
+        await assert.rejects(() => resolveMessageStickers(["one", "one"], { guild_id: "guild_id" }), {
+            code: spacebarUtil.DiscordApiErrors.INVALID_STICKER_SENT.code,
+            message: spacebarUtil.DiscordApiErrors.INVALID_STICKER_SENT.message,
+        });
+    });
+
     test("preserves supplied reactions when reconstructing an edited message", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
 
