@@ -3099,7 +3099,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/threads.ts",
-            "line": 31,
+            "line": 29,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
