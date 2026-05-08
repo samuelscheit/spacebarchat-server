@@ -81,3 +81,9 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
 });
+
+test("ReadyGuildDTO uses an empty member list when guild members are intentionally not preloaded", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.deepEqual(dto.members, []);
+});

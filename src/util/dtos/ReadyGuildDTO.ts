@@ -182,7 +182,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
         this.large = guild.large;
         this.lazy = true; // ??????????
         this.member_count = guild.member_count;
-        this.members = guild.members?.map((x) => x.toPublicMember());
+        this.members = guild.members?.map((x) => x.toPublicMember()) ?? [];
         this.premium_subscription_count = guild.premium_subscription_count;
         this.properties = {
             name: guild.name,
