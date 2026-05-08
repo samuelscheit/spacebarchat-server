@@ -45,9 +45,3 @@ export interface SettingsProtoUpdateJsonResponse extends SettingsProtoJsonRespon
 // 	settings: FrecencyUserSettings;
 // 	out_of_date?: boolean;
 // }
-
-// TODO: what is this?
-// export interface SettingsProtoUpdateTestSettingsJsonResponse {
-// 	settings: {};
-// 	out_of_date?: boolean;
-// }
