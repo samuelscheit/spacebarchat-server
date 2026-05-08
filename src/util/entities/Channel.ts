@@ -49,7 +49,7 @@ import { Member } from "./Member";
 import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicMember, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports";
-import { ThreadMember } from "./ThreadMember";
+import { serializeThreadMemberPayload, ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
@@ -392,7 +392,7 @@ export class Channel extends BaseClass {
                 emitEvent({
                     event: "THREAD_CREATE",
                     data: {
-                        ...thread,
+                        ...thread.toJSON(),
                         newly_created: true,
                     },
                     guild_id: channel.guild_id,
@@ -403,7 +403,7 @@ export class Channel extends BaseClass {
                         guild_id: channel.guild_id!, // TODO: is this the right fix?
                         id: thread.id,
                         member_count: channel.member_count ?? 0, //TODO: is this the right fix?
-                        added_members: [{ user_id, ...threadMember.toJSON() }],
+                        added_members: [{ user_id, ...serializeThreadMemberPayload(threadMember) }],
                         removed_member_ids: [],
                     },
                     guild_id: channel.guild_id,
@@ -772,21 +772,36 @@ export class Channel extends BaseClass {
         }
     }
 
+    private loadedThreadMembers(): ThreadMember[] | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.thread_members) return undefined;
+        if (this.thread_members.some((threadMember) => !threadMember.member)) return undefined;
+
+        return this.thread_members;
+    }
+
     private serializeThreadOwner(): PublicMember | null | undefined {
         if (!this.isThread()) return undefined;
         if (!this.owner_id) return null;
-        if (!this.thread_members) return undefined;
 
-        const loadedThreadMembers = this.thread_members.filter((threadMember) => threadMember.member);
-        if (loadedThreadMembers.length !== this.thread_members.length) return undefined;
+        const threadMembers = this.loadedThreadMembers();
+        if (!threadMembers) return undefined;
 
-        const ownerMember = loadedThreadMembers.find((threadMember) => threadMember.member.id === this.owner_id)?.member;
+        const ownerMember = threadMembers.find((threadMember) => threadMember.member.id === this.owner_id)?.member;
         return ownerMember?.toPublicMember() ?? null;
     }
 
+    private serializeThreadMemberIdsPreview(): string[] | undefined {
+        return this.loadedThreadMembers()?.map((threadMember) => threadMember.member.id);
+    }
+
     toJSON(): PublicChannel {
+        const member_ids_preview = this.serializeThreadMemberIdsPreview();
+        const channel = { ...this };
+        delete channel.thread_members;
+
         return {
-            ...this,
+            ...channel,
             last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
             guild_id: this.guild_id ?? undefined,
             recipients: undefined, //this.recipients?.map(x=>x.user.toPublicUser()), // TODO: fix me
@@ -797,9 +812,7 @@ export class Channel extends BaseClass {
             user_limit: this.user_limit || undefined,
             rate_limit_per_user: this.rate_limit_per_user || undefined,
             owner_id: this.owner_id || undefined,
-            ...(this.isThread() && this.thread_members
-                ? { member_ids_preview: this.thread_members.map((_) => _.member?.id ?? _.member_idx).filter((id): id is string => !!id) }
-                : {}),
+            ...(member_ids_preview ? { member_ids_preview } : {}),
             default_auto_archive_duration: this.default_auto_archive_duration ?? undefined,
             retention_policy_id: undefined,
             thread_metadata: this.thread_metadata

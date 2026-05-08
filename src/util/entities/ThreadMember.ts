@@ -39,6 +39,13 @@ export enum ThreadMemberFlags {
     NO_MESSAGES = 1 << 3,
 }
 
+export function serializeThreadMemberPayload(threadMember: ThreadMember): ReturnType<ThreadMember["toJSON"]> {
+    const payload = { ...threadMember.toJSON() };
+    delete payload.channel;
+    delete payload.member;
+    return payload;
+}
+
 @Entity("thread_members")
 @Index(["id", "member_idx"], { unique: true })
 export class ThreadMember extends BaseClassWithoutId {

@@ -8,6 +8,7 @@ type SnowflakeClass = typeof import("./Snowflake").Snowflake;
 type ChannelClass = typeof import("../entities/Channel").Channel;
 type GuildClass = typeof import("../entities/Guild").Guild;
 type ThreadMemberClass = typeof import("../entities/ThreadMember").ThreadMember;
+type CapturedEvent = { event: string; data?: Record<string, unknown> };
 
 type FindOneOptionsWithId = {
     where?: {
@@ -63,6 +64,7 @@ const schemasMock = new Proxy(
 };
 
 const { Snowflake } = localRequire("./Snowflake") as { Snowflake: SnowflakeClass };
+const emittedEvents: CapturedEvent[] = [];
 
 const utilMock = {
     Config: {
@@ -84,7 +86,9 @@ const utilMock = {
         finalPermission: () => ({ has: () => false, hasThrow: () => undefined }),
     },
     Snowflake,
-    emitEvent: async () => undefined,
+    emitEvent: async (event: CapturedEvent) => {
+        emittedEvents.push(event);
+    },
     getDatabase: () => null,
     getPermission: async () => ({ hasThrow: () => undefined }),
     handleFile: async () => undefined,
@@ -127,6 +131,7 @@ afterEach(() => {
     Object.assign(ThreadMember, {
         createForUser: originals.threadMemberCreateForUser,
     });
+    emittedEvents.length = 0;
 });
 
 function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
@@ -258,7 +263,60 @@ describe("Channel.createThreadChannel", () => {
 
         assert.equal(thread.owner_id, "user");
         assert.equal(thread.thread_members?.length, 1);
-        assert.deepEqual(thread.toJSON().owner, publicOwner);
+        const json = thread.toJSON();
+        assert.deepEqual(json.owner, publicOwner);
+        assert.deepEqual(json.member_ids_preview, ["user"]);
+        assert.equal((json as { thread_members?: unknown }).thread_members, undefined);
+    });
+
+    test("serializes the loaded creator member as thread owner in the default create event", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        Object.assign(Snowflake, {
+            generate: () => "event-owned-thread",
+        });
+
+        const publicOwner = {
+            id: "user",
+            guild_id: "guild",
+            roles: ["role"],
+            user: { id: "user", username: "owner" },
+        };
+        Object.assign(ThreadMember, {
+            createForUser: async (userId: string, thread: Pick<ChannelEntity, "id" | "guild_id">) =>
+                ({
+                    id: thread.id,
+                    member: {
+                        id: userId,
+                        toPublicMember: () => publicOwner,
+                    },
+                    toJSON: () => ({ id: thread.id, flags: 0, join_timestamp: "2026-01-01T00:00:00.000Z", member: { id: userId } }),
+                }) as unknown,
+        });
+
+        await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "event-owned-thread",
+                type: GUILD_PRIVATE_THREAD,
+            },
+            {},
+            "user",
+            { skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        const threadCreate = emittedEvents.find((event) => event.event === "THREAD_CREATE");
+        assert.ok(threadCreate);
+        assert.deepEqual(threadCreate.data?.owner, publicOwner);
+        assert.deepEqual(threadCreate.data?.member_ids_preview, ["user"]);
+        assert.equal(threadCreate.data?.thread_members, undefined);
+
+        const threadMembersUpdate = emittedEvents.find((event) => event.event === "THREAD_MEMBERS_UPDATE");
+        assert.ok(threadMembersUpdate);
+        const addedMember = (threadMembersUpdate.data?.added_members as Record<string, unknown>[] | undefined)?.[0];
+        assert.equal(addedMember?.user_id, "user");
+        assert.equal(addedMember?.member, undefined);
     });
 
     test("omits thread owner when thread member relations are not loaded", () => {
@@ -271,7 +329,9 @@ describe("Channel.createThreadChannel", () => {
             nsfw: false,
         });
 
-        assert.equal(thread.toJSON().owner, undefined);
+        const json = thread.toJSON();
+        assert.equal(json.owner, undefined);
+        assert.equal(json.member_ids_preview, undefined);
     });
 
     test("omits thread owner when thread member rows are loaded without member relations", () => {
@@ -282,10 +342,13 @@ describe("Channel.createThreadChannel", () => {
             type: GUILD_PRIVATE_THREAD,
             created_at: new Date("2026-01-01T00:00:00.000Z"),
             nsfw: false,
-            thread_members: [{ id: "thread-without-member-relations" }],
+            thread_members: [{ id: "thread-without-member-relations", member_idx: "internal-member-row-index" }],
         });
 
-        assert.equal(thread.toJSON().owner, undefined);
+        const json = thread.toJSON();
+        assert.equal(json.owner, undefined);
+        assert.equal(json.member_ids_preview, undefined);
+        assert.equal((json as { thread_members?: unknown }).thread_members, undefined);
     });
 
     test("serializes null thread owner when loaded member relations do not include owner", () => {
@@ -299,6 +362,8 @@ describe("Channel.createThreadChannel", () => {
             thread_members: [{ id: "thread-with-missing-owner", member: { id: "other-user" } }],
         });
 
-        assert.equal(thread.toJSON().owner, null);
+        const json = thread.toJSON();
+        assert.equal(json.owner, null);
+        assert.deepEqual(json.member_ids_preview, ["other-user"]);
     });
 });

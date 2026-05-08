@@ -29,6 +29,7 @@ import {
     ThreadMember,
     ThreadMemberFlags,
     ThreadMembersUpdateEvent,
+    serializeThreadMemberPayload,
 } from "@spacebar/util";
 import { ChannelType, Snowflake } from "@spacebar/schemas";
 
@@ -84,7 +85,7 @@ async function addThreadMember(req: Request, res: Response) {
             guild_id: thread.guild_id!,
             id: thread.id,
             member_count: thread.member_count ?? 0, //TODO: is this the right fix?
-            added_members: [{ user_id: user_id, ...threadMember.toJSON() }],
+            added_members: [{ user_id: user_id, ...serializeThreadMemberPayload(threadMember) }],
         },
         channel_id: thread.id,
     } satisfies ThreadMembersUpdateEvent);
