@@ -317,10 +317,27 @@ describe("Guild.createGuild", () => {
 describe("Guild entity metadata", () => {
     test("uses explicit database types for nullable discovery metadata backing columns", async () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
-        const { Guild } = await import("./Guild.js");
+        const { Guild, PublicGuildRelations } = await import("./Guild.js");
         const columns = getMetadataArgsStorage().columns.filter((column) => column.target === Guild);
 
         assert.equal(columns.find((column) => column.propertyName === "description")?.options.type, "varchar");
         assert.equal(columns.find((column) => column.propertyName === "primary_category_id")?.options.type, "int8");
+        assert.ok(PublicGuildRelations.includes("stage_instances"));
+    });
+
+    test("declares stage_instances as the inverse relation for StageInstance.guild", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+        const [{ Guild }, { StageInstance }] = await Promise.all([import("./Guild.js"), import("./StageInstance.js")]);
+        const relations = getMetadataArgsStorage().relations;
+
+        const guildStageInstancesRelation = relations.find((relation) => relation.target === Guild && relation.propertyName === "stage_instances");
+        assert.equal(guildStageInstancesRelation?.relationType, "one-to-many");
+        assert.equal(typeof guildStageInstancesRelation?.type, "function");
+        assert.equal((guildStageInstancesRelation.type as () => typeof StageInstance)(), StageInstance);
+
+        const stageInstanceGuildRelation = relations.find((relation) => relation.target === StageInstance && relation.propertyName === "guild");
+        assert.equal(stageInstanceGuildRelation?.relationType, "many-to-one");
+        assert.equal(typeof stageInstanceGuildRelation?.inverseSideProperty, "function");
+        assert.equal((stageInstanceGuildRelation.inverseSideProperty as (guild: { stage_instances: string }) => string)({ stage_instances: "stage_instances" }), "stage_instances");
     });
 });

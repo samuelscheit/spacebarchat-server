@@ -39,6 +39,7 @@ import { Invite } from "./Invite";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import { Sticker } from "./Sticker";
+import { StageInstance } from "./StageInstance";
 import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
@@ -50,7 +51,6 @@ import { setVanityUrlFeature } from "../util/GuildFeatures";
 import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
-// TODO: stage_instances
 // TODO: threads
 // TODO:
 // "keywords": [
@@ -73,6 +73,7 @@ export const PublicGuildRelations = [
     "emojis",
     "roles",
     "stickers",
+    "stage_instances",
     "voice_states",
     // "members",		// TODO: These are public, but all members should not be fetched.
     // "members.user",
@@ -201,6 +202,14 @@ export class Guild extends BaseClass {
         onDelete: "CASCADE",
     })
     invites: Invite[];
+
+    @JoinColumn({ name: "stage_instance_ids" })
+    @OneToMany(() => StageInstance, (stageInstance: StageInstance) => stageInstance.guild, {
+        cascade: true,
+        orphanedRowAction: "delete",
+        onDelete: "CASCADE",
+    })
+    stage_instances: StageInstance[];
 
     @JoinColumn({ name: "voice_state_ids" })
     @OneToMany(() => VoiceState, (voicestate: VoiceState) => voicestate.guild, {
