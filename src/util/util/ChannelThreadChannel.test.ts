@@ -145,6 +145,7 @@ function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
             ({
                 id: "parent",
                 guild_id: "guild",
+                member_count: 42,
                 nsfw: false,
                 permission_overwrites: [],
             }) satisfies Partial<ChannelEntity>,
@@ -231,8 +232,15 @@ describe("Channel.createThreadChannel", () => {
         Object.assign(Snowflake, {
             generate: () => "generated-thread-id",
         });
+        const savedMemberCount = 7;
+        Object.assign(Channel.prototype, {
+            save: async function (this: ChannelEntity) {
+                this.member_count = savedMemberCount;
+                return this;
+            },
+        });
 
-        await Channel.createThreadChannel(
+        const thread = await Channel.createThreadChannel(
             {
                 parent_id: "parent",
                 guild_id: "guild",
@@ -246,10 +254,11 @@ describe("Channel.createThreadChannel", () => {
 
         const threadMembersUpdate = emittedEvents.find((event) => event.event === "THREAD_MEMBERS_UPDATE");
 
+        assert.equal(thread.member_count, savedMemberCount);
         assert.ok(threadMembersUpdate);
         assert.equal(threadMembersUpdate.data.id, "generated-thread-id");
         assert.equal(threadMembersUpdate.data.guild_id, "guild");
-        assert.equal(threadMembersUpdate.data.member_count, 1);
+        assert.equal(threadMembersUpdate.data.member_count, savedMemberCount);
         assert.deepEqual(threadMembersUpdate.data.removed_member_ids, []);
         assert.deepEqual(threadMembersUpdate.data.added_members, [{ user_id: "user", id: "generated-thread-id" }]);
     });
