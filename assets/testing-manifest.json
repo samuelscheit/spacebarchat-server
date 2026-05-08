@@ -9573,7 +9573,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/widget.png/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.png.ts",
-            "line": 35,
+            "line": 32,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -9585,7 +9585,7 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "rateLimit": {
                 "group": "guild",

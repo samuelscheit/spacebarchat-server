@@ -3,6 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { imageSize } from "image-size";
 import { AutomodRule, Ban, Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Invite, Member, Message, Snowflake, User, VoiceState } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
@@ -192,6 +193,13 @@ async function coverGuildReadOnlyAndStubRoutes(apiBaseUrl: string, guildId: stri
     assert.ok(regions.length > 0);
 
     await Guild.update({ id: guildId }, { widget_enabled: true });
+    const widgetPng = await getJson(`${apiBaseUrl}/guilds/${guildId}/widget.png?style=banner2`, token);
+    await assertStatus(widgetPng, 200);
+    assert.equal(widgetPng.headers.get("content-type"), "image/png");
+    assert.equal(widgetPng.headers.get("cache-control"), "public, max-age=3600");
+    const widgetPngBody = Buffer.from(await widgetPng.arrayBuffer());
+    assert.deepEqual([...widgetPngBody.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    assert.deepEqual(imageSize(widgetPngBody), { width: 320, height: 76, type: "png" });
     await assertJsonError(await getJson(`${apiBaseUrl}/guilds/${guildId}/widget.png?style=invalid`, token), 400);
 }
 

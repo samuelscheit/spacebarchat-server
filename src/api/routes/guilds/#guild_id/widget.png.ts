@@ -21,7 +21,7 @@ import { DiscordApiErrors, Guild } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { storage } from "@spacebar/cdn";
-import { isWidgetStyle, renderWidgetPng, WIDGET_STYLE_ERROR } from "../../../util/utility/WidgetPng";
+import { isWidgetStyle, renderWidgetPng, WIDGET_STYLE_ERROR, WIDGET_STYLES } from "../../../util/utility/WidgetPng";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -32,6 +32,14 @@ const router: Router = Router({ mergeParams: true });
 router.get(
     "/",
     route({
+        query: {
+            style: {
+                type: "string",
+                required: false,
+                description: "Widget image style.",
+                values: [...WIDGET_STYLES],
+            },
+        },
         responses: {
             200: {},
             400: {

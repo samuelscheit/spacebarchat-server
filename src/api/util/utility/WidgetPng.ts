@@ -24,7 +24,7 @@ import { SANS_10_BLACK, SANS_12_BLACK, SANS_14_BLACK } from "jimp/fonts";
 export const WIDGET_STYLES = ["shield", "banner1", "banner2", "banner3", "banner4"] as const;
 export type WidgetStyle = (typeof WIDGET_STYLES)[number];
 
-export const WIDGET_STYLE_ERROR = "Value must be one of ('shield', 'banner1', 'banner2', 'banner3', 'banner4').";
+export const WIDGET_STYLE_ERROR = `Value must be one of (${WIDGET_STYLES.map((style) => `'${style}'`).join(", ")}).`;
 
 type FontSize = 10 | 12 | 14;
 type Rgba = readonly [red: number, green: number, blue: number, alpha: number];
