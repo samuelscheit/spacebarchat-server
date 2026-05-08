@@ -193,7 +193,6 @@ router.post(
                 // Deprecated
                 break;
             case InteractionCallbackType.IFRAME_MODAL:
-                // TODO
                 break;
             case InteractionCallbackType.LAUNCH_ACTIVITY:
                 // TODO
