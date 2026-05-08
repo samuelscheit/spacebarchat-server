@@ -111,6 +111,342 @@ describe("executeWebhook", () => {
         assert.notEqual(res.body, message);
         assert.equal(channel.last_message_id, "message-id");
     });
+
+    test("sends webhook messages to the requested child thread", async (t) => {
+        const util = require("../../../util") as typeof import("../../../util");
+        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("./Message") as typeof import("./Message");
+        const messageResponse = require("../utility/MessageResponse") as typeof import("../utility/MessageResponse");
+
+        const parentChannel = {
+            id: "parent-channel-id",
+            type: 0,
+            guild_id: "guild-id",
+            isWritable: () => true,
+        };
+        const threadChannel = {
+            id: "thread-id",
+            type: 11,
+            guild_id: "guild-id",
+            last_message_id: undefined as string | undefined,
+            isWritable: () => true,
+            save: async () => undefined,
+        };
+        const webhook = {
+            id: "webhook-id",
+            token: "webhook-token",
+            name: "webhook-name",
+            avatar: null,
+            channel_id: parentChannel.id,
+            user_id: "webhook-user-id",
+            channel: parentChannel,
+            application: undefined,
+        };
+        const message = {
+            id: "message-id",
+            edited_timestamp: new Date(),
+            save: async () => undefined,
+            toJSON: () => ({ id: "message-id", channel_id: threadChannel.id }),
+        };
+        let handledPayload: { channel_id?: string } | undefined;
+        let emittedChannelId: string | undefined;
+        const permissionChecks: Array<{ userId: string; guildId: string | undefined; channel: unknown }> = [];
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(util.Config, "get", () => ({
+            limits: {
+                absoluteRate: {
+                    sendMessage: {
+                        enabled: false,
+                        window: 1000,
+                        limit: 10,
+                    },
+                },
+            },
+        }));
+        t.mock.method(util.Webhook, "findOne", async () => webhook);
+        t.mock.method(util.Channel, "findOneOrFail", async (options: unknown) => {
+            assert.deepEqual(options, {
+                where: {
+                    id: threadChannel.id,
+                    parent_id: parentChannel.id,
+                },
+            });
+            return threadChannel;
+        });
+        t.mock.method(permissionUtil, "getPermission", async (userId: string, guildId: string | undefined, channel: unknown) => {
+            permissionChecks.push({ userId, guildId, channel });
+            return { hasThrow: () => undefined };
+        });
+        t.mock.method(messageHandlers, "handleMessage", async (payload: { channel_id?: string }) => {
+            handledPayload = payload;
+            return message;
+        });
+        t.mock.method(messageHandlers, "postHandleMessage", () => Promise.resolve());
+        t.mock.method(eventUtil, "emitEvent", async (event: { channel_id?: string }) => {
+            emittedChannelId = event.channel_id;
+        });
+        t.mock.method(messageResponse, "messageToResponse", (handledMessage: unknown) => handledMessage);
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+        const req = {
+            body: { content: "hello thread" },
+            files: [],
+            params: { webhook_id: webhook.id, token: webhook.token },
+            query: { wait: "true", thread_id: threadChannel.id },
+            t: (key: string) => key,
+        };
+        const res = {
+            body: undefined as unknown,
+            json(body: unknown) {
+                this.body = body;
+                return this;
+            },
+        };
+
+        await executeWebhook(req as never, res as never);
+
+        assert.equal(handledPayload?.channel_id, threadChannel.id);
+        assert.equal(threadChannel.last_message_id, message.id);
+        assert.equal(emittedChannelId, threadChannel.id);
+        assert.equal(res.body, message);
+        assert.deepEqual(permissionChecks, [
+            { userId: webhook.user_id, guildId: parentChannel.guild_id, channel: parentChannel },
+            { userId: webhook.user_id, guildId: threadChannel.guild_id, channel: threadChannel },
+        ]);
+    });
+
+    test("creates a public thread when thread_name is provided", async (t) => {
+        const schemas = require("../../../schemas") as typeof import("../../../schemas");
+        const util = require("../../../util") as typeof import("../../../util");
+        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("./Message") as typeof import("./Message");
+        const messageResponse = require("../utility/MessageResponse") as typeof import("../utility/MessageResponse");
+
+        const parentChannel = {
+            id: "forum-channel-id",
+            type: schemas.ChannelType.GUILD_FORUM,
+            guild_id: "guild-id",
+            guild: { id: "guild-id" },
+            flags: 0,
+            available_tags: [{ id: "tag-id", moderated: true }],
+            default_auto_archive_duration: 60,
+            threadOnly: () => true,
+            isWritable: () => true,
+        };
+        const threadChannel = {
+            id: "new-thread-id",
+            type: schemas.ChannelType.GUILD_PUBLIC_THREAD,
+            guild_id: "guild-id",
+            last_message_id: undefined as string | undefined,
+            isWritable: () => true,
+            save: async () => undefined,
+        };
+        const webhook = {
+            id: "webhook-id",
+            token: "webhook-token",
+            name: "webhook-name",
+            avatar: null,
+            channel_id: parentChannel.id,
+            user_id: "webhook-user-id",
+            user: { id: "webhook-user-id" },
+            channel: parentChannel,
+            guild: parentChannel.guild,
+            application: undefined,
+        };
+        const message = {
+            id: "message-id",
+            edited_timestamp: new Date(),
+            save: async () => undefined,
+            toJSON: () => ({ id: "message-id", channel_id: threadChannel.id }),
+        };
+        let handledPayload: { channel_id?: string } | undefined;
+        const permissionChecks: Array<{ userId: string; guildId: string | undefined; channel: unknown }> = [];
+        const permissionThrows: string[] = [];
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(util.Config, "get", () => ({
+            limits: {
+                absoluteRate: {
+                    sendMessage: {
+                        enabled: false,
+                        window: 1000,
+                        limit: 10,
+                    },
+                },
+            },
+        }));
+        t.mock.method(util.Webhook, "findOne", async () => webhook);
+        t.mock.method(util.Channel, "createThreadChannel", async (channel: unknown, metadata: unknown, userId: string) => {
+            assert.deepEqual(channel, {
+                owner: webhook.user,
+                parent: parentChannel,
+                guild: parentChannel.guild,
+                name: "Webhook thread",
+                parent_id: parentChannel.id,
+                guild_id: parentChannel.guild_id,
+                type: schemas.ChannelType.GUILD_PUBLIC_THREAD,
+                applied_tags: ["tag-id"],
+                recipients: [],
+            });
+            assert.deepEqual(metadata, {
+                archived: false,
+                auto_archive_duration: parentChannel.default_auto_archive_duration,
+                archive_timestamp: (metadata as { archive_timestamp: string }).archive_timestamp,
+                locked: false,
+                create_timestamp: (metadata as { create_timestamp: string }).create_timestamp,
+            });
+            assert.equal(userId, webhook.user_id);
+            return threadChannel;
+        });
+        t.mock.method(permissionUtil, "getPermission", async (userId: string, guildId: string | undefined, channel: unknown) => {
+            permissionChecks.push({ userId, guildId, channel });
+            return {
+                hasThrow: (permission: string) => {
+                    permissionThrows.push(`${(channel as { id: string }).id}:${permission}`);
+                },
+            };
+        });
+        t.mock.method(messageHandlers, "handleMessage", async (payload: { channel_id?: string }) => {
+            handledPayload = payload;
+            return message;
+        });
+        t.mock.method(messageHandlers, "postHandleMessage", () => Promise.resolve());
+        t.mock.method(eventUtil, "emitEvent", async () => undefined);
+        t.mock.method(messageResponse, "messageToResponse", (handledMessage: unknown) => handledMessage);
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+        const req = {
+            body: { content: "hello new thread", thread_name: "Webhook thread", applied_tags: ["tag-id"] },
+            files: [],
+            params: { webhook_id: webhook.id, token: webhook.token },
+            query: { wait: "true" },
+            t: (key: string) => key,
+        };
+        const res = {
+            body: undefined as unknown,
+            json(body: unknown) {
+                this.body = body;
+                return this;
+            },
+        };
+
+        await executeWebhook(req as never, res as never);
+
+        assert.equal(handledPayload?.channel_id, threadChannel.id);
+        assert.equal(threadChannel.last_message_id, message.id);
+        assert.equal(res.body, message);
+        assert.deepEqual(permissionChecks, [
+            { userId: webhook.user_id, guildId: parentChannel.guild_id, channel: parentChannel },
+            { userId: webhook.user_id, guildId: threadChannel.guild_id, channel: threadChannel },
+        ]);
+        assert.deepEqual(permissionThrows, [`${parentChannel.id}:MANAGE_THREADS`, `${parentChannel.id}:CREATE_PUBLIC_THREADS`, `${threadChannel.id}:SEND_MESSAGES_IN_THREADS`]);
+    });
+
+    test("rejects ambiguous thread id and thread name webhook requests", async (t) => {
+        const util = require("../../../util") as typeof import("../../../util");
+        const messageHandlers = require("./Message") as typeof import("./Message");
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(messageHandlers, "handleMessage", async () => {
+            throw new Error("handleMessage should not be called");
+        });
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+        const req = {
+            body: { content: "hello", thread_name: "ambiguous" },
+            files: [],
+            params: { webhook_id: "webhook-id", token: "webhook-token" },
+            query: { wait: "true", thread_id: "thread-id" },
+            t: (key: string) => key,
+        };
+
+        await assert.rejects(
+            () => executeWebhook(req as never, {} as never),
+            (error: { code?: number; errors?: Record<string, unknown> }) => {
+                assert.equal(error.code, 50035);
+                assert.ok(error.errors?.thread_name);
+                return true;
+            },
+        );
+    });
+
+    test("rejects webhook thread creation before side effects when a required forum tag is missing", async (t) => {
+        const schemas = require("../../../schemas") as typeof import("../../../schemas");
+        const util = require("../../../util") as typeof import("../../../util");
+        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const messageHandlers = require("./Message") as typeof import("./Message");
+
+        const parentChannel = {
+            id: "forum-channel-id",
+            type: schemas.ChannelType.GUILD_FORUM,
+            guild_id: "guild-id",
+            guild: { id: "guild-id" },
+            flags: Number(util.ChannelFlags.FLAGS.REQUIRE_TAG),
+            available_tags: [{ id: "tag-id", moderated: false }],
+            threadOnly: () => true,
+            isWritable: () => true,
+        };
+        const webhook = {
+            id: "webhook-id",
+            token: "webhook-token",
+            name: "webhook-name",
+            avatar: null,
+            channel_id: parentChannel.id,
+            user_id: "webhook-user-id",
+            user: { id: "webhook-user-id" },
+            channel: parentChannel,
+            guild: parentChannel.guild,
+            application: undefined,
+        };
+        let createThreadCalled = false;
+        let handleMessageCalled = false;
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(util.Config, "get", () => ({
+            limits: {
+                absoluteRate: {
+                    sendMessage: {
+                        enabled: false,
+                        window: 1000,
+                        limit: 10,
+                    },
+                },
+            },
+        }));
+        t.mock.method(util.Webhook, "findOne", async () => webhook);
+        t.mock.method(util.Channel, "createThreadChannel", async () => {
+            createThreadCalled = true;
+            throw new Error("createThreadChannel should not be called");
+        });
+        t.mock.method(permissionUtil, "getPermission", async () => ({ hasThrow: () => undefined }));
+        t.mock.method(messageHandlers, "handleMessage", async () => {
+            handleMessageCalled = true;
+            throw new Error("handleMessage should not be called");
+        });
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+        const req = {
+            body: { content: "hello new thread", thread_name: "Webhook thread" },
+            files: [],
+            params: { webhook_id: webhook.id, token: webhook.token },
+            query: { wait: "true" },
+            t: (key: string) => key,
+        };
+
+        await assert.rejects(
+            () => executeWebhook(req as never, {} as never),
+            (error: { code?: number; errors?: Record<string, unknown> }) => {
+                assert.equal(error.code, 50035);
+                assert.ok(error.errors?.applied_tags);
+                return true;
+            },
+        );
+        assert.equal(createThreadCalled, false);
+        assert.equal(handleMessageCalled, false);
+    });
 });
 
 describe("PATCH /webhooks/:webhook_id/:token", () => {

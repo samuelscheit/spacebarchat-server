@@ -3,6 +3,7 @@ import {
     Attachment,
     Channel,
     Config,
+    ChannelFlags,
     DiscordApiErrors,
     emitEvent,
     FieldErrors,
@@ -18,10 +19,12 @@ import {
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
-import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
+import { ChannelType, WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
 import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
 import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
+
+type WebhookPermissionChecker = Awaited<ReturnType<typeof getPermission>>;
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
@@ -54,13 +57,109 @@ export async function updateWebhookWithToken(req: Request, res: Response) {
     );
 }
 
+function assertWebhookThreadRequest(body: WebhookExecuteSchema, thread_id?: string) {
+    if (thread_id && body.thread_name) {
+        throw FieldErrors({
+            thread_name: {
+                message: "thread_name cannot be used with thread_id",
+            },
+        });
+    }
+}
+
+function assertWebhookThreadTags(channel: Channel, body: WebhookExecuteSchema, permissions: WebhookPermissionChecker) {
+    const appliedTags = body.applied_tags ?? [];
+
+    if (!appliedTags.length) {
+        if (channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)) {
+            throw FieldErrors({
+                applied_tags: {
+                    code: "BASE_TYPE_REQUIRED",
+                    message: "Tag is required for this channel",
+                },
+            });
+        }
+        return;
+    }
+
+    const availableTags = new Map((channel.available_tags ?? []).map((tag) => [tag.id, tag]));
+    const badTag = appliedTags.find((tag) => !availableTags.has(tag));
+    if (badTag) {
+        throw FieldErrors({
+            applied_tags: {
+                message: `Invalid tag ${badTag}`,
+            },
+        });
+    }
+
+    if (appliedTags.some((tag) => availableTags.get(tag)?.moderated)) {
+        permissions.hasThrow("MANAGE_THREADS");
+    }
+}
+
+async function resolveWebhookSendChannel(webhook: Webhook, body: WebhookExecuteSchema, thread_id?: string, permissions?: WebhookPermissionChecker): Promise<Channel> {
+    if (thread_id) {
+        return Channel.findOneOrFail({
+            where: {
+                id: thread_id,
+                parent_id: webhook.channel.id,
+            },
+        });
+    }
+
+    if (!body.thread_name) return webhook.channel;
+
+    if (!permissions) {
+        throw new HTTPError("Webhook cannot create a thread without a permission subject", 403);
+    }
+
+    if (!webhook.channel.threadOnly()) {
+        throw FieldErrors({
+            thread_name: {
+                message: "thread_name can only be used in forum or media channels",
+            },
+        });
+    }
+
+    assertWebhookThreadTags(webhook.channel, body, permissions);
+    permissions.hasThrow("CREATE_PUBLIC_THREADS");
+
+    const threadOwnerId = webhook.user_id ?? webhook.application_id;
+
+    return Channel.createThreadChannel(
+        {
+            owner: webhook.user,
+            parent: webhook.channel,
+            guild: webhook.guild,
+            name: body.thread_name,
+            parent_id: webhook.channel.id,
+            guild_id: webhook.channel.guild_id,
+            type: webhook.channel.type === ChannelType.GUILD_NEWS ? ChannelType.GUILD_NEWS_THREAD : ChannelType.GUILD_PUBLIC_THREAD,
+            applied_tags: body.applied_tags || [],
+            recipients: [],
+        },
+        {
+            archived: false,
+            auto_archive_duration: webhook.channel.default_auto_archive_duration || 4320,
+            archive_timestamp: new Date().toISOString(),
+            locked: false,
+            create_timestamp: new Date().toISOString(),
+        },
+        threadOwnerId,
+    );
+}
+
 export const executeWebhook = async (req: Request, res: Response) => {
     const body = req.body as WebhookExecuteSchema;
     const messageId = Snowflake.generate();
 
     const { webhook_id, token } = req.params as { [key: string]: string };
 
-    const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: true });
+    const wait = req.query.wait === "true";
+    const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
+    assertWebhookThreadRequest(body, thread_id);
+
+    const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: { available_tags: true }, guild: true, application: true });
 
     if (body.username) {
         body.username = ValidateWebhookName(body.username);
@@ -71,8 +170,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
         throw DiscordApiErrors.CANNOT_SEND_EMPTY_MESSAGE;
     }
 
-    const wait = req.query.wait === "true";
-    const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
     const acknowledgeNoWait = () => {
         if (!wait && !res.headersSent) {
             res.status(204).send();
@@ -114,22 +211,19 @@ export const executeWebhook = async (req: Request, res: Response) => {
             }
     }
 
-    let sendChannel = webhook.channel;
-    if (thread_id) {
-        sendChannel = await Channel.findOneOrFail({
-            where: {
-                id: thread_id,
-                parent_id: webhook.channel.id,
-            },
-        });
-    }
-
     const files = (req.files as Express.Multer.File[]) ?? [];
     const permissionSubjectId = webhook.user_id ?? webhook.application_id;
     const messagePayload = { ...body, attachments: body.attachments ?? [], uploadedFileCount: files.length };
+    let sendChannel = webhook.channel;
     if (permissionSubjectId) {
-        const permissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
+        const permissions = await getPermission(permissionSubjectId, webhook.channel.guild_id, webhook.channel);
         assertMessagePayloadPermissions(permissions, messagePayload);
+        sendChannel = await resolveWebhookSendChannel(webhook, body, thread_id, permissions);
+        if (sendChannel.id !== webhook.channel.id) {
+            const sendChannelPermissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
+            sendChannelPermissions.hasThrow("SEND_MESSAGES_IN_THREADS");
+            assertMessagePayloadPermissions(sendChannelPermissions, messagePayload);
+        }
     } else {
         assertMessagePayloadPermissions(
             {
@@ -139,6 +233,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
             },
             messagePayload,
         );
+        sendChannel = await resolveWebhookSendChannel(webhook, body, thread_id);
     }
 
     acknowledgeNoWait();
@@ -170,7 +265,6 @@ export const executeWebhook = async (req: Request, res: Response) => {
         webhook_id: webhook.id,
         application_id: webhook.application?.id,
         embeds,
-        // TODO: Support thread_id/thread_name once threads are implemented
         channel_id: sendChannel.id,
         attachments: mergeWebhookMessageAttachments(attachments, body.attachments),
         timestamp: new Date(),
