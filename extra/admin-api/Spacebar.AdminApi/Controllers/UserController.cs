@@ -188,7 +188,6 @@ public class UserController(
         }
     }
 
-
     private async IAsyncEnumerable<AsyncActionResult> DeleteMessagesForChannel(
         // context
         long? guildId, long channelId, long authorId,
