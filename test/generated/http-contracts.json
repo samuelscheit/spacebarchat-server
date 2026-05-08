@@ -16162,8 +16162,8 @@
             "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
             "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": []
+                "responses": ["ApplicationEntitlementsResponse"],
+                "responseStatuses": [200]
             },
             "cases": [
                 {
