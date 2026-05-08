@@ -170,6 +170,12 @@ function parseStringLiteral(raw) {
         .replace(/\\(["'`\\])/g, "$1");
 }
 
+const KNOWN_ROUTE_METADATA_ARRAYS = Object.freeze({
+    JOINED_PRIVATE_ARCHIVED_THREAD_PERMISSIONS: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
+    PRIVATE_ARCHIVED_THREAD_PERMISSIONS: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY", "MANAGE_THREADS"],
+    PUBLIC_ARCHIVED_THREAD_PERMISSIONS: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
+});
+
 function extractPropertyValue(objectText, propertyName) {
     const source = objectText.trim().replace(/^\{/, "").replace(/\}$/, "");
     const state = { mode: "code", quote: "", escape: false, skip: false };
@@ -232,8 +238,186 @@ function parseLiteralList(raw) {
     if (stringValue !== undefined) return stringValue;
     if (!text.startsWith("[")) return text;
     return splitTopLevelArguments(text.slice(1, -1))
-        .map((item) => parseStringLiteral(item) ?? item.trim())
+        .flatMap((item) => {
+            const trimmed = item.trim();
+            if (trimmed.startsWith("...")) return KNOWN_ROUTE_METADATA_ARRAYS[trimmed.slice(3)] || [trimmed];
+            return [parseStringLiteral(item) ?? trimmed];
+        })
         .filter(Boolean);
+}
+
+function normalizeEventValue(value) {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    const stringValue = parseStringLiteral(trimmed);
+    if (stringValue !== undefined) return stringValue;
+    const memberMatch = /^(?:EVENT|WSEvents)\.([A-Z0-9_]+)$/.exec(trimmed);
+    if (memberMatch) return memberMatch[1];
+    if (/^[A-Z][A-Z0-9_]*$/.test(trimmed)) return trimmed;
+    return undefined;
+}
+
+function extractEmittedEvents(source) {
+    const events = [];
+
+    for (const match of source.matchAll(/\bemitEvent\s*\(/g)) {
+        const open = source.indexOf("(", match.index);
+        const close = findMatching(source, open);
+        if (open === -1 || close === -1) continue;
+
+        const [payload] = splitTopLevelArguments(source.slice(open + 1, close));
+        if (!payload || !payload.trim().startsWith("{")) continue;
+
+        const parsed = parseLiteralList(extractPropertyValue(payload, "event"));
+        const values = Array.isArray(parsed) ? parsed : [parsed];
+        for (const value of values) {
+            const event = normalizeEventValue(value);
+            if (event) events.push(event);
+        }
+    }
+
+    return [...new Set(events)].sort();
+}
+
+function extractFunctionEventMap(source) {
+    const eventsByFunction = new Map();
+    const regex = /\b(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g;
+
+    for (const match of source.matchAll(regex)) {
+        const paramsOpen = source.indexOf("(", match.index);
+        const paramsClose = findMatching(source, paramsOpen);
+        if (paramsOpen === -1 || paramsClose === -1) continue;
+
+        const bodyOpen = source.indexOf("{", paramsClose);
+        if (bodyOpen === -1) continue;
+
+        const bodyClose = findMatching(source, bodyOpen, "{", "}");
+        if (bodyClose === -1) continue;
+
+        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
+        if (events.length) eventsByFunction.set(match[1], events);
+    }
+
+    const arrowRegex = /\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>/g;
+    for (const match of source.matchAll(arrowRegex)) {
+        let bodyOpen = match.index + match[0].length;
+        while (/\s/.test(source[bodyOpen])) bodyOpen += 1;
+        if (source[bodyOpen] !== "{") continue;
+
+        const bodyClose = findMatching(source, bodyOpen, "{", "}");
+        if (bodyClose === -1) continue;
+
+        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
+        if (events.length) eventsByFunction.set(match[1], events);
+    }
+
+    return eventsByFunction;
+}
+
+function extractClassMethodEventMap(source) {
+    const eventsByCall = new Map();
+    const classRegex = /\b(?:export\s+)?(?:abstract\s+)?class\s+([A-Za-z_$][\w$]*)\b/g;
+
+    for (const classMatch of source.matchAll(classRegex)) {
+        const className = classMatch[1];
+        const classBodyOpen = source.indexOf("{", classMatch.index);
+        if (classBodyOpen === -1) continue;
+
+        const classBodyClose = findMatching(source, classBodyOpen, "{", "}");
+        if (classBodyClose === -1) continue;
+
+        const classBody = source.slice(classBodyOpen + 1, classBodyClose);
+        const methodRegex = /\bstatic\s+(?:async\s+)?([A-Za-z_$][\w$]*)\s*\(/g;
+        for (const methodMatch of classBody.matchAll(methodRegex)) {
+            const methodName = methodMatch[1];
+            const paramsOpen = classBody.indexOf("(", methodMatch.index);
+            const paramsClose = findMatching(classBody, paramsOpen);
+            if (paramsOpen === -1 || paramsClose === -1) continue;
+
+            const bodyOpen = classBody.indexOf("{", paramsClose);
+            if (bodyOpen === -1) continue;
+
+            const bodyClose = findMatching(classBody, bodyOpen, "{", "}");
+            if (bodyClose === -1) continue;
+
+            const events = extractEmittedEvents(classBody.slice(bodyOpen + 1, bodyClose));
+            if (events.length) eventsByCall.set(`${className}.${methodName}`, events);
+        }
+    }
+
+    return eventsByCall;
+}
+
+function mergeEventMaps(...maps) {
+    const merged = new Map();
+
+    for (const map of maps) {
+        for (const [key, events] of map) {
+            merged.set(key, [...new Set([...(merged.get(key) || []), ...events])].sort());
+        }
+    }
+
+    return merged;
+}
+
+function extractSourceHelperEventMap(source) {
+    const directEvents = mergeEventMaps(extractFunctionEventMap(source), extractClassMethodEventMap(source));
+    const resolvedEvents = new Map();
+
+    for (const match of source.matchAll(/\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\b/g)) {
+        const targetEvents = directEvents.get(match[2]);
+        if (targetEvents) resolvedEvents.set(match[1], targetEvents);
+    }
+
+    for (const match of source.matchAll(/\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>\s*([A-Za-z_$][\w$]*)\s*\(/g)) {
+        const targetEvents = directEvents.get(match[2]);
+        if (targetEvents) resolvedEvents.set(match[1], targetEvents);
+    }
+
+    return mergeEventMaps(directEvents, resolvedEvents);
+}
+
+function helperCallDisablesEventEmit(callText) {
+    return /\bskipEventEmit\s*:\s*true\b/.test(callText);
+}
+
+function extractReferencedHelperEvents(args, eventsByFunction, externalEventsByCall = new Map()) {
+    const eventsByCall = mergeEventMaps(eventsByFunction, externalEventsByCall);
+    const events = [];
+
+    for (const arg of args) {
+        const trimmed = arg.trim();
+        if (!/^[A-Za-z_$][\w$]*$/.test(trimmed)) continue;
+
+        const helperEvents = eventsByCall.get(trimmed);
+        if (helperEvents) events.push(...helperEvents);
+    }
+
+    return [...new Set(events)].sort();
+}
+
+function extractCalledHelperEvents(source, eventsByFunction, externalEventsByCall = new Map()) {
+    const events = [];
+    const eventsByCall = mergeEventMaps(eventsByFunction, externalEventsByCall);
+
+    for (const match of source.matchAll(/\b([A-Za-z_$][\w$]*)\.([A-Za-z_$][\w$]*)\s*\(/g)) {
+        const helperEvents = eventsByCall.get(`${match[1]}.${match[2]}`);
+        if (!helperEvents) continue;
+
+        const open = source.indexOf("(", match.index);
+        const close = findMatching(source, open);
+        const callText = open === -1 || close === -1 ? "" : source.slice(match.index, close + 1);
+        if (helperCallDisablesEventEmit(callText)) continue;
+
+        events.push(...helperEvents);
+    }
+
+    for (const match of source.matchAll(/\b([A-Za-z_$][\w$]*)\s*\(/g)) {
+        const helperEvents = eventsByCall.get(match[1]);
+        if (helperEvents) events.push(...helperEvents);
+    }
+
+    return [...new Set(events)].sort();
 }
 
 function parseRouteOptions(routeCallText) {
@@ -280,18 +464,38 @@ function extractRouteVariableMap(source) {
     return vars;
 }
 
-function routeMetadataFromArguments(args, routeVariables) {
+function routeMetadataFromArguments(args, routeVariables, eventsByFunction = new Map(), externalEventsByCall = new Map()) {
+    let routeMetadata = { present: false };
+
     for (const arg of args.slice(1)) {
         const trimmed = arg.trim();
-        if (trimmed.startsWith("route")) return parseRouteOptions(trimmed);
-        if (routeVariables.has(trimmed)) return parseRouteOptions(routeVariables.get(trimmed));
+        if (trimmed.startsWith("route")) {
+            routeMetadata = parseRouteOptions(trimmed) || { present: false };
+            break;
+        }
+        if (routeVariables.has(trimmed)) {
+            routeMetadata = parseRouteOptions(routeVariables.get(trimmed)) || { present: false };
+            break;
+        }
     }
-    return { present: false };
+
+    const handlerText = args.slice(1).join(",");
+    const emittedEvents = [
+        ...new Set([
+            ...extractEmittedEvents(handlerText),
+            ...extractCalledHelperEvents(handlerText, eventsByFunction, externalEventsByCall),
+            ...extractReferencedHelperEvents(args.slice(1), eventsByFunction, externalEventsByCall),
+        ]),
+    ].sort();
+    if (emittedEvents.length) routeMetadata.emittedEvents = emittedEvents;
+
+    return routeMetadata;
 }
 
-function scanRouterCalls(source) {
+function scanRouterCalls(source, externalEventsByCall = new Map()) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
+    const eventsByFunction = extractFunctionEventMap(source);
     const regex = /\brouter\.(get|post|put|delete|patch|head|options|all)\s*\(/g;
 
     for (const match of source.matchAll(regex)) {
@@ -308,16 +512,17 @@ function scanRouterCalls(source) {
             method: method.toUpperCase(),
             localPath,
             line: lineOf(source, match.index),
-            routeMetadata: routeMetadataFromArguments(args, routeVariables),
+            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction, externalEventsByCall),
         });
     }
 
     return calls;
 }
 
-function scanAppCalls(source, appVariable = "app") {
+function scanAppCalls(source, appVariable = "app", externalEventsByCall = new Map()) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
+    const eventsByFunction = extractFunctionEventMap(source);
     const regex = new RegExp(`\\b${appVariable}\\.(get|post|put|delete|patch|use)\\s*\\(`, "g");
 
     for (const match of source.matchAll(regex)) {
@@ -336,7 +541,7 @@ function scanAppCalls(source, appVariable = "app") {
             method: method.toUpperCase(),
             path: routePath,
             line: lineOf(source, match.index),
-            routeMetadata: routeMetadataFromArguments(args, routeVariables),
+            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction, externalEventsByCall),
         });
     }
 
@@ -348,13 +553,18 @@ function parseRegexLiteral(raw) {
     if (!text.startsWith("/")) return undefined;
 
     let escaped = false;
+    let inCharacterClass = false;
     for (let i = 1; i < text.length; i += 1) {
         const char = text[i];
         if (escaped) {
             escaped = false;
         } else if (char === "\\") {
             escaped = true;
-        } else if (char === "/") {
+        } else if (char === "[") {
+            inCharacterClass = true;
+        } else if (char === "]") {
+            inCharacterClass = false;
+        } else if (char === "/" && !inCharacterClass) {
             return new RegExp(text.slice(1, i), text.slice(i + 1).replace(/[,\s].*$/, ""));
         }
     }
@@ -380,6 +590,7 @@ function stripComments(source) {
                     i += 1;
                 }
                 if (i < source.length) result += "\n";
+                state.mode = "code";
                 continue;
             }
 
@@ -392,6 +603,7 @@ function stripComments(source) {
                 }
                 if (i < source.length) result += "  ";
                 i += 1;
+                state.mode = "code";
                 continue;
             }
         }
@@ -406,9 +618,7 @@ function stripComments(source) {
     return result;
 }
 
-function extractNoAuthorizationRules(repoRoot) {
-    const file = path.join(repoRoot, "src", "api", "middlewares", "Authentication.ts");
-    const source = readText(file);
+function extractNoAuthorizationRulesFromSource(source) {
     const start = source.indexOf("NO_AUTHORIZATION_ROUTES");
     const open = source.indexOf("[", start);
     const close = findMatching(source, open, "[", "]");
@@ -425,10 +635,23 @@ function extractNoAuthorizationRules(repoRoot) {
         .filter(Boolean);
 }
 
+function extractNoAuthorizationRules(repoRoot) {
+    const files = [path.join(repoRoot, "src", "api", "middlewares", "NoAuthorizationRoutes.ts"), path.join(repoRoot, "src", "api", "middlewares", "Authentication.ts")];
+
+    for (const file of files) {
+        if (!fs.existsSync(file)) continue;
+
+        const rules = extractNoAuthorizationRulesFromSource(readText(file));
+        if (rules.length) return rules;
+    }
+
+    return [];
+}
+
 function samplePathForAuth(pathValue) {
     return pathValue.replace(/:([A-Za-z_][\w]*)/g, (_match, name) => {
         if (name.includes("id")) return "123456789012345678";
-        if (name.includes("token")) return "token_value-123";
+        if (name.includes("token")) return "tokenvalue123";
         if (name.includes("connection_name")) return "github";
         if (name.includes("filename")) return "file.png";
         if (name.includes("url")) return "https://example.invalid/image.png";
@@ -473,6 +696,65 @@ function authModeForHttpRoute(entry, noAuthRules) {
     return "unknown";
 }
 
+function rateLimitConfigRef(callArg) {
+    const direct = /^routes\.([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)$/.exec(callArg.trim());
+    const spread = /\.\.\.\s*routes\.([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)/.exec(callArg);
+    const match = direct || spread;
+    if (!match) return undefined;
+
+    const name = match[1];
+    return {
+        group: name,
+        configPath: `limits.rate.routes.${name}`,
+    };
+}
+
+function extractApiRateLimitRulesFromSource(source) {
+    const rules = [];
+    const regex = /\bapp\.use\s*\(\s*(["'`][^"'`]+["'`])\s*,\s*rateLimit\s*\(/g;
+
+    for (const match of source.matchAll(regex)) {
+        const pathPrefix = parseStringLiteral(match[1]);
+        const rateLimitOpen = source.indexOf("(", match.index + match[0].lastIndexOf("rateLimit"));
+        const rateLimitClose = findMatching(source, rateLimitOpen);
+        if (!pathPrefix || rateLimitOpen === -1 || rateLimitClose === -1) continue;
+
+        const [callArg] = splitTopLevelArguments(source.slice(rateLimitOpen + 1, rateLimitClose));
+        const ref = rateLimitConfigRef(callArg || "");
+        if (!ref) continue;
+
+        rules.push({
+            ...ref,
+            pathPrefix,
+            sourceFile: "src/api/middlewares/RateLimit.ts",
+            line: lineOf(source, match.index),
+        });
+    }
+
+    return rules;
+}
+
+function collectApiRateLimitRules(repoRoot) {
+    return extractApiRateLimitRulesFromSource(readText(path.join(repoRoot, "src", "api", "middlewares", "RateLimit.ts")));
+}
+
+function pathMatchesPrefix(pathValue, pathPrefix) {
+    return pathValue === pathPrefix || pathValue.startsWith(pathPrefix.endsWith("/") ? pathPrefix : `${pathPrefix}/`);
+}
+
+function applyRateLimitMetadata(entries, rules) {
+    return entries.map((entry) => {
+        if (entry.service !== "api" || entry.type !== "http-route" || entry.method === "OPTIONS") return entry;
+        const rule = rules.find((candidate) => pathMatchesPrefix(entry.path, candidate.pathPrefix));
+        if (!rule) return entry;
+
+        return {
+            ...entry,
+            rateLimit: rule,
+        };
+    });
+}
+
 function makeHttpEntry({ service, method, routePath, sourceFile, line, routeMetadata, noAuthRules, mountedVia }) {
     return {
         id: `${service}:http:${method}:${routePath}`,
@@ -488,7 +770,21 @@ function makeHttpEntry({ service, method, routePath, sourceFile, line, routeMeta
     };
 }
 
-function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules) {
+function collectExternalHelperEventMap(repoRoot) {
+    const sourceDirs = [path.join(repoRoot, "src", "util", "entities"), path.join(repoRoot, "src", "api", "util", "handlers")];
+    const maps = [];
+
+    for (const dir of sourceDirs) {
+        if (!fs.existsSync(dir)) continue;
+        for (const file of walkFiles(dir, (value) => value.endsWith(".ts") && !value.endsWith(".test.ts")).sort()) {
+            maps.push(extractSourceHelperEventMap(readText(file)));
+        }
+    }
+
+    return mergeEventMaps(...maps);
+}
+
+function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules, externalEventsByCall = new Map()) {
     const routeRoot = path.join(repoRoot, "src", service, "routes");
     const entries = [];
 
@@ -497,7 +793,7 @@ function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules) {
         const routePrefix = routePathFromFile(routeRoot, file);
         const sourceFile = toPosix(path.relative(repoRoot, file));
 
-        for (const call of scanRouterCalls(source)) {
+        for (const call of scanRouterCalls(source, externalEventsByCall)) {
             entries.push(
                 makeHttpEntry({
                     service,
@@ -515,32 +811,21 @@ function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules) {
     return entries;
 }
 
-function collectApiAppRoutes(repoRoot, noAuthRules) {
-    const files = ["src/api/Server.ts", "src/api/util/PublicAssetRoutes.ts"];
-    const entries = [];
-
-    for (const sourceFile of files) {
-        const file = path.join(repoRoot, sourceFile);
-        if (!fs.existsSync(file)) continue;
-        const source = readText(file);
-
-        for (const call of scanAppCalls(source, "app")) {
-            entries.push(
-                makeHttpEntry({
-                    service: "api",
-                    method: call.method,
-                    routePath: call.path,
-                    sourceFile,
-                    line: call.line,
-                    routeMetadata: call.routeMetadata,
-                    noAuthRules,
-                    mountedVia: "api-app",
-                }),
-            );
-        }
-    }
-
-    return entries;
+function collectApiAppRoutes(repoRoot, noAuthRules, externalEventsByCall = new Map()) {
+    const file = path.join(repoRoot, "src", "api", "Server.ts");
+    const source = readText(file);
+    return scanAppCalls(source, "app", externalEventsByCall).map((call) =>
+        makeHttpEntry({
+            service: "api",
+            method: call.method,
+            routePath: call.path,
+            sourceFile: toPosix(path.relative(repoRoot, file)),
+            line: call.line,
+            routeMetadata: call.routeMetadata,
+            noAuthRules,
+            mountedVia: "api-app",
+        }),
+    );
 }
 
 function collectCdnManualMounts(repoRoot, cdnEntries, noAuthRules) {
@@ -741,18 +1026,23 @@ function sortEntries(entries) {
 function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POLICY_PATH)) {
     const policy = readJson(policyPath);
     const noAuthRules = extractNoAuthorizationRules(repoRoot);
-    const apiRoutes = collectFilesystemHttpRoutes(repoRoot, "api", noAuthRules);
-    const cdnRoutes = collectFilesystemHttpRoutes(repoRoot, "cdn", noAuthRules);
+    const rateLimitRules = collectApiRateLimitRules(repoRoot);
+    const externalEventsByCall = collectExternalHelperEventMap(repoRoot);
+    const apiRoutes = collectFilesystemHttpRoutes(repoRoot, "api", noAuthRules, externalEventsByCall);
+    const cdnRoutes = collectFilesystemHttpRoutes(repoRoot, "cdn", noAuthRules, externalEventsByCall);
     const entries = sortEntries(
         applyPolicy(
-            [
-                ...apiRoutes,
-                ...collectApiAppRoutes(repoRoot, noAuthRules),
-                ...cdnRoutes,
-                ...collectCdnManualMounts(repoRoot, cdnRoutes, noAuthRules),
-                ...collectGatewayOpcodes(repoRoot),
-                ...collectWebRtcOpcodes(repoRoot),
-            ],
+            applyRateLimitMetadata(
+                [
+                    ...apiRoutes,
+                    ...collectApiAppRoutes(repoRoot, noAuthRules, externalEventsByCall),
+                    ...cdnRoutes,
+                    ...collectCdnManualMounts(repoRoot, cdnRoutes, noAuthRules),
+                    ...collectGatewayOpcodes(repoRoot),
+                    ...collectWebRtcOpcodes(repoRoot),
+                ],
+                rateLimitRules,
+            ),
             policy,
         ).concat(manualFeatureEntries(policy)),
     );
@@ -763,10 +1053,13 @@ function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POL
         policyFile: toPosix(path.relative(repoRoot, policyPath)),
         sources: [
             "src/api/routes",
+            "src/api/util/handlers",
             "src/api/Server.ts",
-            "src/api/util/PublicAssetRoutes.ts",
+            "src/api/middlewares/RateLimit.ts",
+            "src/api/middlewares/NoAuthorizationRoutes.ts",
             "src/cdn/routes",
             "src/cdn/Server.ts",
+            "src/util/entities",
             "src/gateway/opcodes/index.ts",
             "src/webrtc/opcodes/index.ts",
             "testing/coverage-policy.json",
@@ -807,12 +1100,17 @@ module.exports = {
     DEFAULT_POLICY_PATH,
     applyPolicy,
     combineRoutePaths,
+    extractApiRateLimitRulesFromSource,
+    extractNoAuthorizationRulesFromSource,
+    extractSourceHelperEventMap,
     generateManifest,
     parseRouteOptions,
     routePathFromFile,
     scanAppCalls,
     scanRouterCalls,
     serializeManifest,
+    parseRegexLiteral,
+    stripComments,
     splitTopLevelArguments,
     validateManifest,
 };
