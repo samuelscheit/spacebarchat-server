@@ -42,6 +42,7 @@ import {
     ReadyEventData,
     ReadyGuildDTO,
     ReadyUserGuildSettingsEntries,
+    getReadyUserGuildSettingsVersion,
     Recipient,
     Relationship,
     Role,
@@ -659,7 +660,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 user_guild_settings: {
                     entries: user_guild_settings_entries,
                     partial: false,
-                    version: 0, // TODO
+                    version: getReadyUserGuildSettingsVersion(user_guild_settings_entries),
                 },
                 private_channels: channels,
                 presences: [], // TODO: Send actual data
