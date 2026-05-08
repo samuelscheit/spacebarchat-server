@@ -37,6 +37,15 @@ function collectRefs(value: unknown, refs: string[] = []) {
     return refs;
 }
 
+function expectResolvedMapRefs(resolved: SchemaObject, expectedRefs: Record<string, string>) {
+    assert.deepEqual(Object.keys(resolved.properties ?? {}).sort(), Object.keys(expectedRefs).sort());
+    for (const [name, property] of Object.entries(resolved.properties ?? {})) {
+        assert.equal(property.type, "object");
+        assert.notEqual(property.additionalProperties, false);
+        assert.equal((property.additionalProperties as SchemaObject).$ref, expectedRefs[name]);
+    }
+}
+
 describe("public message generated contract", () => {
     test("OpenAPI documents message member roles as role id strings", () => {
         const openapi = readJson("assets/openapi.json");
@@ -62,14 +71,28 @@ describe("public message generated contract", () => {
         const schemas = readJson("assets/schemas.json");
         const publicMessage = resolveAssetSchema(schemas, schemas.PublicMessage);
         const resolved = resolveAssetSchema(schemas, publicMessage.properties!.resolved!);
+        expectResolvedMapRefs(resolved, {
+            attachments: "#/definitions/PublicAttachment",
+            channels: "#/definitions/ResolvedChannel",
+            members: "#/definitions/ResolvedGuildMember",
+            messages: "#/definitions/PartialMessage",
+            roles: "#/definitions/PublicRole",
+            users: "#/definitions/PartialUser",
+        });
+    });
 
-        assert.deepEqual(Object.keys(resolved.properties ?? {}).sort(), ["attachments", "channels", "members", "messages", "roles", "users"]);
-        for (const property of Object.values(resolved.properties ?? {})) {
-            const objectMap = resolveAssetSchema(schemas, property);
-            assert.equal(objectMap.type, "object");
-            assert.notEqual(objectMap.additionalProperties, false);
-            assert.equal(resolveAssetSchema(schemas, objectMap.additionalProperties as SchemaObject).type, "object");
-        }
+    test("OpenAPI documents resolved interaction resource maps", () => {
+        const openapi = readJson("assets/openapi.json");
+        const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.PublicMessage);
+        const resolved = resolveOpenApi(openapi, publicMessage.properties!.resolved!);
+        expectResolvedMapRefs(resolved, {
+            attachments: "#/components/schemas/PublicAttachment",
+            channels: "#/components/schemas/ResolvedChannel",
+            members: "#/components/schemas/ResolvedGuildMember",
+            messages: "#/components/schemas/PartialMessage",
+            roles: "#/components/schemas/PublicRole",
+            users: "#/components/schemas/PartialUser",
+        });
     });
 
     test("public message route responses do not point at the internal Message entity schema", () => {

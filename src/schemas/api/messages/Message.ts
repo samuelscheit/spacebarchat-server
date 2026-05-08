@@ -21,6 +21,7 @@ import type { Sticker } from "@spacebar/util";
 import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
+import type { ResolvedData } from "./ResolvedData";
 
 export enum MessageType {
     DEFAULT = 0,
@@ -183,19 +184,6 @@ export interface MessageSnapshot {
 export type PublicMessageMember = Omit<PublicMember, "user"> & {
     user?: PublicMember["user"];
 };
-
-export interface ResolvedData {
-    users?: ResolvedObjectMap;
-    members?: ResolvedObjectMap;
-    roles?: ResolvedObjectMap;
-    channels?: ResolvedObjectMap;
-    messages?: ResolvedObjectMap;
-    attachments?: ResolvedObjectMap;
-}
-
-export interface ResolvedObjectMap {
-    [id: string]: object;
-}
 
 export interface PublicMessage {
     id: Snowflake;

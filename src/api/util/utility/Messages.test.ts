@@ -18,7 +18,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { PartialUser } from "@spacebar/schemas";
+import type { PartialUser, PublicMessage } from "@spacebar/schemas";
 import { ajv } from "../../../schemas/Validator";
 import { messageToPublicMessage } from "../../../util/util/MessagePublic";
 import { toPreloadMessageResponse } from "./Messages";
@@ -36,15 +36,19 @@ function jsonRoundTrip<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T;
 }
 
-test("messageToPublicMessage preserves optional resolved interaction data", () => {
-    const resolved = {
+function makeResolvedData(): NonNullable<PublicMessage["resolved"]> {
+    return {
         users: {
             "300": makePublicUser(),
         },
         attachments: {
-            "900": { id: "900", filename: "document.txt" },
+            "900": { id: "900", filename: "document.txt", size: 1024, url: "https://cdn.example.test/document.txt", proxy_url: "https://proxy.example.test/document.txt" },
         },
     };
+}
+
+test("messageToPublicMessage preserves optional resolved interaction data", () => {
+    const resolved = makeResolvedData();
     const publicMessage = messageToPublicMessage({
         id: "200",
         channel_id: "100",
@@ -104,6 +108,7 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
         sticker_items: [{ id: "800" }],
         interaction: { id: "900", type: 2, name: "command" },
         interaction_metadata: { id: "901", type: 2, user_id: "300", authorizing_integration_owners: {}, name: "command", command_type: 1 },
+        resolved: makeResolvedData(),
         author: {
             ...makePublicUser(),
             toPublicUser: makePublicUser,
@@ -113,6 +118,7 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
     const publicMessage = messageToPublicMessage(entityMessage);
     const dto = toPreloadMessageResponse({ toJSON: () => publicMessage } as never);
 
+    assert.deepEqual(dto.resolved, entityMessage.resolved);
     assert.equal("reactions" in dto, false);
     for (const field of [
         "guild_id",

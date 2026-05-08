@@ -8772,7 +8772,7 @@
                 }
             },
             "resolved": {
-                "$ref": "#/definitions/ModalSubmitResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             },
             "attachments": {
                 "type": "array",
@@ -18156,34 +18156,239 @@
         "type": "object",
         "properties": {
             "users": {
-                "$ref": "#/definitions/ResolvedObjectMap"
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PartialUser"
+                }
             },
             "members": {
-                "$ref": "#/definitions/ResolvedObjectMap"
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/ResolvedGuildMember"
+                }
             },
             "roles": {
-                "$ref": "#/definitions/ResolvedObjectMap"
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PublicRole"
+                }
             },
             "channels": {
-                "$ref": "#/definitions/ResolvedObjectMap"
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/ResolvedChannel"
+                }
             },
             "messages": {
-                "$ref": "#/definitions/ResolvedObjectMap"
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PartialMessage"
+                }
             },
             "attachments": {
-                "$ref": "#/definitions/ResolvedObjectMap"
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PublicAttachment"
+                }
             }
         },
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ResolvedObjectMap": {
+    "ResolvedGuildMember": {
         "type": "object",
-        "additionalProperties": {
-            "type": "object",
-            "properties": {},
-            "additionalProperties": true
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "nick": {
+                "type": "string"
+            },
+            "roles": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "joined_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "pending": {
+                "type": "boolean"
+            },
+            "premium_since": {
+                "type": "integer"
+            },
+            "avatar": {
+                "type": "string"
+            },
+            "banner": {
+                "type": "string"
+            },
+            "bio": {
+                "type": "string"
+            },
+            "theme_colors": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "pronouns": {
+                "type": "string"
+            },
+            "communication_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
+            "flags": {
+                "type": "integer"
+            }
         },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PublicRole": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "color": {
+                "type": "integer"
+            },
+            "hoist": {
+                "type": "boolean"
+            },
+            "managed": {
+                "type": "boolean"
+            },
+            "mentionable": {
+                "type": "boolean"
+            },
+            "name": {
+                "type": "string"
+            },
+            "permissions": {
+                "type": "string"
+            },
+            "position": {
+                "type": "integer"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "unicode_emoji": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "tags": {
+                "$ref": "#/definitions/PublicRoleTags"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "colors": {
+                "$ref": "#/definitions/RoleColors"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "color",
+            "colors",
+            "flags",
+            "hoist",
+            "id",
+            "managed",
+            "mentionable",
+            "name",
+            "permissions",
+            "position"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PublicRoleTags": {
+        "type": "object",
+        "properties": {
+            "bot_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "integration_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "premium_subscriber": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ResolvedChannel": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ChannelType"
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "permissions": {
+                "type": "string"
+            },
+            "parent_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "thread_metadata": {
+                "$ref": "#/definitions/ThreadMetadata"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "type"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Potion": {
@@ -21558,61 +21763,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ModalSubmitResolvedData": {
-        "type": "object",
-        "properties": {
-            "users": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "members": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "roles": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "channels": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "messages": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "attachments": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "InteractionCallbackType": {
         "type": "number",
         "enum": [
@@ -22095,7 +22245,7 @@
                 "type": "string"
             },
             "resolved": {
-                "$ref": "#/definitions/InteractionResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             },
             "options": {
                 "type": "array",
@@ -22118,40 +22268,6 @@
             "name",
             "type"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InteractionResolvedData": {
-        "type": "object",
-        "properties": {
-            "users": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "members": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "roles": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "channels": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "messages": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "attachments": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InteractionResolvedObjectMap": {
-        "type": "object",
-        "additionalProperties": {
-            "type": "object",
-            "properties": {},
-            "additionalProperties": true
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "InteractionApplicationCommandDataOption": {
@@ -22203,7 +22319,7 @@
                 }
             },
             "resolved": {
-                "$ref": "#/definitions/InteractionResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             }
         },
         "additionalProperties": false,
@@ -22226,7 +22342,7 @@
                 }
             },
             "resolved": {
-                "$ref": "#/definitions/InteractionResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             },
             "attachments": {
                 "type": "array",

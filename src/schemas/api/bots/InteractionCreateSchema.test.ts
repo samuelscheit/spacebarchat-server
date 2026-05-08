@@ -142,6 +142,9 @@ describe("InteractionCreateSchema", () => {
                         "100000000000000012": {
                             id: "100000000000000012",
                             filename: "bug.png",
+                            size: 12,
+                            url: "https://cdn.example.test/bug.png",
+                            proxy_url: "https://proxy.example.test/bug.png",
                         },
                     },
                 },
@@ -167,6 +170,23 @@ describe("InteractionCreateSchema", () => {
         assert.equal(validate({ ...applicationCommandInteractionPayload(), type: 3, data: { custom_id: "select" } }), false);
         assert.equal(validate({ ...applicationCommandInteractionPayload(), type: 5, data: { custom_id: "modal" } }), false);
         assert.equal(validate({ ...applicationCommandInteractionPayload(), entitlements: [{ id: "100000000000000006" }] }), false);
+        assert.equal(
+            validate({
+                ...applicationCommandInteractionPayload(),
+                data: {
+                    ...applicationCommandInteractionPayload().data,
+                    resolved: {
+                        attachments: {
+                            "100000000000000012": {
+                                id: "100000000000000012",
+                                filename: "bug.png",
+                            },
+                        },
+                    },
+                },
+            }),
+            false,
+        );
     });
 
     test("computes authorizing integration owners from the interaction source", () => {

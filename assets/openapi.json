@@ -5787,7 +5787,7 @@
                     "$ref": "#/components/schemas/UserRelationResponse"
                 }
             },
-            "UserRelationshipsResponse": {
+            "UserRelationshipResponse": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -5797,7 +5797,10 @@
                         "$ref": "#/components/schemas/RelationshipType"
                     },
                     "nickname": {
-                        "type": "null"
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -5805,10 +5808,15 @@
                 },
                 "required": [
                     "id",
-                    "nickname",
                     "type",
                     "user"
                 ]
+            },
+            "UserRelationshipsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/UserRelationshipResponse"
+                }
             },
             "WebAuthnCreateResponse": {
                 "type": "object",
@@ -7894,446 +7902,6 @@
                     "name"
                 ]
             },
-            "ApplicationCommandCreateSchema": {
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "enum": [
-                            1,
-                            2,
-                            3,
-                            4
-                        ],
-                        "type": "number"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "name_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "description_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "options": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationCommandOption"
-                        }
-                    },
-                    "default_member_permissions": {
-                        "type": "string"
-                    },
-                    "dm_permission": {
-                        "type": "boolean"
-                    },
-                    "nsfw": {
-                        "type": "boolean"
-                    },
-                    "integration_types": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationIntegrationType"
-                        }
-                    },
-                    "contexts": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/InteractionContextType"
-                        }
-                    },
-                    "handler": {
-                        "enum": [
-                            1,
-                            2,
-                            3
-                        ],
-                        "type": "number"
-                    }
-                },
-                "required": [
-                    "name"
-                ]
-            },
-            "BulkApplicationCommandCreateSchema": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/ApplicationCommandCreateSchema"
-                }
-            },
-            "IdentifySchema": {
-                "type": "object",
-                "properties": {
-                    "token": {
-                        "type": "string"
-                    },
-                    "properties": {
-                        "type": "object",
-                        "properties": {
-                            "os": {
-                                "type": "string"
-                            },
-                            "os_atch": {
-                                "type": "string"
-                            },
-                            "browser": {
-                                "type": "string"
-                            },
-                            "device": {
-                                "type": "string"
-                            },
-                            "$os": {
-                                "type": "string"
-                            },
-                            "$browser": {
-                                "type": "string"
-                            },
-                            "$device": {
-                                "type": "string"
-                            },
-                            "browser_user_agent": {
-                                "type": "string"
-                            },
-                            "browser_version": {
-                                "type": "string"
-                            },
-                            "os_version": {
-                                "type": "string"
-                            },
-                            "referrer": {
-                                "type": "string"
-                            },
-                            "referring_domain": {
-                                "type": "string"
-                            },
-                            "referrer_current": {
-                                "type": "string"
-                            },
-                            "referring_domain_current": {
-                                "type": "string"
-                            },
-                            "release_channel": {
-                                "enum": [
-                                    "canary",
-                                    "dev",
-                                    "ptb",
-                                    "stable"
-                                ],
-                                "type": "string"
-                            },
-                            "client_build_number": {
-                                "type": "integer"
-                            },
-                            "client_event_source": {
-                                "type": "string"
-                            },
-                            "client_version": {
-                                "type": "string"
-                            },
-                            "system_locale": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false
-                    },
-                    "intents": {
-                        "type": "number"
-                    },
-                    "presence": {
-                        "$ref": "#/components/schemas/ActivitySchema"
-                    },
-                    "compress": {
-                        "type": "boolean"
-                    },
-                    "large_threshold": {
-                        "type": "integer"
-                    },
-                    "largeThreshold": {
-                        "type": "integer"
-                    },
-                    "shard": {
-                        "minItems": 2,
-                        "maxItems": 2,
-                        "type": "array",
-                        "items": {
-                            "type": "number"
-                        }
-                    },
-                    "guild_subscriptions": {
-                        "type": "boolean"
-                    },
-                    "capabilities": {
-                        "type": "integer"
-                    },
-                    "client_state": {
-                        "type": "object",
-                        "properties": {
-                            "guild_hashes": {},
-                            "highest_last_message_id": {
-                                "type": "integer"
-                            },
-                            "read_state_version": {
-                                "type": "integer"
-                            },
-                            "user_guild_settings_version": {
-                                "type": "integer"
-                            },
-                            "user_settings_version": {
-                                "type": "integer"
-                            },
-                            "useruser_guild_settings_version": {
-                                "type": "integer"
-                            },
-                            "private_channels_version": {
-                                "type": "integer"
-                            },
-                            "guild_versions": {},
-                            "api_code_version": {
-                                "type": "integer"
-                            },
-                            "initial_guild_id": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false
-                    },
-                    "clientState": {
-                        "type": "object",
-                        "properties": {
-                            "guildHashes": {},
-                            "highestLastMessageId": {
-                                "type": "integer"
-                            },
-                            "readStateVersion": {
-                                "type": "integer"
-                            },
-                            "userGuildSettingsVersion": {
-                                "type": "integer"
-                            },
-                            "useruserGuildSettingsVersion": {
-                                "type": "integer"
-                            },
-                            "guildVersions": {},
-                            "apiCodeVersion": {
-                                "type": "integer"
-                            },
-                            "initialGuildId": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false
-                    },
-                    "v": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "properties",
-                    "token"
-                ]
-            },
-            "StreamCreateSchema": {
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "enum": [
-                            "call",
-                            "guild"
-                        ],
-                        "type": "string"
-                    },
-                    "channel_id": {
-                        "type": "string"
-                    },
-                    "guild_id": {
-                        "type": "string"
-                    },
-                    "preferred_region": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "channel_id",
-                    "type"
-                ]
-            },
-            "StreamDeleteSchema": {
-                "type": "object",
-                "properties": {
-                    "stream_key": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "stream_key"
-                ]
-            },
-            "StreamWatchSchema": {
-                "type": "object",
-                "properties": {
-                    "stream_key": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "stream_key"
-                ]
-            },
-            "VoiceIdentifySchema": {
-                "type": "object",
-                "properties": {
-                    "server_id": {
-                        "type": "string"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    },
-                    "session_id": {
-                        "type": "string"
-                    },
-                    "channel_id": {
-                        "type": "string"
-                    },
-                    "token": {
-                        "type": "string"
-                    },
-                    "video": {
-                        "type": "boolean"
-                    },
-                    "streams": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "enum": [
-                                        "audio",
-                                        "screen",
-                                        "video"
-                                    ],
-                                    "type": "string"
-                                },
-                                "rid": {
-                                    "type": "string"
-                                },
-                                "quality": {
-                                    "type": "integer"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "quality",
-                                "rid",
-                                "type"
-                            ]
-                        }
-                    },
-                    "max_secure_frames_version": {
-                        "type": "integer"
-                    },
-                    "max_dave_protocol_version": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "server_id",
-                    "session_id",
-                    "token",
-                    "user_id"
-                ]
-            },
-            "VoiceVideoSchema": {
-                "type": "object",
-                "properties": {
-                    "audio_ssrc": {
-                        "type": "integer"
-                    },
-                    "video_ssrc": {
-                        "type": "integer"
-                    },
-                    "rtx_ssrc": {
-                        "type": "integer"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    },
-                    "streams": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "enum": [
-                                        "audio",
-                                        "screen",
-                                        "video"
-                                    ],
-                                    "type": "string"
-                                },
-                                "rid": {
-                                    "type": "string"
-                                },
-                                "ssrc": {
-                                    "type": "integer"
-                                },
-                                "active": {
-                                    "type": "boolean"
-                                },
-                                "quality": {
-                                    "type": "integer"
-                                },
-                                "rtx_ssrc": {
-                                    "type": "integer"
-                                },
-                                "max_bitrate": {
-                                    "type": "integer"
-                                },
-                                "max_framerate": {
-                                    "type": "integer"
-                                },
-                                "max_resolution": {
-                                    "type": "object",
-                                    "properties": {
-                                        "type": {
-                                            "type": "string"
-                                        },
-                                        "width": {
-                                            "type": "integer"
-                                        },
-                                        "height": {
-                                            "type": "integer"
-                                        }
-                                    },
-                                    "additionalProperties": false,
-                                    "required": [
-                                        "height",
-                                        "type",
-                                        "width"
-                                    ]
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "rid",
-                                "type"
-                            ]
-                        }
-                    }
-                },
-                "required": [
-                    "audio_ssrc",
-                    "video_ssrc"
-                ]
-            },
             "ThreadCreationSchema": {
                 "type": "object",
                 "properties": {
@@ -8800,7 +8368,7 @@
                         }
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/ModalSubmitResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     },
                     "attachments": {
                         "type": "array",
@@ -10068,6 +9636,446 @@
                     "version"
                 ]
             },
+            "IdentifySchema": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "properties": {
+                        "type": "object",
+                        "properties": {
+                            "os": {
+                                "type": "string"
+                            },
+                            "os_atch": {
+                                "type": "string"
+                            },
+                            "browser": {
+                                "type": "string"
+                            },
+                            "device": {
+                                "type": "string"
+                            },
+                            "$os": {
+                                "type": "string"
+                            },
+                            "$browser": {
+                                "type": "string"
+                            },
+                            "$device": {
+                                "type": "string"
+                            },
+                            "browser_user_agent": {
+                                "type": "string"
+                            },
+                            "browser_version": {
+                                "type": "string"
+                            },
+                            "os_version": {
+                                "type": "string"
+                            },
+                            "referrer": {
+                                "type": "string"
+                            },
+                            "referring_domain": {
+                                "type": "string"
+                            },
+                            "referrer_current": {
+                                "type": "string"
+                            },
+                            "referring_domain_current": {
+                                "type": "string"
+                            },
+                            "release_channel": {
+                                "enum": [
+                                    "canary",
+                                    "dev",
+                                    "ptb",
+                                    "stable"
+                                ],
+                                "type": "string"
+                            },
+                            "client_build_number": {
+                                "type": "integer"
+                            },
+                            "client_event_source": {
+                                "type": "string"
+                            },
+                            "client_version": {
+                                "type": "string"
+                            },
+                            "system_locale": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "intents": {
+                        "type": "number"
+                    },
+                    "presence": {
+                        "$ref": "#/components/schemas/ActivitySchema"
+                    },
+                    "compress": {
+                        "type": "boolean"
+                    },
+                    "large_threshold": {
+                        "type": "integer"
+                    },
+                    "largeThreshold": {
+                        "type": "integer"
+                    },
+                    "shard": {
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    "guild_subscriptions": {
+                        "type": "boolean"
+                    },
+                    "capabilities": {
+                        "type": "integer"
+                    },
+                    "client_state": {
+                        "type": "object",
+                        "properties": {
+                            "guild_hashes": {},
+                            "highest_last_message_id": {
+                                "type": "integer"
+                            },
+                            "read_state_version": {
+                                "type": "integer"
+                            },
+                            "user_guild_settings_version": {
+                                "type": "integer"
+                            },
+                            "user_settings_version": {
+                                "type": "integer"
+                            },
+                            "useruser_guild_settings_version": {
+                                "type": "integer"
+                            },
+                            "private_channels_version": {
+                                "type": "integer"
+                            },
+                            "guild_versions": {},
+                            "api_code_version": {
+                                "type": "integer"
+                            },
+                            "initial_guild_id": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "clientState": {
+                        "type": "object",
+                        "properties": {
+                            "guildHashes": {},
+                            "highestLastMessageId": {
+                                "type": "integer"
+                            },
+                            "readStateVersion": {
+                                "type": "integer"
+                            },
+                            "userGuildSettingsVersion": {
+                                "type": "integer"
+                            },
+                            "useruserGuildSettingsVersion": {
+                                "type": "integer"
+                            },
+                            "guildVersions": {},
+                            "apiCodeVersion": {
+                                "type": "integer"
+                            },
+                            "initialGuildId": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "v": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "properties",
+                    "token"
+                ]
+            },
+            "StreamCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "call",
+                            "guild"
+                        ],
+                        "type": "string"
+                    },
+                    "channel_id": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "preferred_region": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "type"
+                ]
+            },
+            "StreamDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "stream_key": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "stream_key"
+                ]
+            },
+            "StreamWatchSchema": {
+                "type": "object",
+                "properties": {
+                    "stream_key": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "stream_key"
+                ]
+            },
+            "VoiceIdentifySchema": {
+                "type": "object",
+                "properties": {
+                    "server_id": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "session_id": {
+                        "type": "string"
+                    },
+                    "channel_id": {
+                        "type": "string"
+                    },
+                    "token": {
+                        "type": "string"
+                    },
+                    "video": {
+                        "type": "boolean"
+                    },
+                    "streams": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "enum": [
+                                        "audio",
+                                        "screen",
+                                        "video"
+                                    ],
+                                    "type": "string"
+                                },
+                                "rid": {
+                                    "type": "string"
+                                },
+                                "quality": {
+                                    "type": "integer"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "quality",
+                                "rid",
+                                "type"
+                            ]
+                        }
+                    },
+                    "max_secure_frames_version": {
+                        "type": "integer"
+                    },
+                    "max_dave_protocol_version": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "server_id",
+                    "session_id",
+                    "token",
+                    "user_id"
+                ]
+            },
+            "VoiceVideoSchema": {
+                "type": "object",
+                "properties": {
+                    "audio_ssrc": {
+                        "type": "integer"
+                    },
+                    "video_ssrc": {
+                        "type": "integer"
+                    },
+                    "rtx_ssrc": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "streams": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "enum": [
+                                        "audio",
+                                        "screen",
+                                        "video"
+                                    ],
+                                    "type": "string"
+                                },
+                                "rid": {
+                                    "type": "string"
+                                },
+                                "ssrc": {
+                                    "type": "integer"
+                                },
+                                "active": {
+                                    "type": "boolean"
+                                },
+                                "quality": {
+                                    "type": "integer"
+                                },
+                                "rtx_ssrc": {
+                                    "type": "integer"
+                                },
+                                "max_bitrate": {
+                                    "type": "integer"
+                                },
+                                "max_framerate": {
+                                    "type": "integer"
+                                },
+                                "max_resolution": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": {
+                                            "type": "string"
+                                        },
+                                        "width": {
+                                            "type": "integer"
+                                        },
+                                        "height": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "additionalProperties": false,
+                                    "required": [
+                                        "height",
+                                        "type",
+                                        "width"
+                                    ]
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "rid",
+                                "type"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "audio_ssrc",
+                    "video_ssrc"
+                ]
+            },
+            "ApplicationCommandCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "description_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommandOption"
+                        }
+                    },
+                    "default_member_permissions": {
+                        "type": "string"
+                    },
+                    "dm_permission": {
+                        "type": "boolean"
+                    },
+                    "nsfw": {
+                        "type": "boolean"
+                    },
+                    "integration_types": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationIntegrationType"
+                        }
+                    },
+                    "contexts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InteractionContextType"
+                        }
+                    },
+                    "handler": {
+                        "enum": [
+                            1,
+                            2,
+                            3
+                        ],
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "BulkApplicationCommandCreateSchema": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationCommandCreateSchema"
+                }
+            },
             "SessionsLogoutSchema": {
                 "type": "object",
                 "properties": {
@@ -10129,17 +10137,14 @@
                                         "version": {
                                             "type": "integer"
                                         },
+                                        "platform": {
+                                            "type": "string"
+                                        },
                                         "location": {
                                             "type": "string"
                                         }
                                     },
-                                    "additionalProperties": false,
-                                    "required": [
-                                        "client",
-                                        "location",
-                                        "os",
-                                        "version"
-                                    ]
+                                    "additionalProperties": false
                                 },
                                 "last_seen": {
                                     "type": "string",
@@ -10154,13 +10159,9 @@
                             },
                             "additionalProperties": false,
                             "required": [
-                                "activities",
                                 "approx_last_used_time",
                                 "client_info",
-                                "client_status",
-                                "id",
-                                "id_hash",
-                                "status"
+                                "id_hash"
                             ]
                         }
                     }
@@ -17390,32 +17391,230 @@
                 "type": "object",
                 "properties": {
                     "users": {
-                        "$ref": "#/components/schemas/ResolvedObjectMap"
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PartialUser"
+                        }
                     },
                     "members": {
-                        "$ref": "#/components/schemas/ResolvedObjectMap"
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ResolvedGuildMember"
+                        }
                     },
                     "roles": {
-                        "$ref": "#/components/schemas/ResolvedObjectMap"
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PublicRole"
+                        }
                     },
                     "channels": {
-                        "$ref": "#/components/schemas/ResolvedObjectMap"
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ResolvedChannel"
+                        }
                     },
                     "messages": {
-                        "$ref": "#/components/schemas/ResolvedObjectMap"
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PartialMessage"
+                        }
                     },
                     "attachments": {
-                        "$ref": "#/components/schemas/ResolvedObjectMap"
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PublicAttachment"
+                        }
                     }
                 }
             },
-            "ResolvedObjectMap": {
+            "ResolvedGuildMember": {
                 "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "nick": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "joined_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "pending": {
+                        "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
+                    "banner": {
+                        "type": "string"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "theme_colors": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "pronouns": {
+                        "type": "string"
+                    },
+                    "communication_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "avatar_decoration_data": {
+                        "$ref": "#/components/schemas/AvatarDecorationData"
+                    },
+                    "display_name_styles": {
+                        "$ref": "#/components/schemas/DisplayNameStyle"
+                    },
+                    "collectibles": {
+                        "$ref": "#/components/schemas/Collectibles"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
                 }
+            },
+            "PublicRole": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "color": {
+                        "type": "integer"
+                    },
+                    "hoist": {
+                        "type": "boolean"
+                    },
+                    "managed": {
+                        "type": "boolean"
+                    },
+                    "mentionable": {
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "permissions": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "unicode_emoji": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "tags": {
+                        "$ref": "#/components/schemas/PublicRoleTags"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "colors": {
+                        "$ref": "#/components/schemas/RoleColors"
+                    }
+                },
+                "required": [
+                    "color",
+                    "colors",
+                    "flags",
+                    "hoist",
+                    "id",
+                    "managed",
+                    "mentionable",
+                    "name",
+                    "permissions",
+                    "position"
+                ]
+            },
+            "PublicRoleTags": {
+                "type": "object",
+                "properties": {
+                    "bot_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "integration_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "premium_subscriber": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ResolvedChannel": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChannelType"
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "permissions": {
+                        "type": "string"
+                    },
+                    "parent_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "thread_metadata": {
+                        "$ref": "#/components/schemas/ThreadMetadata"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type"
+                ]
             },
             "Potion": {
                 "type": "object",
@@ -17791,6 +17990,9 @@
                     "heartbeatTimeout": {
                         "type": "integer"
                     },
+                    "disconnectedSessionCleanupDelayMs": {
+                        "type": "integer"
+                    },
                     "endpointPrivate": {
                         "type": [
                             "null",
@@ -17807,6 +18009,7 @@
                     }
                 },
                 "required": [
+                    "disconnectedSessionCleanupDelayMs",
                     "endpointPrivate",
                     "endpointPublic",
                     "heartbeatTimeout"
@@ -20587,59 +20790,6 @@
                     "type"
                 ]
             },
-            "ModalSubmitResolvedData": {
-                "type": "object",
-                "properties": {
-                    "users": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "members": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "roles": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "channels": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "messages": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "attachments": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
             "InteractionCallbackType": {
                 "type": "number",
                 "enum": [
@@ -21088,7 +21238,7 @@
                         "type": "string"
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/InteractionResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     },
                     "options": {
                         "type": "array",
@@ -21110,37 +21260,6 @@
                     "name",
                     "type"
                 ]
-            },
-            "InteractionResolvedData": {
-                "type": "object",
-                "properties": {
-                    "users": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "members": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "roles": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "channels": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "messages": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "attachments": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    }
-                }
-            },
-            "InteractionResolvedObjectMap": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
             },
             "InteractionApplicationCommandDataOption": {
                 "type": "object",
@@ -21189,7 +21308,7 @@
                         }
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/InteractionResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     }
                 },
                 "required": [
@@ -21210,7 +21329,7 @@
                         }
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/InteractionResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     },
                     "attachments": {
                         "type": "array",
@@ -26543,11 +26662,6 @@
         },
         "/policies/stats/": {
             "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -27723,8 +27837,15 @@
                     }
                 },
                 "responses": {
-                    "204": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildWelcomeScreen"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "",
@@ -30778,6 +30899,7 @@
             },
             "post": {
                 "x-permission-required": "MANAGE_CHANNELS",
+                "x-fires-event": "CHANNEL_CREATE",
                 "security": [
                     {
                         "bearer": []
