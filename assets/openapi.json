@@ -4005,13 +4005,13 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "stickers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "poll": {
@@ -12658,13 +12658,13 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "stickers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "poll": {
