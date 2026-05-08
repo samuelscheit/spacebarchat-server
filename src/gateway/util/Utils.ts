@@ -2,6 +2,7 @@ import { Event, Session, sleep, TimeSpan, VoiceState } from "@spacebar/util";
 import { WebSocket } from "./WebSocket";
 import { OPCODES } from "./Constants";
 import { Send } from "./Send";
+import { JsonSerializer } from "../../util/util/json/JsonSerializer";
 
 export function parseStreamKey(streamKey: string): {
     type: "guild" | "call";
@@ -78,7 +79,6 @@ async function expireOldPresenceStates() {
 }
 
 export async function handleOffloadedGatewayRequest(socket: WebSocket, url: string, body: unknown) {
-    // TODO: async json object streaming
     const resp = await fetch(url, {
         body: JSON.stringify(body),
         method: "POST",
@@ -97,9 +97,11 @@ export async function handleOffloadedGatewayRequest(socket: WebSocket, url: stri
         throw new Error(`Offloaded request failed with status ${resp.status}: ${text}`);
     }
 
-    const data = ((await resp.json()) as Event[]).toReversed();
-    while (data.length > 0) {
-        const event = data.pop()!;
+    if (!resp.body) {
+        throw new Error("Offloaded request did not return a response body");
+    }
+
+    for await (const event of JsonSerializer.DeserializeAsyncEnumerable<Event>(resp.body)) {
         if (process.env.WS_VERBOSE) console.log(`[Gateway] Received offloaded event: ${JSON.stringify(event)}`);
         await Send(socket, {
             op: OPCODES.Dispatch,
