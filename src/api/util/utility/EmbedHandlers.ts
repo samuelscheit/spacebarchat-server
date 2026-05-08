@@ -111,6 +111,38 @@ export const getMetaDescriptions = (text: string) => {
     };
 };
 
+type SteamHighlightTrailer = {
+    hlsManifest?: string;
+    dashManifests?: string[];
+};
+
+type SteamHighlightProps = {
+    trailers?: SteamHighlightTrailer[];
+};
+
+export const getSteamHighlightVideo = ($: cheerio.CheerioAPI): EmbedImage | undefined => {
+    const props = $(".gamehighlight_desktopcarousel").attr("data-props");
+    if (!props) return undefined;
+
+    let parsed: Partial<SteamHighlightProps>;
+    try {
+        parsed = JSON.parse(props) as Partial<SteamHighlightProps>;
+    } catch (e) {
+        return undefined;
+    }
+
+    const trailers = Array.isArray(parsed.trailers) ? parsed.trailers : [];
+    for (const trailer of trailers) {
+        if (!trailer || typeof trailer !== "object") continue;
+        const hlsManifest = typeof trailer.hlsManifest === "string" ? trailer.hlsManifest : undefined;
+        const dashManifest = Array.isArray(trailer.dashManifests) ? trailer.dashManifests.find((manifest) => typeof manifest === "string") : undefined;
+        const url = hlsManifest ?? dashManifest;
+        if (url) return { url };
+    }
+
+    return undefined;
+};
+
 const doFetch = async (url: URL, opts?: RequestInit) => {
     try {
         const res = await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
@@ -435,7 +467,7 @@ export const EmbedHandlers: {
                 name: "Steam",
             },
             fields,
-            // TODO: Video
+            video: getSteamHighlightVideo(metas.$),
         };
     },
 

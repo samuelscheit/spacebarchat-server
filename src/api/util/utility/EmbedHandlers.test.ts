@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test, type TestContext } from "node:test";
 import type { Embed } from "@spacebar/schemas";
+import * as cheerio from "cheerio";
 import type { Message } from "../../../util/index.js";
 import { mergeGeneratedUrlEmbeds } from "./EmbedMerge";
 
@@ -42,6 +43,10 @@ function createMessage(content: string, embeds: Embed[]) {
     };
 
     return message as Message;
+}
+
+async function loadEmbedHandlers() {
+    return await import("./EmbedHandlers.js");
 }
 
 function mockEmbedConfig(t: TestContext, Config: UtilModule["Config"], maxLinkEmbeds: number, maxEmbeds: number) {
@@ -119,6 +124,53 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("getSteamHighlightVideo", () => {
+    test("returns the first Steam highlight HLS trailer manifest", async () => {
+        const { getSteamHighlightVideo } = await loadEmbedHandlers();
+        const $ = cheerio.load(`
+            <div class="gamehighlight_desktopcarousel" data-props='{
+                "trailers": [
+                    {
+                        "thumbnail": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/256692021/movie.184x123.jpg",
+                        "poster": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/256692021/movie.293x165.jpg",
+                        "dashManifests": ["https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd"],
+                        "hlsManifest": "https://video.fastly.steamstatic.com/store_trailers/570/116737/hls_264_master.m3u8"
+                    }
+                ]
+            }'></div>
+        `);
+
+        assert.deepEqual(getSteamHighlightVideo($), {
+            url: "https://video.fastly.steamstatic.com/store_trailers/570/116737/hls_264_master.m3u8",
+        });
+    });
+
+    test("falls back to a DASH trailer when HLS is absent", async () => {
+        const { getSteamHighlightVideo } = await loadEmbedHandlers();
+        const $ = cheerio.load(`
+            <div class="gamehighlight_desktopcarousel" data-props='{
+                "trailers": [
+                    {
+                        "dashManifests": ["https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd"]
+                    }
+                ]
+            }'></div>
+        `);
+
+        assert.deepEqual(getSteamHighlightVideo($), {
+            url: "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd",
+        });
+    });
+
+    test("ignores missing or malformed Steam highlight data", async () => {
+        const { getSteamHighlightVideo } = await loadEmbedHandlers();
+
+        assert.equal(getSteamHighlightVideo(cheerio.load("<main></main>")), undefined);
+        assert.equal(getSteamHighlightVideo(cheerio.load('<div class="gamehighlight_desktopcarousel" data-props="not json"></div>')), undefined);
+        assert.equal(getSteamHighlightVideo(cheerio.load('<div class="gamehighlight_desktopcarousel" data-props="{&quot;trailers&quot;:&quot;invalid&quot;}"></div>')), undefined);
     });
 });
 
