@@ -218,4 +218,26 @@ describe("Channel.createThreadChannel", () => {
             ["message-id"],
         );
     });
+
+    test("keeps threads out of guild channel ordering with position zero", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        Object.assign(Snowflake, {
+            generate: () => "generated-thread-id",
+        });
+
+        const thread = await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "unordered-thread",
+                type: GUILD_PUBLIC_THREAD,
+            },
+            {},
+            "user",
+            { skipEventEmit: true, skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        assert.equal(thread.position, 0);
+    });
 });
