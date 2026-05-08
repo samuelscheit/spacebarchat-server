@@ -203,13 +203,19 @@ router.post(
         await Member.addToGuild(app.id, body.guild_id);
         if (body.permissions) {
             const role = Role.create({
+                color: 0,
+                colors: { primary_color: 0 },
+                hoist: false,
                 managed: true,
+                mentionable: false,
                 name: app.name,
+                position: 1,
                 permissions: body.permissions,
                 guild_id: body.guild_id,
+                tags: { bot_id: app.id },
             });
             await role.save();
-            await Member.addRole(body.guild_id, req.user_id, role.id);
+            await Member.addRole(app.id, body.guild_id, role.id);
         }
 
         return res.json({
