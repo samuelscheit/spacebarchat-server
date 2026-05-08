@@ -112,8 +112,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
     // TODO: check data
     check.call(this, LazyRequestSchema, d);
-    // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
-    const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
+    const { guild_id, channels, members } = d as LazyRequestSchema;
     const channel_id = Object.keys(channels || {})[0];
     const shouldAuthorizeChannel = Boolean(channel_id);
     const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);
