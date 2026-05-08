@@ -33,8 +33,6 @@ import {
 
 const router = Router({ mergeParams: true });
 
-// TODO: advance-only notification cursor
-
 router.post(
     "/",
     messageUpload.any(),
