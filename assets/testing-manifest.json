@@ -7296,7 +7296,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/roles/:role_id/member-ids/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/member-ids.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
