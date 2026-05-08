@@ -48,6 +48,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "POST /track",
     // Public policy pages
     "GET /policies/instance/",
+    "GET /policies/stats",
     // Oauth callback
     "/oauth2/callback",
     // Asset delivery
