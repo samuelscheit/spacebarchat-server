@@ -6,10 +6,17 @@ import { test } from "node:test";
 import { closeDatabase, generateToken, initDatabase, Session, User, UserSettings } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
+import { makeGuild, makeMember } from "../fixtures/entities";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
-const coveredManifestIds = ["api:http:GET:/users/@me/", "api:http:PATCH:/users/@me/", "api:http:GET:/users/@me/settings/", "api:http:PATCH:/users/@me/settings/"];
+const coveredManifestIds = [
+    "api:http:GET:/users/@me/",
+    "api:http:PATCH:/users/@me/",
+    "api:http:GET:/users/@me/settings/",
+    "api:http:PATCH:/users/@me/settings/",
+    "api:http:GET:/users/:user_id/profile/",
+];
 
 test(
     "user profile and settings updates persist state and emit user-scoped events",
@@ -23,6 +30,7 @@ test(
             "api:http:PATCH:/users/@me/",
             "api:http:GET:/users/@me/settings/",
             "api:http:PATCH:/users/@me/settings/",
+            "api:http:GET:/users/:user_id/profile/",
         ]);
 
         const database = await createDisposablePostgresDatabase({ prefix: "spacebar_users_scenario" });
@@ -128,6 +136,23 @@ test(
             assert.equal(settingsAfterUpdateBody.status, "idle");
             assert.equal(settingsAfterUpdateBody.theme, "light");
             assert.equal(settingsAfterUpdateBody.developer_mode, false);
+
+            const target = await User.register({
+                username: `target${suffix.slice(-8)}`,
+                email: `target-profile-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            const boostedGuild = await makeGuild(target).save();
+            const boostSince = 1_770_000_000_000;
+            await makeMember(target, boostedGuild, { premium_since: boostSince }).save();
+
+            const publicProfile = await getJson(`${api.apiBaseUrl}/users/${target.id}/profile`, token);
+            await assertStatus(publicProfile, 200);
+            const publicProfileBody = await assertJsonObject(publicProfile);
+            const publicProfileUser = publicProfileBody.user as Record<string, unknown>;
+            assert.equal(publicProfileUser.id, target.id);
+            assert.equal(publicProfileBody.premium_guild_since, boostSince);
+            assert.equal("mutual_guilds" in publicProfileBody, false);
         } finally {
             if (userEvents) await userEvents.stop();
             if (api) await api.stop();
