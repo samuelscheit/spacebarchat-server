@@ -16,7 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, OPCODES, Payload, Send, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
+import {
+    Capabilities,
+    CLOSECODES,
+    OPCODES,
+    Payload,
+    Send,
+    serializeReadyReadState,
+    setupListener,
+    WebSocket,
+    getGuildCreatePermission,
+    ListenerSetupData,
+} from "@spacebar/gateway";
 import {
     Application,
     arrayGroupBy,
@@ -865,9 +876,34 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         },
     });
 
+    const listenerPermissions = Object.fromEntries(
+        members
+            .filter((member) => member.guild)
+            .map((member) => [
+                member.guild_id,
+                getGuildCreatePermission(this.user_id, {
+                    ...member.guild,
+                    members: [
+                        {
+                            ...member.toPublicMember(),
+                            id: member.id,
+                            user,
+                        },
+                    ],
+                }),
+            ]),
+    );
+
+    const listenerSetupData: ListenerSetupData = {
+        guilds: members.filter((member) => member.guild).map((member) => member.guild),
+        dm_channels: channels,
+        relationships: relationships.filter((relationship) => relationship.type === RelationshipType.friends),
+        permissions: listenerPermissions,
+    };
+
     //TODO send GUILD_MEMBER_LIST_UPDATE
     //TODO send VOICE_STATE_UPDATE to let the client know if another device is already connected to a voice channel
-    await setupListener.call(this);
+    await setupListener.call(this, listenerSetupData);
     console.log(
         `[Gateway/${this.user_id}] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`,
         process.env.LOG_GATEWAY_TRACES ? JSON.stringify(d._trace, null, 2) : "",

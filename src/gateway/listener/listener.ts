@@ -16,22 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {
-    Ban,
-    EVENTEnum,
-    EventOpts,
-    getPermission,
-    listenEvent,
-    ListenEventOpts,
-    Member,
-    Message,
-    NewUrlUserSignatureData,
-    Permissions,
-    RabbitMQ,
-    Recipient,
-    Relationship,
-    Role,
-} from "@spacebar/util";
+import { Ban, EVENTEnum, EventOpts, ListenEventOpts, Member, Message, NewUrlUserSignatureData, Permissions, RabbitMQ, Recipient, Relationship, Role } from "@spacebar/util";
 import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
@@ -49,6 +34,12 @@ import {
     unsubscribeGuildMemberEventIds,
 } from "./subscriptions";
 import { getEventPermissionLookupId } from "../util/EventPermissions";
+import * as util from "@spacebar/util";
+
+export const listenerDependencies = {
+    getPermission: util.getPermission,
+    listenEvent: util.listenEvent,
+};
 
 type GuildCreatePermissionData = {
     id: string;
@@ -101,7 +92,7 @@ async function subscribeEvent(this: WebSocket, eventId: string, callback: (event
         return;
     }
 
-    const unsubscribe = await listenEvent(eventId, callback, opts);
+    const unsubscribe = await listenerDependencies.listenEvent(eventId, callback, opts);
 
     if (guildId && !this.permissions[guildId]) {
         await unsubscribe();
@@ -129,7 +120,7 @@ export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string
     if (this.events[userId]) return false; // already subscribed as friend
 
     trackGuildMemberEventId(this.guild_member_event_ids, this.member_event_guild_ids, guildId, userId);
-    const unsubscribe = await listenEvent(userId, handlePresenceUpdate.bind(this), this.listen_options);
+    const unsubscribe = await listenerDependencies.listenEvent(userId, handlePresenceUpdate.bind(this), this.listen_options);
 
     if (!hasGuildMemberEventId(this.guild_member_event_ids, guildId, userId)) {
         await unsubscribe();
@@ -145,7 +136,7 @@ export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string
     return true;
 }
 
-function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionData) {
+export function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionData) {
     const member = guild.members?.find((member) => member.user?.id === userId || member.id === userId);
     const roleIds = member?.roles?.length ? member.roles : [guild.id];
     const roles = (guild.roles ?? []).filter((role) => roleIds.includes(role.id)) as Role[];
@@ -170,8 +161,55 @@ function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionDa
     return permission;
 }
 
-// TODO: use already queried guilds/channels of Identify and don't fetch them again
-export async function setupListener(this: WebSocket) {
+export type ListenerSetupGuild = {
+    id: string;
+    owner_id?: string;
+    roles?: Array<Pick<Role, "id" | "permissions">>;
+    channels?: Array<Pick<PublicChannel, "id" | "permission_overwrites">>;
+};
+
+export type ListenerSetupData = {
+    guilds: ListenerSetupGuild[];
+    dm_channels: Array<Pick<PublicChannel, "id">>;
+    relationships: Array<Pick<Relationship, "to_id">>;
+    permissions?: Record<string, Permissions>;
+};
+
+export async function getListenerSetupData(userId: string, preloaded?: ListenerSetupData): Promise<ListenerSetupData> {
+    if (preloaded) return preloaded;
+
+    const [members, recipients, relationships] = await Promise.all([
+        Member.find({
+            where: { id: userId },
+            relations: { guild: { channels: true } },
+        }),
+        Recipient.find({
+            where: { user_id: userId, closed: false },
+            relations: { channel: true },
+        }),
+        Relationship.find({
+            where: {
+                from_id: userId,
+                type: RelationshipType.friends,
+            },
+        }),
+    ]);
+
+    return {
+        guilds: members.map((x) => x.guild),
+        dm_channels: recipients.map((x) => x.channel),
+        relationships,
+    };
+}
+
+export function getListenerGuildPermission(userId: string, guild: ListenerSetupGuild, preloaded?: Record<string, Permissions>) {
+    const permission = preloaded?.[guild.id];
+    if (permission) return permission;
+
+    return listenerDependencies.getPermission(userId, guild.id);
+}
+
+export async function setupListener(this: WebSocket, preloaded?: ListenerSetupData) {
     const opts: {
         acknowledge: boolean;
         channel?: AMQChannel & { queues?: unknown; ch?: number };
@@ -186,26 +224,8 @@ export async function setupListener(this: WebSocket) {
     };
 
     // Function to set up all event listeners (used for initial setup and reconnection)
-    const setupEventListeners = async () => {
-        const [members, recipients, relationships] = await Promise.all([
-            Member.find({
-                where: { id: this.user_id },
-                relations: { guild: { channels: true } },
-            }),
-            Recipient.find({
-                where: { user_id: this.user_id, closed: false },
-                relations: { channel: true },
-            }),
-            Relationship.find({
-                where: {
-                    from_id: this.user_id,
-                    type: RelationshipType.friends,
-                },
-            }),
-        ]);
-
-        const guilds = members.map((x) => x.guild);
-        const dm_channels = recipients.map((x) => x.channel);
+    const setupEventListeners = async (setupData?: ListenerSetupData) => {
+        const { guilds, dm_channels, relationships, permissions } = await getListenerSetupData(this.user_id, setupData);
 
         if (RabbitMQ.connection) {
             console.log(`[RabbitMQ] [user-${this.user_id}] Setting up channel and event listeners`);
@@ -233,12 +253,12 @@ export async function setupListener(this: WebSocket) {
 
         await Promise.all(
             guilds.map(async (guild) => {
-                const permission = await getPermission(this.user_id, guild.id);
+                const permission = await getListenerGuildPermission(this.user_id, guild, permissions);
                 this.permissions[guild.id] = permission;
                 await subscribeEvent.call(this, guild.id, consumer, opts, guild.id);
 
                 await Promise.all(
-                    guild.channels.map(async (channel) => {
+                    (guild.channels ?? []).map(async (channel) => {
                         if (permission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) {
                             await subscribeEvent.call(this, channel.id, consumer, opts, guild.id);
                         }
@@ -249,7 +269,7 @@ export async function setupListener(this: WebSocket) {
     };
 
     // Initial setup
-    await setupEventListeners();
+    await setupEventListeners(preloaded);
 
     // Handle RabbitMQ reconnection - re-establish all subscriptions
     const handleReconnect = async () => {
