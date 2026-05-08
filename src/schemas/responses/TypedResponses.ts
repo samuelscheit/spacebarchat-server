@@ -18,9 +18,7 @@
 
 // TODO: remove entity imports
 import type { Application, BackupCode, Categories, Channel, DmChannelDTO, GeneralConfiguration, Guild, Invite, LimitsConfiguration, Member, Role, Template } from "@spacebar/util";
-import { APIWebhook } from "../api/channels";
-import { GuildVoiceRegion } from "./GuildVoiceRegionsResponse";
-import { GuildCreateResponse, PrivateUser, PublicMember, PublicMessage, PublicUser } from "@spacebar/schemas";
+import type { APIWebhook, GuildCreateResponse, GuildVoiceRegion, PrivateUser, PublicMember, PublicMessage, PublicUser } from "@spacebar/schemas";
 
 // TODO: remove this entire file!
 // removes internal properties from the guild class
