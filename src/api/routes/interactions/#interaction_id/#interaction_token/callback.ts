@@ -171,7 +171,7 @@ router.post(
                     }
                     message.embeds = body.data.embeds || [];
                     const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
-                    await handle?.(message.id, message.author as User, message.channel);
+                    await handle?.(message, message.author as User, message.channel);
                     message.components = body.data.components;
                     await message.save();
                     emitEvent({
