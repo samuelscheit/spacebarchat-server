@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.AdminApi.Extensions;
-using Spacebar.Models.AdminApi;
+using Spacebar.AdminApi.Services;
 using Spacebar.Interop.Authentication.AspNetCore;
+using Spacebar.Interop.Replication.Abstractions;
+using Spacebar.Models.AdminApi;
 using Spacebar.Models.Db.Contexts;
 using Spacebar.Models.Db.Models;
 using Spacebar.Models.Gateway;
@@ -16,7 +17,7 @@ public class GuildController(
     ILogger<GuildController> logger,
     SpacebarDbContext db,
     IServiceProvider sp,
-    SpacebarAspNetAuthenticationService auth,
+    ISpacebarAspNetAuthenticationService auth,
     ISpacebarReplication replication
 ) : ControllerBase {
 
@@ -107,7 +108,7 @@ public class GuildController(
                 Bio = "",
                 Mute = false,
                 Deaf = false,
-                
+
             };
             await db.Members.AddAsync(member);
             guild.MemberCount++;
@@ -124,17 +125,7 @@ public class GuildController(
             var roles = await db.Roles.Where(r => r.GuildId == id).OrderBy(x => x.Position).ToListAsync();
             var adminRole = roles.FirstOrDefault(r => r.Permissions == "8" || r.Permissions == "9"); // Administrator
             if (adminRole == null) {
-                adminRole = new Role {
-                    Id = Random.Shared.NextInt64(), // TODO: snowflakes
-                    GuildId = id,
-                    Name = "Instance administrator",
-                    Color = 0,
-                    Hoist = false,
-                    Position = roles.Max(x => x.Position) + 1,
-                    Permissions = "8", // Administrator
-                    Managed = false,
-                    Mentionable = false
-                };
+                adminRole = AdminRoleFactory.CreateInstanceAdministrator(id, SnowflakeGenerator.Generate(), roles.Max(x => x.Position) + 1);
                 await db.Roles.AddAsync(adminRole);
                 await db.SaveChangesAsync();
             }
@@ -178,7 +169,8 @@ public class GuildController(
             .ToList();
         yield return new("STATS",
             new {
-                total_messages = messages.Count(), total_channels = channels.Count,
+                total_messages = messages.Count(),
+                total_channels = channels.Count,
                 messages_per_channel = channels.ToDictionary(c => c.ChannelId, c => messages.Count(m => m.ChannelId == c.ChannelId))
             });
         var results = channels
@@ -201,11 +193,11 @@ public class GuildController(
     ) {
         {
             await using var ctx = sp.CreateAsyncScope();
-            await using var _db = ctx.ServiceProvider.GetRequiredService<SpacebarDbContext>();
-            var messagesInChannel = _db.Messages.AsNoTracking().Count(m => m.AuthorId == authorId && m.ChannelId == channelId && m.GuildId == guildId);
+            await using var scopedDb = ctx.ServiceProvider.GetRequiredService<SpacebarDbContext>();
+            var messagesInChannel = scopedDb.Messages.AsNoTracking().Count(m => m.AuthorId == authorId && m.ChannelId == channelId && m.GuildId == guildId);
             var remaining = messagesInChannel;
             while (true) {
-                var messageIds = _db.Database.SqlQuery<long>($"""
+                var messageIds = scopedDb.Database.SqlQuery<long>($"""
                                                                 DELETE FROM messages
                                                                   WHERE id IN (
                                                                     SELECT id FROM messages 
