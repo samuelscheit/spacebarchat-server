@@ -67,6 +67,15 @@ describe("gateway intent dispatch filtering", () => {
         assert.equal(canDispatchEventForIntents(new Intents(Intents.FLAGS.GUILD_MEMBERS), "THREAD_MEMBERS_UPDATE", "guild"), true);
     });
 
+    test("requires voice-state intent without gating stream control events", () => {
+        assert.equal(getRequiredIntentForEvent("VOICE_STATE_UPDATE", "guild"), Intents.FLAGS.GUILD_VOICE_STATES);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "VOICE_STATE_UPDATE", "guild"), false);
+        assert.equal(canDispatchEventForIntents(new Intents(Intents.FLAGS.GUILD_VOICE_STATES), "VOICE_STATE_UPDATE", "guild"), true);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "STREAM_CREATE", "guild"), true);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "STREAM_SERVER_UPDATE", "guild"), true);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "STREAM_DELETE", "guild"), true);
+    });
+
     test("treats unmapped gateway events as passthrough", () => {
         assert.equal(canDispatchEventForIntents(new Intents(0), "USER_UPDATE", undefined), true);
         assert.equal(canDispatchEventForIntents(new Intents(0), "APPLICATION_COMMAND_CREATE", "guild"), true);

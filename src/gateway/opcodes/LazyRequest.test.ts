@@ -241,7 +241,7 @@ moduleLoader._load = (request: string, parent?: NodeJS.Module | null, isMain?: b
     if (request === "@spacebar/util") return mockUtil;
     if (request === "@spacebar/gateway") return mockGateway;
     if (request === "@spacebar/schemas") return { LazyRequestSchema: {} };
-    if (request === "./instanceOf" && parent?.filename?.endsWith("/LazyRequest.js")) return { check: () => true };
+    if (request === "./instanceOf" && /\/LazyRequest\.[jt]s$/.test(parent?.filename ?? "")) return { check: () => true };
 
     return originalLoad(request, parent, isMain);
 };
