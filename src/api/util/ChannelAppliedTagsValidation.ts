@@ -24,7 +24,7 @@ export function assertRequiredAppliedTagsPresent(appliedTags: string[] | undefin
     throw FieldErrors({
         applied_tags: {
             code: "BASE_TYPE_REQUIRED",
-            message: "Tag is required for this API.",
+            message: "This field is required",
         },
     });
 }

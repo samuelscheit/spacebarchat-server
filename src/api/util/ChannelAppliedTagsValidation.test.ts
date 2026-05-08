@@ -42,11 +42,22 @@ test("assertRequiredAppliedTagsPresent reports missing required applied_tags as 
                     _errors: [
                         {
                             code: "BASE_TYPE_REQUIRED",
-                            message: "Tag is required for this API.",
+                            message: "This field is required",
                         },
                     ],
                 },
             });
+            return true;
+        },
+    );
+
+    assert.throws(
+        () => assertRequiredAppliedTagsPresent(undefined, true),
+        (error) => {
+            assert.ok(error instanceof FieldError);
+            assert.equal(error.code, 50035);
+            assert.equal(error.message, "Invalid Form Body");
+            assert.ok(error.errors?.applied_tags);
             return true;
         },
     );
