@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+import { toOAuthAuthorizeBot } from "./authorizeResponse";
 const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
@@ -139,13 +140,7 @@ router.get(
                 flags: app.flags,
             },
             bot: {
-                id: bot.id,
-                username: bot.username,
-                avatar: bot.avatar,
-                avatar_decoration: null, // TODO
-                discriminator: bot.discriminator,
-                public_flags: bot.public_flags,
-                bot: true,
+                ...toOAuthAuthorizeBot(bot),
                 approximated_guild_count: 0, // TODO
             },
             authorized: false,
