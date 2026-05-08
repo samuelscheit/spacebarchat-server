@@ -66,9 +66,22 @@ export interface ThreadMetadata {
     create_timestamp: string; //Discord docs say this is optional, but it's only for after a certain date so it's not
 }
 
-export interface IconEmoji {
-    id: Snowflake | null;
-    name: string | null;
+export type IconEmoji = CustomIconEmoji | UnicodeIconEmoji;
+
+export interface CustomIconEmoji {
+    /**
+     * @minLength 1
+     */
+    id: Snowflake;
+    name: null;
+}
+
+export interface UnicodeIconEmoji {
+    id: null;
+    /**
+     * @minLength 1
+     */
+    name: string;
 }
 
 export interface DMChannel extends Omit<Channel, "type" | "recipients"> {

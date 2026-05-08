@@ -60,6 +60,10 @@ describe("ChannelModifySchema", () => {
 
         assert.equal(validate({ icon_emoji: { id: null } }), false);
         assert.equal(validate({ icon_emoji: [] }), false);
+        assert.equal(validate({ icon_emoji: { id: "", name: null } }), false);
+        assert.equal(validate({ icon_emoji: { id: null, name: "" } }), false);
+        assert.equal(validate({ icon_emoji: { id: null, name: null } }), false);
+        assert.equal(validate({ icon_emoji: { id: "123", name: "wave" } }), false);
         assert.equal(validate({ icon_emoji: { id: null, name: "wave", animated: false } }), false);
     });
 });

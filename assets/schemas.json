@@ -1139,7 +1139,10 @@
             "icon_emoji": {
                 "anyOf": [
                     {
-                        "$ref": "#/definitions/IconEmoji"
+                        "$ref": "#/definitions/CustomIconEmoji"
+                    },
+                    {
+                        "$ref": "#/definitions/UnicodeIconEmoji"
                     },
                     {
                         "type": "null"
@@ -1310,7 +1313,10 @@
             "icon_emoji": {
                 "anyOf": [
                     {
-                        "$ref": "#/definitions/IconEmoji"
+                        "$ref": "#/definitions/CustomIconEmoji"
+                    },
+                    {
+                        "$ref": "#/definitions/UnicodeIconEmoji"
                     },
                     {
                         "type": "null"
@@ -8593,7 +8599,10 @@
             "icon_emoji": {
                 "anyOf": [
                     {
-                        "$ref": "#/definitions/IconEmoji"
+                        "$ref": "#/definitions/CustomIconEmoji"
+                    },
+                    {
+                        "$ref": "#/definitions/UnicodeIconEmoji"
                     },
                     {
                         "type": "null"
@@ -11253,20 +11262,34 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "IconEmoji": {
+    "CustomIconEmoji": {
         "type": "object",
         "properties": {
             "id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "minLength": 1,
+                "type": "string"
             },
             "name": {
-                "type": [
-                    "null",
-                    "string"
-                ]
+                "type": "null"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UnicodeIconEmoji": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "null"
+            },
+            "name": {
+                "minLength": 1,
+                "type": "string"
             }
         },
         "additionalProperties": false,
@@ -13716,7 +13739,10 @@
             "icon_emoji": {
                 "anyOf": [
                     {
-                        "$ref": "#/definitions/IconEmoji"
+                        "$ref": "#/definitions/CustomIconEmoji"
+                    },
+                    {
+                        "$ref": "#/definitions/UnicodeIconEmoji"
                     },
                     {
                         "type": "null"
@@ -14066,7 +14092,10 @@
             "icon_emoji": {
                 "anyOf": [
                     {
-                        "$ref": "#/definitions/IconEmoji"
+                        "$ref": "#/definitions/CustomIconEmoji"
+                    },
+                    {
+                        "$ref": "#/definitions/UnicodeIconEmoji"
                     },
                     {
                         "type": "null"
