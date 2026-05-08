@@ -16,6 +16,7 @@ function compileSchema(name: string, propertyNames: string[]) {
         type: "object",
         additionalProperties: schema.additionalProperties,
         properties: Object.fromEntries(propertyNames.filter((property) => properties[property]).map((property) => [property, properties[property]])),
+        definitions: schemas,
     };
 
     for (const requiredKey of ["type", "required"]) {

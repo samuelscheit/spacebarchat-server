@@ -18,7 +18,7 @@
 
 import { BaseMessageComponents, ChannelType, Embed } from "#schemas/api";
 import { MessageActivity } from "./MessageActivity";
-import { MessageCreateAttachment, MessageCreateCloudAttachment } from "./MessageCreateSchema";
+import { MessageCreateAttachmentMetadata } from "./MessageCreateSchema";
 
 export interface ThreadCreationSchema {
     auto_archive_duration?: number;
@@ -42,6 +42,6 @@ export interface ThreadCreationSchema {
         activity?: MessageActivity;
         application_id?: string;
         flags?: number;
-        attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
+        attachments?: MessageCreateAttachmentMetadata[];
     };
 }

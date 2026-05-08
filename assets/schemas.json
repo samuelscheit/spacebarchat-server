@@ -6473,72 +6473,13 @@
             "files": {
                 "type": "array",
                 "items": {
-                    "type": "object",
-                    "properties": {
-                        "id": {
-                            "type": "string"
-                        },
-                        "file": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "filename": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false
+                    "$ref": "#/definitions/MessageCreateFile"
                 }
             },
             "attachments": {
                 "type": "array",
                 "items": {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "file": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "id"
-                            ]
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "uploaded_filename": {
-                                    "type": "string"
-                                },
-                                "original_content_type": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "filename",
-                                "uploaded_filename"
-                            ]
-                        }
-                    ]
+                    "$ref": "#/definitions/MessageCreateAttachmentMetadata"
                 }
             },
             "sticker_ids": {
@@ -6710,51 +6651,7 @@
             "attachments": {
                 "type": "array",
                 "items": {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "file": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "id"
-                            ]
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "uploaded_filename": {
-                                    "type": "string"
-                                },
-                                "original_content_type": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "filename",
-                                "uploaded_filename"
-                            ]
-                        }
-                    ]
+                    "$ref": "#/definitions/MessageCreateAttachmentMetadata"
                 }
             },
             "embeds": {
@@ -8012,51 +7909,7 @@
             "attachments": {
                 "type": "array",
                 "items": {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "file": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "id"
-                            ]
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "uploaded_filename": {
-                                    "type": "string"
-                                },
-                                "original_content_type": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "filename",
-                                "uploaded_filename"
-                            ]
-                        }
-                    ]
+                    "$ref": "#/definitions/MessageCreateAttachmentMetadata"
                 }
             },
             "flags": {
@@ -8160,51 +8013,7 @@
                     {
                         "type": "array",
                         "items": {
-                            "anyOf": [
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "filename": {
-                                            "type": "string"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "file": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "additionalProperties": false,
-                                    "required": [
-                                        "id"
-                                    ]
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "filename": {
-                                            "type": "string"
-                                        },
-                                        "uploaded_filename": {
-                                            "type": "string"
-                                        },
-                                        "original_content_type": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "additionalProperties": false,
-                                    "required": [
-                                        "filename",
-                                        "uploaded_filename"
-                                    ]
-                                }
-                            ]
+                            "$ref": "#/definitions/MessageCreateAttachmentMetadata"
                         }
                     },
                     {
@@ -8392,51 +8201,7 @@
                     "attachments": {
                         "type": "array",
                         "items": {
-                            "anyOf": [
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "filename": {
-                                            "type": "string"
-                                        },
-                                        "name": {
-                                            "type": "string"
-                                        },
-                                        "file": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "additionalProperties": false,
-                                    "required": [
-                                        "id"
-                                    ]
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string"
-                                        },
-                                        "filename": {
-                                            "type": "string"
-                                        },
-                                        "uploaded_filename": {
-                                            "type": "string"
-                                        },
-                                        "original_content_type": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "additionalProperties": false,
-                                    "required": [
-                                        "filename",
-                                        "uploaded_filename"
-                                    ]
-                                }
-                            ]
+                            "$ref": "#/definitions/MessageCreateAttachmentMetadata"
                         }
                     }
                 },
@@ -21185,6 +20950,81 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "MessageCreateFile": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "file": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "filename": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageCreateAttachmentMetadata": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/MessageCreateAttachment"
+            },
+            {
+                "$ref": "#/definitions/MessageCreateCloudAttachment"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageCreateAttachment": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "filename": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "file": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageCreateCloudAttachment": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "filename": {
+                "type": "string"
+            },
+            "uploaded_filename": {
+                "type": "string"
+            },
+            "original_content_type": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "filename",
+            "uploaded_filename"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UploadAttachmentRequest": {
         "type": "object",
         "properties": {
@@ -21729,51 +21569,7 @@
             "attachments": {
                 "type": "array",
                 "items": {
-                    "anyOf": [
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "file": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "id"
-                            ]
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "filename": {
-                                    "type": "string"
-                                },
-                                "uploaded_filename": {
-                                    "type": "string"
-                                },
-                                "original_content_type": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "filename",
-                                "uploaded_filename"
-                            ]
-                        }
-                    ]
+                    "$ref": "#/definitions/MessageCreateAttachmentMetadata"
                 }
             },
             "poll": {

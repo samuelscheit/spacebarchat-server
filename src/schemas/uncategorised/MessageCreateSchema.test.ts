@@ -14,6 +14,29 @@ describe("MessageCreateSchema", () => {
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
     });
+
+    test("uses a reusable attachment metadata schema", () => {
+        const attachmentMetadataArraySchema = {
+            type: "array",
+            items: {
+                $ref: "#/definitions/MessageCreateAttachmentMetadata",
+            },
+        };
+
+        assert.deepEqual(schemas.MessageCreateAttachmentMetadata.anyOf, [
+            { $ref: "#/definitions/MessageCreateAttachment" },
+            { $ref: "#/definitions/MessageCreateCloudAttachment" },
+        ]);
+
+        assert.deepEqual(schemas.MessageCreateSchema.properties.attachments, attachmentMetadataArraySchema);
+        assert.deepEqual(schemas.MessageEditSchema.properties.attachments, attachmentMetadataArraySchema);
+        assert.deepEqual(schemas.WebhookExecuteSchema.properties.attachments, attachmentMetadataArraySchema);
+        assert.deepEqual(schemas.WebhookMessageEditSchema.properties.attachments, {
+            anyOf: [attachmentMetadataArraySchema, { type: "null" }],
+        });
+        assert.deepEqual(schemas.ThreadCreationSchema.properties.message.properties.attachments, attachmentMetadataArraySchema);
+        assert.deepEqual(schemas.InteractionMessage.properties.attachments, attachmentMetadataArraySchema);
+    });
 });
 
 describe("MessageEditSchema", () => {

@@ -19,26 +19,28 @@
 import { Snowflake } from "../Identifiers";
 import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollAnswer, PollMedia, PublicUser } from "@spacebar/schemas";
 
-export type MessageCreateAttachment = {
+export interface MessageCreateAttachment {
     id: string;
     filename?: string;
     name?: string;
     file?: string;
-};
+}
 
-export type MessageCreateCloudAttachment = {
+export interface MessageCreateCloudAttachment {
     id?: string;
     filename: string;
     uploaded_filename: string;
     original_content_type?: string;
-};
+}
 
-export type MessageCreateFile = {
+export type MessageCreateAttachmentMetadata = MessageCreateAttachment | MessageCreateCloudAttachment;
+
+export interface MessageCreateFile {
     id?: string;
     file?: string;
     name?: string;
     filename?: string;
-};
+}
 
 export interface MessageCreateSchema {
     content?: string;
@@ -53,8 +55,7 @@ export interface MessageCreateSchema {
     payload_json?: string;
     file?: { filename: string };
     files?: MessageCreateFile[];
-    // TODO: we should create an interface for attachments
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
+    attachments?: MessageCreateAttachmentMetadata[];
     sticker_ids?: string[] | null; // null check: fixes Discord-Go
     components?: BaseMessageComponents[] | null; // null check: fixes Discord-Go
     // TODO: Fix TypeScript errors in src\api\util\handlers\Message.ts once this is enabled

@@ -1,8 +1,8 @@
-import { MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+import { MessageCreateAttachmentMetadata } from "@spacebar/schemas";
 
-type WebhookBodyAttachment = MessageCreateAttachment | MessageCreateCloudAttachment;
+type WebhookBodyAttachment = MessageCreateAttachmentMetadata;
 
-function isCloudAttachmentDescriptor(attachment: WebhookBodyAttachment): attachment is MessageCreateCloudAttachment {
+function isCloudAttachmentDescriptor(attachment: WebhookBodyAttachment): attachment is WebhookBodyAttachment & { uploaded_filename: string } {
     return "uploaded_filename" in attachment;
 }
 

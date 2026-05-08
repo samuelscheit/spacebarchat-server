@@ -44,7 +44,7 @@ import {
     Snowflake,
     messagePublicRelations,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
+import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachmentMetadata, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -106,7 +106,7 @@ router.post(
             }
         }
         const files = (req.files as Express.Multer.File[]) ?? [];
-        const messageAttachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message?.attachments ?? [];
+        const messageAttachments: (Attachment | MessageCreateAttachmentMetadata)[] = body.message?.attachments ?? [];
         if (body.message) {
             assertMessagePayloadPermissions(req.permission!, { ...body.message, attachments: messageAttachments, uploadedFileCount: files.length });
         }
