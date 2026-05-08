@@ -54,6 +54,7 @@ import {
     ThreadMemberFlags,
     ThreadMembersUpdateEvent,
     ThreadCreateEvent,
+    upsertChannelMessageReadState,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -489,16 +490,8 @@ router.post(
             message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
         }
 
-        let read_state = await ReadState.findOne({
-            where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
-        });
-        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
-        read_state.last_message_id = message.id;
-        //It's a little more complicated than this but this'll do
-        read_state.mention_count = 0;
-
         await Promise.all([
-            read_state.save(),
+            upsertChannelMessageReadState({ user_id: req.user_id, channel_id }, message.id),
             message.save(),
             emitEvent({
                 event: "MESSAGE_CREATE",

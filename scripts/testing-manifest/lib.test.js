@@ -2,8 +2,11 @@
 
 const { describe, test } = require("node:test");
 const assert = require("node:assert/strict");
+const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = require("node:fs");
+const { tmpdir } = require("node:os");
 const path = require("node:path");
 const {
+    collectExternalHelperEventMap,
     combineRoutePaths,
     extractApiRateLimitRulesFromSource,
     extractNoAuthorizationRulesFromSource,
@@ -11,6 +14,7 @@ const {
     parseRegexLiteral,
     parseRouteOptions,
     routePathFromFile,
+    scanHashImageRouterCalls,
     scanRouterCalls,
     splitTopLevelArguments,
     stripComments,
@@ -59,6 +63,32 @@ describe("testing manifest route helpers", () => {
 
         assert.deepEqual(options.permission, ["VIEW_CHANNEL", "SEND_MESSAGES"]);
         assert.deepEqual(options.event, ["EVENT.MESSAGE_CREATE", "EVENT.MESSAGE_UPDATE"]);
+    });
+
+    test("expands shared CDN image routers without executing route modules", () => {
+        const source = `
+            export default createHashImageRouter({
+                pathPrefix: "role-icons",
+                resourceParam: "role_id",
+                allowedMimeTypes: STATIC_IMAGE_MIME_TYPES,
+            });
+        `;
+
+        const calls = scanHashImageRouterCalls(source);
+
+        assert.deepEqual(
+            calls.map((call) => [call.method, call.localPath]),
+            [
+                ["POST", "/:role_id"],
+                ["GET", "/:role_id"],
+                ["GET", "/:role_id/:hash"],
+                ["DELETE", "/:role_id/:id"],
+            ],
+        );
+        assert.deepEqual(
+            calls.map((call) => call.routeMetadata),
+            [{ present: false }, { present: false }, { present: false }, { present: false }],
+        );
     });
 
     test("extracts direct emitted events from route handlers", () => {
@@ -143,6 +173,34 @@ describe("testing manifest route helpers", () => {
         const calls = scanRouterCalls(source, extractSourceHelperEventMap(helpers));
 
         assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["GUILD_MEMBER_UPDATE", "MESSAGE_CREATE"]);
+    });
+
+    test("collects emitted events from imported utility helpers", () => {
+        const repoRoot = mkdtempSync(path.join(tmpdir(), "spacebar-manifest-helpers-"));
+        try {
+            const utilityDir = path.join(repoRoot, "src", "api", "util", "utility");
+            mkdirSync(utilityDir, { recursive: true });
+            writeFileSync(
+                path.join(utilityDir, "Messages.ts"),
+                `
+                    export function buildMessageDeleteBulkEvent() {
+                        return {
+                            event: "MESSAGE_DELETE_BULK",
+                            data: {},
+                        };
+                    }
+
+                    export async function deleteMessagesAndEmitBulkEvents() {
+                        const emit = emitEvent;
+                        await emit(buildMessageDeleteBulkEvent());
+                    }
+                `,
+            );
+
+            assert.deepEqual(collectExternalHelperEventMap(repoRoot).get("deleteMessagesAndEmitBulkEvents"), ["MESSAGE_DELETE_BULK"]);
+        } finally {
+            rmSync(repoRoot, { recursive: true, force: true });
+        }
     });
 
     test("skips imported helper events when route call disables helper event emission", () => {

@@ -17,18 +17,21 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Member, Message, messagePublicWithThreadRelations } from "@spacebar/util";
+import { Channel, Member, Message, messagePublicWithThreadRelations, ThreadMember } from "@spacebar/util";
 import { PostDataSchema, PublicMessage } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
 import { In } from "typeorm";
+import {
+    createPostDataOwnerMemberWhere,
+    createPostDataThreadWhere,
+    filterPostDataThreadsForViewer,
+    findPostDataOwner,
+    uniquePostDataThreadIds,
+} from "../../../util/utility/PostData";
 
 const router = Router({ mergeParams: true });
-
-// TODO: public read receipts & privacy scoping
-// TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -49,12 +52,26 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
-        const body = (req.body as PostDataSchema).thread_ids;
-        const threads = await Channel.find({
-            where: {
-                id: In(body),
-            },
+        const { channel_id } = req.params as { [key: string]: string };
+        const body = uniquePostDataThreadIds((req.body as PostDataSchema).thread_ids);
+        if (!body.length) return res.json({ threads: {} });
+
+        const requestedThreads = await Channel.find({
+            where: createPostDataThreadWhere(channel_id, body),
         });
+        if (!requestedThreads.length) return res.json({ threads: {} });
+
+        const threadMembers = await ThreadMember.find({
+            where: {
+                id: In(requestedThreads.map(({ id }) => id)),
+                member: { id: req.user_id },
+            },
+            relations: { member: true },
+        });
+        const threads = filterPostDataThreadsForViewer(requestedThreads, threadMembers, req.user_id, req.permission!);
+        if (!threads.length) return res.json({ threads: {} });
+
+        const ownerMemberWhere = createPostDataOwnerMemberWhere(threads);
         const [messages, members] = await Promise.all([
             Message.find({
                 where: {
@@ -62,16 +79,16 @@ router.post(
                 },
                 relations: messagePublicWithThreadRelations,
             }),
-            Member.find({
-                where: {
-                    id: In(threads.map(({ owner_id }) => owner_id)),
-                },
-            }),
+            ownerMemberWhere.length
+                ? Member.find({
+                      where: ownerMemberWhere,
+                  })
+                : Promise.resolve([]),
         ]);
         await Message.fillReplies(messages);
-        const objRet: { threads: Record<string, { first_message: null | PublicMessage; owner: null | Member }> } = { threads: {} };
+        const objRet: { threads: Record<string, { first_message: null | PublicMessage; owner: null | object }> } = { threads: {} };
         for (const thread of threads) {
-            const owner = members.find(({ id }) => id === thread.owner_id)?.toJSON() || null;
+            const owner = findPostDataOwner(members, thread)?.toJSON() || null;
             const first_message = messages.find(({ channel_id }) => channel_id === thread.id)?.toJSON() || null;
             objRet.threads[thread.id] = {
                 owner,

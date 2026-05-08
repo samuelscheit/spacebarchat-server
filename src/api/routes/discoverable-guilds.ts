@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Guild, Member } from "@spacebar/util";
+import { Config, Guild, GuildFeature, Member } from "@spacebar/util";
 
 import { createDiscoverableGuildCategoryFilter, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
@@ -66,7 +66,7 @@ router.get(
                 id: Not(In(hiddenGuildIds)),
                 discovery_excluded: false,
                 ...(categoryFilter == undefined ? {} : { primary_category_id: categoryFilter }),
-                ...(showAllGuilds ? {} : { features: ArrayContains(["DISCOVERABLE"]) }),
+                ...(showAllGuilds ? {} : { features: ArrayContains([GuildFeature.Discoverable]) }),
             },
             order: {
                 discovery_weight: "DESC",

@@ -3,7 +3,23 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { AutomodRule, Ban, Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Invite, Member, Message, Snowflake, User, VoiceState } from "@spacebar/util";
+import {
+    AutomodRule,
+    Ban,
+    Channel,
+    closeDatabase,
+    Config,
+    generateToken,
+    Guild,
+    GuildFeature,
+    initDatabase,
+    Invite,
+    Member,
+    Message,
+    Snowflake,
+    User,
+    VoiceState,
+} from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -208,7 +224,7 @@ async function coverGuildMessagesSearch(apiBaseUrl: string, guildId: string, cha
 }
 
 async function coverVanityAndInvites(apiBaseUrl: string, guildId: string, channelId: string, token: string, suffix: string) {
-    await Guild.update({ id: guildId }, { features: ["VANITY_URL"] });
+    await Guild.update({ id: guildId }, { features: [GuildFeature.VanityUrl] });
 
     const emptyVanity = await assertJsonObject(await getJson(`${apiBaseUrl}/guilds/${guildId}/vanity-url`, token));
     assert.equal(emptyVanity.code, null);

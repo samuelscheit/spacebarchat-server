@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Invite, Message, ReadState, User } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
@@ -150,6 +150,19 @@ test(
             const channelsAfterCreate = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, token);
             assert.deepEqual(channelsAfterCreate.map((channel) => channel.id).sort(), [defaultChannelId, channelId].sort());
 
+            const beforeRejectedThread = markCapturedEvents(guildEvents);
+            const rejectedThread = await postJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, { name: "scenario-thread", type: ChannelType.GUILD_PUBLIC_THREAD }, token);
+            await assertStatus(rejectedThread, 400);
+            assert.equal(await Channel.findOneBy({ guild_id: guildId, name: "scenario-thread", type: ChannelType.GUILD_PUBLIC_THREAD }), null);
+            await assert.rejects(
+                waitForEventAfter(
+                    guildEvents,
+                    beforeRejectedThread,
+                    (event) => event.event === "CHANNEL_CREATE" && event.guild_id === guildId && event.data.name === "scenario-thread",
+                ),
+                /Timed out waiting for event/,
+            );
+
             const reorderChannels = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, [{ id: channelId, position: 0 }], token);
             await assertStatus(reorderChannels, 204);
             const reorderEvent = await guildEvents.waitFor((event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId, eventTimeoutMs);
@@ -186,6 +199,16 @@ test(
             const persistedChannel = await Channel.findOneByOrFail({ id: channelId });
             assert.equal(persistedChannel.name, "scenario-renamed");
             assert.equal(persistedChannel.topic, "updated topic");
+            assert.equal(persistedChannel.applied_tags, null);
+
+            const invalidAppliedTags = await patchJson(`${api.apiBaseUrl}/channels/${channelId}`, { applied_tags: ["tag-for-threads-only"] }, token);
+            const invalidAppliedTagsBody = await assertJsonError(invalidAppliedTags, 400);
+            const invalidAppliedTagsErrors = invalidAppliedTagsBody.errors as {
+                applied_tags?: { _errors?: Array<{ code: string; message: string }> };
+            };
+            assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.code, "BASE_TYPE_BAD_VALUE");
+            assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.message, "Applied tags can only be set on threads");
+            assert.equal((await Channel.findOneByOrFail({ id: channelId })).applied_tags, null);
 
             const createInvite = await postJson(`${api.apiBaseUrl}/channels/${channelId}/invites`, { max_age: 3600, max_uses: 1, temporary: false, unique: true }, token);
             assert.ok(createInvite.status === 200 || createInvite.status === 201);

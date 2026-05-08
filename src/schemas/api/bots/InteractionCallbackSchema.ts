@@ -18,7 +18,7 @@
 
 import { InteractionCallbackType } from "./InteractionCallbackType";
 import { AllowedMentions, BaseMessageComponents, Embed } from "../messages";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "../../uncategorised/MessageCreateSchema";
+import { MessageCreateAttachmentMetadata, PollCreationSchema } from "../../uncategorised/MessageCreateSchema";
 
 export interface InteractionCallbackSchema {
     type: InteractionCallbackType;
@@ -65,6 +65,6 @@ export interface InteractionMessage {
     allowed_mentions?: AllowedMentions;
     components?: BaseMessageComponents[];
     flags?: number;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
+    attachments?: MessageCreateAttachmentMetadata[];
     poll?: PollCreationSchema;
 }

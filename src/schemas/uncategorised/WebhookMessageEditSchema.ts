@@ -17,7 +17,7 @@
 */
 
 import { AllowedMentions, BaseMessageComponents, Embed } from "@spacebar/schemas";
-import { MessageCreateAttachment, MessageCreateCloudAttachment } from "./MessageCreateSchema";
+import { MessageCreateAttachmentMetadata } from "./MessageCreateSchema";
 
 export interface WebhookMessageEditSchema {
     content?: string | null;
@@ -25,6 +25,6 @@ export interface WebhookMessageEditSchema {
     allowed_mentions?: AllowedMentions | null;
     components?: BaseMessageComponents[] | null;
     payload_json?: string;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[] | null;
+    attachments?: MessageCreateAttachmentMetadata[] | null;
     flags?: number;
 }

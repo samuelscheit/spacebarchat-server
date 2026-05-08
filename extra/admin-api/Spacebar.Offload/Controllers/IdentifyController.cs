@@ -24,30 +24,27 @@ public class IdentifyController(ILogger<IdentifyController> logger, SpacebarAuth
             Capabilities = payload.Capabilities ??= 0,
             LargeThreshold = payload.LargeTreshold ??= user.Result.Bot ? 20 : 250,
             Intents = payload.Intents ??= (GatewayIntentFlags)0b_110_11111111_11111111_11111111_11111111,
-            // Sharding info
-            ShardId = payload.Shard?[0],
-            ShardCount = payload.Shard?[1],
         };
 
-        if (socketMeta is { ShardId: not null, ShardCount: not null }) {
-            if (socketMeta.ShardId < 0 || socketMeta.ShardCount <= 0 || socketMeta.ShardId >= socketMeta.ShardCount) {
-                logger.LogWarning("Invalid sharding from {userId}: {shardId}/{shardCount}", user.Result.Id, socketMeta.ShardId, socketMeta.ShardCount);
-                yield return this.Close(CloseCode.InvalidShard);
-                yield break;
-            }
+        if (!payload.TryGetShard(out var shardId, out var shardCount)) {
+            logger.LogWarning("Invalid sharding from {userId}: {shard}", user.Result.Id, payload.Shard);
+            yield return this.Close(CloseCode.InvalidShard);
+            yield break;
         }
+
+        socketMeta.ShardId = shardId;
+        socketMeta.ShardCount = shardCount;
 
         yield return new ReplicationMessage<ReadyResponse>() {
             Payload = new() { },
         };
     }
 
-    // TODO: type? also, implement this in gateway lol
-    private ReplicationMessage<object?> Close(CloseCode closeCode) => new() {
+    private ReplicationMessage<GatewayCloseResponse> Close(CloseCode closeCode) => new() {
         Origin = "IdentifyController",
         Event = "SB_GW_CLOSE",
-        Payload = new {
-            code = closeCode,
+        Payload = new GatewayCloseResponse {
+            Code = closeCode,
         }
     };
 }

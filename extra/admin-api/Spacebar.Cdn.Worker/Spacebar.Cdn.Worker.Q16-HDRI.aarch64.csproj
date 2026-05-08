@@ -17,4 +17,9 @@
         <ProjectReference Include="..\Interop\Spacebar.Interop.Cdn.Abstractions\Spacebar.Interop.Cdn.Abstractions.csproj" Condition="'$(ContinuousIntegrationBuild)'!='true'"/>
         <PackageReference Include="Spacebar.Interop.Cdn.Abstractions" Version="*-preview*" Condition="'$(ContinuousIntegrationBuild)'=='true'"/>
     </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Spacebar.Cdn.Shared\Spacebar.Cdn.Shared.csproj" Condition="'$(ContinuousIntegrationBuild)'!='true'"/>
+        <PackageReference Include="Spacebar.Cdn.Shared" Version="*-preview*" Condition="'$(ContinuousIntegrationBuild)'=='true'"/>
+    </ItemGroup>
+
 </Project>

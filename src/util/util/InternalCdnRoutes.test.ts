@@ -1,6 +1,15 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { getAttachmentCloneMutationPath, getAttachmentMutationPath, getCdnMutationUrl, getInternalCdnPath, getInternalCdnUrl, shouldUseInternalCdnPath } from "./InternalCdnRoutes";
+import {
+    ANIMATED_AVATAR_USER_ID_HEADER,
+    getAttachmentCloneMutationPath,
+    getAttachmentMutationPath,
+    getCdnMutationHeaders,
+    getCdnMutationUrl,
+    getInternalCdnPath,
+    getInternalCdnUrl,
+    shouldUseInternalCdnPath,
+} from "./InternalCdnRoutes";
 
 describe("internal CDN route helpers", () => {
     test("builds internal CDN paths", () => {
@@ -31,5 +40,31 @@ describe("internal CDN route helpers", () => {
     test("leaves non-attachment mutation paths on their existing routes", () => {
         assert.equal(shouldUseInternalCdnPath("/icons/guild"), false);
         assert.equal(getCdnMutationUrl("https://cdn.example", "/icons/guild"), "https://cdn.example/icons/guild");
+    });
+
+    test("adds animated avatar user context only for user avatar mutations", () => {
+        assert.deepEqual(
+            getCdnMutationHeaders({
+                formHeaders: { "content-type": "multipart/form-data; boundary=test" },
+                requestSignature: "signature",
+                animatedAvatarUserId: "user-id",
+            }),
+            {
+                "content-type": "multipart/form-data; boundary=test",
+                signature: "signature",
+                [ANIMATED_AVATAR_USER_ID_HEADER]: "user-id",
+            },
+        );
+
+        assert.deepEqual(
+            getCdnMutationHeaders({
+                formHeaders: { "content-type": "multipart/form-data; boundary=test" },
+                requestSignature: "signature",
+            }),
+            {
+                "content-type": "multipart/form-data; boundary=test",
+                signature: "signature",
+            },
+        );
     });
 });

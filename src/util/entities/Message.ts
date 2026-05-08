@@ -394,17 +394,19 @@ export class Message extends BaseClass {
     }
 
     toPartialMessage(): PartialMessage {
+        const author = serializeMessageMentions(this.author ? [this.author] : [])[0];
+        if (!author?.id) throw new Error(`Cannot serialize partial message ${this.id} without a hydrated author`);
+
         return {
             id: this.id,
             // lobby_id: this.lobby_id,
             channel_id: this.channel_id!,
             type: this.type,
             content: this.content!,
-            author: { ...this.author!, avatar: this.author?.avatar ?? null },
+            author,
             flags: this.flags,
             application_id: this.application_id,
             //channel: this.channel, // TODO: ephemeral DM channels
-            // recipient_id: this.recipient_id, // TODO: ephemeral DM channels
         };
     }
 

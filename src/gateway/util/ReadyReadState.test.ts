@@ -14,6 +14,7 @@ describe("READY read_state serialization", () => {
                     mention_count: 0,
                     last_viewed: 3576,
                     last_message_id: "message-1",
+                    notifications_cursor: "message-2",
                     last_pin_timestamp: lastPinTimestamp,
                     flags: 1,
                 },
@@ -24,6 +25,7 @@ describe("READY read_state serialization", () => {
                     mention_count: 0,
                     last_viewed: 3576,
                     last_message_id: "message-1",
+                    notifications_cursor: "message-2",
                     last_pin_timestamp: lastPinTimestamp,
                     flags: 1,
                 },
@@ -61,6 +63,18 @@ describe("READY read_state serialization", () => {
         ]);
     });
 
+    test("omits nullish channel notification cursors from READY read_state", () => {
+        assert.deepEqual(serializeReadyReadState([{ channel_id: "channel-1", notifications_cursor: null }]), [
+            {
+                id: "channel-1",
+                mention_count: 0,
+                last_viewed: 0,
+                last_pin_timestamp: READY_READ_STATE_DEFAULT_LAST_PIN_TIMESTAMP,
+                flags: 0,
+            },
+        ]);
+    });
+
     test("filters non-channel read-state rows when the capability is absent", () => {
         assert.deepEqual(
             serializeReadyReadState(
@@ -88,7 +102,7 @@ describe("READY read_state serialization", () => {
         );
     });
 
-    test("serializes non-channel read-state rows when the capability is present", () => {
+    test("serializes non-channel read-state rows with last_viewed when the capability is present", () => {
         assert.deepEqual(
             serializeReadyReadState([
                 {
@@ -97,6 +111,8 @@ describe("READY read_state serialization", () => {
                     badge_count: 4,
                     last_acked_id: "guild-home-item-1",
                     last_viewed: 3576,
+                    last_pin_timestamp: new Date("2026-05-06T11:00:00.000Z"),
+                    flags: 7,
                 },
                 {
                     channel_id: "channel-1",

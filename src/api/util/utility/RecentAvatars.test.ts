@@ -4,6 +4,7 @@ import { describe, test, type TestContext } from "node:test";
 import express from "express";
 import {
     getRecentAvatarIdsToPrune,
+    getRecentAvatarStorageHashesToDelete,
     getUserRecentAvatarHash,
     pruneUserRecentAvatars,
     RECENT_AVATAR_LIMIT,
@@ -60,11 +61,26 @@ describe("recent avatars", () => {
         assert.deepEqual(getRecentAvatarIdsToPrune(avatars), ["avatar-6"]);
     });
 
+    test("selects only pruned avatar blobs that are not still retained", () => {
+        const avatars = [
+            ...Array.from({ length: RECENT_AVATAR_LIMIT }, (_, index) => ({
+                id: `retained-avatar-${index}`,
+                storage_hash: index === 0 ? "shared-hash" : `retained-hash-${index}`,
+            })),
+            { id: "pruned-duplicate", storage_hash: "shared-hash" },
+            { id: "pruned-unique", storage_hash: "old-hash" },
+            { id: "pruned-unique-again", storage_hash: "old-hash" },
+        ];
+
+        assert.deepEqual(getRecentAvatarIdsToPrune(avatars), ["pruned-duplicate", "pruned-unique", "pruned-unique-again"]);
+        assert.deepEqual(getRecentAvatarStorageHashesToDelete(avatars), ["old-hash"]);
+    });
+
     test("recent avatar route returns persisted avatars with descriptions", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
         const { User, UserRecentAvatar } = require("@spacebar/util") as typeof import("@spacebar/util");
-        const routeModulePath = require.resolve("../../routes/users/@me/avatars");
+        const routeModulePath = require.resolve("@spacebar/api/routes/users/@me/avatars");
         delete require.cache[routeModulePath];
 
         t.mock.method(User, "findOneOrFail", async () => ({ avatar: "hash-current" }));
@@ -101,7 +117,7 @@ describe("recent avatars", () => {
 
         const util = require("@spacebar/util") as typeof import("@spacebar/util");
         const { User, UserRecentAvatar } = util;
-        const routeModulePath = require.resolve("../../routes/users/@me/index");
+        const routeModulePath = require.resolve("@spacebar/api/routes/users/@me/index");
         delete require.cache[routeModulePath];
 
         const getAssignedBody = mockCurrentUserLookup(t, User);
@@ -165,7 +181,7 @@ describe("recent avatars", () => {
 
         const util = require("@spacebar/util") as typeof import("@spacebar/util");
         const { User, UserRecentAvatar } = util;
-        const routeModulePath = require.resolve("../../routes/users/@me/index");
+        const routeModulePath = require.resolve("@spacebar/api/routes/users/@me/index");
         delete require.cache[routeModulePath];
 
         const getAssignedBody = mockCurrentUserLookup(t, User);
@@ -209,14 +225,20 @@ describe("recent avatars", () => {
         await assert.rejects(getUserRecentAvatarHash("user-id", "other-avatar-id"), { code: 404 });
     });
 
-    test("prunes stored avatars beyond the recent avatar limit", async (t) => {
+    test("prunes stored avatars beyond the recent avatar limit and deletes orphaned blobs", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-        const { UserRecentAvatar } = require("@spacebar/util") as typeof import("@spacebar/util");
-        const rows = Array.from({ length: RECENT_AVATAR_LIMIT + 2 }, (_, index) => ({ id: `avatar-${index}` }));
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const rows = Array.from({ length: RECENT_AVATAR_LIMIT + 2 }, (_, index) => ({ id: `avatar-${index}`, storage_hash: `hash-${index}` }));
         let deleteCriteria: { user_id: string; id: { value: string[] } } | undefined;
+        const deletedFiles: string[] = [];
 
-        t.mock.method(UserRecentAvatar, "find", async () => rows);
+        t.mock.method(UserRecentAvatar, "find", async (options: { select: { id: boolean; storage_hash: boolean } }) => {
+            assert.deepEqual(options.select, { id: true, storage_hash: true });
+            return rows;
+        });
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
         t.mock.method(UserRecentAvatar, "delete", async (criteria: { user_id: string; id: { _value: string[] } }) => {
             deleteCriteria = {
                 user_id: criteria.user_id,
@@ -225,6 +247,10 @@ describe("recent avatars", () => {
                 },
             };
             return undefined;
+        });
+        t.mock.method(getCdnUtil(), "deleteFile", async (path: string) => {
+            deletedFiles.push(path);
+            return { success: true };
         });
 
         await pruneUserRecentAvatars("user-id");
@@ -235,6 +261,103 @@ describe("recent avatars", () => {
                 value: ["avatar-6", "avatar-7"],
             },
         });
+        assert.deepEqual(deletedFiles, ["/avatars/user-id/hash-6", "/avatars/user-id/hash-7"]);
+    });
+
+    test("continues pruning when deleting an orphaned avatar blob fails", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const rows = Array.from({ length: RECENT_AVATAR_LIMIT + 1 }, (_, index) => ({ id: `avatar-${index}`, storage_hash: `hash-${index}` }));
+        let deleteCriteria: { user_id: string; id: { value: string[] } } | undefined;
+        const warnings: unknown[][] = [];
+
+        t.mock.method(UserRecentAvatar, "find", async () => rows);
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
+        t.mock.method(UserRecentAvatar, "delete", async (criteria: { user_id: string; id: { _value: string[] } }) => {
+            deleteCriteria = {
+                user_id: criteria.user_id,
+                id: {
+                    value: criteria.id._value,
+                },
+            };
+            return undefined;
+        });
+        t.mock.method(getCdnUtil(), "deleteFile", async () => {
+            throw new Error("cdn delete failed");
+        });
+        t.mock.method(console, "warn", (...args: unknown[]) => {
+            warnings.push(args);
+        });
+
+        await assert.doesNotReject(pruneUserRecentAvatars("user-id"));
+
+        assert.deepEqual(deleteCriteria, {
+            user_id: "user-id",
+            id: {
+                value: ["avatar-6"],
+            },
+        });
+        assert.equal(warnings.length, 1);
+        assert.match(String(warnings[0]?.[0]), /Failed to delete pruned recent avatar hash-6/);
+    });
+
+    test("does not delete pruned avatar blobs still referenced by retained or current avatars", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const rows = [
+            ...Array.from({ length: RECENT_AVATAR_LIMIT }, (_, index) => ({
+                id: `avatar-${index}`,
+                storage_hash: index === 0 ? "shared-hash" : `hash-${index}`,
+            })),
+            { id: "avatar-6", storage_hash: "shared-hash" },
+            { id: "avatar-7", storage_hash: "old-hash" },
+        ];
+        const deletedFiles: string[] = [];
+
+        t.mock.method(User, "findOne", async () => ({ avatar: "old-hash" }));
+        t.mock.method(UserRecentAvatar, "find", async () => rows);
+        t.mock.method(UserRecentAvatar, "delete", async () => undefined);
+        t.mock.method(getCdnUtil(), "deleteFile", async (path: string) => {
+            deletedFiles.push(path);
+            return { success: true };
+        });
+
+        await pruneUserRecentAvatars("user-id");
+
+        assert.deepEqual(deletedFiles, []);
+    });
+
+    test("recording a new avatar protects it from prune-time deletion", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const rows = [
+            ...Array.from({ length: RECENT_AVATAR_LIMIT }, (_, index) => ({
+                id: `avatar-${index}`,
+                storage_hash: `hash-${index}`,
+            })),
+            { id: "newly-recorded-avatar", storage_hash: "new-current-hash" },
+        ];
+        const deletedFiles: string[] = [];
+
+        t.mock.method(User, "findOne", async () => {
+            throw new Error("current user lookup should be skipped when current avatar hash is known");
+        });
+        t.mock.method(UserRecentAvatar, "find", async () => rows);
+        t.mock.method(UserRecentAvatar, "delete", async () => undefined);
+        t.mock.method(getCdnUtil(), "deleteFile", async (path: string) => {
+            deletedFiles.push(path);
+            return { success: true };
+        });
+
+        await pruneUserRecentAvatars("user-id", RECENT_AVATAR_LIMIT, "new-current-hash");
+
+        assert.deepEqual(deletedFiles, []);
     });
 });
 
@@ -264,6 +387,10 @@ function mockCurrentUserLookup(t: TestContext, User: typeof import("@spacebar/ut
     t.mock.method(User, "findOneOrFail", async () => new FakeUser() as unknown as InstanceType<typeof User>);
 
     return () => assignedBody;
+}
+
+function getCdnUtil(): { deleteFile: (typeof import("@spacebar/util"))["deleteFile"] } {
+    return require("@spacebar/util/util/cdn") as { deleteFile: (typeof import("@spacebar/util"))["deleteFile"] };
 }
 
 function createUserRouteApp(router: express.Router, mountPath = "/users/@me") {

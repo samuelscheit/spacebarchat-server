@@ -16,27 +16,27 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { ThreadMembersUpdateEvent } from "../interfaces";
-import { emitEvent } from "../util";
+import { Column, Entity, Index, JoinColumn, ManyToOne, MoreThan, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import type { ThreadMembersUpdateEvent } from "../interfaces";
+import type { ThreadMemberMuteConfig } from "../interfaces/ThreadMember";
+import { emitEvent, getDatabase } from "../util";
+import { ThreadMemberFlags } from "../util/ThreadMemberFlags";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
 import { HTTPError } from "lambert-server";
 import { Member } from "./Member";
 
-// TODO: move
-interface ThreadMemberMuteConfig {
-    end_time?: Date;
-    selected_time_window?: number;
-}
+export { ThreadMemberFlags };
 
-// TODO: move
-export enum ThreadMemberFlags {
-    NONE = 0,
-    HAS_INTERACTED = 1 << 0,
-    ALL_MESSAGES = 1 << 1,
-    ONLY_MENTIONS = 1 << 2,
-    NO_MESSAGES = 1 << 3,
+export interface SerializedThreadMember {
+    index?: string;
+    id: string;
+    member_idx: string;
+    member?: Member;
+    join_timestamp: Date;
+    muted: boolean;
+    mute_config?: ThreadMemberMuteConfig;
+    flags: ThreadMemberFlags;
 }
 
 @Entity("thread_members")
@@ -77,6 +77,10 @@ export class ThreadMember extends BaseClassWithoutId {
     @Column()
     flags: ThreadMemberFlags;
 
+    toJSON(): SerializedThreadMember {
+        return super.toJSON() as SerializedThreadMember;
+    }
+
     static async createForUser(user_id: string, thread: Pick<Channel, "id" | "guild_id">, flags: ThreadMemberFlags = ThreadMemberFlags.NONE) {
         if (!thread.guild_id) throw new HTTPError("Thread guild id not set", 500);
 
@@ -99,38 +103,53 @@ export class ThreadMember extends BaseClassWithoutId {
         throw new HTTPError("You are not member of this thread", 403);
     }
 
-    static async removeFromThread(member_id: string, thread_id: string) {
-        const channel = await Channel.findOneOrFail({ where: { id: thread_id } });
-        if (
-            !(await ThreadMember.count({
-                where: {
-                    id: thread_id,
-                    member_idx: member_id,
-                },
-            }))
-        )
-            throw new HTTPError("You are not member of this thread", 403);
-        // // use promise all to execute all promises at the same time -> save time
-        // TODO: check for bugs
-        if (channel.member_count) channel.member_count--;
-        return Promise.all([
-            ThreadMember.delete({
-                id: thread_id,
-                member_idx: member_id,
-            }),
-            // 	//Guild.decrement({ id: guild_id }, "member_count", -1),
+    static async removeFromThread(user_id: string, thread_id: string) {
+        const database = getDatabase();
+        if (!database) throw new Error("Tried to remove a thread member before the database was initialised");
 
-            emitEvent({
-                event: "THREAD_MEMBERS_UPDATE",
-                data: {
-                    guild_id: channel.guild_id!, // TODO: is this the right fix?
-                    id: channel.id,
-                    member_count: channel.member_count ?? 0,
-                    removed_member_ids: [member_id],
-                },
-                channel_id: thread_id,
-            } satisfies ThreadMembersUpdateEvent),
-        ]);
+        const channel = await database.transaction(async (entityManager) => {
+            const channel = await entityManager.findOneOrFail(Channel, {
+                where: { id: thread_id },
+                select: { id: true, guild_id: true, member_count: true, type: true },
+            });
+            if (!channel.isThread()) throw new HTTPError("Channel is not a thread", 400);
+            if (!channel.guild_id) throw new HTTPError("Thread guild id not set", 500);
+
+            const member = await entityManager.findOneOrFail(Member, {
+                where: { id: user_id, guild_id: channel.guild_id },
+                select: { index: true },
+            });
+
+            const deletion = await entityManager.delete(ThreadMember, {
+                id: thread_id,
+                member_idx: member.index,
+            });
+            if (!deletion.affected) throw new HTTPError("You are not member of this thread", 403);
+
+            if (channel.member_count !== null && channel.member_count !== undefined && channel.member_count > 0) {
+                await entityManager.decrement(Channel, { id: thread_id, member_count: MoreThan(0) }, "member_count", 1);
+
+                return entityManager.findOneOrFail(Channel, {
+                    where: { id: thread_id },
+                    select: { id: true, guild_id: true, member_count: true },
+                });
+            }
+
+            return channel;
+        });
+
+        if (!channel.guild_id) throw new HTTPError("Thread guild id not set", 500);
+
+        return emitEvent({
+            event: "THREAD_MEMBERS_UPDATE",
+            data: {
+                guild_id: channel.guild_id,
+                id: channel.id,
+                member_count: channel.member_count ?? 0,
+                removed_member_ids: [user_id],
+            },
+            channel_id: thread_id,
+        } satisfies ThreadMembersUpdateEvent);
     }
 
     // static async addRole(user_id: string, guild_id: string, role_id: string) {

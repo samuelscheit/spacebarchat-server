@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { Session } from "../entities/Session";
-import type { Activity, Status } from "../interfaces";
+import { ActivityType, type Activity, type Presence, type Status } from "../interfaces";
 
 function createActivity(name: string): Activity {
-    return { name, type: 0, flags: "0", session_id: "session" };
+    return { name, type: ActivityType.GAME, flags: "0", session_id: "session" };
 }
 
 function createSession(status: Status, activities: Activity[] = []): Session {
@@ -12,6 +12,14 @@ function createSession(status: Status, activities: Activity[] = []): Session {
 }
 
 describe("getMostRelevantSession", () => {
+    test("models game presence as activities", () => {
+        const game = createActivity("game");
+        const noTopLevelGame: Extract<keyof Presence, "game"> extends never ? true : never = true;
+
+        assert.equal(game.type, ActivityType.GAME);
+        assert.equal(noTopLevelGame, true);
+    });
+
     test("prioritizes status before activity count", async () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@127.0.0.1/spacebar";
         const { getMostRelevantSession } = await import("./Presence.js");

@@ -19,6 +19,21 @@
 import { Readable } from "node:stream";
 import { Storage } from "./Storage";
 
+interface S3Client {
+    putObject(input: { Bucket: string; Key: string; Body: Buffer }): Promise<unknown>;
+    copyObject(input: { Bucket: string; CopySource: string; Key: string }): Promise<unknown>;
+    getObject(input: { Bucket: string; Key: string }): Promise<{ Body?: unknown }>;
+    deleteObject(input: { Bucket: string; Key: string }): Promise<unknown>;
+    headObject(input: { Bucket: string; Key: string }): Promise<unknown>;
+}
+
+const encodeS3CopySourceSegment = (value: string) =>
+    encodeURIComponent(value).replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
+
+const encodeS3CopySourcePath = (value: string) => value.split("/").map(encodeS3CopySourceSegment).join("/");
+
+export const getS3CopySource = (bucket: string, key: string) => `${encodeS3CopySourceSegment(bucket)}/${encodeS3CopySourcePath(key)}`;
+
 const readableToBuffer = (readable: Readable): Promise<Buffer> =>
     new Promise((resolve, reject) => {
         const chunks: Buffer[] = [];
@@ -28,14 +43,20 @@ const readableToBuffer = (readable: Readable): Promise<Buffer> =>
     });
 
 export class S3Storage implements Storage {
-    private client: unknown;
+    private client: S3Client;
     public constructor(
         private region: string,
         private bucket: string,
         private endpoint: string,
         private forcePathStyle: boolean,
         private basePath?: string,
+        client?: S3Client,
     ) {
+        if (client) {
+            this.client = client;
+            return;
+        }
+
         const { S3 } = require("@aws-sdk/client-s3");
         this.client = new S3({ region: region, endpoint: endpoint, forcePathStyle: forcePathStyle });
     }
@@ -50,34 +71,31 @@ export class S3Storage implements Storage {
         return this.basePath ?? "";
     }
 
+    private getKey(path: string) {
+        return `${this.bucketBasePath}${path}`;
+    }
+
     async set(path: string, data: Buffer): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         await this.client.putObject({
             Bucket: this.bucket,
-            Key: `${this.bucketBasePath}${path}`,
+            Key: this.getKey(path),
             Body: data,
         });
     }
 
     async clone(path: string, newPath: string): Promise<void> {
-        // TODO: does this even work?
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         await this.client.copyObject({
             Bucket: this.bucket,
-            CopySource: `/${this.bucket}/${this.bucketBasePath}${path}`,
-            Key: `${this.bucketBasePath}${newPath}`,
+            CopySource: getS3CopySource(this.bucket, this.getKey(path)),
+            Key: this.getKey(newPath),
         });
     }
 
     async get(path: string): Promise<Buffer | null> {
         try {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
             const s3Object = await this.client.getObject({
                 Bucket: this.bucket,
-                Key: `${this.bucketBasePath ?? ""}${path}`,
+                Key: this.getKey(path),
             });
 
             if (!s3Object.Body) return null;
@@ -93,21 +111,17 @@ export class S3Storage implements Storage {
     }
 
     async delete(path: string): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         await this.client.deleteObject({
             Bucket: this.bucket,
-            Key: `${this.bucketBasePath}${path}`,
+            Key: this.getKey(path),
         });
     }
 
     async exists(path: string): Promise<boolean> {
         try {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error
             await this.client.headObject({
                 Bucket: this.bucket,
-                Key: `${this.bucketBasePath}${path}`,
+                Key: this.getKey(path),
             });
             return true;
         } catch (err) {

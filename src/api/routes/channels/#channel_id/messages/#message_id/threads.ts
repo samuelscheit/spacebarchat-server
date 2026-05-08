@@ -17,7 +17,7 @@
 */
 
 import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations } from "@spacebar/util";
+import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations, upsertChannelMessageReadState } from "@spacebar/util";
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
@@ -26,7 +26,6 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -39,7 +38,6 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: check for differences with https://github.com/spacebarchat/server/pull/876/files#diff-95be9c4cdfd8ba6f67361cd40b9abc8226b35d83e2bb44bf5b4682f1d66155e9
         const { message_id, channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageThreadCreationSchema;
         const message = await Message.findOneOrFail({
@@ -80,7 +78,7 @@ router.post(
 
         message.thread = thread;
         message.flags ||= 1 << 5;
-        await sendMessage({
+        const starterMessage = await sendMessage({
             channel_id: thread.id,
             type: MessageType.THREAD_STARTER_MESSAGE,
             message_reference: {
@@ -101,6 +99,7 @@ router.post(
             author_id: user.id,
         });
         await Promise.all([
+            upsertChannelMessageReadState({ user_id: req.user_id, channel_id: thread.id }, starterMessage.id),
             emitEvent({
                 event: "THREAD_CREATE",
                 channel_id,

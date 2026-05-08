@@ -6,7 +6,8 @@ import { SpacebarServer } from "@spacebar/api";
 describe("SpacebarServer.configureApp", () => {
     test("mounts public readiness routes without startup database initialization", async () => {
         const app = new SpacebarServer();
-        await withoutStartupSideEffects(() => app.configureApp());
+        const routeRegistrationErrors = await captureRouteRegistrationErrors(() => withoutStartupSideEffects(() => app.configureApp()));
+        assert.deepEqual(routeRegistrationErrors, []);
 
         const server = createServer(app.app);
         const port = await listen(server);
@@ -65,4 +66,22 @@ async function withoutStartupSideEffects<T>(task: () => Promise<T>) {
         if (previousConfigPath === undefined) delete process.env.CONFIG_PATH;
         else process.env.CONFIG_PATH = previousConfigPath;
     }
+}
+
+async function captureRouteRegistrationErrors<T>(task: () => Promise<T>) {
+    const previousError = console.error;
+    const routeRegistrationErrors: string[] = [];
+    console.error = (...args: unknown[]) => {
+        const message = args.map(String).join(" ");
+        if (message.includes("[Server] Failed to register route")) routeRegistrationErrors.push(message);
+        previousError(...args);
+    };
+
+    try {
+        await task();
+    } finally {
+        console.error = previousError;
+    }
+
+    return routeRegistrationErrors;
 }

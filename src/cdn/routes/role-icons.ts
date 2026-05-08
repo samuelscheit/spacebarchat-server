@@ -9,109 +9,24 @@
 	
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 	
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Router, Response, Request } from "express";
-import { Config } from "@spacebar/util";
-import { storage } from "@spacebar/cdn";
-import { fileTypeFromBuffer } from "file-type";
-import { HTTPError } from "lambert-server";
-import crypto from "node:crypto";
-import { multer } from "../util/multer";
-import { cache } from "../util/cache";
+import { STATIC_IMAGE_MIME_TYPES } from "../util/ImageRouteHelpers";
+import { createHashImageRouter } from "../util/ImageRoute";
 
-//Role icons ---> avatars.ts modified
+// WebP can be animated while still reporting image/webp, so keep role icons to
+// formats this route can classify as static from MIME detection alone.
+export const ROLE_ICON_MIME_TYPES = STATIC_IMAGE_MIME_TYPES.filter((mimeType) => mimeType !== "image/webp");
 
-// TODO: check user rights and perks and animated pfp are allowed in the policies
-// TODO: generate different sizes of icon
-// TODO: generate different image types of icon
-
-const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
-const ALLOWED_MIME_TYPES = [...STATIC_MIME_TYPES];
-
-const router = Router({ mergeParams: true });
-
-router.post("/:role_id", multer.single("file"), async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    if (!req.file) throw new HTTPError("Missing file");
-    const { buffer, size } = req.file;
-    const { role_id } = req.params as { [key: string]: string };
-
-    const hash = crypto.createHash("md5").update(buffer).digest("hex");
-
-    const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-
-    const path = `role-icons/${role_id}/${hash}.png`;
-    const endpoint = Config.get().cdn.endpointPublic;
-
-    await storage.set(path, buffer);
-
-    return res.json({
-        id: hash,
-        content_type: type.mime,
-        size,
-        url: `${endpoint}${req.baseUrl}/${role_id}/${hash}`,
-    });
+export default createHashImageRouter({
+    pathPrefix: "role-icons",
+    resourceParam: "role_id",
+    allowedMimeTypes: ROLE_ICON_MIME_TYPES,
+    legacyHashExtensions: ["png", "jpg", "jpeg", "webp", "svg"],
+    resize: true,
 });
-
-router.get("/:role_id", cache, async (req: Request, res: Response) => {
-    const { role_id } = req.params as { [key: string]: string };
-    //role_id = role_id.split(".")[0]; // remove .file extension
-    const path = `role-icons/${role_id}`;
-
-    const file = await storage.get(path);
-    if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
-
-    res.set("Content-Type", type?.mime);
-
-    return res.send(file);
-});
-
-router.get("/:role_id/:hash", cache, async (req: Request, res: Response) => {
-    const { role_id, hash } = req.params as { [key: string]: string };
-    //hash = hash.split(".")[0]; // remove .file extension
-    const requested_extension = hash.split(".")[1];
-    const role_icon_hash = hash.split(".")[0];
-    let file: Buffer | null = null;
-
-    const extensions_to_try = [requested_extension, "png", "jpg", "jpeg", "webp", "svg"];
-
-    for (let i = 0; i < extensions_to_try.length; i++) {
-        file = await storage.get(`role-icons/${role_id}/${role_icon_hash}.${extensions_to_try[i]}`);
-        if (file) break;
-    }
-
-    if (!file) throw new HTTPError("not found", 404);
-    const type = await fileTypeFromBuffer(file);
-
-    res.set("Content-Type", type?.mime);
-
-    return res.send(file);
-});
-
-router.delete("/:role_id/:id", async (req: Request, res: Response) => {
-    if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
-    const { role_id, id } = req.params as { [key: string]: string };
-    const candidateIds = id.includes(".") ? [id] : [id, `${id}.png`, `${id}.jpg`, `${id}.jpeg`, `${id}.webp`, `${id}.svg`];
-    const paths = candidateIds.map((candidate) => `role-icons/${role_id}/${candidate}`);
-    const path = (await firstExistingPath(paths)) ?? paths[0];
-
-    await storage.delete(path);
-
-    return res.send({ success: true });
-});
-
-async function firstExistingPath(paths: string[]) {
-    for (const path of paths) {
-        if (await storage.exists(path)) return path;
-    }
-}
-
-export default router;

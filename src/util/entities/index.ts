@@ -41,6 +41,7 @@ export * from "./Guild";
 export * from "./InstanceBan";
 export * from "./Invite";
 export * from "./Member";
+export * from "./MemberPublic";
 export * from "./Message";
 export * from "./Migration";
 export * from "./Note";

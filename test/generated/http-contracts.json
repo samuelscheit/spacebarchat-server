@@ -3,10 +3,10 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 376,
+        "totalContracts": 408,
         "byService": {
             "api": 335,
-            "cdn": 41
+            "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 287,
         "runtimeMalformedAuthContracts": 287,
@@ -14,22 +14,22 @@
         "runtimeStaleTokenAuthContracts": 287,
         "runtimePublicAuthBoundaryContracts": 40,
         "runtimePublicInvalidBodyContracts": 13,
-        "runtimeProtectedInvalidBodyContracts": 53,
+        "runtimeProtectedInvalidBodyContracts": 52,
         "runtimePublicResponseSchemaContracts": 8,
         "runtimeAuthenticatedResponseSchemaContracts": 18,
-        "runtimeRightOnlyDenialContracts": 6,
-        "runtimePermissionOnlyDenialContracts": 80,
-        "runtimePermissionAndRightPermissionDenialContracts": 7,
-        "runtimePermissionAndRightRightDenialContracts": 7,
+        "runtimeRightOnlyDenialContracts": 7,
+        "runtimePermissionOnlyDenialContracts": 79,
+        "runtimePermissionAndRightPermissionDenialContracts": 8,
+        "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
         "runtimeRateLimitHeaderContracts": 152,
-        "runtimeCdnMissingObjectContracts": 19,
-        "runtimeCdnHeadMissingObjectContracts": 19,
-        "runtimeCdnValidObjectContracts": 19,
-        "runtimeCdnSignatureRequiredContracts": 20,
-        "runtimeCdnDeleteContracts": 9,
-        "runtimeCdnUploadContracts": 9,
-        "runtimeCdnInvalidUploadContracts": 8,
+        "runtimeCdnMissingObjectContracts": 35,
+        "runtimeCdnHeadMissingObjectContracts": 35,
+        "runtimeCdnValidObjectContracts": 35,
+        "runtimeCdnSignatureRequiredContracts": 36,
+        "runtimeCdnDeleteContracts": 17,
+        "runtimeCdnUploadContracts": 17,
+        "runtimeCdnInvalidUploadContracts": 16,
         "runtimeCdnInternalAttachmentContracts": 3,
         "runtimeCdnSignedUrlContracts": 1,
         "runtimeCdnFilenameSanitizationContracts": 1
@@ -42,7 +42,7 @@
             "path": "/_spacebar/api/openapi.json",
             "samplePath": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 155,
+            "line": 156,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -82,7 +82,7 @@
             "path": "/_spacebar/api/schemas.json",
             "samplePath": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 151,
+            "line": 152,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -122,7 +122,7 @@
             "path": "/_spacebar/api/version",
             "samplePath": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 159,
+            "line": 160,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -226,7 +226,7 @@
             "path": "/.well-known/spacebar/client",
             "samplePath": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 178,
+            "line": 179,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -266,7 +266,7 @@
             "path": "/.well-known/spacebar",
             "samplePath": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 171,
+            "line": 172,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -2452,7 +2452,7 @@
             "path": "/channels/:channel_id/",
             "samplePath": "/channels/100000000000000002/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 74,
+            "line": 77,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -2526,7 +2526,7 @@
             "path": "/channels/:channel_id/",
             "samplePath": "/channels/100000000000000002/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 50,
+            "line": 53,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -2598,7 +2598,7 @@
             "path": "/channels/:channel_id/",
             "samplePath": "/channels/100000000000000002/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 155,
+            "line": 158,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -3482,7 +3482,7 @@
             "path": "/channels/:channel_id/messages/:message_id/ack/",
             "samplePath": "/channels/100000000000000002/messages/100000000000000003/ack/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/ack.ts",
-            "line": 30,
+            "line": 29,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4364,7 +4364,7 @@
             "path": "/channels/:channel_id/messages/:message_id/threads/",
             "samplePath": "/channels/100000000000000002/messages/100000000000000003/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/threads.ts",
-            "line": 31,
+            "line": 30,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4440,7 +4440,7 @@
             "path": "/channels/:channel_id/messages/",
             "samplePath": "/channels/100000000000000002/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 78,
+            "line": 79,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4510,7 +4510,7 @@
             "path": "/channels/:channel_id/messages/",
             "samplePath": "/channels/100000000000000002/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 244,
+            "line": 245,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4588,7 +4588,7 @@
             "path": "/channels/:channel_id/messages/ack",
             "samplePath": "/channels/100000000000000002/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 517,
+            "line": 510,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5394,7 +5394,7 @@
             "path": "/channels/:channel_id/post-data/",
             "samplePath": "/channels/100000000000000002/post-data/",
             "sourceFile": "src/api/routes/channels/#channel_id/post-data.ts",
-            "line": 33,
+            "line": 36,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5468,7 +5468,7 @@
             "path": "/channels/:channel_id/purge/",
             "samplePath": "/channels/100000000000000002/purge/",
             "sourceFile": "src/api/routes/channels/#channel_id/purge.ts",
-            "line": 33,
+            "line": 31,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5540,7 +5540,7 @@
             "path": "/channels/:channel_id/recipients/:user_id",
             "samplePath": "/channels/100000000000000002/recipients/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 79,
+            "line": 88,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5612,7 +5612,7 @@
             "path": "/channels/:channel_id/recipients/:user_id",
             "samplePath": "/channels/100000000000000002/recipients/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 26,
+            "line": 77,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5684,7 +5684,7 @@
             "path": "/channels/:channel_id/tags/:tag_id",
             "samplePath": "/channels/100000000000000002/tags/value",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 113,
+            "line": 110,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5758,7 +5758,7 @@
             "path": "/channels/:channel_id/tags/:tag_id",
             "samplePath": "/channels/100000000000000002/tags/value",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 72,
+            "line": 71,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5834,7 +5834,7 @@
             "path": "/channels/:channel_id/tags/",
             "samplePath": "/channels/100000000000000002/tags/",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 27,
+            "line": 26,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6204,7 +6204,7 @@
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "samplePath": "/channels/100000000000000002/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 220,
+            "line": 201,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6350,7 +6350,7 @@
             "path": "/channels/:channel_id/threads/",
             "samplePath": "/channels/100000000000000002/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 67,
+            "line": 70,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6365,9 +6365,9 @@
             },
             "routeMetadata": {
                 "requestBody": "ThreadCreationSchema",
-                "responses": [],
-                "responseStatuses": [200, 403],
-                "permission": "CREATE_PUBLIC_THREADS",
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [200, 400, 403],
+                "permission": "VIEW_CHANNEL",
                 "emittedEvents": ["MESSAGE_CREATE", "THREAD_CREATE"]
             },
             "cases": [
@@ -6395,7 +6395,7 @@
                 {
                     "id": "authorization-denied",
                     "checks": ["permission-denied", "error-shape"],
-                    "permission": "CREATE_PUBLIC_THREADS"
+                    "permission": "VIEW_CHANNEL"
                 },
                 {
                     "id": "event-emission",
@@ -6426,7 +6426,7 @@
             "path": "/channels/:channel_id/threads/active",
             "samplePath": "/channels/100000000000000002/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 238,
+            "line": 233,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6498,7 +6498,7 @@
             "path": "/channels/:channel_id/threads/archived/private",
             "samplePath": "/channels/100000000000000002/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 297,
+            "line": 292,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6642,7 +6642,7 @@
             "path": "/channels/:channel_id/threads/search",
             "samplePath": "/channels/100000000000000002/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 364,
+            "line": 359,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -7858,7 +7858,7 @@
             "path": "/guilds/:guild_id/",
             "samplePath": "/guilds/100000000000000001/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 47,
+            "line": 102,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -7928,7 +7928,7 @@
             "path": "/guilds/:guild_id/",
             "samplePath": "/guilds/100000000000000001/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 75,
+            "line": 130,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -9969,7 +9969,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 212,
+            "line": 231,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -10041,7 +10041,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 26,
+            "line": 41,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -10111,7 +10111,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 68,
+            "line": 83,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -10185,7 +10185,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 155,
+            "line": 174,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11485,7 +11485,7 @@
             "path": "/guilds/:guild_id/roles/",
             "samplePath": "/guilds/100000000000000001/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 38,
+            "line": 40,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11555,7 +11555,7 @@
             "path": "/guilds/:guild_id/roles/",
             "samplePath": "/guilds/100000000000000001/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 131,
+            "line": 135,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11631,7 +11631,7 @@
             "path": "/guilds/:guild_id/roles/",
             "samplePath": "/guilds/100000000000000001/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 48,
+            "line": 50,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11649,6 +11649,7 @@
                 "responses": ["APIErrorResponse", "Role"],
                 "responseStatuses": [200, 400, 403],
                 "permission": "MANAGE_ROLES",
+                "right": "CREATE_ROLES",
                 "emittedEvents": ["GUILD_ROLE_CREATE"]
             },
             "cases": [
@@ -11676,7 +11677,8 @@
                 {
                     "id": "authorization-denied",
                     "checks": ["permission-denied", "error-shape"],
-                    "permission": "MANAGE_ROLES"
+                    "permission": "MANAGE_ROLES",
+                    "right": "CREATE_ROLES"
                 },
                 {
                     "id": "event-emission",
@@ -11847,7 +11849,7 @@
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "samplePath": "/guilds/100000000000000001/stickers/100000000000000010",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 189,
+            "line": 177,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11921,7 +11923,7 @@
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "samplePath": "/guilds/100000000000000001/stickers/100000000000000010",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 122,
+            "line": 110,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11991,7 +11993,7 @@
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "samplePath": "/guilds/100000000000000001/stickers/100000000000000010",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 146,
+            "line": 134,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12067,7 +12069,7 @@
             "path": "/guilds/:guild_id/stickers/",
             "samplePath": "/guilds/100000000000000001/stickers/",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 27,
+            "line": 28,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12137,7 +12139,7 @@
             "path": "/guilds/:guild_id/stickers/",
             "samplePath": "/guilds/100000000000000001/stickers/",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 56,
+            "line": 57,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12213,7 +12215,7 @@
             "path": "/guilds/:guild_id/templates/:code",
             "samplePath": "/guilds/100000000000000001/templates/value",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 118,
+            "line": 119,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12285,7 +12287,7 @@
             "path": "/guilds/:guild_id/templates/:code",
             "samplePath": "/guilds/100000000000000001/templates/value",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 167,
+            "line": 168,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12359,7 +12361,7 @@
             "path": "/guilds/:guild_id/templates/:code",
             "samplePath": "/guilds/100000000000000001/templates/value",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 139,
+            "line": 140,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12431,7 +12433,7 @@
             "path": "/guilds/:guild_id/templates/",
             "samplePath": "/guilds/100000000000000001/templates/",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 52,
+            "line": 53,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12501,7 +12503,7 @@
             "path": "/guilds/:guild_id/templates/",
             "samplePath": "/guilds/100000000000000001/templates/",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 72,
+            "line": 73,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12795,7 +12797,7 @@
             "path": "/guilds/:guild_id/voice-states/:user_id/",
             "samplePath": "/guilds/100000000000000001/voice-states/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/voice-states/#user_id/index.ts",
-            "line": 27,
+            "line": 37,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -13594,7 +13596,8 @@
             "routeMetadata": {
                 "requestBody": "GuildTemplateCreateSchema",
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "right": "CREATE_GUILDS"
             },
             "cases": [
                 {
@@ -13619,8 +13622,9 @@
                     "requestBody": "GuildTemplateCreateSchema"
                 },
                 {
-                    "id": "policy-permission-denied",
-                    "checks": ["permission-denied"]
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "right": "CREATE_GUILDS"
                 },
                 {
                     "id": "policy-db-state",
@@ -13639,7 +13643,7 @@
             "path": "/healthz",
             "samplePath": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 218,
+            "line": 219,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -13725,7 +13729,7 @@
             "path": "/imageproxy/:hash/:size/:url",
             "samplePath": "/imageproxy/abcdef/value/https%3A%2F%2Fexample.invalid%2Ffile.png",
             "sourceFile": "src/api/Server.ts",
-            "line": 147,
+            "line": 148,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -14631,7 +14635,7 @@
             "path": "/readyz",
             "samplePath": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 217,
+            "line": 218,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -15907,7 +15911,7 @@
             "path": "/users/@me/",
             "samplePath": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 41,
+            "line": 43,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15955,7 +15959,7 @@
             "path": "/users/@me/",
             "samplePath": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 60,
+            "line": 62,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -18202,7 +18206,8 @@
             "routeMetadata": {
                 "requestBody": "RelationshipPutSchema",
                 "responses": ["APIErrorResponse"],
-                "responseStatuses": [204, 400, 404]
+                "responseStatuses": [204, 400, 404],
+                "emittedEvents": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
             },
             "cases": [
                 {
@@ -18225,6 +18230,11 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "RelationshipPutSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -18300,7 +18310,8 @@
             "routeMetadata": {
                 "requestBody": "RelationshipPostSchema",
                 "responses": ["APIErrorResponse"],
-                "responseStatuses": [204, 400, 404]
+                "responseStatuses": [204, 400, 404],
+                "emittedEvents": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
             },
             "cases": [
                 {
@@ -18323,6 +18334,11 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "RelationshipPostSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -19941,6 +19957,374 @@
             ]
         },
         {
+            "manifestId": "cdn:http:GET:/app-assets/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id/:hash",
+            "samplePath": "/app-assets/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/app-assets/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-assets/:guild_id/:id",
+            "samplePath": "/app-assets/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/app-assets/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id",
+            "samplePath": "/app-assets/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/app-assets/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-assets/:guild_id",
+            "samplePath": "/app-assets/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/app-icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id/:hash",
+            "samplePath": "/app-icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/app-icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-icons/:guild_id/:id",
+            "samplePath": "/app-icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/app-icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id",
+            "samplePath": "/app-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/app-icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-icons/:guild_id",
+            "samplePath": "/app-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
             "manifestId": "cdn:http:GET:/attachments/:channel_id/:message_id/:filename",
             "service": "cdn",
             "method": "GET",
@@ -20039,7 +20423,7 @@
             "path": "/avatars/:user_id/:hash",
             "samplePath": "/avatars/100000000000000004/abcdef",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 94,
+            "line": 98,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20083,7 +20467,7 @@
             "path": "/avatars/:user_id/:id",
             "samplePath": "/avatars/100000000000000004/value",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 96,
+            "line": 100,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20131,7 +20515,7 @@
             "path": "/avatars/:user_id",
             "samplePath": "/avatars/100000000000000004",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 65,
+            "line": 69,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20175,7 +20559,7 @@
             "path": "/avatars/:user_id",
             "samplePath": "/avatars/100000000000000004",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 39,
+            "line": 38,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20403,7 +20787,559 @@
             "path": "/banners/:guild_id",
             "samplePath": "/banners/100000000000000001",
             "sourceFile": "src/cdn/routes/banners.ts",
-            "line": 40,
+            "line": 38,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/channel-icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id/:hash",
+            "samplePath": "/channel-icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/channel-icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/channel-icons/:guild_id/:id",
+            "samplePath": "/channel-icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/channel-icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id",
+            "samplePath": "/channel-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/channel-icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/channel-icons/:guild_id",
+            "samplePath": "/channel-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discover-splashes/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id/:hash",
+            "samplePath": "/discover-splashes/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/discover-splashes/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discover-splashes/:guild_id/:id",
+            "samplePath": "/discover-splashes/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discover-splashes/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id",
+            "samplePath": "/discover-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/discover-splashes/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discover-splashes/:guild_id",
+            "samplePath": "/discover-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discovery-splashes/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id/:hash",
+            "samplePath": "/discovery-splashes/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/discovery-splashes/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discovery-splashes/:guild_id/:id",
+            "samplePath": "/discovery-splashes/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discovery-splashes/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id",
+            "samplePath": "/discovery-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/discovery-splashes/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discovery-splashes/:guild_id",
+            "samplePath": "/discovery-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20539,7 +21475,7 @@
             "path": "/emojis/:emoji_id",
             "samplePath": "/emojis/100000000000000009",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 79,
+            "line": 71,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20587,7 +21523,7 @@
             "path": "/emojis/:emoji_id",
             "samplePath": "/emojis/100000000000000009",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 65,
+            "line": 58,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20631,7 +21567,7 @@
             "path": "/emojis/:emoji_id",
             "samplePath": "/emojis/100000000000000009",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 40,
+            "line": 35,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20679,7 +21615,7 @@
             "path": "/guild-profiles/:hash",
             "samplePath": "/guild-profiles/abcdef",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 85,
+            "line": 83,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20723,7 +21659,7 @@
             "path": "/guild-profiles/:id",
             "samplePath": "/guild-profiles/value",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 99,
+            "line": 97,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20771,7 +21707,7 @@
             "path": "/guild-profiles/",
             "samplePath": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 73,
+            "line": 71,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20815,7 +21751,7 @@
             "path": "/guild-profiles/",
             "samplePath": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 43,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20863,7 +21799,7 @@
             "path": "/guilds/:guild_id/users/:user_id/avatars/:hash",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/avatars/abcdef",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 85,
+            "line": 83,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20907,7 +21843,7 @@
             "path": "/guilds/:guild_id/users/:user_id/avatars/:id",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/avatars/value",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 99,
+            "line": 97,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20955,7 +21891,7 @@
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 73,
+            "line": 71,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -20999,7 +21935,7 @@
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 43,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21047,7 +21983,7 @@
             "path": "/guilds/:guild_id/users/:user_id/banners/:hash",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/banners/abcdef",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 85,
+            "line": 83,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21091,7 +22027,7 @@
             "path": "/guilds/:guild_id/users/:user_id/banners/:id",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/banners/value",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 99,
+            "line": 97,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21139,7 +22075,7 @@
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 73,
+            "line": 71,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21183,7 +22119,191 @@
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "samplePath": "/guilds/100000000000000001/users/100000000000000004/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 43,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id/:hash",
+            "samplePath": "/icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/icons/:guild_id/:id",
+            "samplePath": "/icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id",
+            "samplePath": "/icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/icons/:guild_id",
+            "samplePath": "/icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21275,7 +22395,7 @@
             "path": "/role-icons/:role_id/:hash",
             "samplePath": "/role-icons/100000000000000005/abcdef",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 77,
+            "line": 26,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21319,7 +22439,7 @@
             "path": "/role-icons/:role_id/:id",
             "samplePath": "/role-icons/100000000000000005/value",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 99,
+            "line": 26,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21367,7 +22487,7 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 63,
+            "line": 26,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21411,7 +22531,191 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 39,
+            "line": 26,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/splashes/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id/:hash",
+            "samplePath": "/splashes/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/splashes/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/splashes/:guild_id/:id",
+            "samplePath": "/splashes/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/splashes/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id",
+            "samplePath": "/splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/splashes/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/splashes/:guild_id",
+            "samplePath": "/splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21459,7 +22763,7 @@
             "path": "/stickers/:sticker_id/",
             "samplePath": "/stickers/100000000000000010/",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 79,
+            "line": 78,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21507,7 +22811,7 @@
             "path": "/stickers/:sticker_id",
             "samplePath": "/stickers/100000000000000010",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 65,
+            "line": 64,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21551,7 +22855,191 @@
             "path": "/stickers/:sticker_id",
             "samplePath": "/stickers/100000000000000010",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 40,
+            "line": 38,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/team-icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id/:hash",
+            "samplePath": "/team-icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/team-icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/team-icons/:guild_id/:id",
+            "samplePath": "/team-icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/team-icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id",
+            "samplePath": "/team-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/team-icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/team-icons/:guild_id",
+            "samplePath": "/team-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",

@@ -22,3 +22,5 @@ export * from "./Event";
 export * from "./GuildWelcomeScreen";
 export * from "./Presence";
 export * from "./Status";
+export * from "./ReadyUserGuildSettingsEntries";
+export type { ThreadMemberMuteConfig } from "./ThreadMember";

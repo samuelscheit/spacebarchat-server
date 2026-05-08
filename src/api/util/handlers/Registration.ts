@@ -17,15 +17,23 @@
 */
 
 import { RegisterSchema } from "../../../schemas/uncategorised/RegisterSchema";
+import { DateOfBirthInput, evaluateDateOfBirth } from "../../../util/util/DateOfBirth";
 
 export interface RegistrationInviteConfiguration {
     requireInvite: boolean;
     guestsRequireInvite: boolean;
 }
 
+export interface RegistrationDateOfBirthConfiguration {
+    required: boolean;
+    minimum?: number;
+}
+
 export interface RegistrationInvite {
     isExpired(): boolean;
 }
+
+export type RegistrationDateOfBirthValidationError = "required" | "invalid" | "underage";
 
 export function registrationRequiresInvite(register: RegistrationInviteConfiguration, body: Pick<RegisterSchema, "email" | "invite">): boolean {
     return !body.invite && (register.requireInvite || (register.guestsRequireInvite && !body.email));
@@ -33,4 +41,19 @@ export function registrationRequiresInvite(register: RegistrationInviteConfigura
 
 export function isRegistrationInviteUsable(invite: RegistrationInvite | null | undefined): invite is RegistrationInvite {
     return invite !== null && invite !== undefined && !invite.isExpired();
+}
+
+export function validateRegistrationDateOfBirth(
+    dateOfBirthConfig: RegistrationDateOfBirthConfiguration,
+    dateOfBirth: DateOfBirthInput | null | undefined,
+    now = new Date(),
+): RegistrationDateOfBirthValidationError | undefined {
+    const result = evaluateDateOfBirth(dateOfBirth, dateOfBirthConfig.minimum, now);
+
+    if (result.status === "missing") return dateOfBirthConfig.required ? "required" : undefined;
+
+    if (result.status === "invalid") return "invalid";
+    if (result.status === "underage") return "underage";
+
+    return undefined;
 }

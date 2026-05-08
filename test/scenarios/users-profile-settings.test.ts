@@ -86,6 +86,25 @@ test(
             });
             assert.equal(persistedProfile.bio, updatedBio);
 
+            await User.update({ id: user.id }, { discriminator: "0001" });
+            const discriminatorUpdate = await patchJson(
+                `${api.apiBaseUrl}/users/@me`,
+                {
+                    discriminator: "1",
+                },
+                token,
+            );
+            await assertStatus(discriminatorUpdate, 200);
+            const discriminatorUpdateBody = await assertJsonObject(discriminatorUpdate);
+            assert.equal(discriminatorUpdateBody.id, user.id);
+            assert.equal(discriminatorUpdateBody.discriminator, "0001");
+
+            const persistedDiscriminator = await User.findOneOrFail({
+                where: { id: user.id },
+                select: { id: true, discriminator: true },
+            });
+            assert.equal(persistedDiscriminator.discriminator, "0001");
+
             const initialSettings = await getJson(`${api.apiBaseUrl}/users/@me/settings`, token);
             await assertStatus(initialSettings, 200);
             const initialSettingsBody = await assertJsonObject(initialSettings);

@@ -29,8 +29,6 @@ import {
     Presence,
     UserSettings,
     IReadyGuildDTO,
-    ReadyUserGuildSettingsEntries,
-    ReadyPrivateChannel,
     GuildOrUnavailable,
     Snowflake,
     ThreadMember,
@@ -39,6 +37,7 @@ import { JsonValue } from "@protobuf-ts/runtime";
 import {
     ApplicationCommand,
     GuildCreateResponse,
+    GuildScheduledEventResponse,
     Interaction,
     InteractionFailureReason,
     PartialEmoji,
@@ -50,7 +49,10 @@ import {
     RelationshipType,
     StageInstanceResponse,
     UserPrivate,
+    ChannelType,
 } from "@spacebar/schemas";
+import type { VoiceStateMember } from "../entities/MemberPublic";
+import type { ReadyUserGuildSettingsEntries } from "./ReadyUserGuildSettingsEntries";
 
 export interface Event {
     guild_id?: string;
@@ -79,6 +81,16 @@ export interface PublicRelationship {
     nickname?: string;
 }
 
+export interface ReadyRelationship {
+    id: string;
+    user_id: string;
+    type: RelationshipType;
+    nickname: string | null;
+    since: string | null;
+    is_spam_request: boolean;
+    user_ignored: boolean;
+}
+
 // ! END Custom Events that shouldn't get sent to the client but processed by the server
 
 export interface ReadyChannelReadState {
@@ -86,6 +98,7 @@ export interface ReadyChannelReadState {
     mention_count: number;
     last_viewed: number;
     last_message_id?: string | null;
+    notifications_cursor?: string | null;
     last_pin_timestamp: Date | string;
     flags: number;
 }
@@ -99,6 +112,21 @@ export interface ReadyNonChannelReadState {
 }
 
 export type ReadyReadState = ReadyChannelReadState | ReadyNonChannelReadState;
+
+export const READY_SESSION_TYPE = "normal" as const;
+export type ReadySessionType = typeof READY_SESSION_TYPE;
+
+export interface ReadyPrivateChannel {
+    id: string;
+    flags: number;
+    icon?: string | null;
+    is_spam: boolean;
+    last_message_id?: string | null;
+    name?: string | null;
+    owner_id?: string;
+    recipients: PublicUser[];
+    type: ChannelType.DM | ChannelType.GROUP_DM;
+}
 
 export interface ReadyEventData {
     v: number;
@@ -133,7 +161,7 @@ export interface ReadyEventData {
     user_settings?: UserSettings;
     user_settings_proto?: string;
     user_settings_proto_json?: JsonValue;
-    relationships?: PublicRelationship[]; // TODO
+    relationships?: ReadyRelationship[];
     read_state: ReadyReadState[];
     user_guild_settings?: {
         entries: ReadyUserGuildSettingsEntries[];
@@ -151,7 +179,7 @@ export interface ReadyEventData {
     api_code_version: number;
     tutorial: number | null;
     resume_gateway_url: string;
-    session_type: string;
+    session_type: ReadySessionType;
     auth_session_id_hash: string;
     required_action?:
         | "REQUIRE_VERIFIED_EMAIL"
@@ -223,12 +251,11 @@ export interface GuildCreateEvent extends Event {
     event: "GUILD_CREATE";
     data: IReadyGuildDTO & {
         joined_at: Date;
-        // TODO: add them to guild
-        guild_scheduled_events: never[];
+        guild_scheduled_events: GuildScheduledEventResponse[];
         guild_hashes: unknown;
         presences: never[];
         stage_instances: StageInstanceResponse[];
-        threads: never[];
+        threads: unknown[];
         embedded_activities: never[];
         // Only when not using PRIORITISED_READY_PAYLOAD capability
         voice_states?: PublicVoiceState[];
@@ -363,9 +390,12 @@ export interface GuildRoleDeleteEvent extends Event {
 
 export interface InviteCreateEvent extends Event {
     event: "INVITE_CREATE";
-    data: Omit<Invite, "guild" | "channel"> & {
+    data: Omit<Invite, "guild" | "channel" | "inviter"> & {
         channel_id: string;
         guild_id?: string;
+        inviter?: PublicUser;
+        guild?: unknown;
+        channel?: Channel;
     };
 }
 
@@ -421,6 +451,21 @@ export interface MessageReactionAddEvent extends Event {
         burst: boolean;
         burst_colors?: string[];
         type: ReactionType;
+    };
+}
+
+export interface DebouncedReaction {
+    users: string[];
+    emoji: PartialEmoji;
+}
+
+export interface MessageReactionAddManyEvent extends Event {
+    event: "MESSAGE_REACTION_ADD_MANY";
+    data: {
+        channel_id: string;
+        message_id: string;
+        guild_id?: string;
+        reactions: DebouncedReaction[];
     };
 }
 
@@ -490,8 +535,10 @@ export interface UserConnectionsUpdateEvent extends Event {
 
 export interface VoiceStateUpdateEvent extends Event {
     event: "VOICE_STATE_UPDATE";
-    data: PublicVoiceState & {
-        member: PublicMember;
+    data: Omit<PublicVoiceState, "channel_id" | "guild_id"> & {
+        channel_id: string | null;
+        guild_id: string | null;
+        member?: VoiceStateMember;
     };
 }
 
@@ -698,8 +745,10 @@ export interface ThreadListSyncEvent extends Event {
 
 export interface ThreadMemberUpdateEvent extends Event {
     event: "THREAD_MEMBER_UPDATE";
-    data: ThreadMember & { guild_id: string };
+    data: SerializedThreadMember & { guild_id: string };
 }
+
+type SerializedThreadMember = ReturnType<ThreadMember["toJSON"]>;
 
 export interface ThreadMembersUpdateEvent extends Event {
     event: "THREAD_MEMBERS_UPDATE";
@@ -707,7 +756,7 @@ export interface ThreadMembersUpdateEvent extends Event {
         id: string;
         guild_id: string;
         member_count: number;
-        added_members?: (ThreadMember & { user_id: string })[];
+        added_members?: (SerializedThreadMember & { user_id: string })[];
         removed_member_ids?: string[];
     };
 }
@@ -744,6 +793,7 @@ export type EventData =
     | MessageDeleteEvent
     | MessageDeleteBulkEvent
     | MessageReactionAddEvent
+    | MessageReactionAddManyEvent
     | MessageReactionRemoveEvent
     | MessageReactionRemoveAllEvent
     | MessageReactionRemoveEmojiEvent
@@ -808,6 +858,7 @@ export enum EVENTEnum {
     MessageDelete = "MESSAGE_DELETE",
     MessageDeleteBulk = "MESSAGE_DELETE_BULK",
     MessageReactionAdd = "MESSAGE_REACTION_ADD",
+    MessageReactionAddMany = "MESSAGE_REACTION_ADD_MANY",
     MessageReactionRemove = "MESSAGE_REACTION_REMOVE",
     MessageReactionRemoveAll = "MESSAGE_REACTION_REMOVE_ALL",
     MessageReactionRemoveEmoji = "MESSAGE_REACTION_REMOVE_EMOJI",
@@ -870,8 +921,7 @@ export type EVENT =
     | "MESSAGE_DELETE"
     | "MESSAGE_DELETE_BULK"
     | "MESSAGE_REACTION_ADD"
-    // TODO: add a new event: bulk add reaction:
-    // | "MESSAGE_REACTION_BULK_ADD"
+    | "MESSAGE_REACTION_ADD_MANY"
     | "MESSAGE_REACTION_REMOVE"
     | "MESSAGE_REACTION_REMOVE_ALL"
     | "MESSAGE_REACTION_REMOVE_EMOJI"
@@ -910,4 +960,4 @@ export type EVENT =
     | "THREAD_MEMBERS_UPDATE"
     | CUSTOMEVENTS;
 
-export type CUSTOMEVENTS = "INVALIDATED" | "RATELIMIT" | "SB_SESSION_REMOVE" | "SB_SESSION_CLOSE" | "SB_RELOAD_CONFIG";
+export type CUSTOMEVENTS = "INVALIDATED" | "RATELIMIT" | "SB_SESSION_REMOVE" | "SB_SESSION_CLOSE" | "SB_GW_CLOSE" | "SB_RELOAD_CONFIG";

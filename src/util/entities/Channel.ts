@@ -28,11 +28,13 @@ import {
     Permissions,
     Config,
     DiscordApiErrors,
+    GuildFeature,
     getDatabase,
     handleFile,
     normalizeChannelName,
     normalizeThreadName,
     assertChannelNamePresent,
+    assertExistingGroupDmRecipient,
     canCreateServerDm,
     shouldCheckServerDmPrivacy,
 } from "../util";
@@ -53,6 +55,12 @@ import { ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
+
+const THREAD_CHANNEL_TYPES = new Set<ChannelType>([ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD]);
+
+function isThreadChannelType(type: ChannelType | undefined): boolean {
+    return type !== undefined && THREAD_CHANNEL_TYPES.has(type);
+}
 
 @Entity({
     name: "channels",
@@ -201,7 +209,6 @@ export class Channel extends BaseClass {
     /** Must be calculated Channel.calculatePosition */
     position: number;
 
-    // TODO: DM channel
     static async createChannel(
         channel: Partial<Channel>,
         user_id: string = "0",
@@ -214,6 +221,10 @@ export class Channel extends BaseClass {
             skipOrdering?: boolean;
         },
     ): Promise<Channel> {
+        if (isThreadChannelType(channel.type)) {
+            throw new HTTPError("Thread channels must be created with createThreadChannel", 400);
+        }
+
         if (!opts?.skipPermissionCheck) {
             // Always check if user has permission first
             const permissions = await getPermission(user_id, channel.guild_id);
@@ -235,10 +246,6 @@ export class Channel extends BaseClass {
         }
 
         switch (channel.type) {
-            // TODO: should threads even be routed through this function instead of createThreadChannel?
-            case ChannelType.GUILD_PUBLIC_THREAD:
-            case ChannelType.GUILD_PRIVATE_THREAD:
-            case ChannelType.GUILD_NEWS_THREAD:
             case ChannelType.GUILD_TEXT:
             case ChannelType.GUILD_FORUM:
             case ChannelType.GUILD_MEDIA:
@@ -265,7 +272,6 @@ export class Channel extends BaseClass {
         }
 
         if (!channel.permission_overwrites) channel.permission_overwrites = [];
-        // TODO: eagerly auto generate position of all guild channels
 
         const position = (channel.type === ChannelType.UNHANDLED ? 0 : channel.position) || 0;
         const id = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
@@ -327,28 +333,37 @@ export class Channel extends BaseClass {
             ...channel,
             id: threadId,
             created_at: new Date(),
-            position: 0, // TODO:
+            position: 0,
             message_count: 0,
             member_count: 1,
             total_message_sent: 0,
         };
 
-        const exists = await Channel.findOne({
-            where: {
-                id: channel.id,
-            },
-        });
-
-        const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
-
-        if (!opts?.skipExistsCheck && !guild.features.includes("ALLOW_EXISTING_THREAD_FOR_MESSAGE") && exists) throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
+        if (!isThreadChannelType(channel.type)) {
+            throw new HTTPError("createThreadChannel can only create thread channel types", 400);
+        }
 
         if (!channel.parent_id) throw new HTTPError("Parent id not set", 400);
         const parent = await Channel.findOneOrFail({ where: { id: channel.parent_id } });
+        const parentGuildId = parent.guild_id;
+        if (!parentGuildId) throw new HTTPError("Parent channel guild id not set", 400);
+        if (channel.guild_id && channel.guild_id !== parentGuildId) throw new HTTPError("The thread channel needs to be in the same guild as the parent", 400);
+
+        const [exists, guild] = await Promise.all([
+            Channel.findOne({
+                where: {
+                    id: channel.id,
+                },
+            }),
+            Guild.findOneOrFail({ where: { id: parentGuildId } }),
+        ]);
+
+        if (!opts?.skipExistsCheck && !guild.features.includes(GuildFeature.AllowExistingThreadForMessage) && exists)
+            throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
 
         if (!opts?.skipPermissionCheck) {
             // Always check if user has permission first
-            const permissions = await getPermission(user_id, parent.guild_id);
+            const permissions = await getPermission(user_id, parentGuildId);
             permissions.hasThrow(channel.type === ChannelType.GUILD_PRIVATE_THREAD ? "CREATE_PRIVATE_THREADS" : "CREATE_PUBLIC_THREADS");
         }
 
@@ -357,7 +372,7 @@ export class Channel extends BaseClass {
             permission_overwrites: parent.permission_overwrites,
             nsfw: parent.nsfw,
             owner_id: user_id,
-            guild_id: parent.guild_id,
+            guild_id: parentGuildId,
             thread_metadata: {
                 create_timestamp: new Date().toISOString(),
                 archive_timestamp: new Date().toISOString(),
@@ -369,13 +384,7 @@ export class Channel extends BaseClass {
             },
         };
 
-        if (!opts?.skipParentExistsCheck) {
-            if (!parent) throw new HTTPError("Parent channel doesn't exist", 400);
-            if (parent.guild_id !== channel.guild_id) throw new HTTPError("The category channel needs to be in the guild");
-        }
-
         if (!opts?.skipNameChecks) {
-            const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
             channel.name = normalizeThreadName(channel.name, guild.features);
             assertChannelNamePresent(channel.name, guild.features);
         }
@@ -384,6 +393,8 @@ export class Channel extends BaseClass {
 
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
+        const guildId = thread.guild_id;
+        if (!guildId) throw new HTTPError("Thread guild id not set", 500);
         const threadMember = await ThreadMember.createForUser(user_id, thread);
 
         if (!opts?.skipEventEmit) {
@@ -394,18 +405,18 @@ export class Channel extends BaseClass {
                         ...thread,
                         newly_created: true,
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadCreateEvent),
                 emitEvent({
                     event: "THREAD_MEMBERS_UPDATE",
                     data: {
-                        guild_id: channel.guild_id!, // TODO: is this the right fix?
+                        guild_id: guildId,
                         id: thread.id,
-                        member_count: channel.member_count ?? 0, //TODO: is this the right fix?
+                        member_count: thread.member_count ?? 1,
                         added_members: [{ user_id, ...threadMember.toJSON() }],
                         removed_member_ids: [],
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadMembersUpdateEvent),
             ]);
         }
@@ -416,13 +427,18 @@ export class Channel extends BaseClass {
     static async createDMChannel(recipients: string[], creator_user_id: string, name?: string) {
         recipients = [...new Set(recipients)].filter((x) => x !== creator_user_id);
         // TODO: check config for max number of recipients
-        /** if you want to disallow note to self channels, uncomment the conditional below
 
-		const otherRecipientsUsers = await User.find({ where: recipients.map((x) => ({ id: x })) });
-		if (otherRecipientsUsers.length !== recipients.length) {
-			throw new HTTPError("Recipient/s not found");
-		}
-		**/
+        if (recipients.length > 0) {
+            const otherRecipientsUsers = await User.find({
+                where: { id: In(recipients) },
+                select: { id: true },
+            });
+            const foundRecipientIds = new Set(otherRecipientsUsers.map((user) => user.id));
+
+            if (!recipients.every((recipient) => foundRecipientIds.has(recipient))) {
+                throw DiscordApiErrors.INVALID_RECIPIENT;
+            }
+        }
 
         const type = recipients.length > 1 ? ChannelType.GROUP_DM : ChannelType.DM;
 
@@ -544,7 +560,7 @@ export class Channel extends BaseClass {
             }),
         ]);
 
-        if (!recipient) throw new HTTPError("Recipient/s not found");
+        if (!recipient) throw DiscordApiErrors.INVALID_RECIPIENT;
 
         const isFriend = relationships.some((relationship) => relationship.type === RelationshipType.friends);
         const isBlocked = relationships.some((relationship) => relationship.type === RelationshipType.blocked);
@@ -564,6 +580,8 @@ export class Channel extends BaseClass {
     }
 
     static async removeRecipientFromChannel(channel: Channel, user_id: string) {
+        assertExistingGroupDmRecipient(channel.recipients, user_id);
+
         await Recipient.delete({ channel_id: channel.id, user_id: user_id });
         channel.recipients = channel.recipients?.filter((r) => r.user_id !== user_id);
 
@@ -670,7 +688,7 @@ export class Channel extends BaseClass {
     }
 
     isThread() {
-        return this.type === ChannelType.GUILD_NEWS_THREAD || this.type === ChannelType.GUILD_PUBLIC_THREAD || this.type === ChannelType.GUILD_PRIVATE_THREAD;
+        return isThreadChannelType(this.type);
     }
     isForum() {
         return this.type === ChannelType.GUILD_FORUM || this.type === ChannelType.GUILD_MEDIA;

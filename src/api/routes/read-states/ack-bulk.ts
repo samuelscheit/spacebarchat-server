@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { applyAckBulkReadStateUpdate, getReadStateIdentity, ReadState } from "@spacebar/util";
+import { upsertAckBulkReadState } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { AckBulkSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
@@ -36,26 +36,7 @@ router.post(
     async (req: Request, res: Response) => {
         const body = req.body as AckBulkSchema;
 
-        await Promise.all([
-            // for every new state
-            ...body.read_states.map(async (x) => {
-                const identity = getReadStateIdentity(req.user_id, x);
-                // find an existing one
-                const ret =
-                    (await ReadState.findOne({
-                        where: identity,
-                    })) ??
-                    // if it doesn't exist, create it (not a promise)
-                    ReadState.create({
-                        user_id: identity.user_id,
-                        channel_id: identity.channel_id,
-                        read_state_type: identity.read_state_type,
-                    });
-
-                applyAckBulkReadStateUpdate(ret, x);
-                return ret.save();
-            }),
-        ]);
+        await Promise.all(body.read_states.map((x) => upsertAckBulkReadState(req.user_id, x)));
 
         return res.sendStatus(204);
     },

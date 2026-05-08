@@ -26,9 +26,11 @@ import {
     ErrorList,
     FieldError,
     Guild,
+    GuildFeature,
     Recipient,
     emitEvent,
     getChannelOrderInsertPoint,
+    getDatabase,
     getInvalidThreadChannelOrderFields,
     handleFile,
     makeObjectErrorContent,
@@ -36,11 +38,12 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import { addInvalidAppliedTagsError } from "../../../util/ChannelModifyAppliedTags";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
+import { assertAppliedTagsExist } from "../../../util/ChannelAppliedTagsValidation";
+import { getAvailableTagsModifyError, replaceForumAvailableTags } from "../../../util/utility/ForumTags";
 
 const router: Router = Router({ mergeParams: true });
-// TODO: delete channel
-// TODO: Get channel
 
 function isStatusOnlyUpdate(payload: ChannelModifySchema) {
     const fields = Object.keys(payload) as (keyof ChannelModifySchema)[];
@@ -194,17 +197,16 @@ router.patch(
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
 
-        if (payload.available_tags) {
-            if (channel.isForum() && channel.available_tags) {
-                //TODO maybe error if this fails, and maybe handle creating tags?
-                const filter = new Set(payload.available_tags.map(({ id }) => id));
-                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
-                tags.forEach((_) => _.remove());
-                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
-            }
+        const errors: ErrorList = {};
+        const availableTagsPayload = payload.available_tags;
+        if (availableTagsPayload !== undefined) {
+            const tagErrors = getAvailableTagsModifyError(channel, availableTagsPayload);
+            if (tagErrors) Object.assign(errors, tagErrors);
+
+            delete payload.available_tags;
         }
 
-        if (payload.applied_tags) {
+        if (payload.applied_tags !== undefined) {
             if (channel.isThread()) {
                 const parent = await Channel.findOneOrFail({
                     where: {
@@ -214,9 +216,7 @@ router.patch(
                 });
                 if (!parent.available_tags) throw new Error("shoot, internetal error");
                 const realTags = new Map(parent.available_tags.map((tag) => [tag.id, tag]));
-                const bad = payload.applied_tags.find((tag) => !realTags.has(tag));
-                //TODO better error
-                if (bad) throw new Error("Invalid tag " + bad);
+                assertAppliedTagsExist(payload.applied_tags, realTags.keys());
                 const changed = new Set(channel.applied_tags || []).symmetricDifference(new Set(payload.applied_tags));
                 const permsNeeded = [...changed].find((_) => realTags.get(_)?.moderated);
                 if (permsNeeded) {
@@ -224,23 +224,19 @@ router.patch(
                 }
                 channel.applied_tags = payload.applied_tags;
             } else {
-                //TODO maybe error instead?
-                payload.applied_tags = undefined;
+                addInvalidAppliedTagsError(payload, isThread, errors);
             }
         }
 
-        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
-
         const channelLimits = Config.get().limits.channel;
 
-        const errors: ErrorList = {};
         let allowUnnamedChannels = false;
         if (payload.name !== undefined && channel.guild_id) {
             const guild = await Guild.findOneOrFail({
                 where: { id: channel.guild_id },
                 select: { features: true },
             });
-            allowUnnamedChannels = guild.features.includes("ALLOW_UNNAMED_CHANNELS");
+            allowUnnamedChannels = guild.features.includes(GuildFeature.AllowUnnamedChannels);
             payload.name = normalizeChannelName(payload.name, payload.type ?? channel.type, guild.features);
             assertChannelNamePresent(payload.name, guild.features);
         }
@@ -272,6 +268,8 @@ router.patch(
             throw new FieldError(400, "Invalid form body", errors);
         }
 
+        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
+
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);
 
@@ -289,7 +287,18 @@ router.patch(
             }
         }
 
-        await channel.save();
+        if (availableTagsPayload !== undefined) {
+            const database = getDatabase();
+            if (!database) throw new Error("Database is not initialized");
+
+            await database.transaction(async (manager) => {
+                await replaceForumAvailableTags(channel, availableTagsPayload, manager);
+                await manager.save(channel);
+            });
+        } else {
+            await channel.save();
+        }
+
         if (channel.guild_id && orderInsertPoint !== undefined) {
             channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, orderInsertPoint);
         }

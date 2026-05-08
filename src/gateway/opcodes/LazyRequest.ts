@@ -16,34 +16,35 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
+import { Config, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel, Intents, type Event } from "@spacebar/util";
+import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
 import { assertGatewayChannelAccess } from "../util/Authorization";
 import { unsubscribeGuildMemberEventIds } from "../listener/subscriptions";
 
-// TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
-// TODO: rewrite typeorm
+const OFFLINE_LAZY_MEMBER_LIST_STATUSES = ["offline", "invisible"] as const;
+
+function hasOnlineLazyMemberSession(member: Member) {
+    return Boolean(member.user?.sessions?.some((session) => session.status != null && !(OFFLINE_LAZY_MEMBER_LIST_STATUSES as readonly string[]).includes(session.status)));
+}
 
 async function getMembers(guild_id: string) {
     let members: Member[] = [];
     try {
-        members =
-            (await getDatabase()
-                ?.getRepository(Member)
-                .createQueryBuilder("member")
-                .where("member.guild_id = :guild_id", { guild_id })
-                .leftJoinAndSelect("member.roles", "role")
-                .leftJoinAndSelect("member.user", "user")
-                .leftJoinAndSelect("user.sessions", "session")
-                .addSelect("user.settings")
-                .addSelect("CASE WHEN session.status IS NULL OR session.status = 'offline' OR session.status = 'invisible' THEN 0 ELSE 1 END", "_status")
-                .orderBy("_status", "DESC")
-                .addOrderBy("role.position", "DESC")
-                .addOrderBy("user.username", "ASC")
-                .getMany()) ?? [];
+        const includeOffline = Config.get().gateway.lazyMemberListIncludeOffline !== false;
+        members = await Member.find({
+            where: { guild_id },
+            relations: {
+                roles: true,
+                user: {
+                    sessions: true,
+                    settings: true,
+                },
+            },
+        });
+        if (!includeOffline) members = members.filter(hasOnlineLazyMemberSession);
     } catch (e) {
         console.error(`LazyRequest`, e);
     }
@@ -90,12 +91,87 @@ function getRequestedRanges(ranges: unknown[]): [number, number][] {
             throw new Error("range is not a valid array");
         }
 
-        return range as [number, number];
+        const [start, end] = range;
+        if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end)) {
+            throw new Error("range bounds must be safe integers");
+        }
+
+        if (start < 0 || end < 0) {
+            throw new Error("range bounds must be non-negative");
+        }
+
+        if (start > end) {
+            throw new Error("range start must be less than or equal to range end");
+        }
+
+        return [start, end];
     });
 }
 
 function getLazyMemberIds(memberList: ReturnType<typeof buildLazyMemberListOperations>) {
     return new Set(memberList.ops.flatMap((op) => op.members.map((member) => member?.user.id).filter((userId): userId is string => Boolean(userId))));
+}
+
+function validateRequestedMembers(members: unknown) {
+    if (members === undefined) return;
+
+    if (!Array.isArray(members)) {
+        throw new Error("members must be an array");
+    }
+
+    for (const member of members) {
+        if (typeof member !== "string") {
+            throw new Error("member id must be a string");
+        }
+    }
+}
+
+function getRequestedChannelRanges(channels: LazyRequestSchema["channels"] | undefined) {
+    const entries = Object.entries(channels ?? {});
+    for (const [, ranges] of entries) {
+        if (!Array.isArray(ranges)) throw new Error("range list is not a valid array");
+        getRequestedRanges(ranges);
+    }
+
+    const [channel_id, ranges] = entries[0] ?? [];
+    if (!channel_id) return { channel_id, requestedRanges: undefined };
+
+    return {
+        channel_id,
+        requestedRanges: getRequestedRanges(ranges),
+    };
+}
+
+function getOffloadedLazyMemberIds(event: Event) {
+    if (event.event === "PRESENCE_UPDATE") {
+        const userId = (event.data as Presence | undefined)?.user?.id;
+        return userId ? [String(userId)] : [];
+    }
+
+    if (event.event !== "GUILD_MEMBER_LIST_UPDATE") return [];
+
+    const update = event.data as
+        | {
+              ops?: {
+                  items?: {
+                      member?: {
+                          user?: {
+                              id?: string | number | bigint | null;
+                          } | null;
+                      } | null;
+                  }[];
+              }[];
+          }
+        | undefined;
+
+    return (
+        update?.ops?.flatMap((op) =>
+            (op.items ?? [])
+                .map((item) => item.member?.user?.id)
+                .filter((userId): userId is string | number | bigint => userId !== undefined && userId !== null)
+                .map((userId) => String(userId)),
+        ) ?? []
+    );
 }
 
 async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
@@ -110,11 +186,27 @@ async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: str
 
 export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
-    // TODO: check data
     check.call(this, LazyRequestSchema, d);
-    // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
-    const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
-    const channel_id = Object.keys(channels || {})[0];
+    const { guild_id, channels, members } = d as LazyRequestSchema;
+    validateRequestedMembers(members);
+    const { channel_id, requestedRanges } = getRequestedChannelRanges(channels);
+    const includePresences = this.intents.has(Intents.FLAGS.GUILD_PRESENCES);
+    const lazyRequestUrl = Config.get().offload.gateway.lazyRequestUrl;
+    if (lazyRequestUrl !== null) {
+        const subscribedUserIds = new Set<string>();
+        const offloadBody = { ...(d as LazyRequestSchema), include_presences: includePresences };
+
+        const result = await handleOffloadedGatewayRequest(this, lazyRequestUrl, offloadBody, async (event) => {
+            if (!includePresences) return;
+
+            for (const userId of getOffloadedLazyMemberIds(event)) {
+                subscribedUserIds.add(userId);
+                await subscribeGuildMemberEvent.call(this, guild_id, userId);
+            }
+        });
+        await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
+        return result;
+    }
     const shouldAuthorizeChannel = Boolean(channel_id);
     const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);
     const authorized = shouldAuthorizeChannel
@@ -129,7 +221,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     if (requiresAuthorizedChannel && !authorized) return;
 
     const subscribedUserIds = new Set<string>();
-    if (members) {
+    if (members && includePresences) {
         // Client has requested a PRESENCE_UPDATE for specific member
 
         await Promise.all(
@@ -166,21 +258,19 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         );
 
         if (!channels) return;
-    }
+    } else if (members && !channels) return;
 
     if (!channels) return;
 
-    if (!channel_id) return;
+    if (!channel_id || !requestedRanges) return;
 
-    const ranges = channels[channel_id];
-    if (!Array.isArray(ranges)) throw new Error("Not a valid Array");
-
-    const requestedRanges = getRequestedRanges(ranges);
     const guildMembers = await getMembers(guild_id);
     const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.guildOwnerId));
     const member_count = visibleGuildMembers.length;
-    const memberList = buildLazyMemberListOperations(visibleGuildMembers, guild_id, requestedRanges);
-    for (const userId of getLazyMemberIds(memberList)) subscribedUserIds.add(userId);
+    const memberList = buildLazyMemberListOperations(visibleGuildMembers, guild_id, requestedRanges, { includePresences });
+    if (includePresences) {
+        for (const userId of getLazyMemberIds(memberList)) subscribedUserIds.add(userId);
+    }
 
     let list_id = "everyone";
 
@@ -200,7 +290,9 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         }
     }
 
-    await Promise.all([...subscribedUserIds].map((userId) => subscribeGuildMemberEvent.call(this, guild_id, userId)));
+    if (includePresences) {
+        await Promise.all([...subscribedUserIds].map((userId) => subscribeGuildMemberEvent.call(this, guild_id, userId)));
+    }
     await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
 
     await Send(this, {

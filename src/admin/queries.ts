@@ -1,4 +1,4 @@
-import { Attachment, Ban, Channel, Emoji, Guild, Invite, Member, Message, Role, Session, Sticker, Template, User, VoiceState } from "@spacebar/util";
+import { Attachment, Ban, Channel, Emoji, Guild, GuildFeature, Invite, Member, Message, Role, Session, Sticker, Template, User, VoiceState } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import {
     AdminAttachment,
@@ -123,7 +123,7 @@ export async function getAdminGuild(guildId: string): Promise<AdminGuild> {
 }
 
 export async function listAdminDiscoveryGuilds(options: AdminListOptions & { includeExcluded: boolean }) {
-    const qb = Guild.createQueryBuilder("guild").where(":feature = ANY(guild.features)", { feature: "DISCOVERABLE" });
+    const qb = Guild.createQueryBuilder("guild").where(":feature = ANY(guild.features)", { feature: GuildFeature.Discoverable });
     const q = search(options.q);
 
     if (!options.includeExcluded) qb.andWhere("guild.discovery_excluded = false");
@@ -135,7 +135,7 @@ export async function listAdminDiscoveryGuilds(options: AdminListOptions & { inc
 }
 
 export async function getAdminDiscoveryGuild(guildId: string, includeExcluded: boolean): Promise<AdminDiscoveryGuild> {
-    const qb = Guild.createQueryBuilder("guild").where("guild.id = :guildId", { guildId }).andWhere(":feature = ANY(guild.features)", { feature: "DISCOVERABLE" });
+    const qb = Guild.createQueryBuilder("guild").where("guild.id = :guildId", { guildId }).andWhere(":feature = ANY(guild.features)", { feature: GuildFeature.Discoverable });
 
     if (!includeExcluded) qb.andWhere("guild.discovery_excluded = false");
 

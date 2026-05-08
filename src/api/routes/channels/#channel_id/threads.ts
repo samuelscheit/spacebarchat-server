@@ -26,6 +26,9 @@ import {
     sendMessage,
     serializeActiveGuildThreads,
     serializeThreadSearchMember,
+    getThreadCreationPermission,
+    resolveThreadCreationType,
+    shouldSendThreadCreatedMessage,
 } from "@spacebar/api";
 import {
     Channel,
@@ -34,7 +37,6 @@ import {
     uploadFile,
     Attachment,
     Member,
-    ReadState,
     MessageCreateEvent,
     FieldErrors,
     getPermission,
@@ -43,8 +45,9 @@ import {
     ChannelFlags,
     Snowflake,
     messagePublicRelations,
+    upsertChannelMessageReadState,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
+import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachmentMetadata, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -57,12 +60,12 @@ import {
     PRIVATE_ARCHIVED_THREAD_PERMISSIONS,
     serializePrivateArchivedThreadMember,
 } from "../../../util/utility/PrivateArchivedThreads";
+import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../../../util/ChannelAppliedTagsValidation";
 
 const router = Router({ mergeParams: true });
 
-// TODO: public read receipts & privacy scoping
+// TODO: public read receipts and shared read-state/ack policy
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -76,14 +79,16 @@ router.post(
     },
     route({
         requestBody: "ThreadCreationSchema",
-        permission: "CREATE_PUBLIC_THREADS",
+        permission: "VIEW_CHANNEL",
         responses: {
             200: {},
+            400: {
+                body: "APIErrorResponse",
+            },
             403: {},
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: check for differences with https://github.com/spacebarchat/server/pull/876/files#diff-95be9c4cdfd8ba6f67361cd40b9abc8226b35d83e2bb44bf5b4682f1d66155e9
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as ThreadCreationSchema;
 
@@ -91,22 +96,20 @@ router.post(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
-        if (!body.applied_tags?.length) {
-            const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
-            //TODO better error
-            if (required) throw new Error("Tag is required for this API");
-        } else if (channel.available_tags) {
+
+        const threadType = resolveThreadCreationType(body, channel);
+        req.permission!.hasThrow(getThreadCreationPermission(threadType));
+        assertRequiredAppliedTagsPresent(body.applied_tags, Boolean(channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)));
+        if (body.applied_tags?.length && channel.available_tags) {
             const realTags = new Map(channel.available_tags.map((tag) => [tag.id, tag]));
-            const bad = body.applied_tags.find((tag) => !realTags.has(tag));
-            //TODO better error
-            if (bad) throw new Error("Invalid tag " + bad);
+            assertAppliedTagsExist(body.applied_tags, realTags.keys());
             const permsNeeded = body.applied_tags.find((_) => realTags.get(_)?.moderated);
             if (permsNeeded) {
                 req.permission?.hasThrow("MANAGE_THREADS");
             }
         }
         const files = (req.files as Express.Multer.File[]) ?? [];
-        const messageAttachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message?.attachments ?? [];
+        const messageAttachments: (Attachment | MessageCreateAttachmentMetadata)[] = body.message?.attachments ?? [];
         if (body.message) {
             assertMessagePayloadPermissions(req.permission!, { ...body.message, attachments: messageAttachments, uploadedFileCount: files.length });
         }
@@ -122,7 +125,7 @@ router.post(
                 parent_id: channel.id,
                 guild_id: channel.guild_id,
                 rate_limit_per_user: body.rate_limit_per_user,
-                type: body.type || (channel.threadOnly() ? ChannelType.GUILD_PUBLIC_THREAD : ChannelType.GUILD_PRIVATE_THREAD),
+                type: threadType,
                 applied_tags: body.applied_tags || [],
                 recipients: [],
             },
@@ -147,7 +150,7 @@ router.post(
                 },
             }),
         ]);
-        if (body.type !== ChannelType.GUILD_PRIVATE_THREAD && !channel.isForum())
+        if (shouldSendThreadCreatedMessage(threadType, channel))
             await sendMessage({
                 channel_id: channel.id,
                 type: MessageType.THREAD_CREATED,
@@ -210,16 +213,8 @@ router.post(
                 // @ts-ignore
                 message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
             }
-            let read_state = await ReadState.findOne({
-                where: { user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL },
-            });
-            if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL });
-            read_state.last_message_id = message.id;
-            //It's a little more complicated than this but this'll do
-            read_state.mention_count = 0;
-
             await Promise.all([
-                read_state.save(),
+                upsertChannelMessageReadState({ user_id: req.user_id, channel_id: thread.id }, message.id),
                 message.save(),
                 emitEvent({
                     event: "MESSAGE_CREATE",

@@ -17,7 +17,7 @@ import {
     VoiceState,
     type UserUpdateEvent,
 } from "@spacebar/util";
-import { ChannelType } from "@spacebar/schemas";
+import { ChannelType, validateSchema } from "@spacebar/schemas";
 import ws from "ws";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeChannel, makeGuild, makeMember, makeRole } from "../fixtures/entities";
@@ -31,6 +31,129 @@ type BufferedGatewayClientState = {
 };
 
 const bufferedGatewayClients = new WeakMap<ws, BufferedGatewayClientState>();
+
+test("Gateway IDENTIFY generated schema validates and coerces wire payloads", () => {
+    const payload = {
+        token: "auth-token",
+        properties: {
+            os: "linux",
+            os_arch: "x64",
+            browser: "Spacebar Test",
+            device: "desktop",
+            $browser: "Discord Client",
+            $referrer: "",
+            $referring_domain: "",
+            window_manager: "kwin",
+            distro: "arch",
+        },
+        intents: 0,
+        shard: [0, "1"],
+        capabilities: 4093,
+        client_state: {
+            guild_hashes: {},
+            highest_last_message_id: 0,
+            read_state_version: 1,
+            user_guild_settings_version: 2,
+            private_channels_version: 3,
+            guild_versions: {},
+            api_code_version: 1,
+            initial_guild_id: "123",
+        },
+        v: 10,
+        version: 10,
+    };
+
+    assert.equal(validateSchema("IdentifySchema", payload), payload);
+    assert.equal(payload.intents, 0n);
+    assert.deepEqual(payload.shard, [0n, 1n]);
+});
+
+test("Gateway IDENTIFY generated schema validates camelCase client state aliases", () => {
+    const payload = {
+        token: "auth-token",
+        properties: {},
+        intents: 0,
+        shard: [0, "1"],
+        largeThreshold: 50,
+        clientState: {
+            guildHashes: {},
+            highestLastMessageId: 0,
+            readStateVersion: 1,
+            userGuildSettingsVersion: 2,
+            userSettingsVersion: 3,
+            useruserGuildSettingsVersion: 4,
+            privateChannelsVersion: 5,
+            guildVersions: {},
+            apiCodeVersion: 1,
+            initialGuildId: "123",
+        },
+    };
+
+    assert.equal(validateSchema("IdentifySchema", payload), payload);
+    assert.equal(payload.intents, 0n);
+    assert.deepEqual(payload.shard, [0n, 1n]);
+});
+
+test("Gateway IDENTIFY generated schema validates presence activities", () => {
+    const payload = {
+        token: "auth-token",
+        properties: {},
+        presence: {
+            status: "online",
+            activities: [
+                {
+                    name: "Activity",
+                    type: 0,
+                    flags: "",
+                    session_id: "session",
+                    party: { size: [1, 5] },
+                },
+            ],
+        },
+    };
+
+    assert.equal(validateSchema("IdentifySchema", payload), payload);
+});
+
+test("Gateway IDENTIFY generated schema rejects malformed presence activities", () => {
+    assert.throws(
+        () =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                presence: {
+                    status: "online",
+                    activities: [{ name: "Activity", type: 99, flags: "", session_id: "session" }],
+                },
+            }),
+        (error) => Array.isArray(error) && error.some((entry) => entry?.instancePath === "/presence/activities/0/type" && entry?.keyword === "enum"),
+    );
+
+    assert.throws(
+        () =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                presence: {
+                    status: "online",
+                    activities: [{ name: "Activity", type: 0, flags: "", session_id: "session", party: { size: [1] } }],
+                },
+            }),
+        (error) => Array.isArray(error) && error.some((entry) => entry?.instancePath === "/presence/activities/0/party/size" && entry?.keyword === "minItems"),
+    );
+});
+
+test("Gateway IDENTIFY generated schema rejects unknown top-level keys", () => {
+    assert.throws(
+        () =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                unexpected: true,
+            }),
+        (error) => Array.isArray(error) && error.some((entry) => entry?.keyword === "additionalProperties" && entry?.message === "must NOT have additional properties"),
+    );
+});
 
 test(
     "Gateway IDENTIFY accepts a persisted user token and sends READY",
@@ -132,6 +255,41 @@ test("Gateway IDENTIFY closes invalid tokens with authentication failure", { tim
 
         const close = await readClose(client);
         assert.equal(close.code, 4004);
+    } finally {
+        if (client) {
+            await closeClient(client);
+            await waitForCloseHandlers();
+        }
+        await gateway.stop();
+    }
+});
+
+test("Gateway RESUME rejects invalid tokens with an invalid-session payload and normal closure", { timeout: 30_000 }, async () => {
+    const gateway = await startGateway();
+    let client: ws | undefined;
+
+    try {
+        client = new ws(`${gateway.url}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+        const hello = await readJsonMessage(client);
+        assert.equal(hello.op, 10);
+
+        client.send(
+            JSON.stringify({
+                op: 6,
+                d: {
+                    token: "not-a-valid-jwt",
+                    session_id: "missing-session",
+                    seq: 0,
+                },
+            }),
+        );
+
+        const invalid = await readJsonMessage(client);
+        assert.equal(invalid.op, 9);
+        assert.equal(invalid.d, false);
+        assert.equal("s" in invalid, false);
+        const close = await readClose(client);
+        assert.equal(close.code, 1000);
     } finally {
         if (client) {
             await closeClient(client);
@@ -283,8 +441,9 @@ test(
             const invalid = await readJsonMessage(client);
             assert.equal(invalid.op, 9);
             assert.equal(invalid.d, false);
+            assert.equal("s" in invalid, false);
             const close = await readClose(client);
-            assert.equal(close.code, 4006);
+            assert.equal(close.code, 1000);
         } finally {
             if (client) await closeClient(client);
             if (client) await waitForCloseHandlers();

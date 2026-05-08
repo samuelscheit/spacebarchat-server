@@ -66,7 +66,6 @@ export async function Send(socket: WebSocket, data: Payload) {
     } else if (socket.encoding === "json") buffer = JSONStringify(data);
     else return;
 
-    // TODO: compression
     if (socket.compress === "zlib-stream") {
         buffer = socket.deflate!.process(buffer) as Buffer;
     } else if (socket.compress === "zstd-stream") {

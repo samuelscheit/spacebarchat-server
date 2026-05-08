@@ -25,8 +25,7 @@ import { subscribeToProducers } from "./Video";
 
 export async function onIdentify(this: WebRtcWebSocket, data: VoicePayload) {
     clearTimeout(this.readyTimeout);
-    // noinspection JSUnusedLocalSymbols - TODO: use video?
-    const { server_id, user_id, session_id, token, streams, video } = validateSchema("VoiceIdentifySchema", data.d) as VoiceIdentifySchema;
+    const { server_id, user_id, session_id, token, streams } = validateSchema("VoiceIdentifySchema", data.d) as VoiceIdentifySchema;
 
     // server_id can be one of the following: a unique id for a GO Live stream, a channel id for a DM voice call, or a guild id for a guild voice channel
     // not sure if there's a way to determine whether a snowflake is a channel id or a guild id without checking if it exists in db

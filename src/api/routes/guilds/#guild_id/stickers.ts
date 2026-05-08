@@ -17,11 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import { GuildStickersUpdateEvent, Member, Snowflake, Sticker, emitEvent, uploadFile, Config, DiscordApiErrors } from "@spacebar/util";
+import { GuildStickersUpdateEvent, Member, Snowflake, Sticker, emitEvent, Config, DiscordApiErrors, deleteFile, uploadFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { ModifyGuildStickerSchema, StickerFormatType, StickerType } from "@spacebar/schemas";
+import { ModifyGuildStickerSchema } from "@spacebar/schemas";
+import { UnsupportedStickerMimeTypeError, createGuildStickerUpload } from "../../../util/StickerUpload";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -85,39 +86,26 @@ router.post(
 
         if (sticker_count >= maxStickers) throw DiscordApiErrors.MAXIMUM_STICKERS.withParams(maxStickers);
 
-        const [sticker] = await Promise.all([
-            Sticker.create({
-                ...body,
-                guild_id,
-                id,
-                type: StickerType.GUILD,
-                format_type: getStickerFormat(req.file.mimetype),
-                available: true,
-                user_id: req.user_id,
-            }).save(),
-            uploadFile(`/stickers/${id}`, req.file),
-        ]);
+        const sticker = await createGuildStickerUpload({
+            body,
+            createSticker: (metadata) => Sticker.create(metadata),
+            deleteUploadedFile: deleteFile,
+            file: req.file,
+            guild_id,
+            id,
+            saveSticker: (sticker) => sticker.save(),
+            upload: uploadFile,
+            user_id: req.user_id,
+        }).catch((error) => {
+            if (error instanceof UnsupportedStickerMimeTypeError) throw new HTTPError(error.message);
+            throw error;
+        });
 
         await sendStickerUpdateEvent(guild_id);
 
         res.json(sticker);
     },
 );
-
-function getStickerFormat(mime_type: string) {
-    switch (mime_type) {
-        case "image/apng":
-            return StickerFormatType.APNG;
-        case "application/json":
-            return StickerFormatType.LOTTIE;
-        case "image/png":
-            return StickerFormatType.PNG;
-        case "image/gif":
-            return StickerFormatType.GIF;
-        default:
-            throw new HTTPError("invalid sticker format: must be png, apng or lottie");
-    }
-}
 
 router.get(
     "/:sticker_id",

@@ -23,12 +23,17 @@ import { Attachment } from "../entities";
 import { assertCdnFileSizeLimit } from "./CdnFileLimits";
 import { Config } from "./Config";
 import { parseBase64DataUri } from "../../schemas/ImageData";
-import { getCdnMutationUrl } from "./InternalCdnRoutes";
+import { getCdnMutationHeaders, getCdnMutationUrl } from "./InternalCdnRoutes";
+
+export interface CdnUploadOptions {
+    animatedAvatarUserId?: string;
+}
 
 export async function uploadFile(
     path: string,
     // These are the only props we use, don't need to enforce the full type.
     file?: Pick<Express.Multer.File, "mimetype" | "originalname" | "buffer">,
+    options: CdnUploadOptions = {},
 ): Promise<Attachment> {
     if (!file?.buffer) throw new HTTPError("Missing file in body");
 
@@ -39,10 +44,11 @@ export async function uploadFile(
     });
 
     const response = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, path), {
-        headers: {
-            signature: Config.get().security.requestSignature,
-            ...form.getHeaders(),
-        },
+        headers: getCdnMutationHeaders({
+            formHeaders: form.getHeaders(),
+            requestSignature: Config.get().security.requestSignature,
+            animatedAvatarUserId: options.animatedAvatarUserId,
+        }),
         method: "POST",
         body: form.getBuffer(),
     });
@@ -52,18 +58,22 @@ export async function uploadFile(
     return result;
 }
 
-export async function handleFile(path: string, body?: string): Promise<string | undefined> {
+export async function handleFile(path: string, body?: string, options: CdnUploadOptions = {}): Promise<string | undefined> {
     if (!body || !body.startsWith("data:")) return undefined;
     try {
         const image = parseBase64DataUri(body);
         if (!image || !image.mimetype.startsWith("image/")) throw new Error("Invalid image data URI");
         assertCdnFileSizeLimit(path, image.buffer.length, Config.get().cdn);
 
-        const { id } = await uploadFile(path, {
-            buffer: image.buffer,
-            mimetype: image.mimetype,
-            originalname: "banner",
-        });
+        const { id } = await uploadFile(
+            path,
+            {
+                buffer: image.buffer,
+                mimetype: image.mimetype,
+                originalname: "banner",
+            },
+            options,
+        );
         return id;
     } catch (error) {
         if (error instanceof ApiError) throw error;

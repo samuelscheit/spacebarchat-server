@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="../../Interop/Spacebar.Interop.Cdn.Signing/Spacebar.Interop.Cdn.Signing.csproj" />
     <ProjectReference Include="../../Spacebar.Cdn/Spacebar.Cdn.csproj" />
+    <ProjectReference Include="../../Spacebar.Cdn.Worker/Spacebar.Cdn.Worker.Q16.AnyCPU.csproj" />
   </ItemGroup>
 
 </Project>

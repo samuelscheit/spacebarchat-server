@@ -141,6 +141,7 @@ describe("guild create normalization", () => {
         const ids = new Map([
             ["client-general", "server-general"],
             ["client-rules", "server-rules"],
+            ["client-safety", "server-safety"],
         ]);
 
         assert.deepEqual(
@@ -148,6 +149,7 @@ describe("guild create normalization", () => {
                 {
                     system_channel_id: "client-general",
                     rules_channel_id: "client-rules",
+                    safety_alerts_channel_id: "client-safety",
                     afk_channel_id: "external-afk",
                 },
                 ids,
@@ -155,6 +157,7 @@ describe("guild create normalization", () => {
             {
                 system_channel_id: "server-general",
                 rules_channel_id: "server-rules",
+                safety_alerts_channel_id: "server-safety",
                 afk_channel_id: undefined,
             },
         );

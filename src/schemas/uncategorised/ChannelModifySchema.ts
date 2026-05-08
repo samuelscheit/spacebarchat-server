@@ -51,7 +51,7 @@ export interface ChannelBaseModifySchema {
     auto_archive_duration?: number;
     archived?: boolean;
     locked?: boolean;
-    available_tags?: (TagCreateSchema & { id: string })[];
+    available_tags?: (TagCreateSchema & { id?: string })[];
 }
 
 export interface ChannelModifySchema extends ChannelBaseModifySchema {

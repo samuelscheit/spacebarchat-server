@@ -1,7 +1,10 @@
-import { Event, Session, sleep, TimeSpan, VoiceState } from "@spacebar/util";
+import { Event, Session, TimeSpan } from "@spacebar/util";
 import { WebSocket } from "./WebSocket";
-import { OPCODES } from "./Constants";
+import { CLOSECODES, OPCODES } from "./Constants";
 import { Send } from "./Send";
+import { JsonSerializer } from "../../util/util/json/JsonSerializer";
+
+type OffloadedGatewayEventHandler = (event: Event) => Promise<void> | void;
 
 export function parseStreamKey(streamKey: string): {
     type: "guild" | "call";
@@ -38,35 +41,11 @@ export function generateStreamKey(type: "guild" | "call", guildId: string | unde
     return streamKey;
 }
 
-// Temporary cleanup function until shutdown cleanup function is fixed.
-// Currently when server is shut down the voice states are not cleared
-// TODO: remove this when Server.stop() is fixed so that it waits for all websocket connections to run their
-// respective Close event listener function for session cleanup
 export async function cleanupOnStartup(): Promise<void> {
-    // TODO: how is this different from clearing the table?
-    //await VoiceState.update(
-    //	{},
-    //	{
-    //		// @ts-expect-error channel_id is nullable
-    //		channel_id: null,
-    //		// @ts-expect-error guild_id is nullable
-    //		guild_id: null,
-    //		self_stream: false,
-    //		self_video: false,
-    //	},
-    //);
-
-    console.log("[Gateway] Starting voice state wipe...");
-    const clearVoiceStates = VoiceState.clear()
-        .then(() => console.log("[Gateway] Successfully cleaned voice states"))
-        .catch((e) => console.error("[Gateway] Error cleaning voice states on startup:", e));
-
     console.log("[Gateway] Starting presence expiry...");
-    const expirePresences = expireOldPresenceStates()
+    await expireOldPresenceStates()
         .then(() => console.log("[Gateway] Successfully cleaned expired presence states"))
-        .catch((e) => console.error("[Gateway] Error cleaning expired presence states:", e));
-
-    await Promise.all([clearVoiceStates, expirePresences]);
+        .catch((e) => console.error("[Gateway] Error cleaning expired presence states on startup:", e));
 }
 
 async function expireOldPresenceStates() {
@@ -79,8 +58,7 @@ async function expireOldPresenceStates() {
     }
 }
 
-export async function handleOffloadedGatewayRequest(socket: WebSocket, url: string, body: unknown) {
-    // TODO: async json object streaming
+export async function handleOffloadedGatewayRequest(socket: WebSocket, url: string, body: unknown, onEvent?: OffloadedGatewayEventHandler) {
     const resp = await fetch(url, {
         body: JSON.stringify(body),
         method: "POST",
@@ -99,10 +77,23 @@ export async function handleOffloadedGatewayRequest(socket: WebSocket, url: stri
         throw new Error(`Offloaded request failed with status ${resp.status}: ${text}`);
     }
 
-    const data = ((await resp.json()) as Event[]).toReversed();
-    while (data.length > 0) {
-        const event = data.pop()!;
+    if (!resp.body) {
+        throw new Error("Offloaded request did not return a response body");
+    }
+
+    for await (const event of JsonSerializer.DeserializeAsyncEnumerable<Event>(resp.body)) {
         if (process.env.WS_VERBOSE) console.log(`[Gateway] Received offloaded event: ${JSON.stringify(event)}`);
+
+        if (event.event === "SB_GW_CLOSE") {
+            const closeData = event.data as { code?: unknown; reason?: unknown } | undefined;
+            const code = typeof closeData?.code === "number" ? closeData.code : CLOSECODES.Unknown_error;
+            const reason = typeof closeData?.reason === "string" ? closeData.reason : undefined;
+
+            socket.close(code, reason);
+            return;
+        }
+
+        await onEvent?.(event);
         await Send(socket, {
             op: OPCODES.Dispatch,
             s: socket.sequence++,

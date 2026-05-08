@@ -1,14 +1,30 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, test } from "node:test";
 import { getMetadataArgsStorage } from "typeorm";
+import { PublicGuildRelations } from "./Guild";
 
 const ROLE_PERMISSION_OVERWRITE_TYPE = 0;
 const MEMBER_PERMISSION_OVERWRITE_TYPE = 1;
 const GUILD_TEXT_CHANNEL_TYPE = 0;
 const GUILD_CATEGORY_CHANNEL_TYPE = 4;
+const GUILD_NEWS_THREAD_TYPE = 10;
+const GUILD_PUBLIC_THREAD_TYPE = 11;
+const GUILD_PRIVATE_THREAD_TYPE = 12;
 
 type EntityPayload = Record<string, unknown>;
 type SaveableEntity = EntityPayload & { save: () => Promise<EntityPayload> };
+
+function createThreadMetadata(archived: boolean) {
+    return {
+        archived,
+        archive_timestamp: new Date("2026-05-08T00:00:00.000Z").toISOString(),
+        create_timestamp: new Date("2026-05-08T00:00:00.000Z").toISOString(),
+        locked: false,
+        auto_archive_duration: 60,
+    };
+}
 
 function createSaveableEntity(payload: EntityPayload): SaveableEntity {
     const entity = {
@@ -19,7 +35,85 @@ function createSaveableEntity(payload: EntityPayload): SaveableEntity {
     return entity;
 }
 
+test("PublicGuildRelations does not eagerly load guild members", () => {
+    assert.equal(PublicGuildRelations.includes("members"), false);
+    assert.equal(PublicGuildRelations.includes("members.user"), false);
+});
+
 describe("Guild.createGuild", () => {
+    test("rejects custom role payloads without CREATE_ROLES before creating guild records", async (t) => {
+        process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
+
+        const [{ Guild }, { Config }] = await Promise.all([import("./Guild.js"), import("../util/index.js")]);
+
+        const guildClass = Guild as unknown as {
+            create: (guild: EntityPayload) => SaveableEntity;
+        };
+        const configClass = Config as unknown as {
+            get: () => EntityPayload;
+        };
+        let createGuildCalls = 0;
+
+        t.mock.method(configClass, "get", () => ({
+            guild: {
+                defaultFeatures: [],
+            },
+        }));
+        t.mock.method(guildClass, "create", (guild: EntityPayload) => {
+            createGuildCalls++;
+            return createSaveableEntity(guild);
+        });
+
+        await assert.rejects(
+            () =>
+                Guild.createGuild({
+                    name: "Missing role rights",
+                    owner_id: "owner",
+                    roles: [{ id: "moderator", name: "Moderator" }],
+                    source_guild_id: null,
+                }),
+            /CREATE_ROLES/,
+        );
+        assert.equal(createGuildCalls, 0);
+    });
+
+    test("rejects guild creation role icon payloads without the ROLE_ICONS feature before creating guild records", async (t) => {
+        process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
+
+        const [{ Guild }, { Config, Rights }] = await Promise.all([import("./Guild.js"), import("../util/index.js")]);
+
+        const guildClass = Guild as unknown as {
+            create: (guild: EntityPayload) => SaveableEntity;
+        };
+        const configClass = Config as unknown as {
+            get: () => EntityPayload;
+        };
+        let createGuildCalls = 0;
+
+        t.mock.method(configClass, "get", () => ({
+            guild: {
+                defaultFeatures: [],
+            },
+        }));
+        t.mock.method(guildClass, "create", (guild: EntityPayload) => {
+            createGuildCalls++;
+            return createSaveableEntity(guild);
+        });
+
+        await assert.rejects(
+            () =>
+                Guild.createGuild({
+                    name: "No role icon perk",
+                    owner_id: "owner",
+                    roles: [{ id: "moderator", name: "Moderator", unicode_emoji: "🔥" }],
+                    source_guild_id: null,
+                    rights: new Rights("CREATE_ROLES"),
+                }),
+            /ROLE_ICONS/,
+        );
+        assert.equal(createGuildCalls, 0);
+    });
+
     test("persists imported template channel ordering from serialized channel order", async () => {
         process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
 
@@ -64,6 +158,7 @@ describe("Guild.createGuild", () => {
                 afk_channel_id?: string | null;
                 channel_ordering?: string[];
                 rules_channel_id?: string | null;
+                safety_alerts_channel_id?: string | null;
                 system_channel_id?: string | null;
             };
         }[] = [];
@@ -82,6 +177,7 @@ describe("Guild.createGuild", () => {
                         explicitContentFilter: 0,
                         maxPresences: 250000,
                         maxVideoChannelUsers: 25,
+                        maxStageVideoChannelUsers: 37,
                     },
                 },
                 guild: { defaultFeatures: [] },
@@ -105,6 +201,7 @@ describe("Guild.createGuild", () => {
                 owner_id: "owner",
                 source_guild_id: "source-guild",
                 rules_channel_id: "child-1",
+                safety_alerts_channel_id: "child-2",
                 system_channel_id: "top-level",
                 channels: [
                     { id: "category", name: "category", type: 4, position: 50 },
@@ -131,12 +228,15 @@ describe("Guild.createGuild", () => {
             assert(channelCreateCalls.every(({ options }) => options?.skipOrdering));
             assert.deepEqual(guild.channel_ordering, ["new-category", "new-child-1", "new-child-2", "new-top-level"]);
             assert.equal(guild.rules_channel_id, "new-child-1");
+            assert.equal(guild.safety_alerts_channel_id, "new-child-2");
             assert.equal(guild.system_channel_id, "new-top-level");
+            assert.equal(guild.max_stage_video_channel_users, 37);
             assert.deepEqual(guildUpdates.at(-1), {
                 criteria: { id: "new-guild" },
                 partial: {
                     channel_ordering: ["new-category", "new-child-1", "new-child-2", "new-top-level"],
                     rules_channel_id: "new-child-1",
+                    safety_alerts_channel_id: "new-child-2",
                     system_channel_id: "new-top-level",
                 },
             });
@@ -154,7 +254,7 @@ describe("Guild.createGuild", () => {
         process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
         process.env.APPLY_DB_MIGRATIONS ??= "false";
 
-        const [{ Guild }, { Role }, { Channel }, { Config, Snowflake }] = await Promise.all([
+        const [{ Guild }, { Role }, { Channel }, { Config, Rights, Snowflake }] = await Promise.all([
             import("./Guild.js"),
             import("./Role.js"),
             import("./Channel.js"),
@@ -190,6 +290,7 @@ describe("Guild.createGuild", () => {
                     explicitContentFilter: 0,
                     maxPresences: null,
                     maxVideoChannelUsers: 25,
+                    maxStageVideoChannelUsers: 41,
                 },
             },
             guild: {
@@ -253,9 +354,11 @@ describe("Guild.createGuild", () => {
                 },
             ],
             source_guild_id: "source-guild",
+            rights: new Rights("CREATE_ROLES"),
         });
 
         assert.equal(guild.id, "new-guild");
+        assert.equal(guild.max_stage_video_channel_users, 41);
         assert.deepEqual(
             createdRoles.map((role) => ({ id: role.id, name: role.name, permissions: role.permissions })),
             [
@@ -270,6 +373,96 @@ describe("Guild.createGuild", () => {
         assert.equal(createdChannels[1].parent_id, "new-category");
         assert.deepEqual(createdChannels[1].permission_overwrites, [{ id: "new-role", type: ROLE_PERMISSION_OVERWRITE_TYPE, allow: "2048", deny: "0" }]);
         assert.deepEqual(guild.channel_ordering, ["new-category", "new-text"]);
+    });
+
+    test("Channel.createChannel rejects all thread channel types so callers use createThreadChannel", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+        const { Channel } = await import("./Channel.js");
+
+        for (const type of [10, 11, 12]) {
+            await assert.rejects(
+                () =>
+                    Channel.createChannel(
+                        {
+                            guild_id: "guild",
+                            parent_id: "parent",
+                            name: "thread",
+                            type,
+                        },
+                        "owner",
+                        {
+                            skipPermissionCheck: true,
+                            skipEventEmit: true,
+                            skipNameChecks: true,
+                        },
+                    ),
+                /Thread channels must be created with createThreadChannel/,
+            );
+        }
+    });
+
+    test("Channel.createChannel inserts new guild channels into guild channel_ordering", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+        const { Guild } = await import("./Guild.js");
+        const { Channel } = await import("./Channel.js");
+        const mutableGuild = Guild as unknown as Record<string, unknown>;
+        const mutableChannel = Channel as unknown as Record<string, unknown>;
+
+        const originalChannelCreate = mutableChannel.create;
+        const originalGuildFindOneOrFail = mutableGuild.findOneOrFail;
+        const originalGuildUpdate = mutableGuild.update;
+
+        const guild = { id: "guild", features: [], channel_ordering: ["existing"] };
+        const guildFindCalls: unknown[] = [];
+        const guildUpdates: {
+            criteria: unknown;
+            partial: { channel_ordering?: string[] };
+        }[] = [];
+
+        try {
+            mutableChannel.create = (entity: object) => ({
+                ...entity,
+                save: async () => entity,
+                toJSON: () => entity,
+            });
+            mutableGuild.findOneOrFail = async (options: unknown) => {
+                guildFindCalls.push(options);
+                return guild;
+            };
+            mutableGuild.update = async (criteria: unknown, partial: { channel_ordering?: string[] }) => {
+                guildUpdates.push({ criteria, partial });
+                return { affected: 1, generatedMaps: [], raw: [] };
+            };
+
+            const channel = await Channel.createChannel({ id: "new", guild_id: "guild", name: "general", type: 0 }, "owner", {
+                keepId: true,
+                skipPermissionCheck: true,
+                skipEventEmit: true,
+            });
+
+            assert.equal(channel.id, "new");
+            assert.deepEqual(guildFindCalls[0], {
+                where: { id: "guild" },
+                select: {
+                    features: true,
+                    channel_ordering: true,
+                    id: true,
+                },
+            });
+            assert.deepEqual(guild.channel_ordering, ["new", "existing"]);
+            assert.deepEqual(guildUpdates, [
+                {
+                    criteria: { id: "guild" },
+                    partial: { channel_ordering: ["new", "existing"] },
+                },
+            ]);
+        } finally {
+            mutableChannel.create = originalChannelCreate;
+            mutableGuild.findOneOrFail = originalGuildFindOneOrFail;
+            mutableGuild.update = originalGuildUpdate;
+        }
     });
 
     test("Channel.createChannel can skip immediate guild channel_ordering insertion for template imports", async () => {
@@ -315,12 +508,255 @@ describe("Guild.createGuild", () => {
 });
 
 describe("Guild entity metadata", () => {
-    test("uses explicit database types for nullable discovery metadata backing columns", async () => {
+    test("Guild.toGuildUpdateEventData preserves nullable guild fields", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
         const { Guild } = await import("./Guild.js");
+
+        const guild = new Guild();
+        Object.assign(guild, {
+            id: "guild",
+            name: "Nullable Guild",
+            welcome_screen: { enabled: false, description: "", welcome_channels: [] },
+            widget_enabled: true,
+            nsfw: false,
+            afk_channel_id: null,
+            description: null,
+            public_updates_channel_id: null,
+            rules_channel_id: null,
+            safety_alerts_channel_id: null,
+            system_channel_id: null,
+            widget_channel_id: null,
+            template_id: "template",
+        });
+
+        t.mock.method(guild, "toJSON", () => ({
+            id: "guild",
+            name: "Nullable Guild",
+            welcome_screen: { enabled: false, description: "", welcome_channels: [] },
+            widget_enabled: true,
+            nsfw: false,
+            afk_channel_id: null,
+            description: null,
+            public_updates_channel_id: null,
+            rules_channel_id: null,
+            safety_alerts_channel_id: null,
+            system_channel_id: null,
+            widget_channel_id: null,
+            template_id: "template",
+        }));
+
+        const data = guild.toGuildUpdateEventData();
+
+        assert.equal(data.afk_channel_id, null);
+        assert.equal(data.description, null);
+        assert.equal(data.public_updates_channel_id, null);
+        assert.equal(data.rules_channel_id, null);
+        assert.equal(data.safety_alerts_channel_id, null);
+        assert.equal(data.system_channel_id, null);
+        assert.equal(data.widget_channel_id, null);
+        assert.equal(Object.hasOwn(data, "template_id"), false);
+    });
+
+    test("Guild.toGuildUpdateEventData includes a configured safety alerts channel id", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+        const { Guild } = await import("./Guild.js");
+
+        const guild = new Guild();
+        t.mock.method(guild, "toJSON", () => ({
+            id: "guild",
+            name: "Guild",
+            safety_alerts_channel_id: "safety-channel",
+            template_id: "template",
+        }));
+
+        const data = guild.toGuildUpdateEventData();
+
+        assert.equal(data.safety_alerts_channel_id, "safety-channel");
+        assert.equal(Object.hasOwn(data, "template_id"), false);
+    });
+
+    test("uses explicit database types for nullable discovery metadata backing columns", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+        const { Guild, PublicGuildRelations } = await import("./Guild.js");
         const columns = getMetadataArgsStorage().columns.filter((column) => column.target === Guild);
+        const primaryCategoryColumn = columns.find((column) => column.propertyName === "primary_category_id");
+        const safetyAlertsColumn = columns.find((column) => column.propertyName === "safety_alerts_channel_id");
 
         assert.equal(columns.find((column) => column.propertyName === "description")?.options.type, "varchar");
-        assert.equal(columns.find((column) => column.propertyName === "primary_category_id")?.options.type, "int8");
+        assert.ok(primaryCategoryColumn);
+        assert.equal(primaryCategoryColumn.options.type, "int");
+        assert.equal(primaryCategoryColumn.options.nullable, true);
+        assert.ok(safetyAlertsColumn);
+        assert.equal(safetyAlertsColumn.options.type, "int8");
+        assert.equal(safetyAlertsColumn.options.nullable, true);
+        assert.ok(PublicGuildRelations.includes("stage_instances"));
+
+        type GuildPrimaryCategoryId = InstanceType<typeof Guild>["primary_category_id"];
+        const acceptsNumericDiscoveryCategoryId = (_value: number | null | undefined) => undefined;
+        acceptsNumericDiscoveryCategoryId(undefined as GuildPrimaryCategoryId);
+        // @ts-expect-error primary_category_id is a numeric discovery category id, not a snowflake string.
+        const rejectsSnowflakeString: GuildPrimaryCategoryId = "5";
+        void rejectsSnowflakeString;
     });
+
+    test("declares stage_instances as the inverse relation for StageInstance.guild", async () => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+        const [{ Guild }, { StageInstance }] = await Promise.all([import("./Guild.js"), import("./StageInstance.js")]);
+        const relations = getMetadataArgsStorage().relations;
+
+        const guildStageInstancesRelation = relations.find((relation) => relation.target === Guild && relation.propertyName === "stage_instances");
+        assert.equal(guildStageInstancesRelation?.relationType, "one-to-many");
+        assert.equal(typeof guildStageInstancesRelation?.type, "function");
+        assert.equal((guildStageInstancesRelation.type as () => typeof StageInstance)(), StageInstance);
+
+        const stageInstanceGuildRelation = relations.find((relation) => relation.target === StageInstance && relation.propertyName === "guild");
+        assert.equal(stageInstanceGuildRelation?.relationType, "many-to-one");
+        assert.equal(typeof stageInstanceGuildRelation?.inverseSideProperty, "function");
+        assert.equal((stageInstanceGuildRelation.inverseSideProperty as (guild: { stage_instances: string }) => string)({ stage_instances: "stage_instances" }), "stage_instances");
+    });
+
+    test("does not carry the orphaned discovery keyword TODO sample", () => {
+        const source = readFileSync(join(process.cwd(), "src/util/entities/Guild.ts"), "utf8");
+
+        assert.doesNotMatch(source, /^\s*\/\/ TODO:\s*$/m);
+        assert.doesNotMatch(source, /^\s*\/\/\s*"Genshin Impact",\s*$/m);
+        assert.doesNotMatch(source, /^\s*\/\/\s*"miHoYo",\s*$/m);
+    });
+});
+
+test("ready guild thread predicate includes only active public and news threads for the requested guild", async () => {
+    const { ReadyGuildThreadTypes, isReadyGuildThreadChannel } = await import("./Guild.js");
+
+    assert.deepEqual([...ReadyGuildThreadTypes], [GUILD_NEWS_THREAD_TYPE, GUILD_PUBLIC_THREAD_TYPE]);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_NEWS_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), true);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_PUBLIC_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), true);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_PUBLIC_THREAD_TYPE, thread_metadata: createThreadMetadata(true) }, "guild"), false);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_PRIVATE_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), false);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_TEXT_CHANNEL_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), false);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "other", type: GUILD_PUBLIC_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), false);
+});
+
+test("addToGuild sends active public and news threads separately from ordered guild channels without leaking private threads", async (t) => {
+    process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
+    process.env.APPLY_DB_MIGRATIONS ??= "false";
+
+    const [{ Member }, { Guild }, { Channel }, { Ban }, { Role }, { StageInstance }, { User }, { Message }, utilModule] = await Promise.all([
+        import("./Member.js"),
+        import("./Guild.js"),
+        import("./Channel.js"),
+        import("./Ban.js"),
+        import("./Role.js"),
+        import("./StageInstance.js"),
+        import("./User.js"),
+        import("./Message.js"),
+        import("../util/index.js"),
+    ]);
+
+    const emittedEvents: EntityPayload[] = [];
+    const savedMembers: EntityPayload[] = [];
+    const guild = Object.assign(new Guild(), {
+        id: "guild",
+        name: "Thread Guild",
+        channels: [
+            Object.assign(new Channel(), {
+                id: "active-news-thread",
+                guild_id: "guild",
+                parent_id: "text",
+                type: GUILD_NEWS_THREAD_TYPE,
+                name: "active news thread",
+                thread_metadata: createThreadMetadata(false),
+            }),
+            Object.assign(new Channel(), {
+                id: "active-thread",
+                guild_id: "guild",
+                parent_id: "text",
+                type: GUILD_PUBLIC_THREAD_TYPE,
+                name: "active thread",
+                thread_metadata: createThreadMetadata(false),
+            }),
+            Object.assign(new Channel(), { id: "text", guild_id: "guild", type: 0, name: "text" }),
+            Object.assign(new Channel(), {
+                id: "archived-thread",
+                guild_id: "guild",
+                parent_id: "text",
+                type: GUILD_PUBLIC_THREAD_TYPE,
+                name: "archived thread",
+                thread_metadata: createThreadMetadata(true),
+            }),
+            Object.assign(new Channel(), {
+                id: "private-thread",
+                guild_id: "guild",
+                parent_id: "text",
+                type: GUILD_PRIVATE_THREAD_TYPE,
+                name: "private thread",
+                thread_metadata: createThreadMetadata(false),
+            }),
+        ],
+        channel_ordering: ["active-news-thread", "active-thread", "text"],
+        roles: [],
+        emojis: [],
+        stickers: [],
+        stage_instances: [],
+        voice_states: [],
+        large: false,
+        member_count: 0,
+        premium_subscription_count: 0,
+        features: [],
+        owner_id: "owner",
+        afk_timeout: 300,
+        premium_tier: 0,
+        premium_progress_bar_enabled: false,
+        nsfw: false,
+        default_message_notifications: 0,
+    });
+
+    t.mock.method(utilModule.Config, "get", () => ({ limits: { user: { maxGuilds: 100 } } }));
+    t.mock.method(User, "getPublicUser", async () => ({ id: "new-user", username: "new-user", discriminator: "0001", avatar: null, public_flags: 0 }));
+    t.mock.method(Ban, "getRepository", () => ({ count: async () => 0 }));
+    t.mock.method(Member, "getRepository", () => ({
+        count: async (options: EntityPayload) => (options.where && "id" in (options.where as EntityPayload) ? 0 : 1),
+        find: async () => [],
+        create: (entity: EntityPayload) => ({
+            ...entity,
+            toPublicMember() {
+                return { user_id: entity.id, roles: (entity.roles as EntityPayload[]).map((role) => role.id) };
+            },
+        }),
+        save: async (entity: EntityPayload) => {
+            savedMembers.push(entity);
+            return entity;
+        },
+    }));
+    t.mock.method(Guild, "getRepository", () => ({
+        findOneOrFail: async () => guild,
+        increment: async () => undefined,
+    }));
+    t.mock.method(StageInstance, "getRepository", () => ({ find: async () => [] }));
+    t.mock.method(Channel, "getRepository", () => ({ findOneOrFail: async () => ({ id: "text" }), save: async () => undefined }));
+    t.mock.method(Role, "create", (role: EntityPayload) => role);
+    const manager = {
+        getRepository(entity: unknown) {
+            if (entity === Channel) return Channel.getRepository();
+            if (entity === Guild) return Guild.getRepository();
+            if (entity === Member) return Member.getRepository();
+            if (entity === Message) return { create: (message: EntityPayload) => message, save: async (message: EntityPayload) => message };
+            if (entity === StageInstance) return StageInstance.getRepository();
+            if (entity === Ban) return Ban.getRepository();
+            throw new Error("unexpected repository");
+        },
+    };
+    await Member.addToGuild("new-user", "guild", { manager: manager as never, deferredEvents: emittedEvents as never[] });
+
+    assert.equal(savedMembers.length, 1);
+    const guildCreate = emittedEvents.find((event) => event.event === "GUILD_CREATE") as EntityPayload | undefined;
+    assert.ok(guildCreate);
+    const data = guildCreate.data as { channels: EntityPayload[]; threads: EntityPayload[] };
+    assert.deepEqual(
+        data.channels.map((channel) => channel.id),
+        ["text"],
+    );
+    assert.deepEqual(
+        data.threads.map((thread) => thread.id),
+        ["active-news-thread", "active-thread"],
+    );
 });

@@ -54,6 +54,11 @@ export enum CLOSECODES {
     Not_authenticated,
     Authentication_failed,
     Already_authenticated,
+    /**
+     * @deprecated Discord no longer uses close code 4006 for invalid sessions;
+     * send opcode 9 Invalid Session instead and close normally when the
+     * connection must be terminated.
+     */
     Invalid_session,
     Invalid_seq,
     Rate_limited,
