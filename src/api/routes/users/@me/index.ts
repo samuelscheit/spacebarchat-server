@@ -86,7 +86,9 @@ router.patch(
         let newToken: string | undefined;
 
         if (body.avatar) {
-            const uploadedAvatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string);
+            const uploadedAvatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string, {
+                animatedAvatarUserId: req.user_id,
+            });
             body.avatar = uploadedAvatar;
             if (uploadedAvatar) {
                 recentAvatarToRecord = {

@@ -17,7 +17,7 @@
 */
 
 import { Router, Response, Request } from "express";
-import { assertCdnFileSizeLimit, Config } from "@spacebar/util";
+import { ANIMATED_AVATAR_USER_ID_HEADER, assertCdnFileSizeLimit, Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
@@ -50,7 +50,7 @@ router.post("/:user_id", multer.single("file"), async (req: Request, res: Respon
     await assertAnimatedAvatarUploadAllowed({
         allowAnimated: Config.get().cdn.limits.avatar.allowAnimated,
         mimeType: type.mime,
-        userId: user_id,
+        userId: req.get(ANIMATED_AVATAR_USER_ID_HEADER),
     });
     if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 

@@ -18,13 +18,14 @@ export async function assertAnimatedAvatarUploadAllowed({
 }: {
     allowAnimated: CdnImageLimitsConfiguration["allowAnimated"];
     mimeType: string | undefined;
-    userId: string;
+    userId?: string;
     lookupUser?: UserPremiumLookup;
 }) {
     if (!isAnimatedAvatarMimeType(mimeType)) return;
 
     if (allowAnimated === "always") return;
     if (allowAnimated === "never") throw new HTTPError("Animated avatars are disabled");
+    if (!userId) return;
 
     const user = await lookupUser(userId);
     if (!isPremiumUser(user)) throw new HTTPError("Animated avatars require premium");

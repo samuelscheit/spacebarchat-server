@@ -27,7 +27,6 @@ describe("avatar upload animated-image policy", () => {
         await assertAnimatedAvatarUploadAllowed({
             allowAnimated: "never",
             mimeType: "image/png",
-            userId: "user-id",
             lookupUser: async () => {
                 called = true;
                 return null;
@@ -43,6 +42,19 @@ describe("avatar upload animated-image policy", () => {
             userId: "user-id",
             lookupUser: lookupFree,
         });
+    });
+
+    test("allows generic animated avatar storage in premium mode without a user lookup", async () => {
+        let called = false;
+        await assertAnimatedAvatarUploadAllowed({
+            allowAnimated: "premium",
+            mimeType: "image/gif",
+            lookupUser: async () => {
+                called = true;
+                return null;
+            },
+        });
+        assert.equal(called, false);
     });
 
     test("rejects animated avatars when configured to never allow them", async () => {
@@ -72,7 +84,7 @@ describe("avatar upload animated-image policy", () => {
         });
     });
 
-    test("rejects animated avatars for non-premium or missing users in premium mode", async () => {
+    test("rejects animated user avatars for non-premium or missing users in premium mode", async () => {
         for (const lookupUser of [lookupFree, async () => null]) {
             await assert.rejects(
                 assertAnimatedAvatarUploadAllowed({
