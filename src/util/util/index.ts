@@ -18,6 +18,7 @@
 
 export * from "./ApiError";
 export * from "./ApiVersions";
+export * from "./ApplicationFlags";
 export * from "./AuthTokenPayload";
 export * from "./extensions/Array";
 export * from "./BitField";
