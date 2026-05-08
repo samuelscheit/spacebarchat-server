@@ -4738,7 +4738,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 67,
+            "line": 70,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4790,7 +4790,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 240,
+            "line": 243,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4842,7 +4842,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 299,
+            "line": 302,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4952,7 +4952,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 366,
+            "line": 369,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

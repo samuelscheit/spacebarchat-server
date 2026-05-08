@@ -26,6 +26,9 @@ import {
     sendMessage,
     serializeActiveGuildThreads,
     serializeThreadSearchMember,
+    getThreadCreationPermission,
+    resolveThreadCreationType,
+    shouldSendThreadCreatedMessage,
 } from "@spacebar/api";
 import {
     Channel,
@@ -91,8 +94,8 @@ router.post(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
-        const threadType = body.type || (channel.threadOnly() ? ChannelType.GUILD_PUBLIC_THREAD : ChannelType.GUILD_PRIVATE_THREAD);
-        req.permission?.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD ? "CREATE_PRIVATE_THREADS" : "CREATE_PUBLIC_THREADS");
+        const threadType = resolveThreadCreationType(body, channel);
+        req.permission!.hasThrow(getThreadCreationPermission(threadType));
         if (!body.applied_tags?.length) {
             const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
             //TODO better error
@@ -149,7 +152,7 @@ router.post(
                 },
             }),
         ]);
-        if (body.type !== ChannelType.GUILD_PRIVATE_THREAD && !channel.isForum())
+        if (shouldSendThreadCreatedMessage(threadType, channel))
             await sendMessage({
                 channel_id: channel.id,
                 type: MessageType.THREAD_CREATED,

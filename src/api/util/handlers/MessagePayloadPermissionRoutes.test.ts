@@ -55,16 +55,13 @@ describe("message media permission route integration", () => {
 
         assert.equal(source.includes('permission: "CREATE_PUBLIC_THREADS"'), false);
         assert.notEqual(indexOf(source, 'permission: "VIEW_CHANNEL"'), -1);
-        assert.notEqual(
-            indexOf(
-                source,
-                'req.permission?.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD ? "CREATE_PRIVATE_THREADS" : "CREATE_PUBLIC_THREADS");',
-            ),
-            -1,
-        );
-        assertBefore(source, "const threadType = body.type", "req.permission?.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD");
-        assertBefore(source, "req.permission?.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD", "Channel.createThreadChannel(");
-        assertBefore(source, "req.permission?.hasThrow(threadType === ChannelType.GUILD_PRIVATE_THREAD", "uploadFile(`/attachments/");
+        assert.notEqual(indexOf(source, "const threadType = resolveThreadCreationType(body, channel);"), -1);
+        assert.notEqual(indexOf(source, "req.permission!.hasThrow(getThreadCreationPermission(threadType));"), -1);
+        assertBefore(source, "const threadType = resolveThreadCreationType(body, channel);", "req.permission!.hasThrow(getThreadCreationPermission(threadType));");
+        assertBefore(source, "req.permission!.hasThrow(getThreadCreationPermission(threadType));", "Channel.createThreadChannel(");
+        assertBefore(source, "req.permission!.hasThrow(getThreadCreationPermission(threadType));", "uploadFile(`/attachments/");
+        assert.notEqual(indexOf(source, "if (shouldSendThreadCreatedMessage(threadType, channel))"), -1);
+        assert.equal(source.includes("if (body.type !== ChannelType.GUILD_PRIVATE_THREAD"), false);
     });
 
     test("webhooks check media permissions before success responses and upload side effects", () => {
