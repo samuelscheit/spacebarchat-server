@@ -11,6 +11,8 @@ import { withFileStorage } from "../fixtures/files";
 import { startApi } from "../server/startApi";
 import { startCdn } from "../server/startCdn";
 
+type GeneratedCdnStorage = Parameters<Parameters<typeof withFileStorage>[0]>[0]["storage"];
+
 type GeneratedHttpContract = {
     manifestId: string;
     service: string;
@@ -45,6 +47,7 @@ type GeneratedHttpContractMatrix = {
         runtimePermissionAndRightRightDenialContracts: number;
         runtimeCdnMissingObjectContracts: number;
         runtimeCdnHeadMissingObjectContracts: number;
+        runtimeCdnValidObjectContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -152,7 +155,9 @@ const permissionAndRightDenialContracts = matrix.contracts.filter(
         !metadataValues(contract.routeMetadata.right).some((value) => value.startsWith("...")),
 );
 const cdnMissingObjectContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/");
+const cdnValidObjectContracts = cdnMissingObjectContracts;
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
+const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 
 function silenceConsole() {
     const previous = {
@@ -310,7 +315,7 @@ async function withAuthenticatedApi<T>(
     }
 }
 
-async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeof startCdn>> }) => Promise<T>): Promise<T> {
+async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeof startCdn>>; storage: GeneratedCdnStorage }) => Promise<T>): Promise<T> {
     const previous = snapshotProcessState();
     const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-contract-cdn-"));
     const configPath = path.join(tempCwd, "config.json");
@@ -331,10 +336,10 @@ async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeo
         );
         await Config.init(true);
 
-        return await withFileStorage(async () => {
+        return await withFileStorage(async ({ storage }) => {
             const cdn = await startCdn();
             try {
-                return await fn({ cdn });
+                return await fn({ cdn, storage });
             } finally {
                 await cdn.stop();
             }
@@ -509,6 +514,38 @@ async function assertCdnMissingObjectResponse(contract: GeneratedHttpContract, m
 
     const body = await response.text();
     assert.match(body, /not found|no longer available/i, `${contract.manifestId} should return a missing-object body`);
+}
+
+function cdnDownloadPathForContract(contract: GeneratedHttpContract) {
+    if (contract.manifestId === "cdn:http:GET:/embed/avatars/:id") return "/embed/avatars/0";
+    if (contract.manifestId === "cdn:http:GET:/embed/group-avatars/:id") return "/embed/group-avatars/0";
+    return contract.samplePath;
+}
+
+function cdnStoragePathForContract(contract: GeneratedHttpContract) {
+    if (contract.manifestId === "cdn:http:GET:/embed/avatars/:id" || contract.manifestId === "cdn:http:GET:/embed/group-avatars/:id") return undefined;
+    if (contract.manifestId === "cdn:http:GET:/role-icons/:role_id/:hash") return `${contract.samplePath.slice(1)}.png`;
+    return contract.samplePath.slice(1).replace(/\/$/, "");
+}
+
+async function seedCdnObjectForContract(storage: GeneratedCdnStorage, contract: GeneratedHttpContract) {
+    const storagePath = cdnStoragePathForContract(contract);
+    if (!storagePath) return;
+
+    await storage.set(storagePath, cdnRuntimePng);
+}
+
+async function assertCdnValidObjectResponse(contract: GeneratedHttpContract, response: Response) {
+    assert.equal(response.status, 200, `${contract.manifestId} should download seeded CDN objects`);
+    assert.equal(response.headers.get("cache-control"), "public, max-age=21600, s-maxage=21600, immutable", `${contract.manifestId} should include successful CDN cache headers`);
+    assert.equal(response.headers.get("content-type"), "image/png", `${contract.manifestId} should return PNG content`);
+
+    const body = Buffer.from(await response.arrayBuffer());
+    if (cdnStoragePathForContract(contract)) {
+        assert.deepEqual(body, cdnRuntimePng, `${contract.manifestId} should return the seeded CDN object bytes`);
+    } else {
+        assert.ok(body.length > 0, `${contract.manifestId} should return a checked-in default asset`);
+    }
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -1037,6 +1074,29 @@ test("generated CDN missing-object contracts reject absent HEAD objects through 
                 await assertCdnMissingObjectResponse(contract, "HEAD", response);
             }
         });
+    } finally {
+        restoreConsole();
+    }
+});
+
+test("generated CDN valid-object contracts download seeded objects through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnValidObjectContracts.length, matrix.summary.runtimeCdnValidObjectContracts);
+    assert.ok(cdnValidObjectContracts.length > 0, "expected CDN valid-object routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        for (const contract of cdnValidObjectContracts) {
+            await withGeneratedCdn(async ({ cdn, storage }) => {
+                await seedCdnObjectForContract(storage, contract);
+
+                const response = await fetch(`${cdn.baseUrl}${cdnDownloadPathForContract(contract)}`, {
+                    method: "GET",
+                    headers: cdnHeadersForContract(contract),
+                });
+
+                await assertCdnValidObjectResponse(contract, response);
+            });
+        }
     } finally {
         restoreConsole();
     }

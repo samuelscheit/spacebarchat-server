@@ -22,7 +22,8 @@
         "runtimePermissionAndRightPermissionDenialContracts": 6,
         "runtimePermissionAndRightRightDenialContracts": 6,
         "runtimeCdnMissingObjectContracts": 35,
-        "runtimeCdnHeadMissingObjectContracts": 35
+        "runtimeCdnHeadMissingObjectContracts": 35,
+        "runtimeCdnValidObjectContracts": 35
     },
     "contracts": [
         {
