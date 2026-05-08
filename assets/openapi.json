@@ -607,6 +607,7 @@
                         "type": "boolean"
                     },
                     "guild_id": {
+                        "minLength": 1,
                         "type": "string"
                     },
                     "permissions": {
