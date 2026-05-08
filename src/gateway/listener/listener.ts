@@ -33,7 +33,7 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { GatewayShard, isGuildOnShard, OPCODES, Send } from "../util";
+import { Capabilities, GatewayShard, isGuildOnShard, OPCODES, Send } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
@@ -128,6 +128,10 @@ export function canDispatchEventForIntents(intents: Intents | undefined, event: 
     if (requiredIntent === Intents.FLAGS.GUILD_MEMBERS && isCurrentUserGuildMemberUpdate(event, userId, data)) return true;
 
     return intents?.has(requiredIntent) ?? false;
+}
+
+export function canDispatchDebouncedMessageReactions(capabilities?: Capabilities) {
+    return Boolean(capabilities?.has(Capabilities.FLAGS.DEBOUNCE_MESSAGE_REACTIONS));
 }
 
 // Sharding: calculate if the current shard id matches the formula: shard_id = (guild_id >> 22) % num_shards
@@ -528,6 +532,10 @@ export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
         case "GUILD_BAN_ADD":
         case "GUILD_BAN_REMOVE":
             if (!permission.has("BAN_MEMBERS")) return;
+            break;
+        case "MESSAGE_REACTION_ADD_MANY":
+            if (!canDispatchDebouncedMessageReactions(this.capabilities)) return;
+            if (!permission.has("VIEW_CHANNEL")) return;
             break;
         case "VOICE_STATE_UPDATE":
         case "MESSAGE_CREATE":

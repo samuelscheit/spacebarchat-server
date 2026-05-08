@@ -19,6 +19,8 @@ export class Capabilities extends BitField {
         USER_SETTINGS_PROTO: BitFlag(9),
         CLIENT_STATE_V2: BitFlag(10),
         PASSIVE_GUILD_UPDATE: BitFlag(11),
+        AUTO_CALL_CONNECT: BitFlag(12),
+        DEBOUNCE_MESSAGE_REACTIONS: BitFlag(13),
     };
 
     any = (capability: CapabilityResolvable) => super.any(capability);

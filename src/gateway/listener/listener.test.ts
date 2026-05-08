@@ -7,7 +7,9 @@ import type { FindManyOptions } from "typeorm";
 import type { WebSocket } from "@spacebar/gateway";
 import { Intents } from "@spacebar/util";
 import { CLOSECODES } from "../util";
+import { Capabilities } from "../util/Capabilities";
 import {
+    canDispatchDebouncedMessageReactions,
     canDispatchEventForIntents,
     canDispatchGuildMemberEvent,
     canDispatchGuildPresenceUpdate,
@@ -437,5 +439,13 @@ describe("setupListener", () => {
             Relationship.find = originalRelationshipFind;
             listenerDependencies.getPermission = originalGetPermission;
         }
+    });
+});
+
+describe("canDispatchDebouncedMessageReactions", () => {
+    test("requires the DEBOUNCE_MESSAGE_REACTIONS capability", () => {
+        assert.equal(canDispatchDebouncedMessageReactions(undefined), false);
+        assert.equal(canDispatchDebouncedMessageReactions(new Capabilities()), false);
+        assert.equal(canDispatchDebouncedMessageReactions(new Capabilities("DEBOUNCE_MESSAGE_REACTIONS")), true);
     });
 });

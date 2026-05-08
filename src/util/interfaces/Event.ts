@@ -437,6 +437,21 @@ export interface MessageReactionAddEvent extends Event {
     };
 }
 
+export interface DebouncedReaction {
+    users: string[];
+    emoji: PartialEmoji;
+}
+
+export interface MessageReactionAddManyEvent extends Event {
+    event: "MESSAGE_REACTION_ADD_MANY";
+    data: {
+        channel_id: string;
+        message_id: string;
+        guild_id?: string;
+        reactions: DebouncedReaction[];
+    };
+}
+
 export interface MessageReactionRemoveEvent extends Event {
     event: "MESSAGE_REACTION_REMOVE";
     data: {
@@ -759,6 +774,7 @@ export type EventData =
     | MessageDeleteEvent
     | MessageDeleteBulkEvent
     | MessageReactionAddEvent
+    | MessageReactionAddManyEvent
     | MessageReactionRemoveEvent
     | MessageReactionRemoveAllEvent
     | MessageReactionRemoveEmojiEvent
@@ -823,6 +839,7 @@ export enum EVENTEnum {
     MessageDelete = "MESSAGE_DELETE",
     MessageDeleteBulk = "MESSAGE_DELETE_BULK",
     MessageReactionAdd = "MESSAGE_REACTION_ADD",
+    MessageReactionAddMany = "MESSAGE_REACTION_ADD_MANY",
     MessageReactionRemove = "MESSAGE_REACTION_REMOVE",
     MessageReactionRemoveAll = "MESSAGE_REACTION_REMOVE_ALL",
     MessageReactionRemoveEmoji = "MESSAGE_REACTION_REMOVE_EMOJI",
@@ -885,8 +902,7 @@ export type EVENT =
     | "MESSAGE_DELETE"
     | "MESSAGE_DELETE_BULK"
     | "MESSAGE_REACTION_ADD"
-    // TODO: add a new event: bulk add reaction:
-    // | "MESSAGE_REACTION_BULK_ADD"
+    | "MESSAGE_REACTION_ADD_MANY"
     | "MESSAGE_REACTION_REMOVE"
     | "MESSAGE_REACTION_REMOVE_ALL"
     | "MESSAGE_REACTION_REMOVE_EMOJI"
