@@ -264,6 +264,45 @@ describe("recent avatars", () => {
         assert.deepEqual(deletedFiles, ["/avatars/user-id/hash-6", "/avatars/user-id/hash-7"]);
     });
 
+    test("continues pruning when deleting an orphaned avatar blob fails", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const rows = Array.from({ length: RECENT_AVATAR_LIMIT + 1 }, (_, index) => ({ id: `avatar-${index}`, storage_hash: `hash-${index}` }));
+        let deleteCriteria: { user_id: string; id: { value: string[] } } | undefined;
+        const warnings: unknown[][] = [];
+
+        t.mock.method(UserRecentAvatar, "find", async () => rows);
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
+        t.mock.method(UserRecentAvatar, "delete", async (criteria: { user_id: string; id: { _value: string[] } }) => {
+            deleteCriteria = {
+                user_id: criteria.user_id,
+                id: {
+                    value: criteria.id._value,
+                },
+            };
+            return undefined;
+        });
+        t.mock.method(util, "deleteFile", async () => {
+            throw new Error("cdn delete failed");
+        });
+        t.mock.method(console, "warn", (...args: unknown[]) => {
+            warnings.push(args);
+        });
+
+        await assert.doesNotReject(pruneUserRecentAvatars("user-id"));
+
+        assert.deepEqual(deleteCriteria, {
+            user_id: "user-id",
+            id: {
+                value: ["avatar-6"],
+            },
+        });
+        assert.equal(warnings.length, 1);
+        assert.match(String(warnings[0]?.[0]), /Failed to delete pruned recent avatar hash-6/);
+    });
+
     test("does not delete pruned avatar blobs still referenced by retained or current avatars", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 

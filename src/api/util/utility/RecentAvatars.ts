@@ -64,7 +64,12 @@ export function getRecentAvatarStorageHashesToDelete(
     limit: number = RECENT_AVATAR_LIMIT,
     protectedHashes: Iterable<string | null | undefined> = [],
 ): string[] {
-    const retainedHashes = new Set(avatars.slice(0, limit).map((avatar) => avatar.storage_hash).filter((hash): hash is string => Boolean(hash)));
+    const retainedHashes = new Set(
+        avatars
+            .slice(0, limit)
+            .map((avatar) => avatar.storage_hash)
+            .filter((hash): hash is string => Boolean(hash)),
+    );
     for (const hash of protectedHashes) {
         if (hash) retainedHashes.add(hash);
     }
