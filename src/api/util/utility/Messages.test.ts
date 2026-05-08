@@ -18,10 +18,10 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { PartialUser } from "@spacebar/schemas";
+import type { PartialUser, PublicMessage, PublicUser } from "@spacebar/schemas";
 import { ajv } from "../../../schemas/Validator";
 import { messageToPublicMessage } from "../../../util/util/MessagePublic";
-import { toPreloadMessageResponse } from "./Messages";
+import { hydrateInteractionMetadataUsers, toPreloadMessageResponse } from "./Messages";
 
 function makePublicUser(): PartialUser {
     return {
@@ -32,12 +32,29 @@ function makePublicUser(): PartialUser {
     };
 }
 
+function makeCompletePublicUser(overrides: Partial<PublicUser> = {}): PublicUser {
+    return {
+        id: "300",
+        username: "alice",
+        discriminator: "0001",
+        public_flags: 0,
+        bio: "",
+        bot: false,
+        premium_type: 0,
+        ...overrides,
+    };
+}
+
+function makeInteractionMetadata(userId = "300"): NonNullable<PublicMessage["interaction_metadata"]> {
+    return { id: "901", type: 2, user_id: userId, authorizing_integration_owners: {}, name: "command", command_type: 1 };
+}
+
 function jsonRoundTrip<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T;
 }
 
-test("toPreloadMessageResponse returns a schema-compliant DTO without entity-only fields", () => {
-    const entityMessage = {
+function makeEntityMessage(overrides: Record<string, unknown> = {}): Parameters<typeof messageToPublicMessage>[0] & Record<string, unknown> {
+    return {
         id: "200",
         channel_id: "100",
         guild_id: "400",
@@ -69,13 +86,17 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
         application: { id: "700" },
         sticker_items: [{ id: "800" }],
         interaction: { id: "900", type: 2, name: "command" },
-        interaction_metadata: { id: "901", type: 2, user_id: "300", authorizing_integration_owners: {}, name: "command", command_type: 1 },
+        interaction_metadata: makeInteractionMetadata(),
         author: {
             ...makePublicUser(),
             toPublicUser: makePublicUser,
         },
+        ...overrides,
     } as Parameters<typeof messageToPublicMessage>[0] & Record<string, unknown>;
+}
 
+test("toPreloadMessageResponse returns a schema-compliant DTO without entity-only fields", () => {
+    const entityMessage = makeEntityMessage();
     const publicMessage = messageToPublicMessage(entityMessage);
     const dto = toPreloadMessageResponse({ toJSON: () => publicMessage } as never);
 
@@ -103,4 +124,58 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
 
     const serializedDto = jsonRoundTrip(dto);
     assert.equal(ajv.validate("PreloadMessagesResponse", [serializedDto]), true, ajv.errorsText());
+});
+
+test("messageToPublicMessage sanitizes interaction metadata users", () => {
+    const publicUser = makeCompletePublicUser();
+    const entityMessage = makeEntityMessage({
+        interaction_metadata: {
+            ...makeInteractionMetadata(),
+            user: {
+                ...publicUser,
+                email: "private@example.com",
+                mfa_enabled: true,
+                data: { hash: "secret" },
+            },
+        },
+    });
+
+    const publicMessage = messageToPublicMessage(entityMessage);
+    const metadataUser = publicMessage.interaction_metadata?.user as PublicUser & Record<string, unknown>;
+
+    assert.deepEqual(metadataUser, publicUser);
+    assert.equal("email" in metadataUser, false);
+    assert.equal("mfa_enabled" in metadataUser, false);
+    assert.equal("data" in metadataUser, false);
+});
+
+test("messageToPublicMessage omits incomplete interaction metadata", () => {
+    const publicMessage = messageToPublicMessage(
+        makeEntityMessage({
+            interaction_metadata: { id: "901", type: 2, name: "command" },
+        }),
+    );
+
+    assert.equal(publicMessage.interaction_metadata, undefined);
+});
+
+test("hydrateInteractionMetadataUsers attaches public users without legacy interaction leakage", async () => {
+    const publicUser = makeCompletePublicUser();
+    const existingUser = makeCompletePublicUser({ id: "301" });
+    const messages: Array<{ interaction_metadata?: NonNullable<PublicMessage["interaction_metadata"]> }> = [
+        { interaction_metadata: makeInteractionMetadata() },
+        { interaction_metadata: { ...makeInteractionMetadata("301"), user: existingUser } },
+        {},
+    ];
+    const requestedUserIds: string[] = [];
+
+    await hydrateInteractionMetadataUsers(messages, async (userId) => {
+        requestedUserIds.push(userId);
+        return publicUser;
+    });
+
+    assert.deepEqual(requestedUserIds, ["300"]);
+    assert.deepEqual(messages[0].interaction_metadata?.user, publicUser);
+    assert.deepEqual(messages[1].interaction_metadata?.user, existingUser);
+    assert.equal("interaction" in messages[0], false);
 });

@@ -17,7 +17,7 @@
 */
 
 import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
+import { assertMessagePayloadPermissions, createApplicationCommandInteractionMessageData, handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
     Config,
@@ -84,7 +84,6 @@ router.post(
                 // TODO
                 break;
             case InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE: {
-                const user = await User.findOneOrFail({ where: { id: interaction.userId } });
                 /*
 			const files = (req.files as Express.Multer.File[]) ?? [];
 			//I don't think traditional attachments are allowed anyways
@@ -114,23 +113,12 @@ router.post(
                     flags: body.data.flags,
                     reactions: [],
                     // webhook_id: interaction.applicationId, // This one requires a webhook to be created first
-                    interaction: {
-                        id: interactionId,
-                        name: interaction.commandName ?? "",
-                        type: 2,
-                        user,
-                    },
-                    interaction_metadata: {
-                        id: interactionId,
-                        type: 2,
-                        user_id: interaction.userId,
-                        user,
-                        authorizing_integration_owners: {
-                            "1": interaction.userId,
-                        },
-                        name: interaction.commandName ?? "",
-                        command_type: interaction.commandType,
-                    },
+                    ...createApplicationCommandInteractionMessageData({
+                        commandName: interaction.commandName,
+                        commandType: interaction.commandType,
+                        interactionId,
+                        userId: interaction.userId,
+                    }),
                 });
 
                 break;

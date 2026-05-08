@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PreloadMessageResponse } from "@spacebar/schemas";
+import type { PreloadMessageResponse, PublicMessage, PublicUser } from "@spacebar/schemas";
 import type { Message } from "@spacebar/util";
 
 export function toPreloadMessageResponse(message: Message): PreloadMessageResponse {
@@ -24,4 +24,22 @@ export function toPreloadMessageResponse(message: Message): PreloadMessageRespon
     const { reactions, ...preloadMessage } = message.toJSON();
     void reactions;
     return preloadMessage;
+}
+
+type InteractionMetadataWithUser = NonNullable<PublicMessage["interaction_metadata"]> & {
+    user?: PublicUser;
+};
+
+export async function hydrateInteractionMetadataUsers<T extends { interaction_metadata?: InteractionMetadataWithUser }>(
+    messages: T[],
+    getPublicUser: (userId: string) => Promise<PublicUser>,
+): Promise<void> {
+    await Promise.all(
+        messages
+            .map((message) => message.interaction_metadata)
+            .filter((metadata): metadata is InteractionMetadataWithUser => !!metadata?.user_id && !metadata.user)
+            .map(async (metadata) => {
+                metadata.user = await getPublicUser(metadata.user_id);
+            }),
+    );
 }
