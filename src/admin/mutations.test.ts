@@ -126,6 +126,59 @@ describe("admin mutation helpers", () => {
         }
     });
 
+    test("deletes admin-managed threads through Channel.deleteChannel so attachment cleanup runs", async () => {
+        const originalFindOne = Channel.findOne;
+        const originalDelete = Channel.delete;
+        const originalDeleteChannel = Channel.deleteChannel;
+        const channel = {
+            id: "10",
+            guild_id: "20",
+            parent_id: "30",
+            type: AdminChannelType.GUILD_PUBLIC_THREAD,
+            isThread: () => true,
+        } as never;
+        const events: unknown[] = [];
+        let deletedChannelId: string | null = null;
+
+        try {
+            Channel.findOne = (async () => channel) as typeof Channel.findOne;
+            Channel.delete = (async () => {
+                throw new Error("admin thread deletion must not bypass Channel.deleteChannel");
+            }) as typeof Channel.delete;
+            Channel.deleteChannel = (async (deleted: Channel) => {
+                deletedChannelId = deleted.id;
+            }) as typeof Channel.deleteChannel;
+
+            const result = await deleteAdminChannel("10", async (event) => {
+                events.push(event);
+            });
+
+            assert.equal(deletedChannelId, "10");
+            assert.deepEqual(result, {
+                id: "10",
+                guildId: "20",
+                event: "THREAD_DELETE",
+                detachedChildChannelIds: [],
+            });
+            assert.deepEqual(events, [
+                {
+                    event: "THREAD_DELETE",
+                    data: {
+                        id: "10",
+                        guild_id: "20",
+                        parent_id: "30",
+                        type: AdminChannelType.GUILD_PUBLIC_THREAD,
+                    },
+                    guild_id: "20",
+                },
+            ]);
+        } finally {
+            Channel.findOne = originalFindOne;
+            Channel.delete = originalDelete;
+            Channel.deleteChannel = originalDeleteChannel;
+        }
+    });
+
     test("parses force-join options and gives ownership precedence over admin role grants", () => {
         assert.deepEqual(parseAdminForceJoinInput({ userId: " 123 ", makeOwner: true, makeAdmin: true }), {
             userId: "123",

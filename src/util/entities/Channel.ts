@@ -29,6 +29,7 @@ import {
     Config,
     DiscordApiErrors,
     deleteFile,
+    getAttachmentMutationPath,
     getDatabase,
     handleFile,
     normalizeChannelName,
@@ -55,8 +56,10 @@ import { ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
+import { CloudAttachment } from "./CloudAttachment";
 
-export type ChannelAttachmentDeleteCandidate = Pick<Attachment, "channel_id" | "message_id" | "filename">;
+export type ChannelAttachmentDeleteCandidate = Pick<Attachment, "id" | "channel_id" | "message_id" | "filename">;
+export type ChannelCloudAttachmentDeleteCandidate = Pick<CloudAttachment, "uploadFilename">;
 
 export function getChannelAttachmentDeletePath(attachment: ChannelAttachmentDeleteCandidate, fallbackChannelId?: string) {
     const channelId = attachment.channel_id || fallbackChannelId;
@@ -64,21 +67,52 @@ export function getChannelAttachmentDeletePath(attachment: ChannelAttachmentDele
     return `/attachments/${channelId}/${attachment.message_id}/${attachment.filename}`;
 }
 
-export async function getChannelAttachmentDeletePaths(channelId: string, database: DataSource | null = getDatabase()) {
+export function getChannelAttachmentDeletePathsForAttachment(attachment: ChannelAttachmentDeleteCandidate, fallbackChannelId?: string) {
+    const currentPath = getChannelAttachmentDeletePath(attachment, fallbackChannelId);
+    if (!currentPath) return [];
+
+    const channelId = attachment.channel_id || fallbackChannelId;
+    if (!channelId || !attachment.id || attachment.id === attachment.message_id) return [currentPath];
+
+    return [currentPath, `/attachments/${channelId}/${attachment.id}/${attachment.filename}`];
+}
+
+export function getChannelCloudAttachmentDeletePath(attachment: ChannelCloudAttachmentDeleteCandidate) {
+    if (!attachment.uploadFilename) return undefined;
+    return getAttachmentMutationPath(attachment.uploadFilename);
+}
+
+type ChannelAttachmentDeletePathDatabase = Pick<DataSource, "getRepository">;
+
+export async function getChannelAttachmentDeletePaths(channelId: string, database: ChannelAttachmentDeletePathDatabase | null = getDatabase()) {
     if (!database) throw new Error("Tried to collect channel attachment CDN paths before the database was initialised");
 
-    const attachments = await database
-        .getRepository(Attachment)
-        .createQueryBuilder("attachment")
-        .leftJoin("attachment.message", "message")
-        .select("attachment.channel_id", "channel_id")
-        .addSelect("attachment.message_id", "message_id")
-        .addSelect("attachment.filename", "filename")
-        .where("attachment.channel_id = :channelId", { channelId })
-        .orWhere("message.channel_id = :channelId", { channelId })
-        .getRawMany<ChannelAttachmentDeleteCandidate>();
+    const [attachments, cloudAttachments] = await Promise.all([
+        database
+            .getRepository(Attachment)
+            .createQueryBuilder("attachment")
+            .leftJoin("attachment.message", "message")
+            .select("attachment.id", "id")
+            .addSelect("attachment.channel_id", "channel_id")
+            .addSelect("attachment.message_id", "message_id")
+            .addSelect("attachment.filename", "filename")
+            .where("attachment.channel_id = :channelId", { channelId })
+            .orWhere("message.channel_id = :channelId", { channelId })
+            .getRawMany<ChannelAttachmentDeleteCandidate>(),
+        database
+            .getRepository(CloudAttachment)
+            .createQueryBuilder("cloudAttachment")
+            .select("cloudAttachment.uploadFilename", "uploadFilename")
+            .where("cloudAttachment.channelId = :channelId", { channelId })
+            .getRawMany<ChannelCloudAttachmentDeleteCandidate>(),
+    ]);
 
-    return attachments.map((attachment) => getChannelAttachmentDeletePath(attachment, channelId)).filter((path): path is string => path !== undefined);
+    return [
+        ...new Set([
+            ...attachments.flatMap((attachment) => getChannelAttachmentDeletePathsForAttachment(attachment, channelId)),
+            ...cloudAttachments.map((attachment) => getChannelCloudAttachmentDeletePath(attachment)).filter((path): path is string => path !== undefined),
+        ]),
+    ];
 }
 
 @Entity({
@@ -636,9 +670,9 @@ export class Channel extends BaseClass {
     static async deleteChannel(channel: Channel, database: DataSource | null = getDatabase()) {
         if (!database) throw new Error("Tried to delete a channel before the database was initialised");
 
-        const attachmentDeletePaths = await getChannelAttachmentDeletePaths(channel.id, database);
+        const { attachmentDeletePaths, updatedGuilds } = await database.transaction(async (entityManager) => {
+            const attachmentDeletePaths = await getChannelAttachmentDeletePaths(channel.id, entityManager);
 
-        const updatedGuilds = await database.transaction(async (entityManager) => {
             await entityManager.delete(ReadState, { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL });
             await entityManager.delete(Channel, { id: channel.id });
 
@@ -652,10 +686,10 @@ export class Channel extends BaseClass {
                 await entityManager.update(Guild, { id: channel.guild_id }, { channel_ordering: updatedOrdering });
 
                 const updatedGuild = await Invite.syncGuildVanityUrlFeature(channel.guild_id, entityManager);
-                return updatedGuild ? [updatedGuild] : [];
+                return { attachmentDeletePaths, updatedGuilds: updatedGuild ? [updatedGuild] : [] };
             }
 
-            return [];
+            return { attachmentDeletePaths, updatedGuilds: [] };
         });
 
         await Promise.all([...attachmentDeletePaths.map((path) => deleteFile(path)), ...updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild))]);
