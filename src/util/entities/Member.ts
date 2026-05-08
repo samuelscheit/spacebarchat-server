@@ -125,10 +125,6 @@ export class Member extends BaseClassWithoutId {
     @Column({ nullable: true, type: Date })
     communication_disabled_until: Date | null;
 
-    // TODO: add this when we have proper read receipts
-    // @Column({ type: "jsonb" })
-    // read_state: ReadState;
-
     @Column({ type: "jsonb", nullable: true })
     avatar_decoration_data?: AvatarDecorationData;
 
@@ -368,7 +364,6 @@ export class Member extends BaseClassWithoutId {
         const newMember = memberRepository.create({
             ...member,
             roles: [Role.create({ id: guild_id })],
-            // read_state: {},
             settings: {
                 guild_id: null,
                 mute_config: null,
