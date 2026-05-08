@@ -96,7 +96,7 @@ describe("InteractionCallbacksSchema", () => {
         const validate = compileInteractionCallbacksSchema();
 
         for (const type of [8, 9, 10, 11, 12]) {
-            assert.equal(validate({ type }), false, `type ${type} should stay unsupported until route handling exists`);
+            assert.equal(validate({ type, data: {} }), false, `type ${type} should stay unsupported until route handling exists`);
         }
     });
 });
