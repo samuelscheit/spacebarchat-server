@@ -12,6 +12,11 @@ describe("UserModifySchema", () => {
         assert.equal(validate!({ email: null, password: "hunter2" }), true);
     });
 
+    test("allows profile updates without discriminator", () => {
+        assert.ok(validate);
+        assert.equal(validate!({ bio: "Updated profile" }), true);
+    });
+
     test("still validates non-null email format", () => {
         assert.ok(validate);
         assert.equal(validate!({ email: "user@example.com", password: "hunter2" }), true);
