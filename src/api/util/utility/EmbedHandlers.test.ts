@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
+import { createServer } from "node:http";
+import type { AddressInfo } from "node:net";
 import { describe, test, type TestContext } from "node:test";
 import type { Embed } from "@spacebar/schemas";
 import type { Message } from "../../../util/index.js";
@@ -20,9 +23,43 @@ async function loadEmbedModules() {
         util,
         Config: util.Config,
         EmbedCache: util.EmbedCache,
+        EmbedHandlers: handlers.EmbedHandlers,
         Message: util.Message,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
+        getProxyUrl: handlers.getProxyUrl,
     };
+}
+
+async function createLocalPixivFixture(t: TestContext) {
+    const image = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
+    const server = createServer((req, res) => {
+        if (req.url === "/preview.png") {
+            res.writeHead(200, {
+                "content-type": "image/png",
+                "content-length": image.length,
+            });
+            res.end(image);
+            return;
+        }
+
+        res.writeHead(200, { "content-type": "text/html" });
+        res.end(`<!doctype html>
+            <html>
+                <head>
+                    <meta property="og:title" content="Pixiv sample">
+                    <meta property="og:description" content="Artwork preview">
+                    <meta property="og:image" content="/preview.png">
+                </head>
+            </html>`);
+    });
+
+    await new Promise<void>((resolve) => {
+        server.listen(0, "127.0.0.1", resolve);
+    });
+    t.after(() => server.close());
+
+    const { port } = server.address() as AddressInfo;
+    return `http://127.0.0.1:${port}`;
 }
 
 function createMessage(content: string, embeds: Embed[]) {
@@ -119,6 +156,57 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("getProxyUrl", () => {
+    test("generates signed Imagor URLs for proxied embed images", async (t) => {
+        const { Config, getProxyUrl } = await loadEmbedModules();
+        const config = Config.get();
+        config.cdn.imagorServerUrl = "https://imagor.example.com";
+        config.cdn.resizeWidthMax = 1000;
+        config.cdn.resizeHeightMax = 1000;
+        config.security.requestSignature = "test-secret";
+        t.mock.method(Config, "get", () => config);
+
+        const path = "600x800/i.pximg.net/img-original/img/2026/05/08/00/00/00/123456789_p0.png";
+        const hash = crypto.createHmac("sha1", "test-secret").update(path).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
+
+        assert.equal(getProxyUrl(new URL("https://i.pximg.net/img-original/img/2026/05/08/00/00/00/123456789_p0.png"), 600, 800), `https://imagor.example.com/${hash}/${path}`);
+    });
+});
+
+describe("Pixiv embeds", () => {
+    test("probes image dimensions when Pixiv metadata omits them", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        const fixtureOrigin = await createLocalPixivFixture(t);
+        const config = Config.get();
+        config.cdn.imagorServerUrl = "https://imagor.example.com";
+        config.cdn.resizeWidthMax = 1000;
+        config.cdn.resizeHeightMax = 1000;
+        config.security.requestSignature = "test-secret";
+        t.mock.method(Config, "get", () => config);
+
+        const embed = await EmbedHandlers["www.pixiv.net"](new URL(`${fixtureOrigin}/artworks/123`));
+        const proxyPath = `1x1/127.0.0.1:${new URL(fixtureOrigin).port}/preview.png`;
+        const hash = crypto.createHmac("sha1", "test-secret").update(proxyPath).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
+
+        assert.deepEqual(embed, {
+            url: `${fixtureOrigin}/artworks/123`,
+            type: "image",
+            title: "Pixiv sample",
+            description: "Artwork preview",
+            image: {
+                url: `${fixtureOrigin}/preview.png`,
+                width: 1,
+                height: 1,
+                proxy_url: `https://imagor.example.com/${hash}/${proxyPath}`,
+            },
+            provider: {
+                url: "https://pixiv.net",
+                name: "Pixiv",
+            },
+        });
     });
 });
 

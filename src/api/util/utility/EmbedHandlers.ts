@@ -362,7 +362,6 @@ export const EmbedHandlers: {
         };
     },
 
-    // TODO: docs: Pixiv won't work without Imagor
     "pixiv.net": (url) => EmbedHandlers["www.pixiv.net"](url),
     "www.pixiv.net": async (url: URL) => {
         const response = await doFetch(url);
@@ -370,6 +369,13 @@ export const EmbedHandlers: {
         const metas = getMetaDescriptions(await response.text());
 
         if (!metas.image) return null;
+
+        if (!metas.width || !metas.height) {
+            metas.image = new URL(metas.image, url).toString();
+            const result = await probe(metas.image);
+            metas.width = result.width;
+            metas.height = result.height;
+        }
 
         return {
             url: url.href,

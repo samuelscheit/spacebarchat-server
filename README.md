@@ -41,6 +41,8 @@ This repository contains:
 
 And with documentation on how to set up your own server [here](https://docs.spacebar.chat/setup/server), docs to set up either client [here](https://docs.spacebar.chat/setup/clients/), and docs about bots [here](https://docs.spacebar.chat/setup/bots/)
 
+Repository-local operator notes include [embed image proxy setup](docs/embed-image-proxy.md) for providers such as Pixiv that require proxied embed images.
+
 ## [Contributing](https://docs.spacebar.chat/contributing/)
 
 ## Clients
