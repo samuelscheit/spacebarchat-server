@@ -389,9 +389,12 @@ export interface GuildRoleDeleteEvent extends Event {
 
 export interface InviteCreateEvent extends Event {
     event: "INVITE_CREATE";
-    data: Omit<Invite, "guild" | "channel"> & {
+    data: Omit<Invite, "guild" | "channel" | "inviter"> & {
         channel_id: string;
         guild_id?: string;
+        inviter?: PublicUser;
+        guild?: unknown;
+        channel?: Channel;
     };
 }
 
@@ -741,8 +744,10 @@ export interface ThreadListSyncEvent extends Event {
 
 export interface ThreadMemberUpdateEvent extends Event {
     event: "THREAD_MEMBER_UPDATE";
-    data: ThreadMember & { guild_id: string };
+    data: SerializedThreadMember & { guild_id: string };
 }
+
+type SerializedThreadMember = ReturnType<ThreadMember["toJSON"]>;
 
 export interface ThreadMembersUpdateEvent extends Event {
     event: "THREAD_MEMBERS_UPDATE";
@@ -750,7 +755,7 @@ export interface ThreadMembersUpdateEvent extends Event {
         id: string;
         guild_id: string;
         member_count: number;
-        added_members?: (ThreadMember & { user_id: string })[];
+        added_members?: (SerializedThreadMember & { user_id: string })[];
         removed_member_ids?: string[];
     };
 }

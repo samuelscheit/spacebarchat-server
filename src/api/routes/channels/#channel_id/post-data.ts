@@ -86,7 +86,7 @@ router.post(
                 : Promise.resolve([]),
         ]);
         await Message.fillReplies(messages);
-        const objRet: { threads: Record<string, { first_message: null | PublicMessage; owner: null | Member }> } = { threads: {} };
+        const objRet: { threads: Record<string, { first_message: null | PublicMessage; owner: null | object }> } = { threads: {} };
         for (const thread of threads) {
             const owner = findPostDataOwner(members, thread)?.toJSON() || null;
             const first_message = messages.find(({ channel_id }) => channel_id === thread.id)?.toJSON() || null;

@@ -73,6 +73,7 @@
         "src/webrtc/util/VideoStream.test.ts",
         "src/util/dtos/ReadyGuildDTO.test.ts",
         "src/util/dtos/ReadyPrivateChannelDTO.test.ts",
+        "src/util/entities/BaseClass.test.ts",
         "src/util/entities/Categories.test.ts",
         "src/util/entities/ChannelCreateDMChannel.test.ts",
         "src/util/entities/Guild.test.ts",

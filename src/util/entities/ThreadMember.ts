@@ -28,6 +28,17 @@ import { Member } from "./Member";
 
 export { ThreadMemberFlags };
 
+export interface SerializedThreadMember {
+    index?: string;
+    id: string;
+    member_idx: string;
+    member?: Member;
+    join_timestamp: Date;
+    muted: boolean;
+    mute_config?: ThreadMemberMuteConfig;
+    flags: ThreadMemberFlags;
+}
+
 @Entity("thread_members")
 @Index(["id", "member_idx"], { unique: true })
 export class ThreadMember extends BaseClassWithoutId {
@@ -65,6 +76,10 @@ export class ThreadMember extends BaseClassWithoutId {
 
     @Column()
     flags: ThreadMemberFlags;
+
+    toJSON(): SerializedThreadMember {
+        return super.toJSON() as SerializedThreadMember;
+    }
 
     static async createForUser(user_id: string, thread: Pick<Channel, "id" | "guild_id">, flags: ThreadMemberFlags = ThreadMemberFlags.NONE) {
         if (!thread.guild_id) throw new HTTPError("Thread guild id not set", 500);
