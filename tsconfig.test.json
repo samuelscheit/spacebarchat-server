@@ -8,6 +8,7 @@
         "src/cdn/ServerConfigure.test.ts",
         "src/cdn/routes/banners.test.ts",
         "src/cdn/util/ImageRouteHelpers.test.ts",
+        "src/cdn/util/ImageUploadPolicy.test.ts",
         "src/gateway/events/Message.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/gateway/listener/listener.test.ts",
