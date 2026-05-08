@@ -70,6 +70,15 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
     });
 
+    test("interaction PONG callback only uses shared acknowledgement cleanup", () => {
+        const source = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
+
+        assert.notEqual(indexOf(source, "case InteractionCallbackType.PONG:"), -1);
+        assert.notEqual(indexOf(source, "PONG acknowledges ping interactions without creating or updating messages."), -1);
+        assertBefore(source, "case InteractionCallbackType.PONG:", "pendingInteractions.delete(interactionId);");
+        assertBefore(source, "case InteractionCallbackType.PONG:", "res.sendStatus(204);");
+    });
+
     test("component media extraction is shared between permission gates and message handling", () => {
         const messageSource = readSource("src/api/util/handlers/Message.ts");
         const permissionSource = readSource("src/api/util/utility/MessagePayloadPermissions.ts");

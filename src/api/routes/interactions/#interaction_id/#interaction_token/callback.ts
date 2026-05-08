@@ -75,7 +75,7 @@ router.post(
 
         switch (body.type) {
             case InteractionCallbackType.PONG:
-                // TODO
+                // PONG acknowledges ping interactions without creating or updating messages.
                 break;
             case InteractionCallbackType.ACKNOWLEDGE:
                 // Deprected
