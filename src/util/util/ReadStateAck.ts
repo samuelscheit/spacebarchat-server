@@ -13,7 +13,9 @@ export interface AdvanceOnlyNotificationCursorCondition {
     notifications_cursor: FindOperator<string>;
 }
 
-export const advanceOnlyNotificationCursorSql = "notifications_cursor IS NULL OR notifications_cursor::bigint < :messageId";
+export function advanceOnlyNotificationCursorSql(alias: string): string {
+    return `(${alias} IS NULL OR CAST(${alias} AS bigint) < CAST(:messageId AS bigint))`;
+}
 
 export function shouldAdvanceNotificationCursor(current: string | null | undefined, next: string): boolean {
     return current === null || current === undefined || BigInt(next) > BigInt(current);
@@ -22,7 +24,7 @@ export function shouldAdvanceNotificationCursor(current: string | null | undefin
 export function getAdvanceOnlyNotificationCursorCondition(readStateId: string, messageId: string): AdvanceOnlyNotificationCursorCondition {
     return {
         id: readStateId,
-        notifications_cursor: Raw((alias) => `${alias} IS NULL OR ${alias}::bigint < :messageId`, { messageId }),
+        notifications_cursor: Raw(advanceOnlyNotificationCursorSql, { messageId }),
     };
 }
 

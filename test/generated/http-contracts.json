@@ -3482,7 +3482,7 @@
             "path": "/channels/:channel_id/messages/:message_id/ack/",
             "samplePath": "/channels/100000000000000002/messages/100000000000000003/ack/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/ack.ts",
-            "line": 30,
+            "line": 29,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
