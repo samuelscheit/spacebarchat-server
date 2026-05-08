@@ -32,7 +32,7 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
+import { sendInvalidSessionAndClose, sendReconnectAndClose, Send, OPCODES } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
@@ -349,12 +349,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
             await sendReconnectAndClose(this, opts.reconnect_delay ?? opts.data ?? 1000);
             return;
         case "SB_SESSION_REMOVE":
-            // TODO: what do we even send here?
-            await Send(this, {
-                op: OPCODES.Invalid_Session,
-                s: this.sequence++,
-            });
-            this.close(CLOSECODES.Invalid_session); // TODO: this is deprecated?
+            await sendInvalidSessionAndClose(this);
             return;
         default:
             // no special treatment

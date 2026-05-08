@@ -16,15 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket } from "@spacebar/gateway";
-import { Send } from "../util/Send";
+import { sendInvalidSession, WebSocket } from "@spacebar/gateway";
 
 export async function onResume(this: WebSocket) {
     // console.log("Got Resume -> cancel not implemented");
-    await Send(this, {
-        op: 9,
-        d: false,
-    });
-
-    // return this.close(CLOSECODES.Invalid_session);
+    await sendInvalidSession(this);
 }
