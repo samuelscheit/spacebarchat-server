@@ -24,14 +24,16 @@ import { HTTPError } from "lambert-server";
 import crypto from "node:crypto";
 import { multer } from "../util/multer";
 import { cache } from "../util/cache";
+import { STATIC_IMAGE_MIME_TYPES, isAllowedImageMimeType } from "../util/ImageRouteHelpers";
 
 //Role icons ---> avatars.ts modified
 
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
 
-const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
-const ALLOWED_MIME_TYPES = [...STATIC_MIME_TYPES];
+// WebP can be animated while still reporting image/webp, so keep role icons to
+// formats this route can classify as static from MIME detection alone.
+export const ROLE_ICON_MIME_TYPES = STATIC_IMAGE_MIME_TYPES.filter((mimeType) => mimeType !== "image/webp");
 
 const router = Router({ mergeParams: true });
 
@@ -44,7 +46,7 @@ router.post("/:role_id", multer.single("file"), async (req: Request, res: Respon
     const hash = crypto.createHash("md5").update(buffer).digest("hex");
 
     const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
+    if (!type || !isAllowedImageMimeType(type.mime, ROLE_ICON_MIME_TYPES)) throw new HTTPError("Invalid file type");
 
     const path = `role-icons/${role_id}/${hash}.png`;
     const endpoint = Config.get().cdn.endpointPublic;

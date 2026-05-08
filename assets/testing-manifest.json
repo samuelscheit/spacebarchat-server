@@ -8105,7 +8105,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 53,
+            "line": 52,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8159,7 +8159,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 28,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8209,7 +8209,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 95,
+            "line": 94,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -9902,6 +9902,7 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "right": "CREATE_GUILDS",
                 "requestBody": "GuildTemplateCreateSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
@@ -15690,7 +15691,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id/:hash",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 76,
+            "line": 78,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15721,7 +15722,7 @@
             "method": "DELETE",
             "path": "/role-icons/:role_id/:id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 98,
+            "line": 100,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15752,7 +15753,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 62,
+            "line": 64,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15783,7 +15784,7 @@
             "method": "POST",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 38,
+            "line": 40,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false

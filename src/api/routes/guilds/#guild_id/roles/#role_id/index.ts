@@ -17,11 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { emitEvent, Guild, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
+import { emitEvent, Guild, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role, assertRoleIconPolicy } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { RoleModifySchema } from "@spacebar/schemas";
-import { assertRoleIconPolicy } from "../../../../../util/utility/RoleIconPolicy";
 
 const router = Router({ mergeParams: true });
 

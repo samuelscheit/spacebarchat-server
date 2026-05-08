@@ -28,12 +28,12 @@ import {
     Member,
     Role,
     Snowflake,
+    assertRoleIconPolicy,
     resolveCreatedRolePermissions,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { Not } from "typeorm";
 import { RoleModifySchema, RolePositionUpdateSchema } from "@spacebar/schemas";
-import { assertRoleIconPolicy } from "../../../../util/utility/RoleIconPolicy";
 
 const router: Router = Router({ mergeParams: true });
 
