@@ -3749,7 +3749,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/purge/",
             "sourceFile": "src/api/routes/channels/#channel_id/purge.ts",
-            "line": 33,
+            "line": 30,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
