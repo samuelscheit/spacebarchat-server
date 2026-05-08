@@ -62,7 +62,7 @@ export const IdentifySchema = {
         "$[user_guild_settings_version|userGuildSettingsVersion]": Number,
         "$[user_settings_version|userSettingsVersion]": undefined,
         "$[useruser_guild_settings_version|useruserGuildSettingsVersion]": undefined,
-        $private_channels_version: Number,
+        "$[private_channels_version|privateChannelsVersion]": Number,
         "$[guild_versions|guildVersions]": Object,
         "$[api_code_version|apiCodeVersion]": Number,
         "$[initial_guild_id|initialGuildId]": String,
@@ -124,7 +124,9 @@ export interface IdentifySchema {
         highestLastMessageId?: number;
         readStateVersion?: number;
         userGuildSettingsVersion?: number;
+        userSettingsVersion?: number;
         useruserGuildSettingsVersion?: number;
+        privateChannelsVersion?: number;
         guildVersions?: unknown;
         apiCodeVersion?: number;
         initialGuildId?: string;

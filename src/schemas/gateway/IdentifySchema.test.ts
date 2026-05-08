@@ -42,6 +42,7 @@ describe("IdentifySchema", () => {
                     userGuildSettingsVersion: 3,
                     userSettingsVersion: 4,
                     useruserGuildSettingsVersion: 5,
+                    privateChannelsVersion: 6,
                     guildVersions: {},
                     apiCodeVersion: 7,
                     initialGuildId: "8",
@@ -60,6 +61,20 @@ describe("IdentifySchema", () => {
                     largeThreshold: 50,
                 }),
             /.large_threshold must only use one of large_threshold, largeThreshold/,
+        );
+    });
+
+    test("rejects both spellings of the same client state field", () => {
+        assert.throws(
+            () =>
+                instanceOf(IdentifySchema, {
+                    ...baseIdentify,
+                    clientState: {
+                        private_channels_version: 6,
+                        privateChannelsVersion: 6,
+                    },
+                }),
+            /.clientState.private_channels_version must only use one of private_channels_version, privateChannelsVersion/,
         );
     });
 });

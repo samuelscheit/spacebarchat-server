@@ -32,6 +32,11 @@ describe("instanceOf object property aliases", () => {
         assert.equal(instanceOf({ "$[large_threshold|largeThreshold]": Number }, {}), true);
     });
 
+    test("requires alias properties when no optional prefix is present", () => {
+        assert.equal(instanceOf({ "[user_id|userId]": String }, { userId: "1" }), true);
+        assert.throws(() => instanceOf({ "[user_id|userId]": String }, {}), /.user_id is required/);
+    });
+
     test("rejects unknown aliases", () => {
         assert.throws(() => instanceOf({ "$[large_threshold|largeThreshold]": Number }, { largeTHRESHOLD: 50 }), /Unknown key largeTHRESHOLD/);
     });
@@ -40,6 +45,15 @@ describe("instanceOf object property aliases", () => {
         assert.throws(
             () => instanceOf({ "$[large_threshold|largeThreshold]": Number }, { large_threshold: 50, largeThreshold: 50 }),
             /.large_threshold must only use one of large_threshold, largeThreshold/,
+        );
+    });
+
+    test("rejects payloads that provide more than one nested alias for the same property", () => {
+        const schema = { "$[client_state|clientState]": { "$[guild_hashes|guildHashes]": Object } };
+
+        assert.throws(
+            () => instanceOf(schema, { clientState: { guild_hashes: {}, guildHashes: {} } }),
+            /.clientState.guild_hashes must only use one of guild_hashes, guildHashes/,
         );
     });
 });
