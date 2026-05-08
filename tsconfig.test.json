@@ -3,7 +3,9 @@
     "include": [
         "test/**/*.ts",
         "src/api/ServerConfigure.test.ts",
+        "src/api/middlewares/RateLimit.test.ts",
         "src/cdn/ServerConfigure.test.ts",
+        "src/cdn/util/StorageInit.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
