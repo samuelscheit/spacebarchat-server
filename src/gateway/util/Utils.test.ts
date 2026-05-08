@@ -68,7 +68,7 @@ describe("handleOffloadedGatewayRequest", () => {
 
             const offload = handleOffloadedGatewayRequest(socket, "http://offload.example/gateway", { guild_id: "guild" });
 
-            controller.enqueue(encoder.encode('[{"event":"FIRST_EVENT","data":{"id":1}},'));
+            controller.enqueue(encoder.encode('[{"event":"FIRST_EVENT","data":{"id":1}}'));
 
             await waitFor(() =>
                 assert.deepEqual(sent, [
@@ -88,7 +88,7 @@ describe("handleOffloadedGatewayRequest", () => {
                 "Content-Type": "application/json",
             });
 
-            controller.enqueue(encoder.encode('{"event":"SECOND_EVENT","data":{"id":2}}]'));
+            controller.enqueue(encoder.encode(',{"event":"SECOND_EVENT","data":{"id":2}}]'));
             controller.close();
             await offload;
 
