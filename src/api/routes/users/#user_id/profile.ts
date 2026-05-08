@@ -146,7 +146,7 @@ router.get(
         const response = {
             connected_accounts: publicUserConnections,
             premium_guild_since: premium_guild_since, // TODO
-            premium_since: user.premium_since, // TODO
+            premium_since: user.premium_since,
             mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
             mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,
             mutual_friends_count: with_mutual_friends_count == "true" ? mutual_friends_count : undefined,
