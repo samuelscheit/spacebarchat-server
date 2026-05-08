@@ -70,6 +70,20 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
     });
 
+    test("deferred message updates acknowledge without scheduling an unreachable failure", () => {
+        const source = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
+
+        const deferredUpdateCase = source.slice(
+            indexOf(source, "case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:"),
+            indexOf(source, "case InteractionCallbackType.UPDATE_MESSAGE:"),
+        );
+
+        assert.equal(deferredUpdateCase.includes("setTimeout"), false);
+        assertBefore(source, "clearTimeout(interaction.timeout);", "case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:");
+        assertBefore(source, 'event: "INTERACTION_SUCCESS"', "case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:");
+        assertBefore(source, "pendingInteractions.delete(interactionId);", "res.sendStatus(204);");
+    });
+
     test("component media extraction is shared between permission gates and message handling", () => {
         const messageSource = readSource("src/api/util/handlers/Message.ts");
         const permissionSource = readSource("src/api/util/utility/MessagePayloadPermissions.ts");

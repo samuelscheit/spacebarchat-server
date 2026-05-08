@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
+import { InteractionCallbacksSchema, InteractionCallbackType, MessageType } from "@spacebar/schemas";
 import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
@@ -28,7 +28,6 @@ import {
     MessageUpdateEvent,
     pendingInteractions,
     User,
-    InteractionFailureEvent,
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
@@ -139,18 +138,6 @@ router.post(
                 // TODO
                 break;
             case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-                //TODO keep track of state of this
-                interaction.timeout = setTimeout(() => {
-                    emitEvent({
-                        event: "INTERACTION_FAILURE",
-                        user_id: req.user_id,
-                        data: {
-                            id: interactionId,
-                            nonce: interaction.nonce,
-                            reason_code: InteractionFailureReason.TIMEOUT,
-                        },
-                    } as InteractionFailureEvent);
-                }, 30000);
                 pendingInteractions.delete(interactionId);
                 res.sendStatus(204);
                 return;
