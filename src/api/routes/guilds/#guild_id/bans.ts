@@ -20,11 +20,10 @@ import { route } from "@spacebar/api";
 import { Ban, DiscordApiErrors, GuildBanAddEvent, GuildBanRemoveEvent, Member, User, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { BanCreateSchema, BanRegistrySchema, GuildBanResponse, GuildBansResponse, PublicUser } from "@spacebar/schemas";
+import { BanCreateSchema, BanRegistrySchema, GuildBansResponse, PublicUser } from "@spacebar/schemas";
+import { BanResponseUserSelect, toGuildBanResponse } from "../../../util/utility/GuildBans";
 
 const router: Router = Router({ mergeParams: true });
-
-/* TODO: Deleting the secrets is just a temporary go-around. Views should be implemented for both safety and better handling. */
 
 router.get(
     "/",
@@ -54,19 +53,7 @@ router.get(
 
         const bannedUsers = await Promise.all(promisesToAwait);
 
-        bans.forEach((ban, index) => {
-            const user = bannedUsers[index];
-            bansObj.push({
-                reason: ban.reason ?? null,
-                user: {
-                    username: user.username,
-                    discriminator: user.discriminator,
-                    id: user.id,
-                    avatar: user.avatar ?? null,
-                    public_flags: user.public_flags,
-                },
-            });
-        });
+        bans.forEach((ban, index) => bansObj.push(toGuildBanResponse(ban.reason, bannedUsers[index])));
 
         return res.json(bansObj);
     },
@@ -114,24 +101,13 @@ router.get(
             .andWhere("user.username LIKE :userName", {
                 userName: `%${query}%`,
             })
+            .select(["ban.id", "ban.user_id", "ban.executor_id", "ban.reason", ...Object.keys(BanResponseUserSelect).map((field) => `user.${field}`)])
             .limit(limit)
             .getMany();
 
         bans = bans.filter((ban) => ban.user_id !== ban.executor_id); // pretend self-bans don't exist to prevent victim chasing
 
-        const bansObj: GuildBansResponse = bans.map((ban) => {
-            const user = ban.user;
-            return {
-                reason: ban.reason ?? null,
-                user: {
-                    username: user.username,
-                    discriminator: user.discriminator,
-                    id: user.id,
-                    avatar: user.avatar ?? null,
-                    public_flags: user.public_flags,
-                },
-            };
-        });
+        const bansObj: GuildBansResponse = bans.map((ban) => toGuildBanResponse(ban.reason, ban.user.toPublicUser()));
 
         return res.json(bansObj);
     },
@@ -165,16 +141,7 @@ router.get(
 
         const user = await User.getPublicUser(ban.user_id);
 
-        const banInfo: GuildBanResponse = {
-            user: {
-                username: user.username,
-                discriminator: user.discriminator,
-                id: user.id,
-                avatar: user.avatar ?? null,
-                public_flags: user.public_flags,
-            },
-            reason: ban.reason ?? null,
-        };
+        const banInfo = toGuildBanResponse(ban.reason, user);
 
         return res.json(banInfo);
     },
