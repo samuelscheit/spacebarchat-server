@@ -11,3 +11,26 @@ export class RoleColors {
         };
     }
 }
+
+export interface RoleResponse {
+    id: string;
+    guild_id: string;
+    color: number;
+    hoist: boolean;
+    managed: boolean;
+    mentionable: boolean;
+    name: string;
+    permissions: string;
+    position: number;
+    icon?: string | null;
+    unicode_emoji?: string | null;
+    tags?: RoleTags;
+    flags: number;
+    colors: RoleColors;
+}
+
+export interface RoleTags {
+    bot_id?: string;
+    integration_id?: string;
+    premium_subscriber?: boolean;
+}

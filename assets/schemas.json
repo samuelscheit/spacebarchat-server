@@ -3791,37 +3791,299 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "RoleResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "color": {
+                "type": "integer"
+            },
+            "hoist": {
+                "type": "boolean"
+            },
+            "managed": {
+                "type": "boolean"
+            },
+            "mentionable": {
+                "type": "boolean"
+            },
+            "name": {
+                "type": "string"
+            },
+            "permissions": {
+                "type": "string"
+            },
+            "position": {
+                "type": "integer"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "unicode_emoji": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "tags": {
+                "$ref": "#/definitions/RoleTags"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "colors": {
+                "$ref": "#/definitions/RoleColors"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "color",
+            "colors",
+            "flags",
+            "guild_id",
+            "hoist",
+            "id",
+            "managed",
+            "mentionable",
+            "name",
+            "permissions",
+            "position"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StickersResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/StickerResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StickerResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "pack_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "tags": {
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/StickerType"
+            },
+            "format_type": {
+                "$ref": "#/definitions/StickerFormatType"
+            },
+            "available": {
+                "type": "boolean"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "sort_value": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "format_type",
+            "id",
+            "name",
+            "tags",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "MemberJoinGuildResponse": {
         "type": "object",
         "properties": {
-            "guild": {
-                "$ref": "#/definitions/GuildCreateResponse"
-            },
             "emojis": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Emoji"
+                    "$ref": "#/definitions/EmojiResponse"
                 }
             },
             "roles": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Role"
+                    "$ref": "#/definitions/RoleResponse"
                 }
             },
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
+            },
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "large": {
+                "type": "boolean"
+            },
+            "max_members": {
+                "type": "integer"
+            },
+            "max_presences": {
+                "type": "integer"
+            },
+            "max_video_channel_users": {
+                "type": "integer"
+            },
+            "member_count": {
+                "type": "integer"
+            },
+            "presence_count": {
+                "type": "integer"
+            },
+            "mfa_level": {
+                "type": "integer"
+            },
+            "owner_id": {
+                "type": "string"
+            },
+            "premium_subscription_count": {
+                "type": "integer"
+            },
+            "premium_tier": {
+                "type": "integer"
+            },
+            "welcome_screen": {
+                "$ref": "#/definitions/GuildWelcomeScreen"
+            },
+            "widget_channel_id": {
+                "type": "string"
+            },
+            "widget_enabled": {
+                "type": "boolean"
+            },
+            "nsfw_level": {
+                "type": "integer"
+            },
+            "nsfw": {
+                "type": "boolean"
+            },
+            "parent": {
+                "type": "string"
+            },
+            "region": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "system_channel_id": {
+                "type": "string"
+            },
+            "rules_channel_id": {
+                "type": "string"
+            },
+            "guild_template_code": {
+                "type": "string"
+            },
+            "staff_only": {
+                "type": "boolean"
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description": {
+                "type": "string"
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "verification_level": {
+                "type": "integer"
+            },
+            "default_message_notifications": {
+                "type": "integer"
+            },
+            "system_channel_flags": {
+                "type": "integer"
+            },
+            "explicit_content_filter": {
+                "type": "integer"
+            },
+            "public_updates_channel_id": {
+                "type": "string"
+            },
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "afk_channel_id": {
+                "type": "string"
+            },
+            "preferred_locale": {
+                "type": "string"
+            },
+            "premium_progress_bar_enabled": {
+                "type": "boolean"
+            },
+            "discovery_splash": {
+                "type": "string"
+            },
+            "safety_alerts_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             }
         },
         "additionalProperties": false,
         "required": [
             "emojis",
-            "guild",
+            "id",
+            "name",
+            "nsfw",
             "roles",
-            "stickers"
+            "stickers",
+            "welcome_screen",
+            "widget_enabled"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -8437,7 +8699,9 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": "number",
+                "properties": {},
+                "additionalProperties": false
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -8456,7 +8720,9 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "type": "number",
+                    "properties": {},
+                    "additionalProperties": false
                 }
             },
             "guild_subscriptions": {
@@ -10387,67 +10653,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "StickersResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/StickerResponse"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "StickerResponse": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "pack_id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "name": {
-                "type": "string"
-            },
-            "description": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "tags": {
-                "type": "string"
-            },
-            "type": {
-                "$ref": "#/definitions/StickerType"
-            },
-            "format_type": {
-                "$ref": "#/definitions/StickerFormatType"
-            },
-            "available": {
-                "type": "boolean"
-            },
-            "guild_id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "user": {
-                "$ref": "#/definitions/PartialUser"
-            },
-            "sort_value": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "description",
-            "format_type",
-            "id",
-            "name",
-            "tags",
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "CreateReportSchema": {
         "type": "object",
         "properties": {
@@ -10632,6 +10837,23 @@
     },
     "JsonSchema": {
         "type": "object",
+        "properties": {
+            "$ref": {
+                "type": "string"
+            },
+            "items": {
+                "$ref": "#/definitions/JsonSchema"
+            },
+            "properties": {
+                "$ref": "#/definitions/Record%3Cstring%2CJsonSchema%3E"
+            },
+            "required": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -20476,6 +20698,22 @@
             "user",
             "webhook"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "RoleTags": {
+        "type": "object",
+        "properties": {
+            "bot_id": {
+                "type": "string"
+            },
+            "integration_id": {
+                "type": "string"
+            },
+            "premium_subscriber": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PinnedMessageItem": {
