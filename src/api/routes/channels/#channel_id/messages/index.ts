@@ -223,7 +223,6 @@ router.get(
     },
 );
 
-// TODO: config max upload size
 export const messageUpload = multer({
     limits: {
         fileSize: Config.get().limits.message.maxAttachmentSize,
@@ -231,7 +230,7 @@ export const messageUpload = multer({
         // files: 1
     },
     storage: multer.memoryStorage(),
-}); // max upload 50 mb
+});
 /**
  TODO: dynamically change limit of MessageCreateSchema with config
 
