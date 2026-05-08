@@ -1,0 +1,19 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+        "test/**/*.ts",
+        "src/api/ServerConfigure.test.ts",
+        "src/cdn/ServerConfigure.test.ts",
+        "src/cdn/routes/role-icons.test.ts",
+        "src/cdn/util/ImageRouteHelpers.test.ts",
+        "src/gateway/ServerConfigure.test.ts",
+        "src/webrtc/ServerConfigure.test.ts",
+        "src/util/util/TraverseDirectory.test.ts"
+    ],
+    "exclude": ["node_modules", "dist", "dist-test"],
+    "compilerOptions": {
+        "rootDir": ".",
+        "noEmit": true,
+        "tsBuildInfoFile": "./dist/test.tsbuildinfo"
+    }
+}
