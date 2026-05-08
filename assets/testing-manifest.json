@@ -15185,7 +15185,7 @@
             "method": "DELETE",
             "path": "/emojis/:emoji_id",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 78,
+            "line": 71,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15216,7 +15216,7 @@
             "method": "GET",
             "path": "/emojis/:emoji_id",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 64,
+            "line": 58,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15247,7 +15247,7 @@
             "method": "POST",
             "path": "/emojis/:emoji_id",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 39,
+            "line": 35,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
