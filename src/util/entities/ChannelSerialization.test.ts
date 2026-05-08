@@ -1,11 +1,9 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import type { User } from "./User";
-
-const enum TestChannelType {
-    GUILD_TEXT = 0,
-    DM = 1,
-}
+import type { Recipient } from "./Recipient";
+import { ChannelType } from "../../schemas/api/channels/Channel";
+import { serializeChannelRecipients } from "../util/ChannelRecipients";
 
 function createPublicUser(id: string, username: string) {
     return {
@@ -13,6 +11,9 @@ function createPublicUser(id: string, username: string) {
         username,
         discriminator: "0001",
         avatar: null,
+        global_name: `${username} display`,
+        public_flags: 64,
+        bio: "profile bio must not leak into channel recipients",
     };
 }
 
@@ -22,62 +23,101 @@ function createRecipient(user: ReturnType<typeof createPublicUser>) {
         user: {
             toPublicUser: () => user,
         } as unknown as User,
-    };
+    } as unknown as Recipient;
 }
 
-describe("Channel.toJSON recipient serialization", () => {
-    test("serializes hydrated DM recipients as public users", async () => {
-        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar-tests";
-        const { Channel } = await import("./Channel.js");
+function expectedPartialUser(user: ReturnType<typeof createPublicUser>) {
+    const { bio: _, ...partial } = user;
+    return partial;
+}
+
+describe("channel recipient serialization", () => {
+    test("serializes hydrated DM recipients as public users", () => {
         const alice = createPublicUser("user-a", "alice");
         const bob = createPublicUser("user-b", "bob");
-        const channel = new Channel();
-        Object.assign(channel, {
+        const channel = {
             id: "channel-a",
-            type: TestChannelType.DM,
+            type: ChannelType.DM,
             created_at: new Date("2026-01-02T03:04:05.000Z"),
             nsfw: false,
             recipients: [createRecipient(alice), createRecipient(bob)],
-        });
+        };
 
-        const json = channel.toJSON();
+        const recipients = serializeChannelRecipients(channel);
 
-        assert.deepEqual(json.recipients, [alice, bob]);
+        assert.deepEqual(recipients, [expectedPartialUser(alice), expectedPartialUser(bob)]);
+        assert.equal((recipients?.[0] as Record<string, unknown>).bio, undefined);
     });
 
-    test("omits unhydrated DM recipients instead of leaking recipient rows", async () => {
-        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar-tests";
-        const { Channel } = await import("./Channel.js");
-        const channel = new Channel();
-        Object.assign(channel, {
+    test("serializes hydrated group DM recipients as public users", () => {
+        const alice = createPublicUser("user-a", "alice");
+        const channel = {
             id: "channel-a",
-            type: TestChannelType.DM,
+            type: ChannelType.GROUP_DM,
             created_at: new Date("2026-01-02T03:04:05.000Z"),
             nsfw: false,
-            recipients: [{ user_id: "user-a" }],
-        });
+            recipients: [createRecipient(alice)],
+        };
 
-        const json = channel.toJSON();
+        const recipients = serializeChannelRecipients(channel);
 
-        assert.equal(json.recipients, undefined);
+        assert.deepEqual(recipients, [expectedPartialUser(alice)]);
     });
 
-    test("omits recipients for guild channels even if a relation property is present", async () => {
-        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar-tests";
-        const { Channel } = await import("./Channel.js");
-        const alice = createPublicUser("user-a", "alice");
-        const channel = new Channel();
-        Object.assign(channel, {
+    test("omits unhydrated DM recipients instead of leaking recipient rows", () => {
+        const channel = {
             id: "channel-a",
-            type: TestChannelType.GUILD_TEXT,
+            type: ChannelType.DM,
+            created_at: new Date("2026-01-02T03:04:05.000Z"),
+            nsfw: false,
+            recipients: [{ user_id: "user-a" } as Recipient],
+        };
+
+        const recipients = serializeChannelRecipients(channel);
+
+        assert.equal(recipients, undefined);
+    });
+
+    test("serializes loaded empty DM recipient relations as an empty recipient list", () => {
+        const channel = {
+            id: "channel-a",
+            type: ChannelType.DM,
+            created_at: new Date("2026-01-02T03:04:05.000Z"),
+            nsfw: false,
+            recipients: [],
+        };
+
+        const recipients = serializeChannelRecipients(channel);
+
+        assert.deepEqual(recipients, []);
+    });
+
+    test("omits recipients when the DM recipient relation was not loaded", () => {
+        const channel = {
+            id: "channel-a",
+            type: ChannelType.DM,
+            created_at: new Date("2026-01-02T03:04:05.000Z"),
+            nsfw: false,
+        };
+
+        const recipients = serializeChannelRecipients(channel);
+
+        assert.equal(recipients, undefined);
+    });
+
+    test("omits recipients for guild channels even if a relation property is present", () => {
+        const alice = createPublicUser("user-a", "alice");
+        const channel = {
+            id: "channel-a",
+            type: ChannelType.GUILD_TEXT,
             guild_id: "guild-a",
             created_at: new Date("2026-01-02T03:04:05.000Z"),
             nsfw: false,
             recipients: [createRecipient(alice)],
-        });
+        };
 
-        const json = channel.toJSON();
+        const recipients = serializeChannelRecipients(channel);
 
-        assert.equal(json.recipients, undefined);
+        assert.equal(recipients, undefined);
     });
 });

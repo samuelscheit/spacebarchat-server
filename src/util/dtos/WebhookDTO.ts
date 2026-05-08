@@ -18,6 +18,7 @@
 
 import type { APIWebhook, PartialUser } from "@spacebar/schemas";
 import type { Webhook } from "../entities";
+import { toPartialUser } from "../util/PartialUser";
 
 type PartialUserSource = Pick<PartialUser, "id" | "username" | "discriminator"> & {
     avatar?: PartialUser["avatar"] | undefined;
@@ -28,35 +29,8 @@ export interface ToAPIWebhookOptions {
     user?: PartialUserSource | null;
 }
 
-const optionalPartialUserKeys = [
-    "global_name",
-    "avatar_decoration_data",
-    "collectibles",
-    "display_name_styles",
-    "primary_guild",
-    "bot",
-    "system",
-    "banner",
-    "accent_color",
-    "public_flags",
-] as const satisfies readonly (keyof PartialUser)[];
-
 export function toAPIPartialUser(user: PartialUserSource): PartialUser {
-    const source = user as unknown as Record<string, unknown>;
-    const partial: PartialUser = {
-        id: user.id,
-        username: user.username,
-        discriminator: user.discriminator,
-        avatar: user.avatar ?? null,
-    };
-
-    for (const key of optionalPartialUserKeys) {
-        if (source[key] !== undefined) {
-            (partial as unknown as Record<string, unknown>)[key] = source[key];
-        }
-    }
-
-    return partial;
+    return toPartialUser(user);
 }
 
 export function toAPIWebhook(webhook: Webhook, options: ToAPIWebhookOptions = {}): APIWebhook {

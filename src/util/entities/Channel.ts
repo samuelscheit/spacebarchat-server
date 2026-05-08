@@ -36,6 +36,7 @@ import {
     canCreateServerDm,
     shouldCheckServerDmPrivacy,
 } from "../util";
+import { serializeChannelRecipients } from "../util/ChannelRecipients";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
@@ -46,7 +47,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PartialUser, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
@@ -772,19 +773,7 @@ export class Channel extends BaseClass {
     }
 
     private toPublicRecipients(): PublicChannel["recipients"] {
-        if (!this.isDm()) return undefined;
-        if (!this.recipients?.length) return undefined;
-        if (this.recipients.some((recipient) => !recipient.user)) return undefined;
-
-        return this.recipients.map((recipient): PartialUser => {
-            const user = recipient.user.toPublicUser();
-            return {
-                id: user.id,
-                username: user.username,
-                discriminator: user.discriminator,
-                avatar: user.avatar ?? null,
-            };
-        });
+        return serializeChannelRecipients(this);
     }
 
     toJSON(): PublicChannel {
