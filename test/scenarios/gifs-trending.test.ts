@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { AddressInfo } from "node:net";
 import { afterEach, test } from "node:test";
 import express from "express";
-import trendingRouter from "./trending";
+import trendingRouter from "../../src/api/routes/gifs/trending";
 
 const originalFetch = globalThis.fetch;
 
@@ -45,8 +45,8 @@ afterEach(() => {
 
 async function requestTrending() {
     const requestedUrls: string[] = [];
-    globalThis.fetch = (async (input: string | URL | Request) => {
-        const url = input.toString();
+    globalThis.fetch = (async (input: Parameters<typeof fetch>[0]) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
         requestedUrls.push(url);
 
         if (url.includes("/categories")) {
