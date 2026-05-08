@@ -28,6 +28,19 @@ interface PublicUserSource {
     username?: string | null;
 }
 
+interface PublicMessageInteractionSource {
+    id: string;
+    type: NonNullable<PublicMessage["interaction"]>["type"];
+    name: string;
+    user?: PublicUserSource | PartialUser;
+}
+
+function serializeInteractionUser(user: PublicMessageInteractionSource["user"]): PartialUser | undefined {
+    if (!user) return undefined;
+    if ("toPublicUser" in user && typeof user.toPublicUser === "function") return user.toPublicUser() as PartialUser;
+    return user as PartialUser;
+}
+
 interface PublicMessageSource {
     activity?: PublicMessage["activity"];
     application_id?: string | null;
@@ -42,6 +55,7 @@ interface PublicMessageSource {
     embeds?: PublicMessage["embeds"];
     flags: number;
     id: string;
+    interaction?: PublicMessageInteractionSource | null;
     member?: PublicMemberLike | null;
     mention_channels?: { toJSON: () => unknown }[];
     mention_everyone?: boolean | null;
@@ -98,6 +112,14 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         pinned: message.pinned,
         type: message.type,
         activity: message.activity ?? undefined,
+        interaction: message.interaction
+            ? {
+                  id: message.interaction.id,
+                  type: message.interaction.type,
+                  name: message.interaction.name,
+                  ...(message.interaction.user ? { user: serializeInteractionUser(message.interaction.user) } : {}),
+              }
+            : undefined,
         components: message.components ?? [],
         message_snapshots: message.message_snapshots ?? undefined,
         poll: message.poll ?? undefined,

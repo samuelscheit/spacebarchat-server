@@ -77,6 +77,13 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
     } as Parameters<typeof messageToPublicMessage>[0] & Record<string, unknown>;
 
     const publicMessage = messageToPublicMessage(entityMessage);
+
+    assert.deepEqual(publicMessage.interaction, {
+        id: "900",
+        type: 2,
+        name: "command",
+    });
+
     const dto = toPreloadMessageResponse({ toJSON: () => publicMessage } as never);
 
     assert.equal("reactions" in dto, false);
@@ -93,7 +100,6 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
         "webhook",
         "application",
         "sticker_items",
-        "interaction",
         "interaction_metadata",
     ]) {
         assert.equal(Object.hasOwn(dto, field), false, `${field} should not be exposed`);
@@ -101,4 +107,48 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
 
     const serializedDto = jsonRoundTrip(dto);
     assert.equal(ajv.validate("PreloadMessagesResponse", [serializedDto]), true, ajv.errorsText());
+});
+
+
+test("messageToPublicMessage serializes legacy interaction users as public users", () => {
+    const publicUser = makePublicUser();
+    const entityMessage = {
+        id: "201",
+        channel_id: "100",
+        content: "hello",
+        timestamp: new Date("2026-05-06T00:00:00.000Z"),
+        edited_timestamp: null,
+        mentions: [],
+        mention_roles: [],
+        mention_channels: [],
+        attachments: [],
+        embeds: [],
+        pinned: false,
+        type: 20,
+        flags: 0,
+        components: [],
+        interaction: {
+            id: "900",
+            type: 2,
+            name: "command",
+            user: {
+                ...publicUser,
+                email: "private@example.invalid",
+                toPublicUser: () => publicUser,
+            },
+        },
+        author: {
+            ...makePublicUser(),
+            toPublicUser: makePublicUser,
+        },
+    } as Parameters<typeof messageToPublicMessage>[0] & Record<string, unknown>;
+
+    const publicMessage = messageToPublicMessage(entityMessage);
+
+    assert.deepEqual(publicMessage.interaction, {
+        id: "900",
+        type: 2,
+        name: "command",
+        user: publicUser,
+    });
 });

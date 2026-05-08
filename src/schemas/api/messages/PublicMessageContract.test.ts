@@ -37,6 +37,20 @@ function collectRefs(value: unknown, refs: string[] = []) {
 }
 
 describe("public message generated contract", () => {
+    test("OpenAPI documents legacy interaction as a partial message interaction", () => {
+        const openapi = readJson("assets/openapi.json");
+        const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
+
+        assert.equal(publicMessage.properties!.interaction?.$ref, "#/components/schemas/PartialMessageInteraction");
+    });
+
+    test("validation schemas document legacy interaction as a partial message interaction", () => {
+        const schemas = readJson("assets/schemas.json");
+        const publicMessage = resolveAssetSchema(schemas, schemas.APIPublicMessage);
+
+        assert.equal(publicMessage.properties!.interaction?.$ref, "#/definitions/PartialMessageInteraction");
+    });
+
     test("OpenAPI documents message member roles as role id strings", () => {
         const openapi = readJson("assets/openapi.json");
         const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);

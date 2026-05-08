@@ -208,14 +208,17 @@ router.get(
         //console.log(ret);
 
         type MessageWithInteraction = PublicMessage & {
-            interaction_metadata?: { user?: User; user_id: string };
-            interaction?: { user?: User };
+            interaction_metadata?: { user?: PartialUser; user_id: string };
+            interaction?: { user?: PartialUser };
         };
         await Promise.all(
             (ret as MessageWithInteraction[])
                 .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
                 .map(async (x) => {
-                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } });
+                    const user = (await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } })).toPublicUser() as PartialUser;
+                    user.avatar ??= null;
+                    x.interaction_metadata!.user = user;
+                    if (x.interaction) x.interaction.user = user;
                 }),
         );
 

@@ -18,7 +18,7 @@
 
 // TODO: remove entity import
 import type { Sticker } from "@spacebar/util";
-import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { Embed, InteractionType, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
 
@@ -184,6 +184,13 @@ export type PublicMessageMember = Omit<PublicMember, "user"> & {
     user?: PublicMember["user"];
 };
 
+export interface PartialMessageInteraction {
+    id: Snowflake;
+    type: InteractionType;
+    name: string;
+    user?: PartialUser;
+}
+
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;
@@ -213,7 +220,7 @@ export interface PublicMessage {
     referenced_message?: PublicMessage | null;
     message_snapshots?: MessageSnapshot[];
     // call?: MessageCall;
-    // interaction?: PartialMessageInteraction; // TODO
+    interaction?: PartialMessageInteraction;
     // interaction_metadata?: MessageInteraction; // TODO
     // resolved?: ResolvedData; // TODO
     thread?: PublicChannel;
