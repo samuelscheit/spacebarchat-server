@@ -276,16 +276,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     settings: true, // guild settings
                     roles: { id: true }, // the full role is fetched from the `guild` relation
                     guild: { id: true },
-
-                    // TODO: we don't really need every property of
-                    // guild channels, emoji, roles, stickers
-                    // but we do want almost everything from guild.
-                    // How do you do that without just enumerating the guild props?
-                    // guild: Object.fromEntries(
-                    // 	getDatabase()!
-                    // 		.getMetadata(Guild)
-                    // 		.columns.map((x) => [x.propertyName, true]),
-                    // ),
                 },
                 relations: {
                     // "guild",
