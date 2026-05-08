@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ReadyGuildDTO, type GuildOrUnavailable } from "./ReadyGuildDTO";
+import { getReadyUserGuildSettingsVersion, ReadyGuildDTO, type GuildOrUnavailable, type ReadyUserGuildSettingsEntries } from "./ReadyGuildDTO";
 
 type StageInstanceResponse = {
     id: string;
@@ -80,4 +80,41 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
     ).toJSON();
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
+});
+
+function makeReadyUserGuildSettingsEntry(version: number): ReadyUserGuildSettingsEntries {
+    return {
+        channel_overrides: [],
+        flags: 0,
+        guild_id: "197038439483310086",
+        hide_muted_channels: false,
+        message_notifications: 1,
+        mobile_push: true,
+        mute_config: null,
+        mute_scheduled_events: false,
+        muted: false,
+        notify_highlights: 0,
+        suppress_everyone: false,
+        suppress_roles: false,
+        version,
+    };
+}
+
+test("getReadyUserGuildSettingsVersion returns 0 when READY has no guild settings entries", () => {
+    assert.equal(getReadyUserGuildSettingsVersion([]), 0);
+});
+
+test("getReadyUserGuildSettingsVersion reports the highest stored guild settings version", () => {
+    assert.equal(getReadyUserGuildSettingsVersion([makeReadyUserGuildSettingsEntry(2), makeReadyUserGuildSettingsEntry(9), makeReadyUserGuildSettingsEntry(4)]), 9);
+});
+
+test("getReadyUserGuildSettingsVersion ignores non-finite stored versions", () => {
+    assert.equal(
+        getReadyUserGuildSettingsVersion([
+            makeReadyUserGuildSettingsEntry(Number.NaN),
+            makeReadyUserGuildSettingsEntry(Number.POSITIVE_INFINITY),
+            makeReadyUserGuildSettingsEntry(7),
+        ]),
+        7,
+    );
 });
