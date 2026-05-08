@@ -16,10 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { buildWebAuthnTicketPayload, encodeWebAuthnClientChallenge, route, verifyCaptcha } from "@spacebar/api";
+import { buildWebAuthnTicketPayload, encodeWebAuthnClientChallenge, generateLoginMfaTicket, route, verifyCaptcha } from "@spacebar/api";
 import { Config, emailMatches, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "@spacebar/util";
 import bcrypt from "bcrypt";
-import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { LoginSchema, type MFAResponse, type WebAuthnResponse } from "@spacebar/schemas";
 
@@ -108,8 +107,7 @@ router.post(
         }
 
         if (user.mfa_enabled && !user.webauthn_enabled) {
-            // TODO: This is not a discord.com ticket. I'm not sure what it is but I'm lazy
-            const ticket = crypto.randomBytes(40).toString("hex");
+            const ticket = await generateLoginMfaTicket(user.id);
 
             await User.update({ id: user.id }, { totp_last_ticket: ticket });
 

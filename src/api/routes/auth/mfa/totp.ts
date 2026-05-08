@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { assertMfaCode, consumeMfaBackupCode, createTokenResponse, route } from "@spacebar/api";
+import { assertMfaCode, consumeMfaBackupCode, createTokenResponse, route, verifyLoginMfaTicketFromRequest } from "@spacebar/api";
 import { User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -46,7 +46,13 @@ router.post(
                 totp_last_ticket: ticket,
             },
             select: { id: true, totp_secret: true },
+        }).catch(() => {
+            throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
         });
+
+        if (!(await verifyLoginMfaTicketFromRequest(ticket, user.id))) {
+            throw new HTTPError(req.t("auth:login.INVALID_TOTP_CODE"), 60008);
+        }
 
         await assertMfaCode({
             code,
