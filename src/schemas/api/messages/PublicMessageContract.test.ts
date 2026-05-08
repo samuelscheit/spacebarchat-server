@@ -67,6 +67,18 @@ describe("public message generated contract", () => {
         );
     });
 
+    test("public message contracts expose application_id without leaking application objects", () => {
+        const openapi = readJson("assets/openapi.json");
+        const schemas = readJson("assets/schemas.json");
+        const openApiPublicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
+        const assetPublicMessage = resolveAssetSchema(schemas, schemas.APIPublicMessage);
+
+        assert.ok(openApiPublicMessage.properties?.application_id, "OpenAPI PublicMessage should expose application_id");
+        assert.equal(openApiPublicMessage.properties?.application, undefined, "OpenAPI PublicMessage should not expose full application objects");
+        assert.ok(assetPublicMessage.properties?.application_id, "validation PublicMessage should expose application_id");
+        assert.equal(assetPublicMessage.properties?.application, undefined, "validation PublicMessage should not expose full application objects");
+    });
+
     test("APIMessageArray is an array of public messages", () => {
         const schemas = readJson("assets/schemas.json");
         const apiMessageArray = resolveAssetSchema(schemas, schemas.APIMessageArray);

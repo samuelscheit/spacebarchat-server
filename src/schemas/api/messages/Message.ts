@@ -206,7 +206,6 @@ export interface PublicMessage {
     webhook_id?: Snowflake;
     type: number;
     activity?: MessageActivity;
-    // application?: IntegrationApplication; // TODO
     application_id?: Snowflake;
     flags: number;
     message_reference?: MessageReference;
