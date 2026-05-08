@@ -16,33 +16,53 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export type WidgetPngCacheEntry = {
-    data: Promise<Buffer>;
-    expiresAt: number;
-};
-
 export type WidgetPngCacheResult = {
     data: Promise<Buffer>;
     expiresAt: number;
 };
+
+type WidgetPngCacheEntry = WidgetPngCacheResult & {
+    pending: boolean;
+};
+
+export function getWidgetPngCacheRemainingSeconds(expiresAt: number, now = Date.now()) {
+    return Math.max(0, Math.floor((expiresAt - now) / 1000));
+}
+
+export function getWidgetPngCacheControl(expiresAt: number, now = Date.now()) {
+    const remainingSeconds = getWidgetPngCacheRemainingSeconds(expiresAt, now);
+    return `public, max-age=${remainingSeconds}, s-maxage=${remainingSeconds}, immutable`;
+}
 
 export class WidgetPngResponseCache {
     private readonly entries = new Map<string, WidgetPngCacheEntry>();
 
     constructor(private readonly ttlMs: number) {}
 
+    get size() {
+        return this.entries.size;
+    }
+
     getOrCreate(key: string, render: () => Promise<Buffer>, now = Date.now()): WidgetPngCacheResult {
+        this.pruneExpired(now);
+
         const existing = this.entries.get(key);
-        if (existing && existing.expiresAt > now) return existing;
+        if (existing && (existing.pending || existing.expiresAt > now)) return existing;
 
         const entry: WidgetPngCacheEntry = {
-            data: render(),
+            data: this.createRenderPromise(render),
             expiresAt: now + this.ttlMs,
+            pending: true,
         };
 
-        entry.data.catch(() => {
-            if (this.entries.get(key) === entry) this.entries.delete(key);
-        });
+        entry.data.then(
+            () => {
+                entry.pending = false;
+            },
+            () => {
+                if (this.entries.get(key) === entry) this.entries.delete(key);
+            },
+        );
 
         this.entries.set(key, entry);
         return entry;
@@ -50,5 +70,19 @@ export class WidgetPngResponseCache {
 
     clear() {
         this.entries.clear();
+    }
+
+    private createRenderPromise(render: () => Promise<Buffer>) {
+        try {
+            return Promise.resolve(render());
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    }
+
+    private pruneExpired(now: number) {
+        for (const [key, entry] of this.entries) {
+            if (!entry.pending && entry.expiresAt <= now) this.entries.delete(key);
+        }
     }
 }

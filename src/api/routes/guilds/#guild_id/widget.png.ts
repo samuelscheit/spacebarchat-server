@@ -25,7 +25,7 @@ import fs from "node:fs";
 import { HTTPError } from "lambert-server";
 import path from "node:path";
 import { storage } from "@spacebar/cdn";
-import { WidgetPngResponseCache } from "../../../util/WidgetPngCache";
+import { getWidgetPngCacheControl, WidgetPngResponseCache } from "../../../util/WidgetPngCache";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -56,11 +56,11 @@ router.get(
         }
 
         const cacheEntry = pngResponseCache.getOrCreate(`${guild_id}:${style}`, () => renderWidgetPng(guild_id, style));
-        const cacheRemainingSeconds = Math.floor((cacheEntry.expiresAt - Date.now()) / 1000);
+        const data = await cacheEntry.data;
 
         res.set("Content-Type", "image/png");
-        res.set("Cache-Control", `public, max-age=${cacheRemainingSeconds}, s-maxage=${cacheRemainingSeconds}, immutable`);
-        return res.send(await cacheEntry.data);
+        res.set("Cache-Control", getWidgetPngCacheControl(cacheEntry.expiresAt));
+        return res.send(data);
     },
 );
 async function renderWidgetPng(guild_id: string, style: string) {

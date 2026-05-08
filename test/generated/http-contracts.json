@@ -13155,7 +13155,7 @@
             "path": "/guilds/:guild_id/widget.png/",
             "samplePath": "/guilds/100000000000000001/widget.png/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.png.ts",
-            "line": 35,
+            "line": 37,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
