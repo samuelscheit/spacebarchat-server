@@ -42,7 +42,7 @@ export async function cleanupOnStartup(): Promise<void> {
     console.log("[Gateway] Starting presence expiry...");
     await expireOldPresenceStates()
         .then(() => console.log("[Gateway] Successfully cleaned expired presence states"))
-        .catch((e) => console.error("[Gateway] Error cleaning expired presence states:", e));
+        .catch((e) => console.error("[Gateway] Error cleaning expired presence states on startup:", e));
 }
 
 async function expireOldPresenceStates() {
