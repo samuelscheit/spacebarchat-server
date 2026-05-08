@@ -70,6 +70,7 @@ import {
     ReadStateType,
     RelationshipType,
 } from "@spacebar/schemas";
+import { assertMessagePayloadLimits } from "../../../../util/utility/MessagePayloadLimits";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -233,8 +234,6 @@ export const messageUpload = multer({
     storage: multer.memoryStorage(),
 }); // max upload 50 mb
 /**
- TODO: dynamically change limit of MessageCreateSchema with config
-
  https://discord.com/developers/docs/resources/channel#create-message
  TODO: text channel slowdown (per-user and across-users)
  Q: trim and replace message content and every embed field A: NO, given this cannot be implemented in E2EE channels
@@ -271,6 +270,10 @@ router.post(
             404: {},
         },
     }),
+    (req, res, next) => {
+        assertMessagePayloadLimits(req.body as MessageCreateSchema);
+        next();
+    },
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
