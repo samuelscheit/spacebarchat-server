@@ -427,9 +427,7 @@ router.get(
 
                 ...(archived
                     ? {
-                          thread_metadata: {
-                              archived: archived === "true" ? true : false,
-                          },
+                          thread_metadata: JsonContains({ archived: archived === "true" }),
                       }
                     : {}),
             },
