@@ -25,13 +25,15 @@ import fs from "node:fs";
 import { HTTPError } from "lambert-server";
 import path from "node:path";
 import { storage } from "@spacebar/cdn";
+import { WidgetPngResponseCache } from "../../../util/WidgetPngCache";
 
 const router: Router = Router({ mergeParams: true });
 
 // TODO: use svg templates instead of node-canvas for improved performance and to change it easily
 
 // https://discord.com/developers/docs/resources/guild#get-guild-widget-image
-// TODO: Cache the response
+const expiryTime = 1000 * 60 * 5; // 5 minutes
+const pngResponseCache = new WidgetPngResponseCache(expiryTime);
 router.get(
     "/",
     route({
@@ -47,75 +49,78 @@ router.get(
     }),
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
-
-        const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
-        if (!guild.widget_enabled) throw DiscordApiErrors.EMBED_DISABLED;
-
-        // Fetch guild information
-        const icon = "avatars/" + guild_id + "/" + guild.icon;
-        const name = guild.name;
-        const presence = guild.presence_count + " ONLINE";
-
-        // Fetch parameter
         const style = req.query.style?.toString() || "shield";
+
         if (!["shield", "banner1", "banner2", "banner3", "banner4"].includes(style)) {
             throw new HTTPError("Value must be one of ('shield', 'banner1', 'banner2', 'banner3', 'banner4').", 400);
         }
 
-        // Setup canvas
-        const { createCanvas, loadImage } = require("canvas");
-        const sizeOf = require("image-size");
+        const cacheEntry = pngResponseCache.getOrCreate(`${guild_id}:${style}`, () => renderWidgetPng(guild_id, style));
+        const cacheRemainingSeconds = Math.floor((cacheEntry.expiresAt - Date.now()) / 1000);
 
-        // TODO: Widget style templates need Spacebar branding
-        const source = path.join(__dirname, "..", "..", "..", "..", "..", "assets", "widget", `${style}.png`);
-        if (!fs.existsSync(source)) {
-            throw new HTTPError("Widget template does not exist.", 400);
-        }
-
-        // Create base template image for parameter
-        const { width, height } = await sizeOf(source);
-        const canvas = createCanvas(width, height);
-        const ctx = canvas.getContext("2d");
-        const template = await loadImage(source);
-        ctx.drawImage(template, 0, 0);
-
-        // Add the guild specific information to the template asset image
-        switch (style) {
-            case "shield":
-                ctx.textAlign = "center";
-                drawText(ctx, 73, 13, "#FFFFFF", "thin 10px Verdana", presence);
-                break;
-            case "banner1":
-                if (icon) await drawIcon(ctx, 20, 27, 50, icon);
-                drawText(ctx, 83, 51, "#FFFFFF", "12px Verdana", name, 22);
-                drawText(ctx, 83, 66, "#C9D2F0FF", "thin 11px Verdana", presence);
-                break;
-            case "banner2":
-                if (icon) await drawIcon(ctx, 13, 19, 36, icon);
-                drawText(ctx, 62, 34, "#FFFFFF", "12px Verdana", name, 15);
-                drawText(ctx, 62, 49, "#C9D2F0FF", "thin 11px Verdana", presence);
-                break;
-            case "banner3":
-                if (icon) await drawIcon(ctx, 20, 20, 50, icon);
-                drawText(ctx, 83, 44, "#FFFFFF", "12px Verdana", name, 27);
-                drawText(ctx, 83, 58, "#C9D2F0FF", "thin 11px Verdana", presence);
-                break;
-            case "banner4":
-                if (icon) await drawIcon(ctx, 21, 136, 50, icon);
-                drawText(ctx, 84, 156, "#FFFFFF", "13px Verdana", name, 27);
-                drawText(ctx, 84, 171, "#C9D2F0FF", "thin 12px Verdana", presence);
-                break;
-            default:
-                throw new HTTPError("Value must be one of ('shield', 'banner1', 'banner2', 'banner3', 'banner4').", 400);
-        }
-
-        // Return final image
-        const buffer = canvas.toBuffer("image/png");
         res.set("Content-Type", "image/png");
-        res.set("Cache-Control", "public, max-age=3600");
-        return res.send(buffer);
+        res.set("Cache-Control", `public, max-age=${cacheRemainingSeconds}, s-maxage=${cacheRemainingSeconds}, immutable`);
+        return res.send(await cacheEntry.data);
     },
 );
+async function renderWidgetPng(guild_id: string, style: string) {
+    const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
+    if (!guild.widget_enabled) throw DiscordApiErrors.EMBED_DISABLED;
+
+    // Fetch guild information
+    const icon = guild.icon ? "avatars/" + guild_id + "/" + guild.icon : undefined;
+    const name = guild.name;
+    const presence = guild.presence_count + " ONLINE";
+
+    // Setup canvas
+    const { createCanvas, loadImage } = require("canvas");
+    const sizeOf = require("image-size");
+
+    // TODO: Widget style templates need Spacebar branding
+    const source = path.join(__dirname, "..", "..", "..", "..", "..", "assets", "widget", `${style}.png`);
+    if (!fs.existsSync(source)) {
+        throw new HTTPError("Widget template does not exist.", 400);
+    }
+
+    // Create base template image for parameter
+    const { width, height } = await sizeOf(source);
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+    const template = await loadImage(source);
+    ctx.drawImage(template, 0, 0);
+
+    // Add the guild specific information to the template asset image
+    switch (style) {
+        case "shield":
+            ctx.textAlign = "center";
+            drawText(ctx, 73, 13, "#FFFFFF", "thin 10px Verdana", presence);
+            break;
+        case "banner1":
+            if (icon) await drawIcon(ctx, 20, 27, 50, icon);
+            drawText(ctx, 83, 51, "#FFFFFF", "12px Verdana", name, 22);
+            drawText(ctx, 83, 66, "#C9D2F0FF", "thin 11px Verdana", presence);
+            break;
+        case "banner2":
+            if (icon) await drawIcon(ctx, 13, 19, 36, icon);
+            drawText(ctx, 62, 34, "#FFFFFF", "12px Verdana", name, 15);
+            drawText(ctx, 62, 49, "#C9D2F0FF", "thin 11px Verdana", presence);
+            break;
+        case "banner3":
+            if (icon) await drawIcon(ctx, 20, 20, 50, icon);
+            drawText(ctx, 83, 44, "#FFFFFF", "12px Verdana", name, 27);
+            drawText(ctx, 83, 58, "#C9D2F0FF", "thin 11px Verdana", presence);
+            break;
+        case "banner4":
+            if (icon) await drawIcon(ctx, 21, 136, 50, icon);
+            drawText(ctx, 84, 156, "#FFFFFF", "13px Verdana", name, 27);
+            drawText(ctx, 84, 171, "#C9D2F0FF", "thin 12px Verdana", presence);
+            break;
+        default:
+            throw new HTTPError("Value must be one of ('shield', 'banner1', 'banner2', 'banner3', 'banner4').", 400);
+    }
+
+    return canvas.toBuffer("image/png");
+}
 
 async function drawIcon(canvas: any, x: number, y: number, scale: number, icon: string) {
     const { loadImage } = require("canvas");
