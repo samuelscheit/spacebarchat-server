@@ -5,11 +5,16 @@ import {
     applyThreadMemberListQuery,
     assertThreadIsNotArchived,
     DEFAULT_THREAD_MEMBER_LIMIT,
+    incrementThreadMemberCount,
+    MAX_THREAD_MEMBER_COUNT,
     MAX_THREAD_MEMBER_LIMIT,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
 } from "./ThreadMembers";
+import { ThreadMember } from "@spacebar/util";
+
+const originalThreadMemberCountBy = ThreadMember.countBy;
 
 describe("thread member helpers", () => {
     test("defaults thread member limit", () => {
@@ -43,6 +48,41 @@ describe("thread member helpers", () => {
         assert.doesNotThrow(() => assertThreadIsNotArchived({}));
         assert.doesNotThrow(() => assertThreadIsNotArchived({ thread_metadata: { archived: false } }));
         assert.throws(() => assertThreadIsNotArchived({ thread_metadata: { archived: true } }), RangeError);
+    });
+
+    test("increments and persists an existing thread member count", async () => {
+        const thread = createThreadMemberCountSource({ member_count: 2 });
+
+        assert.equal(await incrementThreadMemberCount(thread), 3);
+        assert.equal(thread.member_count, 3);
+        assert.equal(thread.saveCalls, 1);
+    });
+
+    test("caps incremented thread member counts to Discord's approximate count maximum", async () => {
+        const thread = createThreadMemberCountSource({ member_count: MAX_THREAD_MEMBER_COUNT });
+
+        assert.equal(await incrementThreadMemberCount(thread), MAX_THREAD_MEMBER_COUNT);
+        assert.equal(thread.member_count, MAX_THREAD_MEMBER_COUNT);
+        assert.equal(thread.saveCalls, 1);
+    });
+
+    test("backfills missing thread member count from persisted thread members", async (t) => {
+        const countByCalls: unknown[] = [];
+        Object.assign(ThreadMember, {
+            countBy: async (where: unknown) => {
+                countByCalls.push(where);
+                return MAX_THREAD_MEMBER_COUNT + 10;
+            },
+        });
+        t.after(() => {
+            Object.assign(ThreadMember, { countBy: originalThreadMemberCountBy });
+        });
+        const thread = createThreadMemberCountSource({ member_count: undefined });
+
+        assert.equal(await incrementThreadMemberCount(thread), MAX_THREAD_MEMBER_COUNT);
+        assert.equal(thread.member_count, MAX_THREAD_MEMBER_COUNT);
+        assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
+        assert.equal(thread.saveCalls, 1);
     });
 
     test("builds thread member list query against member user ids", () => {
@@ -102,6 +142,18 @@ function assertInvalidThreadMemberLimit(value: string) {
     assert.ok(error instanceof HTTPError);
     assert.equal(error.code, 422);
     assert.equal(error.message, `limit must be between 1 and ${MAX_THREAD_MEMBER_LIMIT}`);
+}
+
+function createThreadMemberCountSource({ member_count }: { member_count?: number }) {
+    return {
+        id: "thread-id",
+        member_count,
+        saveCalls: 0,
+        async save() {
+            this.saveCalls++;
+            return this;
+        },
+    };
 }
 
 type FakeQueryBuilderCall = [string, string, string] | [string, string, Record<string, unknown>?] | [string, number];

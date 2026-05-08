@@ -35,6 +35,7 @@ import { Request, Response, Router } from "express";
 import {
     applyThreadMemberListQuery,
     assertThreadIsNotArchived,
+    incrementThreadMemberCount,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
@@ -70,19 +71,14 @@ async function addThreadMember(req: Request, res: Response) {
     }
 
     const threadMember = await ThreadMember.createForUser(user_id, thread, ThreadMemberFlags.ALL_MESSAGES);
-
-    // increment member count
-    if (thread.member_count !== null && thread.member_count !== undefined) {
-        thread.member_count++;
-        await thread.save();
-    }
+    const member_count = await incrementThreadMemberCount(thread);
 
     await emitEvent({
         event: "THREAD_MEMBERS_UPDATE",
         data: {
             guild_id: thread.guild_id!,
             id: thread.id,
-            member_count: thread.member_count ?? 0, //TODO: is this the right fix?
+            member_count,
             added_members: [{ user_id: user_id, ...threadMember.toJSON() }],
         },
         channel_id: thread.id,
