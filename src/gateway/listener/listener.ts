@@ -24,6 +24,7 @@ import {
     listenEvent,
     ListenEventOpts,
     Member,
+    Intents,
     Message,
     NewUrlUserSignatureData,
     Permissions,
@@ -74,8 +75,28 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
 }
 
 // TODO: close connection on Invalidated Token
-// TODO: check intent
 // TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
+
+type IntentEventMap = Record<number, string[]>;
+
+function findEventIntent(event: string, ...intentEventMaps: IntentEventMap[]) {
+    for (const intentEventMap of intentEventMaps) {
+        const intent = Object.entries(intentEventMap).find(([, events]) => events.includes(event))?.[0];
+        if (intent !== undefined) return intent;
+    }
+
+    return undefined;
+}
+
+export function canDispatchEventForIntent(intents: Intents | undefined, event: string, guildId?: string, eventUserId?: string, currentUserId?: string) {
+    if (event === EVENTEnum.GuildMemberUpdate && eventUserId && eventUserId === currentUserId) return true;
+
+    const intent = findEventIntent(event, guildId ? Intents.GUILD_INTENT_TO_EVENTS_MAP : Intents.DM_INTENT_TO_EVENTS_MAP, Intents.INTENT_TO_EVENTS_MAP);
+
+    if (intent === undefined) return true;
+
+    return intents?.has(BigInt(1) << BigInt(intent)) ?? false;
+}
 
 // Sharding: calculate if the current shard id matches the formula: shard_id = (guild_id >> 22) % num_shards
 // https://discord.com/developers/docs/topics/gateway#sharding
@@ -86,6 +107,8 @@ export function handlePresenceUpdate(this: WebSocket, opts: EventOpts) {
     if (!isEventRouteSubscribed(this.events, opts) && !isEventRouteSubscribed(this.member_events, opts)) return;
 
     if (event === EVENTEnum.PresenceUpdate) {
+        if (!canDispatchEventForIntent(this.intents, event, data.guild_id)) return;
+
         return Send(this, {
             op: OPCODES.Dispatch,
             t: event,
@@ -495,6 +518,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
             // Any events not defined in an intent are considered "passthrough" and will always be sent
             break;
     }
+
+    if (!canDispatchEventForIntent(this.intents, event, guildId, data.user?.id ?? data.user_id, this.user_id)) return;
 
     // data rewrites, e.g. signed attachment URLs
     switch (event) {
