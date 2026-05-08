@@ -165,7 +165,7 @@ router.get(
     },
 );
 
-router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req: Request, res: Response) => {
+router.patch("/", route({ requestBody: "UserProfileModifySchema", event: ["USER_UPDATE", "GUILD_MEMBER_UPDATE"] }), async (req: Request, res: Response) => {
     const body = req.body as UserProfileModifySchema;
 
     if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);

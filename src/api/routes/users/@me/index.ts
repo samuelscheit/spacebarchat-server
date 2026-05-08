@@ -59,6 +59,7 @@ router.patch(
     "/",
     route({
         requestBody: "UserModifySchema",
+        event: ["USER_UPDATE", "GUILD_MEMBER_UPDATE"],
         responses: {
             200: {
                 body: "UserUpdateResponse",

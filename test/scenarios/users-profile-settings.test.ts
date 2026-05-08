@@ -3,16 +3,23 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, generateToken, initDatabase, Session, User, UserSettings } from "@spacebar/util";
+import { closeDatabase, generateToken, initDatabase, Session, Snowflake, User, UserSettings } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
+import { makeGuild, makeMember, makeRole } from "../fixtures/entities";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
-const coveredManifestIds = ["api:http:GET:/users/@me/", "api:http:PATCH:/users/@me/", "api:http:GET:/users/@me/settings/", "api:http:PATCH:/users/@me/settings/"];
+const coveredManifestIds = [
+    "api:http:GET:/users/@me/",
+    "api:http:PATCH:/users/@me/",
+    "api:http:PATCH:/users/:user_id/profile/",
+    "api:http:GET:/users/@me/settings/",
+    "api:http:PATCH:/users/@me/settings/",
+];
 
 test(
-    "user profile and settings updates persist state and emit user-scoped events",
+    "user profile and settings updates persist state and emit profile events",
     {
         skip: !hasPostgresAdminUrl(),
         timeout: 180_000,
@@ -21,6 +28,7 @@ test(
         assert.deepEqual(coveredManifestIds, [
             "api:http:GET:/users/@me/",
             "api:http:PATCH:/users/@me/",
+            "api:http:PATCH:/users/:user_id/profile/",
             "api:http:GET:/users/@me/settings/",
             "api:http:PATCH:/users/@me/settings/",
         ]);
@@ -29,7 +37,7 @@ test(
         const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-users-scenario-"));
         const previous = snapshotProcessState();
         let api: Awaited<ReturnType<typeof startApi>> | undefined;
-        let userEvents: Awaited<ReturnType<typeof captureEvents>> | undefined;
+        let profileEvents: Awaited<ReturnType<typeof captureEvents>> | undefined;
 
         try {
             process.chdir(tempCwd);
@@ -53,7 +61,25 @@ test(
             const token = await generateToken(user.id);
             assert.ok(token, "token generation should return a bearer token");
             const session = await Session.findOneByOrFail({ user_id: user.id });
-            userEvents = await captureEvents(user.id);
+            const guild = await makeGuild(user, { id: Snowflake.generate(), name: "Profile Event Guild" }).save();
+            const everyoneRole = await makeRole(guild, {
+                id: guild.id,
+                guild_id: guild.id,
+                name: "@everyone",
+                position: 0,
+            }).save();
+            const displayRole = await makeRole(guild, {
+                id: Snowflake.generate(),
+                guild_id: guild.id,
+                name: "Profile Event Role",
+                position: 1,
+            }).save();
+            await makeMember(user, guild, {
+                joined_at: new Date("2026-01-01T00:00:00.000Z"),
+                nick: "profile-event-nick",
+                roles: [everyoneRole, displayRole],
+            }).save();
+            profileEvents = await captureEvents([user.id, guild.id]);
 
             const self = await getJson(`${api.apiBaseUrl}/users/@me`, token);
             await assertStatus(self, 200);
@@ -77,14 +103,41 @@ test(
             assert.equal(profileUpdateBody.id, user.id);
             assert.equal(profileUpdateBody.bio, updatedBio);
 
-            const userUpdateEvent = await userEvents.waitFor((event) => event.event === "USER_UPDATE" && event.user_id === user.id);
+            const userUpdateEvent = await profileEvents.waitFor((event) => event.event === "USER_UPDATE" && event.user_id === user.id);
             assert.equal(userUpdateEvent.data.id, user.id);
             assert.equal(userUpdateEvent.data.bio, updatedBio);
+            const guildMemberUpdateEvent = await profileEvents.waitFor(
+                (event) => event.event === "GUILD_MEMBER_UPDATE" && event.guild_id === guild.id && event.data.user.id === user.id && event.data.user.bio === updatedBio,
+            );
+            assert.deepEqual(guildMemberUpdateEvent.data.roles, [displayRole.id]);
+            assert.equal(guildMemberUpdateEvent.data.nick, "profile-event-nick");
+
+            const updatedProfileBio = "Profile route scenario bio";
+            const profileRouteUpdate = await patchJson(
+                `${api.apiBaseUrl}/users/@me/profile`,
+                {
+                    bio: updatedProfileBio,
+                },
+                token,
+            );
+            await assertStatus(profileRouteUpdate, 200);
+            const profileRouteUpdateBody = await assertJsonObject(profileRouteUpdate);
+            assert.equal(profileRouteUpdateBody.bio, updatedProfileBio);
+
+            const profileRouteUserUpdateEvent = await profileEvents.waitFor(
+                (event) => event.event === "USER_UPDATE" && event.user_id === user.id && event.data.bio === updatedProfileBio,
+            );
+            assert.equal(profileRouteUserUpdateEvent.data.id, user.id);
+            const profileRouteGuildMemberUpdateEvent = await profileEvents.waitFor(
+                (event) => event.event === "GUILD_MEMBER_UPDATE" && event.guild_id === guild.id && event.data.user.id === user.id && event.data.user.bio === updatedProfileBio,
+            );
+            assert.deepEqual(profileRouteGuildMemberUpdateEvent.data.roles, [displayRole.id]);
+
             const persistedProfile = await User.findOneOrFail({
                 where: { id: user.id },
                 select: { id: true, bio: true },
             });
-            assert.equal(persistedProfile.bio, updatedBio);
+            assert.equal(persistedProfile.bio, updatedProfileBio);
 
             const initialSettings = await getJson(`${api.apiBaseUrl}/users/@me/settings`, token);
             await assertStatus(initialSettings, 200);
@@ -109,7 +162,7 @@ test(
             assert.equal(settingsUpdateBody.theme, "light");
             assert.equal(settingsUpdateBody.developer_mode, false);
 
-            const presenceEvent = await userEvents.waitFor((event) => event.event === "PRESENCE_UPDATE" && event.user_id === user.id);
+            const presenceEvent = await profileEvents.waitFor((event) => event.event === "PRESENCE_UPDATE" && event.user_id === user.id);
             assert.equal(presenceEvent.data.user.id, user.id);
             assert.equal(presenceEvent.data.status, "idle");
 
@@ -129,7 +182,7 @@ test(
             assert.equal(settingsAfterUpdateBody.theme, "light");
             assert.equal(settingsAfterUpdateBody.developer_mode, false);
         } finally {
-            if (userEvents) await userEvents.stop();
+            if (profileEvents) await profileEvents.stop();
             if (api) await api.stop();
             await closeDatabase();
             await database.close();

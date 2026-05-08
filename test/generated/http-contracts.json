@@ -15755,7 +15755,7 @@
             "path": "/users/:user_id/profile/",
             "samplePath": "/users/100000000000000004/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 37,
+            "line": 38,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15803,7 +15803,7 @@
             "path": "/users/:user_id/profile/",
             "samplePath": "/users/100000000000000004/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 167,
+            "line": 168,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15813,7 +15813,7 @@
                 "requestBody": "UserProfileModifySchema",
                 "responses": [],
                 "responseStatuses": [],
-                "emittedEvents": ["USER_UPDATE"]
+                "event": ["USER_UPDATE", "GUILD_MEMBER_UPDATE"]
             },
             "cases": [
                 {
@@ -15840,7 +15840,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["USER_UPDATE"]
+                    "events": ["GUILD_MEMBER_UPDATE", "USER_UPDATE"]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -15907,7 +15907,7 @@
             "path": "/users/@me/",
             "samplePath": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 41,
+            "line": 39,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15955,7 +15955,7 @@
             "path": "/users/@me/",
             "samplePath": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 60,
+            "line": 58,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15965,7 +15965,7 @@
                 "requestBody": "UserModifySchema",
                 "responses": ["APIErrorResponse", "UserUpdateResponse"],
                 "responseStatuses": [200, 400, 404],
-                "emittedEvents": ["USER_UPDATE"]
+                "event": ["USER_UPDATE", "GUILD_MEMBER_UPDATE"]
             },
             "cases": [
                 {
@@ -15992,7 +15992,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["USER_UPDATE"]
+                    "events": ["GUILD_MEMBER_UPDATE", "USER_UPDATE"]
                 },
                 {
                     "id": "policy-ownership-boundary",

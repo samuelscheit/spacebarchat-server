@@ -11629,12 +11629,13 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "UserProfileModifySchema",
+                "event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "USER_UPDATE"
-                ]
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11745,6 +11746,10 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "UserModifySchema",
+                "event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
                 "responseBodies": [
                     "APIErrorResponse",
                     "UserUpdateResponse"
@@ -11754,10 +11759,7 @@
                     400,
                     404
                 ],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "USER_UPDATE"
-                ]
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",

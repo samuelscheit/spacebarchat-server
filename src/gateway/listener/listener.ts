@@ -145,6 +145,28 @@ export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string
     return true;
 }
 
+export async function handleGuildMemberSubscriptionEvent(socket: WebSocket, event: string, guildId: string | undefined, userId: string | undefined) {
+    if (!guildId || !userId) return;
+
+    switch (event) {
+        case "GUILD_MEMBER_ADD":
+            await subscribeGuildMemberEvent.call(socket, guildId, userId);
+            break;
+        case "GUILD_MEMBER_REMOVE":
+            await unsubscribeGuildMemberEventIds(socket.member_events, socket.guild_member_event_ids, socket.member_event_guild_ids, guildId, [userId]);
+            break;
+        case "GUILD_MEMBER_UPDATE":
+            // Member updates refresh cached member data, including profile-only
+            // user changes. They do not mean the member left the visible lazy
+            // list, so keep the member subscription alive for future presence
+            // updates. Lazy requests still reconcile stale subscriptions when
+            // the client asks for a new list/range.
+            break;
+        default:
+            break;
+    }
+}
+
 function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionData) {
     const member = guild.members?.find((member) => member.user?.id === userId || member.id === userId);
     const roleIds = member?.roles?.length ? member.roles : [guild.id];
@@ -364,16 +386,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
     // subscription managment
     switch (event) {
         case "GUILD_MEMBER_REMOVE":
-            if (!guildId) break;
-            await unsubscribeGuildMemberEventIds(this.member_events, this.guild_member_event_ids, this.member_event_guild_ids, guildId, [data.user.id]);
-            break;
         case "GUILD_MEMBER_ADD":
-            if (!guildId) break;
-            await subscribeGuildMemberEvent.call(this, guildId, data.user.id);
-            break;
         case "GUILD_MEMBER_UPDATE":
-            if (!guildId) break;
-            await unsubscribeGuildMemberEventIds(this.member_events, this.guild_member_event_ids, this.member_event_guild_ids, guildId, [data.user.id]);
+            await handleGuildMemberSubscriptionEvent(this, event, guildId, data.user?.id);
             break;
         case "RELATIONSHIP_REMOVE":
             await unsubscribeEventIds(this.events, [id]);

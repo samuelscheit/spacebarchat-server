@@ -54,7 +54,8 @@
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
-                        "src/util/dtos/ConnectedAccountDTO.test.ts"
+                        "src/util/dtos/ConnectedAccountDTO.test.ts",
+                        "src/api/util/UserUpdateEvents.test.ts"
                     ],
                     "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/users" }],
                     "fixtures": ["users", "sessions", "relationships", "settings"],
@@ -211,7 +212,12 @@
                     "title": "Middleware and server event bus",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/api/middlewares/Authentication.test.ts", "src/gateway/listener/subscriptions.test.ts", "src/util/util/Presence.test.ts"],
+                    "testFiles": [
+                        "src/api/middlewares/Authentication.test.ts",
+                        "src/gateway/listener/subscriptions.test.ts",
+                        "src/gateway/listener/listener.test.ts",
+                        "src/util/util/Presence.test.ts"
+                    ],
                     "selectors": [{ "manifestId": "api:middleware:auth-rate-limit-error" }, { "manifestId": "server:event-bus" }],
                     "fixtures": ["config", "users", "sessions", "event-bus"],
                     "checks": ["auth-boundary", "rate-limit-headers", "emit-listen", "subscription-filter"]
@@ -234,6 +240,7 @@
                         "src/gateway/opcodes/Heartbeat.test.ts",
                         "src/gateway/events/Close.test.ts",
                         "src/gateway/listener/subscriptions.test.ts",
+                        "src/gateway/listener/listener.test.ts",
                         "src/gateway/util/ReadyReadState.test.ts",
                         "src/gateway/util/Send.test.ts",
                         "src/gateway/util/StreamRegion.test.ts"
