@@ -36,14 +36,37 @@ describe("TypedResponses migration", () => {
     test("keeps legacy response schema names available from domain response modules", () => {
         const schemas = readJsonAsset<SchemaMap>("schemas.json");
 
-        for (const name of [
+        const legacyTypedResponseNames = [
+            "APIGuild",
+            "APIPublicUser",
             "APIPrivateUser",
+            "APIGuildArray",
+            "APIDMChannelArray",
+            "APIBackupCodeArray",
             "UserUpdateResponse",
-            "APIGuildWithJoinedAt",
-            "APIMessageArray",
+            "ApplicationDetectableResponse",
+            "ApplicationEntitlementsResponse",
+            "ApplicationSkusResponse",
+            "APIApplicationArray",
+            "APIInviteArray",
+            "APIPublicMessage",
+            "MessageListResponse",
             "APIWebhookArray",
+            "APIDiscoveryCategoryArray",
+            "APIGeneralConfiguration",
+            "APIChannelArray",
+            "APIMemberArray",
+            "APIPublicMember",
+            "APIGuildWithJoinedAt",
+            "APIRoleArray",
+            "APITemplateArray",
+            "APIGuildVoiceRegion",
+            "APILimitsConfiguration",
+            "APIMessageArray",
             "APIConnectionsConfiguration",
-        ]) {
+        ];
+
+        for (const name of legacyTypedResponseNames) {
             assert.ok(schemas[name], `${name} should remain generated after deleting TypedResponses.ts`);
         }
 
