@@ -21,6 +21,7 @@ import {
     EVENTEnum,
     EventOpts,
     getPermission,
+    Intents,
     listenEvent,
     ListenEventOpts,
     Member,
@@ -66,6 +67,13 @@ type GuildCreatePermissionData = {
     >;
 };
 
+export function canDispatchGuildMemberUpdate(currentUserId: string | undefined, intents: Intents, updateUserId: string | undefined) {
+    if (!updateUserId) return false;
+    if (updateUserId === currentUserId) return true;
+
+    return intents.has(Intents.FLAGS.GUILD_MEMBERS);
+}
+
 export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<string, Set<string>>, guildId: string | undefined, presenceUserId: string | undefined) {
     if (!guildId) return true;
     if (!presenceUserId) return false;
@@ -75,7 +83,6 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
 
 // TODO: close connection on Invalidated Token
 // TODO: check intent
-// TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
 
 // Sharding: calculate if the current shard id matches the formula: shard_id = (guild_id >> 22) % num_shards
 // https://discord.com/developers/docs/topics/gateway#sharding
@@ -448,7 +455,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
             break;
         case "GUILD_MEMBER_ADD":
         case "GUILD_MEMBER_REMOVE":
-        case "GUILD_MEMBER_UPDATE": // only send them, if the user subscribed for this part of the member list, or is a bot
+            break;
+        case "GUILD_MEMBER_UPDATE": // current-user updates are always visible; other members require GUILD_MEMBERS.
+            if (!canDispatchGuildMemberUpdate(this.user_id, this.intents, data.user?.id)) return;
             break;
         case "PRESENCE_UPDATE": // direct user routes cover friends/DMs; guild routes require an authorized lazy member-list subscription.
             if (!canDispatchGuildPresenceUpdate(this.guild_member_event_ids, guildId, data.user?.id)) return;
