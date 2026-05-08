@@ -1,4 +1,4 @@
-import { Event, Session, TimeSpan, VoiceState } from "@spacebar/util";
+import { Event, Session, TimeSpan } from "@spacebar/util";
 import { WebSocket } from "./WebSocket";
 import { CLOSECODES, OPCODES } from "./Constants";
 import { Send } from "./Send";
@@ -40,38 +40,11 @@ export function generateStreamKey(type: "guild" | "call", guildId: string | unde
     return streamKey;
 }
 
-type VoiceStateCleanupRepository = {
-    clear(): Promise<void>;
-};
-
-const voiceStateCleanupRepository: VoiceStateCleanupRepository = {
-    clear: () => VoiceState.clear(),
-};
-
-export async function cleanupStaleVoiceStates(voiceStateRepository: VoiceStateCleanupRepository = voiceStateCleanupRepository): Promise<void> {
-    // Voice states are tied to in-memory gateway connections and voice session tokens.
-    // If rows are still present when the gateway starts, they are stale leftovers from
-    // an ungraceful shutdown. Delete them instead of nulling channel/guild fields so
-    // reconnecting clients cannot reuse stale session/token or voice flag state.
-    await voiceStateRepository.clear();
-}
-
-// Temporary cleanup function until shutdown cleanup function is fixed.
-// Currently when server is shut down the voice states are not cleared
-// TODO: remove this when Server.stop() is fixed so that it waits for all websocket connections to run their
-// respective Close event listener function for session cleanup
 export async function cleanupOnStartup(): Promise<void> {
-    console.log("[Gateway] Starting voice state wipe...");
-    const clearVoiceStates = cleanupStaleVoiceStates()
-        .then(() => console.log("[Gateway] Successfully cleaned voice states"))
-        .catch((e) => console.error("[Gateway] Error cleaning voice states on startup:", e));
-
     console.log("[Gateway] Starting presence expiry...");
-    const expirePresences = expireOldPresenceStates()
+    await expireOldPresenceStates()
         .then(() => console.log("[Gateway] Successfully cleaned expired presence states"))
-        .catch((e) => console.error("[Gateway] Error cleaning expired presence states:", e));
-
-    await Promise.all([clearVoiceStates, expirePresences]);
+        .catch((e) => console.error("[Gateway] Error cleaning expired presence states on startup:", e));
 }
 
 async function expireOldPresenceStates() {

@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
+import { Session, VoiceState } from "@spacebar/util";
 
 import { CLOSECODES } from "./Constants";
+import { cleanupOnStartup } from "./Utils";
 
 type HandleOffloadedGatewayRequest = typeof import("./Utils").handleOffloadedGatewayRequest;
 
@@ -10,6 +12,8 @@ function loadUtilsWithStubbedUtil() {
         _load(request: string, parent: NodeModule | null, isMain: boolean): unknown;
     };
     const originalLoad = moduleCtor._load;
+    const utilsModulePath = require.resolve("./Utils");
+    const originalUtilsModule = require.cache[utilsModulePath];
 
     moduleCtor._load = function patchedLoad(request: string, parent: NodeModule | null, isMain: boolean) {
         if (request === "@spacebar/util") return {};
@@ -18,10 +22,15 @@ function loadUtilsWithStubbedUtil() {
     };
 
     try {
-        delete require.cache[require.resolve("./Utils")];
+        delete require.cache[utilsModulePath];
         return require("./Utils") as { handleOffloadedGatewayRequest: HandleOffloadedGatewayRequest };
     } finally {
         moduleCtor._load = originalLoad;
+        if (originalUtilsModule) {
+            require.cache[utilsModulePath] = originalUtilsModule;
+        } else {
+            delete require.cache[utilsModulePath];
+        }
     }
 }
 
@@ -98,5 +107,51 @@ describe("handleOffloadedGatewayRequest", () => {
         } finally {
             globalThis.fetch = originalFetch;
         }
+    });
+});
+
+type StreamedSessionRow = {
+    session_last_seen: Date;
+    session_session_id: string;
+};
+
+function createSessionStreamQuery(rows: StreamedSessionRow[]) {
+    return {
+        where(condition: string) {
+            assert.equal(condition, "last_seen >= '2000/01/01' AND status != 'offline'");
+            return this;
+        },
+        select() {
+            return this;
+        },
+        async *stream() {
+            for (const row of rows) yield row;
+        },
+    };
+}
+
+describe("cleanupOnStartup", () => {
+    test("expires old presences without wiping voice states", async (t) => {
+        const staleSession = {
+            session_last_seen: new Date(Date.now() - 31 * 60 * 1000),
+            session_session_id: "stale-session",
+        };
+        const freshSession = {
+            session_last_seen: new Date(),
+            session_session_id: "fresh-session",
+        };
+
+        const voiceStateClear = t.mock.method(VoiceState, "clear", async () => {
+            throw new Error("startup must not clear active voice states");
+        });
+        const createQueryBuilder = t.mock.method(Session, "createQueryBuilder", () => createSessionStreamQuery([staleSession, freshSession]));
+        const updateSession = t.mock.method(Session, "update", async () => ({ affected: 1, generatedMaps: [], raw: [] }));
+
+        await cleanupOnStartup();
+
+        assert.equal(voiceStateClear.mock.callCount(), 0);
+        assert.equal(createQueryBuilder.mock.callCount(), 1);
+        assert.equal(updateSession.mock.callCount(), 1);
+        assert.deepEqual(updateSession.mock.calls[0].arguments, [{ session_id: "stale-session" }, { status: "offline" }]);
     });
 });
