@@ -20,6 +20,10 @@ import { CLOSECODES } from "@spacebar/gateway";
 import OPCodeHandlers from "../opcodes";
 import { VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "../util";
 
+function isKnownVoiceOPCode(op: number): op is VoiceOPCodes {
+    return VoiceOPCodes[op] !== undefined;
+}
+
 export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
     let data: VoicePayload;
 
@@ -39,8 +43,13 @@ export async function onMessage(this: WebRtcWebSocket, buffer: Buffer) {
 
     const OPCodeHandler = OPCodeHandlers[data.op];
     if (!OPCodeHandler) {
-        console.error("[WebRTC] Unknown opcode " + VoiceOPCodes[data.op]);
-        return this.close(CLOSECODES.Unknown_opcode);
+        if (!isKnownVoiceOPCode(data.op)) {
+            console.error("[WebRTC] Unknown opcode " + data.op);
+            return this.close(CLOSECODES.Unknown_opcode);
+        }
+
+        console.error("[WebRTC] Unsupported opcode " + VoiceOPCodes[data.op]);
+        return;
     }
 
     if (![VoiceOPCodes.HEARTBEAT, VoiceOPCodes.SPEAKING].includes(data.op as VoiceOPCodes)) {
