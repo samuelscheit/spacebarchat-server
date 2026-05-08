@@ -18,7 +18,9 @@
         "runtimePublicResponseSchemaContracts": 7,
         "runtimeAuthenticatedResponseSchemaContracts": 18,
         "runtimeRightOnlyDenialContracts": 6,
-        "runtimePermissionOnlyDenialContracts": 71
+        "runtimePermissionOnlyDenialContracts": 71,
+        "runtimePermissionAndRightPermissionDenialContracts": 6,
+        "runtimePermissionAndRightRightDenialContracts": 6
     },
     "contracts": [
         {

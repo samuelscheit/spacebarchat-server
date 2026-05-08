@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import Ajv, { type AnySchema } from "ajv";
 import addFormats from "ajv-formats";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Role, Session, User } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Permissions, Role, Session, User } from "@spacebar/util";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { startApi } from "../server/startApi";
 
@@ -39,6 +39,8 @@ type GeneratedHttpContractMatrix = {
         runtimeAuthenticatedResponseSchemaContracts: number;
         runtimeRightOnlyDenialContracts: number;
         runtimePermissionOnlyDenialContracts: number;
+        runtimePermissionAndRightPermissionDenialContracts: number;
+        runtimePermissionAndRightRightDenialContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -134,6 +136,16 @@ const permissionOnlyDenialContracts = matrix.contracts.filter(
         contract.routeMetadata.permission &&
         !contract.routeMetadata.right &&
         !metadataValues(contract.routeMetadata.permission).some((value) => value.startsWith("...")),
+);
+const permissionAndRightDenialContracts = matrix.contracts.filter(
+    (contract) =>
+        contract.service === "api" &&
+        contract.authMode === "bearer" &&
+        contract.method !== "OPTIONS" &&
+        contract.routeMetadata.permission &&
+        contract.routeMetadata.right &&
+        !metadataValues(contract.routeMetadata.permission).some((value) => value.startsWith("...")) &&
+        !metadataValues(contract.routeMetadata.right).some((value) => value.startsWith("...")),
 );
 
 function silenceConsole() {
@@ -290,7 +302,7 @@ async function withAuthenticatedApi<T>(
     }
 }
 
-async function createPermissionDeniedFixture(user: User) {
+async function createPermissionDeniedFixture(user: User, options: { grantAllPermissions?: boolean } = {}) {
     const suffix = `${process.pid}${Date.now()}`;
     const owner = await User.register({
         username: `owner${suffix.slice(-8)}`,
@@ -333,7 +345,7 @@ async function createPermissionDeniedFixture(user: User) {
         managed: false,
         mentionable: false,
         name: "contract-role",
-        permissions: "0",
+        permissions: options.grantAllPermissions ? Permissions.ALL.valueOf().toString() : "0",
         position: 0,
         flags: 0,
         colors: { primary_color: 0, secondary_color: undefined, tertiary_color: undefined },
@@ -345,7 +357,7 @@ async function createPermissionDeniedFixture(user: User) {
         user,
         guild,
         guild_id: guild.id,
-        roles: [],
+        roles: options.grantAllPermissions ? [role] : [],
         joined_at: new Date(),
         deaf: false,
         mute: false,
@@ -641,6 +653,94 @@ test(
                         `You lack permissions to perform that action (${requiredPermission})`,
                         `${contract.manifestId} should return the missing-permissions message`,
                     );
+                    assert.equal(body.request, `${contract.method} /api/v9${samplePath}`, `${contract.manifestId} should include the request route`);
+                }
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);
+
+test(
+    "generated HTTP permission-and-right contracts reject members without declared permissions before right checks",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(permissionAndRightDenialContracts.length, matrix.summary.runtimePermissionAndRightPermissionDenialContracts);
+        assert.ok(permissionAndRightDenialContracts.length > 0, "expected permission-and-right API routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_permission_right_permission", async ({ api, token, user }) => {
+                const fixture = await createPermissionDeniedFixture(user);
+
+                for (const contract of permissionAndRightDenialContracts) {
+                    const requiredPermission = requiredPermissionForContract(contract);
+                    const samplePath = samplePathForPermissionDenialContract(contract, fixture);
+                    const response = await fetch(`${api.apiBaseUrl}${samplePath}`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: `Bearer ${token}`,
+                        },
+                    });
+
+                    assert.equal(response.status, 403, `${contract.manifestId} should reject members missing ${requiredPermission} before checking rights`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON authorization error`);
+
+                    const body = (await response.json()) as Record<string, unknown>;
+                    assert.equal(body.code, 50013, `${contract.manifestId} should return the missing-permissions error code`);
+                    assert.equal(
+                        body.message,
+                        `You lack permissions to perform that action (${requiredPermission})`,
+                        `${contract.manifestId} should return the missing-permissions message`,
+                    );
+                    assert.equal(body.request, `${contract.method} /api/v9${samplePath}`, `${contract.manifestId} should include the request route`);
+                }
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);
+
+test(
+    "generated HTTP permission-and-right contracts reject permitted members without declared rights through the real API stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(permissionAndRightDenialContracts.length, matrix.summary.runtimePermissionAndRightRightDenialContracts);
+        assert.ok(permissionAndRightDenialContracts.length > 0, "expected permission-and-right API routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_permission_right_right", async ({ api, token, user }) => {
+                user.rights = "0";
+                await user.save();
+                const fixture = await createPermissionDeniedFixture(user, { grantAllPermissions: true });
+
+                for (const contract of permissionAndRightDenialContracts) {
+                    const requiredRight = requiredRightForContract(contract);
+                    const samplePath = samplePathForPermissionDenialContract(contract, fixture);
+                    const response = await fetch(`${api.apiBaseUrl}${samplePath}`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: `Bearer ${token}`,
+                        },
+                    });
+
+                    assert.equal(response.status, 403, `${contract.manifestId} should reject permitted members missing ${requiredRight}`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON authorization error`);
+
+                    const body = (await response.json()) as Record<string, unknown>;
+                    assert.equal(body.code, 50013, `${contract.manifestId} should return the missing-rights error code`);
+                    assert.equal(body.message, `You lack rights to perform that action (${requiredRight})`, `${contract.manifestId} should return the missing-rights message`);
                     assert.equal(body.request, `${contract.method} /api/v9${samplePath}`, `${contract.manifestId} should include the request route`);
                 }
             });
