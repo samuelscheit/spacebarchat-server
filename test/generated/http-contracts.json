@@ -13369,7 +13369,7 @@
             "path": "/guilds/",
             "samplePath": "/guilds/",
             "sourceFile": "src/api/routes/guilds/index.ts",
-            "line": 28,
+            "line": 26,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
