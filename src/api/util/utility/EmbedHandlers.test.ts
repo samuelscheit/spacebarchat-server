@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import { describe, test, type TestContext } from "node:test";
 import type { Embed } from "@spacebar/schemas";
-import type { Message } from "../../../util/index.js";
+import type { Message } from "@spacebar/util";
 import { mergeGeneratedUrlEmbeds } from "./EmbedMerge";
 
-type UtilModule = typeof import("../../../util/index.js");
+type UtilModule = typeof import("@spacebar/util");
 
 process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
 delete process.env.EVENT_TRANSMISSION;
@@ -13,8 +14,8 @@ const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
 
 async function loadEmbedModules() {
-    const util = await import("../../../util/index.js");
-    const handlers = await import("./EmbedHandlers.js");
+    const util = require("@spacebar/util") as UtilModule;
+    const handlers = require("./EmbedHandlers.js") as typeof import("./EmbedHandlers.js");
 
     return {
         util,
@@ -72,6 +73,67 @@ function rejectUnexpectedPersistence(t: TestContext, Message: UtilModule["Messag
     });
 }
 
+function mockSteamEmbedConfig(
+    t: TestContext,
+    Config: UtilModule["Config"],
+    overrides: {
+        imagorServerUrl?: string | null;
+        requestSignature?: string;
+    } = {},
+) {
+    const config = Config.get();
+    const originalCdn = {
+        endpointPublic: config.cdn.endpointPublic,
+        imagorServerUrl: config.cdn.imagorServerUrl,
+        resizeWidthMax: config.cdn.resizeWidthMax,
+        resizeHeightMax: config.cdn.resizeHeightMax,
+    };
+    const originalRequestSignature = config.security.requestSignature;
+
+    config.cdn.endpointPublic = "https://cdn.example.com";
+    config.cdn.imagorServerUrl = overrides.imagorServerUrl ?? null;
+    config.cdn.resizeWidthMax = 1024;
+    config.cdn.resizeHeightMax = 1024;
+    config.security.requestSignature = overrides.requestSignature ?? originalRequestSignature;
+
+    t.after(() => {
+        config.cdn.endpointPublic = originalCdn.endpointPublic;
+        config.cdn.imagorServerUrl = originalCdn.imagorServerUrl;
+        config.cdn.resizeWidthMax = originalCdn.resizeWidthMax;
+        config.cdn.resizeHeightMax = originalCdn.resizeHeightMax;
+        config.security.requestSignature = originalRequestSignature;
+    });
+    t.mock.method(Config, "get", () => config);
+
+    return config;
+}
+
+function mockSteamStoreResponse(t: TestContext, capsuleUrl: string) {
+    const html = `
+        <html>
+            <head>
+                <meta property="og:title" content="Example Game on Steam">
+                <meta property="og:description" content="Example game description">
+                <meta property="og:image" content="${capsuleUrl}">
+            </head>
+            <body>
+                <input id="review_summary_num_reviews" value="1,234 reviews">
+                <div class="game_purchase_price price" data-price-final="1999"></div>
+                <div class="release_date"><div class="date">Dec 31, 2999</div></div>
+            </body>
+        </html>`;
+
+    t.mock.method(globalThis, "fetch", async () => new Response(html));
+}
+
+function getExpectedImagorProxyUrl(imageUrl: string, imagorServerUrl: string, requestSignature: string) {
+    const parsed = new URL(imageUrl);
+    const path = `460x215/${parsed.host}${parsed.pathname}`;
+    const hash = crypto.createHmac("sha1", requestSignature).update(path).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
+
+    return `${imagorServerUrl}/${hash}/${path}`;
+}
+
 describe("mergeGeneratedUrlEmbeds", () => {
     test("does not report a change when no embeds are generated", () => {
         const result = mergeGeneratedUrlEmbeds([], [], 10);
@@ -126,29 +188,10 @@ describe("mergeGeneratedUrlEmbeds", () => {
 describe("EmbedHandlers", () => {
     test("returns Steam store capsule art as a thumbnail", async (t) => {
         const { Config, EmbedHandlers } = await loadEmbedModules();
-        const config = Config.get();
-        config.cdn.imagorServerUrl = null;
-        config.cdn.endpointPublic = "https://cdn.example.com";
-        config.cdn.resizeWidthMax = 1024;
-        config.cdn.resizeHeightMax = 1024;
-        t.mock.method(Config, "get", () => config);
+        mockSteamEmbedConfig(t, Config);
 
         const capsuleUrl = "https://cdn.akamai.steamstatic.com/steam/apps/123/header.jpg";
-        const html = `
-            <html>
-                <head>
-                    <meta property="og:title" content="Example Game on Steam">
-                    <meta property="og:description" content="Example game description">
-                    <meta property="og:image" content="${capsuleUrl}">
-                </head>
-                <body>
-                    <input id="review_summary_num_reviews" value="1,234 reviews">
-                    <div class="game_purchase_price price" data-price-final="1999"></div>
-                    <div class="release_date"><div class="date">Dec 31, 2999</div></div>
-                </body>
-            </html>`;
-
-        t.mock.method(globalThis, "fetch", async () => new Response(html));
+        mockSteamStoreResponse(t, capsuleUrl);
 
         const embed = (await EmbedHandlers["store.steampowered.com"](new URL("https://store.steampowered.com/app/123/Example_Game/"))) as Embed;
 
@@ -183,6 +226,29 @@ describe("EmbedHandlers", () => {
                 inline: true,
             },
         ]);
+    });
+
+    test("uses the embed image proxy helper for Steam thumbnails", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        const requestSignature = "steam-thumbnail-test-secret";
+        const imagorServerUrl = "https://imagor.example.com";
+        mockSteamEmbedConfig(t, Config, {
+            imagorServerUrl,
+            requestSignature,
+        });
+
+        const capsuleUrl = "https://cdn.akamai.steamstatic.com/steam/apps/123/header.jpg";
+        mockSteamStoreResponse(t, capsuleUrl);
+
+        const embed = (await EmbedHandlers["store.steampowered.com"](new URL("https://store.steampowered.com/app/123/Example_Game/"))) as Embed;
+
+        assert.equal(embed.image, undefined);
+        assert.deepEqual(embed.thumbnail, {
+            width: 460,
+            height: 215,
+            url: capsuleUrl,
+            proxy_url: getExpectedImagorProxyUrl(capsuleUrl, imagorServerUrl, requestSignature),
+        });
     });
 });
 
