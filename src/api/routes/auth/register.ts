@@ -30,6 +30,7 @@ import {
     IpDataClient,
     AbuseIpDbClient,
     emitEvent,
+    evaluateDateOfBirth,
     getDatabase,
     normalizeOptionalEmail,
     TimeSpan,
@@ -254,16 +255,9 @@ router.post(
                 },
             });
         } else if (register.dateOfBirth.required && register.dateOfBirth.minimum) {
-            const minimum = new Date();
-            minimum.setFullYear(minimum.getFullYear() - register.dateOfBirth.minimum);
+            const dateOfBirth = evaluateDateOfBirth(body.date_of_birth, register.dateOfBirth.minimum);
 
-            let parsedDob;
-            try {
-                parsedDob = new Date(body.date_of_birth as Date);
-                if (isNaN(parsedDob.getTime())) {
-                    throw new Error("Invalid date");
-                }
-            } catch (e) {
+            if (dateOfBirth.status === "invalid") {
                 throw FieldErrors({
                     date_of_birth: {
                         code: "DATE_OF_BIRTH_INVALID",
@@ -272,8 +266,7 @@ router.post(
                 });
             }
 
-            // higher is younger
-            if (parsedDob > minimum) {
+            if (dateOfBirth.status === "underage") {
                 throw FieldErrors({
                     date_of_birth: {
                         code: "DATE_OF_BIRTH_UNDERAGE",

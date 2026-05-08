@@ -30,7 +30,7 @@ import {
     Snowflake,
     trimSpecial,
 } from "..";
-import { bigintNumberTransformer, Random } from "../util";
+import { bigintNumberTransformer, DateOfBirthInput, evaluateDateOfBirth, Random } from "../util";
 import { profilePronouns } from "../util/UserProfile";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
@@ -315,7 +315,7 @@ export class User extends BaseClass {
         username: string;
         password?: string;
         email?: string;
-        date_of_birth?: Date; // "2000-04-03"
+        date_of_birth?: DateOfBirthInput; // "2000-04-03"
         id?: string;
         req?: Request;
         bot?: boolean;
@@ -385,19 +385,10 @@ export class User extends BaseClass {
         return user;
     }
 
-    static calculateNsfwAllowed(date_of_birth?: Date): boolean {
-        if (!date_of_birth) return true;
+    static calculateNsfwAllowed(date_of_birth?: DateOfBirthInput): boolean {
+        const result = evaluateDateOfBirth(date_of_birth, Config.get().register.dateOfBirth.minimum);
 
-        const minimumAge = Config.get().register.dateOfBirth.minimum;
-        if (!minimumAge) return true;
-
-        const parsedDateOfBirth = new Date(date_of_birth);
-        if (isNaN(parsedDateOfBirth.getTime())) return false;
-
-        const minimumDateOfBirth = new Date();
-        minimumDateOfBirth.setFullYear(minimumDateOfBirth.getFullYear() - minimumAge);
-
-        return parsedDateOfBirth <= minimumDateOfBirth;
+        return result.status === "missing" || result.status === "allowed";
     }
 
     static async runRegistrationSideEffects(user: User, options: { email?: string; bot?: boolean }) {
