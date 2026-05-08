@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, test } from "node:test";
@@ -77,6 +77,43 @@ describe("CDN storage initialization", () => {
         );
 
         assert.equal(result.status, 0, result.stderr || result.stdout);
+    });
+
+    test("file storage initialization tolerates an existing storage directory", async () => {
+        const tempRoot = await mkdtemp(path.join(os.tmpdir(), "spacebar-storage-existing-"));
+        const storageLocation = path.join(tempRoot, "cdn-files");
+        await mkdir(storageLocation);
+
+        try {
+            const result = spawnSync(
+                process.execPath,
+                [
+                    "-r",
+                    "module-alias/register",
+                    "-e",
+                    `
+                        const assert = require("node:assert/strict");
+                        const { initializeStorage } = require("./dist/cdn");
+                        initializeStorage();
+                        assert.equal(process.env.STORAGE_LOCATION, ${JSON.stringify(storageLocation)});
+                    `,
+                ],
+                {
+                    cwd: process.cwd(),
+                    env: {
+                        ...process.env,
+                        STORAGE_PROVIDER: "file",
+                        STORAGE_LOCATION: storageLocation,
+                    },
+                    encoding: "utf8",
+                },
+            );
+
+            assert.equal(result.status, 0, result.stderr || result.stdout);
+            assert.equal(existsSync(storageLocation), true);
+        } finally {
+            await rm(tempRoot, { recursive: true, force: true });
+        }
     });
 
     test("defers file storage setup until explicit startup initialization", async () => {

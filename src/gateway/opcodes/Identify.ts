@@ -98,6 +98,7 @@ import { randomString } from "@spacebar/api";
 import { getConfiguredPrivilegedIntents, getRequestedIdentifyIntents, hasDisallowedPrivilegedIntents } from "./IdentifyPrivilegedIntents";
 import { buildIdentifyBotReadyGuildPlaceholder, buildIdentifyPendingGuildCreateData, IdentifyPendingGuildCreateData } from "../util/IdentifyGuildCreate";
 import { getOpenDmPresenceRecipientIds } from "../util/DmPresenceRecipients";
+import { setSessionGatewayIntents } from "../util/SessionIntents";
 
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
@@ -222,6 +223,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     this.session_id = session.session_id;
     this.session = session;
+    setSessionGatewayIntents(this.session, this.intents);
     // this.session.status = identify.presence?.status || "online";
     this.session.last_seen = new Date();
     this.session.client_info ??= {};

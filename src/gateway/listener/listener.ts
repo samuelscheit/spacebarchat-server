@@ -67,6 +67,18 @@ type GuildCreatePermissionData = {
     >;
 };
 
+export function canDispatchGuildMemberEvent(
+    event: "GUILD_MEMBER_ADD" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_UPDATE",
+    currentUserId: string | undefined,
+    intents: Intents,
+    eventUserId: string | undefined,
+) {
+    if (!eventUserId) return false;
+    if (event === "GUILD_MEMBER_UPDATE" && eventUserId === currentUserId) return true;
+
+    return intents.has(Intents.FLAGS.GUILD_MEMBERS);
+}
+
 export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<string, Set<string>>, guildId: string | undefined, presenceUserId: string | undefined) {
     if (!guildId) return true;
     if (!presenceUserId) return false;
@@ -498,7 +510,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
             break;
         case "GUILD_MEMBER_ADD":
         case "GUILD_MEMBER_REMOVE":
-        case "GUILD_MEMBER_UPDATE": // only send them, if the user subscribed for this part of the member list, or is a bot
+        case "GUILD_MEMBER_UPDATE": // current-user updates are always visible; other member events require GUILD_MEMBERS.
+            if (!canDispatchGuildMemberEvent(event, this.user_id, this.intents, data.user?.id)) return;
             break;
         case "PRESENCE_UPDATE": // direct user routes cover friends/DMs; guild routes require an authorized lazy member-list subscription.
             if (!canDispatchGuildPresenceUpdate(this.guild_member_event_ids, guildId, data.user?.id)) return;
