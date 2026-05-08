@@ -60,6 +60,13 @@ describe("gateway intent dispatch filtering", () => {
         assert.equal(canDispatchEventForIntents(new Intents(0), "GUILD_MEMBER_UPDATE", "guild", "current-user", { user: { id: "other-user" } }), false);
     });
 
+    test("requires the guild members intent for thread membership updates", () => {
+        assert.equal(getRequiredIntentForEvent("THREAD_MEMBERS_UPDATE", "guild"), Intents.FLAGS.GUILD_MEMBERS);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "THREAD_MEMBERS_UPDATE", "guild"), false);
+        assert.equal(canDispatchEventForIntents(new Intents(Intents.FLAGS.GUILDS), "THREAD_MEMBERS_UPDATE", "guild"), false);
+        assert.equal(canDispatchEventForIntents(new Intents(Intents.FLAGS.GUILD_MEMBERS), "THREAD_MEMBERS_UPDATE", "guild"), true);
+    });
+
     test("treats unmapped gateway events as passthrough", () => {
         assert.equal(canDispatchEventForIntents(new Intents(0), "USER_UPDATE", undefined), true);
         assert.equal(canDispatchEventForIntents(new Intents(0), "APPLICATION_COMMAND_CREATE", "guild"), true);
