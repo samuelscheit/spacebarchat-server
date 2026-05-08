@@ -13085,7 +13085,7 @@
             "path": "/guilds/:guild_id/widget.json/",
             "samplePath": "/guilds/100000000000000001/widget.json/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.json.ts",
-            "line": 37,
+            "line": 38,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
