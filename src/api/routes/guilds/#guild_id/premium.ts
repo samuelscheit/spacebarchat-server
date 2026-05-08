@@ -21,7 +21,9 @@ import { route } from "@spacebar/api";
 const router = Router({ mergeParams: true });
 
 router.get("/subscriptions", route({}), (req: Request, res: Response) => {
-    // TODO:
+    // Spacebar does not persist Discord premium guild subscription records yet.
+    // Keep this compatibility endpoint empty instead of exposing aggregate guild premium counters
+    // as subscription objects with invented billing semantics.
     res.json([]);
 });
 
