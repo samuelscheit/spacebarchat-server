@@ -19,6 +19,8 @@
 import { Intents } from "@spacebar/util";
 import type { PrivilegedIntentsConfiguration } from "../../util/config/types/GatewayConfiguration";
 
+export const DEFAULT_IDENTIFY_INTENTS = 0b11011111111111111111111111111111111n;
+
 export const APPLICATION_FLAG_GATEWAY_PRESENCE = 1 << 12;
 export const APPLICATION_FLAG_GATEWAY_PRESENCE_LIMITED = 1 << 13;
 export const APPLICATION_FLAG_GATEWAY_GUILD_MEMBERS = 1 << 14;
@@ -47,6 +49,10 @@ export function getConfiguredPrivilegedIntents(configValue: PrivilegedIntentsCon
     if (configValue == null) return new Intents(DEFAULT_CONFIGURED_PRIVILEGED_INTENTS);
 
     return new Intents(configValue);
+}
+
+export function getRequestedIdentifyIntents(requestedIntents: bigint | null | undefined): Intents {
+    return new Intents(requestedIntents ?? DEFAULT_IDENTIFY_INTENTS);
 }
 
 export function getDisallowedPrivilegedIntents(requestedIntents: Intents, configuredPrivilegedIntents: Intents, applicationFlags: number | null | undefined): Intents {

@@ -32,7 +32,6 @@ import {
     getDatabase,
     Guild,
     GuildOrUnavailable,
-    Intents,
     Member,
     MemberPrivateProjection,
     OPCodes,
@@ -70,7 +69,7 @@ import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
-import { getConfiguredPrivilegedIntents, hasDisallowedPrivilegedIntents } from "./IdentifyPrivilegedIntents";
+import { getConfiguredPrivilegedIntents, getRequestedIdentifyIntents, hasDisallowedPrivilegedIntents } from "./IdentifyPrivilegedIntents";
 
 // TODO: user sharding
 
@@ -126,8 +125,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const userQueryTime = taskSw.getElapsedAndReset();
 
     // Check intents
-    if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
-    const requestedIntents = new Intents(identify.intents);
+    const requestedIntents = getRequestedIdentifyIntents(identify.intents); // TODO: what is this default number?
     const configuredPrivilegedIntents = getConfiguredPrivilegedIntents(Config.get().gateway.privilegedIntents);
 
     if (user.bot && requestedIntents.any(configuredPrivilegedIntents)) {

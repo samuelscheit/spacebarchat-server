@@ -8,8 +8,10 @@ import {
     APPLICATION_FLAG_GATEWAY_MESSAGE_CONTENT_LIMITED,
     APPLICATION_FLAG_GATEWAY_PRESENCE,
     APPLICATION_FLAG_GATEWAY_PRESENCE_LIMITED,
+    DEFAULT_IDENTIFY_INTENTS,
     getConfiguredPrivilegedIntents,
     getDisallowedPrivilegedIntents,
+    getRequestedIdentifyIntents,
     hasDisallowedPrivilegedIntents,
 } from "./IdentifyPrivilegedIntents";
 
@@ -20,6 +22,12 @@ describe("IDENTIFY privileged intent validation", () => {
 
         assert.equal(configured.bitfield, 0n);
         assert.equal(hasDisallowedPrivilegedIntents(requested, configured, 0), false);
+    });
+
+    it("preserves an explicit zero intents request instead of applying the default mask", () => {
+        assert.equal(getRequestedIdentifyIntents(0n).bitfield, 0n);
+        assert.equal(getRequestedIdentifyIntents(undefined).bitfield, DEFAULT_IDENTIFY_INTENTS);
+        assert.equal(getRequestedIdentifyIntents(null).bitfield, DEFAULT_IDENTIFY_INTENTS);
     });
 
     it("parses configured privileged intent masks from numbers and strings", () => {
