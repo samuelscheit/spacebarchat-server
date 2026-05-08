@@ -22,7 +22,6 @@ import { route } from "@spacebar/api";
 const router = Router({ mergeParams: true });
 
 router.get("/gifts", route({}), (req: Request, res: Response) => {
-    // TODO:
     res.json([]).status(200);
 });
 
