@@ -22,8 +22,19 @@ type AvailableTag = {
     id: string;
 };
 
-export function assertAppliedTagsExist(appliedTags: readonly string[], availableTags: readonly AvailableTag[]) {
-    const tagIds = new Set(availableTags.map((tag) => tag.id));
+export function assertRequiredAppliedTags(appliedTags: readonly string[] | undefined) {
+    if (appliedTags?.length) return;
+
+    throw FieldErrors({
+        applied_tags: {
+            code: "BASE_TYPE_REQUIRED",
+            message: "This field is required",
+        },
+    });
+}
+
+export function assertAppliedTagsExist(appliedTags: readonly string[], availableTags: readonly AvailableTag[] | undefined) {
+    const tagIds = new Set((availableTags ?? []).map((tag) => tag.id));
     const unknownTag = appliedTags.find((tag) => !tagIds.has(tag));
 
     if (!unknownTag) return;

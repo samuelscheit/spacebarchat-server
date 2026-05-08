@@ -57,7 +57,7 @@ import {
     PRIVATE_ARCHIVED_THREAD_PERMISSIONS,
     serializePrivateArchivedThreadMember,
 } from "../../../util/utility/PrivateArchivedThreads";
-import { assertAppliedTagsExist } from "../../../util/utility/ForumTags";
+import { assertAppliedTagsExist, assertRequiredAppliedTags } from "../../../util/utility/ForumTags";
 
 const router = Router({ mergeParams: true });
 
@@ -94,11 +94,10 @@ router.post(
         });
         if (!body.applied_tags?.length) {
             const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
-            //TODO better error
-            if (required) throw new Error("Tag is required for this API");
-        } else if (channel.available_tags) {
+            if (required) assertRequiredAppliedTags(body.applied_tags);
+        } else {
             assertAppliedTagsExist(body.applied_tags, channel.available_tags);
-            const realTags = new Map(channel.available_tags.map((tag) => [tag.id, tag]));
+            const realTags = new Map((channel.available_tags ?? []).map((tag) => [tag.id, tag]));
             const permsNeeded = body.applied_tags.find((_) => realTags.get(_)?.moderated);
             if (permsNeeded) {
                 req.permission?.hasThrow("MANAGE_THREADS");

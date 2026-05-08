@@ -37,6 +37,7 @@ import {
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
+import { assertAppliedTagsExist } from "../../../util/utility/ForumTags";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
@@ -212,11 +213,8 @@ router.patch(
                     },
                     relations: ["available_tags"],
                 });
-                if (!parent.available_tags) throw new Error("shoot, internetal error");
-                const realTags = new Map(parent.available_tags.map((tag) => [tag.id, tag]));
-                const bad = payload.applied_tags.find((tag) => !realTags.has(tag));
-                //TODO better error
-                if (bad) throw new Error("Invalid tag " + bad);
+                assertAppliedTagsExist(payload.applied_tags, parent.available_tags);
+                const realTags = new Map((parent.available_tags ?? []).map((tag) => [tag.id, tag]));
                 const changed = new Set(channel.applied_tags || []).symmetricDifference(new Set(payload.applied_tags));
                 const permsNeeded = [...changed].find((_) => realTags.get(_)?.moderated);
                 if (permsNeeded) {
