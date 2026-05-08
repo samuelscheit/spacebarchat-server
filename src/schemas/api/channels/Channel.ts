@@ -95,9 +95,10 @@ export function isTextChannel(type: ChannelType): boolean {
         case ChannelType.GUILD_PRIVATE_THREAD:
         case ChannelType.GUILD_TEXT:
             return true;
-        default:
+        default: {
             const exhaustiveCheck: never = type;
             throw new HTTPError(`unimplemented channel type ${exhaustiveCheck}`, 400);
+        }
     }
 }
 
