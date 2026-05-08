@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, MessageFlags, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
 import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -224,7 +224,10 @@ async function coverThreadRoutes(
     const joinedPrivateArchived = await assertJsonObject(await getJson(`${apiBaseUrl}/channels/${textChannelId}/users/@me/threads/archived/private?limit=10`, token));
     assert.ok((joinedPrivateArchived.threads as Array<Record<string, unknown>>).some((thread) => thread.id === privateThreadId));
 
+    const existingMessageFlags = Number(MessageFlags.FLAGS.SUPPRESS_EMBEDS);
+    const expectedMessageThreadFlags = existingMessageFlags | Number(MessageFlags.FLAGS.HAS_THREAD);
     const messageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter", token);
+    await Message.update({ id: messageId }, { flags: existingMessageFlags });
     const beforeMessageThread = markCapturedEvents(events);
     const createMessageThread = await postJson(`${apiBaseUrl}/channels/${textChannelId}/messages/${messageId}/threads`, { name: "scenario-message-thread" }, token);
     await assertStatus(createMessageThread, 200);
@@ -235,15 +238,17 @@ async function coverThreadRoutes(
         beforeMessageThread,
         (event) => event.event === "THREAD_CREATE" && event.channel_id === textChannelId && event.data.id === messageId && event.data.newly_created === true,
     );
-    await waitForEventAfter(
+    const messageUpdate = await waitForEventAfter(
         events,
         beforeMessageThread,
         (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === textChannelId && event.data.id === messageId && event.data.thread.id === messageId,
     );
+    assert.equal(messageUpdate.data.flags, expectedMessageThreadFlags);
     await assertThreadMember(messageId, ownerMember.index);
     const message = await Message.findOneOrFail({ where: { id: messageId }, relations: { thread: true } });
     assert.ok(message.thread);
     assert.equal(message.thread.id, messageId);
+    assert.equal(message.flags, expectedMessageThreadFlags);
 }
 
 async function createForumThread(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string, events: EventCapture) {
