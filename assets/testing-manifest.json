@@ -1780,7 +1780,7 @@
             "method": "POST",
             "path": "/auth/verify/",
             "sourceFile": "src/api/routes/auth/verify/index.ts",
-            "line": 25,
+            "line": 24,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

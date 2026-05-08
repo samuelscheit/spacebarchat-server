@@ -21,7 +21,6 @@ import { Config, EmailActionTokenPurpose, FieldErrors, User, verifyEmailActionTo
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
-// TODO: the response interface also returns settings, but this route doesn't actually return that.
 router.post(
     "/",
     route({
