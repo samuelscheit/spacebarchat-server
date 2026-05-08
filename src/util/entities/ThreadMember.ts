@@ -18,19 +18,19 @@
 
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { ThreadMembersUpdateEvent } from "../interfaces";
-import { emitEvent, ThreadMemberFlags } from "../util";
+import { emitEvent } from "../util/Event";
+import { ThreadMemberFlags } from "../util/ThreadMemberFlags";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
 import { HTTPError } from "lambert-server";
 import { Member } from "./Member";
 
-// TODO: move
 interface ThreadMemberMuteConfig {
     end_time?: Date;
     selected_time_window?: number;
 }
 
-export { ThreadMemberFlags } from "../util/ThreadMemberFlags";
+export { ThreadMemberFlags };
 
 @Entity("thread_members")
 @Index(["id", "member_idx"], { unique: true })
