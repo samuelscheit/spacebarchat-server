@@ -17,7 +17,7 @@
 */
 
 import { HTTPError } from "lambert-server";
-import { Column, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { Column, DataSource, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { DmChannelDTO, getCreateDMChannelResponse, saveGroupDMOwnerAfterRecipientRemoval } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
 import {
@@ -28,6 +28,7 @@ import {
     Permissions,
     Config,
     DiscordApiErrors,
+    deleteFile,
     getDatabase,
     handleFile,
     normalizeChannelName,
@@ -40,6 +41,7 @@ import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
 import { Message } from "./Message";
+import { Attachment } from "./Attachment";
 import { Tag } from "./Tag";
 import { Recipient } from "./Recipient";
 import { User } from "./User";
@@ -53,6 +55,31 @@ import { ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
+
+export type ChannelAttachmentDeleteCandidate = Pick<Attachment, "channel_id" | "message_id" | "filename">;
+
+export function getChannelAttachmentDeletePath(attachment: ChannelAttachmentDeleteCandidate, fallbackChannelId?: string) {
+    const channelId = attachment.channel_id || fallbackChannelId;
+    if (!channelId || !attachment.message_id || !attachment.filename) return undefined;
+    return `/attachments/${channelId}/${attachment.message_id}/${attachment.filename}`;
+}
+
+export async function getChannelAttachmentDeletePaths(channelId: string, database: DataSource | null = getDatabase()) {
+    if (!database) throw new Error("Tried to collect channel attachment CDN paths before the database was initialised");
+
+    const attachments = await database
+        .getRepository(Attachment)
+        .createQueryBuilder("attachment")
+        .leftJoin("attachment.message", "message")
+        .select("attachment.channel_id", "channel_id")
+        .addSelect("attachment.message_id", "message_id")
+        .addSelect("attachment.filename", "filename")
+        .where("attachment.channel_id = :channelId", { channelId })
+        .orWhere("message.channel_id = :channelId", { channelId })
+        .getRawMany<ChannelAttachmentDeleteCandidate>();
+
+    return attachments.map((attachment) => getChannelAttachmentDeletePath(attachment, channelId)).filter((path): path is string => path !== undefined);
+}
 
 @Entity({
     name: "channels",
@@ -605,10 +632,10 @@ export class Channel extends BaseClass {
         } satisfies ChannelRecipientRemoveEvent);
     }
 
-    static async deleteChannel(channel: Channel) {
-        // TODO Delete attachments from the CDN for messages in the channel
-        const database = getDatabase();
+    static async deleteChannel(channel: Channel, database: DataSource | null = getDatabase()) {
         if (!database) throw new Error("Tried to delete a channel before the database was initialised");
+
+        const attachmentDeletePaths = await getChannelAttachmentDeletePaths(channel.id, database);
 
         const updatedGuilds = await database.transaction(async (entityManager) => {
             await entityManager.delete(ReadState, { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL });
@@ -630,7 +657,7 @@ export class Channel extends BaseClass {
             return [];
         });
 
-        await Promise.all(updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild)));
+        await Promise.all([...attachmentDeletePaths.map((path) => deleteFile(path)), ...updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild))]);
     }
 
     static async calculatePosition(channel_id: string, guild_id: string, guild?: Guild) {
