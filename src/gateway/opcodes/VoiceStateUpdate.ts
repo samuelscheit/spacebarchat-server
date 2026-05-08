@@ -108,7 +108,6 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
 
     //TODO the member should only have these properties: hoisted_role, deaf, joined_at, mute, roles, user
     //TODO the member.user should only have these properties: avatar, discriminator, id, username
-    //TODO this may fail
     if (body.guild_id) {
         const member = await Member.findOne({
             where: { id: voiceState.user_id, guild_id: voiceState.guild_id },

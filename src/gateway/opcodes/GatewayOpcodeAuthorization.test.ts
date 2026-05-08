@@ -38,6 +38,7 @@ const state: {
     emittedEvents: unknown[];
     generatedTokens: string[];
     memberFindOneCalls: unknown[];
+    memberFindOneResult: { toPublicMember: () => unknown } | null | undefined;
     permissionError: Error | undefined;
     permissionCalls: { channelId: string; guildId?: string; permission?: unknown; userId: string }[];
     streamDeleteCalls: unknown[];
@@ -54,6 +55,7 @@ const state: {
     emittedEvents: [],
     generatedTokens: [],
     memberFindOneCalls: [],
+    memberFindOneResult: undefined,
     permissionError: undefined,
     permissionCalls: [],
     streamDeleteCalls: [],
@@ -148,6 +150,7 @@ const mockUtil = {
     Member: {
         async findOne(options: unknown) {
             state.memberFindOneCalls.push(options);
+            if (state.memberFindOneResult !== undefined) return state.memberFindOneResult;
             return {
                 toPublicMember() {
                     return { user: { id: "viewer" } };
@@ -304,6 +307,7 @@ beforeEach(() => {
     state.emittedEvents = [];
     state.generatedTokens = [];
     state.memberFindOneCalls = [];
+    state.memberFindOneResult = undefined;
     state.permissionError = undefined;
     state.permissionCalls = [];
     state.streamDeleteCalls = [];
@@ -396,6 +400,81 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.voiceSaves.length, 0);
         assert.equal(state.generatedTokens.length, 0);
         assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("VOICE_STATE_UPDATE loads and emits guild member when available", async () => {
+        const publicMember = { roles: ["role"], user: { id: "viewer" } };
+        state.memberFindOneResult = {
+            toPublicMember() {
+                return publicMember;
+            },
+        };
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "voice",
+                guild_id: "guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        assert.deepEqual(state.memberFindOneCalls, [
+            {
+                where: { id: "viewer", guild_id: "guild" },
+                relations: { user: true, roles: true },
+            },
+        ]);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal(state.emittedEvents.length, 2);
+        assert.deepEqual(state.emittedEvents[0], {
+            event: "VOICE_STATE_UPDATE",
+            data: {
+                channel_id: "voice",
+                guild_id: "guild",
+                member: publicMember,
+                session_id: "session",
+                user_id: "viewer",
+            },
+            guild_id: "guild",
+            channel_id: "voice",
+            user_id: "viewer",
+        });
+    });
+
+    test("VOICE_STATE_UPDATE continues without member when guild member lookup misses", async () => {
+        state.memberFindOneResult = null;
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "voice",
+                guild_id: "guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        assert.deepEqual(state.memberFindOneCalls, [
+            {
+                where: { id: "viewer", guild_id: "guild" },
+                relations: { user: true, roles: true },
+            },
+        ]);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal(state.emittedEvents.length, 2);
+        assert.deepEqual(state.emittedEvents[0], {
+            event: "VOICE_STATE_UPDATE",
+            data: {
+                channel_id: "voice",
+                guild_id: "guild",
+                member: undefined,
+                session_id: "session",
+                user_id: "viewer",
+            },
+            guild_id: "guild",
+            channel_id: "voice",
+            user_id: "viewer",
+        });
     });
 
     test("STREAM_CREATE checks STREAM and current voice channel before creating stream state", async () => {
