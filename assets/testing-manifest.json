@@ -10180,7 +10180,9 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
-                "responseStatuses": [],
+                "responseStatuses": [
+                    204
+                ],
                 "hasQuery": false
             },
             "coverage": {
