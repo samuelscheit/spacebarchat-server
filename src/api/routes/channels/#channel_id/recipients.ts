@@ -23,9 +23,54 @@ import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-export function assertCanAddGroupDmRecipient(channel: { recipients?: Pick<Recipient, "user_id">[] }, user_id: string) {
+export async function loadAddableGroupDmRecipient(channel: { recipients?: Pick<Recipient, "user_id">[] }, user_id: string) {
     if (channel.recipients?.some((recipient) => recipient.user_id === user_id)) {
         throw DiscordApiErrors.INVALID_RECIPIENT;
+    }
+
+    const user = await User.findOne({
+        where: { id: user_id },
+        select: PublicUserProjection,
+    });
+    if (!user) throw DiscordApiErrors.INVALID_RECIPIENT;
+
+    return user;
+}
+
+export async function putChannelRecipient(req: Request, res: Response) {
+    const { channel_id, user_id } = req.params as { [key: string]: string };
+    const channel = await Channel.findOneOrFail({
+        where: { id: channel_id },
+        relations: { recipients: true },
+    });
+
+    if (channel.type !== ChannelType.GROUP_DM) {
+        const recipients = [...new Set([...(channel.recipients?.map((r) => r.user_id) || []), user_id])];
+
+        const new_channel = await Channel.createDMChannel(recipients, req.user_id);
+        return res.status(201).json(new_channel);
+    } else {
+        const user = await loadAddableGroupDmRecipient(channel, user_id);
+
+        channel.recipients?.push(Recipient.create({ channel_id: channel_id, user_id: user_id }));
+        await channel.save();
+
+        const channel_dto = await DmChannelDTO.from(channel);
+        await emitEvent({
+            event: "CHANNEL_CREATE",
+            data: channel_dto.forRecipient(user_id),
+            user_id: user_id,
+        });
+
+        await emitEvent({
+            event: "CHANNEL_RECIPIENT_ADD",
+            data: {
+                channel_id: channel_id,
+                user: user.toPublicUser(),
+            },
+            channel_id: channel_id,
+        } satisfies ChannelRecipientAddEvent);
+        return res.sendStatus(204);
     }
 }
 
@@ -37,47 +82,7 @@ router.put(
             404: {},
         },
     }),
-    async (req: Request, res: Response) => {
-        const { channel_id, user_id } = req.params as { [key: string]: string };
-        const channel = await Channel.findOneOrFail({
-            where: { id: channel_id },
-            relations: { recipients: true },
-        });
-
-        if (channel.type !== ChannelType.GROUP_DM) {
-            const recipients = [...new Set([...(channel.recipients?.map((r) => r.user_id) || []), user_id])];
-
-            const new_channel = await Channel.createDMChannel(recipients, req.user_id);
-            return res.status(201).json(new_channel);
-        } else {
-            assertCanAddGroupDmRecipient(channel, user_id);
-
-            channel.recipients?.push(Recipient.create({ channel_id: channel_id, user_id: user_id }));
-            await channel.save();
-
-            const channel_dto = await DmChannelDTO.from(channel);
-            await emitEvent({
-                event: "CHANNEL_CREATE",
-                data: channel_dto.forRecipient(user_id),
-                user_id: user_id,
-            });
-
-            await emitEvent({
-                event: "CHANNEL_RECIPIENT_ADD",
-                data: {
-                    channel_id: channel_id,
-                    user: (
-                        await User.findOneOrFail({
-                            where: { id: user_id },
-                            select: PublicUserProjection,
-                        })
-                    ).toPublicUser(),
-                },
-                channel_id: channel_id,
-            } satisfies ChannelRecipientAddEvent);
-            return res.sendStatus(204);
-        }
-    },
+    putChannelRecipient,
 );
 
 router.delete(

@@ -3,14 +3,27 @@ import { describe, test } from "node:test";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
-describe("group DM recipient route guards", () => {
-    test("rejects adding an existing group DM recipient as invalid", async () => {
-        const { assertCanAddGroupDmRecipient } = await import("./recipients.js");
-        const { DiscordApiErrors } = await import("../../../../util/index.js");
+const GROUP_DM_CHANNEL_TYPE = 3;
 
-        assert.throws(
+describe("group DM recipient route guards", () => {
+    test("rejects adding an existing group DM recipient as invalid before lookup", async (t) => {
+        const { loadAddableGroupDmRecipient } = await import("./recipients.js");
+        const { DiscordApiErrors, User } = await import("../../../../util/index.js");
+        const originalFindOne = User.findOne;
+        let userLookups = 0;
+
+        t.after(() => {
+            User.findOne = originalFindOne;
+        });
+
+        User.findOne = (async () => {
+            userLookups++;
+            return { toPublicUser: () => ({ id: "existing-user" }) };
+        }) as typeof User.findOne;
+
+        await assert.rejects(
             () =>
-                assertCanAddGroupDmRecipient(
+                loadAddableGroupDmRecipient(
                     {
                         recipients: [{ user_id: "existing-user" }],
                     },
@@ -18,18 +31,79 @@ describe("group DM recipient route guards", () => {
                 ),
             (error) => error === DiscordApiErrors.INVALID_RECIPIENT,
         );
+        assert.equal(userLookups, 0);
     });
 
-    test("allows adding a user who is not already in the group DM", async () => {
-        const { assertCanAddGroupDmRecipient } = await import("./recipients.js");
+    test("rejects adding an unknown group DM recipient before persistence", async (t) => {
+        const { putChannelRecipient } = await import("./recipients.js");
+        const { Channel, DiscordApiErrors, Recipient, User } = await import("../../../../util/index.js");
+        const originalFindOneOrFail = Channel.findOneOrFail;
+        const originalFindOne = User.findOne;
+        const originalCreate = Recipient.create;
+        let saved = false;
+        let createdRecipient = false;
+        const channel = {
+            type: GROUP_DM_CHANNEL_TYPE,
+            recipients: [{ user_id: "existing-user" }],
+            save: async function () {
+                saved = true;
+                return this;
+            },
+        };
 
-        assert.doesNotThrow(() =>
-            assertCanAddGroupDmRecipient(
-                {
-                    recipients: [{ user_id: "existing-user" }],
-                },
-                "new-user",
-            ),
+        t.after(() => {
+            Channel.findOneOrFail = originalFindOneOrFail;
+            User.findOne = originalFindOne;
+            Recipient.create = originalCreate;
+        });
+
+        Channel.findOneOrFail = (async () => channel) as typeof Channel.findOneOrFail;
+        User.findOne = (async () => null) as typeof User.findOne;
+        Recipient.create = ((recipient: unknown) => {
+            createdRecipient = true;
+            return recipient;
+        }) as typeof Recipient.create;
+
+        await assert.rejects(
+            () =>
+                putChannelRecipient(
+                    {
+                        params: {
+                            channel_id: "group-dm",
+                            user_id: "missing-user",
+                        },
+                        user_id: "owner",
+                    } as never,
+                    {} as never,
+                ),
+            (error) => error === DiscordApiErrors.INVALID_RECIPIENT,
         );
+        assert.equal(saved, false);
+        assert.equal(createdRecipient, false);
+        assert.deepEqual(channel.recipients, [{ user_id: "existing-user" }]);
+    });
+
+    test("allows adding a user who exists and is not already in the group DM", async (t) => {
+        const { loadAddableGroupDmRecipient } = await import("./recipients.js");
+        const { User } = await import("../../../../util/index.js");
+        const originalFindOne = User.findOne;
+        const loadedUser = {
+            toPublicUser: () => ({ id: "new-user" }),
+        };
+
+        t.after(() => {
+            User.findOne = originalFindOne;
+        });
+
+        User.findOne = (async () => loadedUser) as typeof User.findOne;
+
+        const user = await loadAddableGroupDmRecipient(
+            {
+                recipients: [{ user_id: "existing-user" }],
+            },
+            "new-user",
+        );
+
+        assert.equal(user, loadedUser);
     });
 });
