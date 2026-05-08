@@ -23,6 +23,7 @@ const coveredManifestIds = [
     "api:http:GET:/channels/:channel_id/threads/archived/public/",
     "api:http:GET:/channels/:channel_id/threads/search",
     "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
+    "api:http:PATCH:/channels/:channel_id/",
     "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
     "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
     "api:http:POST:/channels/:channel_id/tags/",
@@ -51,6 +52,7 @@ test(
             "api:http:GET:/channels/:channel_id/threads/archived/public/",
             "api:http:GET:/channels/:channel_id/threads/search",
             "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
+            "api:http:PATCH:/channels/:channel_id/",
             "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
             "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
             "api:http:POST:/channels/:channel_id/tags/",
@@ -206,6 +208,8 @@ async function coverThreadRoutes(
     await coverThreadSearch(apiBaseUrl, forumChannelId, publicThreadId, tagId, token);
     const publicThreadEvents = await captureEvents([publicThreadId, ownerId]);
     try {
+        await assertThreadChannelPatchValidation(apiBaseUrl, publicThreadId, token, publicThreadEvents);
+        await assertThreadPermissionOverwriteRouteValidation(apiBaseUrl, publicThreadId, guildId, token, publicThreadEvents);
         await coverThreadMemberRoutes(apiBaseUrl, publicThreadId, ownerMember.index, joinedMember.index, memberId, token, publicThreadEvents);
     } finally {
         await publicThreadEvents.stop();
@@ -299,6 +303,63 @@ async function coverThreadSearch(apiBaseUrl: string, forumChannelId: string, thr
     assert.equal(search.total_results, 1);
     assert.equal((search.threads as Array<Record<string, unknown>>)[0].id, threadId);
     assert.equal((search.first_messages as Array<Record<string, unknown>>)[0].id, threadId);
+}
+
+async function assertThreadChannelPatchValidation(apiBaseUrl: string, threadId: string, token: string, events: EventCapture) {
+    const before = await Channel.findOneByOrFail({ id: threadId });
+    const previousEvents = markCapturedEvents(events);
+    const patch = await patchJson(
+        `${apiBaseUrl}/channels/${threadId}`,
+        {
+            permission_overwrites: [],
+            position: 0,
+            applied_tags: ["unknown-tag"],
+        },
+        token,
+    );
+
+    await assertStatus(patch, 400);
+    const body = await assertJsonObject(patch);
+    assert.equal(body.code, 50035);
+    assert.equal(body.message, "Invalid Form Body");
+    assertFieldError(body, "permission_overwrites", "Threads cannot update permission_overwrites");
+    assertFieldError(body, "position", "Threads cannot update position");
+    assertFieldError(body, "applied_tags", "Invalid tag unknown-tag");
+
+    const after = await Channel.findOneByOrFail({ id: threadId });
+    assert.deepEqual(after.permission_overwrites ?? [], before.permission_overwrites ?? []);
+    assert.deepEqual(after.applied_tags ?? [], before.applied_tags ?? []);
+    assert.equal(after.position, before.position);
+    assertNoChannelUpdateEventAfter(events, previousEvents, threadId);
+}
+
+async function assertThreadPermissionOverwriteRouteValidation(apiBaseUrl: string, threadId: string, guildId: string, token: string, events: EventCapture) {
+    const before = await Channel.findOneByOrFail({ id: threadId });
+
+    let previousEvents = markCapturedEvents(events);
+    const putResponse = await putJson(
+        `${apiBaseUrl}/channels/${threadId}/permissions/${guildId}`,
+        { id: guildId, type: ChannelPermissionOverwriteType.role, allow: "1024", deny: "2048" },
+        token,
+    );
+    await assertThreadPermissionOverwriteResponse(putResponse);
+    assertNoChannelUpdateEventAfter(events, previousEvents, threadId);
+
+    previousEvents = markCapturedEvents(events);
+    const deleteResponse = await deleteJson(`${apiBaseUrl}/channels/${threadId}/permissions/${guildId}`, token);
+    await assertThreadPermissionOverwriteResponse(deleteResponse);
+    assertNoChannelUpdateEventAfter(events, previousEvents, threadId);
+
+    const after = await Channel.findOneByOrFail({ id: threadId });
+    assert.deepEqual(after.permission_overwrites ?? [], before.permission_overwrites ?? []);
+}
+
+async function assertThreadPermissionOverwriteResponse(response: Response) {
+    await assertStatus(response, 400);
+    const body = await assertJsonObject(response);
+    assert.equal(body.code, 50035);
+    assert.equal(body.message, "Invalid Form Body");
+    assertFieldError(body, "permission_overwrites", "Threads cannot update permission_overwrites");
 }
 
 async function coverThreadMemberRoutes(
@@ -420,6 +481,20 @@ function hasOverwrite(overwrites: unknown, overwriteId: string) {
 
 function hasTag(tags: unknown, tagId: string, name: string) {
     return Array.isArray(tags) && tags.some((tag) => tag.id === tagId && tag.name === name);
+}
+
+function assertFieldError(body: Record<string, unknown>, field: string, message: string) {
+    const errors = body.errors as Record<string, { _errors?: Array<{ code?: string; message?: string }> }> | undefined;
+    const fieldError = errors?.[field]?._errors?.[0];
+    assert.equal(fieldError?.code, "BASE_TYPE_BAD_VALUE");
+    assert.equal(fieldError?.message, message);
+}
+
+function assertNoChannelUpdateEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, channelId: string) {
+    assert.equal(
+        capture.events.some((event) => !previousEvents.has(event) && event.event === "CHANNEL_UPDATE" && event.channel_id === channelId),
+        false,
+    );
 }
 
 function markCapturedEvents(capture: EventCapture) {

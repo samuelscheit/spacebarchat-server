@@ -5024,7 +5024,7 @@
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "samplePath": "/channels/100000000000000002/permissions/value",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 84,
+            "line": 86,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5038,8 +5038,8 @@
                 "line": 207
             },
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": [204, 404],
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 400, 404],
                 "permission": "MANAGE_ROLES",
                 "emittedEvents": ["CHANNEL_UPDATE"]
             },
@@ -5098,7 +5098,7 @@
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "samplePath": "/channels/100000000000000002/permissions/value",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 29,
+            "line": 30,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

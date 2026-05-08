@@ -16,12 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, ChannelUpdateEvent, emitEvent, Member, Role } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, emitEvent, FieldError, Member, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
 import { route } from "@spacebar/api";
 import { ChannelPermissionOverwriteSchema, ChannelPermissionOverwrite, ChannelPermissionOverwriteType } from "@spacebar/schemas";
+import { createThreadPermissionOverwriteFieldErrors } from "../../../util/ChannelModifyThreadValidation";
 const router: Router = Router({ mergeParams: true });
 
 // TODO: Only permissions your bot has in the guild or channel can be allowed/denied (unless your bot has a MANAGE_ROLES overwrite in the channel)
@@ -46,6 +47,7 @@ router.put(
             where: { id: channel_id },
         });
         if (!channel.guild_id) throw new HTTPError("Channel not found", 404);
+        assertCanModifyPermissionOverwrites(channel);
         channel.position = await Channel.calculatePosition(channel_id, channel.guild_id, channel.guild);
 
         if (body.type === ChannelPermissionOverwriteType.role) {
@@ -81,13 +83,14 @@ router.put(
 );
 
 // TODO: check permission hierarchy
-router.delete("/:overwrite_id", route({ permission: "MANAGE_ROLES", responses: { 204: {}, 404: {} } }), async (req: Request, res: Response) => {
+router.delete("/:overwrite_id", route({ permission: "MANAGE_ROLES", responses: { 204: {}, 404: {}, 400: { body: "APIErrorResponse" } } }), async (req: Request, res: Response) => {
     const { channel_id, overwrite_id } = req.params as { [key: string]: string };
 
     const channel = await Channel.findOneOrFail({
         where: { id: channel_id },
     });
     if (!channel.guild_id) throw new HTTPError("Channel not found", 404);
+    assertCanModifyPermissionOverwrites(channel);
 
     channel.permission_overwrites = channel.permission_overwrites?.filter((x) => x.id !== overwrite_id);
 
@@ -102,5 +105,11 @@ router.delete("/:overwrite_id", route({ permission: "MANAGE_ROLES", responses: {
 
     return res.sendStatus(204);
 });
+
+function assertCanModifyPermissionOverwrites(channel: Channel) {
+    if (!channel.isThread()) return;
+
+    throw new FieldError(50035, "Invalid Form Body", createThreadPermissionOverwriteFieldErrors());
+}
 
 export default router;

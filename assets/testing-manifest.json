@@ -3811,14 +3811,17 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 84,
+            "line": 86,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "MANAGE_ROLES",
-                "responseBodies": [],
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
                 "responseStatuses": [
                     204,
+                    400,
                     404
                 ],
                 "hasQuery": false,
@@ -3861,7 +3864,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 29,
+            "line": 30,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

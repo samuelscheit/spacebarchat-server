@@ -36,7 +36,7 @@ import {
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
-import { addThreadChannelModifyFieldErrors } from "../../../util/ChannelModifyThreadValidation";
+import { addThreadChannelModifyFieldErrors, validateThreadAppliedTags } from "../../../util/ChannelModifyThreadValidation";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
@@ -176,12 +176,6 @@ router.patch(
         });
         const isThread = channel.isThread();
 
-        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
-            throw new FieldError(400, "Invalid form body", {
-                status: makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels"),
-            });
-        }
-
         if (isThread) {
             if (channel.owner_id !== req.user.id) {
                 req.permission!.hasThrow("MANAGE_THREADS");
@@ -190,46 +184,14 @@ router.patch(
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
 
-        if (payload.available_tags) {
-            if (channel.isForum() && channel.available_tags) {
-                //TODO maybe error if this fails, and maybe handle creating tags?
-                const filter = new Set(payload.available_tags.map(({ id }) => id));
-                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
-                tags.forEach((_) => _.remove());
-                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
-            }
-        }
-
-        if (payload.applied_tags) {
-            if (channel.isThread()) {
-                const parent = await Channel.findOneOrFail({
-                    where: {
-                        id: channel.parent_id as string,
-                    },
-                    relations: ["available_tags"],
-                });
-                if (!parent.available_tags) throw new Error("shoot, internetal error");
-                const realTags = new Map(parent.available_tags.map((tag) => [tag.id, tag]));
-                const bad = payload.applied_tags.find((tag) => !realTags.has(tag));
-                //TODO better error
-                if (bad) throw new Error("Invalid tag " + bad);
-                const changed = new Set(channel.applied_tags || []).symmetricDifference(new Set(payload.applied_tags));
-                const permsNeeded = [...changed].find((_) => realTags.get(_)?.moderated);
-                if (permsNeeded) {
-                    req.permission?.hasThrow("MANAGE_THREADS");
-                }
-                channel.applied_tags = payload.applied_tags;
-            } else {
-                //TODO maybe error instead?
-                payload.applied_tags = undefined;
-            }
-        }
-
-        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
-
         const channelLimits = Config.get().limits.channel;
-
         const errors: ErrorList = {};
+        let appliedTagsRequireManageThreads = false;
+
+        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
+            errors["status"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels");
+        }
+
         let allowUnnamedChannels = false;
         if (payload.name !== undefined && channel.guild_id) {
             const guild = await Guild.findOneOrFail({
@@ -262,9 +224,41 @@ router.patch(
         }
         addThreadChannelModifyFieldErrors(errors, payload, isThread);
 
+        if (payload.applied_tags !== undefined) {
+            if (isThread) {
+                const parent = await Channel.findOneOrFail({
+                    where: {
+                        id: channel.parent_id as string,
+                    },
+                    relations: ["available_tags"],
+                });
+                const appliedTagsValidation = validateThreadAppliedTags(errors, payload.applied_tags, channel.applied_tags, parent.available_tags);
+                appliedTagsRequireManageThreads = appliedTagsValidation.requiresManageThreads;
+            } else {
+                //TODO maybe error instead?
+                payload.applied_tags = undefined;
+            }
+        }
+
         if (Object.keys(errors).length) {
             throw new FieldError(50035, "Invalid Form Body", errors);
         }
+
+        if (appliedTagsRequireManageThreads) {
+            req.permission?.hasThrow("MANAGE_THREADS");
+        }
+
+        if (payload.available_tags) {
+            if (channel.isForum() && channel.available_tags) {
+                //TODO maybe error if this fails, and maybe handle creating tags?
+                const filter = new Set(payload.available_tags.map(({ id }) => id));
+                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
+                await Promise.all(tags.map((tag) => tag.remove()));
+                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
+            }
+        }
+
+        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
 
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);

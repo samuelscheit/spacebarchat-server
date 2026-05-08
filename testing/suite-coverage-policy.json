@@ -85,6 +85,7 @@
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
                     "testFiles": [
+                        "test/scenarios/channel-modify-thread-validation.test.ts",
                         "test/scenarios/channels-final-supplemental.test.ts",
                         "test/scenarios/channels-messages.test.ts",
                         "test/scenarios/channels-supplemental.test.ts",
