@@ -29,6 +29,7 @@ test("UserProfileResponse schema matches route-owned profile fields", () => {
     assert.equal(response.required?.includes("mutual_guilds"), false);
     assert.equal(properties?.mutual_friends?.type, "array");
     assert.equal(properties?.mutual_friends_count?.type, "integer");
+    assert.deepEqual(properties?.premium_guild_since?.type, ["null", "integer"]);
 
     const connectedAccountProperties = schemas.PartialConnectedAccountResponse.properties;
     assert.deepEqual(Object.keys(connectedAccountProperties ?? {}).sort(), ["id", "metadata", "name", "type", "verified"]);
@@ -54,6 +55,7 @@ test("UserProfileResponse validates visible connected accounts and optional quer
                 metadata: { verified_at: "2026-05-06T00:00:00.000Z" },
             },
         ],
+        premium_guild_since: null,
         premium_since: null,
         user: {
             id: "100",
@@ -85,6 +87,8 @@ test("UserProfileResponse validates visible connected accounts and optional quer
     };
 
     assert.equal(ajv.validate("UserProfileResponse", response), true);
+    assert.equal(ajv.validate("UserProfileResponse", { ...response, premium_guild_since: 1000 }), true);
+    assert.equal(ajv.validate("UserProfileResponse", { ...response, premium_guild_since: {} }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: response.connected_accounts[0] }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: [{ ...response.connected_accounts[0], metadata: null }] }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, guild_member: { user: response.user } }), false);

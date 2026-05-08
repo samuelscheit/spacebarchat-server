@@ -40,6 +40,15 @@ export interface PremiumGuildMembershipSource {
     premium_since?: number | null;
 }
 
+export interface ProfileMembershipSource extends PremiumGuildMembershipSource {
+    guild_id: string;
+    nick?: string | null;
+}
+
+export interface SelfProfileMembershipSource {
+    guild_id: string;
+}
+
 export function earliestPremiumGuildSince(members: PremiumGuildMembershipSource[]): UserProfileResponse["premium_guild_since"] {
     let earliest: number | null = null;
 
@@ -51,6 +60,17 @@ export function earliestPremiumGuildSince(members: PremiumGuildMembershipSource[
     }
 
     return earliest;
+}
+
+export function toMutualGuildResponses(requestedMembers: ProfileMembershipSource[], selfMembers: SelfProfileMembershipSource[]): NonNullable<UserProfileResponse["mutual_guilds"]> {
+    const selfGuildIds = new Set(selfMembers.map((member) => member.guild_id));
+
+    return requestedMembers
+        .filter((member) => selfGuildIds.has(member.guild_id))
+        .map((member) => ({
+            id: member.guild_id,
+            nick: member.nick,
+        }));
 }
 
 export function toPartialConnectedAccountResponse(source: VisibleConnectedAccountSource): PartialConnectedAccountResponse {

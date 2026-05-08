@@ -18,7 +18,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { earliestPremiumGuildSince, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "./userProfileResponse";
+import { earliestPremiumGuildSince, toMutualGuildResponses, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "./userProfileResponse";
 
 test("toPartialConnectedAccountResponse only exposes visible non-null metadata", () => {
     assert.deepEqual(
@@ -112,4 +112,27 @@ test("earliestPremiumGuildSince returns null when no membership is boosting", ()
 
 test("earliestPremiumGuildSince returns the earliest boost timestamp", () => {
     assert.equal(earliestPremiumGuildSince([{ premium_since: 3000 }, { premium_since: null }, { premium_since: 1000 }, { premium_since: 2000 }]), 1000);
+});
+
+test("profile premium guild timestamp is independent of mutual guild requests", () => {
+    const requestedMembers = [
+        { guild_id: "guild-a", nick: "alpha", premium_since: 3000 },
+        { guild_id: "guild-b", nick: null, premium_since: 1000 },
+    ];
+
+    assert.equal(earliestPremiumGuildSince(requestedMembers), 1000);
+    assert.deepEqual(toMutualGuildResponses(requestedMembers, []), []);
+});
+
+test("toMutualGuildResponses returns only shared requested memberships", () => {
+    assert.deepEqual(
+        toMutualGuildResponses(
+            [
+                { guild_id: "guild-a", nick: "alpha", premium_since: null },
+                { guild_id: "guild-b", nick: null, premium_since: 1000 },
+            ],
+            [{ guild_id: "guild-b" }, { guild_id: "guild-c" }],
+        ),
+        [{ id: "guild-b", nick: null }],
+    );
 });

@@ -30,7 +30,7 @@ import {
     UserProfileModifySchema,
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
-import { earliestPremiumGuildSince, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
+import { earliestPremiumGuildSince, toMutualGuildResponses, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -72,24 +72,17 @@ router.get(
         const mutual_guilds: NonNullable<UserProfileResponse["mutual_guilds"]> = [];
         const requested_member = await Member.find({
             where: { id: user_id },
+            select: { guild_id: true, nick: true, premium_since: true },
         });
         const premium_guild_since = earliestPremiumGuildSince(requested_member);
 
         if (with_mutual_guilds == "true") {
             const self_member = await Member.find({
                 where: { id: req.user_id },
+                select: { guild_id: true },
             });
 
-            for (const rmem of requested_member) {
-                for (const smem of self_member) {
-                    if (smem.guild_id === rmem.guild_id) {
-                        mutual_guilds.push({
-                            id: rmem.guild_id,
-                            nick: rmem.nick,
-                        });
-                    }
-                }
-            }
+            mutual_guilds.push(...toMutualGuildResponses(requested_member, self_member));
         }
 
         const guild_member = await getProfileGuildMember(req.user_id, user_id, guildId);

@@ -22,6 +22,7 @@ import { Ban, Channel, PublicGuildRelations, StageInstance } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { type Event, GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
 import { Config, emitEvent, DiscordApiErrors } from "../util";
+import { bigintNumberTransformer } from "../util/DatabaseTransformers";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
@@ -80,7 +81,7 @@ export class Member extends BaseClassWithoutId {
     @Column()
     joined_at: Date;
 
-    @Column({ type: "bigint", nullable: true })
+    @Column({ type: "bigint", nullable: true, transformer: bigintNumberTransformer })
     premium_since?: number;
 
     @Column()
