@@ -111,19 +111,41 @@ function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], er
         }
     }
 }
-async function processMedia(media: UnfurledMediaItem, messageId: string, batchId: string, user: User, channel: Channel, id: string): Promise<(() => void) | void> {
+type ComponentMediaAttachmentAccess = {
+    cloudAttachmentLookupChannelId: string;
+    cloudAttachmentAllowedChannelIds: string[];
+    expectedUserId?: string;
+};
+
+function getComponentCloudAttachmentUploadFilename(url: URL): string {
+    return decodeURIComponent(`${url.hostname}${url.pathname}`.replace(/^\/+/, ""));
+}
+
+async function processMedia(
+    media: UnfurledMediaItem,
+    messageId: string,
+    batchId: string,
+    user: User,
+    channel: Channel,
+    id: string,
+    attachmentAccess: ComponentMediaAttachmentAccess,
+): Promise<(() => void) | void> {
     if (Object.keys(media).length > 1) throw new HTTPError("Extra keys for media items are not allowed");
     if (!URL.canParse(media.url)) throw new HTTPError("media URL must be a URI");
     const url = new URL(media.url);
     if (!["http:", "https:", "attachment:"].includes(url.protocol)) throw new HTTPError("invalid media protocol");
     let attEnt: CloudAttachment;
     let delWhenDone = false;
-    if (url.protocol === "attachment") {
-        attEnt = await CloudAttachment.findOneOrFail({
-            where: {
-                uploadFilename: url.hostname,
+    if (url.protocol === "attachment:") {
+        attEnt = await findCloudAttachmentForChannel(
+            {
+                findOne: (options) => CloudAttachment.findOne(options),
             },
-        });
+            getComponentCloudAttachmentUploadFilename(url),
+            attachmentAccess.cloudAttachmentLookupChannelId,
+        );
+        const accessError = getCloudAttachmentAccessError(attEnt, attachmentAccess.cloudAttachmentAllowedChannelIds, attachmentAccess.expectedUserId);
+        if (accessError) throw new HTTPError(accessError.message, accessError.status);
     } else {
         const res = await fetch(url);
         if (!res.ok) throw new HTTPError("URL did not return OK");
@@ -280,9 +302,14 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         throw FieldErrors(errors);
     }
     const medias = collectMessageComponentMedia(components);
-    return async (messageId: string, user: User, channel: Channel) => {
+    return async (messageId: string, user: User, channel: Channel, attachmentAccess?: Partial<ComponentMediaAttachmentAccess>) => {
         const batchId = `CLOUD_compUploads_${randomString(128)}`;
-        (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
+        const resolvedAttachmentAccess: ComponentMediaAttachmentAccess = {
+            cloudAttachmentLookupChannelId: attachmentAccess?.cloudAttachmentLookupChannelId ?? channel.id,
+            cloudAttachmentAllowedChannelIds: attachmentAccess?.cloudAttachmentAllowedChannelIds ?? [attachmentAccess?.cloudAttachmentLookupChannelId ?? channel.id],
+            expectedUserId: attachmentAccess?.expectedUserId,
+        };
+        (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "", resolvedAttachmentAccess)))).forEach((_) => _?.());
     };
 }
 export function isMessageEditOperation(opts: Pick<MessageOptions, "is_edit">): boolean {
@@ -362,8 +389,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         channel.last_message_id = message.id;
         await channel.save();
     }
-
-    // TODO: Removed cloud attachment handling being inline - handle components!
 
     if (message.content && message.content.length > conf.limits.message.maxCharacters) {
         throw new HTTPError("Content length over max character limit");
@@ -471,6 +496,16 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 			 otherwise backfilling won't work **/
             if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
         }
+    }
+
+    if (handle) {
+        if (!message.author) throw new HTTPError("Message author is required to process component media", 500);
+        const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(message.channel_id!, opts.cloud_attachment_upload_channel_id);
+        await handle(message.id, message.author, channel, {
+            cloudAttachmentLookupChannelId,
+            cloudAttachmentAllowedChannelIds: opts.attachment_channel_ids ?? [cloudAttachmentLookupChannelId],
+            expectedUserId: opts.attachment_user_id,
+        });
     }
 
     // TODO: stickers/activity
