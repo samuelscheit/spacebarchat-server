@@ -29,7 +29,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 
     const members = await Member.find({
         order: { id: "ASC" },
-        select: { id: true },
+        select: { id: true, index: true },
         take: MAX_ROLE_MEMBER_IDS,
         where: {
             roles: {

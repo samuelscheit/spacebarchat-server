@@ -106,10 +106,17 @@ test(
                 email: `role-member-${suffix}@example.com`,
                 password: "not-a-real-login-hash",
             });
+            const outsider = await User.register({
+                username: `roleoutsider${suffix.slice(-8)}`,
+                email: `role-outsider-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
             const ownerToken = await generateToken(owner.id);
             const memberToken = await generateToken(member.id);
+            const outsiderToken = await generateToken(outsider.id);
             assert.ok(ownerToken, "owner token generation should return a bearer token");
             assert.ok(memberToken, "member token generation should return a bearer token");
+            assert.ok(outsiderToken, "outsider token generation should return a bearer token");
 
             const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `roles-${suffix.slice(-8)}` }, ownerToken);
             await assertStatus(createdGuild, 201);
@@ -169,6 +176,9 @@ test(
             const fetchedRoleBody = await assertJsonObject(fetchedRole);
             assert.equal(fetchedRoleBody.id, roleId);
             assert.equal(fetchedRoleBody.name, "scenario-role");
+
+            const outsiderRoleMembers = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}/member-ids`, outsiderToken);
+            await assertStatus(outsiderRoleMembers, 403);
 
             const updateRole = await patchJson(
                 `${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`,
@@ -289,6 +299,29 @@ test(
             assert.equal(await Member.countBy({ guild_id: guildId, id: member.id }), 0);
             assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
 
+            const capRole = await Role.save(
+                Role.create({
+                    guild_id: guildId,
+                    color: 0,
+                    hoist: false,
+                    managed: false,
+                    mentionable: false,
+                    name: "cap-role",
+                    permissions: "0",
+                    position: 4,
+                    flags: 0,
+                    colors: { primary_color: 0, secondary_color: undefined, tertiary_color: undefined },
+                }),
+            );
+            const capMemberIds = await createRoleMemberIdFixtures(guildId, capRole, 105, suffix);
+            const cappedRoleMembers = (await getJsonArray(
+                `${api.apiBaseUrl}/guilds/${guildId}/roles/${capRole.id}/member-ids?limit=500&after=0`,
+                ownerToken,
+            )) as unknown as string[];
+            assert.equal(cappedRoleMembers.length, 100);
+            assert.deepEqual(cappedRoleMembers, [...cappedRoleMembers].sort());
+            assert.ok(cappedRoleMembers.every((id) => capMemberIds.includes(id)));
+
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`, ownerToken), 204);
             const roleDeleteEvent = await events.waitFor((event) => event.event === "GUILD_ROLE_DELETE" && event.guild_id === guildId && event.data.role_id === roleId);
             assert.equal(roleDeleteEvent.data.guild_id, guildId);
@@ -378,6 +411,39 @@ async function memberRoleIds(userId: string, guildId: string) {
         relations: { roles: true },
     });
     return member.roles.map((role) => role.id).sort();
+}
+
+async function createRoleMemberIdFixtures(guildId: string, role: Role, count: number, suffix: string) {
+    const users = await Promise.all(
+        Array.from({ length: count }, async (_, index) =>
+            User.register({
+                username: `capmember${suffix.slice(-8)}${index}`,
+                password: "not-a-real-login-hash",
+                emitSideEffects: false,
+            }),
+        ),
+    );
+
+    await Member.save(
+        users.map((user) =>
+            Member.create({
+                id: user.id,
+                user,
+                guild_id: guildId,
+                roles: [Role.create({ id: role.id })],
+                joined_at: new Date(),
+                deaf: false,
+                mute: false,
+                pending: false,
+                settings: {},
+                bio: "",
+                communication_disabled_until: null,
+                flags: 0,
+            }),
+        ),
+    );
+
+    return users.map((user) => user.id);
 }
 
 function markCapturedEvents(capture: EventCapture) {

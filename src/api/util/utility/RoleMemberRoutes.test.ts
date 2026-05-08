@@ -39,6 +39,7 @@ describe("role member update route behavior", () => {
         assert.ok(source.includes("Member.IsInGuildOrFail(req.user_id, guild_id)"));
         assert.ok(source.includes("MAX_ROLE_MEMBER_IDS = 100"));
         assert.ok(source.includes('order: { id: "ASC" }'));
+        assert.ok(source.includes("select: { id: true, index: true }"));
         assert.ok(source.includes("take: MAX_ROLE_MEMBER_IDS"));
         assert.ok(source.includes("members.map((x) => x.id)"));
         assert.doesNotMatch(source, /\b(limit|after|before)\b/);
