@@ -1,4 +1,5 @@
 import { ChannelType } from "@spacebar/schemas/api/channels/Channel";
+import { serializePublicThreadMember } from "@spacebar/util";
 
 export type ActiveGuildThreadLike = {
     id: string;
@@ -66,15 +67,7 @@ export function filterAccessibleActiveGuildThreads(
 }
 
 export function serializeActiveThreadMember(threadMember: ThreadMemberLike, userId: string) {
-    const json = threadMember.toJSON?.() ?? threadMember;
-    const joinTimestamp = json.join_timestamp ?? threadMember.join_timestamp;
-
-    return {
-        id: threadMember.id,
-        user_id: userId,
-        join_timestamp: joinTimestamp instanceof Date ? joinTimestamp.toISOString() : joinTimestamp,
-        flags: json.flags ?? threadMember.flags ?? 0,
-    };
+    return serializePublicThreadMember(threadMember, userId);
 }
 
 export function serializeActiveGuildThreads(threads: ActiveGuildThreadLike[], threadMembers: ThreadMemberLike[], userId: string): ActiveThreadsResponseBody {

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, OPCODES, Payload, Send, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
+import { Capabilities, CLOSECODES, OPCODES, Payload, Send, serializeReadyPrivateChannels, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
 import {
     Application,
     arrayGroupBy,
@@ -41,7 +41,6 @@ import {
     applyReadyChannelOrdering,
     ReadyEventData,
     ReadyGuildDTO,
-    ReadyPrivateChannel,
     ReadyUserGuildSettingsEntries,
     Recipient,
     Relationship,
@@ -64,6 +63,7 @@ import {
     VoiceState,
     getReadyReadStateWhere,
     READY_READ_STATE_SELECT,
+    serializePublicThreadMember,
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
@@ -71,23 +71,6 @@ import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
-
-type ReadyDmChannelSource = {
-    icon?: string | null;
-    id: string;
-    flags: number;
-    last_message_id?: string | null;
-    name?: string | null;
-    owner_id?: string;
-    type: ChannelType.DM | ChannelType.GROUP_DM;
-    recipients: {
-        user_id: string;
-        user: {
-            id: string;
-            toPublicUser(): PublicUser;
-        };
-    }[];
-};
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -557,7 +540,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             joined_at: member.joined_at,
 
             threads: threads.map((thread) => {
-                const member = threadMemberMap.get(thread.id)?.toJSON();
+                const threadMember = threadMemberMap.get(thread.id);
+                const member = threadMember ? serializePublicThreadMember(threadMember, this.user_id, { includeMuted: true }) : undefined;
                 return {
                     ...thread.toJSON(),
                     member,
@@ -588,42 +572,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Populated with users from private channels, relationships.
     // Uses a set to dedupe for us.
-    const users: Set<PublicUser> = new Set();
-
     // Generate dm channels from recipients list. Append recipients to `users` list
-    const channels: ReadyPrivateChannel[] = recipients
-        .filter(({ channel }) => channel.isDm())
-        .map((r) => {
-            // TODO: fix the types of Recipient
-            // Their channels are only ever private (I think) and thus are always DM channels
-            const channel = r.channel as ReadyDmChannelSource;
-
-            // Remove ourself from the list of other users in dm channel
-            channel.recipients = channel.recipients.filter((recipient) => recipient.user.id !== this.user_id);
-
-            let channelUsers = channel.recipients?.map((recipient) => recipient.user.toPublicUser());
-
-            if (channelUsers && channelUsers.length > 0) channelUsers.forEach((user) => users.add(user));
-            // HACK: insert self into recipients for DMs with users that no longer exist
-            else if (channel.type === ChannelType.DM) {
-                const selfUser = user.toPublicUser();
-                users.add(selfUser);
-                channelUsers ??= [];
-                channelUsers.push(selfUser);
-            }
-
-            return {
-                id: channel.id,
-                flags: channel.flags,
-                last_message_id: channel.last_message_id ?? undefined,
-                type: channel.type,
-                recipients: channelUsers || [],
-                icon: channel.icon,
-                name: channel.name,
-                is_spam: false, // TODO
-                owner_id: channel.owner_id || undefined,
-            };
-        });
+    const { channels, users: privateChannelUsers } = serializeReadyPrivateChannels(recipients, user);
+    const users: Set<PublicUser> = new Set(privateChannelUsers);
     const generateDmChannelsTime = taskSw.getElapsedAndReset();
 
     // From user relationships ( friends ), also append to `users` list

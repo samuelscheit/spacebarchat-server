@@ -3,6 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { serializeReadyPrivateChannels } from "@spacebar/gateway";
 import {
     closeDatabase,
     emitEvent,
@@ -13,11 +14,12 @@ import {
     Snowflake,
     Stream,
     StreamSession,
+    serializePublicThreadMember,
     User,
     VoiceState,
     type UserUpdateEvent,
 } from "@spacebar/util";
-import { ChannelType } from "@spacebar/schemas";
+import { ChannelType, type PublicUser } from "@spacebar/schemas";
 import ws from "ws";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeChannel, makeGuild, makeMember, makeRole } from "../fixtures/entities";
@@ -31,6 +33,124 @@ type BufferedGatewayClientState = {
 };
 
 const bufferedGatewayClients = new WeakMap<ws, BufferedGatewayClientState>();
+
+test("READY private channel serialization keeps DTO fields without mutating recipients", () => {
+    const self = makePublicUser("self");
+    const friend = makePublicUser("friend");
+    const other = makePublicUser("other");
+    const groupRecipients = [makeReadyRecipient(self), makeReadyRecipient(friend), makeReadyRecipient(other)];
+
+    const { channels, users } = serializeReadyPrivateChannels(
+        [
+            {
+                channel: {
+                    isDm: () => true,
+                    id: "group-channel",
+                    flags: 7,
+                    last_message_id: null,
+                    type: ChannelType.GROUP_DM,
+                    icon: "group-icon",
+                    name: "Group DM",
+                    owner_id: "self",
+                    recipients: groupRecipients,
+                },
+            },
+            {
+                channel: {
+                    isDm: () => true,
+                    id: "deleted-user-dm",
+                    flags: 0,
+                    last_message_id: "last-message",
+                    type: ChannelType.DM,
+                    icon: null,
+                    name: null,
+                    recipients: [makeReadyRecipient(self)],
+                },
+            },
+        ],
+        {
+            id: self.id,
+            toPublicUser: () => self,
+        },
+    );
+
+    assert.deepEqual(
+        channels.map((channel) => ({
+            ...channel,
+            recipients: channel.recipients.map((recipient) => recipient.id),
+        })),
+        [
+            {
+                id: "group-channel",
+                flags: 7,
+                last_message_id: undefined,
+                type: ChannelType.GROUP_DM,
+                recipients: ["friend", "other"],
+                icon: "group-icon",
+                name: "Group DM",
+                is_spam: false,
+                owner_id: "self",
+            },
+            {
+                id: "deleted-user-dm",
+                flags: 0,
+                last_message_id: "last-message",
+                type: ChannelType.DM,
+                recipients: ["self"],
+                icon: null,
+                name: null,
+                is_spam: false,
+                owner_id: undefined,
+            },
+        ],
+    );
+    assert.deepEqual([...users].map((user) => user.id).sort(), ["friend", "other", "self"]);
+    assert.deepEqual(
+        groupRecipients.map((recipient) => recipient.user.id),
+        ["self", "friend", "other"],
+    );
+});
+
+test("READY thread member serialization exposes public user ids instead of member indexes", () => {
+    const serialized = serializePublicThreadMember(
+        {
+            id: "thread",
+            join_timestamp: new Date("2026-05-08T10:00:00.000Z"),
+            flags: 2,
+            muted: false,
+            mute_config: {
+                end_time: new Date("2026-05-08T11:00:00.000Z"),
+                selected_time_window: 60,
+            },
+            toJSON: () => ({
+                id: "thread",
+                member_idx: "internal-member-index",
+                join_timestamp: new Date("2026-05-08T10:00:00.000Z"),
+                flags: 2,
+                muted: false,
+                mute_config: {
+                    end_time: new Date("2026-05-08T11:00:00.000Z"),
+                    selected_time_window: 60,
+                },
+            }),
+        },
+        "user",
+        { includeMuted: true },
+    );
+
+    assert.deepEqual(serialized, {
+        id: "thread",
+        user_id: "user",
+        join_timestamp: "2026-05-08T10:00:00.000Z",
+        flags: 2,
+        muted: false,
+        mute_config: {
+            end_time: "2026-05-08T11:00:00.000Z",
+            selected_time_window: 60,
+        },
+    });
+    assert.equal("member_idx" in serialized, false);
+});
 
 test(
     "Gateway IDENTIFY accepts a persisted user token and sends READY",
@@ -609,6 +729,35 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string)
     );
 
     return client;
+}
+
+function makePublicUser(id: string): PublicUser {
+    return {
+        id,
+        username: id,
+        discriminator: "0001",
+        public_flags: 0,
+        avatar: undefined,
+        accent_color: 0,
+        banner: undefined,
+        bio: "",
+        bot: false,
+        premium_since: null,
+        premium_type: 0,
+        theme_colors: [],
+        pronouns: "",
+        badge_ids: [],
+    };
+}
+
+function makeReadyRecipient(user: PublicUser) {
+    return {
+        user_id: user.id,
+        user: {
+            id: user.id,
+            toPublicUser: () => user,
+        },
+    };
 }
 
 async function readUntil(client: ws, predicate: (payload: GatewayPayload) => boolean) {

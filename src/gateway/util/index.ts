@@ -26,6 +26,7 @@ export * from "./WebSocket";
 export * from "./Capabilities";
 export * from "./Utils";
 export * from "./ReadyReadState";
+export * from "./ReadyPrivateChannels";
 export * from "./LazyMemberList";
 export * from "./ChannelInfo";
 export * from "./Reconnect";

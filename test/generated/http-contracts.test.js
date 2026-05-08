@@ -2,8 +2,11 @@
 
 const { describe, test } = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const manifest = require("../../assets/testing-manifest.json");
 const matrix = require("./http-contracts.json");
+const schemas = require("../../assets/schemas.json");
 
 const httpRouteIds = new Set(manifest.entries.filter((entry) => entry.type === "http-route").map((entry) => entry.id));
 const contractIds = new Set(matrix.contracts.map((contract) => contract.manifestId));
@@ -80,5 +83,27 @@ describe("generated HTTP contract matrix", () => {
 
         const filenameContract = matrix.contracts.find((entry) => entry.manifestId === "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:message_id");
         assert.ok(filenameContract?.cases.some((contractCase) => contractCase.id === "cdn-filename-sanitization" && contractCase.checks.includes("filename-sanitization")));
+    });
+});
+
+describe("generated public channel schema contracts", () => {
+    test("PublicChannel uses API DTO definitions instead of persistence entities", () => {
+        assert.equal(schemas.PublicChannel.properties.member.$ref, "#/definitions/PublicThreadMember");
+        assert.equal(schemas.PublicChannel.properties.available_tags.items.$ref, "#/definitions/ChannelTag");
+
+        assert.ok(schemas.PublicThreadMember.properties.user_id, "PublicThreadMember should expose a public user_id");
+        assert.equal(schemas.PublicThreadMember.properties.member_idx, undefined);
+        assert.equal(schemas.PublicThreadMember.properties.member, undefined);
+        assert.equal(schemas.PublicThreadMember.properties.channel, undefined);
+
+        assert.ok(schemas.ChannelTag.properties.id, "ChannelTag should expose the tag id");
+        assert.equal(schemas.ChannelTag.properties.channel_id, undefined);
+        assert.equal(schemas.ChannelTag.properties.channel, undefined);
+    });
+
+    test("channel API schemas do not import util entity types", () => {
+        const source = fs.readFileSync(path.join(__dirname, "..", "..", "src", "schemas", "api", "channels", "Channel.ts"), "utf8");
+
+        assert.equal(/from\s+["']@spacebar\/util["']/.test(source), false);
     });
 });
