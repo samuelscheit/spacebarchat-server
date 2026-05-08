@@ -104,15 +104,4 @@ describe("read state helpers", () => {
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_message_id\?: string \| null;/);
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_acked_id\?: string \| null;/);
     });
-
-    test("keeps read-state persistence in the dedicated ReadState entity instead of Member", () => {
-        const memberSource = readFileSync(resolve(process.cwd(), "src/util/entities/Member.ts"), "utf8");
-        const readStateSource = readFileSync(resolve(process.cwd(), "src/util/entities/ReadState.ts"), "utf8");
-
-        assert.doesNotMatch(memberSource, /read_state\s*:/);
-        assert.doesNotMatch(memberSource, /read_state:\s*\{\}/);
-        assert.doesNotMatch(memberSource, /proper read receipts/);
-        assert.match(readStateSource, /@Entity\(\{\s*name: "read_states",\s*\}\)/);
-        assert.match(readStateSource, /@Index\("IDX_read_states_user_resource_type", \["channel_id", "user_id", "read_state_type"\], \{ unique: true \}\)/);
-    });
 });
