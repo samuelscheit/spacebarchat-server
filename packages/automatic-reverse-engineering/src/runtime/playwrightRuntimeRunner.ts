@@ -50,7 +50,7 @@ export interface PlaywrightRuntimeRunResult extends PlaywrightCapturedFeatureRun
 
 interface PlaywrightModuleLike {
     chromium: {
-        launch(options: { headless: boolean }): Promise<PlaywrightBrowserLike>;
+        launch(options: { headless: boolean; args?: string[] }): Promise<PlaywrightBrowserLike>;
     };
 }
 
@@ -83,7 +83,10 @@ export async function runPlaywrightRuntimeFeature(options: PlaywrightRuntimeRunO
     const redactedHarPath = path.join(featureDir, "network.redacted.har");
     const videoDir = path.join(featureDir, ".video");
     const playwright = options.playwright ?? (await importPlaywright());
-    const browser = await playwright.chromium.launch({ headless: options.headless ?? true });
+    const browser = await playwright.chromium.launch({
+        headless: options.headless ?? true,
+        args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"],
+    });
     let context: PlaywrightRuntimeBrowserContextLike | undefined;
     let harFinalized = false;
     let runError: unknown;
@@ -238,7 +241,7 @@ function runtimeArtifactPaths(options: { featureDir: string; result?: Playwright
         playwright_events_path: options.result?.playwrightEventsPath ?? path.join(options.featureDir, "playwright-events.ndjson"),
         summary_path: options.result?.summaryPath,
         markdown_path: options.result?.markdownPath,
-        trace_path: options.result?.tracePath ?? path.join(options.featureDir, "trace.zip"),
+        trace_path: options.result?.tracePath,
         screenshots_dir: options.result?.screenshotsDir ?? path.join(options.featureDir, "screenshots"),
         video_path: options.videoPath,
         redacted_har_path: options.recordHar ? path.join(options.featureDir, "network.redacted.har") : undefined,

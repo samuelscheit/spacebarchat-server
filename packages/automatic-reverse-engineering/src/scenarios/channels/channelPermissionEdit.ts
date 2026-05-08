@@ -1,4 +1,4 @@
-import { clickRole } from "../actions.js";
+import { clickRole, clickText } from "../actions.js";
 import { defineFeature } from "../feature.js";
 
 const scenarioId = "channel.permission.edit";
@@ -19,13 +19,14 @@ export const channelPermissionEdit = defineFeature({
         await ctx.step("open-channel-settings", "Open channel permission settings", async () => {
             await ctx.gotoChannel("general");
             await ctx.expectReady();
-            await clickRole(ctx, scenarioId, "button", { name: /edit channel/i });
-            await clickRole(ctx, scenarioId, "tab", { name: /permissions/i });
+            await clickRole(ctx, scenarioId, "button", { name: /^edit channel$/i });
+            await clickText(ctx, scenarioId, "Permissions", { exact: true });
+            await clickRole(ctx, scenarioId, "button", { name: /advanced permissions/i });
+            await clickRole(ctx, scenarioId, "button", { name: /roles\/members/i });
         });
 
         await ctx.step("edit-permission", "Edit permission overwrite", async () => {
-            await clickRole(ctx, scenarioId, "checkbox", { name: /send messages/i });
-            await clickRole(ctx, scenarioId, "button", { name: /save/i });
+            await clickRole(ctx, scenarioId, "option", { name: /feature-test/i });
             await ctx.expectNetwork({ method: "PUT", route: "/channels/{channel_id}/permissions/{role_id}" });
         });
     },

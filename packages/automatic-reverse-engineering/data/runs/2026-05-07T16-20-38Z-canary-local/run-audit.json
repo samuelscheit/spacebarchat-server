@@ -1,5 +1,5 @@
 {
-	"checked_at": "2026-05-07T23:05:13.678Z",
+	"checked_at": "2026-05-08T00:46:53.837Z",
 	"ok": true,
 	"redaction": {
 		"ok": true,
@@ -93,11 +93,6 @@
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.redacted.har"
 					},
 					{
-						"id": "runtime.feature.file.trace.zip",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/trace.zip"
-					},
-					{
 						"id": "runtime.feature.raw_har_absent",
 						"ok": true,
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/network.raw.har"
@@ -116,11 +111,6 @@
 						"id": "runtime.feature.screenshots",
 						"ok": true,
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/screenshots"
-					},
-					{
-						"id": "runtime.feature.trace_zip",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/trace.zip"
 					},
 					{
 						"id": "runtime.feature.events.parse",
@@ -238,18 +228,6 @@
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/report.md"
 					},
 					{
-						"id": "runtime.feature.run_artifacts.trace_path.safe_path",
-						"message": "trace_path must be a safe feature-local slash-relative path",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
-					},
-					{
-						"id": "runtime.feature.run_artifacts.trace_path.exists",
-						"message": "trace_path must reference an existing feature-local file",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/trace.zip"
-					},
-					{
 						"id": "runtime.feature.run_artifacts.screenshots_dir.safe_path",
 						"message": "screenshots_dir must be a safe feature-local slash-relative path",
 						"ok": true,
@@ -300,12 +278,6 @@
 					{
 						"id": "runtime.feature.run_artifacts.markdown_path",
 						"message": "passed run-artifacts.json must reference feature-local report.md",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
-					},
-					{
-						"id": "runtime.feature.run_artifacts.trace_path",
-						"message": "passed run-artifacts.json must reference feature-local trace.zip",
 						"ok": true,
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/bootstrap.idle.session/run-artifacts.json"
 					},
@@ -935,11 +907,6 @@
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.redacted.har"
 					},
 					{
-						"id": "runtime.feature.file.trace.zip",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/trace.zip"
-					},
-					{
 						"id": "runtime.feature.raw_har_absent",
 						"ok": true,
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/network.raw.har"
@@ -958,11 +925,6 @@
 						"id": "runtime.feature.screenshots",
 						"ok": true,
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/screenshots"
-					},
-					{
-						"id": "runtime.feature.trace_zip",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/trace.zip"
 					},
 					{
 						"id": "runtime.feature.events.parse",
@@ -1080,18 +1042,6 @@
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/report.md"
 					},
 					{
-						"id": "runtime.feature.run_artifacts.trace_path.safe_path",
-						"message": "trace_path must be a safe feature-local slash-relative path",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
-					},
-					{
-						"id": "runtime.feature.run_artifacts.trace_path.exists",
-						"message": "trace_path must reference an existing feature-local file",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/trace.zip"
-					},
-					{
 						"id": "runtime.feature.run_artifacts.screenshots_dir.safe_path",
 						"message": "screenshots_dir must be a safe feature-local slash-relative path",
 						"ok": true,
@@ -1142,12 +1092,6 @@
 					{
 						"id": "runtime.feature.run_artifacts.markdown_path",
 						"message": "passed run-artifacts.json must reference feature-local report.md",
-						"ok": true,
-						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
-					},
-					{
-						"id": "runtime.feature.run_artifacts.trace_path",
-						"message": "passed run-artifacts.json must reference feature-local trace.zip",
 						"ok": true,
 						"path": "packages/automatic-reverse-engineering/data/runs/2026-05-07T16-20-38Z-canary-local/features/message.send.basic/run-artifacts.json"
 					},

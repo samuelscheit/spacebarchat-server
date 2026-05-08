@@ -1,4 +1,4 @@
-import { clickRole } from "../actions.js";
+import { clickFirstRole, clickRole } from "../actions.js";
 import { defineFeature } from "../feature.js";
 
 const scenarioId = "voice.disconnect.basic";
@@ -19,12 +19,13 @@ export const voiceDisconnectBasic = defineFeature({
     async run(ctx) {
         await ctx.step("join-voice", "Join voice channel", async () => {
             await ctx.gotoChannel("voice");
+            await clickRole(ctx, scenarioId, "button", { name: /join voice/i });
             await ctx.expectGateway({ direction: "sent", opcode: 4 });
             await ctx.expectGateway({ direction: "received", event: "VOICE_STATE_UPDATE" });
         });
 
         await ctx.step("disconnect-voice", "Disconnect from voice channel", async () => {
-            await clickRole(ctx, scenarioId, "button", { name: /disconnect|leave (?:call|voice)/i });
+            await clickFirstRole(ctx, scenarioId, "button", { name: /^disconnect$/i });
             await ctx.expectGateway({ direction: "sent", opcode: 4 });
             await ctx.expectGateway({ direction: "received", event: "VOICE_STATE_UPDATE" });
         });

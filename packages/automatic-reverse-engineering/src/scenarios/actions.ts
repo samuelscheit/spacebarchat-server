@@ -31,6 +31,34 @@ export async function clickRole(ctx: FeatureRunContext, scenarioId: string, role
     await clickLocator(locator, scenarioId, role);
 }
 
+export async function clickFirstRole(ctx: FeatureRunContext, scenarioId: string, role: string, options: Record<string, unknown>): Promise<void> {
+    const detail = optionKeyDetail(options);
+    await ctx.recordAction?.({
+        action: "click",
+        target: `role:${role}`,
+        ...(detail ? { detail } : {}),
+    });
+    const locator = requirePage(ctx, scenarioId).getByRole(role, options);
+    if (!locator.first) {
+        throw new Error(`${scenarioId} locator for ${role} does not support first`);
+    }
+    await clickLocator(locator.first(), scenarioId, role);
+}
+
+export async function clickRoleAtIndex(ctx: FeatureRunContext, scenarioId: string, role: string, options: Record<string, unknown>, index: number): Promise<void> {
+    const detail = optionKeyDetail(options);
+    await ctx.recordAction?.({
+        action: "click",
+        target: `role:${role}`,
+        ...(detail ? { detail } : {}),
+    });
+    const locator = requirePage(ctx, scenarioId).getByRole(role, options);
+    if (!locator.nth) {
+        throw new Error(`${scenarioId} locator for ${role} does not support nth`);
+    }
+    await clickLocator(locator.nth(index), scenarioId, role);
+}
+
 export async function contextClickRole(ctx: FeatureRunContext, scenarioId: string, role: string, options: Record<string, unknown>): Promise<void> {
     const detail = optionKeyDetail(options);
     await ctx.recordAction?.({
@@ -96,6 +124,36 @@ export async function clickSelector(ctx: FeatureRunContext, scenarioId: string, 
         throw new Error(`${scenarioId} requires page.locator`);
     }
     await clickLocator(page.locator(selector), scenarioId, selector);
+}
+
+export async function fillSelector(ctx: FeatureRunContext, scenarioId: string, selector: string, value: string): Promise<void> {
+    await ctx.recordAction?.({
+        action: "fill",
+        target: "selector",
+        value_redacted: true,
+    });
+    const page = requirePage(ctx, scenarioId);
+    if (!page.locator) {
+        throw new Error(`${scenarioId} requires page.locator`);
+    }
+    await fillLocator(page.locator(selector), scenarioId, selector, value);
+}
+
+export async function fillFirstSelector(ctx: FeatureRunContext, scenarioId: string, selector: string, value: string): Promise<void> {
+    await ctx.recordAction?.({
+        action: "fill",
+        target: "selector",
+        value_redacted: true,
+    });
+    const page = requirePage(ctx, scenarioId);
+    if (!page.locator) {
+        throw new Error(`${scenarioId} requires page.locator`);
+    }
+    const locator = page.locator(selector);
+    if (!locator.first) {
+        throw new Error(`${scenarioId} locator for ${selector} does not support first`);
+    }
+    await fillLocator(locator.first(), scenarioId, selector, value);
 }
 
 export async function setInputFilesByLabel(ctx: FeatureRunContext, scenarioId: string, label: string | RegExp, files: string | string[]): Promise<void> {

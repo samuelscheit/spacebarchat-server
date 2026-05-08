@@ -236,10 +236,14 @@ test("normalizes Discord API URLs with typed fixture placeholders", () => {
         stickers: { party: "323456789012345678" },
     };
     const normalized = normalizeUrl("https://discord.com/api/v9/channels/123456789012345678/messages?limit=50", { fixtures });
+    const reaction = normalizeUrl("https://discord.com/api/v9/channels/123456789012345678/messages/423456789012345678/reactions/%F0%9F%98%80/@me", {
+        fixtures,
+    });
 
     assert.equal(normalized.api_version, "v9");
     assert.equal(normalized.normalized_route, "/channels/{channel_id}/messages");
     assert.equal(normalized.normalized_url, "https://{api_host}/api/v9/channels/{channel_id}/messages?limit={query}");
+    assert.equal(reaction.normalized_route, "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me");
     assert.deepEqual(normalizeJsonValue({ emoji_id: "223456789012345678", sticker_id: "323456789012345678" }, fixtures), {
         emoji_id: "{emoji_id}",
         sticker_id: "{sticker_id}",
@@ -913,10 +917,14 @@ test("imports mitmproxy flow JSON as redacted secondary validation events", asyn
 test("detects non-fixture IDs in guarded API route scope", () => {
     const ok = validateFixtureUrlScope("https://discord.com/api/v9/channels/123456789012345678/messages", { channels: { general: "123456789012345678" } });
     const secondaryGuild = validateFixtureUrlScope("https://discord.com/api/v9/guilds/723456789012345678/channels", { guilds: { secondary: "723456789012345678" } });
+    const dynamicallyAllowed = validateFixtureUrlScope("https://discord.com/api/v9/channels/923456789012345678/messages", undefined, {
+        allowedIds: ["923456789012345678"],
+    });
     const violation = validateFixtureUrlScope("https://discord.com/api/v9/guilds/999999999999999999/roles", { guild: "123456789012345678" });
 
     assert.equal(ok.ok, true);
     assert.equal(secondaryGuild.ok, true);
+    assert.equal(dynamicallyAllowed.ok, true);
     assert.equal(violation.ok, false);
     assert.deepEqual(
         violation.violations.map((entry) => entry.kind),
@@ -4664,6 +4672,51 @@ test("recorder can fail fast on non-fixture route scope", async () => {
     await assert.rejects(recorder.flush(), /non-fixture IDs/);
 });
 
+test("recorder allows thread channel IDs created from fixture channels", async () => {
+    class FakeCdp implements CdpSessionLike {
+        handlers = new Map<string, (payload: Record<string, unknown>) => void>();
+
+        on(event: string, handler: (payload: Record<string, unknown>) => void): void {
+            this.handlers.set(event, handler);
+        }
+
+        async send(): Promise<unknown> {
+            return {};
+        }
+
+        emit(event: string, payload: Record<string, unknown>): void {
+            this.handlers.get(event)?.(payload);
+        }
+    }
+
+    const cdp = new FakeCdp();
+    const recorder = new CdpNetworkRecorder({
+        cdp,
+        runId: "run",
+        feature: messageSendBasic,
+        fixtures: { channels: { general: "123456789012345678" } },
+        enforceFixtureScope: true,
+        onEvent() {},
+    });
+    await recorder.start();
+    cdp.emit("Network.requestWillBeSent", {
+        requestId: "1",
+        request: {
+            method: "POST",
+            url: "https://discord.com/api/v9/channels/123456789012345678/messages/923456789012345678/threads",
+        },
+    });
+    cdp.emit("Network.requestWillBeSent", {
+        requestId: "2",
+        request: {
+            method: "POST",
+            url: "https://discord.com/api/v9/channels/923456789012345678/messages",
+        },
+    });
+
+    await recorder.flush();
+});
+
 test("imports route catalog entries from OpenAPI", () => {
     const routes = importOpenApiRouteCatalog({
         paths: {
@@ -8198,6 +8251,7 @@ test("runs a Playwright-shaped feature with trace, screenshots, and video artifa
             },
             page,
             browserContext,
+            captureTrace: true,
             staticCandidates: {
                 staticDir,
                 assets: [
@@ -8375,6 +8429,8 @@ test("runs a Playwright runtime feature with injected browser and sanitized HAR"
         assert.equal(contextOptions.storageState, join(root, "storage-state.json"));
         assert.equal(typeof contextOptions.recordVideo, "object");
         assert.equal(result.videoPath, undefined);
+        assert.equal(result.tracePath, undefined);
+        await assert.rejects(readFile(join(root, "features", idleSession.id, "trace.zip"), "utf8"));
         assert.equal(rawHarPath.startsWith(root), false);
         assert.equal(await readFile(result.redactedHarPath ?? "", "utf8").then((text) => text.includes("raw-token")), false);
         await assert.rejects(readFile(join(root, "features", idleSession.id, "network.raw.har"), "utf8"));

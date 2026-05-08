@@ -1,28 +1,24 @@
-import { clickRole } from "../actions.js";
 import { defineFeature } from "../feature.js";
 
 const scenarioId = "experiments.visible_context";
 
 export const experimentContext = defineFeature({
     id: scenarioId,
-    title: "Record visible experiment context",
+    title: "Record startup experiment and feature context",
     requiredFixtures: ["guild", "channels.general"],
-    tags: ["experiments", "feature-flags", "http"],
+    tags: ["experiments", "feature-flags", "gateway"],
     expected: {
-        http: [
-            { method: "GET", route: "/experiments", step_id: "load-experiment-context" },
-            { method: "GET", route: "/guilds/{guild_id}/experiments", step_id: "load-experiment-context" },
+        gateway: [
+            { direction: "received", event: "READY", step_id: "load-experiment-context" },
+            { direction: "received", event: "READY_SUPPLEMENTAL", step_id: "load-experiment-context" },
         ],
     },
     async run(ctx) {
-        await ctx.step("open-channel", "Open fixture channel", async () => {
+        await ctx.step("load-experiment-context", "Load startup experiment context", async () => {
             await ctx.gotoChannel("general");
             await ctx.expectReady();
-        });
-
-        await ctx.step("load-experiment-context", "Open visible experiment context", async () => {
-            await clickRole(ctx, scenarioId, "button", { name: /experiments|feature flags/i });
-            await ctx.expectNetwork({ method: "GET", route: "/experiments" });
+            await ctx.expectGateway({ direction: "received", event: "READY" });
+            await ctx.expectGateway({ direction: "received", event: "READY_SUPPLEMENTAL" });
         });
     },
 });

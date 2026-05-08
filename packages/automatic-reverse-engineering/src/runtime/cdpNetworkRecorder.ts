@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks";
 
-import { FixtureManifest } from "../fixtures/manifest.js";
+import { FixtureManifest, flattenFixtureIds } from "../fixtures/manifest.js";
 import { assertFixtureUrlScope } from "../processors/fixtureScope.js";
 import { normalizeUrl } from "../processors/normalize.js";
 import { redactHeaders, redactJsonValue, redactText } from "../processors/redact.js";
@@ -85,6 +85,7 @@ export class CdpNetworkRecorder {
     private readonly pending = new Set<Promise<void>>();
     private readonly pendingErrors: unknown[] = [];
     private readonly gatewayDecoders = new Map<string, GatewayZlibStreamDecoder>();
+    private readonly dynamicFixtureScopeIds = new Set<string>();
     private rateLimitResponses = 0;
     private abortRaised = false;
     private stepStack: string[] = [];
@@ -208,8 +209,9 @@ export class CdpNetworkRecorder {
         if (!requestId || !url || !isHttpApiUrl(url)) {
             return;
         }
+        this.rememberDynamicFixtureScopeIds(url);
         if (this.enforceFixtureScope) {
-            assertFixtureUrlScope(url, this.fixtures);
+            assertFixtureUrlScope(url, this.fixtures, { allowedIds: this.dynamicFixtureScopeIds });
         }
 
         const normalized = normalizeUrl(url, { fixtures: this.fixtures });
@@ -258,6 +260,21 @@ export class CdpNetworkRecorder {
                 frames,
             },
         });
+    }
+
+    private rememberDynamicFixtureScopeIds(url: string): void {
+        const parts = pathPartsFromUrl(url);
+        const apiStart = parts[0] === "api" && /^v\d+$/.test(parts[1] ?? "") ? 2 : 0;
+        const routeParts = parts.slice(apiStart);
+        const [channelsLiteral, channelId, messagesLiteral, messageId, threadsLiteral] = routeParts;
+        if (channelsLiteral !== "channels" || messagesLiteral !== "messages" || threadsLiteral !== "threads" || !channelId || !messageId) {
+            return;
+        }
+        if (!flattenFixtureIds(this.fixtures).has(channelId)) {
+            return;
+        }
+
+        this.dynamicFixtureScopeIds.add(messageId);
     }
 
     private async handleRequestWillBeSentExtraInfo(payload: Record<string, unknown>): Promise<void> {
@@ -815,6 +832,14 @@ function fileNameFromSanitizedUrl(value: string): string | undefined {
         return fileName ? fileName.slice(0, 160) : undefined;
     } catch {
         return undefined;
+    }
+}
+
+function pathPartsFromUrl(value: string): string[] {
+    try {
+        return new URL(value).pathname.split("/").filter(Boolean);
+    } catch {
+        return value.split(/[?#]/, 1)[0]?.split("/").filter(Boolean) ?? [];
     }
 }
 

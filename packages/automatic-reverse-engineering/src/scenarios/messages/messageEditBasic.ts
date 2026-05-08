@@ -1,4 +1,4 @@
-import { clickText, fillRole, pressKey } from "../actions.js";
+import { clickRole, contextClickSelector, fillSelector, pressKey } from "../actions.js";
 import { defineFeature } from "../feature.js";
 
 const scenarioId = "message.edit.basic";
@@ -23,8 +23,9 @@ export const messageEditBasic = defineFeature({
         });
 
         await ctx.step("edit-message", "Edit message", async () => {
-            await clickText(ctx, scenarioId, /edit/i);
-            await fillRole(ctx, scenarioId, "textbox", {}, `dm-edit-${ctx.run_id}`);
+            await contextClickSelector(ctx, scenarioId, `[id="message-content-${ctx.fixture("messages.edit_target")}"]`);
+            await clickRole(ctx, scenarioId, "menuitem", { name: /edit message/i });
+            await fillSelector(ctx, scenarioId, '[role="textbox"]:not([aria-label])', `dm-edit-${ctx.run_id}`);
             await pressKey(ctx, scenarioId, "Enter");
             await ctx.expectNetwork({ method: "PATCH", route: "/channels/{channel_id}/messages/{message_id}" });
             await ctx.expectGateway({ direction: "received", event: "MESSAGE_UPDATE" });

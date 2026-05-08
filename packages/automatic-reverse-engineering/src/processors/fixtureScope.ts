@@ -14,8 +14,13 @@ export interface FixtureScopeResult {
     violations: FixtureScopeViolation[];
 }
 
-export function validateFixtureUrlScope(url: string, fixtures?: FixtureManifest): FixtureScopeResult {
+export interface FixtureScopeOptions {
+    allowedIds?: Iterable<string>;
+}
+
+export function validateFixtureUrlScope(url: string, fixtures?: FixtureManifest, options: FixtureScopeOptions = {}): FixtureScopeResult {
     const fixtureIds = flattenFixtureIds(fixtures);
+    const allowedIds = new Set(options.allowedIds ?? []);
     const violations: FixtureScopeViolation[] = [];
     const path = pathFromUrl(url);
     const parts = path.split("/").filter(Boolean);
@@ -26,7 +31,7 @@ export function validateFixtureUrlScope(url: string, fixtures?: FixtureManifest)
         }
 
         const kind = kindForPreviousPart(parts[index - 1]);
-        if (!kind || !guardedKinds.has(kind) || fixtureIds.has(part)) {
+        if (!kind || !guardedKinds.has(kind) || fixtureIds.has(part) || allowedIds.has(part)) {
             continue;
         }
 
@@ -43,8 +48,8 @@ export function validateFixtureUrlScope(url: string, fixtures?: FixtureManifest)
     };
 }
 
-export function assertFixtureUrlScope(url: string, fixtures?: FixtureManifest): void {
-    const result = validateFixtureUrlScope(url, fixtures);
+export function assertFixtureUrlScope(url: string, fixtures?: FixtureManifest, options: FixtureScopeOptions = {}): void {
+    const result = validateFixtureUrlScope(url, fixtures, options);
     if (!result.ok) {
         throw new Error(`URL touches non-fixture IDs: ${result.violations.map((violation) => `${violation.kind}:${violation.id}`).join(", ")}`);
     }

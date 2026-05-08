@@ -14,6 +14,7 @@ export const voiceMuteToggle = defineFeature({
     async run(ctx) {
         await ctx.step("join-voice", "Join voice channel", async () => {
             await ctx.gotoChannel("voice");
+            await clickRole(ctx, scenarioId, "button", { name: /join voice/i });
             await ctx.expectGateway({ direction: "sent", opcode: 4 });
         });
 

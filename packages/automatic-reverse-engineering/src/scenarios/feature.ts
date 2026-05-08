@@ -6,6 +6,7 @@ export interface FeatureLocatorLike {
     setInputFiles?(files: string | string[]): Promise<void>;
     waitFor?(options?: Record<string, unknown>): Promise<unknown>;
     first?(): FeatureLocatorLike;
+    nth?(index: number): FeatureLocatorLike;
 }
 
 export interface FeaturePageLike {

@@ -91,16 +91,7 @@ const requiredStaticFiles = [
     "gateway.userdoccers.catalog.json",
 ] as const;
 
-const requiredFeatureFiles = [
-    "preflight.json",
-    "events.ndjson",
-    "playwright-events.ndjson",
-    "summary.json",
-    "report.md",
-    "run-artifacts.json",
-    "network.redacted.har",
-    "trace.zip",
-] as const;
+const requiredFeatureFiles = ["preflight.json", "events.ndjson", "playwright-events.ndjson", "summary.json", "report.md", "run-artifacts.json", "network.redacted.har"] as const;
 
 export async function auditDataminingRun(options: AuditRunOptions): Promise<RunAuditReport> {
     const requireStatic = options.requireStatic ?? true;
@@ -299,7 +290,6 @@ async function auditRuntimeFeature(runDir: string, featureId: string, expectedRu
         ),
     );
     checks.push(await directoryHasFilesCheck(path.join(featureDir, "screenshots"), "runtime.feature.screenshots"));
-    checks.push(await zipSignatureCheck(path.join(featureDir, "trace.zip"), "runtime.feature.trace_zip"));
 
     const eventsAudit = await readNdjsonAudit(path.join(featureDir, "events.ndjson"), "runtime.feature.events.parse");
     const playwrightEventsAudit = await readNdjsonAudit(path.join(featureDir, "playwright-events.ndjson"), "runtime.feature.playwright_events.parse");
@@ -1173,7 +1163,6 @@ async function runtimeArtifactManifestChecks(featureDir: string, runArtifacts: u
         playwright_events_path: "playwright-events.ndjson",
         summary_path: "summary.json",
         markdown_path: "report.md",
-        trace_path: "trace.zip",
         screenshots_dir: "screenshots",
         redacted_har_path: "network.redacted.har",
     };
@@ -1191,6 +1180,17 @@ async function runtimeArtifactManifestChecks(featureDir: string, runArtifacts: u
         path: path.join(featureDir, "run-artifacts.json"),
         message: "passed run-artifacts.json must not include failure_path",
     });
+    if (typeof runArtifacts.trace_path !== "undefined") {
+        checks.push({
+            id: "runtime.feature.run_artifacts.trace_path",
+            ok: runArtifacts.trace_path === "trace.zip",
+            path: path.join(featureDir, "run-artifacts.json"),
+            message: "trace_path, when present, must reference feature-local trace.zip",
+        });
+        if (runArtifacts.trace_path === "trace.zip") {
+            checks.push(await zipSignatureCheck(path.join(featureDir, "trace.zip"), "runtime.feature.trace_zip"));
+        }
+    }
     return checks;
 }
 

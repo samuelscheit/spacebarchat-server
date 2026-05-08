@@ -1,4 +1,4 @@
-import { clickRole, clickText } from "../actions.js";
+import { clickRole, contextClickSelector } from "../actions.js";
 import { defineFeature } from "../feature.js";
 
 const scenarioId = "message.delete.basic";
@@ -23,7 +23,8 @@ export const messageDeleteBasic = defineFeature({
         });
 
         await ctx.step("delete-message", "Delete message", async () => {
-            await clickText(ctx, scenarioId, /delete/i);
+            await contextClickSelector(ctx, scenarioId, `[id="message-content-${ctx.fixture("messages.delete_target")}"]`);
+            await clickRole(ctx, scenarioId, "menuitem", { name: /delete message/i });
             await clickRole(ctx, scenarioId, "button", { name: /delete/i });
             await ctx.expectNetwork({ method: "DELETE", route: "/channels/{channel_id}/messages/{message_id}" });
             await ctx.expectGateway({ direction: "received", event: "MESSAGE_DELETE" });

@@ -139,6 +139,10 @@ function stripApiPrefix(parts: string[]): { apiVersion?: string; routeParts: str
 
 function normalizePathPart(part: string, previousPart: string | undefined, fixtures?: FixtureManifest): string {
     const decoded = safeDecode(part);
+    if (previousPart === "reactions") {
+        return "{emoji}";
+    }
+
     const fixture = flattenFixtureIds(fixtures).get(decoded);
     if (fixture) {
         return fixture.placeholder;

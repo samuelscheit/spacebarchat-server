@@ -492,7 +492,7 @@ async function runPlaywrightFeatureCommand(args: Map<string, string>): Promise<v
         failOnSecret: args.get("fail-on-secret") !== "false",
         enforceFixtureScope: args.get("enforce-fixture-scope") !== "false",
         captureScreenshots: args.get("capture-screenshots") !== "false",
-        captureTrace: args.get("capture-trace") !== "false",
+        captureTrace: args.get("capture-trace") === "true",
         capturePlaywrightEvents: args.get("capture-playwright-events") !== "false",
         saveVideo: args.get("save-video") === "true",
         saveVideoOnFailure: args.get("save-video-on-failure") !== "false",

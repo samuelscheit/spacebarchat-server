@@ -66,7 +66,7 @@ export async function runPlaywrightCapturedFeature(options: PlaywrightCapturedFe
     const tracePath = path.join(featureDir, "trace.zip");
     const videoPath = path.join(featureDir, "video.webm");
     const playwrightEventsPath = path.join(featureDir, "playwright-events.ndjson");
-    const captureTrace = options.captureTrace ?? true;
+    const captureTrace = options.captureTrace ?? false;
     const captureScreenshots = options.captureScreenshots ?? true;
     const capturePlaywrightEvents = (options.capturePlaywrightEvents ?? true) && typeof options.page.on === "function";
     const stepStack: string[] = [];

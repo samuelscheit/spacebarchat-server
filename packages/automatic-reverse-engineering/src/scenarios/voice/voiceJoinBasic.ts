@@ -1,3 +1,4 @@
+import { clickRole } from "../actions.js";
 import { defineFeature } from "../feature.js";
 
 export const voiceJoinBasic = defineFeature({
@@ -14,6 +15,7 @@ export const voiceJoinBasic = defineFeature({
     async run(ctx) {
         await ctx.step("join-voice", "Join voice channel", async () => {
             await ctx.gotoChannel("voice");
+            await clickRole(ctx, "voice.join.basic", "button", { name: /join voice/i });
             await ctx.expectGateway({ direction: "sent", opcode: 4 });
             await ctx.expectGateway({ direction: "received", event: "VOICE_STATE_UPDATE" });
         });

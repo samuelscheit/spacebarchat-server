@@ -1,4 +1,4 @@
-import { clickText } from "../actions.js";
+import { clickRole, clickSelector, contextClickSelector } from "../actions.js";
 import { defineFeature } from "../feature.js";
 
 const scenarioId = "message.reaction.add";
@@ -23,8 +23,9 @@ export const messageReactionAdd = defineFeature({
         });
 
         await ctx.step("add-reaction", "Add reaction", async () => {
-            await clickText(ctx, scenarioId, /add reaction/i);
-            await clickText(ctx, scenarioId, "👍");
+            await contextClickSelector(ctx, scenarioId, `[id="message-content-${ctx.fixture("messages.react_target")}"]`);
+            await clickRole(ctx, scenarioId, "menuitem", { name: /^add reaction$/i });
+            await clickSelector(ctx, scenarioId, '[data-name="grinning"][tabindex="0"]');
             await ctx.expectNetwork({ method: "PUT", route: "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me" });
             await ctx.expectGateway({ direction: "received", event: "MESSAGE_REACTION_ADD" });
         });

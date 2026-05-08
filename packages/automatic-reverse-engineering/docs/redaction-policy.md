@@ -34,7 +34,7 @@ node packages/automatic-reverse-engineering/dist/cli.js validate-redaction \
 
 The command scans JSON, NDJSON, Markdown, text, HAR, SQL export, and retained Source Map artifacts and exits non-zero on possible unredacted secrets. JSON scans also reject raw Playwright storage-state shaped artifacts even when cookie or localStorage values are not token-shaped. HAR scans require parseable HAR JSON with `log.entries` and request/response objects, so a malformed HAR cannot pass merely because its text contains no token-shaped values.
 
-`validate-redaction` does not inspect raw static HTML, JavaScript, CSS, binary videos, or screenshots. Scheduled CI uploads therefore stage an explicit allowlist of redacted JSON/text metadata and omit `static/assets/`, `static/login.html`, trace, screenshot, and video artifacts. Treat omitted artifacts as local analysis/debugging material unless a separate human review approves promotion.
+`validate-redaction` does not inspect raw static HTML, JavaScript, CSS, Playwright trace ZIPs, binary videos, or screenshots. Trace capture is disabled by default for credentialed runtime runs; use `--capture-trace true` only for local debugging. Scheduled CI uploads stage an explicit allowlist of redacted JSON/text metadata and omit `static/assets/`, `static/login.html`, trace, screenshot, and video artifacts. Treat omitted artifacts as local analysis/debugging material unless a separate human review approves promotion.
 
 Sanitize Playwright HAR output before keeping or sharing it:
 
