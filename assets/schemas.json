@@ -10571,7 +10571,7 @@
                             }
                         },
                         "client_status": {
-                            "$ref": "#/definitions/ClientStatus"
+                            "$ref": "#/definitions/SessionClientStatus"
                         },
                         "approx_last_used_time": {
                             "type": "string"
@@ -22902,6 +22902,28 @@
             2,
             3
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SessionClientStatus": {
+        "type": "object",
+        "properties": {
+            "desktop": {
+                "type": "string"
+            },
+            "mobile": {
+                "type": "string"
+            },
+            "web": {
+                "type": "string"
+            },
+            "embedded": {
+                "type": "string"
+            },
+            "vr": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     }
 }

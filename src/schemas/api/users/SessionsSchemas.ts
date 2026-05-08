@@ -17,18 +17,24 @@
 */
 
 import { ActivitySchema, Snowflake } from "@spacebar/schemas";
-// TODO: remove entity import
-import { ClientStatus } from "@spacebar/util";
 
 export type SessionsLogoutSchema = { session_ids?: Snowflake[]; session_id_hashes?: string[] };
 export type GetSessionsResponse = { user_sessions: DeviceInfo[] };
+
+export interface SessionClientStatus {
+    desktop?: string;
+    mobile?: string;
+    web?: string;
+    embedded?: string;
+    vr?: string;
+}
 
 export type DeviceInfo = {
     id: string;
     id_hash: string;
     status: string;
     activities: ActivitySchema["activities"][];
-    client_status: ClientStatus;
+    client_status: SessionClientStatus;
     approx_last_used_time: string;
     client_info: {
         client: string;
