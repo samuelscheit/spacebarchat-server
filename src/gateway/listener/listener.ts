@@ -138,6 +138,10 @@ export async function handleListenerControlEvent(this: Pick<WebSocket, "close" |
     }
 }
 
+function isListenerControlEvent(event: EventOpts["event"]) {
+    return event === "INVALIDATED" || event === "SB_SESSION_CLOSE" || event === "SB_SESSION_REMOVE";
+}
+
 export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string, userId: string) {
     if (hasGuildMemberEventId(this.guild_member_event_ids, guildId, userId)) return false;
 
@@ -343,8 +347,11 @@ export async function setupListener(this: WebSocket) {
 // TODO: only subscribe for events that are in the connection intents
 export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
-    opts.acknowledge?.();
-    if (await handleListenerControlEvent.call(this, opts)) return;
+    if (isListenerControlEvent(event)) {
+        opts.acknowledge?.();
+        await handleListenerControlEvent.call(this, opts);
+        return;
+    }
 
     const id = data.id as string;
     const guildId = data.guild_id as string | undefined;
@@ -354,6 +361,7 @@ export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
 
     const consumer = consumeListenerEvent.bind(this);
     const listenOpts = opts as ListenEventOpts;
+    opts.acknowledge?.();
     const eventRouteId = getEventRouteId(opts);
     if (eventRouteId && !this.events[eventRouteId]) return;
     // console.log("event", event);
