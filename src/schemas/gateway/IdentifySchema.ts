@@ -16,9 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: Need a way to allow camalCase and pascal_case without just duplicating the schema
-
-import { ActivitySchema } from "@spacebar/schemas";
+import { ActivitySchema } from "../uncategorised/ActivitySchema";
 
 // TODO: can we get rid of this somehow?
 export const IdentifySchema = {
@@ -53,31 +51,21 @@ export const IdentifySchema = {
     // },
     $presence: ActivitySchema,
     $compress: Boolean,
-    $large_threshold: Number,
+    "$[large_threshold|largeThreshold]": Number,
     $shard: [BigInt, BigInt],
     $guild_subscriptions: Boolean,
     $capabilities: Number,
-    $client_state: {
-        $guild_hashes: Object,
-        $highest_last_message_id: Number,
-        $read_state_version: Number,
-        $user_guild_settings_version: Number,
-        $user_settings_version: undefined,
-        $useruser_guild_settings_version: undefined,
+    "$[client_state|clientState]": {
+        "$[guild_hashes|guildHashes]": Object,
+        "$[highest_last_message_id|highestLastMessageId]": Number,
+        "$[read_state_version|readStateVersion]": Number,
+        "$[user_guild_settings_version|userGuildSettingsVersion]": Number,
+        "$[user_settings_version|userSettingsVersion]": undefined,
+        "$[useruser_guild_settings_version|useruserGuildSettingsVersion]": undefined,
         $private_channels_version: Number,
-        $guild_versions: Object,
-        $api_code_version: Number,
-        $initial_guild_id: String,
-    },
-    $clientState: {
-        $guildHashes: Object,
-        $highestLastMessageId: Number,
-        $readStateVersion: Number,
-        $useruserGuildSettingsVersion: undefined,
-        $userGuildSettingsVersion: undefined,
-        $guildVersions: Object,
-        $apiCodeVersion: Number,
-        $initialGuildId: String,
+        "$[guild_versions|guildVersions]": Object,
+        "$[api_code_version|apiCodeVersion]": Number,
+        "$[initial_guild_id|initialGuildId]": String,
     },
     $v: Number,
     $version: Number,
