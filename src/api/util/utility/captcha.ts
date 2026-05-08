@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "@spacebar/util";
+import { Config, isValidCaptchaService, type CaptchaService } from "@spacebar/util";
 
 export interface hcaptchaResponse {
     success: boolean;
@@ -37,7 +37,7 @@ export interface recaptchaResponse {
     "error-codes"?: string[];
 }
 
-const verifyEndpoints = {
+const verifyEndpoints: Record<CaptchaService, string> = {
     hcaptcha: "https://hcaptcha.com/siteverify",
     recaptcha: "https://www.google.com/recaptcha/api/siteverify",
 };
@@ -46,7 +46,7 @@ export async function verifyCaptcha(response: string, ip?: string) {
     const { security } = Config.get();
     const { service, secret, sitekey } = security.captcha;
 
-    if (!service || !secret || !sitekey) throw new Error("CAPTCHA is not configured correctly. https://docs.spacebar.chat/setup/server/security/captcha/");
+    if (!isValidCaptchaService(service) || !secret || !sitekey) throw new Error("CAPTCHA is not configured correctly. https://docs.spacebar.chat/setup/server/security/captcha/");
 
     const res = await fetch(verifyEndpoints[service], {
         method: "POST",

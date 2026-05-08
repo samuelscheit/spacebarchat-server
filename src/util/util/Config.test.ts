@@ -18,10 +18,10 @@ function validConfig() {
     return config;
 }
 
-async function writeConfigFile() {
+async function writeConfigFile(config = validConfig()) {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "spacebar-config-test-"));
     const configPath = path.join(tempDir, "config.json");
-    await fs.writeFile(configPath, JSON.stringify(validConfig(), null, 4));
+    await fs.writeFile(configPath, JSON.stringify(config, null, 4));
     return configPath;
 }
 
@@ -70,4 +70,37 @@ test("Config.set writes to the current CONFIG_PATH even when the module was impo
 
     const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
     assert.equal(persisted.updates.lastNotifiedCommit, "current-path");
+});
+
+test("Config.init rejects unsupported CAPTCHA services", async () => {
+    const config = validConfig();
+    (config.security.captcha as { service: string }).service = "turnstile";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await assert.rejects(() => Config.init(true), /Your config has invalid values/);
+});
+
+test("Config.init rejects enabled CAPTCHA without complete provider settings", async () => {
+    const config = validConfig();
+    config.security.captcha.enabled = true;
+    config.security.captcha.service = "hcaptcha";
+    config.security.captcha.secret = "hcaptcha-secret";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await assert.rejects(() => Config.init(true), /Your config has invalid values/);
+});
+
+test("Config.init accepts enabled CAPTCHA with hCaptcha provider settings", async () => {
+    const config = validConfig();
+    config.security.captcha.enabled = true;
+    config.security.captcha.service = "hcaptcha";
+    config.security.captcha.sitekey = "hcaptcha-sitekey";
+    config.security.captcha.secret = "hcaptcha-secret";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await Config.init(true);
+
+    assert.equal(Config.get().security.captcha.service, "hcaptcha");
+    assert.equal(Config.get().security.captcha.sitekey, "hcaptcha-sitekey");
+    assert.equal(Config.get().security.captcha.secret, "hcaptcha-secret");
 });

@@ -65,7 +65,7 @@ public class CaptchaConfiguration {
     /// One of: null, recaptcha, hcaptcha
     /// </summary>
     [JsonPropertyName("service")]
-    public string Service { get; set; } = "none";
+    public string? Service { get; set; } = null;
 
     [JsonPropertyName("sitekey")]
     public string? SiteKey { get; set; } = null;

@@ -8,7 +8,7 @@ const originalConfigGet = Config.get;
 
 type CaptchaService = "recaptcha" | "hcaptcha";
 
-function configureCaptcha(service: CaptchaService | null) {
+function configureCaptcha(service: CaptchaService | string | null) {
     Config.get = (() => ({
         security: {
             captcha: {
@@ -60,5 +60,18 @@ describe("verifyCaptcha", () => {
         configureCaptcha(null);
 
         await assert.rejects(() => verifyCaptcha("response token"), /CAPTCHA is not configured correctly/);
+    });
+
+    test("rejects unsupported CAPTCHA services before making a verification request", async () => {
+        configureCaptcha("turnstile");
+        let fetchCalled = false;
+        globalThis.fetch = (async () => {
+            fetchCalled = true;
+            return new Response(JSON.stringify({ success: true }));
+        }) as typeof fetch;
+
+        await assert.rejects(() => verifyCaptcha("response token"), /CAPTCHA is not configured correctly/);
+
+        assert.equal(fetchCalled, false);
     });
 });

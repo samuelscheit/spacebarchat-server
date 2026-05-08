@@ -23,6 +23,7 @@ import {
     DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT,
     GATEWAY_HEARTBEAT_INTERVAL,
     ConfigValue,
+    isValidCaptchaService,
     isValidGatewayDisconnectedSessionCleanupDelay,
     isValidGatewayHeartbeatTimeout,
 } from "../config";
@@ -243,6 +244,12 @@ function validateFinalConfig(config: ConfigValue) {
         isValidGatewayDisconnectedSessionCleanupDelay,
         `${DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS} (must be a non-negative millisecond delay)`,
     );
+    assertConfig("security_captcha_service", (v) => v === null || isValidCaptchaService(v), "null, recaptcha, or hcaptcha");
+    if (config.security.captcha.enabled) {
+        assertConfig("security_captcha_service", isValidCaptchaService, "recaptcha or hcaptcha when CAPTCHA is enabled");
+        assertConfig("security_captcha_sitekey", isNonEmptyString, "a CAPTCHA site key when CAPTCHA is enabled");
+        assertConfig("security_captcha_secret", isNonEmptyString, "a CAPTCHA secret when CAPTCHA is enabled");
+    }
 
     if (hasErrors) {
         const message = "[Config] Your config has invalid values. Fix them first https://docs.spacebar.chat/setup/server/configuration";
@@ -250,4 +257,8 @@ function validateFinalConfig(config: ConfigValue) {
         console.error("[Config] Hint: if you're just testing with bundle (`npm run start`), you can set all endpoint URLs to [proto]://localhost:3001");
         throw new Error(message);
     } else console.log("[Config] Configuration validated successfully.");
+}
+
+function isNonEmptyString(value: JsonValue) {
+    return typeof value === "string" && value.trim().length > 0;
 }

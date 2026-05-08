@@ -16,9 +16,17 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+export const CAPTCHA_SERVICES = ["recaptcha", "hcaptcha"] as const;
+
+export type CaptchaService = (typeof CAPTCHA_SERVICES)[number];
+
+export function isValidCaptchaService(value: unknown): value is CaptchaService {
+    return typeof value === "string" && CAPTCHA_SERVICES.includes(value as CaptchaService);
+}
+
 export class CaptchaConfiguration {
     enabled: boolean = false;
-    service: "recaptcha" | "hcaptcha" | null = null;
+    service: CaptchaService | null = null;
     sitekey: string | null = null;
     secret: string | null = null;
 }

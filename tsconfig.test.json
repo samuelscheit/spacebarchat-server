@@ -2,6 +2,8 @@
     "extends": "./tsconfig.json",
     "include": [
         "test/**/*.ts",
+        "src/api/util/utility/captcha.test.ts",
+        "src/util/util/Config.test.ts",
         "src/api/ServerConfigure.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
