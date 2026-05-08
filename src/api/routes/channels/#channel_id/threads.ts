@@ -60,6 +60,20 @@ import {
 
 const router = Router({ mergeParams: true });
 
+export function assertRequiredForumTag(appliedTags: string[] | undefined, channelFlags: number) {
+    if (appliedTags?.length) return;
+
+    const required = channelFlags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
+    if (!required) return;
+
+    throw FieldErrors({
+        applied_tags: {
+            code: "BASE_TYPE_REQUIRED",
+            message: "This field is required",
+        },
+    });
+}
+
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
 // TODO: advance-only notification cursor
@@ -91,11 +105,8 @@ router.post(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
-        if (!body.applied_tags?.length) {
-            const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
-            //TODO better error
-            if (required) throw new Error("Tag is required for this API");
-        } else if (channel.available_tags) {
+        assertRequiredForumTag(body.applied_tags, channel.flags);
+        if (body.applied_tags?.length && channel.available_tags) {
             const realTags = new Map(channel.available_tags.map((tag) => [tag.id, tag]));
             const bad = body.applied_tags.find((tag) => !realTags.has(tag));
             //TODO better error
