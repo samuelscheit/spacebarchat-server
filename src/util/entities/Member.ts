@@ -18,7 +18,7 @@
 
 import { HTTPError } from "lambert-server";
 import { BeforeInsert, BeforeUpdate, Column, Entity, EntityManager, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { Ban, Channel, PublicGuildRelations, StageInstance } from ".";
+import { Ban, Channel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { type Event, GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
 import { Config, emitEvent, DiscordApiErrors } from "../util";
@@ -292,7 +292,6 @@ export class Member extends BaseClassWithoutId {
         const guildRepository = options?.manager?.getRepository(Guild) ?? Guild.getRepository();
         const memberRepository = options?.manager?.getRepository(Member) ?? Member.getRepository();
         const messageRepository = options?.manager?.getRepository(Message) ?? Message.getRepository();
-        const stageInstanceRepository = options?.manager?.getRepository(StageInstance) ?? StageInstance.getRepository();
         const dispatchEvent = async (payload: DeferredMemberEvent) => {
             if (options?.deferredEvents) {
                 options.deferredEvents.push(payload);
@@ -347,8 +346,6 @@ export class Member extends BaseClassWithoutId {
             })
         )
             throw new HTTPError("You are already a member of this guild", 400);
-
-        const stageInstances = await stageInstanceRepository.find({ where: { guild_id } });
 
         const member = {
             id: user_id,
@@ -407,7 +404,7 @@ export class Member extends BaseClassWithoutId {
                     guild_scheduled_events: [],
                     joined_at: newMember.joined_at,
                     presences: [],
-                    stage_instances: stageInstances.map((x) => x.toPublicStageInstance()),
+                    stage_instances: guild.stage_instances.map((x) => x.toPublicStageInstance()),
                     threads: [],
                     embedded_activities: [],
                     voice_states: guild.voice_states.map((x) => x.toPublicVoiceState()),

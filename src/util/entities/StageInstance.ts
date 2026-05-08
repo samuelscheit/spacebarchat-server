@@ -14,7 +14,7 @@ export class StageInstance extends BaseClass {
     guild_id: string;
 
     @JoinColumn({ name: "guild_id" })
-    @ManyToOne(() => Guild, {
+    @ManyToOne(() => Guild, (guild) => guild.stage_instances, {
         onDelete: "CASCADE",
     })
     guild: Guild;
