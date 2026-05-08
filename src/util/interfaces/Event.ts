@@ -98,6 +98,7 @@ export interface ReadyChannelReadState {
     mention_count: number;
     last_viewed: number;
     last_message_id?: string | null;
+    notifications_cursor?: string | null;
     last_pin_timestamp: Date | string;
     flags: number;
 }

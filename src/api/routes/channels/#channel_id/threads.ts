@@ -37,7 +37,6 @@ import {
     uploadFile,
     Attachment,
     Member,
-    ReadState,
     MessageCreateEvent,
     FieldErrors,
     getPermission,
@@ -46,8 +45,9 @@ import {
     ChannelFlags,
     Snowflake,
     messagePublicRelations,
+    upsertChannelMessageReadState,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachmentMetadata, type ThreadSearchResponse } from "@spacebar/schemas";
+import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachmentMetadata, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -66,7 +66,6 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts and shared read-state/ack policy
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -214,16 +213,8 @@ router.post(
                 // @ts-ignore
                 message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
             }
-            let read_state = await ReadState.findOne({
-                where: { user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL },
-            });
-            if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL });
-            read_state.last_message_id = message.id;
-            //It's a little more complicated than this but this'll do
-            read_state.mention_count = 0;
-
             await Promise.all([
-                read_state.save(),
+                upsertChannelMessageReadState({ user_id: req.user_id, channel_id: thread.id }, message.id),
                 message.save(),
                 emitEvent({
                     event: "MESSAGE_CREATE",

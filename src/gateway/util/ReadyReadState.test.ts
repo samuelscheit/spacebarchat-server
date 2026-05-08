@@ -14,6 +14,7 @@ describe("READY read_state serialization", () => {
                     mention_count: 0,
                     last_viewed: 3576,
                     last_message_id: "message-1",
+                    notifications_cursor: "message-2",
                     last_pin_timestamp: lastPinTimestamp,
                     flags: 1,
                 },
@@ -24,6 +25,7 @@ describe("READY read_state serialization", () => {
                     mention_count: 0,
                     last_viewed: 3576,
                     last_message_id: "message-1",
+                    notifications_cursor: "message-2",
                     last_pin_timestamp: lastPinTimestamp,
                     flags: 1,
                 },
@@ -51,6 +53,18 @@ describe("READY read_state serialization", () => {
 
     test("defaults optional counters and flags for sparse read states", () => {
         assert.deepEqual(serializeReadyReadState([{ channel_id: "channel-1" }]), [
+            {
+                id: "channel-1",
+                mention_count: 0,
+                last_viewed: 0,
+                last_pin_timestamp: READY_READ_STATE_DEFAULT_LAST_PIN_TIMESTAMP,
+                flags: 0,
+            },
+        ]);
+    });
+
+    test("omits nullish channel notification cursors from READY read_state", () => {
+        assert.deepEqual(serializeReadyReadState([{ channel_id: "channel-1", notifications_cursor: null }]), [
             {
                 id: "channel-1",
                 mention_count: 0,
