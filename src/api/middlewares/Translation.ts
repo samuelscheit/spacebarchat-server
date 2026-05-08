@@ -23,9 +23,15 @@ import i18nextMiddleware from "i18next-http-middleware";
 import i18nextBackend from "i18next-fs-backend";
 import { Router } from "express";
 
-const ASSET_FOLDER_PATH = path.join(__dirname, "..", "..", "..", "assets");
+const DEFAULT_ASSET_FOLDER_PATH = path.join(__dirname, "..", "..", "..", "assets");
+
+function getAssetFolderPath() {
+    if (fs.existsSync(path.join(DEFAULT_ASSET_FOLDER_PATH, "locales"))) return DEFAULT_ASSET_FOLDER_PATH;
+    return path.join(process.cwd(), "assets");
+}
 
 export async function initTranslation(router: Router) {
+    const ASSET_FOLDER_PATH = getAssetFolderPath();
     const languages = fs.readdirSync(path.join(ASSET_FOLDER_PATH, "locales"));
     const namespaces = fs.readdirSync(path.join(ASSET_FOLDER_PATH, "locales", "en"));
     const ns = namespaces.filter((x) => x.endsWith(".json")).map((x) => x.slice(0, x.length - 5));
