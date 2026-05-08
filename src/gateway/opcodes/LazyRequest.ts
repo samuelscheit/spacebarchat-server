@@ -91,12 +91,51 @@ function getRequestedRanges(ranges: unknown[]): [number, number][] {
             throw new Error("range is not a valid array");
         }
 
-        return range as [number, number];
+        const [start, end] = range;
+        if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end)) {
+            throw new Error("range bounds must be safe integers");
+        }
+
+        if (start < 0 || end < 0) {
+            throw new Error("range bounds must be non-negative");
+        }
+
+        if (start > end) {
+            throw new Error("range start must be less than or equal to range end");
+        }
+
+        return [start, end];
     });
 }
 
 function getLazyMemberIds(memberList: ReturnType<typeof buildLazyMemberListOperations>) {
     return new Set(memberList.ops.flatMap((op) => op.members.map((member) => member?.user.id).filter((userId): userId is string => Boolean(userId))));
+}
+
+function validateRequestedMembers(members: unknown) {
+    if (members === undefined) return;
+
+    if (!Array.isArray(members)) {
+        throw new Error("members must be an array");
+    }
+
+    for (const member of members) {
+        if (typeof member !== "string") {
+            throw new Error("member id must be a string");
+        }
+    }
+}
+
+function getRequestedChannelRanges(channels: LazyRequestSchema["channels"] | undefined) {
+    const [channel_id, ranges] = Object.entries(channels ?? {})[0] ?? [];
+    if (!channel_id) return { channel_id, requestedRanges: undefined };
+
+    if (!Array.isArray(ranges)) throw new Error("range list is not a valid array");
+
+    return {
+        channel_id,
+        requestedRanges: getRequestedRanges(ranges),
+    };
 }
 
 async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
@@ -111,10 +150,10 @@ async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: str
 
 export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
-    // TODO: check data
     check.call(this, LazyRequestSchema, d);
     const { guild_id, channels, members } = d as LazyRequestSchema;
-    const channel_id = Object.keys(channels || {})[0];
+    validateRequestedMembers(members);
+    const { channel_id, requestedRanges } = getRequestedChannelRanges(channels);
     const shouldAuthorizeChannel = Boolean(channel_id);
     const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);
     const authorized = shouldAuthorizeChannel
@@ -170,12 +209,8 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 
     if (!channels) return;
 
-    if (!channel_id) return;
+    if (!channel_id || !requestedRanges) return;
 
-    const ranges = channels[channel_id];
-    if (!Array.isArray(ranges)) throw new Error("Not a valid Array");
-
-    const requestedRanges = getRequestedRanges(ranges);
     const guildMembers = await getMembers(guild_id);
     const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.guildOwnerId));
     const member_count = visibleGuildMembers.length;

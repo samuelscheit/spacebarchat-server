@@ -63,6 +63,7 @@ const state: {
     omitPermissionGuildCache: boolean;
     permissionError: Error | undefined;
     permissionChecks: string[];
+    permissionRequests: { channelId: string; guildId: string; userId: string }[];
     sentPayloads: DispatchPayload[];
     subscriptions: string[];
     unsubscriptions: string[];
@@ -78,6 +79,7 @@ const state: {
     omitPermissionGuildCache: false,
     permissionError: undefined,
     permissionChecks: [],
+    permissionRequests: [],
     sentPayloads: [],
     subscriptions: [],
     unsubscriptions: [],
@@ -159,6 +161,7 @@ const mockUtil = {
         return undefined;
     },
     async getPermission(userId: string, guildId: string, channelId: string) {
+        state.permissionRequests.push({ channelId, guildId, userId });
         if (userId !== "viewer" && !state.guildMembers.some((member) => (member as { id?: string }).id === userId)) throw new Error("missing guild access");
 
         return {
@@ -256,6 +259,7 @@ beforeEach(() => {
     state.omitPermissionGuildCache = false;
     state.permissionError = undefined;
     state.permissionChecks = [];
+    state.permissionRequests = [];
     state.sentPayloads = [];
     state.subscriptions = [];
     state.unsubscriptions = [];
@@ -401,6 +405,86 @@ describe("lazy request member list loading", () => {
             { count: 1, id: "online" },
             { count: 2, id: "offline" },
         ]);
+    });
+
+    test("rejects malformed member list ranges before loading guild members", async () => {
+        for (const range of [[[0]], [[0, 1, 2]], [[0, "1"]], [[1.5, 2]], [[-1, 2]], [[3, 2]]] as unknown[][]) {
+            const activeSocket = socket();
+            activeSocket.member_events = {
+                "stale-user": async () => state.unsubscriptions.push("stale-user"),
+            };
+            activeSocket.guild_member_event_ids = { guild: new Set(["stale-user"]) };
+            activeSocket.member_event_guild_ids = { "stale-user": new Set(["guild"]) };
+
+            state.buildCalls = [];
+            state.findCalls = [];
+            state.permissionChecks = [];
+            state.permissionRequests = [];
+            state.sentPayloads = [];
+            state.subscriptions = [];
+            state.unsubscriptions = [];
+
+            await assert.rejects(onLazyRequest.call(activeSocket, { d: { channels: { channel: range }, guild_id: "guild" } }), /range/);
+
+            assert.deepEqual(state.permissionRequests, [], `range ${JSON.stringify(range)} should not request channel access`);
+            assert.deepEqual(state.permissionChecks, [], `range ${JSON.stringify(range)} should not authorize channel access`);
+            assert.equal(state.findCalls.length, 0, `range ${JSON.stringify(range)} should not query members`);
+            assert.deepEqual(state.buildCalls, [], `range ${JSON.stringify(range)} should not build member list ops`);
+            assert.deepEqual(state.subscriptions, [], `range ${JSON.stringify(range)} should not subscribe to members`);
+            assert.deepEqual(state.unsubscriptions, [], `range ${JSON.stringify(range)} should not unsubscribe stale members`);
+            assert.deepEqual(state.sentPayloads, [], `range ${JSON.stringify(range)} should not dispatch updates`);
+        }
+    });
+
+    test("rejects non-array channel range payloads before authorization side effects", async () => {
+        await assert.rejects(onLazyRequest.call(socket(), { d: { channels: { channel: {} }, guild_id: "guild" } }), /range list/);
+
+        assert.deepEqual(state.permissionChecks, []);
+        assert.deepEqual(state.permissionRequests, []);
+        assert.equal(state.findCalls.length, 0);
+        assert.deepEqual(state.buildCalls, []);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.sentPayloads, []);
+    });
+
+    test("rejects non-array member presence requests before authorization side effects", async () => {
+        await assert.rejects(
+            onLazyRequest.call(socket(), {
+                d: {
+                    channels: { channel: [] },
+                    guild_id: "guild",
+                    members: "target-user",
+                },
+            }),
+            /members/,
+        );
+
+        assert.deepEqual(state.permissionChecks, []);
+        assert.deepEqual(state.permissionRequests, []);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.sentPayloads, []);
+        assert.equal(state.findCalls.length, 0);
+        assert.deepEqual(state.buildCalls, []);
+    });
+
+    test("rejects non-string member presence requests before authorization side effects", async () => {
+        await assert.rejects(
+            onLazyRequest.call(socket(), {
+                d: {
+                    channels: { channel: [] },
+                    guild_id: "guild",
+                    members: [123],
+                },
+            }),
+            /member id/,
+        );
+
+        assert.deepEqual(state.permissionChecks, []);
+        assert.deepEqual(state.permissionRequests, []);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.sentPayloads, []);
+        assert.equal(state.findCalls.length, 0);
+        assert.deepEqual(state.buildCalls, []);
     });
 
     test("checks channel visibility before subscribing to requested member presences", async () => {
@@ -560,6 +644,7 @@ describe("lazy request member list loading", () => {
         });
 
         assert.deepEqual(state.permissionChecks, []);
+        assert.deepEqual(state.permissionRequests, []);
         assert.deepEqual(state.subscriptions, []);
         assert.deepEqual(state.sentPayloads, []);
         assert.equal(state.findCalls.length, 0);
