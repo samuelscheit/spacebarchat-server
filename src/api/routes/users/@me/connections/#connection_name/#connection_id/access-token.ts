@@ -65,6 +65,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
             user_id: req.user_id,
         },
         select: {
+            id: true,
             external_id: true,
             type: true,
             name: true,
@@ -83,8 +84,11 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 
     let access_token = connectedAccount.token_data.access_token;
     const { expires_at, expires_in, fetched_at } = connectedAccount.token_data;
+    const expiresAt = Number(expires_at ?? 0);
+    const expiresIn = Number(expires_in ?? 0);
+    const fetchedAt = Number(fetched_at ?? 0);
 
-    if ((expires_at && expires_at < Date.now()) || (expires_in && fetched_at + expires_in * 1000 < Date.now())) {
+    if ((expiresAt > 0 && expiresAt < Date.now()) || (expiresIn > 0 && fetchedAt + expiresIn * 1000 < Date.now())) {
         if (!(connection instanceof RefreshableConnection)) throw new ApiError("Access token expired", 0, 400);
         const tokenData = await connection.refresh(connectedAccount);
         access_token = tokenData.access_token;
