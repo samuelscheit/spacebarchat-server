@@ -10,6 +10,7 @@ import {
     applicationCommandNameWhere,
     applicationCommandScopeWhere,
     buildApplicationCommand,
+    getApplicationCommandLocalizedText,
     normalizeApplicationCommandName,
 } from "./ApplicationCommands";
 
@@ -83,5 +84,21 @@ describe("application command helpers", () => {
     test("rejects empty and oversized command names", () => {
         assert.throws(() => normalizeApplicationCommandName(" "), FieldError);
         assert.throws(() => normalizeApplicationCommandName("a".repeat(33)), FieldError);
+    });
+});
+
+describe("application command localization helpers", () => {
+    test("returns the localized command text for the requested locale", () => {
+        assert.equal(getApplicationCommandLocalizedText({ de: "spielen", "en-US": "play" }, "de"), "spielen");
+    });
+
+    test("returns null when no localizations are stored", () => {
+        assert.equal(getApplicationCommandLocalizedText(undefined, "de"), null);
+        assert.equal(getApplicationCommandLocalizedText(null, "de"), null);
+    });
+
+    test("returns null when the requested locale has no localization", () => {
+        assert.equal(getApplicationCommandLocalizedText({ "en-US": "play" }, "de"), null);
+        assert.equal(getApplicationCommandLocalizedText({ de: "spielen" }, undefined), null);
     });
 });

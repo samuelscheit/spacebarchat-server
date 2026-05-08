@@ -16,9 +16,9 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { getApplicationCommandLocalizedText, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, Member, Snowflake } from "@spacebar/util";
+import { Application, ApplicationCommand, Member, Snowflake, UserSettings } from "@spacebar/util";
 import { IsNull } from "typeorm";
 import { ApplicationCommandSchema, ApplicationCommandType } from "@spacebar/schemas";
 
@@ -54,6 +54,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
     }
 
     const applicationCommandsSendable: ApplicationCommandSchema[] = [];
+    const userLocale = (await UserSettings.getOrDefault(req.user_id)).locale ?? req.language;
 
     for (const command of applicationCommands.flat()) {
         applicationCommandsSendable.push({
@@ -63,7 +64,7 @@ router.get("/", route({}), async (req: Request, res: Response) => {
             guild_id: command.guild_id,
             name: command.name,
             name_localizations: command.name_localizations,
-            // name_localized: // TODO: make this work
+            name_localized: getApplicationCommandLocalizedText(command.name_localizations, userLocale),
             description: command.description,
             description_localizations: command.description_localizations,
             // description_localized: // TODO: make this work

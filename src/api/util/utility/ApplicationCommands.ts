@@ -65,6 +65,12 @@ export function normalizeApplicationCommandName(name: string) {
     return trimmedName;
 }
 
+export function getApplicationCommandLocalizedText(localizations: Record<string, string> | null | undefined, locale: string | null | undefined) {
+    if (!localizations || !locale) return null;
+
+    return localizations[locale] ?? null;
+}
+
 export function buildApplicationCommand(scope: ApplicationCommandScope, body: ApplicationCommandCreateSchema): ApplicationCommandSchema {
     body.type ??= 1;
 
