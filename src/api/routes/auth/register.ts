@@ -41,6 +41,7 @@ import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
 import { isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
+import { validatePasswordPolicy } from "../../util/utility/passwordStrength";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -226,7 +227,6 @@ router.post(
         //endregion
 
         // TODO: gift_code_sku_id?
-        // TODO: check password strength
 
         const email = normalizeOptionalEmail(body.email);
         body.email = email;
@@ -286,13 +286,15 @@ router.post(
         }
 
         if (body.password) {
-            const min = register.password.minLength ?? 8;
-
-            if (body.password.length < min) {
+            const passwordPolicyFailure = validatePasswordPolicy(body.password, register.password);
+            if (passwordPolicyFailure) {
                 throw FieldErrors({
                     password: {
-                        code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
-                        message: req.t("auth:register.PASSWORD_REQUIREMENTS_MIN_LENGTH", { min: min }),
+                        code: passwordPolicyFailure.code,
+                        message: req.t(`auth:register.${passwordPolicyFailure.code}`, {
+                            defaultValue: passwordPolicyFailure.message,
+                            ...passwordPolicyFailure.values,
+                        }),
                     },
                 });
             }
