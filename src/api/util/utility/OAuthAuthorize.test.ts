@@ -48,3 +48,9 @@ test("serializeOAuthAuthorizeApplication returns null for unlinked applications"
 
     assert.equal(serialized.guild_id, null);
 });
+
+test("serializeOAuthAuthorizeApplication preserves explicit null guild_id", () => {
+    const serialized = serializeOAuthAuthorizeApplication(createApplication(null));
+
+    assert.equal(serialized.guild_id, null);
+});
