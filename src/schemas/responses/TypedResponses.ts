@@ -22,6 +22,7 @@ import { DmChannelDTO } from "../../util/dtos";
 // TODO: remove entity imports
 import { Application, BackupCode, Categories, Channel, Guild, Invite, Member, Role, Template } from "@spacebar/util";
 import { APIWebhook } from "../api/channels";
+import type { APIGuildIntegration } from "./GuildIntegrationResponse";
 import { GuildVoiceRegion } from "./GuildVoiceRegionsResponse";
 import { GuildCreateResponse, PrivateUser, PublicMember, PublicMessage, PublicUser } from "@spacebar/schemas";
 
@@ -58,6 +59,7 @@ export interface APIGuildWithJoinedAt extends GuildCreateResponse {
 }
 
 export type APIRoleArray = Role[];
+export type APIGuildIntegrationArray = APIGuildIntegration[];
 export type APITemplateArray = Template[];
 export type APIGuildVoiceRegion = GuildVoiceRegion[];
 export type APILimitsConfiguration = LimitsConfiguration;

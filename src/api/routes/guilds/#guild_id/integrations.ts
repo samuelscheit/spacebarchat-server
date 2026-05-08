@@ -17,11 +17,23 @@
 */
 
 import { Router, Response, Request } from "express";
-import { route } from "@spacebar/api";
+import { listGuildIntegrations, route } from "@spacebar/api";
 const router = Router({ mergeParams: true });
 
-//TODO: implement integrations list
-router.get("/", route({}), (req: Request, res: Response) => {
-    res.json([]);
-});
+router.get(
+    "/",
+    route({
+        description: "Returns application-backed integrations installed in the guild. Requires the MANAGE_GUILD permission.",
+        permission: "MANAGE_GUILD",
+        responses: {
+            200: {
+                body: "APIGuildIntegrationArray",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id } = req.params as { [key: string]: string };
+        res.json(await listGuildIntegrations(guild_id));
+    },
+);
 export default router;
