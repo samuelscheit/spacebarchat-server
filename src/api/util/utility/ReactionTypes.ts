@@ -5,10 +5,9 @@ import type { PartialEmoji, StoredReaction } from "@spacebar/schemas";
 export { normalizeStoredReaction, toPublicReaction, toPublicReactions };
 
 const rgiEmojiPattern = createUnicodeEmojiPattern("^\\p{RGI_Emoji}$", "v");
-const emojiPresentationPattern = createUnicodeEmojiPattern("^\\p{Emoji_Presentation}$", "u");
-const emojiComponentPattern = createUnicodeEmojiPattern("^[\\p{Emoji_Presentation}\\p{Emoji_Modifier}\\uFE0F\\u200D]+$", "u");
 const customEmojiNamePattern = /^[A-Za-z0-9_]{2,32}$/;
-const customEmojiIdPattern = /^\d+$/;
+const customEmojiIdPattern = /^[1-9]\d{16,19}$/;
+const maxSnowflake = (1n << 64n) - 1n;
 
 function createUnicodeEmojiPattern(pattern: string, flags: string): RegExp | undefined {
     try {
@@ -19,35 +18,32 @@ function createUnicodeEmojiPattern(pattern: string, flags: string): RegExp | und
 }
 
 export function isUnicodeReactionEmoji(value: string): boolean {
-    if (rgiEmojiPattern) return rgiEmojiPattern.test(value);
+    return Boolean(rgiEmojiPattern?.test(value));
+}
 
-    if (emojiPresentationPattern?.test(value)) return true;
-    return Boolean(emojiComponentPattern?.test(value) && value.includes("‍"));
+function isReactionEmojiSnowflake(value: string): boolean {
+    if (!customEmojiIdPattern.test(value)) return false;
+    return BigInt(value) <= maxSnowflake;
 }
 
 export function parseReactionEmojiParam(value: string): PartialEmoji | null {
-    let emoji: string;
-    try {
-        emoji = decodeURIComponent(value);
-    } catch {
-        return null;
-    }
+    // Express has already decoded path parameters before route handlers run.
+    // Decoding here again would accept double-encoded emoji route params.
+    if (!value) return null;
 
-    if (!emoji) return null;
-
-    const parts = emoji.split(":");
+    const parts = value.split(":");
     if (parts.length === 2) {
         const [name, id] = parts;
-        if (!customEmojiNamePattern.test(name) || !customEmojiIdPattern.test(id)) return null;
+        if (!customEmojiNamePattern.test(name) || !isReactionEmojiSnowflake(id)) return null;
         return { name, id };
     }
 
     if (parts.length > 1) return null;
-    if (!isUnicodeReactionEmoji(emoji)) return null;
+    if (!isUnicodeReactionEmoji(value)) return null;
 
     return {
         id: undefined,
-        name: emoji,
+        name: value,
     };
 }
 
