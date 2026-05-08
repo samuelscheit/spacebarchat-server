@@ -17,15 +17,15 @@
 */
 
 import { Router, Response, Request } from "express";
-import { assertCdnFileSizeLimit, Config } from "@spacebar/util";
+import { ANIMATED_AVATAR_USER_ID_HEADER, assertCdnFileSizeLimit, Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
 import crypto from "node:crypto";
 import { multer } from "../util/multer";
 import { cache } from "../util/cache";
+import { assertAnimatedAvatarUploadAllowed } from "../util/AvatarUploadPolicy";
 
-// TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
 // TODO: delete old icons
@@ -47,6 +47,11 @@ router.post("/:user_id", multer.single("file"), async (req: Request, res: Respon
 
     const type = await fileTypeFromBuffer(buffer);
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
+    await assertAnimatedAvatarUploadAllowed({
+        allowAnimated: Config.get().cdn.limits.avatar.allowAnimated,
+        mimeType: type.mime,
+        userId: req.get(ANIMATED_AVATAR_USER_ID_HEADER),
+    });
     if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = `avatars/${user_id}/${hash}`;
