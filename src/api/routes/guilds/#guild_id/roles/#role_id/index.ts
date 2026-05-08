@@ -17,12 +17,41 @@
 */
 
 import { route } from "@spacebar/api";
-import { emitEvent, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
+import { assertCanManageRole, emitEvent, Guild, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { RoleModifySchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
+
+async function assertCanManageTargetRole(actorId: string, guildId: string, targetRole: Role) {
+    const [guild, member] = await Promise.all([
+        Guild.findOneOrFail({
+            where: { id: guildId },
+            select: { id: true, owner_id: true },
+        }),
+        Member.findOneOrFail({
+            where: { id: actorId, guild_id: guildId },
+            relations: { roles: true },
+            select: {
+                index: true,
+                id: true,
+                guild_id: true,
+                roles: {
+                    id: true,
+                    position: true,
+                },
+            },
+        }),
+    ]);
+
+    assertCanManageRole({
+        actorId,
+        guildOwnerId: guild.owner_id,
+        actorRoles: member.roles,
+        targetRole,
+    });
+}
 
 router.get(
     "/",
@@ -70,6 +99,11 @@ router.delete(
         const { guild_id, role_id } = req.params as { [key: string]: string };
         if (role_id === guild_id) throw new HTTPError("You can't delete the @everyone role");
 
+        const role = await Role.findOneOrFail({
+            where: { id: role_id, guild_id },
+        });
+        await assertCanManageTargetRole(req.user_id, guild_id, role);
+
         await Promise.all([
             Role.delete({
                 id: role_id,
@@ -88,8 +122,6 @@ router.delete(
         res.sendStatus(204);
     },
 );
-
-// TODO: check role hierarchy
 
 router.patch(
     "/",
@@ -124,6 +156,7 @@ router.patch(
         const role = await Role.findOneOrFail({
             where: { id: role_id, guild: { id: guild_id } },
         });
+        await assertCanManageTargetRole(req.user_id, guild_id, role);
         role.assign({
             ...body,
             permissions: String((req.permission?.bitfield || 0n) & BigInt(body.permissions || "0")),
