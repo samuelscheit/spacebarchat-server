@@ -8652,7 +8652,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 189,
+            "line": 177,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8704,7 +8704,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 122,
+            "line": 110,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8753,7 +8753,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 146,
+            "line": 134,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8808,7 +8808,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/stickers/",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 27,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8857,7 +8857,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/stickers/",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 56,
+            "line": 57,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

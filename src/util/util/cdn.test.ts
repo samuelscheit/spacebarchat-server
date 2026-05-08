@@ -61,7 +61,7 @@ describe("CDN file size limits", () => {
         });
     });
 
-    test("allows static stickers and defers premium-only animation checks to API policy", () => {
+    test("allows static stickers and leaves premium-only animation to callers with entitlement context", () => {
         const cdn = createCdnConfig();
         cdn.limits.sticker.allowAnimated = "never";
         assert.doesNotThrow(() => assertCdnAnimatedImagePolicy("/stickers/sticker-id", "image/png", cdn));
