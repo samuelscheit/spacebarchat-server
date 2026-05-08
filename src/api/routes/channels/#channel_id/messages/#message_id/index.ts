@@ -35,21 +35,13 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import multer from "multer";
-import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
+import { assertMessagePayloadPermissions, createMessageUpload, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: message content/embed string length limit
 
-const messageUpload = multer({
-    limits: {
-        fileSize: 1024 * 1024 * 100,
-        fields: 10,
-        files: 1,
-    },
-    storage: multer.memoryStorage(),
-}); // max upload 50 mb
+const messageUpload = createMessageUpload({ files: 1 });
 
 router.patch(
     "/",

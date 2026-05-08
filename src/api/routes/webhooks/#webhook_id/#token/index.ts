@@ -1,7 +1,6 @@
-import { route } from "@spacebar/api";
+import { createMessageUpload, route } from "@spacebar/api";
 import { Config, DiscordApiErrors, emitEvent, isValidWebhookToken, Webhook, toAPIWebhook } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import multer from "multer";
 import { executeWebhook, updateWebhookWithToken } from "../../../../util/handlers/Webhook";
 import { buildWebhooksUpdateEvent } from "../../../../util/utility/WebhookEvents";
 const router = Router({ mergeParams: true });
@@ -42,14 +41,7 @@ router.get(
     },
 );
 
-const messageUpload = multer({
-    limits: {
-        fileSize: Config.get().limits.message.maxAttachmentSize,
-        fields: 10,
-        // files: 1
-    },
-    storage: multer.memoryStorage(),
-});
+const messageUpload = createMessageUpload();
 
 // https://discord.com/developers/docs/resources/webhook#execute-webhook
 // TODO: Slack compatible hooks
