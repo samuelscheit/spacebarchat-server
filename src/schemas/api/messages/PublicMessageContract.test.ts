@@ -7,6 +7,7 @@ type SchemaObject = {
     type?: string;
     items?: SchemaObject;
     properties?: Record<string, SchemaObject>;
+    additionalProperties?: SchemaObject | boolean;
 };
 
 function readJson(path: string) {
@@ -55,6 +56,20 @@ describe("public message generated contract", () => {
 
         assert.equal(roles.type, "array");
         assert.equal(resolveAssetSchema(schemas, roles.items!).type, "string");
+    });
+
+    test("PublicMessage documents resolved interaction resource maps", () => {
+        const schemas = readJson("assets/schemas.json");
+        const publicMessage = resolveAssetSchema(schemas, schemas.PublicMessage);
+        const resolved = resolveAssetSchema(schemas, publicMessage.properties!.resolved!);
+
+        assert.deepEqual(Object.keys(resolved.properties ?? {}).sort(), ["attachments", "channels", "members", "messages", "roles", "users"]);
+        for (const property of Object.values(resolved.properties ?? {})) {
+            const objectMap = resolveAssetSchema(schemas, property);
+            assert.equal(objectMap.type, "object");
+            assert.notEqual(objectMap.additionalProperties, false);
+            assert.equal(resolveAssetSchema(schemas, objectMap.additionalProperties as SchemaObject).type, "object");
+        }
     });
 
     test("public message route responses do not point at the internal Message entity schema", () => {

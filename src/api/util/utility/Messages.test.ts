@@ -36,6 +36,40 @@ function jsonRoundTrip<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T;
 }
 
+test("messageToPublicMessage preserves optional resolved interaction data", () => {
+    const resolved = {
+        users: {
+            "300": makePublicUser(),
+        },
+        attachments: {
+            "900": { id: "900", filename: "document.txt" },
+        },
+    };
+    const publicMessage = messageToPublicMessage({
+        id: "200",
+        channel_id: "100",
+        content: "hello",
+        timestamp: new Date("2026-05-06T00:00:00.000Z"),
+        edited_timestamp: null,
+        mentions: [],
+        mention_roles: [],
+        mention_channels: [],
+        attachments: [],
+        embeds: [],
+        pinned: false,
+        type: 0,
+        flags: 0,
+        components: [],
+        author: {
+            ...makePublicUser(),
+            toPublicUser: makePublicUser,
+        },
+        resolved,
+    });
+
+    assert.deepEqual(publicMessage.resolved, resolved);
+});
+
 test("toPreloadMessageResponse returns a schema-compliant DTO without entity-only fields", () => {
     const entityMessage = {
         id: "200",

@@ -184,6 +184,19 @@ export type PublicMessageMember = Omit<PublicMember, "user"> & {
     user?: PublicMember["user"];
 };
 
+export interface ResolvedData {
+    users?: ResolvedObjectMap;
+    members?: ResolvedObjectMap;
+    roles?: ResolvedObjectMap;
+    channels?: ResolvedObjectMap;
+    messages?: ResolvedObjectMap;
+    attachments?: ResolvedObjectMap;
+}
+
+export interface ResolvedObjectMap {
+    [id: string]: object;
+}
+
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;
@@ -215,7 +228,7 @@ export interface PublicMessage {
     // call?: MessageCall;
     // interaction?: PartialMessageInteraction; // TODO
     // interaction_metadata?: MessageInteraction; // TODO
-    // resolved?: ResolvedData; // TODO
+    resolved?: ResolvedData;
     thread?: PublicChannel;
     // role_subscription_data?: MessageRoleSubscription;
     // purchase_notification?: MessagePurchaseNotification;

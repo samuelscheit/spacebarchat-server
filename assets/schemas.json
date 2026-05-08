@@ -4171,6 +4171,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -13239,6 +13242,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -16467,6 +16473,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -18079,6 +18088,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -18136,6 +18148,40 @@
             "tts",
             "type"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ResolvedData": {
+        "type": "object",
+        "properties": {
+            "users": {
+                "$ref": "#/definitions/ResolvedObjectMap"
+            },
+            "members": {
+                "$ref": "#/definitions/ResolvedObjectMap"
+            },
+            "roles": {
+                "$ref": "#/definitions/ResolvedObjectMap"
+            },
+            "channels": {
+                "$ref": "#/definitions/ResolvedObjectMap"
+            },
+            "messages": {
+                "$ref": "#/definitions/ResolvedObjectMap"
+            },
+            "attachments": {
+                "$ref": "#/definitions/ResolvedObjectMap"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ResolvedObjectMap": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Potion": {
