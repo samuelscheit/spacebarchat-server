@@ -1472,7 +1472,7 @@
             "method": "POST",
             "path": "/auth/login/",
             "sourceFile": "src/api/routes/auth/login.ts",
-            "line": 29,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
