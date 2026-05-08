@@ -305,6 +305,7 @@ export class User extends BaseClass {
         email,
         username,
         password,
+        date_of_birth,
         id,
         req,
         bot,
@@ -339,9 +340,7 @@ export class User extends BaseClass {
             });
         }
 
-        // TODO: save date_of_birth
-        // apparently discord doesn't save the date of birth and just calculate if nsfw is allowed
-        // if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
+        const nsfw_allowed = User.calculateNsfwAllowed(date_of_birth);
         const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
 
         const settings = settingsRepository.create({
@@ -366,6 +365,7 @@ export class User extends BaseClass {
             verified: Config.get().defaults.user.verified ?? true,
             created_at: new Date(),
             bot: !!bot,
+            nsfw_allowed,
         });
 
         user.validate();
@@ -383,6 +383,21 @@ export class User extends BaseClass {
         }
 
         return user;
+    }
+
+    static calculateNsfwAllowed(date_of_birth?: Date): boolean {
+        if (!date_of_birth) return true;
+
+        const minimumAge = Config.get().register.dateOfBirth.minimum;
+        if (!minimumAge) return true;
+
+        const parsedDateOfBirth = new Date(date_of_birth);
+        if (isNaN(parsedDateOfBirth.getTime())) return false;
+
+        const minimumDateOfBirth = new Date();
+        minimumDateOfBirth.setFullYear(minimumDateOfBirth.getFullYear() - minimumAge);
+
+        return parsedDateOfBirth <= minimumDateOfBirth;
     }
 
     static async runRegistrationSideEffects(user: User, options: { email?: string; bot?: boolean }) {
