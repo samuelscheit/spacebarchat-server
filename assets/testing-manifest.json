@@ -10403,7 +10403,7 @@
             "method": "PATCH",
             "path": "/users/:user_id/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 167,
+            "line": 152,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
