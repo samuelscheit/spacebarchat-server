@@ -1,10 +1,25 @@
+using System.ComponentModel;
 using ImageMagick;
-using Spacebar.Interop.Cdn.Abstractions;
+using Spacebar.Cdn.Shared;
 
 namespace Spacebar.Cdn;
 
 public static class Mimes {
-    public static MagickFormat GetFormatForExtension(string? extension) => CdnImageFormats.GetFormatForExtension(extension);
+    private static readonly string[] MagickFormatNames = Enum.GetNames<MagickFormat>();
 
-    public static string GetMime(MagickFormat fmt) => CdnImageFormats.GetMime(fmt);
+    public static MagickFormat GetFormatForExtension(string? extension) => ParseFormat(
+        CdnImageOutputFormats.GetSafeMagickFormatNameForExtension(extension, MagickFormatNames));
+
+    public static string GetMime(MagickFormat fmt) => CdnImageOutputFormats.TryGetMimeType(fmt.ToString(), out var mime)
+        ? mime
+        : PrintLogged("Unknown mime for format " + fmt.ToString() + "!", "application/octet-stream");
+
+    private static MagickFormat ParseFormat(string magickFormatName) => Enum.TryParse(magickFormatName, out MagickFormat fmt)
+        ? fmt
+        : throw new InvalidEnumArgumentException("Unknown format: " + magickFormatName);
+
+    private static string PrintLogged(string msg, string mime) {
+        Console.WriteLine($"{msg}: {mime}");
+        return mime;
+    }
 }

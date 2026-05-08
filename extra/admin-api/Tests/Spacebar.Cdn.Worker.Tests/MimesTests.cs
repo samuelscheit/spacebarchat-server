@@ -24,25 +24,31 @@ public class MimesTests {
     }
 
     [Theory]
-    [InlineData("msl")]
-    [InlineData("mvg")]
+    [InlineData("clipboard")]
+    [InlineData("data")]
+    [InlineData("dds")]
+    [InlineData("eps")]
     [InlineData("file")]
     [InlineData("ftp")]
     [InlineData("http")]
     [InlineData("https")]
+    [InlineData("msl")]
+    [InlineData("mvg")]
     [InlineData("pdf")]
     [InlineData("ps")]
-    [InlineData("eps")]
     [InlineData("screenshot")]
-    [InlineData("clipboard")]
-    [InlineData("x")]
-    [InlineData("dds")]
-    [InlineData("mpr")]
-    [InlineData("unknown")]
+    [InlineData("svg")]
+    public void GetFormatForExtension_RejectsKnownMagickFormatsOutsideCdnOutputAllowlist(string extension) {
+        Assert.Throws<AccessViolationException>(() => Mimes.GetFormatForExtension(extension));
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public void GetFormatForExtension_RejectsUnsupportedAndDangerousMagickCoders(string? extension) {
+    [InlineData(".")]
+    [InlineData("not-a-real-format")]
+    public void GetFormatForExtension_RejectsUnknownFormats(string? extension) {
         Assert.Throws<InvalidEnumArgumentException>(() => Mimes.GetFormatForExtension(extension));
     }
 }
