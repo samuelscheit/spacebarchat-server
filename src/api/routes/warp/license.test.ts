@@ -7,13 +7,13 @@ import licenseRouter from "./license";
 describe("POST /warp/license", () => {
     test("acknowledges Discord client license checks without a response body", async () => {
         const app = express();
-        app.use("/", licenseRouter);
+        app.use("/warp/license", licenseRouter);
 
         const server = http.createServer(app);
         const port = await listen(server);
 
         try {
-            const response = await fetch(`http://127.0.0.1:${port}/`, { method: "POST" });
+            const response = await fetch(`http://127.0.0.1:${port}/warp/license`, { method: "POST" });
 
             assert.equal(response.status, 204);
             assert.equal(await response.text(), "");
