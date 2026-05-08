@@ -14999,7 +14999,7 @@
             "method": "GET",
             "path": "/banners/:guild_id/:hash",
             "sourceFile": "src/cdn/routes/banners.ts",
-            "line": 95,
+            "line": 96,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15030,7 +15030,7 @@
             "method": "DELETE",
             "path": "/banners/:guild_id/:id",
             "sourceFile": "src/cdn/routes/banners.ts",
-            "line": 97,
+            "line": 98,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15061,7 +15061,7 @@
             "method": "GET",
             "path": "/banners/:guild_id",
             "sourceFile": "src/cdn/routes/banners.ts",
-            "line": 66,
+            "line": 67,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15092,7 +15092,7 @@
             "method": "POST",
             "path": "/banners/:guild_id",
             "sourceFile": "src/cdn/routes/banners.ts",
-            "line": 40,
+            "line": 39,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
