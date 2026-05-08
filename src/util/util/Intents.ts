@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BitField } from "./BitField";
+import { BitField, type BitFieldResolvable } from "./BitField";
 
 export class Intents extends BitField {
     static FLAGS = {
@@ -63,8 +63,8 @@ export class Intents extends BitField {
      */
     static DEFAULT_GATEWAY_IDENTIFY_INTENTS: bigint = ((BigInt(1) << BigInt(35)) - BigInt(1)) & ~Intents.ERKINALP_FLAGS.LIVE_MESSAGE_COMPOSITION;
 
-    static resolveGatewayIdentifyIntents(intents?: bigint | null): bigint {
-        return intents ?? Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS;
+    static resolveGatewayIdentifyIntents(intents?: BitFieldResolvable | null): bigint {
+        return intents == null ? Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS : Intents.resolve(intents);
     }
 
     static INTENT_TO_EVENTS_MAP = {

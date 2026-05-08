@@ -24,6 +24,8 @@ describe("Intents", () => {
         assert.equal(Intents.resolveGatewayIdentifyIntents(undefined), Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS);
         assert.equal(Intents.resolveGatewayIdentifyIntents(null), Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS);
         assert.equal(Intents.resolveGatewayIdentifyIntents(BigInt(0)), BigInt(0));
+        assert.equal(Intents.resolveGatewayIdentifyIntents(0), BigInt(0));
+        assert.equal(Intents.resolveGatewayIdentifyIntents("0"), BigInt(0));
         assert.equal(Intents.resolveGatewayIdentifyIntents(Intents.FLAGS.GUILDS), Intents.FLAGS.GUILDS);
     });
 });
