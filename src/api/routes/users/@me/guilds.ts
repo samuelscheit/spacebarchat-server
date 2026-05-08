@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { Config, Guild, Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { serializeUserGuilds } from "../../../util/utility/UserGuilds";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -33,16 +34,13 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
+        const withCounts = req.query.with_counts == "true";
         const members = await Member.find({
-            relations: { guild: true },
+            relations: withCounts ? { guild: true, roles: true, user: true } : { guild: true },
             where: { id: req.user_id },
         });
 
-        let guild = members.map((x) => x.guild);
-
-        if ("with_counts" in req.query && req.query.with_counts == "true") {
-            guild = []; // TODO: Load guilds with user role permissions number
-        }
+        const guild = serializeUserGuilds(members, withCounts);
 
         res.json(guild);
     },
