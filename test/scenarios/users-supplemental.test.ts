@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import bcrypt from "bcrypt";
 import { FrecencyUserSettings, PreloadedUserSettings } from "discord-protos";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Recipient, User, UserSettingsProtos } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Recipient, Rights, User, UserSettingsProtos } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -217,6 +217,13 @@ test(
             assert.equal(persistedMemberSettings.settings.muted, true);
             assert.equal(persistedMemberSettings.settings.mobile_push, false);
 
+            await User.update({ id: target.id }, { rights: withoutSelfLeaveRight(target.rights) });
+            const blockedLeaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
+            await assertStatus(blockedLeaveGuild, 403);
+            assert.notEqual(await Member.findOneBy({ id: target.id, guild_id: guildId }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
+
+            await Member.update({ id: target.id, guild_id: guildId }, { joined_by: owner.id });
             const leaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
             await assertStatus(leaveGuild, 204);
             await guildEvents.waitFor((event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === target.id, eventTimeoutMs);
@@ -455,6 +462,10 @@ async function deleteJson(url: string, token: string) {
             authorization: `Bearer ${token}`,
         },
     });
+}
+
+function withoutSelfLeaveRight(rights: string) {
+    return (BigInt(rights) & ~Rights.FLAGS.SELF_LEAVE_GROUPS).toString();
 }
 
 function snapshotProcessState() {

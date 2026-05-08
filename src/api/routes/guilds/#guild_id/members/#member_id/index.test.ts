@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { memberRequiresSelfLeaveRight } from "./index";
+import { memberRequiresSelfLeaveRight } from "../../../../../util/utility/GuildMemberLeave";
 
 describe("guild member delete self-leave rights", () => {
     test("requires SELF_LEAVE_GROUPS for memberships without force-add provenance", () => {
