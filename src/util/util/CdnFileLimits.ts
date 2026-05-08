@@ -8,6 +8,10 @@ function getConfiguredProfileImageSizeLimit(cdnConfig: CdnConfiguration): number
     return Math.max(cdnConfig.limits.avatar.maxSize, cdnConfig.limits.banner.maxSize, cdnConfig.limits.guildAvatar.maxSize);
 }
 
+function getConfiguredCdnImageSizeLimit(cdnConfig: CdnConfiguration): number {
+    return Math.max(...Object.values(cdnConfig.limits).map((limit) => limit.maxSize));
+}
+
 export function getCdnImageLimits(path: string, cdnConfig: CdnConfiguration): CdnImageLimitsConfiguration | undefined {
     if (path.startsWith("/guilds/") && path.includes("/users/") && path.includes("/banners")) return cdnConfig.limits.banner;
     if (path.startsWith("/guilds/") && path.includes("/users/") && path.includes("/avatars")) return cdnConfig.limits.guildAvatar;
@@ -40,5 +44,5 @@ export function getConfiguredImageUploadBodyLimit(cdnConfig: CdnConfiguration): 
 }
 
 export function getConfiguredCdnMultipartFileLimit(cdnConfig: CdnConfiguration): number {
-    return Math.max(cdnConfig.maxAttachmentSize, getConfiguredProfileImageSizeLimit(cdnConfig));
+    return Math.max(cdnConfig.maxAttachmentSize, getConfiguredCdnImageSizeLimit(cdnConfig));
 }

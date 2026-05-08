@@ -79,11 +79,14 @@ describe("CDN file size limits", () => {
         assert.equal(getConfiguredImageUploadBodyLimit(cdn), 17 * 1024 * 1024);
     });
 
-    test("sizes CDN multipart uploads from configured attachment and profile image limits", () => {
+    test("sizes CDN multipart uploads from configured attachment and image route limits", () => {
         const cdn = createCdnConfig();
         cdn.maxAttachmentSize = 25 * 1024 * 1024;
 
         assert.equal(getConfiguredCdnMultipartFileLimit(cdn), 25 * 1024 * 1024);
+
+        cdn.limits.sticker.maxSize = 64 * 1024 * 1024;
+        assert.equal(getConfiguredCdnMultipartFileLimit(cdn), 64 * 1024 * 1024);
 
         cdn.limits.avatar.maxSize = 128 * 1024 * 1024;
         assert.equal(getConfiguredCdnMultipartFileLimit(cdn), 128 * 1024 * 1024);

@@ -15813,7 +15813,7 @@
             "method": "DELETE",
             "path": "/stickers/:sticker_id/",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 79,
+            "line": 81,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15844,7 +15844,7 @@
             "method": "GET",
             "path": "/stickers/:sticker_id",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 65,
+            "line": 67,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false

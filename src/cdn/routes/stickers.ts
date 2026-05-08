@@ -17,7 +17,7 @@
 */
 
 import { Router, Response, Request } from "express";
-import { assertCdnAnimatedImagePolicy, Config } from "@spacebar/util";
+import { assertCdnAnimatedImagePolicy, assertCdnFileSizeLimit, Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
@@ -41,12 +41,14 @@ router.post("/:sticker_id", multer.single("file"), async (req: Request, res: Res
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
     const { sticker_id } = req.params as { [key: string]: string };
+    const uploadPath = `/stickers/${sticker_id}`;
+    assertCdnFileSizeLimit(uploadPath, size, Config.get().cdn);
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
     const type = await fileTypeFromBuffer(buffer);
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-    assertCdnAnimatedImagePolicy(`/stickers/${sticker_id}`, type.mime, Config.get().cdn);
+    assertCdnAnimatedImagePolicy(uploadPath, type.mime, Config.get().cdn);
     if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = `${pathPrefix}/${sticker_id}`;

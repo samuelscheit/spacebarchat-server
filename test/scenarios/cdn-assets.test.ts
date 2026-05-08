@@ -30,6 +30,7 @@ type SingleAssetFamily = {
 
 const requestSignature = "cdn-assets-scenario-signature";
 const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
+const gif = Buffer.from("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", "base64");
 const pngHash = createHash("md5").update(png).digest("hex");
 const cacheHeader = "public, max-age=21600, s-maxage=21600, immutable";
 
@@ -263,6 +264,22 @@ async function coverSingleAssetFamily(cdn: StartedCdn, storage: TestStorage, fam
     await assertStatus(invalidUpload, 400);
     assert.equal((await assertJsonObject(invalidUpload)).message, "Error: Invalid file type");
 
+    if (family.name === "sticker") {
+        const animatedUpload = await postMultipart(uploadUrl, gif, "animated-sticker.gif", "image/gif");
+        await assertStatus(animatedUpload, 400);
+        const animatedUploadBody = await assertJsonObject(animatedUpload);
+        assert.equal(animatedUploadBody.code, 50046);
+        assert.equal(animatedUploadBody.message, "Invalid file uploaded");
+        assert.equal(await storage.exists(family.storagePath), false);
+
+        const oversizedUpload = await postMultipart(uploadUrl, Buffer.concat([png, Buffer.from([0])]), "oversized-sticker.png", "image/png");
+        await assertStatus(oversizedUpload, 400);
+        const oversizedUploadBody = await assertJsonObject(oversizedUpload);
+        assert.equal(oversizedUploadBody.code, 50045);
+        assert.equal(oversizedUploadBody.message, "File uploaded exceeds the maximum size");
+        assert.equal(await storage.exists(family.storagePath), false);
+    }
+
     const upload = await postMultipart(uploadUrl, png, `${family.name}.png`, "image/png");
     await assertStatus(upload, 200);
     const uploadBody = await assertJsonObject(upload);
@@ -337,7 +354,16 @@ async function withCdnConfig<T>(fn: () => Promise<T>): Promise<T> {
             JSON.stringify({
                 general: { serverName: "localhost" },
                 api: { endpointPublic: "http://localhost:3001/api/v9" },
-                cdn: { endpointPublic: "https://cdn.example", endpointPrivate: "http://127.0.0.1:3003" },
+                cdn: {
+                    endpointPublic: "https://cdn.example",
+                    endpointPrivate: "http://127.0.0.1:3003",
+                    limits: {
+                        sticker: {
+                            allowAnimated: "never",
+                            maxSize: png.length,
+                        },
+                    },
+                },
                 gateway: { endpointPublic: "ws://localhost:3002" },
                 security: { requestSignature, cdnSignUrls: true },
             }),
