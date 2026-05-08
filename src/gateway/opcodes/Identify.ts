@@ -16,7 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, createReadyConsents, OPCODES, Payload, Send, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
+import {
+    Capabilities,
+    CLOSECODES,
+    createGatewayShard,
+    createReadyConsents,
+    isGuildOnShard,
+    OPCODES,
+    Payload,
+    Send,
+    serializeReadyReadState,
+    setupListener,
+    WebSocket,
+} from "@spacebar/gateway";
 import {
     Application,
     arrayGroupBy,
@@ -73,7 +85,6 @@ import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 
-// TODO: user sharding
 // TODO: check privileged intents, if defined in the config
 
 export async function onIdentify(this: WebSocket, data: Payload) {
@@ -134,16 +145,13 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     // TODO: actually do intent things.
 
     // Validate sharding
-    if (identify.shard) {
-        this.shard_id = identify.shard[0];
-        this.shard_count = identify.shard[1];
-
-        if (this.shard_count == null || this.shard_id == null || this.shard_id > this.shard_count || this.shard_id < 0 || this.shard_count <= 0) {
-            // TODO: why do we even care about this right now?
-            console.log(`[Gateway/${this.user_id}] Invalid sharding from ${user.id}: ${identify.shard}`);
-            return this.close(CLOSECODES.Invalid_shard);
-        }
+    const gatewayShard = createGatewayShard(identify.shard);
+    if (identify.shard && !gatewayShard) {
+        console.log(`[Gateway/${this.user_id}] Invalid sharding from ${user.id}: ${identify.shard}`);
+        return this.close(CLOSECODES.Invalid_shard);
     }
+    this.shard_id = gatewayShard?.id;
+    this.shard_count = gatewayShard?.count;
     const validateIntentsAndShardingTime = taskSw.getElapsedAndReset();
 
     // Generate a new gateway session if needed (id is already made, just save it in db )
@@ -335,7 +343,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     const userMetaQueryTime = taskSw.getElapsedAndReset();
 
-    const memberGuildIds = members.map((m) => m.guild_id);
+    const shardMembers = members.filter((member) => isGuildOnShard(member.guild_id, gatewayShard));
+    const memberGuildIds = shardMembers.map((m) => m.guild_id);
 
     // select relations
     const [
@@ -401,7 +410,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         ),
         timePromise(() =>
             ThreadMember.find({
-                where: { member_idx: In(members.map(({ index }) => index)) },
+                where: { member_idx: In(shardMembers.map(({ index }) => index)) },
             }),
         ),
         timePromise(() =>
@@ -442,7 +451,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         calls: [],
     };
 
-    members.forEach((m) => {
+    shardMembers.forEach((m) => {
         const sw = Stopwatch.startNew();
         const totalSw = Stopwatch.startNew();
         const trace: TraceNode = {
@@ -496,7 +505,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         createUserSettingsTime = taskSw.getElapsedAndReset();
     }
 
-    const merged_members = toReadyMergedMembers(members, user.toPublicUser());
+    const merged_members = toReadyMergedMembers(shardMembers, user.toPublicUser());
     const mergedMembersTime = taskSw.getElapsedAndReset();
 
     // Populated with guilds 'unavailable' currently
@@ -505,7 +514,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const pending_guilds: { id: string }[] = [];
 
     // Generate guilds list ( make them unavailable if user is bot )
-    const guilds: GuildOrUnavailable[] = members.map((member) => {
+    const guilds: GuildOrUnavailable[] = shardMembers.map((member) => {
         // TODO maybe implement this correctly, by causing create and delete events for users who can newly view
         // and not view the channels, along with doing these checks correctly, as they don't currently take into
         // account that the owner of the guild is always able to view channels, with potentially other issues.
@@ -551,7 +560,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const generateGuildsListTime = taskSw.getElapsedAndReset();
 
     // Generate user_guild_settings
-    const user_guild_settings_entries: ReadyUserGuildSettingsEntries[] = members.map((x) => ({
+    const user_guild_settings_entries: ReadyUserGuildSettingsEntries[] = shardMembers.map((x) => ({
         ...DefaultUserGuildSettings,
         ...x.settings,
         guild_id: x.guild_id,
@@ -786,7 +795,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     await Promise.all(
         pending_guilds.map((x) => {
             //Even with the GUILD_MEMBERS intent, the bot always receives just itself as the guild members
-            const botMemberObject = members.find((member) => member.guild_id === x.id);
+            const botMemberObject = shardMembers.find((member) => member.guild_id === x.id);
 
             return Send(this, {
                 op: OPCODES.Dispatch,

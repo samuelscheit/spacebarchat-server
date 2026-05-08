@@ -33,3 +33,4 @@ export * from "./ReconnectPayload";
 export * from "./Authorization";
 export * from "./GuildMemberOrdering";
 export * from "./ReadyConsents";
+export * from "./Shard";
