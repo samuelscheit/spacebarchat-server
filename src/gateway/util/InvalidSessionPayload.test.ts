@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { CLOSECODES, OPCODES } from "./Constants";
-import { createInvalidSessionPayload, sendInvalidSessionAndClose } from "./InvalidSessionPayload";
+import { OPCODES } from "./Constants";
+import { createInvalidSessionPayload, INVALID_SESSION_CLOSE_CODE, sendInvalidSessionAndClose } from "./InvalidSessionPayload";
 import type { WebSocket } from "./WebSocket";
 
 function createJsonSocket(
@@ -55,7 +55,7 @@ describe("createInvalidSessionPayload", () => {
                 d: false,
             },
         ]);
-        assert.equal(socket.closedWith, CLOSECODES.Invalid_session);
+        assert.equal(socket.closedWith, INVALID_SESSION_CLOSE_CODE);
     });
 
     test("still closes the socket if sending the invalid-session payload fails", async () => {
@@ -63,6 +63,6 @@ describe("createInvalidSessionPayload", () => {
 
         await assert.rejects(() => sendInvalidSessionAndClose(socket), /send failed/);
 
-        assert.equal(socket.closedWith, CLOSECODES.Invalid_session);
+        assert.equal(socket.closedWith, INVALID_SESSION_CLOSE_CODE);
     });
 });

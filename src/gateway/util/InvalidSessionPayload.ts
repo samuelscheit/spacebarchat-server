@@ -1,6 +1,8 @@
-import { CLOSECODES, OPCODES, Payload } from "./Constants";
+import { OPCODES, Payload } from "./Constants";
 import { Send } from "./Send";
 import type { WebSocket } from "./WebSocket";
+
+export const INVALID_SESSION_CLOSE_CODE = 1000;
 
 export interface InvalidSessionOptions {
     resumable?: boolean;
@@ -25,6 +27,6 @@ export async function sendInvalidSessionAndClose(socket: WebSocket, options: Inv
     try {
         await sendInvalidSession(socket, options);
     } finally {
-        socket.close(options.closeCode ?? CLOSECODES.Invalid_session);
+        socket.close(options.closeCode ?? INVALID_SESSION_CLOSE_CODE);
     }
 }

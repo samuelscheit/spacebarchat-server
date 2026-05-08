@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { EventOpts } from "@spacebar/util";
 import { CLOSECODES, OPCODES } from "../util/Constants";
+import { INVALID_SESSION_CLOSE_CODE } from "../util/InvalidSessionPayload";
 import type { WebSocket } from "../util/WebSocket";
 import { handlePreDispatchGatewayEvent, handleSessionControlEvent } from "./sessionControl";
 
@@ -88,7 +89,7 @@ describe("handlePreDispatchGatewayEvent", () => {
                     d: false,
                 },
             ]);
-            assert.equal(socket.closedWith, CLOSECODES.Invalid_session);
+            assert.equal(socket.closedWith, INVALID_SESSION_CLOSE_CODE);
         });
     }
 
@@ -146,7 +147,7 @@ describe("handleSessionControlEvent", () => {
                 d: false,
             },
         ]);
-        assert.equal(socket.closedWith, CLOSECODES.Invalid_session);
+        assert.equal(socket.closedWith, INVALID_SESSION_CLOSE_CODE);
     });
 
     test("handles session close events without requiring gateway event data", async () => {
