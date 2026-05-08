@@ -46,7 +46,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicMember, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
@@ -384,6 +384,7 @@ export class Channel extends BaseClass {
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
         const threadMember = await ThreadMember.createForUser(user_id, thread);
+        thread.thread_members = [threadMember];
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
@@ -770,20 +771,34 @@ export class Channel extends BaseClass {
         }
     }
 
+    private serializeThreadOwner(): PublicMember | null | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.owner_id) return null;
+        if (!this.thread_members) return undefined;
+
+        const loadedThreadMembers = this.thread_members.filter((threadMember) => threadMember.member);
+        if (loadedThreadMembers.length !== this.thread_members.length) return undefined;
+
+        const ownerMember = loadedThreadMembers.find((threadMember) => threadMember.member.id === this.owner_id)?.member;
+        return ownerMember?.toPublicMember() ?? null;
+    }
+
     toJSON(): PublicChannel {
         return {
             ...this,
             last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
             guild_id: this.guild_id ?? undefined,
             recipients: undefined, //this.recipients?.map(x=>x.user.toPublicUser()), // TODO: fix me
-            owner: undefined, // TODO: fix me - this is thread owner
+            owner: this.serializeThreadOwner(),
 
             // these fields are not returned depending on the type of channel
             bitrate: this.bitrate || undefined,
             user_limit: this.user_limit || undefined,
             rate_limit_per_user: this.rate_limit_per_user || undefined,
             owner_id: this.owner_id || undefined,
-            ...(this.isThread() && this.thread_members ? { member_ids_preview: this.thread_members.map((_) => _.member.id) } : {}),
+            ...(this.isThread() && this.thread_members
+                ? { member_ids_preview: this.thread_members.map((_) => _.member?.id ?? _.member_idx).filter((id): id is string => !!id) }
+                : {}),
             default_auto_archive_duration: this.default_auto_archive_duration ?? undefined,
             retention_policy_id: undefined,
             thread_metadata: this.thread_metadata

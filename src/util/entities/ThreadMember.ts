@@ -82,16 +82,18 @@ export class ThreadMember extends BaseClassWithoutId {
 
         const member = await Member.findOneOrFail({
             where: { id: user_id, guild_id: thread.guild_id },
-            select: { index: true },
+            relations: { user: true, roles: true },
         });
 
-        return Object.assign(new ThreadMember(), {
+        const threadMember = await Object.assign(new ThreadMember(), {
             id: thread.id,
             member_idx: member.index,
             join_timestamp: new Date(),
             muted: false,
             flags,
         }).save();
+        threadMember.member = member;
+        return threadMember;
     }
 
     static async IsInThreadOrFail(member_id: string, thread_id: string) {

@@ -218,4 +218,87 @@ describe("Channel.createThreadChannel", () => {
             ["message-id"],
         );
     });
+
+    test("serializes the loaded creator member as thread owner", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        Object.assign(Snowflake, {
+            generate: () => "owned-thread",
+        });
+
+        const publicOwner = {
+            id: "user",
+            guild_id: "guild",
+            roles: ["role"],
+            user: { id: "user", username: "owner" },
+        };
+        Object.assign(ThreadMember, {
+            createForUser: async (userId: string, thread: Pick<ChannelEntity, "id" | "guild_id">) =>
+                ({
+                    id: thread.id,
+                    member: {
+                        id: userId,
+                        toPublicMember: () => publicOwner,
+                    },
+                    toJSON: () => ({ id: thread.id }),
+                }) as unknown,
+        });
+
+        const thread = await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "owned-thread",
+                type: GUILD_PRIVATE_THREAD,
+            },
+            {},
+            "user",
+            { skipEventEmit: true, skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        assert.equal(thread.owner_id, "user");
+        assert.equal(thread.thread_members?.length, 1);
+        assert.deepEqual(thread.toJSON().owner, publicOwner);
+    });
+
+    test("omits thread owner when thread member relations are not loaded", () => {
+        const thread = Object.assign(new Channel(), {
+            id: "thread-without-members",
+            guild_id: "guild",
+            owner_id: "user",
+            type: GUILD_PRIVATE_THREAD,
+            created_at: new Date("2026-01-01T00:00:00.000Z"),
+            nsfw: false,
+        });
+
+        assert.equal(thread.toJSON().owner, undefined);
+    });
+
+    test("omits thread owner when thread member rows are loaded without member relations", () => {
+        const thread = Object.assign(new Channel(), {
+            id: "thread-without-member-relations",
+            guild_id: "guild",
+            owner_id: "user",
+            type: GUILD_PRIVATE_THREAD,
+            created_at: new Date("2026-01-01T00:00:00.000Z"),
+            nsfw: false,
+            thread_members: [{ id: "thread-without-member-relations" }],
+        });
+
+        assert.equal(thread.toJSON().owner, undefined);
+    });
+
+    test("serializes null thread owner when loaded member relations do not include owner", () => {
+        const thread = Object.assign(new Channel(), {
+            id: "thread-with-missing-owner",
+            guild_id: "guild",
+            owner_id: "user",
+            type: GUILD_PRIVATE_THREAD,
+            created_at: new Date("2026-01-01T00:00:00.000Z"),
+            nsfw: false,
+            thread_members: [{ id: "thread-with-missing-owner", member: { id: "other-user" } }],
+        });
+
+        assert.equal(thread.toJSON().owner, null);
+    });
 });
