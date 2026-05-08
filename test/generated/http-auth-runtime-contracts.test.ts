@@ -51,6 +51,7 @@ type GeneratedHttpContractMatrix = {
         runtimeCdnSignatureRequiredContracts: number;
         runtimeCdnDeleteContracts: number;
         runtimeCdnUploadContracts: number;
+        runtimeCdnInvalidUploadContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -172,6 +173,7 @@ const cdnUploadContracts = matrix.contracts.filter(
         contract.method === "POST" &&
         contract.manifestId !== "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
 );
+const cdnInvalidUploadContracts = cdnUploadContracts.filter((contract) => contract.manifestId !== "cdn:http:POST:/attachments/:channel_id/:message_id");
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
 const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 
@@ -598,6 +600,20 @@ async function postGeneratedCdnMultipart(url: string) {
     });
 }
 
+async function postGeneratedCdnInvalidMultipart(url: string) {
+    const form = new FormData();
+    form.set("file", new Blob([new Uint8Array([0x6e, 0x6f, 0x74, 0x2d, 0x61, 0x6e, 0x2d, 0x69, 0x6d, 0x61, 0x67, 0x65])], { type: "text/plain" }), "invalid.txt");
+
+    return await fetch(url, {
+        method: "POST",
+        headers: {
+            accept: "application/json",
+            signature: cdnRuntimeRequestSignature,
+        },
+        body: form,
+    });
+}
+
 function cdnUploadStoragePathForContract(contract: GeneratedHttpContract, body: Record<string, unknown>) {
     if (typeof body.path === "string") return body.path.replace(/^\/+/, "");
 
@@ -619,6 +635,16 @@ async function assertCdnUploadResponse(contract: GeneratedHttpContract, response
     assert.equal(body.size, cdnRuntimePng.length, `${contract.manifestId} should report uploaded byte size`);
     assert.equal(typeof body.url, "string", `${contract.manifestId} should return a CDN URL`);
     return body;
+}
+
+async function assertCdnInvalidUploadResponse(contract: GeneratedHttpContract, response: Response) {
+    assert.equal(response.status, 400, `${contract.manifestId} should reject invalid CDN upload files`);
+    assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON invalid-file response`);
+
+    const body = (await response.json()) as Record<string, unknown>;
+    assert.equal(body.code, 400, `${contract.manifestId} should return the invalid-file error code`);
+    assert.equal(body.message, "Error: Invalid file type", `${contract.manifestId} should return the invalid-file message`);
+    assert.equal(body.request, `${contract.method} ${contract.samplePath}`, `${contract.manifestId} should include the CDN request path`);
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -1242,6 +1268,23 @@ test("generated CDN upload contracts persist multipart PNG objects through the r
                 assert.deepEqual(await storage.get(storagePath), cdnRuntimePng, `${contract.manifestId} should persist the uploaded bytes`);
             });
         }
+    } finally {
+        restoreConsole();
+    }
+});
+
+test("generated CDN invalid-upload contracts reject non-image multipart files through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnInvalidUploadContracts.length, matrix.summary.runtimeCdnInvalidUploadContracts);
+    assert.ok(cdnInvalidUploadContracts.length > 0, "expected CDN invalid-upload routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        await withGeneratedCdn(async ({ cdn }) => {
+            for (const contract of cdnInvalidUploadContracts) {
+                const response = await postGeneratedCdnInvalidMultipart(`${cdn.baseUrl}${contract.samplePath}`);
+                await assertCdnInvalidUploadResponse(contract, response);
+            }
+        });
     } finally {
         restoreConsole();
     }
