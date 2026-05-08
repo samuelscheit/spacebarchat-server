@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import type { GuildScheduledEventResponse } from "@spacebar/schemas";
 import { getReadyUserGuildSettingsVersion, ReadyGuildDTO, type GuildOrUnavailable, type ReadyUserGuildSettingsEntries } from "./ReadyGuildDTO";
 
 type StageInstanceResponse = {
@@ -22,8 +23,27 @@ const stageInstance: StageInstanceResponse = {
     guild_scheduled_event_id: null,
 };
 
-function makeReadyGuild(stage_instances: unknown[]): GuildOrUnavailable {
-    return {
+const scheduledEvent: GuildScheduledEventResponse = {
+    id: "1059954443799498922",
+    guild_id: stageInstance.guild_id,
+    channel_id: null,
+    name: "Alien meetup",
+    description: "Aliens only!",
+    scheduled_start_time: "2026-05-09T23:00:00.000Z",
+    scheduled_end_time: "2026-05-10T23:00:00.000Z",
+    privacy_level: 2,
+    status: 1,
+    entity_type: 3,
+    entity_id: null,
+    entity_metadata: {
+        location: "somewhere in the ocean",
+    },
+    recurrence_rule: null,
+    guild_scheduled_event_exceptions: [],
+};
+
+function makeReadyGuild(stage_instances: unknown[], guild_scheduled_events?: GuildScheduledEventResponse[]): GuildOrUnavailable {
+    const guild = {
         id: stageInstance.guild_id,
         unavailable: undefined,
         channels: [],
@@ -61,7 +81,11 @@ function makeReadyGuild(stage_instances: unknown[]): GuildOrUnavailable {
         nsfw_level: 0,
         nsfw: false,
         joined_at: new Date("2026-05-06T00:00:00Z"),
-    } as unknown as GuildOrUnavailable;
+    } as unknown as GuildOrUnavailable & { guild_scheduled_events?: GuildScheduledEventResponse[] };
+
+    if (guild_scheduled_events != undefined) guild.guild_scheduled_events = guild_scheduled_events;
+
+    return guild;
 }
 
 test("ReadyGuildDTO preserves already-public stage instances from READY guild payloads", () => {
@@ -160,4 +184,16 @@ test("ReadyGuildDTO exposes Discord-compatible stage video limit", () => {
     const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
 
     assert.equal(dto.properties.max_stage_video_channel_users, 50);
+});
+
+test("ReadyGuildDTO defaults scheduled events to an empty list when none are loaded", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.deepEqual(dto.guild_scheduled_events, []);
+});
+
+test("ReadyGuildDTO preserves loaded scheduled event response objects", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([], [scheduledEvent])).toJSON();
+
+    assert.deepEqual(dto.guild_scheduled_events, [scheduledEvent]);
 });

@@ -37,6 +37,7 @@ import { JsonValue } from "@protobuf-ts/runtime";
 import {
     ApplicationCommand,
     GuildCreateResponse,
+    GuildScheduledEventResponse,
     Interaction,
     InteractionFailureReason,
     PartialEmoji,
@@ -249,7 +250,7 @@ export interface GuildCreateEvent extends Event {
     event: "GUILD_CREATE";
     data: IReadyGuildDTO & {
         joined_at: Date;
-        guild_scheduled_events: never[];
+        guild_scheduled_events: GuildScheduledEventResponse[];
         guild_hashes: unknown;
         presences: never[];
         stage_instances: StageInstanceResponse[];
