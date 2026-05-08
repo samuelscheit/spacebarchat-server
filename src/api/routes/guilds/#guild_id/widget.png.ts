@@ -66,7 +66,6 @@ router.get(
         const { createCanvas, loadImage } = require("canvas");
         const sizeOf = require("image-size");
 
-        // TODO: Widget style templates need Spacebar branding
         const source = path.join(__dirname, "..", "..", "..", "..", "..", "assets", "widget", `${style}.png`);
         if (!fs.existsSync(source)) {
             throw new HTTPError("Widget template does not exist.", 400);

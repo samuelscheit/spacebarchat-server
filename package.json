@@ -48,7 +48,8 @@
         "bench:ci": "node --expose-gc -r dotenv/config -r module-alias/register --enable-source-maps scripts/benchmarks/run.js --ci --profile",
         "bench:compare": "node scripts/benchmarks/compare.js",
         "bench:profile": "node --expose-gc -r dotenv/config -r module-alias/register --enable-source-maps scripts/benchmarks/run.js --profile",
-        "bench:test": "node --test scripts/benchmarks/*.test.js"
+        "bench:test": "node --test scripts/benchmarks/*.test.js",
+        "test:widget-templates": "node --test scripts/widget-templates.test.mjs"
     },
     "main": "dist/bundle/index.js",
     "types": "src/bundle/index.ts",
