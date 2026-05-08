@@ -23,3 +23,5 @@ export interface GuildVoiceRegion {
     deprecated: boolean;
     optimal: boolean;
 }
+
+export type APIGuildVoiceRegion = GuildVoiceRegion[];

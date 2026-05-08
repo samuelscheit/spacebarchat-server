@@ -64,3 +64,7 @@ export interface ItemCollectionShopBlock extends BaseShopBlock {
         popular: string[];
     };
 }
+
+export type ApplicationDetectableResponse = unknown[];
+export type ApplicationEntitlementsResponse = unknown[];
+export type ApplicationSkusResponse = unknown[];

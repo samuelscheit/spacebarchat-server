@@ -16,6 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { Application } from "@spacebar/util";
+
 export interface OAuthAuthorizeResponse {
     location: string;
 }
+
+export type APIApplicationArray = Application[];

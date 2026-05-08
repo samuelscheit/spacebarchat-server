@@ -20,3 +20,5 @@ import { Invite } from "@spacebar/util";
 import { UserInviteResponse } from "./UserInviteResponse";
 
 export type InviteResponse = Invite | UserInviteResponse;
+
+export type APIInviteArray = Invite[];

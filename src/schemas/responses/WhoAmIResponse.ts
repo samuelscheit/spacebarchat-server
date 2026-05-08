@@ -16,10 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { PrivateUser, PublicUser } from "@spacebar/schemas";
+
 export interface WhoAmIResponse {
     id: string;
     device_id: string | null;
     flags: number;
     rights: string | number;
     logged_in_since: string;
+}
+
+export type APIPublicUser = PublicUser;
+export type APIPrivateUser = PrivateUser;
+
+export interface UserUpdateResponse extends APIPrivateUser {
+    newToken?: string;
 }
