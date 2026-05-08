@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 using Spacebar.Models.Generic;
 
+namespace Spacebar.Models.Gateway;
+
 public class GuildMemberListUpdate {
     [JsonPropertyName("id")]
     public string ListId { get; set; } = null!;
 
     [JsonPropertyName("guild_id")]
-    public string GuildId { get; set; } = null!;
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString)]
+    public long GuildId { get; set; }
 
     [JsonPropertyName("online_count")]
     public int OnlineCount { get; set; }
@@ -48,9 +51,10 @@ public enum GuildMemberListUpdateOperationType {
 
 #region Operations
 
+[JsonDerivedType(typeof(GuildMemberListSyncOperation))]
 public class BaseGuildMemberListUpdateOperation {
     [JsonPropertyName("op")]
-    public GuildMemberListUpdateOperationType Operation { get; set; }
+    public string Operation { get; set; } = null!;
 }
 
 public class GuildMemberListSyncOperation : BaseGuildMemberListUpdateOperation {
@@ -62,9 +66,13 @@ public class GuildMemberListSyncOperation : BaseGuildMemberListUpdateOperation {
 }
 
 public class GuildMemberListSyncItem {
+    [JsonPropertyName("group"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GuildMemberListGroupCount? Group { get; set; }
+
+    [JsonPropertyName("member"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public MemberWithPresence? Member { get; set; }
+
     public class GuildMemberListMemberSyncItem : GuildMemberListSyncItem {
-        [JsonPropertyName("member")]
-        public Member Member { get; set; } = null!;
     }
 }
 

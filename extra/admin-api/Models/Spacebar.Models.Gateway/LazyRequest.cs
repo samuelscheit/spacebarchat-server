@@ -10,10 +10,11 @@ public class LazyRequest
 
     // key is string because json...
     [JsonPropertyName("channels")]
-    public Dictionary<string, List<List<int>>> Channels { get; set; }
+    public Dictionary<string, List<List<int>>> Channels { get; set; } = [];
 
     [JsonPropertyName("members")]
-    public bool Members { get; set; }
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString)]
+    public List<long>? Members { get; set; }
 
     [JsonPropertyName("threads")]
     public bool Threads { get; set; }

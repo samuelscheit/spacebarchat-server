@@ -1,7 +1,6 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Spacebar.GatewayOffload.Extensions.Db;
+using Spacebar.GatewayOffload;
 using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.Models.Db.Contexts;
@@ -12,12 +11,11 @@ namespace Spacebar.GatewayOffload.Controllers;
 
 [ApiController]
 [Route("/_spacebar/offload/gateway/LazyRequest")]
-public class Op14Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthenticationService authService, SpacebarDbContext db, IServiceProvider sp) : ControllerBase {
-    [HttpPost]
-    // TODO: actually return something?
-    public async IAsyncEnumerable<ContentlessReplicationMessage> DoLazyRequest([FromBody] LazyRequest payload) {
+public class Op14Controller(ILogger<Op14Controller> logger, SpacebarAspNetAuthenticationService authService, SpacebarDbContext db) : ControllerBase {
+    [HttpPost("")]
+    public async IAsyncEnumerable<ReplicationMessage<GuildMemberListUpdate>> DoLazyRequest([FromBody] LazyRequest payload) {
         var user = await TraceResult.TraceAsync("getAuthUser", () => authService.GetCurrentUserAsync(Request));
-        var session = await TraceResult.TraceAsync("getAuthSession", () => authService.GetCurrentSessionAsync(Request));
+        _ = await TraceResult.TraceAsync("getAuthSession", () => authService.GetCurrentSessionAsync(Request));
 
         if (!await db.Members.AsNoTracking().AnyAsync(m => m.GuildId == payload.GuildId && m.Id == user.Result.Id)) {
             logger.LogWarning("User {user} requested lazy member list for guild {guildId}, but is not a member", user.Result.Id, payload.GuildId);
@@ -25,17 +23,33 @@ public class Op14Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
         }
 
         if (payload.Channels.Count == 0) {
-            logger.LogWarning("User {user} requested lazy member list for guild {guildId}, but is not a member", user.Result.Tag, payload.GuildId);
+            logger.LogWarning("User {user} requested lazy member list for guild {guildId}, but did not specify channels", user.Result.Id, payload.GuildId);
             yield break;
         }
 
-        // Fetch hoisted roles for the guild to define groups
-        var hoistedRoles = await db.Roles
+        var members = await db.Members
             .AsNoTracking()
-            .Where(r => r.GuildId == payload.GuildId && r.Hoist)
-            .OrderByDescending(r => r.Position)
-            .Select(r => new { r.Id })
+            .Where(m => m.GuildId == payload.GuildId)
+            .Include(m => m.Roles)
+            .Include(m => m.IdNavigation)
+            .ThenInclude(u => u.Sessions.Where(s => !s.IsAdminSession))
             .ToListAsync();
+
+        foreach (var (channelIdValue, ranges) in payload.Channels) {
+            if (!long.TryParse(channelIdValue, out var channelId)) {
+                logger.LogWarning("User {user} requested lazy member list for guild {guildId} with invalid channel id {channelId}", user.Result.Id, payload.GuildId, channelIdValue);
+                continue;
+            }
+
+            var listId = await GetMemberListIdAsync(db, payload.GuildId, channelId);
+            if (listId is null) {
+                logger.LogWarning("User {user} requested lazy member list for guild {guildId} channel {channelId}, but the channel was not found or cannot be represented", user.Result.Id, payload.GuildId, channelId);
+                continue;
+            }
+
+            var update = LazyMemberListProjection.BuildUpdate(payload.GuildId, listId, members, ranges);
+            yield return LazyMemberListProjection.ToMessage(user.Result.Id, update);
+        }
     }
 
     private async Task<string?> GetMemberListIdAsync(SpacebarDbContext db, long guildId, long channelId) {
