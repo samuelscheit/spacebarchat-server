@@ -19,6 +19,7 @@
 import { InteractionCallbacksSchema, InteractionCallbackType, MessageType } from "@spacebar/schemas";
 import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
+import { acknowledgeDeferredMessageUpdateInteraction } from "../../../../util/handlers/InteractionCallbackState";
 import {
     Config,
     emitEvent,
@@ -59,6 +60,12 @@ router.post(
             if (!interaction.channelId) throw new HTTPError("Interaction channel not found", 400);
             const permissions = await getPermission(interaction.applicationId, interaction.guildId, interaction.channelId);
             assertMessagePayloadPermissions(permissions, body.data);
+        }
+
+        if (body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE) {
+            await acknowledgeDeferredMessageUpdateInteraction(interactionId, interaction, pendingInteractions, emitEvent);
+            res.sendStatus(204);
+            return;
         }
 
         clearTimeout(interaction.timeout);
@@ -137,10 +144,6 @@ router.post(
             case InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
                 // TODO
                 break;
-            case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-                pendingInteractions.delete(interactionId);
-                res.sendStatus(204);
-                return;
             case InteractionCallbackType.UPDATE_MESSAGE:
                 {
                     if (!interaction.messageId) throw new HTTPError("no. That was not a message");

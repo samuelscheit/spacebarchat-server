@@ -13775,7 +13775,7 @@
                 "requestBody": "InteractionCallbacksSchema",
                 "responses": [],
                 "responseStatuses": [],
-                "emittedEvents": ["INTERACTION_FAILURE", "INTERACTION_SUCCESS", "MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                "emittedEvents": ["INTERACTION_SUCCESS", "MESSAGE_CREATE", "MESSAGE_UPDATE"]
             },
             "cases": [
                 {
@@ -13798,7 +13798,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["INTERACTION_FAILURE", "INTERACTION_SUCCESS", "MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                    "events": ["INTERACTION_SUCCESS", "MESSAGE_CREATE", "MESSAGE_UPDATE"]
                 },
                 {
                     "id": "policy-token-auth-boundary",
