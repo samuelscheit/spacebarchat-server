@@ -29,6 +29,7 @@ import {
     User,
     VoiceState,
     VoiceStateUpdateEvent,
+    Config,
     distributePresenceUpdate,
     serializePrivateGatewaySessions,
 } from "@spacebar/util";
@@ -132,7 +133,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
     let delayedSessionCleanup: Promise<void> | undefined;
 
     try {
-        if (this.session_id) {
+        if (this.user_id && this.session_id) {
             const authSessionId = this.session?.session_id;
             const closedAt = Date.now();
 
@@ -145,7 +146,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                 } catch (e) {
                     console.error("[WebSocket] Close session cleanup failed", code, e);
                 }
-            });
+            }, Config.get().gateway.disconnectedSessionCleanupDelayMs);
 
             const voiceState = await VoiceState.findOne({
                 where: { user_id: this.user_id },
