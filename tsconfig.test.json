@@ -3,9 +3,13 @@
     "include": [
         "test/**/*.ts",
         "src/api/ServerConfigure.test.ts",
+        "src/api/util/utility/EmojiEvents.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
+        "src/gateway/listener/listener.test.ts",
+        "src/gateway/util/Capabilities.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
+        "src/util/interfaces/Event.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
