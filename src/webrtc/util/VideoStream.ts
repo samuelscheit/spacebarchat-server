@@ -3,6 +3,10 @@ import type { SSRCs, VideoStream } from "@spacebarchat/spacebar-webrtc-types";
 
 type VoiceVideoStream = NonNullable<VoiceVideoSchema["streams"]>[number];
 
+interface NormalizeVideoStreamOptions {
+    active?: boolean;
+}
+
 const DEFAULT_VIDEO_STREAM: Omit<VideoStream, "ssrc" | "rtx_ssrc"> = {
     type: "video",
     rid: "100",
@@ -21,13 +25,14 @@ function numberOrDefault(value: number | undefined, fallback: number): number {
     return value ?? fallback;
 }
 
-export function normalizeVideoStream(stream: VoiceVideoStream | undefined, ssrcs: SSRCs): VideoStream {
+export function normalizeVideoStream(stream: VoiceVideoStream | undefined, ssrcs: SSRCs, options: NormalizeVideoStreamOptions = {}): VideoStream {
     return {
         ...DEFAULT_VIDEO_STREAM,
         ...stream,
         // Discord may identify Go Live/screen-share streams as "screen" in client
         // payloads, but subscribers expect the media stream descriptor to be "video".
         type: "video",
+        active: stream?.active ?? options.active ?? DEFAULT_VIDEO_STREAM.active,
         ssrc: numberOrDefault(ssrcs.video_ssrc, numberOrDefault(stream?.ssrc, 0)),
         rtx_ssrc: numberOrDefault(ssrcs.rtx_ssrc, numberOrDefault(stream?.rtx_ssrc, 0)),
     };

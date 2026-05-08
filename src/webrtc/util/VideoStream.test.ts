@@ -61,4 +61,44 @@ describe("WebRTC video stream normalization", () => {
         assert.equal(subscriberStream.ssrc, 3333);
         assert.equal(subscriberStream.rtx_ssrc, 4444);
     });
+
+    it("builds the default outbound descriptor when no producer stream metadata is available", () => {
+        const normalized = normalizeVideoStream(undefined, {
+            video_ssrc: 9876,
+            rtx_ssrc: 5432,
+        });
+
+        assert.deepEqual(normalized, {
+            type: "video",
+            rid: "100",
+            active: true,
+            quality: 100,
+            ssrc: 9876,
+            rtx_ssrc: 5432,
+            max_bitrate: 2500000,
+            max_framerate: 20,
+            max_resolution: {
+                type: "fixed",
+                width: 1280,
+                height: 720,
+            },
+        });
+    });
+
+    it("keeps fallback stream descriptors inactive for late audio-only subscriptions", () => {
+        const normalized = normalizeVideoStream(
+            undefined,
+            {
+                audio_ssrc: 2468,
+            },
+            {
+                active: false,
+            },
+        );
+
+        assert.equal(normalized.type, "video");
+        assert.equal(normalized.active, false);
+        assert.equal(normalized.ssrc, 0);
+        assert.equal(normalized.rtx_ssrc, 0);
+    });
 });

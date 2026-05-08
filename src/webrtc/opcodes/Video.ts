@@ -193,10 +193,16 @@ export async function subscribeToProducers(this: WebRtcWebSocket): Promise<void>
                     video_ssrc: ssrcs.video_ssrc ?? 0,
                     rtx_ssrc: ssrcs.rtx_ssrc ?? 0,
                     streams: [
-                        normalizeVideoStream(client.videoStream, {
-                            video_ssrc: ssrcs.video_ssrc,
-                            rtx_ssrc: ssrcs.rtx_ssrc,
-                        }),
+                        normalizeVideoStream(
+                            client.videoStream,
+                            {
+                                video_ssrc: ssrcs.video_ssrc,
+                                rtx_ssrc: ssrcs.rtx_ssrc,
+                            },
+                            {
+                                active: client.isProducingVideo(),
+                            },
+                        ),
                     ],
                 } as VoiceVideoSchema,
             });
