@@ -19,6 +19,26 @@ describe("canDispatchEventForIntent", () => {
         assert.equal(canDispatchEventForIntent(new Intents(0), "MESSAGE_CREATE", "guild"), false);
     });
 
+    test("requires guild intents for guild identity events without a guild_id field", () => {
+        const guilds = new Intents(Intents.FLAGS.GUILDS);
+        const directMessages = new Intents(Intents.FLAGS.DIRECT_MESSAGES);
+
+        assert.equal(canDispatchEventForIntent(guilds, "GUILD_CREATE"), true);
+        assert.equal(canDispatchEventForIntent(directMessages, "GUILD_UPDATE"), false);
+        assert.equal(canDispatchEventForIntent(new Intents(0), "GUILD_DELETE"), false);
+    });
+
+    test("requires current guild intent-map names for guild invites and thread members", () => {
+        const guildInvites = new Intents(Intents.FLAGS.GUILD_INVITES);
+        const guilds = new Intents(Intents.FLAGS.GUILDS);
+
+        assert.equal(canDispatchEventForIntent(guildInvites, "INVITE_CREATE", "guild"), true);
+        assert.equal(canDispatchEventForIntent(new Intents(0), "INVITE_DELETE", "guild"), false);
+        assert.equal(Intents.GUILD_INTENT_TO_EVENTS_MAP[1].includes("THREAD_MEMBERS_UPDATE"), true);
+        assert.equal(canDispatchEventForIntent(guilds, "THREAD_MEMBERS_UPDATE", "guild"), true);
+        assert.equal(canDispatchEventForIntent(new Intents(0), "THREAD_MEMBERS_UPDATE", "guild"), false);
+    });
+
     test("requires direct message intents for non-guild message events", () => {
         const directMessages = new Intents(Intents.FLAGS.DIRECT_MESSAGES);
         const guildMessages = new Intents(Intents.FLAGS.GUILD_MESSAGES);
@@ -32,6 +52,7 @@ describe("canDispatchEventForIntent", () => {
 
         assert.equal(canDispatchEventForIntent(guildPresences, "PRESENCE_UPDATE", "guild"), true);
         assert.equal(canDispatchEventForIntent(new Intents(0), "PRESENCE_UPDATE", "guild"), false);
+        assert.equal(canDispatchEventForIntent(new Intents(0), "PRESENCE_UPDATE"), true);
     });
 
     test("allows current-user guild member updates without the guild members intent", () => {

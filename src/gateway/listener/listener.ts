@@ -79,6 +79,9 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
 
 type IntentEventMap = Record<number, string[]>;
 
+// These events carry the guild id as data.id and may be routed directly to a user.
+const GUILD_IDENTITY_EVENTS = new Set<string>([EVENTEnum.GuildCreate, EVENTEnum.GuildUpdate, EVENTEnum.GuildDelete]);
+
 function findEventIntent(event: string, ...intentEventMaps: IntentEventMap[]) {
     for (const intentEventMap of intentEventMaps) {
         const intent = Object.entries(intentEventMap).find(([, events]) => events.includes(event))?.[0];
@@ -91,7 +94,8 @@ function findEventIntent(event: string, ...intentEventMaps: IntentEventMap[]) {
 export function canDispatchEventForIntent(intents: Intents | undefined, event: string, guildId?: string, eventUserId?: string, currentUserId?: string) {
     if (event === EVENTEnum.GuildMemberUpdate && eventUserId && eventUserId === currentUserId) return true;
 
-    const intent = findEventIntent(event, guildId ? Intents.GUILD_INTENT_TO_EVENTS_MAP : Intents.DM_INTENT_TO_EVENTS_MAP, Intents.INTENT_TO_EVENTS_MAP);
+    const hasGuildIntentContext = !!guildId || GUILD_IDENTITY_EVENTS.has(event);
+    const intent = findEventIntent(event, hasGuildIntentContext ? Intents.GUILD_INTENT_TO_EVENTS_MAP : Intents.DM_INTENT_TO_EVENTS_MAP, Intents.INTENT_TO_EVENTS_MAP);
 
     if (intent === undefined) return true;
 
