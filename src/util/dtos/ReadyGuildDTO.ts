@@ -41,7 +41,7 @@ type AvailableReadyGuild = Omit<Partial<Guild>, "channels" | "emojis" | "feature
         voice_states?: ReadyVoiceState[];
     };
 
-const READY_GUILD_MAX_STAGE_VIDEO_CHANNEL_USERS = 50;
+export const MAX_STAGE_VIDEO_CHANNEL_USERS = 50 as const;
 
 type AvailableReadyGuildWithScheduledEvents = AvailableReadyGuild & { guild_scheduled_events?: GuildScheduledEventResponse[] };
 
@@ -89,7 +89,7 @@ export interface ReadyGuildProperties {
     home_header: null;
     latest_onboarding_question_id: null; // TODO
     safety_alerts_channel_id: string | null;
-    max_stage_video_channel_users: typeof READY_GUILD_MAX_STAGE_VIDEO_CHANNEL_USERS;
+    max_stage_video_channel_users: typeof MAX_STAGE_VIDEO_CHANNEL_USERS;
     nsfw: boolean;
     id: string;
 }
@@ -188,7 +188,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             home_header: null,
             id: guild.id,
             latest_onboarding_question_id: null,
-            max_stage_video_channel_users: READY_GUILD_MAX_STAGE_VIDEO_CHANNEL_USERS,
+            max_stage_video_channel_users: MAX_STAGE_VIDEO_CHANNEL_USERS,
             nsfw: guild.nsfw ?? false,
             safety_alerts_channel_id: guild.safety_alerts_channel_id ?? null,
         };

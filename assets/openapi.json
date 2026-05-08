@@ -4877,6 +4877,15 @@
                             "string"
                         ]
                     },
+                    "safety_alerts_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "safety_alerts_channel": {
+                        "$ref": "#/components/schemas/Channel"
+                    },
                     "splash": {
                         "type": "string"
                     },
@@ -14596,7 +14605,16 @@
                         ]
                     },
                     "rules_channel": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/Channel"
+                    },
+                    "safety_alerts_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "safety_alerts_channel": {
+                        "$ref": "#/components/schemas/Channel"
                     },
                     "region": {
                         "type": "string"

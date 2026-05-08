@@ -5098,6 +5098,15 @@
                     "string"
                 ]
             },
+            "safety_alerts_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "safety_alerts_channel": {
+                "$ref": "#/definitions/Channel"
+            },
             "splash": {
                 "type": "string"
             },
@@ -15240,7 +15249,16 @@
                 ]
             },
             "rules_channel": {
-                "type": "string"
+                "$ref": "#/definitions/Channel"
+            },
+            "safety_alerts_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "safety_alerts_channel": {
+                "$ref": "#/definitions/Channel"
             },
             "region": {
                 "type": "string"

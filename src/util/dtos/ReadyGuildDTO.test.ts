@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { GuildScheduledEventResponse } from "@spacebar/schemas";
-import { getReadyUserGuildSettingsVersion, ReadyGuildDTO, type GuildOrUnavailable, type ReadyUserGuildSettingsEntries } from "./ReadyGuildDTO";
+import { getReadyUserGuildSettingsVersion, MAX_STAGE_VIDEO_CHANNEL_USERS, ReadyGuildDTO, type GuildOrUnavailable, type ReadyUserGuildSettingsEntries } from "./ReadyGuildDTO";
 
 type StageInstanceResponse = {
     id: string;
@@ -184,7 +184,9 @@ test("getReadyUserGuildSettingsVersion ignores missing and null stored versions"
 test("ReadyGuildDTO exposes Discord-compatible stage video limit", () => {
     const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
 
-    assert.equal(dto.properties.max_stage_video_channel_users, 50);
+    assert.equal(MAX_STAGE_VIDEO_CHANNEL_USERS, 50);
+    assert.equal(dto.properties.max_stage_video_channel_users, MAX_STAGE_VIDEO_CHANNEL_USERS);
+    assert.equal(dto.properties.max_video_channel_users, 25);
 });
 
 test("ReadyGuildDTO defaults scheduled events to an empty list when none are loaded", () => {
