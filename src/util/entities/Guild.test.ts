@@ -425,6 +425,7 @@ describe("Guild entity metadata", () => {
             description: null,
             public_updates_channel_id: null,
             rules_channel_id: null,
+            safety_alerts_channel_id: null,
             system_channel_id: null,
             widget_channel_id: null,
             template_id: "template",
@@ -440,6 +441,7 @@ describe("Guild entity metadata", () => {
             description: null,
             public_updates_channel_id: null,
             rules_channel_id: null,
+            safety_alerts_channel_id: null,
             system_channel_id: null,
             widget_channel_id: null,
             template_id: "template",
@@ -451,8 +453,27 @@ describe("Guild entity metadata", () => {
         assert.equal(data.description, null);
         assert.equal(data.public_updates_channel_id, null);
         assert.equal(data.rules_channel_id, null);
+        assert.equal(data.safety_alerts_channel_id, null);
         assert.equal(data.system_channel_id, null);
         assert.equal(data.widget_channel_id, null);
+        assert.equal(Object.hasOwn(data, "template_id"), false);
+    });
+
+    test("Guild.toGuildUpdateEventData includes a configured safety alerts channel id", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+        const { Guild } = await import("./Guild.js");
+
+        const guild = new Guild();
+        t.mock.method(guild, "toJSON", () => ({
+            id: "guild",
+            name: "Guild",
+            safety_alerts_channel_id: "safety-channel",
+            template_id: "template",
+        }));
+
+        const data = guild.toGuildUpdateEventData();
+
+        assert.equal(data.safety_alerts_channel_id, "safety-channel");
         assert.equal(Object.hasOwn(data, "template_id"), false);
     });
 

@@ -257,7 +257,15 @@ export class Guild extends BaseClass {
 
     @JoinColumn({ name: "rules_channel_id" })
     @ManyToOne(() => Channel)
-    rules_channel?: string;
+    rules_channel?: Channel;
+
+    @Column({ type: String, nullable: true })
+    @RelationId((guild: Guild) => guild.safety_alerts_channel)
+    safety_alerts_channel_id?: string | null;
+
+    @JoinColumn({ name: "safety_alerts_channel_id" })
+    @ManyToOne(() => Channel)
+    safety_alerts_channel?: Channel;
 
     @Column({ nullable: true })
     region?: string;
@@ -370,6 +378,7 @@ export class Guild extends BaseClass {
 
         return {
             ...data,
+            safety_alerts_channel_id: data.safety_alerts_channel_id ?? null,
         } satisfies GuildCreateResponse;
     }
 
