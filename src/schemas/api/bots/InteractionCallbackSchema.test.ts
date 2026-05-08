@@ -6,13 +6,22 @@ import Ajv from "ajv";
 
 const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, unknown>;
 const interactionMessageSchema = schemas.InteractionMessage as Record<string, unknown>;
+const interactionCallbacksSchema = schemas.InteractionCallbacksSchema as Record<string, unknown>;
 const interactionMessageSchemaWithDefinitions = {
     ...interactionMessageSchema,
     definitions: schemas,
 };
+const interactionCallbacksSchemaWithDefinitions = {
+    ...interactionCallbacksSchema,
+    definitions: schemas,
+};
 
 function compileInteractionMessageSchema() {
-    return new Ajv({ strict: false, validateFormats: false }).compile(interactionMessageSchemaWithDefinitions);
+    return new Ajv({ strict: false, validateFormats: false, validateSchema: false }).compile(interactionMessageSchemaWithDefinitions);
+}
+
+function compileInteractionCallbacksSchema() {
+    return new Ajv({ strict: false, validateFormats: false, validateSchema: false }).compile(interactionCallbacksSchemaWithDefinitions);
 }
 
 function schemaProperty(schema: unknown, property: string) {
@@ -79,5 +88,15 @@ describe("InteractionMessage", () => {
         assert.equal(validate({ ...validInteractionMessage(), attachments: ["not-an-attachment"] }), false);
         assert.equal(validate({ ...validInteractionMessage(), attachments: [{}] }), false);
         assert.equal(validate({ ...validInteractionMessage(), attachments: [uploadReservationAttachment()] }), false);
+    });
+});
+
+describe("InteractionCallbacksSchema", () => {
+    test("rejects unsupported callback response types", () => {
+        const validate = compileInteractionCallbacksSchema();
+
+        for (const type of [8, 9, 10, 11, 12]) {
+            assert.equal(validate({ type }), false, `type ${type} should stay unsupported until route handling exists`);
+        }
     });
 });
