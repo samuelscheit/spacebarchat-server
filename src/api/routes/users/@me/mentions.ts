@@ -76,8 +76,14 @@ router.get(
         const visibleChannels = channels.filter((c) => {
             const member = memberships.find((m) => m.guild_id === c.guild_id)!;
             return Permissions.finalPermission({
-                user: { id: member.id, roles: member.roles.map((r) => r.id), communication_disabled_until: member.communication_disabled_until, flags: 0 },
-                guild: { id: member.guild.id, owner_id: member.guild.owner_id!, roles: member.roles },
+                user: {
+                    id: member.id,
+                    roles: member.roles.map((r) => r.id),
+                    resolved_roles: member.roles,
+                    communication_disabled_until: member.communication_disabled_until,
+                    flags: 0,
+                },
+                guild: { id: member.guild.id, owner_id: member.guild.owner_id! },
                 channel: c,
             }).has("VIEW_CHANNEL");
         });

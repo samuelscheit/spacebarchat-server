@@ -2,7 +2,7 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah
 // @fc-license-skip
 
-import type { Channel, Guild, Member, Role } from "../entities";
+import type { Channel, Guild, Member, Recipient, Role } from "../entities";
 import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
@@ -156,19 +156,18 @@ export class Permissions extends BitField {
         guild,
         channel,
     }: {
-        user: { id: string; roles: string[]; communication_disabled_until: Date | null; flags: number };
-        guild: { id: string; owner_id: string; roles: Role[] };
+        user: { id: string; roles: string[]; resolved_roles: Role[]; communication_disabled_until: Date | null; flags: number };
+        guild: { id: string; owner_id: string };
         channel?: {
             overwrites?: ChannelPermissionOverwrite[];
-            recipient_ids?: string[] | null;
+            recipients?: Pick<Recipient, "user_id" | "closed">[] | null;
             owner_id?: string;
         };
     }) {
         if (user.id === "0") return new Permissions("ADMINISTRATOR"); // system user id
         if (guild?.owner_id === user.id) return new Permissions(Permissions.ALL);
 
-        const roles = guild.roles.filter((x) => user.roles.includes(x.id));
-        let permission = Permissions.rolePermission(roles);
+        let permission = Permissions.rolePermission(user.resolved_roles);
 
         if (channel?.overwrites) {
             const overwrites = channel.overwrites.filter((x) => {
@@ -179,9 +178,9 @@ export class Permissions extends BitField {
             permission = Permissions.channelPermission(overwrites, permission);
         }
 
-        if (channel?.recipient_ids) {
+        if (channel?.recipients) {
             if (channel?.owner_id === user.id) return new Permissions("ADMINISTRATOR");
-            if (channel.recipient_ids.includes(user.id)) {
+            if (channel.recipients.some((recipient) => recipient.user_id === user.id && !recipient.closed)) {
                 // Default dm permissions
                 return new Permissions([
                     "VIEW_CHANNEL",
@@ -325,26 +324,22 @@ export async function getPermission(
         });
     }
 
-    let recipient_ids = channel?.recipients?.map((x) => x.user_id);
-    if (!recipient_ids?.length) recipient_ids = undefined;
-
-    // TODO: remove guild.roles and convert recipient_ids to recipients
     const permission = Permissions.finalPermission({
         user: {
             id: user_id,
             roles: member?.roles.map((x) => x.id) || [],
+            resolved_roles: member?.roles || [],
             communication_disabled_until: member?.communication_disabled_until ?? null,
             flags: user.flags,
         },
         guild: {
             id: guild?.id || "",
             owner_id: guild?.owner_id || "",
-            roles: member?.roles || [],
         },
         channel: {
             overwrites: channel?.permission_overwrites,
             owner_id: channel?.owner_id,
-            recipient_ids,
+            recipients: channel?.recipients?.length ? channel.recipients : undefined,
         },
     });
 

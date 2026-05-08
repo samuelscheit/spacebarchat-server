@@ -95,11 +95,11 @@ router.get(
                 user: {
                     id: user.id,
                     roles: x.roles?.map((x) => x.id) || [],
+                    resolved_roles: x.roles || [],
                     communication_disabled_until: x.communication_disabled_until,
                     flags: x.user.flags,
                 },
                 guild: {
-                    roles: x?.roles || [],
                     id: x.guild.id,
                     owner_id: x.guild.owner_id!, // ownerless guilds...?
                 },

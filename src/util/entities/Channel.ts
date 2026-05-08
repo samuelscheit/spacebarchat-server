@@ -740,9 +740,10 @@ export class Channel extends BaseClass {
             user: {
                 ...member,
                 roles: roles.map((r) => r.id),
+                resolved_roles: roles,
                 flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
             },
-            guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
+            guild: { id: guild.id, owner_id: guild.owner_id! },
             channel: this,
         });
     }

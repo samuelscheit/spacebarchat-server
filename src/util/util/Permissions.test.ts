@@ -27,13 +27,13 @@ function finalAdminPermission({
         user: {
             id: "user_id",
             roles: ["admin_role"],
+            resolved_roles: [adminRole()],
             communication_disabled_until: communicationDisabledUntil,
             flags,
         },
         guild: {
             id: "guild_id",
             owner_id: "owner_id",
-            roles: [adminRole()],
         },
         channel: overwrites ? { overwrites } : undefined,
     });
@@ -49,6 +49,115 @@ function adminDenyOverwrite(): ChannelPermissionOverwrite {
 }
 
 describe("Permissions", () => {
+    test("final guild permissions use the user's resolved roles", () => {
+        const viewRole = {
+            id: "view_role",
+            permissions: Permissions.FLAGS.VIEW_CHANNEL.toString(),
+        } as Role;
+
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: ["view_role"],
+                resolved_roles: [viewRole],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "guild_id",
+                owner_id: "owner_id",
+            },
+        });
+
+        assert.equal(permissions.has("VIEW_CHANNEL", false), true);
+        assert.equal(permissions.has("SEND_MESSAGES", false), false);
+    });
+
+    test("active DM recipients receive default DM permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "user_id", closed: false }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, Permissions.DEFAULT_DM_PERMISSIONS.bitfield);
+    });
+
+    test("closed DM recipients receive no permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "user_id", closed: true }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, 0n);
+    });
+
+    test("DM non-recipients receive no permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "other_user_id", closed: false }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, 0n);
+    });
+
+    test("group DM owner receives administrator permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "owner_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                owner_id: "owner_id",
+                recipients: [{ user_id: "owner_id", closed: true }],
+            },
+        });
+
+        assert.equal(permissions.has("ADMINISTRATOR", false), true);
+    });
+
     test("channel overwrites cannot deny administrator permissions", () => {
         const permissions = new Permissions(
             Permissions.channelPermission(

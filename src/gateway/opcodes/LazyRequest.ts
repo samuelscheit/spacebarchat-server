@@ -56,13 +56,13 @@ function memberCanViewChannel(member: Member, channel: Channel, guildOwnerId?: s
         user: {
             id: member.id,
             roles: member.roles?.map((role) => role.id) ?? [],
+            resolved_roles: member.roles ?? [],
             communication_disabled_until: member.communication_disabled_until ?? null,
             flags: member.user?.flags ?? 0,
         },
         guild: {
             id: member.guild_id,
             owner_id: guildOwnerId ?? "",
-            roles: member.roles ?? [],
         },
         channel: {
             overwrites: channel.permission_overwrites,
