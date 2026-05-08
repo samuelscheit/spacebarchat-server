@@ -17,7 +17,8 @@
 */
 
 import { CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@spacebar/gateway";
-import { checkToken, Intents, Session } from "@spacebar/util";
+import { checkToken, Session } from "@spacebar/util";
+import { getSessionGatewayIntents } from "../util/SessionIntents";
 
 interface ResumePayload {
     token: string;
@@ -46,7 +47,7 @@ export async function onResume(this: WebSocket, data: Payload) {
     this.user_id = tokenData.user.id;
     this.session_id = tokenData.session.session_id;
     this.session = tokenData.session;
-    this.intents = new Intents(0);
+    this.intents = getSessionGatewayIntents(tokenData.session);
     this.sequence = (data.d.seq ?? -1) + 1;
 
     await Promise.all([

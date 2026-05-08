@@ -67,9 +67,14 @@ type GuildCreatePermissionData = {
     >;
 };
 
-export function canDispatchGuildMemberUpdate(currentUserId: string | undefined, intents: Intents, updateUserId: string | undefined) {
-    if (!updateUserId) return false;
-    if (updateUserId === currentUserId) return true;
+export function canDispatchGuildMemberEvent(
+    event: "GUILD_MEMBER_ADD" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_UPDATE",
+    currentUserId: string | undefined,
+    intents: Intents,
+    eventUserId: string | undefined,
+) {
+    if (!eventUserId) return false;
+    if (event === "GUILD_MEMBER_UPDATE" && eventUserId === currentUserId) return true;
 
     return intents.has(Intents.FLAGS.GUILD_MEMBERS);
 }
@@ -455,9 +460,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
             break;
         case "GUILD_MEMBER_ADD":
         case "GUILD_MEMBER_REMOVE":
-            break;
-        case "GUILD_MEMBER_UPDATE": // current-user updates are always visible; other members require GUILD_MEMBERS.
-            if (!canDispatchGuildMemberUpdate(this.user_id, this.intents, data.user?.id)) return;
+        case "GUILD_MEMBER_UPDATE": // current-user updates are always visible; other member events require GUILD_MEMBERS.
+            if (!canDispatchGuildMemberEvent(event, this.user_id, this.intents, data.user?.id)) return;
             break;
         case "PRESENCE_UPDATE": // direct user routes cover friends/DMs; guild routes require an authorized lazy member-list subscription.
             if (!canDispatchGuildPresenceUpdate(this.guild_member_event_ids, guildId, data.user?.id)) return;

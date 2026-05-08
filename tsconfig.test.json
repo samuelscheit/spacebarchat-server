@@ -6,7 +6,10 @@
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
-        "src/util/util/TraverseDirectory.test.ts"
+        "src/util/util/TraverseDirectory.test.ts",
+        "src/gateway/listener/listener.test.ts",
+        "src/gateway/util/SessionIntents.test.ts",
+        "src/cdn/util/Storage.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {

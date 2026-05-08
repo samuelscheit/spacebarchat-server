@@ -70,6 +70,7 @@ import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
+import { setSessionGatewayIntents } from "../util/SessionIntents";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -182,6 +183,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     this.session_id = session.session_id;
     this.session = session;
+    setSessionGatewayIntents(this.session, this.intents);
     // this.session.status = identify.presence?.status || "online";
     this.session.last_seen = new Date();
     this.session.client_info ??= {};

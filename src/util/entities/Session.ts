@@ -80,6 +80,9 @@ export class Session extends BaseClassWithoutId {
     @Column({ nullable: true, type: String })
     session_nickname?: string;
 
+    @Column({ nullable: false, type: String, default: "0" })
+    gateway_intents: string = "0";
+
     getPublicStatus() {
         return this.status === "invisible" ? "offline" : this.status;
     }
