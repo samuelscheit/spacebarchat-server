@@ -21,6 +21,10 @@ import { green, red } from "picocolors";
 
 export let mediaServer: SignalingDelegate;
 
+export const setMediaServerForTesting = (server: SignalingDelegate | undefined) => {
+    mediaServer = server as SignalingDelegate;
+};
+
 export const WRTC_PUBLIC_IP = process.env.WRTC_PUBLIC_IP ?? "127.0.0.1";
 export const WRTC_PORT_MIN = process.env.WRTC_PORT_MIN ? parseInt(process.env.WRTC_PORT_MIN) : 2000;
 export const WRTC_PORT_MAX = process.env.WRTC_PORT_MAX ? parseInt(process.env.WRTC_PORT_MAX) : 65000;
