@@ -1,5 +1,4 @@
 import crypto from "node:crypto";
-import sharp from "sharp";
 
 export const ANIMATED_IMAGE_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
 export const RASTER_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"];
@@ -40,5 +39,6 @@ export function canResizeImageMimeType(mimeType: string | undefined) {
 export async function resizeCdnImage(buffer: Buffer, mimeType: string | undefined, size: number | undefined) {
     if (!size || !canResizeImageMimeType(mimeType)) return buffer;
 
+    const { default: sharp } = await import("sharp");
     return sharp(buffer).resize(size, size, { fit: "cover" }).toBuffer();
 }

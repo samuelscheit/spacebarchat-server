@@ -6,6 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import type { FileStorage } from "@spacebar/cdn";
 import { Config } from "@spacebar/util";
+import imageSize from "image-size";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createCdnObject, withFileStorage } from "../fixtures/files";
 import { startCdn } from "../server/startCdn";
@@ -241,6 +242,8 @@ async function coverHashAssetFamily(cdn: StartedCdn, storage: TestStorage, famil
     await assertAssetDownload(await fetch(uploadUrl), png);
     await assertAssetDownload(await fetch(`${uploadUrl}/${id}.png`), png);
 
+    if (family.name === "role icon") await assertRoleIconResizedDownloads(uploadUrl, id);
+
     if (family.assertUnsignedDelete) {
         const unsignedDelete = await fetch(`${uploadUrl}/${id}`, { method: "DELETE" });
         await assertStatus(unsignedDelete, 400);
@@ -308,6 +311,24 @@ async function assertAssetDownload(response: Response, expected?: Buffer) {
     const body = Buffer.from(await response.arrayBuffer());
     if (expected) assert.deepEqual(body, expected);
     else assert.equal(body.subarray(1, 4).toString("ascii"), "PNG");
+}
+
+async function assertRoleIconResizedDownloads(uploadUrl: string, id: string) {
+    await assertResizedPngDownload(await fetch(`${uploadUrl}?size=16`), 16);
+    await assertResizedPngDownload(await fetch(`${uploadUrl}/${id}.png?size=16`), 16);
+    await assertAssetDownload(await fetch(`${uploadUrl}?size=17`), png);
+    await assertAssetDownload(await fetch(`${uploadUrl}/${id}.png?size=17`), png);
+}
+
+async function assertResizedPngDownload(response: Response, expectedSize: number) {
+    await assertStatus(response, 200);
+    assert.equal(response.headers.get("content-type"), "image/png");
+    assert.equal(response.headers.get("cache-control"), cacheHeader);
+
+    const body = Buffer.from(await response.arrayBuffer());
+    const dimensions = imageSize(body);
+    assert.equal(dimensions.width, expectedSize);
+    assert.equal(dimensions.height, expectedSize);
 }
 
 async function postMultipart(url: string, buffer: Buffer, filename: string, mimetype: string) {
