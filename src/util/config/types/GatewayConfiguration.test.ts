@@ -17,6 +17,7 @@ describe("GatewayConfiguration", () => {
         assert.equal(config.endpointPublic, null);
         assert.equal(config.heartbeatTimeout, DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT);
         assert.equal(config.disconnectedSessionCleanupDelayMs, DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS);
+        assert.equal(config.privilegedIntents, null);
         assert.equal(DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, 45_000);
         assert.equal(GATEWAY_HEARTBEAT_INTERVAL, 30_000);
         assert.equal(DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS, 10_000);
@@ -33,13 +34,14 @@ describe("GatewayConfiguration", () => {
         assert.equal(isValidGatewayHeartbeatTimeout("45000"), false);
     });
 
-    it("allows immediate or delayed disconnected session cleanup", () => {
+    it("accepts non-negative disconnected session cleanup delays", () => {
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(0), true);
-        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(10_000), true);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(1), true);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS), true);
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(-1), false);
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(null), false);
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(Number.NaN), false);
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(Number.POSITIVE_INFINITY), false);
-        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay("0"), false);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay("10000"), false);
     });
 });

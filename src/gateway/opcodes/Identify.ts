@@ -70,9 +70,9 @@ import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
+import { getConfiguredPrivilegedIntents, hasDisallowedPrivilegedIntents } from "./IdentifyPrivilegedIntents";
 
 // TODO: user sharding
-// TODO: check privileged intents, if defined in the config
 
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
@@ -127,7 +127,22 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Check intents
     if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
-    this.intents = new Intents(identify.intents);
+    const requestedIntents = new Intents(identify.intents);
+    const configuredPrivilegedIntents = getConfiguredPrivilegedIntents(Config.get().gateway.privilegedIntents);
+
+    if (user.bot && requestedIntents.any(configuredPrivilegedIntents)) {
+        const application = await Application.findOne({
+            where: { id: user.id },
+            select: { id: true, flags: true },
+        });
+
+        if (hasDisallowedPrivilegedIntents(requestedIntents, configuredPrivilegedIntents, application?.flags)) {
+            console.log(`[Gateway/${this.ipAddress}] Bot ${user.id} requested disallowed privileged intents: ${requestedIntents.bitfield}`);
+            return this.close(CLOSECODES.Disallowed_intent);
+        }
+    }
+
+    this.intents = requestedIntents;
 
     // TODO: actually do intent things.
 

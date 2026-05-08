@@ -18538,6 +18538,11 @@
             "disconnectedSessionCleanupDelayMs": {
                 "type": "integer"
             },
+            "privilegedIntents": {
+                "$ref": "#/definitions/PrivilegedIntentsConfiguration",
+                "description": "Bitmask of privileged gateway intents that should require bot application approval.\n\nLeave unset/null to preserve the historical Spacebar behavior of not enforcing\nprivileged intent approval during IDENTIFY. JSON configuration may use either\na number or a decimal/hex string for masks that exceed JavaScript's safe integer\nrange.",
+                "default": null
+            },
             "endpointPrivate": {
                 "type": [
                     "null",
@@ -18558,7 +18563,16 @@
             "disconnectedSessionCleanupDelayMs",
             "endpointPrivate",
             "endpointPublic",
-            "heartbeatTimeout"
+            "heartbeatTimeout",
+            "privilegedIntents"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PrivilegedIntentsConfiguration": {
+        "type": [
+            "null",
+            "string",
+            "integer"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

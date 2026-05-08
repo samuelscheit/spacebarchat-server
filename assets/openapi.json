@@ -17748,6 +17748,11 @@
                     "heartbeatTimeout": {
                         "type": "integer"
                     },
+                    "privilegedIntents": {
+                        "$ref": "#/components/schemas/PrivilegedIntentsConfiguration",
+                        "description": "Bitmask of privileged gateway intents that should require bot application approval.\n\nLeave unset/null to preserve the historical Spacebar behavior of not enforcing\nprivileged intent approval during IDENTIFY. JSON configuration may use either\na number or a decimal/hex string for masks that exceed JavaScript's safe integer\nrange.",
+                        "default": null
+                    },
                     "endpointPrivate": {
                         "type": [
                             "null",
@@ -17766,7 +17771,8 @@
                 "required": [
                     "endpointPrivate",
                     "endpointPublic",
-                    "heartbeatTimeout"
+                    "heartbeatTimeout",
+                    "privilegedIntents"
                 ]
             },
             "CdnConfiguration": {
@@ -21852,6 +21858,13 @@
                     1,
                     2,
                     3
+                ]
+            },
+            "PrivilegedIntentsConfiguration": {
+                "type": [
+                    "null",
+                    "string",
+                    "integer"
                 ]
             }
         }
