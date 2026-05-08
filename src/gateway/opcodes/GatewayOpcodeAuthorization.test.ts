@@ -42,6 +42,7 @@ const state: {
     permissionCalls: { channelId: string; guildId?: string; permission?: unknown; userId: string }[];
     streamDeleteCalls: unknown[];
     streamFindCalls: unknown[];
+    streamRemoveCalls: unknown[];
     streamSaves: unknown[];
     streamSessionSaves: unknown[];
     voiceCreateCalls: unknown[];
@@ -58,6 +59,7 @@ const state: {
     permissionCalls: [],
     streamDeleteCalls: [],
     streamFindCalls: [],
+    streamRemoveCalls: [],
     streamSaves: [],
     streamSessionSaves: [],
     voiceCreateCalls: [],
@@ -180,6 +182,9 @@ const mockUtil = {
                 endpoint: "rtc.local",
                 id: "stream-id",
                 owner_id: "owner",
+                async remove() {
+                    state.streamRemoveCalls.push({ ...this });
+                },
             };
         },
         create(props: Record<string, unknown>) {
@@ -276,6 +281,7 @@ moduleLoader._load = (request: string, parent?: NodeJS.Module | null, isMain?: b
         return {
             ChannelType,
             StreamCreateSchema: {},
+            StreamDeleteSchema: {},
             StreamWatchSchema: {},
             VoiceStateUpdateSchema: {},
         };
@@ -294,6 +300,9 @@ const { onStreamCreate } = require("./StreamCreate") as {
 const { onStreamWatch } = require("./StreamWatch") as {
     onStreamWatch(this: MockSocket, payload: { d: unknown }): Promise<void>;
 };
+const { onStreamDelete } = require("./StreamDelete") as {
+    onStreamDelete(this: MockSocket, payload: { d: unknown }): Promise<void>;
+};
 
 after(() => {
     moduleLoader._load = originalLoad;
@@ -308,6 +317,7 @@ beforeEach(() => {
     state.permissionCalls = [];
     state.streamDeleteCalls = [];
     state.streamFindCalls = [];
+    state.streamRemoveCalls = [];
     state.streamSaves = [];
     state.streamSessionSaves = [];
     state.voiceCreateCalls = [];
@@ -462,6 +472,40 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.streamSessionSaves.length, 0);
         assert.equal(state.generatedTokens.length, 0);
         assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE clears owner stream state and emits member voice state update", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", self_stream: true, user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "voice", owner_id: "viewer" } }]);
+        assert.equal(state.streamRemoveCalls.length, 1);
+        assert.equal(state.voiceFindOneCalls.length, 1);
+        assert.deepEqual(state.voiceFindOneCalls[0], { where: { user_id: "viewer" } });
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal((state.voiceSaves[0] as { self_stream?: boolean }).self_stream, false);
+        assert.deepEqual(state.memberFindOneCalls, [{ where: { id: "viewer", guild_id: "guild" } }]);
+        assert.deepEqual(state.emittedEvents, [
+            {
+                event: "VOICE_STATE_UPDATE",
+                data: {
+                    channel_id: "voice",
+                    guild_id: "guild",
+                    member: { user: { id: "viewer" } },
+                    session_id: "session",
+                    user_id: "viewer",
+                },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "guild:guild:voice:viewer" },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+        ]);
     });
 
     test("STREAM_WATCH checks CONNECT before resolving stream and issuing a session token", async () => {
