@@ -17,7 +17,21 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, Emoji, getPermission, getRights, Guild, GuildMemberUpdateEvent, handleFile, Member, Role, Sticker } from "@spacebar/util";
+import {
+    Config,
+    DiscordApiErrors,
+    emitEvent,
+    Emoji,
+    getPermission,
+    getRights,
+    Guild,
+    GuildFeature,
+    GuildMemberUpdateEvent,
+    handleFile,
+    Member,
+    Role,
+    Sticker,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
 
@@ -188,7 +202,7 @@ router.put(
             where: { id: guild_id },
         });
 
-        if (!guild.features.includes("DISCOVERABLE")) {
+        if (!guild.features.includes(GuildFeature.Discoverable)) {
             throw DiscordApiErrors.UNKNOWN_GUILD;
         }
 

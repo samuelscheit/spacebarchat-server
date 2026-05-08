@@ -21,6 +21,7 @@ import {
     Channel,
     DiscordApiErrors,
     Guild,
+    GuildFeature,
     GuildUpdateEvent,
     Member,
     Permissions,
@@ -124,7 +125,7 @@ router.patch(
             const diff = guild.features.filter((x) => !body.features?.includes(x)).concat(body.features.filter((x) => !guild.features.includes(x)));
 
             // TODO move these
-            const MUTABLE_FEATURES = ["COMMUNITY", "INVITES_DISABLED", "DISCOVERABLE"];
+            const MUTABLE_FEATURES: readonly string[] = [GuildFeature.Community, GuildFeature.InvitesDisabled, GuildFeature.Discoverable];
 
             for (const feature of diff) {
                 if (MUTABLE_FEATURES.includes(feature)) continue;

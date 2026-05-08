@@ -46,7 +46,7 @@ import { Webhook } from "./Webhook";
 import type { GuildCreateResponse } from "@spacebar/schemas";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
-import { setVanityUrlFeature, type GuildFeatureValue } from "../util/GuildFeatures";
+import { GuildFeature, setVanityUrlFeature, type GuildFeatureValue } from "../util/GuildFeatures";
 import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
@@ -323,7 +323,7 @@ export class Guild extends BaseClass {
     discovery_excluded: boolean = false;
 
     async ToGuildSource() {
-        if (!this.features.includes("DISCOVERABLE")) {
+        if (!this.features.includes(GuildFeature.Discoverable)) {
             return null;
         }
         return {

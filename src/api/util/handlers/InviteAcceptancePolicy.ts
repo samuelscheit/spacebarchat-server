@@ -16,6 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { GuildFeature } from "../../../util/util/GuildFeatures";
+
 export type InviteAcceptanceDenial = "USER_BANNED" | "QUARANTINED" | "INTERNAL_EMPLOYEE_ONLY" | "INVITES_DISABLED";
 
 export const InviteAcceptanceUserFlags = {
@@ -40,7 +42,7 @@ export function getInviteAcceptanceDenial(policy: InviteAcceptancePolicy): Invit
 
     if (policy.features.includes("INTERNAL_EMPLOYEE_ONLY") && !hasPublicFlag(policy.publicFlags, InviteAcceptanceUserFlags.DISCORD_EMPLOYEE)) return "INTERNAL_EMPLOYEE_ONLY";
 
-    if (policy.features.includes("INVITES_DISABLED")) return "INVITES_DISABLED";
+    if (policy.features.includes(GuildFeature.InvitesDisabled)) return "INVITES_DISABLED";
 
     return undefined;
 }

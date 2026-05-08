@@ -2,15 +2,46 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { GUILD_FEATURES, GuildFeature, VANITY_URL_FEATURE, getVanityUrlFeatureState, setVanityUrlFeature, type GuildFeatureValue } from "./GuildFeatures";
 
+const documentedDiscordGuildFeatures = [
+    "ANIMATED_BANNER",
+    "ANIMATED_ICON",
+    "APPLICATION_COMMAND_PERMISSIONS_V2",
+    "AUTO_MODERATION",
+    "BANNER",
+    "COMMUNITY",
+    "CREATOR_MONETIZABLE_PROVISIONAL",
+    "CREATOR_STORE_PAGE",
+    "DEVELOPER_SUPPORT_SERVER",
+    "DISCOVERABLE",
+    "ENHANCED_ROLE_COLORS",
+    "FEATURABLE",
+    "GUESTS_ENABLED",
+    "GUILD_TAGS",
+    "INVITES_DISABLED",
+    "INVITE_SPLASH",
+    "MEMBER_VERIFICATION_GATE_ENABLED",
+    "MORE_SOUNDBOARD",
+    "MORE_STICKERS",
+    "NEWS",
+    "PARTNERED",
+    "PREVIEW_ENABLED",
+    "RAID_ALERTS_DISABLED",
+    "ROLE_ICONS",
+    "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE",
+    "ROLE_SUBSCRIPTIONS_ENABLED",
+    "SOUNDBOARD",
+    "TICKETED_EVENTS_ENABLED",
+    "VANITY_URL",
+    "VERIFIED",
+    "VIP_REGIONS",
+    "WELCOME_SCREEN_ENABLED",
+] as const;
+
 describe("Guild feature helpers", () => {
-    test("exports Discord guild feature constants referenced by server behavior", () => {
-        assert.equal(GuildFeature.Community, "COMMUNITY");
-        assert.equal(GuildFeature.Discoverable, "DISCOVERABLE");
-        assert.equal(GuildFeature.InvitesDisabled, "INVITES_DISABLED");
-        assert.equal(GuildFeature.RaidAlertsDisabled, "RAID_ALERTS_DISABLED");
+    test("exports the documented Discord guild feature catalog without duplicates", () => {
+        assert.deepEqual([...GUILD_FEATURES].sort(), [...documentedDiscordGuildFeatures].sort());
+        assert.equal(new Set(GUILD_FEATURES).size, GUILD_FEATURES.length);
         assert.equal(VANITY_URL_FEATURE, GuildFeature.VanityUrl);
-        assert.equal(GUILD_FEATURES.includes(GuildFeature.VanityUrl), true);
-        assert.equal(GUILD_FEATURES.includes(GuildFeature.EnhancedRoleColors), true);
     });
 
     test("keeps guild feature arrays open for unknown Discord or Spacebar-specific values", () => {
