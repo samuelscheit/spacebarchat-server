@@ -176,6 +176,7 @@ describe("Guild.createGuild", () => {
                         explicitContentFilter: 0,
                         maxPresences: 250000,
                         maxVideoChannelUsers: 25,
+                        maxStageVideoChannelUsers: 37,
                     },
                 },
                 guild: { defaultFeatures: [] },
@@ -226,6 +227,7 @@ describe("Guild.createGuild", () => {
             assert.deepEqual(guild.channel_ordering, ["new-category", "new-child-1", "new-child-2", "new-top-level"]);
             assert.equal(guild.rules_channel_id, "new-child-1");
             assert.equal(guild.system_channel_id, "new-top-level");
+            assert.equal(guild.max_stage_video_channel_users, 37);
             assert.deepEqual(guildUpdates.at(-1), {
                 criteria: { id: "new-guild" },
                 partial: {
@@ -284,6 +286,7 @@ describe("Guild.createGuild", () => {
                     explicitContentFilter: 0,
                     maxPresences: null,
                     maxVideoChannelUsers: 25,
+                    maxStageVideoChannelUsers: 41,
                 },
             },
             guild: {
@@ -351,6 +354,7 @@ describe("Guild.createGuild", () => {
         });
 
         assert.equal(guild.id, "new-guild");
+        assert.equal(guild.max_stage_video_channel_users, 41);
         assert.deepEqual(
             createdRoles.map((role) => ({ id: role.id, name: role.name, permissions: role.permissions })),
             [

@@ -61,6 +61,7 @@ test("toRecommendedGuild serializes a Guild entity into the recommendation respo
         max_members: 500000,
         max_presences: 1000,
         max_video_channel_users: 25,
+        max_stage_video_channel_users: 50,
         owner_id: "10",
         premium_tier: 2,
         region: "deprecated",
@@ -106,6 +107,7 @@ test("toRecommendedGuild serializes a Guild entity into the recommendation respo
     assert.equal(recommendedGuild.splash, null);
     assert.equal(recommendedGuild.description, null);
     assert.equal(Object.hasOwn(recommendedGuild, "unavailable"), false);
+    assert.equal(recommendedGuild.max_stage_video_channel_users, 50);
     assert.equal(
         ajv.validate("GuildRecommendationsResponse", {
             recommended_guilds: [recommendedGuild],

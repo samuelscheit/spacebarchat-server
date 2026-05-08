@@ -2809,6 +2809,9 @@
             "max_video_channel_users": {
                 "type": "integer"
             },
+            "max_stage_video_channel_users": {
+                "type": "integer"
+            },
             "member_count": {
                 "type": "integer"
             },
@@ -5062,6 +5065,9 @@
             "max_video_channel_users": {
                 "type": "integer"
             },
+            "max_stage_video_channel_users": {
+                "type": "integer"
+            },
             "presence_count": {
                 "type": "integer"
             },
@@ -5825,6 +5831,9 @@
                 "type": "integer"
             },
             "max_video_channel_users": {
+                "type": "integer"
+            },
+            "max_stage_video_channel_users": {
                 "type": "integer"
             },
             "member_count": {
@@ -12607,6 +12616,9 @@
             "max_video_channel_users": {
                 "type": "integer"
             },
+            "max_stage_video_channel_users": {
+                "type": "integer"
+            },
             "owner_id": {
                 "type": "string"
             },
@@ -15144,6 +15156,9 @@
                 "type": "integer"
             },
             "max_video_channel_users": {
+                "type": "integer"
+            },
+            "max_stage_video_channel_users": {
                 "type": "integer"
             },
             "member_count": {
@@ -18495,6 +18510,9 @@
             "max_video_channel_users": {
                 "type": "integer"
             },
+            "max_stage_video_channel_users": {
+                "type": "integer"
+            },
             "owner_id": {
                 "type": "string"
             },
@@ -20346,6 +20364,10 @@
                 "type": "integer",
                 "default": 200
             },
+            "maxStageVideoChannelUsers": {
+                "type": "integer",
+                "default": 50
+            },
             "afkTimeout": {
                 "type": "integer",
                 "default": 300
@@ -20365,6 +20387,7 @@
             "defaultMessageNotifications",
             "explicitContentFilter",
             "maxPresences",
+            "maxStageVideoChannelUsers",
             "maxVideoChannelUsers"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"

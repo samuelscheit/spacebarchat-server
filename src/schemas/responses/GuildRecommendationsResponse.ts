@@ -46,6 +46,7 @@ export interface RecommendedGuild {
     max_members?: number;
     max_presences?: number;
     max_video_channel_users?: number;
+    max_stage_video_channel_users?: number;
     owner_id?: string;
     premium_tier?: number;
     region?: string;

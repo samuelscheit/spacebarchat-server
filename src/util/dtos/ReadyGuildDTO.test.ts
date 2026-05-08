@@ -78,6 +78,7 @@ function makeReadyGuild(stage_instances: unknown[], guild_scheduled_events?: Gui
         public_updates_channel_id: null,
         safety_alerts_channel_id: null,
         max_video_channel_users: 25,
+        max_stage_video_channel_users: 73,
         max_members: 250000,
         nsfw_level: 0,
         nsfw: false,
@@ -181,12 +182,21 @@ test("getReadyUserGuildSettingsVersion ignores missing and null stored versions"
     assert.equal(getReadyUserGuildSettingsVersion([{ version: undefined }, { version: null }, {}, makeReadyUserGuildSettingsEntry(5)]), 5);
 });
 
-test("ReadyGuildDTO exposes Discord-compatible stage video limit", () => {
-    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+test("ReadyGuildDTO falls back to the Discord-compatible stage video limit", () => {
+    const dto = new ReadyGuildDTO({
+        ...(makeReadyGuild([]) as object),
+        max_stage_video_channel_users: undefined,
+    } as unknown as GuildOrUnavailable).toJSON();
 
     assert.equal(MAX_STAGE_VIDEO_CHANNEL_USERS, 50);
     assert.equal(dto.properties.max_stage_video_channel_users, MAX_STAGE_VIDEO_CHANNEL_USERS);
     assert.equal(dto.properties.max_video_channel_users, 25);
+});
+
+test("ReadyGuildDTO serializes configured stage video channel user limits", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.max_stage_video_channel_users, 73);
 });
 
 test("ReadyGuildDTO defaults scheduled events to an empty list when none are loaded", () => {

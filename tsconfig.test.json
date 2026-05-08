@@ -2,6 +2,7 @@
     "extends": "./tsconfig.json",
     "include": [
         "test/**/*.ts",
+        "src/admin/dto.test.ts",
         "src/api/routes/guild-recommendations.test.ts",
         "src/api/ServerConfigure.test.ts",
         "src/api/tests/users/userMessagesResponseSchema.test.ts",
@@ -79,6 +80,7 @@
         "src/util/entities/VoiceState.test.ts",
         "src/util/migration/postgres/__tests__/1778245000000-DiscoveryCategoryIntegerIds.test.ts",
         "src/util/migration/postgres/__tests__/1778062363002-GuildSafetyAlertsChannel.test.ts",
+        "src/util/migration/postgres/__tests__/1778209616000-GuildMaxStageVideoChannelUsers.test.ts",
         "src/util/config/types/GatewayConfiguration.test.ts",
         "src/util/interfaces/Event.test.ts",
         "src/util/util/ChannelFlags.test.ts",

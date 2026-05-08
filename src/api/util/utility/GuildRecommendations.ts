@@ -44,6 +44,7 @@ export function toRecommendedGuild(guild: Guild): RecommendedGuild {
         max_members: guild.max_members,
         max_presences: guild.max_presences,
         max_video_channel_users: guild.max_video_channel_users,
+        max_stage_video_channel_users: guild.max_stage_video_channel_users,
         owner_id: guild.owner_id,
         premium_tier: guild.premium_tier,
         region: guild.region,

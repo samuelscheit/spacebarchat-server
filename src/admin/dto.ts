@@ -156,6 +156,7 @@ export interface AdminGuild extends AdminGuildListItem {
     maxMembers: Nullable<number>;
     maxPresences: Nullable<number>;
     maxVideoChannelUsers: Nullable<number>;
+    maxStageVideoChannelUsers: Nullable<number>;
     templateId: Nullable<string>;
     mfaLevel: Nullable<number>;
     premiumSubscriptionCount: Nullable<number>;
@@ -215,6 +216,7 @@ export function toAdminGuild(guild: Guild, counts: AdminGuildCounts): AdminGuild
         maxMembers: optional(guild.max_members),
         maxPresences: optional(guild.max_presences),
         maxVideoChannelUsers: optional(guild.max_video_channel_users),
+        maxStageVideoChannelUsers: optional(guild.max_stage_video_channel_users),
         templateId: optional(guild.template_id),
         mfaLevel: optional(guild.mfa_level),
         premiumSubscriptionCount: optional(guild.premium_subscription_count),
