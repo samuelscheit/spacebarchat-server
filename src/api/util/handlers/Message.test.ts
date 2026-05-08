@@ -189,6 +189,60 @@ describe("handleMessage", () => {
         assert.doesNotMatch(incrementCondition(context), /111|role_member_id/);
     });
 
+    test("parse users allows all content user mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@222> <@&444>",
+            allowed_mentions: { parse: ["users"], users: [], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.memberFindCalls.length, 0);
+        assert.match(incrementCondition(context), /111/);
+        assert.match(incrementCondition(context), /222/);
+        assert.doesNotMatch(incrementCondition(context), /role_member_id/);
+    });
+
+    test("parse roles allows role mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@&444>",
+            allowed_mentions: { parse: ["roles"], users: [], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.memberFindCalls.length, 1);
+        assert.match(JSON.stringify(context.memberFindCalls), /444/);
+        assert.match(incrementCondition(context), /role_member_id/);
+        assert.doesNotMatch(incrementCondition(context), /111/);
+    });
+
+    test("explicit allowed role ids limit role mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@&444> <@&555>",
+            allowed_mentions: { parse: [], users: [], roles: ["444"] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.memberFindCalls.length, 1);
+        assert.match(JSON.stringify(context.memberFindCalls), /444/);
+        assert.doesNotMatch(JSON.stringify(context.memberFindCalls), /555/);
+        assert.match(incrementCondition(context), /role_member_id/);
+    });
+
     test("allowed_mentions suppresses user, role, everyone, and reply notifications when parse is empty", async (t) => {
         const context = await setupHandleMessageTest(t, {
             referencedMessage: { id: "referenced_message_id", author_id: "reply_author", channel_id: "channel_id", guild_id: "guild_id" },
@@ -273,5 +327,24 @@ describe("handleMessage", () => {
 
         assert.equal(context.incrementCalls.length, 1);
         assert.match(incrementCondition(context), /online_here_member/);
+    });
+
+    test("parse everyone allows everyone mention-count notifications for all guild members", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            memberFindResult: [{ id: "guild_member_1" }, { id: "guild_member_2" }],
+        });
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello @everyone",
+            allowed_mentions: { parse: ["everyone"], users: [], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.updateCalls.length, 1);
+        assert.deepEqual(context.createdReadStates.map((state) => state.user_id).sort(), ["guild_member_1", "guild_member_2"]);
+        assert.doesNotMatch(incrementCondition(context), /user_id/);
     });
 });
