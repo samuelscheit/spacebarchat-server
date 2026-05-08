@@ -49,9 +49,31 @@ describe("getS3CopySource", () => {
     test("encodes percent signs from literal object keys", () => {
         assert.equal(getS3CopySource("bucket", "prefix/a%20b.png"), "bucket/prefix/a%2520b.png");
     });
+
+    test("uses S3 URL encoding for parenthesized key names", () => {
+        assert.equal(getS3CopySource("bucket", "test_file(3).png"), "bucket/test_file%283%29.png");
+    });
 });
 
 describe("S3Storage", () => {
+    test("builds bucket-root CopyObject sources when no base path is configured", async () => {
+        const client = new FakeS3Client();
+        const storage = new S3Storage("test-region", "assets-bucket", "https://s3.example.test", true, undefined, client);
+
+        await storage.clone("file name #1?.png", "copied file.png");
+
+        assert.deepEqual(client.calls, [
+            {
+                method: "copyObject",
+                input: {
+                    Bucket: "assets-bucket",
+                    CopySource: "assets-bucket/file%20name%20%231%3F.png",
+                    Key: "copied file.png",
+                },
+            },
+        ]);
+    });
+
     test("builds URL-encoded CopyObject sources and raw destination keys with the configured base path", async () => {
         const client = new FakeS3Client();
         const storage = createStorage(client, "tenant uploads/");
