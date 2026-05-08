@@ -97,6 +97,9 @@ router.patch(
                 from_id: req.user_id,
                 to_id: req.params.user_id as string,
             },
+            relations: {
+                to: true,
+            },
         });
         rel.nickname = body.nickname;
         await Promise.all([
@@ -110,7 +113,7 @@ router.patch(
             } satisfies RelationshipUpdateEvent),
             rel.save(),
         ]);
-        res.send(204);
+        res.sendStatus(204);
     },
 );
 
@@ -165,12 +168,12 @@ router.delete(
         const user = await User.findOneOrFail({
             where: { id: req.user_id },
             select: relationshipUserProjection,
-            relations: { relationships: true },
+            relations: { relationships: { to: true } },
         });
         const friend = await User.findOneOrFail({
             where: { id: user_id },
             select: relationshipUserProjection,
-            relations: { relationships: true },
+            relations: { relationships: { to: true } },
         });
 
         const relationship = user.relationships.find((x) => x.to_id === user_id);
