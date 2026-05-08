@@ -696,7 +696,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
                 consents: {
                     personalization: {
-                        consented: false, // TODO
+                        consented: false,
                     },
                 },
                 experiments: [],
