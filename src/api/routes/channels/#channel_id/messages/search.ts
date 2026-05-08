@@ -18,7 +18,7 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { messageToSearchResult, route } from "@spacebar/api";
+import { messageToSearchResult, parseMessageSearchSortBy, route } from "@spacebar/api";
 import { Channel, FieldErrors, Message, getPermission, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -52,13 +52,15 @@ router.get(
             // include_nsfw, // TODO
             offset,
             sort_order,
-            // sort_by, // TODO: Handle 'relevance'
+            sort_by,
             limit,
             author_id,
         } = req.query;
 
         const parsedLimit = Number(limit) || 50;
         if (parsedLimit < 1 || parsedLimit > 100) throw new HTTPError("limit must be between 1 and 100", 422);
+
+        parseMessageSearchSortBy(sort_by);
 
         if (sort_order) {
             if (typeof sort_order != "string" || ["desc", "asc"].indexOf(sort_order) == -1)
