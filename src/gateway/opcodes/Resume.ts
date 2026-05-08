@@ -71,7 +71,7 @@ export async function onResume(this: WebSocket, data: Payload) {
 }
 
 async function rejectResume(this: WebSocket) {
-    return sendInvalidSessionAndClose(this, false);
+    return sendInvalidSessionAndClose(this);
 }
 
 function isResumePayload(value: unknown): value is ResumePayload {

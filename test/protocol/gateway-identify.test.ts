@@ -141,6 +141,40 @@ test("Gateway IDENTIFY closes invalid tokens with authentication failure", { tim
     }
 });
 
+test("Gateway RESUME rejects invalid tokens with an invalid-session payload and normal closure", { timeout: 30_000 }, async () => {
+    const gateway = await startGateway();
+    let client: ws | undefined;
+
+    try {
+        client = new ws(`${gateway.url}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
+        const hello = await readJsonMessage(client);
+        assert.equal(hello.op, 10);
+
+        client.send(
+            JSON.stringify({
+                op: 6,
+                d: {
+                    token: "not-a-valid-jwt",
+                    session_id: "missing-session",
+                    seq: 0,
+                },
+            }),
+        );
+
+        const invalid = await readJsonMessage(client);
+        assert.equal(invalid.op, 9);
+        assert.equal(invalid.d, false);
+        const close = await readClose(client);
+        assert.equal(close.code, 1000);
+    } finally {
+        if (client) {
+            await closeClient(client);
+            await waitForCloseHandlers();
+        }
+        await gateway.stop();
+    }
+});
+
 test(
     "Gateway RESUME reattaches a persisted session and sends RESUMED",
     {
@@ -284,7 +318,7 @@ test(
             assert.equal(invalid.op, 9);
             assert.equal(invalid.d, false);
             const close = await readClose(client);
-            assert.equal(close.code, 4006);
+            assert.equal(close.code, 1000);
         } finally {
             if (client) await closeClient(client);
             if (client) await waitForCloseHandlers();
