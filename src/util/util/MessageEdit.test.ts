@@ -43,6 +43,40 @@ describe("Message edit helpers", () => {
         assert.deepEqual(options.message_reference, { message_id: "referenced_message_id" });
     });
 
+    test("builds interaction callback edit options without dropping omitted existing attachments", () => {
+        const editedAt = new Date("2026-01-02T03:04:05.000Z");
+        const existingAttachment = { id: "attachment_id", filename: "before.txt" };
+
+        const options = buildMessageEditHandleMessageOptions(
+            {
+                attachments: [existingAttachment],
+                author_id: "application_id",
+                channel_id: "channel_id",
+                content: "before",
+                reactions: [],
+            },
+            { content: "after", embeds: [] },
+            "channel_id",
+            "message_id",
+            editedAt,
+            {
+                attachment_user_id: "interaction_user_id",
+                attachment_channel_ids: ["channel_id"],
+                is_edit: true,
+            },
+        );
+
+        assert.equal(options.id, "message_id");
+        assert.equal(options.author_id, "application_id");
+        assert.equal(options.content, "after");
+        assert.deepEqual(options.embeds, []);
+        assert.equal(options.attachments?.[0], existingAttachment);
+        assert.deepEqual(options.attachment_channel_ids, ["channel_id"]);
+        assert.equal(options.attachment_user_id, "interaction_user_id");
+        assert.equal(options.edited_timestamp, editedAt);
+        assert.equal(options.is_edit, true);
+    });
+
     test("does not allow edit payload reactions to replace persisted reactions", () => {
         const persisted: StoredReaction[] = [{ count: 1, emoji: { name: "thumb" }, user_ids: ["user_id"] }];
         const incoming: StoredReaction[] = [{ count: 2, emoji: { name: "fire" }, user_ids: ["user_id", "other_user_id"] }];

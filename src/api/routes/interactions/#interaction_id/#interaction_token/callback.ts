@@ -17,10 +17,10 @@
 */
 
 import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, postHandleMessage, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
-    Config,
+    Attachment,
     emitEvent,
     getPermission,
     InteractionSuccessEvent,
@@ -30,6 +30,7 @@ import {
     User,
     InteractionFailureEvent,
     messagePublicWithThreadRelations,
+    buildMessageEditHandleMessageOptions,
 } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
 
@@ -157,30 +158,51 @@ router.post(
             case InteractionCallbackType.UPDATE_MESSAGE:
                 {
                     if (!interaction.messageId) throw new HTTPError("no. That was not a message");
+                    if (!interaction.channelId) throw new HTTPError("Interaction channel not found", 400);
+                    const channelId = interaction.channelId;
                     const message = await Message.findOneOrFail({
                         relations: {
                             ...messagePublicWithThreadRelations,
+                            attachments: true,
                             channel: true,
                         },
                         where: {
                             id: interaction.messageId,
+                            channel_id: channelId,
                         },
                     });
-                    if (body.data.content && body.data.content.length > Config.get().limits.message.maxCharacters) {
-                        throw new HTTPError("Content length over max character limit");
+                    const normalizedBody = { ...body.data } as typeof body.data & {
+                        attachments?: (Attachment | NonNullable<typeof body.data.attachments>[number])[];
+                    };
+                    if (body.data.attachments) {
+                        const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
+                        normalizedBody.attachments = body.data.attachments.map((attachment) => {
+                            if (isNewMessagePayloadAttachment(attachment)) return attachment;
+                            if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
+                            const retained = existingAttachmentsById.get(attachment.id);
+                            if (!retained) throw new HTTPError("Unknown attachment", 400);
+                            return retained;
+                        });
                     }
-                    message.embeds = body.data.embeds || [];
-                    const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
-                    await handle?.(message.id, message.author as User, message.channel);
-                    message.components = body.data.components;
-                    await message.save();
-                    emitEvent({
+                    const newMessage = await handleMessage(
+                        buildMessageEditHandleMessageOptions(message, normalizedBody, channelId, message.id, new Date(), {
+                            attachment_user_id: interaction.userId,
+                            attachment_channel_ids: [channelId],
+                            is_edit: true,
+                        }),
+                        { suppress_notifications: true },
+                    );
+                    await newMessage.save();
+                    await emitEvent({
                         event: "MESSAGE_UPDATE",
-                        channel_id: message.channel_id,
-                        data: message.toJSON(),
+                        channel_id: newMessage.channel_id,
+                        data: {
+                            ...newMessage.toJSON(),
+                            nonce: undefined,
+                        },
                     } satisfies MessageUpdateEvent);
+                    postHandleMessage(newMessage).catch((e) => console.error("[InteractionCallback] post-message handler failed", e));
                 }
-                // TODO
                 break;
             /*
             case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:
