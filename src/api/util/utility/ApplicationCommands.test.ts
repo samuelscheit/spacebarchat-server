@@ -11,6 +11,8 @@ import {
     applicationCommandScopeWhere,
     buildApplicationCommand,
     normalizeApplicationCommandName,
+    resolveApplicationCommandLocale,
+    serializeApplicationCommand,
 } from "./ApplicationCommands";
 
 function assertIsNullOperator(value: unknown) {
@@ -83,5 +85,83 @@ describe("application command helpers", () => {
     test("rejects empty and oversized command names", () => {
         assert.throws(() => normalizeApplicationCommandName(" "), FieldError);
         assert.throws(() => normalizeApplicationCommandName("a".repeat(33)), FieldError);
+    });
+
+    test("serializes localized command text for the requested locale", () => {
+        const command = {
+            id: "command",
+            application_id: "app",
+            guild_id: "guild",
+            type: ApplicationCommandType.CHAT_INPUT,
+            name: "ping",
+            name_localizations: { de: "ping-de", "pt-BR": "ping-pt-br" },
+            description: "pong",
+            description_localizations: { de: "pong-de", "pt-BR": "pong-pt-br" },
+            options: [{ name: "option" }],
+            default_member_permissions: null,
+            version: "version",
+        };
+
+        const serialized = serializeApplicationCommand(command as never, "pt-BR");
+
+        assert.equal(serialized.name_localized, "ping-pt-br");
+        assert.equal(serialized.description_localized, "pong-pt-br");
+        assert.deepEqual(serialized.options, [{ name: "option" }]);
+    });
+
+    test("falls back to base language command localizations", () => {
+        const command = {
+            application_id: "app",
+            type: ApplicationCommandType.CHAT_INPUT,
+            name: "ping",
+            name_localizations: { de: "ping-de" },
+            description: "pong",
+            description_localizations: { de: "pong-de" },
+            default_member_permissions: null,
+            version: "version",
+        };
+
+        const serialized = serializeApplicationCommand(command as never, "de-DE");
+
+        assert.equal(serialized.name_localized, "ping-de");
+        assert.equal(serialized.description_localized, "pong-de");
+    });
+
+    test("falls back to default command text when no localization matches", () => {
+        const command = {
+            application_id: "app",
+            type: ApplicationCommandType.USER,
+            name: "ping",
+            name_localizations: { de: "ping-de" },
+            description: "pong",
+            description_localizations: { de: "pong-de" },
+            options: [{ name: "not-sendable-for-user-command" }],
+            default_member_permissions: null,
+            version: "version",
+        };
+
+        const serialized = serializeApplicationCommand(command as never, "fr");
+
+        assert.equal(serialized.name_localized, "ping");
+        assert.equal(serialized.description_localized, "pong");
+        assert.equal(serialized.options, undefined);
+    });
+
+    test("resolves command locale from Discord locale header first", () => {
+        const locale = resolveApplicationCommandLocale("pt-BR", { settings: { locale: "de-DE" } } as never, "fr");
+
+        assert.equal(locale, "pt-BR");
+    });
+
+    test("resolves command locale from user settings before request language", () => {
+        const locale = resolveApplicationCommandLocale(undefined, { settings: { locale: "de-DE" } } as never, "fr");
+
+        assert.equal(locale, "de-DE");
+    });
+
+    test("ignores non-string command locale headers", () => {
+        const locale = resolveApplicationCommandLocale(["pt-BR", "de-DE"], undefined, "fr");
+
+        assert.equal(locale, "fr");
     });
 });

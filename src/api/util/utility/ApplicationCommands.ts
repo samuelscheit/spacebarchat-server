@@ -17,8 +17,9 @@
 */
 
 import type { ApplicationCommandCreateSchema } from "../../../schemas/api/bots/ApplicationCommandCreateSchema";
-import type { ApplicationCommandSchema } from "../../../schemas/api/bots/ApplicationCommandSchema";
+import { ApplicationCommandType, type ApplicationCommandSchema } from "../../../schemas/api/bots/ApplicationCommandSchema";
 import type { ApplicationCommand } from "../../../util/entities/ApplicationCommand";
+import type { User } from "../../../util/entities/User";
 import { FieldErrors } from "../../../util/util/FieldError";
 import { Snowflake } from "../../../util/util/Snowflake";
 import { FindOptionsWhere, IsNull } from "typeorm";
@@ -86,4 +87,44 @@ export function buildApplicationCommand(scope: ApplicationCommandScope, body: Ap
         type: body.type,
         version: Snowflake.generate(),
     };
+}
+
+function resolveLocalizedApplicationCommandText(localizations: Record<string, string> | undefined, locale: string | undefined, fallback: string) {
+    if (!locale || !localizations) return fallback;
+
+    const normalizedLocale = locale.replace("_", "-");
+    const language = normalizedLocale.split("-")[0];
+
+    return localizations[locale] ?? localizations[normalizedLocale] ?? localizations[language] ?? fallback;
+}
+
+export function serializeApplicationCommand(command: ApplicationCommand, locale?: string): ApplicationCommandSchema {
+    return {
+        id: command.id,
+        type: command.type,
+        application_id: command.application_id,
+        guild_id: command.guild_id,
+        name: command.name,
+        name_localizations: command.name_localizations,
+        name_localized: resolveLocalizedApplicationCommandText(command.name_localizations, locale, command.name),
+        description: command.description,
+        description_localizations: command.description_localizations,
+        description_localized: resolveLocalizedApplicationCommandText(command.description_localizations, locale, command.description),
+        options: command.type === ApplicationCommandType.CHAT_INPUT ? command.options : undefined,
+        default_member_permissions: command.default_member_permissions,
+        dm_permission: command.dm_permission,
+        permissions: command.permissions,
+        nsfw: command.nsfw,
+        integration_types: command.integration_types,
+        global_popularity_rank: command.global_popularity_rank,
+        contexts: command.contexts,
+        version: command.version,
+        handler: command.handler,
+    };
+}
+
+export function resolveApplicationCommandLocale(localeHeader: string | string[] | undefined, user: Pick<User, "settings"> | undefined, requestLanguage: string | undefined) {
+    if (typeof localeHeader === "string") return localeHeader;
+
+    return user?.settings?.locale ?? requestLanguage;
 }
