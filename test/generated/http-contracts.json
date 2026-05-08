@@ -5394,7 +5394,7 @@
             "path": "/channels/:channel_id/post-data/",
             "samplePath": "/channels/100000000000000002/post-data/",
             "sourceFile": "src/api/routes/channels/#channel_id/post-data.ts",
-            "line": 33,
+            "line": 32,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

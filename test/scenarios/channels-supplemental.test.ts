@@ -5,6 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { closeDatabase, Config, generateToken, initDatabase, Message, ReadState, User } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
+import { assertNoEvent } from "../assertions/events";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -196,8 +197,17 @@ async function coverAckSearchPreloadAndStubs(
     assert.equal(preload[0].id, messageId);
     assert.equal("reactions" in preload[0], false);
 
+    const beforePostData = markCapturedEvents(events);
+    const readStateBeforePostData = await ReadState.findOneByOrFail({ user_id: ownerId, channel_id: channelId });
     const postData = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${channelId}/post-data`, { thread_ids: [] }, token));
     assert.deepEqual(postData, { threads: {} });
+    const readStateAfterPostData = await ReadState.findOneByOrFail({ user_id: ownerId, channel_id: channelId });
+    assert.equal(readStateAfterPostData.id, readStateBeforePostData.id);
+    assert.equal(readStateAfterPostData.last_message_id, readStateBeforePostData.last_message_id);
+    assert.equal(readStateAfterPostData.last_viewed, readStateBeforePostData.last_viewed);
+    assert.equal(readStateAfterPostData.flags, readStateBeforePostData.flags);
+    assert.equal(readStateAfterPostData.mention_count, readStateBeforePostData.mention_count);
+    await assertNoEvent(events, (event) => !beforePostData.has(event) && event.event === "MESSAGE_ACK", 50);
 
     const beforeCrosspost = markCapturedEvents(events);
     const crosspost = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${newsChannelId}/messages/${newsMessageId}/crosspost`, {}, token));
