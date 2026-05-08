@@ -333,7 +333,7 @@ export class Channel extends BaseClass {
             ...channel,
             id: threadId,
             created_at: new Date(),
-            position: 0, // TODO:
+            position: 0,
             message_count: 0,
             member_count: 1,
             total_message_sent: 0,
