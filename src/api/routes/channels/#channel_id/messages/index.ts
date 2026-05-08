@@ -55,7 +55,7 @@ import {
     ThreadMembersUpdateEvent,
     ThreadCreateEvent,
 } from "@spacebar/util";
-import { Request, Response, Router } from "express";
+import { Request, Response, Router, type RequestHandler } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
@@ -241,8 +241,7 @@ export const messageUpload = multer({
  TODO: only dispatch notifications for mentions denoted in allowed_mentions
 **/
 // Send message
-router.post(
-    "/",
+export const createMessageRouteHandlers: RequestHandler[] = [
     messageUpload.any(),
     (req, res, next) => {
         if (req.body.payload_json) {
@@ -512,7 +511,9 @@ router.post(
         postHandleMessage(message).catch((e) => console.error("[Message] post-message handler failed", e));
         return res.json(messageToResponse(message, req));
     },
-);
+];
+
+router.post("/", ...createMessageRouteHandlers);
 
 router.delete(
     "/ack",

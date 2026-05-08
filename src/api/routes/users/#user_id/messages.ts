@@ -17,9 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, Message, User } from "@spacebar/util";
+import { createMessageRouteHandlers } from "../../channels/#channel_id/messages/index";
+import { Channel, Config, Message, User } from "@spacebar/util";
+import { ChannelType, DmMessagesResponseSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
-import { DmMessagesResponseSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -52,6 +53,32 @@ router.get(
     },
 );
 
-// TODO: POST to send a message to the user
+router.post(
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "APIPublicMessage",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            403: {},
+            404: {},
+        },
+    }),
+    async (req: Request, _res: Response, next) => {
+        try {
+            const targetUser = await User.findOneOrFail({ where: { id: req.params.user_id as string } });
+            const dmChannel = await Channel.createDMChannel([targetUser.id], req.user_id);
+            if (dmChannel.type !== ChannelType.DM) throw new Error(`Expected one-to-one DM channel for user ${targetUser.id}`);
+            req.params.channel_id = dmChannel.id;
+            next();
+        } catch (error) {
+            next(error);
+        }
+    },
+    ...createMessageRouteHandlers,
+);
 
 export default router;
