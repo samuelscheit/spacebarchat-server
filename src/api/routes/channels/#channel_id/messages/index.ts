@@ -241,9 +241,9 @@ export const messageUpload = multer({
  TODO: only dispatch notifications for mentions denoted in allowed_mentions
 **/
 // Send message
-const createMessageUploadHandler = messageUpload.any();
+export const createMessageUploadHandler = messageUpload.any();
 
-const normalizeMessageCreateRequestBody: RequestHandler = (req, res, next) => {
+export const normalizeMessageCreateRequestBody: RequestHandler = (req, res, next) => {
     if (req.body.payload_json) {
         req.body = JSON.parse(req.body.payload_json);
     }
@@ -252,13 +252,12 @@ const normalizeMessageCreateRequestBody: RequestHandler = (req, res, next) => {
     next();
 };
 
-const createMessageRoute = route({
+export const createMessageBodyRoute = route({
     requestBody: "MessageCreateSchema",
     stripNulls: {
         components: true,
         embeds: true,
     },
-    permission: "VIEW_CHANNEL",
     right: "SEND_MESSAGES",
     responses: {
         200: {
@@ -272,7 +271,15 @@ const createMessageRoute = route({
     },
 });
 
-const createMessageHandler: RequestHandler = async (req: Request, res: Response) => {
+export const createMessagePermissionRoute = route({
+    permission: "VIEW_CHANNEL",
+    responses: {
+        403: {},
+        404: {},
+    },
+});
+
+export const createMessageHandler: RequestHandler = async (req: Request, res: Response) => {
     const { channel_id } = req.params as { [key: string]: string };
     const body = req.body as MessageCreateSchema;
     const messageId = Snowflake.generate();
@@ -514,9 +521,11 @@ const createMessageHandler: RequestHandler = async (req: Request, res: Response)
     return res.json(messageToResponse(message, req));
 };
 
-export const createMessageRouteHandlers: RequestHandler[] = [createMessageUploadHandler, normalizeMessageCreateRequestBody, createMessageRoute, createMessageHandler];
+export const createMessageBodyRouteHandlers: RequestHandler[] = [createMessageUploadHandler, normalizeMessageCreateRequestBody, createMessageBodyRoute];
+export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
+export const createMessageRouteHandlers: RequestHandler[] = [...createMessageBodyRouteHandlers, ...createMessageChannelRouteHandlers];
 
-router.post("/", createMessageUploadHandler, normalizeMessageCreateRequestBody, createMessageRoute, createMessageHandler);
+router.post("/", ...createMessageRouteHandlers);
 
 router.delete(
     "/ack",

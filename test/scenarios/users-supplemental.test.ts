@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import bcrypt from "bcrypt";
 import { FrecencyUserSettings, PreloadedUserSettings } from "discord-protos";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Recipient, User, UserSettingsProtos } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Message, Recipient, Rights, User, UserSettingsProtos } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -48,6 +48,7 @@ const coveredManifestIds = [
     "api:http:PATCH:/users/@me/settings-proto/2/",
     "api:http:PATCH:/users/@me/settings-proto/2/json",
     "api:http:POST:/users/:user_id/delete/",
+    "api:http:POST:/users/:user_id/messages/",
     "api:http:POST:/users/@me/billing/payment-sources/",
     "api:http:POST:/users/@me/channels/",
     "api:http:POST:/users/@me/delete/",
@@ -99,6 +100,7 @@ test(
             "api:http:PATCH:/users/@me/settings-proto/2/",
             "api:http:PATCH:/users/@me/settings-proto/2/json",
             "api:http:POST:/users/:user_id/delete/",
+            "api:http:POST:/users/:user_id/messages/",
             "api:http:POST:/users/@me/billing/payment-sources/",
             "api:http:POST:/users/@me/channels/",
             "api:http:POST:/users/@me/delete/",
@@ -189,6 +191,42 @@ test(
 
             const dmMessages = await getJsonArray(`${api.apiBaseUrl}/users/${target.id}/messages?limit=5`, ownerToken);
             assert.deepEqual(dmMessages, []);
+
+            const invalidMessageRecipient = await registerUser(`invaliddm${suffix.slice(-8)}`, `users-invalid-dm-${suffix}@example.com`);
+            await Member.addToGuild(invalidMessageRecipient.id, guildId);
+            const invalidDirectMessage = await postJson(
+                `${api.apiBaseUrl}/users/${invalidMessageRecipient.id}/messages`,
+                {
+                    content: "invalid direct body",
+                    files: [{ id: "0", uploaded_filename: "not-allowed-here.png" }],
+                },
+                ownerToken,
+            );
+            await assertStatus(invalidDirectMessage, 400);
+            assert.equal(await owner.getDmChannelWith(invalidMessageRecipient.id), undefined, "invalid direct-message bodies must not create or reopen a DM");
+
+            const noRightSender = await registerUser(`norightdm${suffix.slice(-8)}`, `users-no-right-dm-${suffix}@example.com`);
+            await Member.addToGuild(noRightSender.id, guildId);
+            await User.update({ id: noRightSender.id }, { rights: (BigInt(noRightSender.rights) & ~Rights.FLAGS.SEND_MESSAGES).toString() });
+            const noRightToken = await generateToken(noRightSender.id);
+            assert.ok(noRightToken, "no-right token generation should return a bearer token");
+            const noRightDirectMessage = await postJson(`${api.apiBaseUrl}/users/${target.id}/messages`, { content: "blocked by rights" }, noRightToken);
+            await assertStatus(noRightDirectMessage, 403);
+            assert.equal(await noRightSender.getDmChannelWith(target.id), undefined, "missing SEND_MESSAGES rights must not create or reopen a DM");
+
+            const directMessage = await postJson(
+                `${api.apiBaseUrl}/users/${target.id}/messages`,
+                {
+                    content: "direct route message",
+                    nonce: `direct-${suffix}`,
+                },
+                ownerToken,
+            );
+            await assertStatus(directMessage, 200);
+            const directMessageBody = await assertJsonObject(directMessage);
+            assert.equal(directMessageBody.channel_id, dmId);
+            assert.equal(directMessageBody.content, "direct route message");
+            assert.equal((await Message.findOneByOrFail({ id: directMessageBody.id as string, channel_id: dmId })).content, "direct route message");
 
             const guilds = await getJsonArray(`${api.apiBaseUrl}/users/@me/guilds`, ownerToken);
             assert.ok(guilds.some((guild) => guild.id === guildId));

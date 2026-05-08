@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 376,
+        "totalContracts": 377,
         "byService": {
-            "api": 335,
+            "api": 336,
             "cdn": 41
         },
-        "runtimeAuthBoundaryContracts": 287,
-        "runtimeMalformedAuthContracts": 287,
-        "runtimeRevokedSessionAuthContracts": 287,
-        "runtimeStaleTokenAuthContracts": 287,
+        "runtimeAuthBoundaryContracts": 288,
+        "runtimeMalformedAuthContracts": 288,
+        "runtimeRevokedSessionAuthContracts": 288,
+        "runtimeStaleTokenAuthContracts": 288,
         "runtimePublicAuthBoundaryContracts": 40,
         "runtimePublicInvalidBodyContracts": 13,
         "runtimeProtectedInvalidBodyContracts": 53,
@@ -19,8 +19,8 @@
         "runtimeAuthenticatedResponseSchemaContracts": 18,
         "runtimeRightOnlyDenialContracts": 6,
         "runtimePermissionOnlyDenialContracts": 80,
-        "runtimePermissionAndRightPermissionDenialContracts": 7,
-        "runtimePermissionAndRightRightDenialContracts": 7,
+        "runtimePermissionAndRightPermissionDenialContracts": 8,
+        "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
         "runtimeRateLimitHeaderContracts": 152,
         "runtimeCdnMissingObjectContracts": 19,
@@ -4510,7 +4510,7 @@
             "path": "/channels/:channel_id/messages/",
             "samplePath": "/channels/100000000000000002/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 244,
+            "line": 528,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4588,7 +4588,7 @@
             "path": "/channels/:channel_id/messages/ack",
             "samplePath": "/channels/100000000000000002/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 517,
+            "line": 530,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6440,7 +6440,7 @@
                 "line": 207
             },
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "ActiveThreadsResponse"],
+                "responses": ["ActiveThreadsResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 400, 403, 404],
                 "permission": "VIEW_CHANNEL"
             },
@@ -12589,7 +12589,7 @@
                 "line": 205
             },
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "ActiveThreadsResponse"],
+                "responses": ["ActiveThreadsResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 403]
             },
             "cases": [
@@ -14722,7 +14722,7 @@
             "fixtureRequirements": ["config"],
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "AccountStandingResponse"],
+                "responses": ["AccountStandingResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 401]
             },
             "cases": [
@@ -14766,7 +14766,7 @@
             "fixtureRequirements": ["config"],
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "AccountStandingResponse"],
+                "responses": ["AccountStandingResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 401]
             },
             "cases": [
@@ -15707,7 +15707,7 @@
             "path": "/users/:user_id/messages/",
             "samplePath": "/users/100000000000000004/messages/",
             "sourceFile": "src/api/routes/users/#user_id/messages.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15741,6 +15741,70 @@
                 {
                     "id": "policy-schema-validation",
                     "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/users/:user_id/messages/",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/:user_id/messages/",
+            "samplePath": "/users/100000000000000004/messages/",
+            "sourceFile": "src/api/routes/users/#user_id/messages.ts",
+            "line": 56,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "requestBody": "MessageCreateSchema",
+                "responses": ["APIErrorResponse", "APIPublicMessage"],
+                "responseStatuses": [200, 400, 403, 404],
+                "permission": "VIEW_CHANNEL",
+                "right": "SEND_MESSAGES",
+                "emittedEvents": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "MessageCreateSchema"
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "permission": "VIEW_CHANNEL",
+                    "right": "SEND_MESSAGES"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
                 },
                 {
                     "id": "policy-db-state",

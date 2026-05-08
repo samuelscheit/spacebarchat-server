@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { createMessageRouteHandlers } from "../../channels/#channel_id/messages/index";
+import { createMessageBodyRouteHandlers, createMessageChannelRouteHandlers } from "../../channels/#channel_id/messages/index";
 import { Channel, Config, Message, User } from "@spacebar/util";
 import { ChannelType, DmMessagesResponseSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
@@ -55,18 +55,7 @@ router.get(
 
 router.post(
     "/",
-    route({
-        responses: {
-            200: {
-                body: "APIPublicMessage",
-            },
-            400: {
-                body: "APIErrorResponse",
-            },
-            403: {},
-            404: {},
-        },
-    }),
+    ...createMessageBodyRouteHandlers,
     async (req: Request, _res: Response, next) => {
         try {
             const targetUser = await User.findOneOrFail({ where: { id: req.params.user_id as string } });
@@ -78,7 +67,7 @@ router.post(
             next(error);
         }
     },
-    ...createMessageRouteHandlers,
+    ...createMessageChannelRouteHandlers,
 );
 
 export default router;

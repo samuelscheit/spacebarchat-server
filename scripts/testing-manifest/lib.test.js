@@ -8,6 +8,7 @@ const {
     extractApiRateLimitRulesFromSource,
     extractNoAuthorizationRulesFromSource,
     extractSourceHelperEventMap,
+    extractSourceHelperRouteMetadataMap,
     parseRegexLiteral,
     parseRouteOptions,
     routePathFromFile,
@@ -143,6 +144,68 @@ describe("testing manifest route helpers", () => {
         const calls = scanRouterCalls(source, extractSourceHelperEventMap(helpers));
 
         assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["GUILD_MEMBER_UPDATE", "MESSAGE_CREATE"]);
+    });
+
+    test("extracts route metadata and emitted events from spread handler tuples", () => {
+        const source = `
+            const upload = multer.any();
+            const createMessageBodyRoute = route({
+                right: "SEND_MESSAGES",
+                requestBody: "MessageCreateSchema",
+                responses: { 200: { body: "MessageResponse" }, 400: { body: "APIErrorResponse" } },
+            });
+            const createMessagePermissionRoute = route({ permission: "VIEW_CHANNEL", responses: { 403: {}, 404: {} } });
+            const createMessageHandler: RequestHandler = async (_req: Request, res: Response) => {
+                await emitEvent({ event: "MESSAGE_CREATE", data: {} });
+                return res.json({});
+            };
+            export const createMessageBodyRouteHandlers: RequestHandler[] = [upload, createMessageBodyRoute];
+            export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
+            export const createMessageRouteHandlers: RequestHandler[] = [...createMessageBodyRouteHandlers, ...createMessageChannelRouteHandlers];
+            router.post("/", ...createMessageRouteHandlers);
+        `;
+
+        const calls = scanRouterCalls(source);
+
+        assert.equal(calls[0].routeMetadata.permission, "VIEW_CHANNEL");
+        assert.equal(calls[0].routeMetadata.right, "SEND_MESSAGES");
+        assert.equal(calls[0].routeMetadata.requestBody, "MessageCreateSchema");
+        assert.deepEqual(calls[0].routeMetadata.responseBodies, ["APIErrorResponse", "MessageResponse"]);
+        assert.deepEqual(calls[0].routeMetadata.responseStatuses, [200, 400, 403, 404]);
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["MESSAGE_CREATE"]);
+    });
+
+    test("extracts metadata and events from imported spread handler tuples", () => {
+        const helpers = `
+            const createMessageBodyRoute = route({
+                right: "SEND_MESSAGES",
+                requestBody: "MessageCreateSchema",
+                responses: { 200: { body: "MessageResponse" } },
+            });
+            const createMessagePermissionRoute = route({ permission: "VIEW_CHANNEL", responses: { 403: {} } });
+            const createMessageHandler: RequestHandler = async (_req: Request, res: Response) => {
+                await emitEvent({ event: "CHANNEL_CREATE", data: {} });
+                await emitEvent({ event: "MESSAGE_CREATE", data: {} });
+                return res.json({});
+            };
+            export const createMessageBodyRouteHandlers: RequestHandler[] = [createMessageBodyRoute];
+            export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
+        `;
+        const source = `
+            router.post(
+                "/",
+                ...createMessageBodyRouteHandlers,
+                async (_req, _res, next) => next(),
+                ...createMessageChannelRouteHandlers,
+            );
+        `;
+
+        const calls = scanRouterCalls(source, extractSourceHelperEventMap(helpers), extractSourceHelperRouteMetadataMap(helpers));
+
+        assert.equal(calls[0].routeMetadata.permission, "VIEW_CHANNEL");
+        assert.equal(calls[0].routeMetadata.right, "SEND_MESSAGES");
+        assert.equal(calls[0].routeMetadata.requestBody, "MessageCreateSchema");
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["CHANNEL_CREATE", "MESSAGE_CREATE"]);
     });
 
     test("skips imported helper events when route call disables helper event emission", () => {
