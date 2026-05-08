@@ -10,6 +10,8 @@ type JsonWorkerMessage = {
     error?: string;
 };
 
+type CloneableJsonSerializerOptions = Pick<JsonSerializerOptions, "replacer" | "space">;
+
 type JsonArrayStreamState = "awaitArrayStart" | "awaitValueOrEnd" | "readValue" | "done";
 type JsonStreamParsedValue<T> = { hasValue: false } | { hasValue: true; value: T };
 
@@ -98,7 +100,17 @@ function getNextWorker(): Worker {
     return worker;
 }
 
-function runWorkerTask(message: { type: "serialize"; value: unknown } | { type: "deserialize"; json: string }) {
+function getCloneableSerializerOptions(opts?: JsonSerializerOptions): CloneableJsonSerializerOptions | undefined {
+    if (!opts) return undefined;
+    if (typeof opts.replacer === "function") return undefined;
+
+    const cloneableOptions: CloneableJsonSerializerOptions = {};
+    if (opts.replacer !== undefined) cloneableOptions.replacer = opts.replacer;
+    if (opts.space !== undefined) cloneableOptions.space = opts.space;
+    return cloneableOptions;
+}
+
+function runWorkerTask(message: { type: "serialize"; value: unknown; opts?: CloneableJsonSerializerOptions } | { type: "deserialize"; json: string }) {
     const id = requestId++;
     const worker = getNextWorker();
 
@@ -119,7 +131,6 @@ function runWorkerTask(message: { type: "serialize"; value: unknown } | { type: 
     });
 }
 
-// noinspection JSUnusedLocalSymbols - TODO: implement options
 export class JsonSerializer {
     public static async ShutdownAsync(): Promise<void> {
         const workers = workerPool.splice(0);
@@ -135,19 +146,22 @@ export class JsonSerializer {
     }
 
     public static Serialize<T>(value: T, opts?: JsonSerializerOptions): string {
-        return JSON.stringify(value);
+        return JSON.stringify(value, opts?.replacer as Parameters<typeof JSON.stringify>[1], opts?.space);
     }
     public static async SerializeAsync<T>(value: T, opts?: JsonSerializerOptions): Promise<string> {
-        return runWorkerTask({ type: "serialize", value });
+        const workerOptions = getCloneableSerializerOptions(opts);
+        if (opts && workerOptions === undefined) return this.Serialize(value, opts);
+
+        return runWorkerTask({ type: "serialize", value, opts: workerOptions });
     }
     public static Deserialize<T>(json: string, opts?: JsonSerializerOptions): T {
-        return JSON.parse(json) as T;
+        return JSON.parse(json, opts?.reviver) as T;
     }
     public static async DeserializeAsync<T>(json: string | ReadableStream | ReadStream, opts?: JsonSerializerOptions): Promise<T> {
         if (json instanceof ReadableStream) return this.DeserializeAsyncReadableStream<T>(json, opts);
         if (json instanceof ReadStream) return this.DeserializeAsyncReadStream<T>(json, opts);
 
-        return JSON.parse(await runWorkerTask({ type: "deserialize", json })) as T;
+        return this.Deserialize<T>(await runWorkerTask({ type: "deserialize", json }), opts);
     }
 
     private static async DeserializeAsyncReadableStream<T>(jsonStream: ReadableStream, opts?: JsonSerializerOptions): Promise<T> {

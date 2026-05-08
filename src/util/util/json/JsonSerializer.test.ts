@@ -21,10 +21,35 @@ describe("JsonSerializer", () => {
         assert.equal(result, '{"a":1,"b":"test"}');
     });
 
+    it("should apply synchronous serializer options", () => {
+        const result = JsonSerializer.Serialize(
+            { visible: 1, hidden: 2, nested: { hidden: 3, visible: 4 } },
+            {
+                replacer(key, value) {
+                    return key === "hidden" ? undefined : value;
+                },
+                space: 2,
+            },
+        );
+
+        assert.equal(result, '{\n  "visible": 1,\n  "nested": {\n    "visible": 4\n  }\n}');
+    });
+
     it("should deserialize synchronously", () => {
         const json = '{"a":1,"b":"test"}';
         const result = JsonSerializer.Deserialize(json);
         assert.deepEqual(result, { a: 1, b: "test" });
+    });
+
+    it("should apply synchronous deserializer options", () => {
+        const result = JsonSerializer.Deserialize<{ createdAt: Date }>(`{"createdAt":"2026-05-08T12:00:00.000Z"}`, {
+            reviver(key, value) {
+                return key === "createdAt" && typeof value === "string" ? new Date(value) : value;
+            },
+        });
+
+        assert.equal(result.createdAt instanceof Date, true);
+        assert.equal(result.createdAt.toISOString(), "2026-05-08T12:00:00.000Z");
     });
 
     it("should serialize asynchronously", async () => {
@@ -33,10 +58,39 @@ describe("JsonSerializer", () => {
         assert.equal(result, '{"a":1,"b":"test"}');
     });
 
+    it("should apply cloneable serializer options asynchronously", async () => {
+        const result = await JsonSerializer.SerializeAsync({ a: 1, b: 2 }, { replacer: ["b"], space: 2 });
+
+        assert.equal(result, '{\n  "b": 2\n}');
+    });
+
+    it("should apply function serializer options asynchronously", async () => {
+        const result = await JsonSerializer.SerializeAsync(
+            { keep: 1, omit: 2 },
+            {
+                replacer(key, value) {
+                    return key === "omit" ? undefined : value;
+                },
+            },
+        );
+
+        assert.equal(result, '{"keep":1}');
+    });
+
     it("should deserialize asynchronously", async () => {
         const json = '{"a":1,"b":"test"}';
         const result = await JsonSerializer.DeserializeAsync(json);
         assert.deepEqual(result, { a: 1, b: "test" });
+    });
+
+    it("should apply deserializer options asynchronously", async () => {
+        const result = await JsonSerializer.DeserializeAsync<{ value: number }>(`{"value":"42"}`, {
+            reviver(key, value) {
+                return key === "value" ? Number(value) : value;
+            },
+        });
+
+        assert.deepEqual(result, { value: 42 });
     });
 
     it("should keep concurrent worker responses matched to their requests", async () => {

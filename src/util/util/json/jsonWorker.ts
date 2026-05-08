@@ -3,7 +3,7 @@ import { parentPort } from "node:worker_threads";
 parentPort?.on("message", (message) => {
     try {
         if (message.type === "serialize") {
-            const result = JSON.stringify(message.value);
+            const result = JSON.stringify(message.value, message.opts?.replacer, message.opts?.space);
             parentPort?.postMessage({ id: message.id, result });
         } else if (message.type === "deserialize") {
             const parsed = JSON.parse(message.json);
