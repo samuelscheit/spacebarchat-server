@@ -49,6 +49,7 @@ test("PreloadMessagesResponse schema describes preload DTOs instead of Message e
     assert.equal(message.properties.author_id, undefined);
     assert.equal(message.properties.member_id, undefined);
     assert.equal(message.properties.channel?.$ref, undefined);
+    assert.ok(message.properties.application, "preload message responses should keep the public message application payload");
 });
 
 test("PreloadMessagesResponse remains wired to POST /channels/preload-messages/", () => {
@@ -93,6 +94,11 @@ test("PreloadMessagesResponse validates preloaded messages and rejects reactions
         type: 0,
         flags: 0,
         components: [],
+        application: {
+            id: "700",
+            name: "Rich Presence App",
+            description: "Public app description",
+        },
     };
 
     assert.equal(ajv.validate("PreloadMessagesResponse", [message]), true);

@@ -67,16 +67,28 @@ describe("public message generated contract", () => {
         );
     });
 
-    test("public message contracts expose application_id without leaking application objects", () => {
+    test("public message contracts expose a sanitized application object and application_id", () => {
         const openapi = readJson("assets/openapi.json");
         const schemas = readJson("assets/schemas.json");
         const openApiPublicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
         const assetPublicMessage = resolveAssetSchema(schemas, schemas.APIPublicMessage);
+        const unsafeApplicationFields = ["verify_key", "owner", "bot", "redirect_uris", "team"];
 
         assert.ok(openApiPublicMessage.properties?.application_id, "OpenAPI PublicMessage should expose application_id");
-        assert.equal(openApiPublicMessage.properties?.application, undefined, "OpenAPI PublicMessage should not expose full application objects");
+        const openApiApplication = resolveOpenApi(openapi, openApiPublicMessage.properties!.application!);
+        assert.ok(openApiApplication.properties?.id, "OpenAPI PublicMessage should expose application ids");
+        assert.ok(openApiApplication.properties?.name, "OpenAPI PublicMessage should expose application names");
+        for (const field of unsafeApplicationFields) {
+            assert.equal(openApiApplication.properties?.[field], undefined, `OpenAPI PublicMessage application should not expose ${field}`);
+        }
+
         assert.ok(assetPublicMessage.properties?.application_id, "validation PublicMessage should expose application_id");
-        assert.equal(assetPublicMessage.properties?.application, undefined, "validation PublicMessage should not expose full application objects");
+        const assetApplication = resolveAssetSchema(schemas, assetPublicMessage.properties!.application!);
+        assert.ok(assetApplication.properties?.id, "validation PublicMessage should expose application ids");
+        assert.ok(assetApplication.properties?.name, "validation PublicMessage should expose application names");
+        for (const field of unsafeApplicationFields) {
+            assert.equal(assetApplication.properties?.[field], undefined, `validation PublicMessage application should not expose ${field}`);
+        }
     });
 
     test("APIMessageArray is an array of public messages", () => {

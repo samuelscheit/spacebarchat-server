@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PartialUser, PublicMessage, StoredReaction } from "@spacebar/schemas";
+import type { IntegrationApplication, PartialUser, PublicMessage, StoredReaction } from "@spacebar/schemas";
 import { serializePublicMember, type PublicMemberLike } from "./MemberRoles";
 import { serializeMessageMentions } from "./MessageMentions";
 import { serializeMessageRoleMentions, type SerializableRoleMention } from "./MessageRoleMentions";
@@ -30,6 +30,7 @@ interface PublicUserSource {
 
 interface PublicMessageSource {
     activity?: PublicMessage["activity"];
+    application?: PublicMessageApplicationSource | null;
     application_id?: string | null;
     attachments?: { toJSON: () => unknown }[];
     author?: PublicUserSource;
@@ -62,6 +63,34 @@ interface PublicMessageSource {
     webhook_id?: string | null;
 }
 
+type PublicMessageApplicationSource = Partial<IntegrationApplication> & {
+    id?: string | null;
+    name?: string | null;
+    description?: string | null;
+};
+
+export function serializeMessageApplication(application: PublicMessageApplicationSource | null | undefined): IntegrationApplication | undefined {
+    if (!application?.id || !application.name) return undefined;
+
+    const publicApplication: IntegrationApplication = {
+        id: application.id,
+        name: application.name,
+        description: application.description ?? "",
+    };
+
+    if ("icon" in application) {
+        publicApplication.icon = application.icon ?? null;
+    }
+    if (application.cover_image != null) {
+        publicApplication.cover_image = application.cover_image;
+    }
+    if (typeof application.flags === "number") {
+        publicApplication.flags = application.flags;
+    }
+
+    return publicApplication;
+}
+
 export function messageToPublicMessage(message: PublicMessageSource, shallow = false): PublicMessage {
     const author = {
         ...(message.author?.toPublicUser?.() ?? undefined),
@@ -70,7 +99,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         avatar: message.avatar ?? message.author?.avatar ?? null,
     } as PartialUser;
 
-    return {
+    const publicMessage: PublicMessage = {
         id: message.id,
         channel_id: message.channel_id ?? message.channel!.id,
 
@@ -104,4 +133,11 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         thread: message.thread && "toJSON" in message.thread ? message.thread.toJSON() : message.thread,
         referenced_message: message.referenced_message && !shallow ? message.referenced_message.toJSON(true) : undefined,
     };
+
+    const application = serializeMessageApplication(message.application);
+    if (application) {
+        publicMessage.application = application;
+    }
+
+    return publicMessage;
 }

@@ -116,6 +116,39 @@ describe("message member serialization", () => {
         assert.equal(json.referenced_message?.author.username, "bob");
     });
 
+    test("Message.toJSON exposes only the safe public application payload", () => {
+        const member = createMemberWithRoles([]);
+        const message = createMessageWithMember(member);
+        message.application_id = "app-a";
+        message.application = {
+            id: "app-a",
+            name: "Rich Presence App",
+            description: "Shown on rich presence embeds",
+            icon: null,
+            cover_image: "cover-hash",
+            flags: 64,
+            verify_key: "private-verify-key",
+            owner: createAuthor("owner-a", "owner"),
+            redirect_uris: ["https://private.example/callback"],
+        } as never;
+
+        const json = message.toJSON();
+        const application = json.application as unknown as Record<string, unknown>;
+
+        assert.equal(json.application_id, "app-a");
+        assert.deepEqual(json.application, {
+            id: "app-a",
+            name: "Rich Presence App",
+            description: "Shown on rich presence embeds",
+            icon: null,
+            cover_image: "cover-hash",
+            flags: 64,
+        });
+        assert.equal(application.verify_key, undefined);
+        assert.equal(application.owner, undefined);
+        assert.equal(application.redirect_uris, undefined);
+    });
+
     test("withSignedAttachments serializes member role entities on message instances", () => {
         const member = createMemberWithRoles([{ id: "role-a" }, { id: "role-b" }]);
         const message = createMessageWithMember(member);

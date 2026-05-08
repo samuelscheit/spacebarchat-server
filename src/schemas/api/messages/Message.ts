@@ -184,6 +184,15 @@ export type PublicMessageMember = Omit<PublicMember, "user"> & {
     user?: PublicMember["user"];
 };
 
+export interface IntegrationApplication {
+    id: Snowflake;
+    name: string;
+    icon?: string | null;
+    description: string;
+    cover_image?: string | null;
+    flags?: number;
+}
+
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;
@@ -206,6 +215,7 @@ export interface PublicMessage {
     webhook_id?: Snowflake;
     type: number;
     activity?: MessageActivity;
+    application?: IntegrationApplication;
     application_id?: Snowflake;
     flags: number;
     message_reference?: MessageReference;
