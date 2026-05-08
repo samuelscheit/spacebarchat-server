@@ -4,6 +4,10 @@ import { check } from "./instanceOf";
 import { StreamDeleteSchema } from "@spacebar/schemas";
 import { assertCallStreamKeyMatchesChannel, assertGatewayChannelAccess, assertGatewayVoiceChannel, assertGuildStreamKeyMatchesChannel } from "../util/Authorization";
 
+function voiceStateMatchesStream(voiceState: VoiceState, channelId: string, guildId: string | undefined, sessionId: string) {
+    return voiceState.channel_id === channelId && (voiceState.guild_id ?? undefined) === guildId && voiceState.session_id === sessionId;
+}
+
 export async function onStreamDelete(this: WebSocket, data: Payload) {
     const startTime = Date.now();
     check.call(this, StreamDeleteSchema, data.d);
@@ -66,21 +70,24 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
         // relations: { member: true }, // TODO: actually add the relation
     });
 
-    if (voiceState) {
+    if (voiceState && voiceStateMatchesStream(voiceState, channelId, guildId, this.session_id)) {
         voiceState.self_stream = false;
         await voiceState.save();
-        voiceState.member = await Member.findOneOrFail({
-            where: {
-                id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
-            },
-        });
+
+        if (guildId) {
+            voiceState.member = await Member.findOneOrFail({
+                where: {
+                    id: voiceState.user_id,
+                    guild_id: guildId,
+                },
+            });
+        }
 
         await emitEvent({
             event: "VOICE_STATE_UPDATE",
             data: {
                 ...voiceState.toPublicVoiceState(),
-                member: voiceState.member.toPublicMember(),
+                member: voiceState.member?.toPublicMember(),
             },
             guild_id: guildId,
             channel_id: channelId,

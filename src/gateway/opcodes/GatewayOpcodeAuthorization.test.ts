@@ -148,6 +148,7 @@ const mockUtil = {
     Member: {
         async findOne(options: unknown) {
             state.memberFindOneCalls.push(options);
+            if ((options as { where?: { guild_id?: string | null } }).where?.guild_id == null) return undefined;
             return {
                 toPublicMember() {
                     return { user: { id: "viewer" } };
@@ -156,6 +157,7 @@ const mockUtil = {
         },
         async findOneOrFail(options: unknown) {
             state.memberFindOneCalls.push(options);
+            if ((options as { where?: { guild_id?: string | null } }).where?.guild_id == null) throw new Error("member not found");
             return {
                 toPublicMember() {
                     return { user: { id: "viewer" } };
@@ -172,14 +174,16 @@ const mockUtil = {
         async delete(criteria: unknown) {
             state.streamDeleteCalls.push(criteria);
         },
-        async findOne(options: unknown) {
+        async findOne(options: { where?: { channel_id?: string; owner_id?: string } }) {
             state.streamFindCalls.push(options);
+            const channelId = options.where?.channel_id ?? "voice";
+            const ownerId = options.where?.owner_id ?? "owner";
             return {
-                channel: state.channels.voice,
-                channel_id: "voice",
+                channel: state.channels[channelId],
+                channel_id: channelId,
                 endpoint: "rtc.local",
                 id: "stream-id",
-                owner_id: "owner",
+                owner_id: ownerId,
                 async remove() {
                     state.streamDeleteCalls.push({ ...this });
                 },
@@ -558,6 +562,59 @@ describe("gateway opcode authorization", () => {
                 guild_id: "guild",
                 channel_id: "voice",
             },
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "guild:guild:voice:viewer" },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+        ]);
+    });
+
+    test("STREAM_DELETE removes owner call stream without requiring a guild member", async () => {
+        state.channels.call = defaultChannel("call", null);
+        state.voiceState = makeVoiceState({ channel_id: "call", guild_id: null, session_id: "session", user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "call:call:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "call", guildId: undefined, permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "call", owner_id: "viewer" } }]);
+        assert.equal(state.streamDeleteCalls.length, 1);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.deepEqual(state.memberFindOneCalls, []);
+        assert.deepEqual(state.emittedEvents, [
+            {
+                event: "VOICE_STATE_UPDATE",
+                data: {
+                    channel_id: "call",
+                    guild_id: null,
+                    member: undefined,
+                    session_id: "session",
+                    user_id: "viewer",
+                },
+                guild_id: undefined,
+                channel_id: "call",
+            },
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "call:call:viewer" },
+                guild_id: undefined,
+                channel_id: "call",
+            },
+        ]);
+    });
+
+    test("STREAM_DELETE does not emit a voice update for another gateway session", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "other-session", user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "voice", owner_id: "viewer" } }]);
+        assert.equal(state.streamDeleteCalls.length, 1);
+        assert.equal(state.voiceSaves.length, 0);
+        assert.deepEqual(state.memberFindOneCalls, []);
+        assert.deepEqual(state.emittedEvents, [
             {
                 event: "STREAM_DELETE",
                 data: { stream_key: "guild:guild:voice:viewer" },
