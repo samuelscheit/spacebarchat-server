@@ -100,4 +100,22 @@ describe("Message edit helpers", () => {
             "reactions should remain outside the message edit request schema",
         );
     });
+
+    test("generated MessageEditSchema rejects client-supplied message_reference", () => {
+        const validate = ajv.getSchema("MessageEditSchema");
+        assert.ok(validate);
+
+        for (const message_reference of [{ message_id: "attacker_reference_id" }, null]) {
+            const valid = validate({
+                content: "after",
+                message_reference,
+            });
+
+            assert.equal(valid, false, `message_reference ${JSON.stringify(message_reference)} should be rejected`);
+            assert.ok(
+                validate.errors?.some((error) => error.keyword === "additionalProperties" && error.params.additionalProperty === "message_reference"),
+                "message_reference should remain outside the message edit request schema",
+            );
+        }
+    });
 });

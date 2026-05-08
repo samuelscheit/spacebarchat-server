@@ -6471,16 +6471,6 @@
                     "nonce": {
                         "type": "string"
                     },
-                    "message_reference": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/MessageReference"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
                     "components": {
                         "anyOf": [
                             {

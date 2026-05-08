@@ -5,6 +5,7 @@ import { normalizeMessageCreateSchema, type LegacyMessageCreateBody } from "./Me
 import { ajv } from "../Validator";
 
 const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8"));
+const openapi = JSON.parse(readFileSync("assets/openapi.json", "utf8"));
 
 describe("MessageCreateSchema", () => {
     test("does not expose server-inferred message type or deprecated singular embed", () => {
@@ -23,6 +24,7 @@ describe("MessageEditSchema", () => {
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
         assert.equal("message_reference" in properties, false);
+        assert.equal("message_reference" in openapi.components.schemas.MessageEditSchema.properties, false);
     });
 });
 
