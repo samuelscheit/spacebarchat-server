@@ -35,3 +35,4 @@ export * from "./GuildMemberOrdering";
 export * from "./ReadyConsents";
 export * from "./Shard";
 export * from "./RequestGuildMembers";
+export * from "./BotGuildCreatePayload";

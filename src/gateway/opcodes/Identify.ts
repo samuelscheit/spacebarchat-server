@@ -19,6 +19,7 @@
 import {
     Capabilities,
     CLOSECODES,
+    createBotGuildCreatePayloads,
     createGatewayShard,
     createReadyConsents,
     isGuildOnShard,
@@ -87,12 +88,7 @@ import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 import { getConfiguredPrivilegedIntents, getRequestedIdentifyIntents, hasDisallowedPrivilegedIntents } from "./IdentifyPrivilegedIntents";
-import {
-    buildIdentifyBotGuildCreateData,
-    buildIdentifyBotReadyGuildPlaceholder,
-    buildIdentifyPendingGuildCreateData,
-    IdentifyPendingGuildCreateData,
-} from "../util/IdentifyGuildCreate";
+import { buildIdentifyBotReadyGuildPlaceholder, buildIdentifyPendingGuildCreateData, IdentifyPendingGuildCreateData } from "../util/IdentifyGuildCreate";
 import { getOpenDmPresenceRecipientIds } from "../util/DmPresenceRecipients";
 
 export async function onIdentify(this: WebSocket, data: Payload) {
@@ -813,25 +809,16 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         d,
     });
 
-    // If we're a bot user, send GUILD_CREATE for each unavailable guild
-    // TODO: check if bot has permission to view some of these based on intents (i.e. GUILD_MEMBERS, GUILD_PRESENCES, GUILD_VOICE_STATES)
+    // If we're a bot user, send GUILD_CREATE for each unavailable guild.
     await Promise.all(
-        pending_guilds.map((x) => {
-            //Even with the GUILD_MEMBERS intent, the bot always receives just itself as the guild members
-            const botMemberObject = shardMembers.find((member) => member.guild_id === x.id);
-            const guildCreatePayload = buildIdentifyBotGuildCreateData({
-                pendingGuild: x,
-                botMember: botMemberObject,
-                botUser: user,
-            });
-
-            return Send(this, {
+        createBotGuildCreatePayloads(pending_guilds, shardMembers, user, this.intents).map((payload) =>
+            Send(this, {
                 op: OPCODES.Dispatch,
                 t: EVENTEnum.GuildCreate,
                 s: this.sequence++,
-                d: guildCreatePayload,
-            })?.catch((e) => console.error(`[Gateway/${this.user_id}] error when sending bot guilds`, e));
-        }),
+                d: payload,
+            })?.catch((e) => console.error(`[Gateway/${this.user_id}] error when sending bot guilds`, e)),
+        ),
     );
 
     await Send(this, {
