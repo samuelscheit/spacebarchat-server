@@ -262,7 +262,7 @@ export class Guild extends BaseClass {
     @ManyToOne(() => Channel)
     rules_channel?: Channel;
 
-    @Column({ type: String, nullable: true })
+    @Column({ type: "int8", nullable: true })
     @RelationId((guild: Guild) => guild.safety_alerts_channel)
     safety_alerts_channel_id?: string | null;
 
@@ -401,6 +401,7 @@ export class Guild extends BaseClass {
         system_channel_id?: string | null;
         system_channel_flags?: number;
         rules_channel_id?: string | null;
+        safety_alerts_channel_id?: string | null;
         rights?: Rights;
     }) {
         const guild_id = Snowflake.generate();
@@ -538,10 +539,12 @@ export class Guild extends BaseClass {
             afk_channel_id?: string | null;
             channel_ordering: string[];
             rules_channel_id?: string | null;
+            safety_alerts_channel_id?: string | null;
             system_channel_id?: string | null;
         } = { channel_ordering: guild.channel_ordering };
         if (channelReferences.afk_channel_id !== undefined) guildUpdate.afk_channel_id = channelReferences.afk_channel_id;
         if (channelReferences.rules_channel_id !== undefined) guildUpdate.rules_channel_id = channelReferences.rules_channel_id;
+        if (channelReferences.safety_alerts_channel_id !== undefined) guildUpdate.safety_alerts_channel_id = channelReferences.safety_alerts_channel_id;
         if (channelReferences.system_channel_id !== undefined) guildUpdate.system_channel_id = channelReferences.system_channel_id;
         Object.assign(guild, guildUpdate);
         await Guild.update({ id: guild.id }, guildUpdate);

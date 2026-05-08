@@ -44,6 +44,7 @@ export interface GuildCreateSchema {
     roles?: GuildCreateRoleSchema[];
     system_channel_id?: string | null;
     rules_channel_id?: string | null;
+    safety_alerts_channel_id?: string | null;
     guild_template_code?: string;
     staff_only?: boolean;
 }

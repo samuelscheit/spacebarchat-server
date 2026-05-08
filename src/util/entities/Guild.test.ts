@@ -158,6 +158,7 @@ describe("Guild.createGuild", () => {
                 afk_channel_id?: string | null;
                 channel_ordering?: string[];
                 rules_channel_id?: string | null;
+                safety_alerts_channel_id?: string | null;
                 system_channel_id?: string | null;
             };
         }[] = [];
@@ -200,6 +201,7 @@ describe("Guild.createGuild", () => {
                 owner_id: "owner",
                 source_guild_id: "source-guild",
                 rules_channel_id: "child-1",
+                safety_alerts_channel_id: "child-2",
                 system_channel_id: "top-level",
                 channels: [
                     { id: "category", name: "category", type: 4, position: 50 },
@@ -226,6 +228,7 @@ describe("Guild.createGuild", () => {
             assert(channelCreateCalls.every(({ options }) => options?.skipOrdering));
             assert.deepEqual(guild.channel_ordering, ["new-category", "new-child-1", "new-child-2", "new-top-level"]);
             assert.equal(guild.rules_channel_id, "new-child-1");
+            assert.equal(guild.safety_alerts_channel_id, "new-child-2");
             assert.equal(guild.system_channel_id, "new-top-level");
             assert.equal(guild.max_stage_video_channel_users, 37);
             assert.deepEqual(guildUpdates.at(-1), {
@@ -233,6 +236,7 @@ describe("Guild.createGuild", () => {
                 partial: {
                     channel_ordering: ["new-category", "new-child-1", "new-child-2", "new-top-level"],
                     rules_channel_id: "new-child-1",
+                    safety_alerts_channel_id: "new-child-2",
                     system_channel_id: "new-top-level",
                 },
             });
@@ -486,11 +490,15 @@ describe("Guild entity metadata", () => {
         const { Guild, PublicGuildRelations } = await import("./Guild.js");
         const columns = getMetadataArgsStorage().columns.filter((column) => column.target === Guild);
         const primaryCategoryColumn = columns.find((column) => column.propertyName === "primary_category_id");
+        const safetyAlertsColumn = columns.find((column) => column.propertyName === "safety_alerts_channel_id");
 
         assert.equal(columns.find((column) => column.propertyName === "description")?.options.type, "varchar");
         assert.ok(primaryCategoryColumn);
         assert.equal(primaryCategoryColumn.options.type, "int");
         assert.equal(primaryCategoryColumn.options.nullable, true);
+        assert.ok(safetyAlertsColumn);
+        assert.equal(safetyAlertsColumn.options.type, "int8");
+        assert.equal(safetyAlertsColumn.options.nullable, true);
         assert.ok(PublicGuildRelations.includes("stage_instances"));
 
         type GuildPrimaryCategoryId = InstanceType<typeof Guild>["primary_category_id"];
