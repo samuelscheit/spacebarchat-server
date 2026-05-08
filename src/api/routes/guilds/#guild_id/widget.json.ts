@@ -71,6 +71,7 @@ async function getWidgetJsonData(guild_id: string) {
     const guild = await Guild.findOneOrFail({
         where: { id: guild_id },
         select: {
+            id: true,
             channel_ordering: true,
             widget_channel_id: true,
             widget_enabled: true,

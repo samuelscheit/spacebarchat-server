@@ -79,8 +79,17 @@ export async function deleteFile(path: string) {
         },
         method: "DELETE",
     });
-    const result = await response.json();
+    const body = await response.text();
+    let result: unknown;
 
-    if (response.status !== 200) throw result;
+    if (body) {
+        try {
+            result = JSON.parse(body);
+        } catch {
+            result = body;
+        }
+    }
+
+    if (!response.ok) throw result ?? new HTTPError(`CDN delete failed with status ${response.status}`, response.status);
     return result;
 }
