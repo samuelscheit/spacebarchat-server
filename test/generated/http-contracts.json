@@ -1581,7 +1581,7 @@
                 "configPath": "limits.rate.routes.attachmentRefresh",
                 "pathPrefix": "/attachments/refresh-urls",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 208
+                "line": 210
             },
             "routeMetadata": {
                 "requestBody": "RefreshUrlsRequestSchema",
@@ -1618,7 +1618,7 @@
                         "configPath": "limits.rate.routes.attachmentRefresh",
                         "pathPrefix": "/attachments/refresh-urls",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 208
+                        "line": 210
                     }
                 },
                 {
@@ -1821,7 +1821,7 @@
                 "configPath": "limits.rate.routes.auth.login",
                 "pathPrefix": "/auth/login",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 209
+                "line": 211
             },
             "routeMetadata": {
                 "requestBody": "LoginSchema",
@@ -1854,7 +1854,7 @@
                         "configPath": "limits.rate.routes.auth.login",
                         "pathPrefix": "/auth/login",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 209
+                        "line": 211
                     }
                 },
                 {
@@ -2019,7 +2019,7 @@
                 "configPath": "limits.rate.routes.auth.register",
                 "pathPrefix": "/auth/register",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 210
+                "line": 212
             },
             "routeMetadata": {
                 "requestBody": "RegisterSchema",
@@ -2052,7 +2052,7 @@
                         "configPath": "limits.rate.routes.auth.register",
                         "pathPrefix": "/auth/register",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 210
+                        "line": 212
                     }
                 },
                 {
@@ -2463,7 +2463,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["Channel"],
@@ -2506,7 +2506,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -2537,7 +2537,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["Channel"],
@@ -2574,7 +2574,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -2609,7 +2609,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "ChannelModifySchema",
@@ -2658,7 +2658,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -2685,7 +2685,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -2716,7 +2716,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -2755,7 +2755,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "UploadAttachmentRequestSchema",
@@ -2792,7 +2792,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -2827,7 +2827,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "HubDirectoryEntriesResponse"],
@@ -2858,7 +2858,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -2897,7 +2897,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -2928,7 +2928,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -2967,7 +2967,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "GreetRequestSchema",
@@ -3016,7 +3016,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3043,7 +3043,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIInviteArray"],
@@ -3080,7 +3080,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3115,7 +3115,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "InviteCreateSchema",
@@ -3166,7 +3166,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3193,7 +3193,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -3230,7 +3230,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3265,7 +3265,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "APIPublicMessage"],
@@ -3302,7 +3302,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3337,7 +3337,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "MessageEditSchema",
@@ -3388,7 +3388,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3415,7 +3415,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "MessageCreateSchema",
@@ -3466,7 +3466,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3493,7 +3493,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "MessageAcknowledgeSchema",
@@ -3536,7 +3536,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3567,7 +3567,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIPublicMessage"],
@@ -3604,7 +3604,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3639,7 +3639,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -3682,7 +3682,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3713,7 +3713,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -3750,7 +3750,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3785,7 +3785,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -3830,7 +3830,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3861,7 +3861,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "PublicUser"],
@@ -3898,7 +3898,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -3933,7 +3933,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -3976,7 +3976,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4007,7 +4007,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -4044,7 +4044,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4079,7 +4079,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -4124,7 +4124,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4155,7 +4155,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -4198,7 +4198,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4229,7 +4229,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "PublicUser"],
@@ -4266,7 +4266,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4301,7 +4301,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -4344,7 +4344,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4375,7 +4375,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "MessageThreadCreationSchema",
@@ -4424,7 +4424,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4451,7 +4451,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "APIMessageArray"],
@@ -4482,7 +4482,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4521,7 +4521,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "MessageCreateSchema",
@@ -4572,7 +4572,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4599,7 +4599,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "AcknowledgeDeleteSchema",
@@ -4636,7 +4636,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4671,7 +4671,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "BulkDeleteSchema",
@@ -4714,7 +4714,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4745,7 +4745,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -4788,7 +4788,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4819,7 +4819,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -4862,7 +4862,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4893,7 +4893,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "PinnedMessagesResponse"],
@@ -4930,7 +4930,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -4965,7 +4965,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildMessagesSearchResponse"],
@@ -4996,7 +4996,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5035,7 +5035,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -5078,7 +5078,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5109,7 +5109,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "ChannelPermissionOverwriteSchema",
@@ -5158,7 +5158,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5185,7 +5185,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -5228,7 +5228,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5259,7 +5259,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -5302,7 +5302,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5333,7 +5333,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "APIMessageArray"],
@@ -5370,7 +5370,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5405,7 +5405,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "PostDataSchema",
@@ -5448,7 +5448,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5479,7 +5479,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "PurgeSchema"],
@@ -5516,7 +5516,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5551,7 +5551,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -5588,7 +5588,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5623,7 +5623,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -5660,7 +5660,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5695,7 +5695,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["Channel"],
@@ -5738,7 +5738,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5769,7 +5769,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "TagCreateSchema",
@@ -5818,7 +5818,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5845,7 +5845,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "TagCreateSchema",
@@ -5894,7 +5894,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5921,7 +5921,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -5964,7 +5964,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -5995,7 +5995,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -6032,7 +6032,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6067,7 +6067,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -6110,7 +6110,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6141,7 +6141,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -6184,7 +6184,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6215,7 +6215,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -6258,7 +6258,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6289,7 +6289,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -6326,7 +6326,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6361,7 +6361,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "ThreadCreationSchema",
@@ -6410,7 +6410,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6437,7 +6437,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "ActiveThreadsResponse"],
@@ -6474,7 +6474,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6509,7 +6509,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -6546,7 +6546,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6581,7 +6581,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "ArchivedThreadsResponse"],
@@ -6618,7 +6618,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6653,7 +6653,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "ThreadSearchResponse"],
@@ -6684,7 +6684,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6723,7 +6723,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": [],
@@ -6766,7 +6766,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6797,7 +6797,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -6834,7 +6834,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6869,7 +6869,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "responses": ["APIWebhookArray"],
@@ -6906,7 +6906,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -6941,7 +6941,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 209
             },
             "routeMetadata": {
                 "requestBody": "WebhookCreateSchema",
@@ -6984,7 +6984,7 @@
                         "configPath": "limits.rate.routes.channel",
                         "pathPrefix": "/channels/:channel_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 207
+                        "line": 209
                     }
                 },
                 {
@@ -7869,7 +7869,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "APIGuildWithJoinedAt"],
@@ -7900,7 +7900,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -7939,7 +7939,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "GuildUpdateSchema",
@@ -7988,7 +7988,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8015,7 +8015,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": [],
@@ -8046,7 +8046,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8085,7 +8085,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["AuditLogResponse"],
@@ -8116,7 +8116,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8155,7 +8155,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -8192,7 +8192,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8227,7 +8227,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "AutomodRuleModifySchema",
@@ -8270,7 +8270,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8301,7 +8301,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "AutomodRulesResponse"],
@@ -8338,7 +8338,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8373,7 +8373,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "AutomodRuleSchema",
@@ -8416,7 +8416,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8447,7 +8447,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -8490,7 +8490,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8521,7 +8521,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildBanResponse"],
@@ -8558,7 +8558,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8593,7 +8593,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "BanCreateSchema",
@@ -8642,7 +8642,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8669,7 +8669,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildBansResponse"],
@@ -8706,7 +8706,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8741,7 +8741,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildBansResponse"],
@@ -8778,7 +8778,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8813,7 +8813,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "BulkBanSchema",
@@ -8862,7 +8862,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8889,7 +8889,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIChannelArray", "APIErrorResponse"],
@@ -8920,7 +8920,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -8959,7 +8959,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "ChannelReorderSchema",
@@ -9008,7 +9008,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9035,7 +9035,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "ChannelCreateSchema",
@@ -9085,7 +9085,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9112,7 +9112,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "{\n            schema: \"GuildDeleteSchema\",\n            required: false,\n        }",
@@ -9155,7 +9155,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9186,7 +9186,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildDiscoveryMetadataResponse"],
@@ -9223,7 +9223,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9258,7 +9258,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "GuildDiscoveryMetadataUpdateSchema",
@@ -9301,7 +9301,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9332,7 +9332,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["GuildDiscoveryRequirementsResponse"],
@@ -9363,7 +9363,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9402,7 +9402,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -9445,7 +9445,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9476,7 +9476,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "Emoji"],
@@ -9507,7 +9507,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9546,7 +9546,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "EmojiModifySchema",
@@ -9589,7 +9589,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9620,7 +9620,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "EmojisResponse"],
@@ -9651,7 +9651,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9690,7 +9690,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "EmojiCreateSchema",
@@ -9739,7 +9739,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9766,7 +9766,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": [],
@@ -9797,7 +9797,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9836,7 +9836,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIInviteArray"],
@@ -9879,7 +9879,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9910,7 +9910,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -9941,7 +9941,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -9980,7 +9980,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -10017,7 +10017,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10052,7 +10052,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "APIPublicMember"],
@@ -10083,7 +10083,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10122,7 +10122,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "MemberChangeSchema",
@@ -10165,7 +10165,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10196,7 +10196,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "MemberJoinGuildResponse"],
@@ -10227,7 +10227,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10266,7 +10266,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "MemberNickChangeSchema",
@@ -10309,7 +10309,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10340,7 +10340,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -10383,7 +10383,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10414,7 +10414,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": [],
@@ -10457,7 +10457,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10488,7 +10488,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "APIMemberArray"],
@@ -10519,7 +10519,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10558,7 +10558,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildMessagesSearchResponse"],
@@ -10589,7 +10589,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10628,7 +10628,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": [],
@@ -10659,7 +10659,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10698,7 +10698,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "MemberChangeProfileSchema",
@@ -10741,7 +10741,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10772,7 +10772,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["GuildProfileResponse"],
@@ -10803,7 +10803,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10842,7 +10842,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["GuildPruneResponse"],
@@ -10873,7 +10873,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10912,7 +10912,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildPurgeResponse"],
@@ -10957,7 +10957,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -10988,7 +10988,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "APIGuildVoiceRegion"],
@@ -11019,7 +11019,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11058,7 +11058,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -11101,7 +11101,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11132,7 +11132,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "Role"],
@@ -11163,7 +11163,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11202,7 +11202,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "RoleModifySchema",
@@ -11251,7 +11251,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11278,7 +11278,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": [],
@@ -11309,7 +11309,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11348,7 +11348,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "RoleMembersUpdateSchema",
@@ -11391,7 +11391,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11422,7 +11422,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "RoleMembersUpdateSchema",
@@ -11465,7 +11465,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11496,7 +11496,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": [],
@@ -11527,7 +11527,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11566,7 +11566,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "RolePositionUpdateSchema",
@@ -11615,7 +11615,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11642,7 +11642,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "RoleModifySchema",
@@ -11691,7 +11691,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11718,7 +11718,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": [],
@@ -11749,7 +11749,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11788,7 +11788,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -11815,7 +11815,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11858,7 +11858,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -11901,7 +11901,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -11932,7 +11932,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "Sticker"],
@@ -11963,7 +11963,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12002,7 +12002,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "ModifyGuildStickerSchema",
@@ -12051,7 +12051,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12078,7 +12078,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "StickersResponse"],
@@ -12109,7 +12109,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12148,7 +12148,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "ModifyGuildStickerSchema",
@@ -12197,7 +12197,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12224,7 +12224,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "Template"],
@@ -12261,7 +12261,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12296,7 +12296,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "TemplateModifySchema",
@@ -12339,7 +12339,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12370,7 +12370,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "Template"],
@@ -12407,7 +12407,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12442,7 +12442,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APITemplateArray"],
@@ -12473,7 +12473,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12512,7 +12512,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "TemplateCreateSchema",
@@ -12555,7 +12555,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12586,7 +12586,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "ActiveThreadsResponse"],
@@ -12617,7 +12617,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12656,7 +12656,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildVanityUrlResponse"],
@@ -12699,7 +12699,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12730,7 +12730,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "VanityUrlSchema",
@@ -12779,7 +12779,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12806,7 +12806,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "VoiceStateUpdateSchema",
@@ -12849,7 +12849,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12880,7 +12880,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIWebhookArray"],
@@ -12917,7 +12917,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -12952,7 +12952,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildWelcomeScreen"],
@@ -12983,7 +12983,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -13022,7 +13022,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "GuildUpdateWelcomeScreenSchema",
@@ -13065,7 +13065,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -13096,7 +13096,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildWidgetJsonResponse"],
@@ -13123,7 +13123,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -13166,7 +13166,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -13193,7 +13193,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -13236,7 +13236,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildWidgetSettingsResponse"],
@@ -13267,7 +13267,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -13306,7 +13306,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 207
             },
             "routeMetadata": {
                 "requestBody": "WidgetModifySchema",
@@ -13349,7 +13349,7 @@
                         "configPath": "limits.rate.routes.guild",
                         "pathPrefix": "/guilds/:guild_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 205
+                        "line": 207
                     }
                 },
                 {
@@ -18960,7 +18960,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -18987,7 +18987,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19026,7 +19026,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "responses": ["WebhookCreateResponse"],
@@ -19053,7 +19053,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19092,7 +19092,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "requestBody": "WebhookTokenUpdateSchema",
@@ -19125,7 +19125,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19160,7 +19160,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "requestBody": "WebhookExecuteSchema",
@@ -19199,7 +19199,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19230,7 +19230,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "requestBody": "WebhookExecuteSchema",
@@ -19269,7 +19269,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19300,7 +19300,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "responses": [],
@@ -19333,7 +19333,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19368,7 +19368,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "responses": ["APIPublicMessage"],
@@ -19395,7 +19395,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19434,7 +19434,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "requestBody": "WebhookMessageEditSchema",
@@ -19473,7 +19473,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19504,7 +19504,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
@@ -19541,7 +19541,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19576,7 +19576,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "responses": ["WebhookCreateResponse"],
@@ -19607,7 +19607,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
@@ -19646,7 +19646,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 208
             },
             "routeMetadata": {
                 "requestBody": "WebhookUpdateSchema",
@@ -19683,7 +19683,7 @@
                         "configPath": "limits.rate.routes.webhook",
                         "pathPrefix": "/webhooks/:webhook_id",
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
-                        "line": 206
+                        "line": 208
                     }
                 },
                 {
