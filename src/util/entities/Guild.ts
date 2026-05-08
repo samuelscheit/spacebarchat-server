@@ -46,15 +46,20 @@ import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import type { GuildCreateResponse } from "@spacebar/schemas";
+import { ChannelType, type GuildCreateResponse } from "@spacebar/schemas";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 import { setVanityUrlFeature } from "../util/GuildFeatures";
 import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: guild_scheduled_events
-// TODO: threads
 
 type GuildCreateChannelInput = Omit<Partial<Channel>, "permission_overwrites"> & TemplateChannelLike;
+
+export const ReadyGuildThreadTypes = [ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD] as const;
+const readyGuildThreadTypeSet = new Set<number>(ReadyGuildThreadTypes);
+
+export const isReadyGuildThreadChannel = (channel: Pick<Channel, "guild_id" | "type" | "thread_metadata">, guildId: string) =>
+    channel.guild_id === guildId && readyGuildThreadTypeSet.has(channel.type) && channel.thread_metadata?.archived === false;
 
 export const PublicGuildRelations = [
     "channels",

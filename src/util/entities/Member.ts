@@ -18,10 +18,10 @@
 
 import { HTTPError } from "lambert-server";
 import { BeforeInsert, BeforeUpdate, Column, Entity, EntityManager, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { Ban, Channel, PublicGuildRelations } from ".";
+import { Ban, Channel, isReadyGuildThreadChannel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { type Event, GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
-import { Config, emitEvent, DiscordApiErrors } from "../util";
+import { applyReadyChannelOrdering, Config, emitEvent, DiscordApiErrors } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
@@ -347,6 +347,12 @@ export class Member extends BaseClassWithoutId {
         )
             throw new HTTPError("You are already a member of this guild", 400);
 
+        const activeThreads = guild.channels.filter((channel) => isReadyGuildThreadChannel(channel, guild_id));
+        guild.channels = applyReadyChannelOrdering(
+            guild.channels.filter((channel) => !channel.isThread()),
+            guild.channel_ordering,
+        );
+
         const member = {
             id: user_id,
             guild_id,
@@ -405,7 +411,7 @@ export class Member extends BaseClassWithoutId {
                     joined_at: newMember.joined_at,
                     presences: [],
                     stage_instances: guild.stage_instances.map((x) => x.toPublicStageInstance()),
-                    threads: [],
+                    threads: activeThreads.map((thread) => thread.toJSON()),
                     embedded_activities: [],
                     voice_states: guild.voice_states.map((x) => x.toPublicVoiceState()),
                 },
