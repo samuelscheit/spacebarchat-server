@@ -63,6 +63,7 @@
         "src/util/entities/Categories.test.ts",
         "src/util/entities/ChannelCreateDMChannel.test.ts",
         "src/util/entities/Guild.test.ts",
+        "src/util/entities/VoiceState.test.ts",
         "src/util/migration/postgres/__tests__/1778245000000-DiscoveryCategoryIntegerIds.test.ts",
         "src/util/config/types/GatewayConfiguration.test.ts",
         "src/util/interfaces/Event.test.ts",
