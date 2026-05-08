@@ -15803,7 +15803,7 @@
             "path": "/users/:user_id/profile/",
             "samplePath": "/users/100000000000000004/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 167,
+            "line": 152,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
