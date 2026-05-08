@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Attachment, Config, hasValidSignature, NewUrlUserSignatureData, UrlSignResult } from "@spacebar/util";
+import { Attachment, Config, getDatabase, hasValidSignature, NewUrlUserSignatureData, UrlSignResult } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { storage } from "@spacebar/cdn";
@@ -57,8 +57,9 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
         messageId: message_id,
         filename,
         log: console.log,
-        findAttachment: async ({ channelId, messageId, filename }) =>
-            Attachment.findOne({
+        findAttachment: async ({ channelId, messageId, filename }) => {
+            if (!getDatabase()) return null;
+            return Attachment.findOne({
                 where: {
                     channel_id: channelId,
                     message_id: messageId,
@@ -67,9 +68,10 @@ router.get("/:channel_id/:message_id/:filename", cache, async (req: Request, res
                 select: {
                     id: true,
                 },
-            }),
+            });
+        },
     });
-    if (!file) throw new HTTPError("File not found");
+    if (!file) throw new HTTPError("File not found", 404);
     const type = await fileTypeFromBuffer(file);
     let content_type = type?.mime || "application/octet-stream";
 
