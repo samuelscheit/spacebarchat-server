@@ -61,4 +61,12 @@ describe("SettingsProtoUpdateJsonSchema", () => {
         assert.ok(!routeHandler.includes("ignoredRequestSchemas"));
         assert.ok(!routeHandler.includes('"SettingsProtoUpdateJsonSchema"'));
     });
+
+    test("does not keep stale test settings request or response placeholders", () => {
+        const requestSchema = fs.readFileSync("src/schemas/uncategorised/SettingsProtoUpdateSchema.ts", "utf8");
+        const responseSchema = fs.readFileSync("src/schemas/responses/SettingsProtoUpdateResponse.ts", "utf8");
+
+        assert.ok(!requestSchema.includes("SettingsProtoUpdateTestSettingsSchema"));
+        assert.ok(!responseSchema.includes("SettingsProtoUpdateTestSettingsJsonResponse"));
+    });
 });
