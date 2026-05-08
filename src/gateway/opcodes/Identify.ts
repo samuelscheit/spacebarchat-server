@@ -70,6 +70,7 @@ import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
+import { getOpenDmPresenceRecipientIds } from "../util/DmPresenceRecipients";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -326,10 +327,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                         name: true,
                         owner_id: true,
                         recipients: {
-                            // we don't actually need this ID or any other information about the recipient info,
-                            // but typeorm does not select anything from the users relation of recipients unless we select
-                            // at least one column.
-                            id: true,
+                            // Keep recipient state so IDENTIFY presence fanout only targets users who still have this DM open.
+                            user_id: true,
+                            closed: true,
                             // We only want public user data for each dm channel
                             user: Object.fromEntries(PublicUserProjection.map((x) => [x, true])),
                         },
@@ -572,6 +572,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     // Uses a set to dedupe for us.
     const users: Set<PublicUser> = new Set();
 
+    const openDmPresenceRecipientIdsByChannelId = new Map<string, Set<string>>();
+
     // Generate dm channels from recipients list. Append recipients to `users` list
     const channels = recipients
         .filter(({ channel }) => channel.isDm())
@@ -579,6 +581,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             // TODO: fix the types of Recipient
             // Their channels are only ever private (I think) and thus are always DM channels
             const channel = r.channel as DMChannel;
+
+            openDmPresenceRecipientIdsByChannelId.set(channel.id, getOpenDmPresenceRecipientIds(channel.recipients, this.user_id));
 
             // Remove ourself from the list of other users in dm channel
             channel.recipients = channel.recipients.filter((recipient) => recipient.user.id !== this.user_id);
@@ -897,9 +901,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             });
         }
         for (const dmChannel of d.private_channels) {
-            // TODO: check if other side has the channel still open
+            const openRecipientIds = openDmPresenceRecipientIdsByChannelId.get(dmChannel.id);
             for (const recpt of dmChannel.recipients) {
-                if (recpt.id != this.user_id)
+                if (recpt.id != this.user_id && openRecipientIds?.has(recpt.id))
                     await emitEvent({
                         ...presenceUpdateEventData,
                         user_id: recpt.id,
