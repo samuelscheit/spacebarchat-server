@@ -24,6 +24,10 @@ const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
 
+export async function getBotApproximateGuildCount(botId: string) {
+    return Member.count({ where: { id: botId } });
+}
+
 router.get(
     "/",
     route({
@@ -69,6 +73,8 @@ router.get(
 
         const bot = app.bot;
         delete app.bot;
+
+        const botApproximateGuildCount = await getBotApproximateGuildCount(bot.id);
 
         const user = await User.findOneOrFail({
             where: {
@@ -146,7 +152,7 @@ router.get(
                 discriminator: bot.discriminator,
                 public_flags: bot.public_flags,
                 bot: true,
-                approximated_guild_count: 0, // TODO
+                approximated_guild_count: botApproximateGuildCount,
             },
             authorized: false,
         });
