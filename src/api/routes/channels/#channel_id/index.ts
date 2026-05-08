@@ -39,7 +39,6 @@ import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
 
 const router: Router = Router({ mergeParams: true });
-// TODO: delete channel
 // TODO: Get channel
 
 function isStatusOnlyUpdate(payload: ChannelModifySchema) {
