@@ -37,6 +37,19 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/ping/"), true);
     });
 
+    test("allows client analytics sink routes without authorization", () => {
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker/"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/beaker?client=desktop"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/science"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/track"), true);
+    });
+
+    test("does not treat client analytics sink routes as public prefixes", () => {
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker/not-a-route"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/beaker"), false);
+    });
+
     test("does not allow unrelated MFA finish subpaths without bearer auth", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/mfa/finish/extra"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/mfa/finish/"), false);

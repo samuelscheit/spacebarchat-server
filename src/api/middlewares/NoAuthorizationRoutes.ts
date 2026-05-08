@@ -43,6 +43,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /-/readyz",
     "GET /-/healthz",
     // Client analytics
+    "POST /beaker",
     "POST /science",
     "POST /track",
     // Public policy pages
