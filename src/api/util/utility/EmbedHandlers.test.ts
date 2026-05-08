@@ -14,7 +14,8 @@ const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
 
 async function loadEmbedModules() {
-    const util = await import("../../../util/index.js");
+    // EmbedHandlers imports @spacebar/util, so the tests must mock the same module instance.
+    const util = require("@spacebar/util") as UtilModule;
     const handlers = await import("./EmbedHandlers.js");
 
     return {
@@ -154,6 +155,74 @@ describe("getSteamHighlightVideo", () => {
             <div class="gamehighlight_desktopcarousel" data-props='{
                 "trailers": [
                     {
+                        "dashManifests": [
+                            "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_av1.mpd",
+                            "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd"
+                        ]
+                    }
+                ]
+            }'></div>
+        `);
+
+        assert.deepEqual(getSteamHighlightVideo($), {
+            url: "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd",
+        });
+    });
+
+    test("prefers any Steam HLS trailer before DASH fallback manifests", async () => {
+        const { getSteamHighlightVideo } = await loadEmbedHandlers();
+        const $ = cheerio.load(`
+            <div class="gamehighlight_desktopcarousel" data-props='{
+                "trailers": [
+                    {
+                        "dashManifests": ["https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd"]
+                    },
+                    {
+                        "hlsManifest": "https://video.fastly.steamstatic.com/store_trailers/570/116738/hls_264_master.m3u8"
+                    }
+                ]
+            }'></div>
+        `);
+
+        assert.deepEqual(getSteamHighlightVideo($), {
+            url: "https://video.fastly.steamstatic.com/store_trailers/570/116738/hls_264_master.m3u8",
+        });
+    });
+
+    test("skips empty and non-http Steam trailer manifests", async () => {
+        const { getSteamHighlightVideo } = await loadEmbedHandlers();
+        const $ = cheerio.load(`
+            <div class="gamehighlight_desktopcarousel" data-props='{
+                "trailers": [
+                    {
+                        "hlsManifest": "   ",
+                        "dashManifests": [
+                            "",
+                            "javascript:alert(1)",
+                            "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd"
+                        ]
+                    }
+                ]
+            }'></div>
+        `);
+
+        assert.deepEqual(getSteamHighlightVideo($), {
+            url: "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd",
+        });
+    });
+
+    test("skips malformed Steam trailers before using a later valid manifest", async () => {
+        const { getSteamHighlightVideo } = await loadEmbedHandlers();
+        const $ = cheerio.load(`
+            <div class="gamehighlight_desktopcarousel" data-props='{
+                "trailers": [
+                    null,
+                    "not an object",
+                    {
+                        "hlsManifest": 123,
+                        "dashManifests": [false, null]
+                    },
+                    {
                         "dashManifests": ["https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd"]
                     }
                 ]
@@ -170,7 +239,50 @@ describe("getSteamHighlightVideo", () => {
 
         assert.equal(getSteamHighlightVideo(cheerio.load("<main></main>")), undefined);
         assert.equal(getSteamHighlightVideo(cheerio.load('<div class="gamehighlight_desktopcarousel" data-props="not json"></div>')), undefined);
+        assert.equal(getSteamHighlightVideo(cheerio.load('<div class="gamehighlight_desktopcarousel" data-props="null"></div>')), undefined);
         assert.equal(getSteamHighlightVideo(cheerio.load('<div class="gamehighlight_desktopcarousel" data-props="{&quot;trailers&quot;:&quot;invalid&quot;}"></div>')), undefined);
+        assert.equal(getSteamHighlightVideo(cheerio.load('<div class="gamehighlight_desktopcarousel" data-props="{&quot;trailers&quot;:[]}"></div>')), undefined);
+    });
+
+    test('includes the Steam highlight video on "store.steampowered.com" embeds', async (t) => {
+        const { EmbedHandlers } = await loadEmbedHandlers();
+        t.mock.method(
+            globalThis,
+            "fetch",
+            async () =>
+                new Response(
+                    `
+                        <html>
+                            <head>
+                                <meta property="og:title" content="Dota 2">
+                                <meta property="og:description" content="Every day, millions of players worldwide enter battle.">
+                            </head>
+                            <body>
+                                <div class="gamehighlight_desktopcarousel" data-props='{
+                                    "trailers": [
+                                        {
+                                            "dashManifests": [
+                                                "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_av1.mpd",
+                                                "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd"
+                                            ]
+                                        }
+                                    ]
+                                }'></div>
+                            </body>
+                        </html>
+                    `,
+                    { headers: { "content-type": "text/html" } },
+                ),
+        );
+
+        const embed = await EmbedHandlers["store.steampowered.com"](new URL("https://store.steampowered.com/app/570/Dota_2/"));
+
+        assert.ok(embed);
+        assert.equal(Array.isArray(embed), false);
+        if (Array.isArray(embed)) throw new Error("expected a single Steam embed");
+        assert.deepEqual(embed.video, {
+            url: "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd",
+        });
     });
 });
 

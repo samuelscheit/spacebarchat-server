@@ -111,34 +111,48 @@ export const getMetaDescriptions = (text: string) => {
     };
 };
 
-type SteamHighlightTrailer = {
-    hlsManifest?: string;
-    dashManifests?: string[];
-};
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
 
-type SteamHighlightProps = {
-    trailers?: SteamHighlightTrailer[];
+const isNonEmptyString = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
+
+const toHttpUrl = (value: unknown): string | undefined => {
+    if (!isNonEmptyString(value)) return undefined;
+
+    try {
+        const url = new URL(value.trim());
+        if (url.protocol !== "http:" && url.protocol !== "https:") return undefined;
+        return url.toString();
+    } catch (e) {
+        return undefined;
+    }
 };
 
 export const getSteamHighlightVideo = ($: cheerio.CheerioAPI): EmbedImage | undefined => {
     const props = $(".gamehighlight_desktopcarousel").attr("data-props");
     if (!props) return undefined;
 
-    let parsed: Partial<SteamHighlightProps>;
+    let parsed: unknown;
     try {
-        parsed = JSON.parse(props) as Partial<SteamHighlightProps>;
+        parsed = JSON.parse(props);
     } catch (e) {
         return undefined;
     }
 
+    if (!isRecord(parsed)) return undefined;
+
     const trailers = Array.isArray(parsed.trailers) ? parsed.trailers : [];
-    for (const trailer of trailers) {
-        if (!trailer || typeof trailer !== "object") continue;
-        const hlsManifest = typeof trailer.hlsManifest === "string" ? trailer.hlsManifest : undefined;
-        const dashManifest = Array.isArray(trailer.dashManifests) ? trailer.dashManifests.find((manifest) => typeof manifest === "string") : undefined;
-        const url = hlsManifest ?? dashManifest;
-        if (url) return { url };
-    }
+    const manifests = trailers.filter(isRecord).map((trailer) => ({
+        hls: toHttpUrl(trailer.hlsManifest),
+        dash: Array.isArray(trailer.dashManifests) ? trailer.dashManifests.map(toHttpUrl).filter((url): url is string => !!url) : [],
+    }));
+
+    const hlsManifest = manifests.find((manifest) => manifest.hls)?.hls;
+    if (hlsManifest) return { url: hlsManifest };
+
+    const dashManifests = manifests.flatMap((manifest) => manifest.dash);
+    const h264DashManifest = dashManifests.find((manifest) => new URL(manifest).pathname.toLowerCase().endsWith("/dash_h264.mpd"));
+    const dashManifest = h264DashManifest ?? dashManifests[0];
+    if (dashManifest) return { url: dashManifest };
 
     return undefined;
 };
