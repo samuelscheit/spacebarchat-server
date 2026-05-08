@@ -76,4 +76,42 @@ describe("public message generated contract", () => {
         assert.equal(apiMessageArray.items?.$ref, "#/definitions/PublicMessage");
         assert.ok(item.properties?.member, "APIMessageArray items should expose the public message schema");
     });
+
+    test("message sticker fields use the public sticker response contract", () => {
+        const schemas = readJson("assets/schemas.json");
+        const publicMessage = resolveAssetSchema(schemas, schemas.PublicMessage);
+        const stickerItems = resolveAssetSchema(schemas, publicMessage.properties!.sticker_items!);
+        const stickerItem = resolveAssetSchema(schemas, stickerItems.items!);
+        const snapshot = resolveAssetSchema(schemas, schemas.MessageSnapshot);
+        const snapshotMessage = resolveAssetSchema(schemas, snapshot.properties!.message!);
+        const snapshotStickerItems = resolveAssetSchema(schemas, snapshotMessage.properties!.sticker_items!);
+
+        assert.equal(stickerItems.type, "array");
+        assert.equal(stickerItems.items?.$ref, "#/definitions/StickerResponse");
+        assert.equal(snapshotStickerItems.items?.$ref, "#/definitions/StickerResponse");
+        assert.equal(stickerItem.properties?.id?.type, "string");
+        assert.equal(stickerItem.properties?.name?.type, "string");
+        assert.equal(stickerItem.properties?.pack, undefined);
+        assert.equal(stickerItem.properties?.guild, undefined);
+        assert.equal(stickerItem.properties?.user_id, undefined);
+    });
+
+    test("OpenAPI message sticker fields use the public sticker response contract", () => {
+        const openapi = readJson("assets/openapi.json");
+        const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
+        const stickerItems = resolveOpenApi(openapi, publicMessage.properties!.sticker_items!);
+        const stickerItem = resolveOpenApi(openapi, stickerItems.items!);
+        const snapshot = resolveOpenApi(openapi, openapi.components.schemas.MessageSnapshot);
+        const snapshotMessage = resolveOpenApi(openapi, snapshot.properties!.message!);
+        const snapshotStickerItems = resolveOpenApi(openapi, snapshotMessage.properties!.sticker_items!);
+
+        assert.equal(stickerItems.type, "array");
+        assert.equal(stickerItems.items?.$ref, "#/components/schemas/StickerResponse");
+        assert.equal(snapshotStickerItems.items?.$ref, "#/components/schemas/StickerResponse");
+        assert.equal(stickerItem.properties?.id?.type, "string");
+        assert.equal(stickerItem.properties?.name?.type, "string");
+        assert.equal(stickerItem.properties?.pack, undefined);
+        assert.equal(stickerItem.properties?.guild, undefined);
+        assert.equal(stickerItem.properties?.user_id, undefined);
+    });
 });

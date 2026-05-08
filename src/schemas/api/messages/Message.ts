@@ -16,9 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity import
-import type { Sticker } from "@spacebar/util";
-import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake, StickerResponse } from "@spacebar/schemas";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
 
@@ -175,7 +173,7 @@ export interface MessageSnapshot {
         flags: number;
         components?: MessageComponent[];
         resolved?: object[];
-        sticker_items?: Sticker[];
+        sticker_items?: StickerResponse[];
         // soundboard_sounds?: object[]; // TODO: when soundboard is done
     };
 }
@@ -221,8 +219,8 @@ export interface PublicMessage {
     // purchase_notification?: MessagePurchaseNotification;
     // gift_info?: MessageGiftInfo;
     components: MessageComponent[];
-    sticker_items?: Sticker[];
-    stickers?: Sticker[]; // TODO: dont use db entity
+    sticker_items?: StickerResponse[];
+    stickers?: StickerResponse[];
     poll?: Poll;
     changelog_id?: Snowflake;
     // soundboard_sounds?: SoundboardSound[];
