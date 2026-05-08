@@ -117,3 +117,5 @@ export const PublicMemberProjection = [
     "collectibles",
     "flags",
 ] satisfies PublicMemberKeys[];
+
+const _publicMemberProjectionCoversSchema: Exclude<PublicMemberKeys, (typeof PublicMemberProjection)[number]> extends never ? true : never = true;
