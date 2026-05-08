@@ -17,8 +17,8 @@
 */
 
 import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations } from "@spacebar/util";
-import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
+import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations, ReadState, advanceReadStateNotificationCursor } from "@spacebar/util";
+import { MessageThreadCreationSchema, ChannelType, MessageType, ReadStateType } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 
@@ -26,8 +26,6 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
-
 router.post(
     "/",
     route({
@@ -90,7 +88,7 @@ router.post(
             },
             author_id: user.id,
         });
-        await sendMessage({
+        const threadCreatedMessage = await sendMessage({
             channel_id: channel.id,
             type: MessageType.THREAD_CREATED,
             content: thread.name,
@@ -100,6 +98,13 @@ router.post(
             },
             author_id: user.id,
         });
+
+        const readState =
+            (await ReadState.findOne({
+                where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
+            })) ?? ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
+        advanceReadStateNotificationCursor(readState, threadCreatedMessage.id);
+
         await Promise.all([
             emitEvent({
                 event: "THREAD_CREATE",
@@ -110,6 +115,7 @@ router.post(
                 },
             }),
             message.save(),
+            readState.save(),
             emitEvent({
                 event: "MESSAGE_UPDATE",
                 channel_id: message.channel_id,

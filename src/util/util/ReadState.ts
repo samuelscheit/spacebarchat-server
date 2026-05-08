@@ -29,6 +29,7 @@ export interface ReadStateIdentity {
 export interface WritableReadState {
     last_message_id?: string | null;
     last_acked_id?: string | null;
+    notifications_cursor?: string | null;
     mention_count: number;
     badge_count: number;
     read_state_type: ReadStateType;
@@ -57,6 +58,25 @@ export function getReadStateIdentity(user_id: string, update: AckBulkReadStateUp
         channel_id: update.channel_id,
         read_state_type: getReadStateType(update),
     };
+}
+
+function isMessageIdAfter(currentMessageId: string, candidateMessageId: string) {
+    try {
+        return BigInt(candidateMessageId) > BigInt(currentMessageId);
+    } catch {
+        // Message IDs should be decimal snowflakes. If legacy/corrupt data is not
+        // parseable, prefer preserving the existing cursor over accidentally
+        // moving it backwards with an incomparable value.
+        return false;
+    }
+}
+
+export function advanceReadStateNotificationCursor<T extends WritableReadState>(readState: T, messageId: string): T {
+    if (!readState.notifications_cursor || isMessageIdAfter(readState.notifications_cursor, messageId)) {
+        readState.notifications_cursor = messageId;
+    }
+
+    return readState;
 }
 
 export function applyAckBulkReadStateUpdate<T extends WritableReadState>(readState: T, update: AckBulkReadStateUpdate): T {

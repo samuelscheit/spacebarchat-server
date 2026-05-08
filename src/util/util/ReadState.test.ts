@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, test } from "node:test";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
-import { applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity, READY_READ_STATE_SELECT } from "./ReadState";
+import { advanceReadStateNotificationCursor, applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity, READY_READ_STATE_SELECT } from "./ReadState";
 
 describe("read state helpers", () => {
     test("defaults bulk acknowledgements to channel read states", () => {
@@ -33,6 +33,62 @@ describe("read state helpers", () => {
                 read_state_type: ReadStateType.GUILD_EVENT,
             },
         );
+    });
+
+    test("advances notification cursor to a newer message snowflake", () => {
+        const readState = advanceReadStateNotificationCursor(
+            {
+                notifications_cursor: "1000",
+                mention_count: 1,
+                badge_count: 0,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+            "1001",
+        );
+
+        assert.equal(readState.notifications_cursor, "1001");
+    });
+
+    test("does not rewind notification cursor to an older message snowflake", () => {
+        const readState = advanceReadStateNotificationCursor(
+            {
+                notifications_cursor: "1001",
+                mention_count: 1,
+                badge_count: 0,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+            "1000",
+        );
+
+        assert.equal(readState.notifications_cursor, "1001");
+    });
+
+    test("initializes missing notification cursor", () => {
+        const readState = advanceReadStateNotificationCursor(
+            {
+                notifications_cursor: null,
+                mention_count: 1,
+                badge_count: 0,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+            "1000",
+        );
+
+        assert.equal(readState.notifications_cursor, "1000");
+    });
+
+    test("preserves unparsable legacy notification cursors rather than guessing order", () => {
+        const readState = advanceReadStateNotificationCursor(
+            {
+                notifications_cursor: "legacy-cursor",
+                mention_count: 1,
+                badge_count: 0,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+            "1000",
+        );
+
+        assert.equal(readState.notifications_cursor, "legacy-cursor");
     });
 
     test("writes channel bulk acknowledgements to channel read-state fields", () => {
