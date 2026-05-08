@@ -4590,7 +4590,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/webhooks/",
             "sourceFile": "src/api/routes/channels/#channel_id/webhooks.ts",
-            "line": 58,
+            "line": 57,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
