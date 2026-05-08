@@ -4,9 +4,9 @@ import { afterEach, describe, test } from "node:test";
 import assert from "node:assert/strict";
 
 const util = require("@spacebar/util");
-const eventUtil = require("../../util/util/Event");
-const randomInviteId = require("../util/utility/RandomInviteID");
-const { createChannelInvite } = require("../util/handlers/ChannelInviteCreate");
+const { createChannelInvite } = require("../util/handlers/ChannelInviteCreate") as typeof import("../util/handlers/ChannelInviteCreate");
+
+type CreateChannelInviteOptions = import("../util/handlers/ChannelInviteCreate").CreateChannelInviteOptions;
 
 type InviteBody = {
     max_age?: number;
@@ -38,22 +38,23 @@ const originalMethods = {
     channelFindOneOrFail: util.Channel.findOneOrFail,
     guildFindOne: util.Guild.findOne,
     inviteFind: util.Invite.find,
+    inviteFindOne: util.Invite.findOne,
     inviteSave: util.Invite.prototype.save,
     inviteToJSON: util.Invite.prototype.toJSON,
     userGetPublicUser: util.User.getPublicUser,
-    emitEvent: eventUtil.emitEvent,
-    randomString: randomInviteId.randomString,
 };
+
+let emitInviteEvent: CreateChannelInviteOptions["emitEvent"] = async () => undefined;
 
 function restoreMethods() {
     util.Channel.findOneOrFail = originalMethods.channelFindOneOrFail;
     util.Guild.findOne = originalMethods.guildFindOne;
     util.Invite.find = originalMethods.inviteFind;
+    util.Invite.findOne = originalMethods.inviteFindOne;
     util.Invite.prototype.save = originalMethods.inviteSave;
     util.Invite.prototype.toJSON = originalMethods.inviteToJSON;
     util.User.getPublicUser = originalMethods.userGetPublicUser;
-    eventUtil.emitEvent = originalMethods.emitEvent;
-    randomInviteId.randomString = originalMethods.randomString;
+    emitInviteEvent = async () => undefined;
 }
 
 afterEach(restoreMethods);
@@ -111,8 +112,6 @@ function createStoredInvite(overrides: Partial<InviteRecord> = {}): InviteRecord
 
 function installInviteRouteHarness(invites: InviteRecord[] = []) {
     const emittedEvents: unknown[] = [];
-    let generatedInviteCounter = 0;
-
     util.Channel.findOneOrFail = async () => ({
         id: "channel-id",
         name: "general",
@@ -121,10 +120,9 @@ function installInviteRouteHarness(invites: InviteRecord[] = []) {
     });
     util.Guild.findOne = async () => ({ id: "guild-id", name: "Guild" });
     util.User.getPublicUser = async (id: string) => ({ id, username: "inviter" });
-    eventUtil.emitEvent = async (payload: unknown) => {
+    emitInviteEvent = async (payload: unknown) => {
         emittedEvents.push(payload);
     };
-    randomInviteId.randomString = () => `generated-${++generatedInviteCounter}`;
 
     util.Invite.find = async ({ where, order }: { where: Record<string, unknown>; order?: { created_at?: "ASC" | "DESC" } }) => {
         const matches = invites.filter((invite) => matchesWhere(invite, where));
@@ -132,6 +130,8 @@ function installInviteRouteHarness(invites: InviteRecord[] = []) {
         if (order?.created_at === "DESC") return matches.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
         return matches;
     };
+
+    util.Invite.findOne = async ({ where }: { where: Record<string, unknown> }) => invites.find((invite) => matchesWhere(invite, where));
 
     util.Invite.prototype.save = async function save(this: InviteRecord) {
         if (!invites.some((invite) => invite.code === this.code)) invites.push(this);
@@ -145,8 +145,8 @@ function installInviteRouteHarness(invites: InviteRecord[] = []) {
     return { emittedEvents, invites };
 }
 
-async function postInvite(body: InviteBody) {
-    const response = await createChannelInvite("user-id", "channel-id", body);
+async function postInvite(body: InviteBody, options?: CreateChannelInviteOptions) {
+    const response = await createChannelInvite("user-id", "channel-id", body, { emitEvent: emitInviteEvent, ...options });
     assert(response.data && typeof response.data === "object", "invite route should return a response body");
     return response as { status: number; data: ReturnType<typeof toPlainInvite> & { inviter?: unknown; guild?: unknown; channel?: unknown } };
 }
@@ -178,6 +178,30 @@ describe("createChannelInvite", () => {
         assert.notEqual(second.data.code, first.data.code);
         assert.equal(harness.invites.length, 2);
         assert.equal(harness.emittedEvents.length, 2);
+    });
+
+    test("retries generated invite code collisions before saving a new invite", async () => {
+        const harness = installInviteRouteHarness([
+            createStoredInvite({
+                code: "taken1",
+                guild_id: "other-guild",
+                channel_id: "other-channel",
+            }),
+        ]);
+        const generatedCodes = ["taken1", "fresh1"];
+
+        const response = await postInvite(
+            { unique: true },
+            {
+                generateCode: () => generatedCodes.shift()!,
+            },
+        );
+
+        assert.equal(response.status, 201);
+        assert.equal(response.data.code, "fresh1");
+        assert.equal(harness.invites.length, 2);
+        assert.deepEqual(harness.invites.map((invite) => invite.code).sort(), ["fresh1", "taken1"]);
+        assert.equal(harness.emittedEvents.length, 1);
     });
 
     test("does not reuse expired or used-up matching invites", async () => {

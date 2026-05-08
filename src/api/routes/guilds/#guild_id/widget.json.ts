@@ -16,10 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { randomString, route } from "@spacebar/api";
+import { type GenerateUnusedInviteCodeOptions, generateUnusedInviteCode, route } from "@spacebar/api";
 import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions, normalizeInviteCreateOptions } from "@spacebar/util";
-import { Request, Response, Router } from "express";
-import { ChannelType, GuildWidgetJsonResponse } from "@spacebar/schemas";
+import { type Request, type Response, Router } from "express";
+import { ChannelType, type GuildWidgetJsonResponse } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -67,7 +67,9 @@ router.get(
     },
 );
 
-async function getWidgetJsonData(guild_id: string) {
+export type GetWidgetJsonDataOptions = Pick<GenerateUnusedInviteCodeOptions, "generateCode" | "inviteRepository">;
+
+export async function getWidgetJsonData(guild_id: string, options: GetWidgetJsonDataOptions = {}) {
     const guild = await Guild.findOneOrFail({
         where: { id: guild_id },
         select: {
@@ -87,8 +89,9 @@ async function getWidgetJsonData(guild_id: string) {
     });
 
     if (guild.widget_channel_id && !invite) {
+        const code = await generateUnusedInviteCode(options);
         invite = await Invite.createForChannel(
-            randomString(),
+            code,
             {
                 guild_id,
                 channel_id: guild.widget_channel_id,

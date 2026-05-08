@@ -1,9 +1,13 @@
-import { randomString } from "../utility/RandomInviteID";
-import { Channel, Guild, Invite, InviteCreateEvent, User, emitEvent, normalizeInviteCreateOptions } from "@spacebar/util";
+import { type GenerateUnusedInviteCodeOptions, generateUnusedInviteCode } from "../utility/RandomInviteID";
+import { Channel, Guild, Invite, type InviteCreateEvent, User, emitEvent, normalizeInviteCreateOptions } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { InviteCreateSchema, isTextChannel } from "@spacebar/schemas";
+import { type InviteCreateSchema, isTextChannel } from "@spacebar/schemas";
 
-export async function createChannelInvite(user_id: string, channel_id: string, body: InviteCreateSchema) {
+export type CreateChannelInviteOptions = Pick<GenerateUnusedInviteCodeOptions, "generateCode" | "inviteRepository"> & {
+    emitEvent?: typeof emitEvent;
+};
+
+export async function createChannelInvite(user_id: string, channel_id: string, body: InviteCreateSchema, options: CreateChannelInviteOptions = {}) {
     const channel = await Channel.findOneOrFail({
         where: { id: channel_id },
         select: { id: true, name: true, type: true, guild_id: true },
@@ -32,14 +36,16 @@ export async function createChannelInvite(user_id: string, channel_id: string, b
         return { status: 200, data };
     }
 
-    const invite = await Invite.createForChannel(randomString(), inviteContext, inviteOptions).save();
+    const code = await generateUnusedInviteCode({ generateCode: options.generateCode, inviteRepository: options.inviteRepository });
+    const invite = await Invite.createForChannel(code, inviteContext, inviteOptions).save();
 
     const data = invite.toJSON();
     data.inviter = await User.getPublicUser(user_id);
     data.guild = await Guild.findOne({ where: { id: guild_id } });
     data.channel = channel;
 
-    await emitEvent({
+    const emitInviteEvent = options.emitEvent ?? emitEvent;
+    await emitInviteEvent({
         event: "INVITE_CREATE",
         data,
         guild_id,
