@@ -3336,6 +3336,9 @@
                     "security": {
                         "$ref": "#/components/schemas/SecurityConfiguration"
                     },
+                    "store": {
+                        "$ref": "#/components/schemas/StoreConfiguration"
+                    },
                     "login": {
                         "$ref": "#/components/schemas/LoginConfiguration"
                     },
@@ -3409,6 +3412,7 @@
                     "regions",
                     "register",
                     "security",
+                    "store",
                     "templates",
                     "updates",
                     "user",
@@ -18549,6 +18553,87 @@
                     "generateBackupCodes"
                 ]
             },
+            "StoreConfiguration": {
+                "type": "object",
+                "properties": {
+                    "customSubscriptionPlans": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StoreSubscriptionPlanConfiguration"
+                        },
+                        "default": []
+                    }
+                },
+                "required": [
+                    "customSubscriptionPlans"
+                ]
+            },
+            "StoreSubscriptionPlanConfiguration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "interval": {
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "interval_count": {
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "tax_inclusive": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "sku_id": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "default": "usd"
+                    },
+                    "price": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "price_tier": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ],
+                        "default": null
+                    },
+                    "discount_price": {
+                        "type": "integer"
+                    },
+                    "fallback_price": {
+                        "type": "integer"
+                    },
+                    "fallback_currency": {
+                        "type": "string"
+                    },
+                    "prices": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    }
+                },
+                "required": [
+                    "currency",
+                    "id",
+                    "interval",
+                    "interval_count",
+                    "name",
+                    "price",
+                    "price_tier",
+                    "sku_id",
+                    "tax_inclusive"
+                ]
+            },
             "LoginConfiguration": {
                 "type": "object",
                 "properties": {
@@ -19506,6 +19591,9 @@
                     "security": {
                         "$ref": "#/components/schemas/SecurityConfiguration"
                     },
+                    "store": {
+                        "$ref": "#/components/schemas/StoreConfiguration"
+                    },
                     "login": {
                         "$ref": "#/components/schemas/LoginConfiguration"
                     },
@@ -19579,6 +19667,7 @@
                     "regions",
                     "register",
                     "security",
+                    "store",
                     "templates",
                     "updates",
                     "user",

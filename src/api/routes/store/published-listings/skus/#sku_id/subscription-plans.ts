@@ -18,10 +18,29 @@
 
 import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api";
+import { Config } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
-const skus = new Map([
+export interface SubscriptionPlan {
+    id: string;
+    name: string;
+    interval: number;
+    interval_count: number;
+    tax_inclusive: boolean;
+    sku_id: string;
+    currency: string;
+    price: number;
+    price_tier: number | null;
+    discount_price?: number;
+    fallback_price?: number;
+    fallback_currency?: string;
+    prices?: object;
+}
+
+type SubscriptionPlanLike = SubscriptionPlan | SubscriptionPlanLike[];
+
+const builtinSkus = new Map<string, SubscriptionPlanLike[]>([
     [
         "521842865731534868",
         [
@@ -316,15 +335,26 @@ const skus = new Map([
     ],
 ]);
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    // TODO: add the ability to add custom
-    const { sku_id } = req.params as { [key: string]: string };
+export function flattenSubscriptionPlans(plans: readonly SubscriptionPlanLike[] = []): SubscriptionPlan[] {
+    return plans.flatMap((plan) => (Array.isArray(plan) ? flattenSubscriptionPlans(plan) : [plan]));
+}
 
-    if (!skus.has(sku_id)) {
+export function getSubscriptionPlansForSku(skuId: string, customPlans: readonly SubscriptionPlan[] = []): SubscriptionPlan[] {
+    const builtinPlans = flattenSubscriptionPlans(builtinSkus.get(skuId));
+    const matchingCustomPlans = customPlans.filter((plan) => plan.sku_id === skuId);
+
+    return [...builtinPlans, ...matchingCustomPlans];
+}
+
+router.get("/", route({}), (req: Request, res: Response) => {
+    const { sku_id } = req.params as { [key: string]: string };
+    const plans = getSubscriptionPlansForSku(sku_id, Config.get().store.customSubscriptionPlans);
+
+    if (plans.length === 0) {
         console.log(`Request for invalid SKU ${sku_id}! Please report this!`);
         res.sendStatus(404);
     } else {
-        res.json(skus.get(sku_id)).status(200);
+        res.status(200).json(plans);
     }
 });
 
