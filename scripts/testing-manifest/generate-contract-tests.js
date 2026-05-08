@@ -176,6 +176,7 @@ function buildContractMatrix(manifest) {
     const contracts = manifest.entries.filter((entry) => entry.type === "http-route").map(contractForEntry);
     const runtimeAuthBoundaryContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS").length;
     const runtimeMalformedAuthContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS").length;
+    const runtimeRevokedSessionAuthContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS").length;
     const runtimePublicAuthBoundaryContracts = contracts.filter((contract) => contract.service === "api" && contract.authMode === "public" && contract.method !== "OPTIONS").length;
     const runtimePublicInvalidBodyContracts = contracts.filter(supportsRuntimePublicInvalidBodyContract).length;
     const runtimeProtectedInvalidBodyContracts = contracts.filter(supportsRuntimeProtectedInvalidBodyContract).length;
@@ -194,6 +195,7 @@ function buildContractMatrix(manifest) {
             }, {}),
             runtimeAuthBoundaryContracts,
             runtimeMalformedAuthContracts,
+            runtimeRevokedSessionAuthContracts,
             runtimePublicAuthBoundaryContracts,
             runtimePublicInvalidBodyContracts,
             runtimeProtectedInvalidBodyContracts,
@@ -349,6 +351,7 @@ type GeneratedHttpContractMatrix = {
     summary: {
         runtimeAuthBoundaryContracts: number;
         runtimeMalformedAuthContracts: number;
+        runtimeRevokedSessionAuthContracts: number;
         runtimePublicAuthBoundaryContracts: number;
         runtimePublicInvalidBodyContracts: number;
         runtimeProtectedInvalidBodyContracts: number;
@@ -500,7 +503,10 @@ function restoreEnv(name: string, value: string | undefined) {
     else process.env[name] = value;
 }
 
-async function withAuthenticatedApi<T>(prefix: string, fn: (context: { api: Awaited<ReturnType<typeof startApi>>; token: string; user: User }) => Promise<T>): Promise<T> {
+async function withAuthenticatedApi<T>(
+    prefix: string,
+    fn: (context: { api: Awaited<ReturnType<typeof startApi>>; token: string; user: User; session: Session }) => Promise<T>,
+): Promise<T> {
     const previous = snapshotProcessState();
     let api: Awaited<ReturnType<typeof startApi>> | undefined;
     let database: Awaited<ReturnType<typeof createDisposablePostgresDatabase>> | undefined;
@@ -561,7 +567,7 @@ async function withAuthenticatedApi<T>(prefix: string, fn: (context: { api: Awai
         session.last_seen_location = "test";
         await session.save();
 
-        return await fn({ api, token, user });
+        return await fn({ api, token, user, session });
     } finally {
         if (api) await api.stop();
         if (databaseInitialized) await closeDatabase();
@@ -630,6 +636,45 @@ test("generated HTTP auth contracts reject malformed bearer tokens through the r
         if (api) await api.stop();
     }
 });
+
+test(
+    "generated HTTP auth contracts reject revoked bearer sessions through the real API stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(protectedApiContracts.length, matrix.summary.runtimeRevokedSessionAuthContracts);
+        assert.ok(protectedApiContracts.length > 0, "expected protected API routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_revoked_session", async ({ api, token, session }) => {
+                await Session.delete({ session_id: session.session_id });
+
+                for (const contract of protectedApiContracts) {
+                    const response = await fetch(\`\${api.apiBaseUrl}\${contract.samplePath}\`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: \`Bearer \${token}\`,
+                        },
+                    });
+
+                    assert.equal(response.status, 401, \`\${contract.manifestId} should reject bearer tokens for deleted sessions\`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON auth error\`);
+
+                    const body = (await response.json()) as Record<string, unknown>;
+                    assert.equal(body.code, 401, \`\${contract.manifestId} should return the invalid session error code\`);
+                    assert.equal(body.message, "Error: Invalid Session", \`\${contract.manifestId} should return the invalid session error message\`);
+                    assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
+                }
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);
 
 test("generated HTTP auth contracts keep public API routes out of bearer middleware", { timeout: 60_000 }, async () => {
     assert.equal(publicApiContracts.length, matrix.summary.runtimePublicAuthBoundaryContracts);

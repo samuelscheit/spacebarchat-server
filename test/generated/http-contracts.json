@@ -10,6 +10,7 @@
         },
         "runtimeAuthBoundaryContracts": 274,
         "runtimeMalformedAuthContracts": 274,
+        "runtimeRevokedSessionAuthContracts": 274,
         "runtimePublicAuthBoundaryContracts": 36,
         "runtimePublicInvalidBodyContracts": 11,
         "runtimeProtectedInvalidBodyContracts": 49,
