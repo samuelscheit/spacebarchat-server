@@ -15525,7 +15525,7 @@
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [204]
             },
             "cases": [
                 {
