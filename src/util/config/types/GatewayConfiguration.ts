@@ -14,5 +14,6 @@ export function isValidGatewayDisconnectedSessionCleanupDelay(delay: unknown): d
 
 export class GatewayConfiguration extends EndpointConfiguration {
     heartbeatTimeout: number = DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT;
+    lazyMemberListIncludeOffline: boolean = true;
     disconnectedSessionCleanupDelayMs: number = DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS;
 }
