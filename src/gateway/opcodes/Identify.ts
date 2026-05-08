@@ -309,7 +309,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     channel: {
                         id: true,
                         flags: true,
-                        // is_spam: true,	// TODO
                         last_message_id: true,
                         last_pin_timestamp: true,
                         type: true,
