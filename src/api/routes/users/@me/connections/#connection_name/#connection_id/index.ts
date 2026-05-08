@@ -36,7 +36,7 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: 
         select: getConnectedAccountDTOSelect(),
     });
 
-    if (!connection) return DiscordApiErrors.UNKNOWN_CONNECTION;
+    if (!connection) throw DiscordApiErrors.UNKNOWN_CONNECTION;
     if (connection.revoked) throw DiscordApiErrors.CONNECTION_REVOKED;
 
     if (typeof body.visibility === "boolean")

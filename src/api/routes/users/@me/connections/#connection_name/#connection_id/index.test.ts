@@ -84,6 +84,7 @@ function patchJson(url: string, body: unknown): Promise<{ statusCode: number | u
             url,
             {
                 method: "PATCH",
+                timeout: 1000,
                 headers: {
                     "content-type": "application/json",
                     "content-length": Buffer.byteLength(payload),
@@ -106,6 +107,9 @@ function patchJson(url: string, body: unknown): Promise<{ statusCode: number | u
             },
         );
 
+        req.on("timeout", () => {
+            req.destroy(new Error("PATCH request timed out"));
+        });
         req.on("error", reject);
         req.end(payload);
     });
@@ -123,8 +127,25 @@ afterEach(() => {
 });
 
 describe("PATCH /users/@me/connections/:connection_name/:connection_id", () => {
+    test("returns unknown connection when the account does not exist", async () => {
+        const { server, url, getUpdateCall } = await startConnectionsRouteServer(null);
+        try {
+            const response = await patchJson(url, { visibility: true });
+
+            assert.equal(response.statusCode, 400);
+            assert.deepEqual(response.body, {
+                code: 10017,
+                message: "Unknown connection",
+            });
+            assert.equal(getUpdateCall(), undefined);
+        } finally {
+            await closeServer(server);
+        }
+    });
+
     test("rejects revoked connections without updating them", async () => {
-        const { server, url, getUpdateCall } = await startConnectionsRouteServer(createConnection({ revoked: true }));
+        const connection = createConnection({ revoked: true });
+        const { server, url, getUpdateCall } = await startConnectionsRouteServer(connection);
         try {
             const response = await patchJson(url, { visibility: true });
 
@@ -133,6 +154,7 @@ describe("PATCH /users/@me/connections/:connection_name/:connection_id", () => {
                 code: 40012,
                 message: "The connection has been revoked",
             });
+            assert.equal(connection.assignedBody, undefined);
             assert.equal(getUpdateCall(), undefined);
         } finally {
             await closeServer(server);
