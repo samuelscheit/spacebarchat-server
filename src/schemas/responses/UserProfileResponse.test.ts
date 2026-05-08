@@ -85,6 +85,8 @@ test("UserProfileResponse validates visible connected accounts and optional quer
     };
 
     assert.equal(ajv.validate("UserProfileResponse", response), true);
+    assert.equal(ajv.validate("UserProfileResponse", { ...response, premium_since: "2026-05-06T00:00:00.000Z" }), true);
+    assert.equal(ajv.validate("UserProfileResponse", { ...response, premium_since: "not-a-date" }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: response.connected_accounts[0] }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, connected_accounts: [{ ...response.connected_accounts[0], metadata: null }] }), false);
     assert.equal(ajv.validate("UserProfileResponse", { ...response, guild_member: { user: response.user } }), false);
