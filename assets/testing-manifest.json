@@ -4897,7 +4897,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/public/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads/archived/public.ts",
-            "line": 33,
+            "line": 35,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
