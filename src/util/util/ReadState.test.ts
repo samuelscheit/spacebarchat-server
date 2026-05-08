@@ -155,4 +155,12 @@ describe("read state helpers", () => {
         assert.match(source, /last_message_id/);
         assert.match(source, /notificationCursorMessageId/);
     });
+
+    test("casts persisted read markers through text before null handling on postgres", () => {
+        const source = readFileSync(resolve(process.cwd(), "src/util/util/ReadStatePersistence.ts"), "utf8");
+
+        assert.match(source, /NULLIF\("notifications_cursor", ''\)::numeric/);
+        assert.match(source, /NULLIF\("last_message_id"::text, ''\)::numeric/);
+        assert.match(source, /:\$\{messageIdParameterName\}::numeric/);
+    });
 });

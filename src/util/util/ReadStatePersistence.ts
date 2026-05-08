@@ -23,7 +23,7 @@ export function advanceNotificationCursorSql(messageIdParameterName = "notificat
         return `CAST(max(COALESCE(CAST(NULLIF("notifications_cursor", '') AS INTEGER), 0), COALESCE(CAST(NULLIF("last_message_id", '') AS INTEGER), 0), CAST(:${messageIdParameterName} AS INTEGER)) AS TEXT)`;
     }
 
-    return `GREATEST(COALESCE(NULLIF("notifications_cursor", '')::numeric, 0), COALESCE(NULLIF("last_message_id", '')::numeric, 0), :${messageIdParameterName}::numeric)::text`;
+    return `GREATEST(COALESCE(NULLIF("notifications_cursor", '')::numeric, 0), COALESCE(NULLIF("last_message_id"::text, '')::numeric, 0), :${messageIdParameterName}::numeric)::text`;
 }
 
 function channelReadStateValues(identity: ChannelMessageReadStateIdentity, messageId: string, options: ChannelMessageReadStateOptions = {}) {
