@@ -18,7 +18,7 @@
         "runtimePublicResponseSchemaContracts": 7,
         "runtimeAuthenticatedResponseSchemaContracts": 18,
         "runtimeRightOnlyDenialContracts": 6,
-        "runtimePermissionOnlyDenialContracts": 71,
+        "runtimePermissionOnlyDenialContracts": 74,
         "runtimePermissionAndRightPermissionDenialContracts": 6,
         "runtimePermissionAndRightRightDenialContracts": 6
     },
@@ -8647,7 +8647,9 @@
                     404
                 ],
                 "permission": [
-                    "...PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY",
+                    "MANAGE_THREADS"
                 ]
             },
             "cases": [
@@ -8686,7 +8688,9 @@
                         "error-shape"
                     ],
                     "permission": [
-                        "...PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                        "VIEW_CHANNEL",
+                        "READ_MESSAGE_HISTORY",
+                        "MANAGE_THREADS"
                     ]
                 },
                 {
@@ -8746,7 +8750,8 @@
                     404
                 ],
                 "permission": [
-                    "...PUBLIC_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY"
                 ]
             },
             "cases": [
@@ -8785,7 +8790,8 @@
                         "error-shape"
                     ],
                     "permission": [
-                        "...PUBLIC_ARCHIVED_THREAD_PERMISSIONS"
+                        "VIEW_CHANNEL",
+                        "READ_MESSAGE_HISTORY"
                     ]
                 },
                 {
@@ -9026,7 +9032,8 @@
                     404
                 ],
                 "permission": [
-                    "...JOINED_PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY"
                 ]
             },
             "cases": [
@@ -9065,7 +9072,8 @@
                         "error-shape"
                     ],
                     "permission": [
-                        "...JOINED_PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                        "VIEW_CHANNEL",
+                        "READ_MESSAGE_HISTORY"
                     ]
                 },
                 {

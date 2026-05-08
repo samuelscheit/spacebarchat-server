@@ -4149,7 +4149,9 @@
             "routeMetadata": {
                 "present": true,
                 "permission": [
-                    "...PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY",
+                    "MANAGE_THREADS"
                 ],
                 "responseBodies": [
                     "APIErrorResponse"
@@ -4195,7 +4197,8 @@
             "routeMetadata": {
                 "present": true,
                 "permission": [
-                    "...PUBLIC_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY"
                 ],
                 "responseBodies": [
                     "APIErrorResponse",
@@ -4326,7 +4329,8 @@
             "routeMetadata": {
                 "present": true,
                 "permission": [
-                    "...JOINED_PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY"
                 ],
                 "responseBodies": [
                     "APIErrorResponse"

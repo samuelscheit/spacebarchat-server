@@ -170,6 +170,12 @@ function parseStringLiteral(raw) {
         .replace(/\\(["'`\\])/g, "$1");
 }
 
+const KNOWN_ROUTE_METADATA_ARRAYS = Object.freeze({
+    JOINED_PRIVATE_ARCHIVED_THREAD_PERMISSIONS: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
+    PRIVATE_ARCHIVED_THREAD_PERMISSIONS: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY", "MANAGE_THREADS"],
+    PUBLIC_ARCHIVED_THREAD_PERMISSIONS: ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY"],
+});
+
 function extractPropertyValue(objectText, propertyName) {
     const source = objectText.trim().replace(/^\{/, "").replace(/\}$/, "");
     const state = { mode: "code", quote: "", escape: false, skip: false };
@@ -232,7 +238,11 @@ function parseLiteralList(raw) {
     if (stringValue !== undefined) return stringValue;
     if (!text.startsWith("[")) return text;
     return splitTopLevelArguments(text.slice(1, -1))
-        .map((item) => parseStringLiteral(item) ?? item.trim())
+        .flatMap((item) => {
+            const trimmed = item.trim();
+            if (trimmed.startsWith("...")) return KNOWN_ROUTE_METADATA_ARRAYS[trimmed.slice(3)] || [trimmed];
+            return [parseStringLiteral(item) ?? trimmed];
+        })
         .filter(Boolean);
 }
 

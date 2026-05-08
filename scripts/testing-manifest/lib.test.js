@@ -50,6 +50,12 @@ describe("testing manifest route helpers", () => {
         assert.deepEqual(options.event, ["EVENT.MESSAGE_CREATE", "EVENT.MESSAGE_UPDATE"]);
     });
 
+    test("expands known spread constants in route metadata arrays", () => {
+        const options = parseRouteOptions(`route({ permission: [...PRIVATE_ARCHIVED_THREAD_PERMISSIONS] })`);
+
+        assert.deepEqual(options.permission, ["VIEW_CHANNEL", "READ_MESSAGE_HISTORY", "MANAGE_THREADS"]);
+    });
+
     test("strips comments without dropping the following array entry", () => {
         const source = `
             // public auth routes
