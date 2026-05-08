@@ -5,11 +5,12 @@ import path from "node:path";
 import { test } from "node:test";
 import bcrypt from "bcrypt";
 import { FrecencyUserSettings, PreloadedUserSettings } from "discord-protos";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Recipient, Rights, User, UserSettingsProtos } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Recipient, User, UserSettingsProtos } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
+import { withoutSelfLeaveRight } from "../fixtures/rights";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
@@ -462,10 +463,6 @@ async function deleteJson(url: string, token: string) {
             authorization: `Bearer ${token}`,
         },
     });
-}
-
-function withoutSelfLeaveRight(rights: string) {
-    return (BigInt(rights) & ~Rights.FLAGS.SELF_LEAVE_GROUPS).toString();
 }
 
 function snapshotProcessState() {

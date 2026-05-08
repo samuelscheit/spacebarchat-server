@@ -3,10 +3,11 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, Config, generateToken, Guild, initDatabase, Member, Rights, Role, User } from "@spacebar/util";
+import { closeDatabase, Config, generateToken, Guild, initDatabase, Member, Role, User } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
+import { withoutSelfLeaveRight } from "../fixtures/rights";
 import { startApi } from "../server/startApi";
 
 type EventCapture = Awaited<ReturnType<typeof captureEvents>>;
@@ -411,10 +412,6 @@ function markCapturedEvents(capture: EventCapture) {
 
 async function waitForEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, predicate: (event: CapturedEvent) => boolean) {
     return await capture.waitFor((event) => !previousEvents.has(event) && predicate(event));
-}
-
-function withoutSelfLeaveRight(rights: string) {
-    return (BigInt(rights) & ~Rights.FLAGS.SELF_LEAVE_GROUPS).toString();
 }
 
 function snapshotProcessState() {
