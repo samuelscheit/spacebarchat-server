@@ -41,6 +41,7 @@ import {
     applyReadyChannelOrdering,
     ReadyEventData,
     ReadyGuildDTO,
+    ReadyPrivateChannel,
     ReadyUserGuildSettingsEntries,
     Recipient,
     Relationship,
@@ -68,8 +69,25 @@ import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
+import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
+
+type ReadyDmChannelSource = {
+    icon?: string | null;
+    id: string;
+    flags: number;
+    last_message_id?: string | null;
+    name?: string | null;
+    owner_id?: string;
+    type: ChannelType.DM | ChannelType.GROUP_DM;
+    recipients: {
+        user_id: string;
+        user: {
+            id: string;
+            toPublicUser(): PublicUser;
+        };
+    }[];
+};
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -564,12 +582,12 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const users: Set<PublicUser> = new Set();
 
     // Generate dm channels from recipients list. Append recipients to `users` list
-    const channels = recipients
+    const channels: ReadyPrivateChannel[] = recipients
         .filter(({ channel }) => channel.isDm())
         .map((r) => {
             // TODO: fix the types of Recipient
             // Their channels are only ever private (I think) and thus are always DM channels
-            const channel = r.channel as DMChannel;
+            const channel = r.channel as ReadyDmChannelSource;
 
             // Remove ourself from the list of other users in dm channel
             channel.recipients = channel.recipients.filter((recipient) => recipient.user.id !== this.user_id);
@@ -588,7 +606,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             return {
                 id: channel.id,
                 flags: channel.flags,
-                last_message_id: channel.last_message_id,
+                last_message_id: channel.last_message_id ?? undefined,
                 type: channel.type,
                 recipients: channelUsers || [],
                 icon: channel.icon,

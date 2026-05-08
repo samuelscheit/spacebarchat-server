@@ -28,8 +28,11 @@ export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_ove
 export interface ReadyPrivateChannel {
     id: string;
     flags: number;
+    icon?: string | null;
     is_spam: boolean;
     last_message_id?: string;
+    name?: string | null;
+    owner_id?: string;
     recipients: PublicUser[];
     type: ChannelType.DM | ChannelType.GROUP_DM;
 }
