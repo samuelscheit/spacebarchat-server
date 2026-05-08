@@ -19,15 +19,14 @@
 import { route } from "@spacebar/api";
 import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, VoiceStateUpdateSchema } from "@spacebar/schemas";
+import { ChannelType, type VoiceStateModifySchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
-//TODO need more testing when community guild and voice stage channel are working
 
 router.patch(
     "/",
     route({
-        requestBody: "VoiceStateUpdateSchema",
+        requestBody: "VoiceStateModifySchema",
         responses: {
             204: {},
             400: {
@@ -42,7 +41,7 @@ router.patch(
         },
     }),
     async (req: Request, res: Response) => {
-        const body = req.body as VoiceStateUpdateSchema;
+        const body = req.body as VoiceStateModifySchema;
         const { guild_id } = req.params as { [key: string]: string };
         const user_id = req.params.user_id === "@me" ? req.user_id : (req.params.user_id as string);
 

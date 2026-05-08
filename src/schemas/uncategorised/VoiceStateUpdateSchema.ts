@@ -16,7 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-//TODO need more testing when community guild and voice stage channel are working
 export interface VoiceStateUpdateSchema {
     guild_id?: string;
     channel_id?: string;
@@ -40,3 +39,9 @@ export const VoiceStateUpdateSchema = {
     $suppress: Boolean,
     $flags: Number,
 };
+
+export interface VoiceStateModifySchema {
+    channel_id: string;
+    request_to_speak_timestamp?: Date | null;
+    suppress?: boolean;
+}
