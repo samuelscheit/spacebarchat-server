@@ -119,8 +119,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     // Check intents
     if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
     this.intents = new Intents(identify.intents);
-
-    // TODO: actually do intent things.
+    // Event dispatch filtering is enforced by the gateway listener using this.intents.
 
     // Validate sharding
     if (identify.shard) {

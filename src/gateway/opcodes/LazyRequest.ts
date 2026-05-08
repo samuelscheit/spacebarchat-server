@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
+import { getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel, Intents } from "@spacebar/util";
 import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
@@ -151,17 +151,19 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
                 if (session?.status == "unknown") session.status = "online";
                 const user = await User.getPublicUser(x);
 
-                return Send(this, {
-                    op: OPCODES.Dispatch,
-                    s: this.sequence++,
-                    t: "PRESENCE_UPDATE",
-                    d: {
-                        user: user,
-                        activities: session?.activities || [],
-                        client_status: session?.client_status,
-                        status: session?.getPublicStatus() || "offline",
-                    } as Presence,
-                });
+                if (this.intents.has(Intents.FLAGS.GUILD_PRESENCES)) {
+                    return Send(this, {
+                        op: OPCODES.Dispatch,
+                        s: this.sequence++,
+                        t: "PRESENCE_UPDATE",
+                        d: {
+                            user: user,
+                            activities: session?.activities || [],
+                            client_status: session?.client_status,
+                            status: session?.getPublicStatus() || "offline",
+                        } as Presence,
+                    });
+                }
             }),
         );
 

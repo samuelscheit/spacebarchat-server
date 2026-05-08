@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { canDispatchGuildPresenceUpdate } from "./listener";
+import { Intents } from "@spacebar/util";
+import { canDispatchEventForIntents, canDispatchGuildPresenceUpdate, getIntentGuildIdForEvent, getRequiredIntentForEvent } from "./listener";
 import { trackGuildMemberEventId } from "./subscriptions";
 
 describe("canDispatchGuildPresenceUpdate", () => {
@@ -16,5 +17,45 @@ describe("canDispatchGuildPresenceUpdate", () => {
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", "visible-member"), true);
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", "hidden-member"), false);
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", undefined), false);
+    });
+});
+
+describe("gateway intent dispatch filtering", () => {
+    test("maps guild events to their required guild intent", () => {
+        assert.equal(getRequiredIntentForEvent("GUILD_CREATE", "guild"), Intents.FLAGS.GUILDS);
+        assert.equal(getRequiredIntentForEvent("PRESENCE_UPDATE", "guild"), Intents.FLAGS.GUILD_PRESENCES);
+        assert.equal(getRequiredIntentForEvent("INVITE_CREATE", "guild"), Intents.FLAGS.GUILD_INVITES);
+    });
+
+    test("infers guild context for user-routed guild events", () => {
+        assert.equal(getIntentGuildIdForEvent({ event: "GUILD_CREATE", data: { id: "guild" } }), "guild");
+        assert.equal(canDispatchEventForIntents(new Intents(0), "GUILD_CREATE", "guild"), false);
+        assert.equal(canDispatchEventForIntents(new Intents(Intents.FLAGS.GUILDS), "GUILD_CREATE", "guild"), true);
+    });
+
+    test("maps direct-message events to direct-message intents", () => {
+        assert.equal(getRequiredIntentForEvent("MESSAGE_CREATE", undefined), Intents.FLAGS.DIRECT_MESSAGES);
+        assert.equal(getRequiredIntentForEvent("MESSAGE_REACTION_ADD", undefined), Intents.FLAGS.DIRECT_MESSAGE_REACTIONS);
+    });
+
+    test("distinguishes shared event names by guild context", () => {
+        const guildMessages = new Intents(Intents.FLAGS.GUILD_MESSAGES);
+        const dmMessages = new Intents(Intents.FLAGS.DIRECT_MESSAGES);
+
+        assert.equal(canDispatchEventForIntents(guildMessages, "MESSAGE_CREATE", "guild"), true);
+        assert.equal(canDispatchEventForIntents(dmMessages, "MESSAGE_CREATE", "guild"), false);
+        assert.equal(canDispatchEventForIntents(dmMessages, "MESSAGE_CREATE", undefined), true);
+        assert.equal(canDispatchEventForIntents(guildMessages, "MESSAGE_CREATE", undefined), false);
+    });
+
+    test("treats unmapped gateway events as passthrough", () => {
+        assert.equal(canDispatchEventForIntents(new Intents(0), "USER_UPDATE", undefined), true);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "APPLICATION_COMMAND_CREATE", "guild"), true);
+    });
+
+    test("maps common auto moderation events to their intents", () => {
+        assert.equal(getRequiredIntentForEvent("AUTO_MODERATION_RULE_CREATE", "guild"), Intents.FLAGS.AUTO_MODERATION_CONFIGURATION);
+        assert.equal(getRequiredIntentForEvent("AUTO_MODERATION_ACTION_EXECUTION", "guild"), Intents.FLAGS.AUTO_MODERATION_EXECUTION);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "AUTO_MODERATION_RULE_CREATE", "guild"), false);
     });
 });

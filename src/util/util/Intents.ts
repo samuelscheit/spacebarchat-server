@@ -111,7 +111,7 @@ export class Intents extends BitField {
         // GUILD_WEBHOOKS
         5: ["WEBHOOKS_UPDATE"],
         // GUILD_INVITES
-        6: ["GUILD_INVITE_CREATE", "GUILD_INVITE_DELETE"],
+        6: ["INVITE_CREATE", "INVITE_DELETE"],
         // GUILD_VOICE_STATES
         7: ["VOICE_CHANNEL_EFFECT_SEND", "VOICE_STATE_UPDATE"],
         // GUILD_PRESENCES
