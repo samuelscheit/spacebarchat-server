@@ -79,13 +79,21 @@ import {
     READY_READ_STATE_SELECT,
     serializeReadyPrivateChannel,
 } from "@spacebar/util";
-import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { hasLoadedDmChannel } from "../util/DmRecipient";
 import { buildReadySupplementalData } from "../util/ReadySupplemental";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
+import {
+    ChannelType,
+    DefaultUserGuildSettings,
+    IdentifySchema,
+    PrivateUserProjection,
+    PublicUser,
+    PublicUserProjection,
+    RelationshipType,
+    validateSchema,
+} from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 import { getConfiguredPrivilegedIntents, getRequestedIdentifyIntents, hasDisallowedPrivilegedIntents } from "./IdentifyPrivilegedIntents";
 import { buildIdentifyBotReadyGuildPlaceholder, buildIdentifyPendingGuildCreateData, IdentifyPendingGuildCreateData } from "../util/IdentifyGuildCreate";
@@ -104,8 +112,13 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     clearTimeout(this.readyTimeout);
 
     // Check payload matches schema
-    check.call(this, IdentifySchema, data.d);
-    const identify: IdentifySchema = data.d;
+    let identify: IdentifySchema;
+    try {
+        identify = validateSchema("IdentifySchema", data.d as object) as IdentifySchema;
+    } catch (error) {
+        console.error(error);
+        return this.close(CLOSECODES.Decode_error);
+    }
 
     this.capabilities = new Capabilities(identify.capabilities || 0);
     this.large_threshold = identify.large_threshold ?? identify.largeThreshold ?? 250;

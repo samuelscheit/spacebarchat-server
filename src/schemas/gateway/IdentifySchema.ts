@@ -16,67 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ActivitySchema } from "../uncategorised/ActivitySchema";
-
-// TODO: can we get rid of this somehow?
-export const IdentifySchema = {
-    token: String,
-    $intents: BigInt, // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
-    $properties: Object,
-    // {
-    // 	// discord uses $ in the property key for bots, so we need to double prefix it, because instanceOf treats $ (prefix) as a optional key
-    // 	$os: String,
-    // 	$os_arch: String,
-    // 	$browser: String,
-    // 	$device: String,
-    // 	$$os: String,
-    // 	$$browser: String,
-    // 	$$device: String,
-    // 	$browser_user_agent: String,
-    // 	$browser_version: String,
-    // 	$os_version: String,
-    // 	$referrer: String,
-    // 	$$referrer: String,
-    // 	$referring_domain: String,
-    // 	$$referring_domain: String,
-    // 	$referrer_current: String,
-    // 	$referring_domain_current: String,
-    // 	$release_channel: String,
-    // 	$client_build_number: Number,
-    // 	$client_event_source: String,
-    // 	$client_version: String,
-    // 	$system_locale: String,
-    // 	$window_manager: String,
-    // 	$distro: String,
-    // },
-    $presence: ActivitySchema,
-    $compress: Boolean,
-    "$[large_threshold|largeThreshold]": Number,
-    $shard: [BigInt, BigInt],
-    $guild_subscriptions: Boolean,
-    $capabilities: Number,
-    "$[client_state|clientState]": {
-        "$[guild_hashes|guildHashes]": Object,
-        "$[highest_last_message_id|highestLastMessageId]": Number,
-        "$[read_state_version|readStateVersion]": Number,
-        "$[user_guild_settings_version|userGuildSettingsVersion]": Number,
-        "$[user_settings_version|userSettingsVersion]": undefined,
-        "$[useruser_guild_settings_version|useruserGuildSettingsVersion]": undefined,
-        "$[private_channels_version|privateChannelsVersion]": Number,
-        "$[guild_versions|guildVersions]": Object,
-        "$[api_code_version|apiCodeVersion]": Number,
-        "$[initial_guild_id|initialGuildId]": String,
-    },
-    $v: Number,
-    $version: Number,
-};
+import type { ActivitySchema } from "../uncategorised/ActivitySchema";
 
 export interface IdentifySchema {
     token: string;
     properties: {
         // bruh discord really uses $ in the property key, so we need to double prefix it, because instanceOf treats $ (prefix) as a optional key
         os?: string;
-        os_atch?: string;
+        os_arch?: string;
         browser?: string;
         device?: string;
         $os?: string;
@@ -86,7 +33,9 @@ export interface IdentifySchema {
         browser_version?: string;
         os_version?: string;
         referrer?: string;
+        $referrer?: string;
         referring_domain?: string;
+        $referring_domain?: string;
         referrer_current?: string;
         referring_domain_current?: string;
         release_channel?: "stable" | "dev" | "ptb" | "canary";
@@ -94,6 +43,8 @@ export interface IdentifySchema {
         client_event_source?: string;
         client_version?: string;
         system_locale?: string;
+        window_manager?: string;
+        distro?: string;
     };
     intents?: bigint; // discord uses a Integer for bitfields we use a bigint tho. | instanceOf will automatically convert the Number to a BigInt
     presence?: ActivitySchema;
@@ -132,4 +83,5 @@ export interface IdentifySchema {
         initialGuildId?: string;
     };
     v?: number;
+    version?: number;
 }
