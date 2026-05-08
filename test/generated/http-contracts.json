@@ -4364,7 +4364,7 @@
             "path": "/channels/:channel_id/messages/:message_id/threads/",
             "samplePath": "/channels/100000000000000002/messages/100000000000000003/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/threads.ts",
-            "line": 31,
+            "line": 39,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
