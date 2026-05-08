@@ -1,5 +1,6 @@
 {
     "include": ["./src"],
+    "exclude": ["src/**/*.test.ts", "src/**/*.test.js"],
     "compilerOptions": {
         /* Visit https://aka.ms/tsconfig to read more about this file */
 
@@ -38,6 +39,8 @@
             "@spacebar/util*": ["./src/util"],
             "@spacebar/webrtc*": ["./src/webrtc"],
             "@spacebar/schemas*": ["./src/schemas"],
+            "#schemas/*": ["./src/schemas/*"],
+            "#util/*": ["./src/util/*"],
             "lambert-server*": ["./src/util/util/lambert-server"]
         } /* Specify a set of entries that re-map imports to additional lookup locations. */,
         "rootDir": "./src", // Required as of TypeScript 7
