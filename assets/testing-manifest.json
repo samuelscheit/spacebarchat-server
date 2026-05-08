@@ -5,6 +5,7 @@
     "sources": [
         "src/api/routes",
         "src/api/util/handlers",
+        "src/api/util/utility",
         "src/api/Server.ts",
         "src/api/middlewares/RateLimit.ts",
         "src/api/middlewares/NoAuthorizationRoutes.ts",
@@ -13477,7 +13478,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -13558,7 +13563,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",

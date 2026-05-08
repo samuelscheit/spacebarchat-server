@@ -5468,7 +5468,7 @@
             "path": "/channels/:channel_id/purge/",
             "samplePath": "/channels/100000000000000002/purge/",
             "sourceFile": "src/api/routes/channels/#channel_id/purge.ts",
-            "line": 33,
+            "line": 30,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -18202,7 +18202,8 @@
             "routeMetadata": {
                 "requestBody": "RelationshipPutSchema",
                 "responses": ["APIErrorResponse"],
-                "responseStatuses": [204, 400, 404]
+                "responseStatuses": [204, 400, 404],
+                "emittedEvents": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
             },
             "cases": [
                 {
@@ -18225,6 +18226,11 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "RelationshipPutSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -18300,7 +18306,8 @@
             "routeMetadata": {
                 "requestBody": "RelationshipPostSchema",
                 "responses": ["APIErrorResponse"],
-                "responseStatuses": [204, 400, 404]
+                "responseStatuses": [204, 400, 404],
+                "emittedEvents": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
             },
             "cases": [
                 {
@@ -18323,6 +18330,11 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "RelationshipPostSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]
                 },
                 {
                     "id": "policy-ownership-boundary",

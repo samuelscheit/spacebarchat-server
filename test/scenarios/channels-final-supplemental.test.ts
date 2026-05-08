@@ -4,8 +4,10 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { DEFAULT_MESSAGE_DELETE_CHUNK_SIZE } from "@spacebar/api";
 import { Channel, closeDatabase, CloudAttachment, Config, generateToken, initDatabase, Message, Recipient, Snowflake, Sticker, User, Webhook } from "@spacebar/util";
 import { ChannelType, MessageType, StickerFormatType, StickerType, WebhookType } from "@spacebar/schemas";
+import { In } from "typeorm";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -106,7 +108,7 @@ test(
             await coverAttachmentRoutes(api.apiBaseUrl, textChannelId, owner.id, ownerToken, fakeCdn);
             await coverFollowerRoute(api.apiBaseUrl, guildId, sourceNewsChannelId, targetTextChannelId, ownerToken);
             await coverGreetRoute(api.apiBaseUrl, guildId, textChannelId, owner.id, ownerToken, events);
-            await coverPurgeRoute(api.apiBaseUrl, guildId, textChannelId, ownerToken, events);
+            await coverPurgeRoute(api.apiBaseUrl, guildId, textChannelId, owner.id, ownerToken, events);
             await coverBackfillRoute(api.apiBaseUrl, textChannelId, ownerToken, events);
         } finally {
             if (dmEvents) await dmEvents.stop();
@@ -238,7 +240,7 @@ async function coverGreetRoute(apiBaseUrl: string, guildId: string, channelId: s
     assert.equal((await Channel.findOneByOrFail({ id: channelId })).last_message_id, greetId);
 }
 
-async function coverPurgeRoute(apiBaseUrl: string, guildId: string, channelId: string, token: string, events: EventCapture) {
+async function coverPurgeRoute(apiBaseUrl: string, guildId: string, channelId: string, ownerId: string, token: string, events: EventCapture) {
     const firstMessageId = await createMessage(apiBaseUrl, channelId, "purge first", token);
     const secondMessageId = await createMessage(apiBaseUrl, channelId, "purge second", token);
 
@@ -252,6 +254,29 @@ async function coverPurgeRoute(apiBaseUrl: string, guildId: string, channelId: s
     assert.deepEqual([...purgeEvent.data.ids].sort(), [firstMessageId, secondMessageId].sort());
     assert.equal(await Message.findOneBy({ id: firstMessageId }), null);
     assert.equal(await Message.findOneBy({ id: secondMessageId }), null);
+
+    const chunkedMessageIds = await createMessagesForPurgeRange(channelId, guildId, ownerId, DEFAULT_MESSAGE_DELETE_CHUNK_SIZE + 1);
+    const outsideBeforeId = await createMessageForPurgeRange(channelId, guildId, ownerId, snowflakeForTimestamp(Date.now() - 120_000), "outside before purge range");
+    const outsideAfterId = await createMessageForPurgeRange(channelId, guildId, ownerId, snowflakeForTimestamp(Date.now() + 120_000), "outside after purge range");
+
+    const beforeChunkedPurge = markCapturedEvents(events);
+    await assertStatus(
+        await postJson(`${apiBaseUrl}/channels/${channelId}/purge`, { after: chunkedMessageIds[0], before: chunkedMessageIds[chunkedMessageIds.length - 1] }, token),
+        204,
+    );
+
+    const purgeEvents = await waitForEventsAfter(
+        events,
+        beforeChunkedPurge,
+        (event) => event.event === "MESSAGE_DELETE_BULK" && event.channel_id === channelId && event.data.guild_id === guildId,
+        2,
+    );
+    assert.equal(purgeEvents.length, 2);
+    assert.ok(purgeEvents.every((event) => event.data.ids.length <= DEFAULT_MESSAGE_DELETE_CHUNK_SIZE));
+    assert.deepEqual(purgeEvents.flatMap((event) => event.data.ids).sort(), [...chunkedMessageIds].sort());
+    assert.equal(await Message.countBy({ id: In(chunkedMessageIds) }), 0);
+    assert.notEqual(await Message.findOneBy({ id: outsideBeforeId }), null);
+    assert.notEqual(await Message.findOneBy({ id: outsideAfterId }), null);
 }
 
 async function coverBackfillRoute(apiBaseUrl: string, channelId: string, token: string, events: EventCapture) {
@@ -290,6 +315,44 @@ async function createMessage(apiBaseUrl: string, channelId: string, content: str
     return (await assertJsonObject(response)).id as string;
 }
 
+async function createMessagesForPurgeRange(channelId: string, guildId: string, ownerId: string, count: number) {
+    const firstTimestamp = Date.now() - 60_000;
+    const messages: Message[] = [];
+    for (let offset = 0; offset < count; offset += 1) {
+        messages.push(buildMessageForPurgeRange(channelId, guildId, ownerId, snowflakeForTimestamp(firstTimestamp + offset), `chunked purge ${offset}`));
+    }
+    await Message.save(messages);
+    return messages.map((message) => message.id);
+}
+
+async function createMessageForPurgeRange(channelId: string, guildId: string, ownerId: string, id: string, content: string) {
+    await buildMessageForPurgeRange(channelId, guildId, ownerId, id, content).save();
+    return id;
+}
+
+function buildMessageForPurgeRange(channelId: string, guildId: string, ownerId: string, id: string, content: string) {
+    return Message.create({
+        id,
+        channel_id: channelId,
+        guild_id: guildId,
+        author_id: ownerId,
+        content,
+        timestamp: new Date(Snowflake.deconstruct(id).timestamp),
+        tts: false,
+        mention_everyone: false,
+        mentions: [],
+        mention_roles: [],
+        mention_channels: [],
+        attachments: [],
+        embeds: [],
+        reactions: [],
+        type: MessageType.DEFAULT,
+        flags: 0,
+        components: [],
+        message_snapshots: [],
+    });
+}
+
 function snowflakeForTimestamp(timestamp: number) {
     return (BigInt(timestamp - Snowflake.EPOCH) << 22n).toString();
 }
@@ -300,6 +363,20 @@ function markCapturedEvents(capture: EventCapture) {
 
 async function waitForEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, predicate: (event: CapturedEvent) => boolean) {
     return await capture.waitFor((event) => !previousEvents.has(event) && predicate(event), eventTimeoutMs);
+}
+
+async function waitForEventsAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, predicate: (event: CapturedEvent) => boolean, count: number) {
+    const deadline = Date.now() + eventTimeoutMs;
+
+    while (Date.now() <= deadline) {
+        const matches = capture.events.filter((event) => !previousEvents.has(event) && predicate(event));
+        if (matches.length >= count) return matches;
+        await new Promise((resolve) => {
+            setTimeout(resolve, 10);
+        });
+    }
+
+    assert.fail(`Timed out waiting for ${count} events after ${eventTimeoutMs}ms`);
 }
 
 async function registerUser(username: string, email: string) {
