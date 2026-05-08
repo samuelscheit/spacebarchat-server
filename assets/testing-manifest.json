@@ -14218,7 +14218,9 @@
                 ],
                 "hasQuery": true,
                 "emittedEvents": [
-                    "MESSAGE_CREATE"
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE",
+                    "THREAD_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -14270,7 +14272,9 @@
                 ],
                 "hasQuery": true,
                 "emittedEvents": [
-                    "MESSAGE_CREATE"
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE",
+                    "THREAD_UPDATE"
                 ]
             },
             "rateLimit": {

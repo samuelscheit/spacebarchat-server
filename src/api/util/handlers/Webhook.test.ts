@@ -5,10 +5,10 @@ describe("executeWebhook", () => {
     test("uses the signed message response for wait=true responses", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
-        const util = require("../../../util") as typeof import("../../../util");
-        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
-        const messageHandlers = require("./Message") as typeof import("./Message");
-        const messageResponse = require("../utility/MessageResponse") as typeof import("../utility/MessageResponse");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
+        const messageResponse = require("@spacebar/api/util/utility/MessageResponse") as typeof import("../utility/MessageResponse");
 
         const channel = {
             id: "channel-id",
@@ -114,11 +114,11 @@ describe("executeWebhook", () => {
     });
 
     test("sends webhook messages to the requested child thread", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
-        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
-        const messageHandlers = require("./Message") as typeof import("./Message");
-        const messageResponse = require("../utility/MessageResponse") as typeof import("../utility/MessageResponse");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const permissionUtil = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
+        const messageResponse = require("@spacebar/api/util/utility/MessageResponse") as typeof import("../utility/MessageResponse");
 
         const parentChannel = {
             id: "parent-channel-id",
@@ -238,12 +238,12 @@ describe("executeWebhook", () => {
     });
 
     test("creates a public thread when thread_name is provided", async (t) => {
-        const schemas = require("../../../schemas") as typeof import("../../../schemas");
-        const util = require("../../../util") as typeof import("../../../util");
-        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
-        const messageHandlers = require("./Message") as typeof import("./Message");
-        const messageResponse = require("../utility/MessageResponse") as typeof import("../utility/MessageResponse");
+        const schemas = require("@spacebar/schemas") as typeof import("../../../schemas");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const permissionUtil = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
+        const messageResponse = require("@spacebar/api/util/utility/MessageResponse") as typeof import("../utility/MessageResponse");
 
         const parentChannel = {
             id: "forum-channel-id",
@@ -264,6 +264,9 @@ describe("executeWebhook", () => {
             isThread: () => true,
             isWritable: () => true,
             save: async () => undefined,
+            toJSON() {
+                return { id: this.id, guild_id: this.guild_id, last_message_id: this.last_message_id };
+            },
         };
         const webhook = {
             id: "webhook-id",
@@ -284,6 +287,7 @@ describe("executeWebhook", () => {
             toJSON: () => ({ id: "message-id", channel_id: threadChannel.id }),
         };
         let handledPayload: { channel_id?: string } | undefined;
+        const emittedEvents: Array<{ event?: string; channel_id?: string; data?: unknown }> = [];
         const permissionChecks: Array<{ userId: string; guildId: string | undefined; channel: unknown }> = [];
         const permissionThrows: string[] = [];
 
@@ -321,7 +325,7 @@ describe("executeWebhook", () => {
                 create_timestamp: (metadata as { create_timestamp: string }).create_timestamp,
             });
             assert.equal(userId, webhook.user_id);
-            assert.deepEqual(options, { keepId: true, skipPermissionCheck: true });
+            assert.deepEqual(options, { keepId: true, skipPermissionCheck: true, skipEventEmit: true });
             return threadChannel;
         });
         t.mock.method(permissionUtil, "getPermission", async (userId: string, guildId: string | undefined, channel: unknown) => {
@@ -337,7 +341,9 @@ describe("executeWebhook", () => {
             return message;
         });
         t.mock.method(messageHandlers, "postHandleMessage", () => Promise.resolve());
-        t.mock.method(eventUtil, "emitEvent", async () => undefined);
+        t.mock.method(eventUtil, "emitEvent", async (event: { event?: string; channel_id?: string; data?: unknown }) => {
+            emittedEvents.push(event);
+        });
         t.mock.method(messageResponse, "messageToResponse", (handledMessage: unknown) => handledMessage);
 
         const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
@@ -361,13 +367,21 @@ describe("executeWebhook", () => {
         assert.equal(handledPayload?.channel_id, threadChannel.id);
         assert.equal(threadChannel.last_message_id, message.id);
         assert.equal(res.body, message);
+        assert.deepEqual(
+            emittedEvents.map((event) => [event.event, event.channel_id]),
+            [
+                ["THREAD_CREATE", parentChannel.id],
+                ["MESSAGE_CREATE", threadChannel.id],
+            ],
+        );
+        assert.deepEqual((emittedEvents[0].data as { newly_created?: boolean }).newly_created, true);
         assert.deepEqual(permissionChecks, [{ userId: webhook.user_id, guildId: parentChannel.guild_id, channel: parentChannel }]);
         assert.deepEqual(permissionThrows, [`${parentChannel.id}:MANAGE_THREADS`, `${parentChannel.id}:CREATE_PUBLIC_THREADS`, `${parentChannel.id}:SEND_MESSAGES_IN_THREADS`]);
     });
 
     test("rejects ambiguous thread id and thread name webhook requests", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
-        const messageHandlers = require("./Message") as typeof import("./Message");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
 
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(messageHandlers, "handleMessage", async () => {
@@ -394,10 +408,10 @@ describe("executeWebhook", () => {
     });
 
     test("rejects forum webhook execution without a target thread before message side effects", async (t) => {
-        const schemas = require("../../../schemas") as typeof import("../../../schemas");
-        const util = require("../../../util") as typeof import("../../../util");
-        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const messageHandlers = require("./Message") as typeof import("./Message");
+        const schemas = require("@spacebar/schemas") as typeof import("../../../schemas");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const permissionUtil = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
 
         const parentChannel = {
             id: "forum-channel-id",
@@ -460,9 +474,9 @@ describe("executeWebhook", () => {
     });
 
     test("rejects webhook sends to locked threads before message side effects", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
-        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const messageHandlers = require("./Message") as typeof import("./Message");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const permissionUtil = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
 
         const parentChannel = {
             id: "parent-channel-id",
@@ -535,10 +549,10 @@ describe("executeWebhook", () => {
     });
 
     test("checks thread send permission before creating a webhook thread", async (t) => {
-        const schemas = require("../../../schemas") as typeof import("../../../schemas");
-        const util = require("../../../util") as typeof import("../../../util");
-        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const messageHandlers = require("./Message") as typeof import("./Message");
+        const schemas = require("@spacebar/schemas") as typeof import("../../../schemas");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const permissionUtil = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
 
         const parentChannel = {
             id: "forum-channel-id",
@@ -607,10 +621,10 @@ describe("executeWebhook", () => {
     });
 
     test("rejects webhook thread creation before side effects when a required forum tag is missing", async (t) => {
-        const schemas = require("../../../schemas") as typeof import("../../../schemas");
-        const util = require("../../../util") as typeof import("../../../util");
-        const permissionUtil = require("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const messageHandlers = require("./Message") as typeof import("./Message");
+        const schemas = require("@spacebar/schemas") as typeof import("../../../schemas");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const permissionUtil = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
 
         const parentChannel = {
             id: "forum-channel-id",
@@ -684,7 +698,7 @@ describe("executeWebhook", () => {
 
 describe("PATCH /webhooks/:webhook_id/:token", () => {
     test("returns the Discord unknown webhook error when the id is missing", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
+        const util = require("@spacebar/util") as typeof import("../../../util");
         const { updateWebhookWithToken } = require("./Webhook") as typeof import("./Webhook");
 
         t.mock.method(util.Webhook, "findOne", async () => null);
@@ -705,7 +719,7 @@ describe("PATCH /webhooks/:webhook_id/:token", () => {
     });
 
     test("rejects an invalid webhook token before applying metadata updates", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
+        const util = require("@spacebar/util") as typeof import("../../../util");
         const { updateWebhookWithToken } = require("./Webhook") as typeof import("./Webhook");
         let assigned = false;
         let saved = false;
@@ -748,8 +762,8 @@ describe("PATCH /webhooks/:webhook_id/:token", () => {
     });
 
     test("only applies token-auth metadata fields and returns the updated webhook", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
-        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
         let assigned: unknown;
         let saved = false;
         let responseBody: unknown;

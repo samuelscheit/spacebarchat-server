@@ -12,6 +12,7 @@ import {
     Message,
     MessageCreateEvent,
     Snowflake,
+    ThreadCreateEvent,
     ThreadUpdatEvent,
     toAPIWebhook,
     ValidateWebhookName,
@@ -191,7 +192,7 @@ async function resolveWebhookSendChannel(
             create_timestamp: new Date().toISOString(),
         },
         threadOwnerId,
-        { keepId: true, skipPermissionCheck: true },
+        { keepId: true, skipPermissionCheck: true, skipEventEmit: true },
     );
 
     return { channel, createdThread: true, unarchivedThread: false };
@@ -269,12 +270,14 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     const permissionSubjectId = webhook.user_id ?? webhook.application_id;
     const messagePayload = { ...body, attachments: body.attachments ?? [], uploadedFileCount: files.length };
     let sendChannel = webhook.channel;
+    let createdThread = false;
     let unarchivedThread = false;
     if (permissionSubjectId) {
         const permissions = await getPermission(permissionSubjectId, webhook.channel.guild_id, webhook.channel);
         assertMessagePayloadPermissions(permissions, messagePayload);
         const resolution = await resolveWebhookSendChannel(webhook, body, messageId, thread_id, permissions);
         sendChannel = resolution.channel;
+        createdThread = resolution.createdThread;
         if (sendChannel.id !== webhook.channel.id && !resolution.createdThread) {
             const sendChannelPermissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
             sendChannelPermissions.hasThrow("SEND_MESSAGES_IN_THREADS");
@@ -292,6 +295,7 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
         );
         const resolution = await resolveWebhookSendChannel(webhook, body, messageId, thread_id);
         sendChannel = resolution.channel;
+        createdThread = resolution.createdThread;
         unarchivedThread = resolution.unarchivedThread;
     }
 
@@ -343,10 +347,22 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
                   data: sendChannel.toJSON(),
               } satisfies ThreadUpdatEvent)
             : Promise.resolve();
+    const threadCreateEvent =
+        createdThread && sendChannel.isThread()
+            ? emitEvent({
+                  event: "THREAD_CREATE",
+                  channel_id: webhook.channel.id,
+                  data: {
+                      ...sendChannel.toJSON(),
+                      newly_created: true,
+                  },
+              } satisfies ThreadCreateEvent)
+            : Promise.resolve();
 
     await Promise.all([
         message.save(),
         sendChannel.save(),
+        threadCreateEvent,
         threadUpdateEvent,
         emitEvent({
             event: "MESSAGE_CREATE",
