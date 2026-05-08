@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, MoreThan, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { ThreadMembersUpdateEvent } from "../interfaces";
-import { emitEvent } from "../util/Event";
+import { emitEvent, getDatabase } from "../util";
 import { ThreadMemberFlags } from "../util/ThreadMemberFlags";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
@@ -93,46 +93,52 @@ export class ThreadMember extends BaseClassWithoutId {
     }
 
     static async removeFromThread(user_id: string, thread_id: string) {
-        const channel = await Channel.findOneOrFail({ where: { id: thread_id } });
-        if (!channel.isThread()) throw new HTTPError("Channel is not a thread", 400);
+        const database = getDatabase();
+        if (!database) throw new Error("Tried to remove a thread member before the database was initialised");
+
+        const channel = await database.transaction(async (entityManager) => {
+            const channel = await entityManager.findOneOrFail(Channel, {
+                where: { id: thread_id },
+                select: { id: true, guild_id: true, member_count: true, type: true },
+            });
+            if (!channel.isThread()) throw new HTTPError("Channel is not a thread", 400);
+            if (!channel.guild_id) throw new HTTPError("Thread guild id not set", 500);
+
+            const member = await entityManager.findOneOrFail(Member, {
+                where: { id: user_id, guild_id: channel.guild_id },
+                select: { index: true },
+            });
+
+            const deletion = await entityManager.delete(ThreadMember, {
+                id: thread_id,
+                member_idx: member.index,
+            });
+            if (!deletion.affected) throw new HTTPError("You are not member of this thread", 403);
+
+            if (channel.member_count !== null && channel.member_count !== undefined && channel.member_count > 0) {
+                await entityManager.decrement(Channel, { id: thread_id, member_count: MoreThan(0) }, "member_count", 1);
+
+                return entityManager.findOneOrFail(Channel, {
+                    where: { id: thread_id },
+                    select: { id: true, guild_id: true, member_count: true },
+                });
+            }
+
+            return channel;
+        });
+
         if (!channel.guild_id) throw new HTTPError("Thread guild id not set", 500);
 
-        const member = await Member.findOneOrFail({
-            where: { id: user_id, guild_id: channel.guild_id },
-            select: { index: true },
-        });
-        const threadMemberQuery = {
-            id: thread_id,
-            member_idx: member.index,
-        };
-
-        if (
-            !(await ThreadMember.count({
-                where: threadMemberQuery,
-            }))
-        )
-            throw new HTTPError("You are not member of this thread", 403);
-
-        if (channel.member_count) {
-            channel.member_count--;
-            await channel.save();
-        }
-
-        return Promise.all([
-            ThreadMember.delete(threadMemberQuery),
-            // 	//Guild.decrement({ id: guild_id }, "member_count", -1),
-
-            emitEvent({
-                event: "THREAD_MEMBERS_UPDATE",
-                data: {
-                    guild_id: channel.guild_id,
-                    id: channel.id,
-                    member_count: channel.member_count ?? 0,
-                    removed_member_ids: [user_id],
-                },
-                channel_id: thread_id,
-            } satisfies ThreadMembersUpdateEvent),
-        ]);
+        return emitEvent({
+            event: "THREAD_MEMBERS_UPDATE",
+            data: {
+                guild_id: channel.guild_id,
+                id: channel.id,
+                member_count: channel.member_count ?? 0,
+                removed_member_ids: [user_id],
+            },
+            channel_id: thread_id,
+        } satisfies ThreadMembersUpdateEvent);
     }
 
     // static async addRole(user_id: string, guild_id: string, role_id: string) {

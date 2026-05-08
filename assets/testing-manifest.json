@@ -4641,7 +4641,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 220,
+            "line": 201,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

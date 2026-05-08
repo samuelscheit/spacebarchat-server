@@ -181,26 +181,7 @@ router.delete(
             if (!userCanRemovePrivateThreadMember) (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.MANAGE_THREADS);
         } else user_id = req.user_id;
 
-        const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id! } });
-        const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
-        await threadMember.remove();
-
-        // decrement member count
-        if (thread.member_count !== null && thread.member_count !== undefined && thread.member_count > 0) {
-            thread.member_count--;
-            await thread.save();
-        }
-
-        await emitEvent({
-            event: "THREAD_MEMBERS_UPDATE",
-            data: {
-                guild_id: thread.guild_id!,
-                id: thread.id,
-                member_count: thread.member_count ?? 0, // TODO: is this the right fix?
-                removed_member_ids: [user_id],
-            },
-            channel_id: thread.id,
-        } satisfies ThreadMembersUpdateEvent);
+        await ThreadMember.removeFromThread(user_id, channel_id);
         if (thread.type === ChannelType.GUILD_PRIVATE_THREAD)
             await emitEvent({
                 event: "THREAD_DELETE",

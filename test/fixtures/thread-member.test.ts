@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
-import { afterEach, describe, test } from "node:test";
+import { describe, test, type TestContext } from "node:test";
 import { Channel, Member, ThreadMember, ThreadMembersUpdateEvent } from "@spacebar/util";
 import { makeChannel, makeMember } from "./entities";
 import { captureEvents } from "./events";
 
-type FindOneChannelOptions = {
+type FindOneOptions = {
     where?: {
         id?: string;
+        guild_id?: string;
     };
+    select?: Record<string, boolean>;
 };
 
 type DeleteOptions = {
@@ -15,83 +17,59 @@ type DeleteOptions = {
     member_idx?: string;
 };
 
-type CountOptions = {
-    where?: DeleteOptions;
-};
-
-type FindOneMemberOptions = {
-    where?: {
-        id?: string;
-        guild_id?: string;
-    };
-    select?: {
-        index?: boolean;
-    };
+type TransactionManager = {
+    findOneOrFail: (entity: unknown, options: FindOneOptions) => Promise<unknown>;
+    delete: (entity: unknown, criteria: DeleteOptions) => Promise<{ affected?: number | null }>;
+    decrement: (entity: unknown, criteria: unknown, propertyPath: string, value: number) => Promise<unknown>;
 };
 
 const GUILD_PUBLIC_THREAD = 11;
 const GUILD_TEXT = 0;
 
-const originals = {
-    channelFindOneOrFail: Channel.findOneOrFail,
-    memberFindOneOrFail: Member.findOneOrFail,
-    threadMemberCount: ThreadMember.count,
-    threadMemberDelete: ThreadMember.delete,
-};
-
-afterEach(() => {
-    Object.assign(Channel, {
-        findOneOrFail: originals.channelFindOneOrFail,
-    });
-    Object.assign(Member, {
-        findOneOrFail: originals.memberFindOneOrFail,
-    });
-    Object.assign(ThreadMember, {
-        count: originals.threadMemberCount,
-        delete: originals.threadMemberDelete,
-    });
-});
+function mockDatabase(t: TestContext, manager: TransactionManager) {
+    const databaseModule = require(`${process.cwd()}/dist/util/util/Database`) as typeof import("../../src/util/util/Database");
+    t.mock.method(databaseModule, "getDatabase", () => ({
+        transaction: async <T>(callback: (transactionManager: TransactionManager) => Promise<T>) => callback(manager),
+    }));
+}
 
 describe("ThreadMember.removeFromThread", () => {
-    test("resolves the user's guild member, removes by member index, persists the count, and emits with the user id", async () => {
+    test("resolves the user's guild member, removes by member index, persists the count, and emits with the user id", async (t) => {
         const capture = await captureEvents("thread-id");
         try {
             const deleteCalls: DeleteOptions[] = [];
-            let saveCalls = 0;
             const thread = makeChannel(undefined, { id: "thread-id", guild_id: "guild-id", type: GUILD_PUBLIC_THREAD, member_count: 2 });
-            Object.assign(thread, {
-                save: async () => {
-                    saveCalls++;
-                    return thread;
+            let decrementCalls = 0;
+            mockDatabase(t, {
+                async findOneOrFail(entity, options) {
+                    if (entity === Channel) {
+                        assert.equal(options.where?.id, "thread-id");
+                        return thread;
+                    }
+                    if (entity === Member) {
+                        assert.deepEqual(options.where, { id: "user-id", guild_id: "guild-id" });
+                        assert.deepEqual(options.select, { index: true });
+                        return makeMember(undefined, thread.guild, { index: "member-index" });
+                    }
+                    throw new Error("Unexpected entity lookup");
                 },
-            });
-            Object.assign(Channel, {
-                findOneOrFail: async (options: FindOneChannelOptions) => {
-                    assert.equal(options.where?.id, "thread-id");
-                    return thread;
-                },
-            });
-            Object.assign(Member, {
-                findOneOrFail: async (options: FindOneMemberOptions) => {
-                    assert.deepEqual(options.where, { id: "user-id", guild_id: "guild-id" });
-                    assert.deepEqual(options.select, { index: true });
-                    return makeMember(undefined, thread.guild, { index: "member-index" });
-                },
-            });
-            Object.assign(ThreadMember, {
-                count: async (options: CountOptions) => {
-                    assert.deepEqual(options.where, { id: "thread-id", member_idx: "member-index" });
-                    return 1;
-                },
-                delete: async (options: DeleteOptions) => {
+                async delete(entity, options) {
+                    assert.equal(entity, ThreadMember);
                     deleteCalls.push(options);
                     return { affected: 1, raw: [] };
+                },
+                async decrement(entity, _criteria, propertyPath, value) {
+                    assert.equal(entity, Channel);
+                    assert.equal(propertyPath, "member_count");
+                    assert.equal(value, 1);
+                    decrementCalls++;
+                    thread.member_count = (thread.member_count ?? 0) - 1;
                 },
             });
 
             await ThreadMember.removeFromThread("user-id", "thread-id");
 
-            assert.equal(saveCalls, 1);
+            assert.equal(decrementCalls, 1);
             assert.equal(thread.member_count, 1);
             assert.deepEqual(deleteCalls, [{ id: "thread-id", member_idx: "member-index" }]);
             assert.deepEqual(capture.expectOne("THREAD_MEMBERS_UPDATE") as ThreadMembersUpdateEvent, {
@@ -109,36 +87,29 @@ describe("ThreadMember.removeFromThread", () => {
         }
     });
 
-    test("rejects non-thread channels before deleting or emitting", async () => {
+    test("rejects non-thread channels before deleting or emitting", async (t) => {
         const capture = await captureEvents("channel-id");
         try {
             let memberLookupCalled = false;
-            let countCalled = false;
             let deleteCalled = false;
-            Object.assign(Channel, {
-                findOneOrFail: async () => makeChannel(undefined, { id: "channel-id", guild_id: "guild-id", type: GUILD_TEXT, member_count: 1 }),
-            });
-            Object.assign(Member, {
-                findOneOrFail: async () => {
-                    memberLookupCalled = true;
-                    return makeMember(undefined, undefined, { index: "member-index" });
+            mockDatabase(t, {
+                async findOneOrFail(entity) {
+                    if (entity === Member) memberLookupCalled = true;
+                    if (entity === Channel) return makeChannel(undefined, { id: "channel-id", guild_id: "guild-id", type: GUILD_TEXT, member_count: 1 });
+                    throw new Error("Unexpected entity lookup");
                 },
-            });
-            Object.assign(ThreadMember, {
-                count: async () => {
-                    countCalled = true;
-                    return 1;
-                },
-                delete: async () => {
+                async delete() {
                     deleteCalled = true;
                     return { affected: 1, raw: [] };
+                },
+                async decrement() {
+                    throw new Error("decrement should not be called");
                 },
             });
 
             await assert.rejects(() => ThreadMember.removeFromThread("user-id", "channel-id"), /Channel is not a thread/);
 
             assert.equal(memberLookupCalled, false);
-            assert.equal(countCalled, false);
             assert.equal(deleteCalled, false);
             assert.deepEqual(capture.events, []);
         } finally {
@@ -146,36 +117,29 @@ describe("ThreadMember.removeFromThread", () => {
         }
     });
 
-    test("rejects threads without guild ids before deleting or emitting", async () => {
+    test("rejects threads without guild ids before deleting or emitting", async (t) => {
         const capture = await captureEvents("thread-id");
         try {
             let memberLookupCalled = false;
-            let countCalled = false;
             let deleteCalled = false;
-            Object.assign(Channel, {
-                findOneOrFail: async () => makeChannel(undefined, { id: "thread-id", guild_id: undefined, type: GUILD_PUBLIC_THREAD, member_count: 1 }),
-            });
-            Object.assign(Member, {
-                findOneOrFail: async () => {
-                    memberLookupCalled = true;
-                    return makeMember(undefined, undefined, { index: "member-index" });
+            mockDatabase(t, {
+                async findOneOrFail(entity) {
+                    if (entity === Member) memberLookupCalled = true;
+                    if (entity === Channel) return makeChannel(undefined, { id: "thread-id", guild_id: undefined, type: GUILD_PUBLIC_THREAD, member_count: 1 });
+                    throw new Error("Unexpected entity lookup");
                 },
-            });
-            Object.assign(ThreadMember, {
-                count: async () => {
-                    countCalled = true;
-                    return 1;
-                },
-                delete: async () => {
+                async delete() {
                     deleteCalled = true;
                     return { affected: 1, raw: [] };
+                },
+                async decrement() {
+                    throw new Error("decrement should not be called");
                 },
             });
 
             await assert.rejects(() => ThreadMember.removeFromThread("user-id", "thread-id"), /Thread guild id not set/);
 
             assert.equal(memberLookupCalled, false);
-            assert.equal(countCalled, false);
             assert.equal(deleteCalled, false);
             assert.deepEqual(capture.events, []);
         } finally {
@@ -183,39 +147,33 @@ describe("ThreadMember.removeFromThread", () => {
         }
     });
 
-    test("rejects users that are not thread members before persisting, deleting, or emitting", async () => {
+    test("rejects users that are not thread members before persisting, deleting, or emitting", async (t) => {
         const capture = await captureEvents("thread-id");
         try {
-            let saveCalled = false;
+            let decrementCalled = false;
             let deleteCalled = false;
             const thread = makeChannel(undefined, { id: "thread-id", guild_id: "guild-id", type: GUILD_PUBLIC_THREAD, member_count: 2 });
-            Object.assign(thread, {
-                save: async () => {
-                    saveCalled = true;
-                    return thread;
+            mockDatabase(t, {
+                async findOneOrFail(entity) {
+                    if (entity === Channel) return thread;
+                    if (entity === Member) return makeMember(undefined, thread.guild, { index: "member-index" });
+                    throw new Error("Unexpected entity lookup");
                 },
-            });
-            Object.assign(Channel, {
-                findOneOrFail: async () => thread,
-            });
-            Object.assign(Member, {
-                findOneOrFail: async () => makeMember(undefined, thread.guild, { index: "member-index" }),
-            });
-            Object.assign(ThreadMember, {
-                count: async (options: CountOptions) => {
-                    assert.deepEqual(options.where, { id: "thread-id", member_idx: "member-index" });
-                    return 0;
-                },
-                delete: async () => {
+                async delete(entity, options) {
+                    assert.equal(entity, ThreadMember);
+                    assert.deepEqual(options, { id: "thread-id", member_idx: "member-index" });
                     deleteCalled = true;
                     return { affected: 0, raw: [] };
+                },
+                async decrement() {
+                    decrementCalled = true;
                 },
             });
 
             await assert.rejects(() => ThreadMember.removeFromThread("user-id", "thread-id"), /You are not member of this thread/);
 
-            assert.equal(saveCalled, false);
-            assert.equal(deleteCalled, false);
+            assert.equal(deleteCalled, true);
+            assert.equal(decrementCalled, false);
             assert.deepEqual(capture.events, []);
         } finally {
             await capture.stop();
