@@ -422,14 +422,7 @@ export const EmbedHandlers: {
             type: EmbedType.rich,
             title: metas.title,
             description: metas.description,
-            image: {
-                // TODO: meant to be thumbnail.
-                // isn't this standard across all of steam?
-                width: 460,
-                height: 215,
-                url: metas.image,
-                proxy_url: metas.image ? getProxyUrl(new URL(metas.image), 460, 215) : undefined,
-            },
+            thumbnail: makeEmbedImage(metas.image, 460, 215),
             provider: {
                 url: "https://store.steampowered.com",
                 name: "Steam",

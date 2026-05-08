@@ -21,6 +21,7 @@ async function loadEmbedModules() {
         Config: util.Config,
         EmbedCache: util.EmbedCache,
         Message: util.Message,
+        EmbedHandlers: handlers.EmbedHandlers,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
     };
 }
@@ -119,6 +120,69 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("EmbedHandlers", () => {
+    test("returns Steam store capsule art as a thumbnail", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        const config = Config.get();
+        config.cdn.imagorServerUrl = null;
+        config.cdn.endpointPublic = "https://cdn.example.com";
+        config.cdn.resizeWidthMax = 1024;
+        config.cdn.resizeHeightMax = 1024;
+        t.mock.method(Config, "get", () => config);
+
+        const capsuleUrl = "https://cdn.akamai.steamstatic.com/steam/apps/123/header.jpg";
+        const html = `
+            <html>
+                <head>
+                    <meta property="og:title" content="Example Game on Steam">
+                    <meta property="og:description" content="Example game description">
+                    <meta property="og:image" content="${capsuleUrl}">
+                </head>
+                <body>
+                    <input id="review_summary_num_reviews" value="1,234 reviews">
+                    <div class="game_purchase_price price" data-price-final="1999"></div>
+                    <div class="release_date"><div class="date">Dec 31, 2999</div></div>
+                </body>
+            </html>`;
+
+        t.mock.method(globalThis, "fetch", async () => new Response(html));
+
+        const embed = (await EmbedHandlers["store.steampowered.com"](new URL("https://store.steampowered.com/app/123/Example_Game/"))) as Embed;
+
+        assert.equal(embed.type, richEmbedType);
+        assert.equal(embed.title, "Example Game on Steam");
+        assert.equal(embed.description, "Example game description");
+        assert.deepEqual(embed.provider, {
+            url: "https://store.steampowered.com",
+            name: "Steam",
+        });
+        assert.equal(embed.image, undefined);
+        assert.deepEqual(embed.thumbnail, {
+            width: 460,
+            height: 215,
+            url: capsuleUrl,
+            proxy_url: capsuleUrl,
+        });
+        assert.deepEqual(embed.fields, [
+            {
+                name: "Reviews",
+                value: "1,234 reviews",
+                inline: true,
+            },
+            {
+                name: "Price",
+                value: "$19.99",
+                inline: true,
+            },
+            {
+                name: "Release Date",
+                value: "Dec 31, 2999",
+                inline: true,
+            },
+        ]);
     });
 });
 
