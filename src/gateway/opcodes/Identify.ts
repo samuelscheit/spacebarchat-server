@@ -66,6 +66,7 @@ import {
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
+import { buildReadySupplementalGuilds } from "../util/ReadySupplemental";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
@@ -840,11 +841,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         }),
     );
 
-    const readySupplementalGuilds = (guilds.filter((guild) => !guild.unavailable) as Guild[]).map((guild) => ({
-        voice_states: guild.voice_states.map((state) => VoiceState.prototype.toPublicVoiceState.apply(state)),
-        id: guild.id,
-        embedded_activities: [],
-    }));
+    const readySupplementalGuilds = buildReadySupplementalGuilds(guilds);
 
     // TODO: ready supplemental
     await Send(this, {
