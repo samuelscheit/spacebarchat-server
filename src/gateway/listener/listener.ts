@@ -78,6 +78,15 @@ export function canDispatchUserDelete(intents: Intents | undefined) {
     return !!intents?.has(Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES);
 }
 
+export function canDispatchByIntent(event: EventOpts["event"], intents: Intents | undefined) {
+    switch (event) {
+        case "USER_DELETE":
+            return canDispatchUserDelete(intents);
+        default:
+            return true;
+    }
+}
+
 // TODO: close connection on Invalidated Token
 // TODO: check intent
 // TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
@@ -441,6 +450,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
             break;
     }
 
+    if (!canDispatchByIntent(event, this.intents)) return;
+
     // permission checking
     switch (event) {
         case "INVITE_CREATE":
@@ -491,9 +502,6 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "GUILD_EMOJI_UPDATE":
         case "GUILD_EMOJIS_UPDATE":
         case "READY": // will be sent by the gateway
-        case "USER_DELETE":
-            if (!canDispatchUserDelete(this.intents)) return;
-            break;
         case "USER_UPDATE":
         case "APPLICATION_COMMAND_CREATE":
         case "APPLICATION_COMMAND_DELETE":

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { Intents } from "../../util/util/Intents";
-import { canDispatchGuildPresenceUpdate, canDispatchUserDelete } from "./listener";
+import { canDispatchByIntent, canDispatchGuildPresenceUpdate, canDispatchUserDelete } from "./listener";
 import { trackGuildMemberEventId } from "./subscriptions";
 
 describe("canDispatchGuildPresenceUpdate", () => {
@@ -29,5 +29,33 @@ describe("canDispatchUserDelete", () => {
 
     test("does not dispatch before identify initializes intents", () => {
         assert.equal(canDispatchUserDelete(undefined), false);
+    });
+});
+
+describe("canDispatchByIntent", () => {
+    test("gates only USER_DELETE on the instance user updates intent", () => {
+        assert.equal(canDispatchByIntent("USER_DELETE", new Intents()), false);
+        assert.equal(canDispatchByIntent("USER_DELETE", new Intents(Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES)), true);
+    });
+
+    test("does not let core gateway events fall through into USER_DELETE gating", () => {
+        const intents = new Intents();
+
+        for (const event of [
+            "READY",
+            "GUILD_CREATE",
+            "GUILD_DELETE",
+            "GUILD_UPDATE",
+            "GUILD_ROLE_CREATE",
+            "GUILD_ROLE_UPDATE",
+            "GUILD_ROLE_DELETE",
+            "CHANNEL_CREATE",
+            "CHANNEL_DELETE",
+            "CHANNEL_UPDATE",
+            "GUILD_EMOJI_UPDATE",
+            "GUILD_EMOJIS_UPDATE",
+        ] as const) {
+            assert.equal(canDispatchByIntent(event, intents), true, `${event} should not require INSTANCE_USER_UPDATES`);
+        }
     });
 });
