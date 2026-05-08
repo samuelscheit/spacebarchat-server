@@ -17,7 +17,8 @@
         "runtimeProtectedInvalidBodyContracts": 49,
         "runtimePublicResponseSchemaContracts": 7,
         "runtimeAuthenticatedResponseSchemaContracts": 18,
-        "runtimeRightOnlyDenialContracts": 6
+        "runtimeRightOnlyDenialContracts": 6,
+        "runtimePermissionOnlyDenialContracts": 71
     },
     "contracts": [
         {

@@ -184,6 +184,7 @@ function buildContractMatrix(manifest) {
     const runtimePublicResponseSchemaContracts = contracts.filter(supportsRuntimePublicResponseSchemaContract).length;
     const runtimeAuthenticatedResponseSchemaContracts = contracts.filter(supportsRuntimeAuthenticatedResponseSchemaContract).length;
     const runtimeRightOnlyDenialContracts = contracts.filter(supportsRuntimeRightOnlyDenialContract).length;
+    const runtimePermissionOnlyDenialContracts = contracts.filter(supportsRuntimePermissionOnlyDenialContract).length;
 
     return {
         schemaVersion: 1,
@@ -205,13 +206,35 @@ function buildContractMatrix(manifest) {
             runtimePublicResponseSchemaContracts,
             runtimeAuthenticatedResponseSchemaContracts,
             runtimeRightOnlyDenialContracts,
+            runtimePermissionOnlyDenialContracts,
         },
         contracts,
     };
 }
 
+function routeMetadataValues(value) {
+    if (Array.isArray(value)) return value.map(String);
+    if (value === undefined || value === null) return [];
+    return [String(value)];
+}
+
+function hasExpandedRouteMetadataValue(value) {
+    return routeMetadataValues(value).some((entry) => entry.startsWith("..."));
+}
+
 function supportsRuntimeRightOnlyDenialContract(contract) {
     return contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS" && contract.routeMetadata.right && !contract.routeMetadata.permission;
+}
+
+function supportsRuntimePermissionOnlyDenialContract(contract) {
+    return (
+        contract.service === "api" &&
+        contract.authMode === "bearer" &&
+        contract.method !== "OPTIONS" &&
+        contract.routeMetadata.permission &&
+        !contract.routeMetadata.right &&
+        !hasExpandedRouteMetadataValue(contract.routeMetadata.permission)
+    );
 }
 
 function supportsRuntimePublicInvalidBodyContract(contract) {
@@ -334,7 +357,7 @@ import path from "node:path";
 import { test } from "node:test";
 import Ajv, { type AnySchema } from "ajv";
 import addFormats from "ajv-formats";
-import { closeDatabase, Config, generateToken, initDatabase, Session, User } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Role, Session, User } from "@spacebar/util";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { startApi } from "../server/startApi";
 
@@ -367,6 +390,7 @@ type GeneratedHttpContractMatrix = {
         runtimePublicResponseSchemaContracts: number;
         runtimeAuthenticatedResponseSchemaContracts: number;
         runtimeRightOnlyDenialContracts: number;
+        runtimePermissionOnlyDenialContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -458,6 +482,15 @@ const rightOnlyDenialContracts = matrix.contracts.filter(
         contract.routeMetadata.right &&
         !contract.routeMetadata.permission,
 );
+const permissionOnlyDenialContracts = matrix.contracts.filter(
+    (contract) =>
+        contract.service === "api" &&
+        contract.authMode === "bearer" &&
+        contract.method !== "OPTIONS" &&
+        contract.routeMetadata.permission &&
+        !contract.routeMetadata.right &&
+        !metadataValues(contract.routeMetadata.permission).some((value) => value.startsWith("...")),
+);
 
 function silenceConsole() {
     const previous = {
@@ -506,6 +539,12 @@ function requiredRightForContract(contract: GeneratedHttpContract) {
     const [right] = metadataValues(contract.routeMetadata.right);
     assert.ok(right, \`\${contract.manifestId} should declare a required right\`);
     return right;
+}
+
+function requiredPermissionForContract(contract: GeneratedHttpContract) {
+    const [permission] = metadataValues(contract.routeMetadata.permission);
+    assert.ok(permission, \`\${contract.manifestId} should declare a required permission\`);
+    return permission;
 }
 
 function snapshotProcessState() {
@@ -605,6 +644,138 @@ async function withAuthenticatedApi<T>(
         restoreProcessState(previous);
         if (tempCwd) await rm(tempCwd, { recursive: true, force: true });
     }
+}
+
+async function createPermissionDeniedFixture(user: User) {
+    const suffix = \`\${process.pid}\${Date.now()}\`;
+    const owner = await User.register({
+        username: \`owner\${suffix.slice(-8)}\`,
+        email: \`owner-\${suffix}@example.com\`,
+        password: "contract-password",
+    });
+
+    const guild = Guild.create({
+        name: "Contract Permission Guild",
+        owner,
+        owner_id: owner.id,
+        features: [],
+        large: false,
+        members: [],
+        roles: [],
+        channels: [],
+        emojis: [],
+        stickers: [],
+        invites: [],
+        voice_states: [],
+        webhooks: [],
+        premium_tier: 0,
+        public_updates_channel_id: null,
+        unavailable: false,
+        welcome_screen: { enabled: false, description: "", welcome_channels: [] },
+        widget_enabled: true,
+        nsfw: false,
+        premium_progress_bar_enabled: false,
+        channel_ordering: [],
+        discovery_weight: 0,
+        discovery_excluded: false,
+    });
+    await guild.save();
+
+    const role = Role.create({
+        guild,
+        guild_id: guild.id,
+        color: 0,
+        hoist: false,
+        managed: false,
+        mentionable: false,
+        name: "contract-role",
+        permissions: "0",
+        position: 0,
+        flags: 0,
+        colors: { primary_color: 0, secondary_color: undefined, tertiary_color: undefined },
+    });
+    await role.save();
+
+    const member = Member.create({
+        id: user.id,
+        user,
+        guild,
+        guild_id: guild.id,
+        roles: [],
+        joined_at: new Date(),
+        deaf: false,
+        mute: false,
+        pending: false,
+        settings: {},
+        bio: "",
+        communication_disabled_until: null,
+        flags: 0,
+    });
+    await member.save();
+
+    const channel = Channel.create({
+        created_at: new Date(),
+        name: "contract-permission-channel",
+        type: 0,
+        guild,
+        guild_id: guild.id,
+        parent_id: null,
+        nsfw: false,
+        flags: 0,
+        permission_overwrites: [],
+        messages: [],
+        webhooks: [],
+        recipients: [],
+        thread_members: [],
+    });
+    await channel.save();
+
+    const message = Message.create({
+        channel,
+        channel_id: channel.id,
+        guild,
+        guild_id: guild.id,
+        author: owner,
+        author_id: owner.id,
+        content: "contract permission fixture",
+        timestamp: new Date(),
+        tts: false,
+        mention_everyone: false,
+        mentions: [],
+        mention_roles: [],
+        mention_channels: [],
+        attachments: [],
+        embeds: [],
+        reactions: [],
+        type: 0,
+        flags: 0,
+        components: [],
+        message_snapshots: [],
+    });
+    await message.save();
+
+    return { guild, channel, message, role, member, targetUser: user };
+}
+
+function samplePathForPermissionDenialContract(contract: GeneratedHttpContract, fixture: Awaited<ReturnType<typeof createPermissionDeniedFixture>>) {
+    const samplePath = contract.path
+        .replace(/:guild_id/g, fixture.guild.id)
+        .replace(/:channel_id/g, fixture.channel.id)
+        .replace(/:message_id/g, fixture.message.id)
+        .replace(/:role_id/g, fixture.role.id)
+        .replace(/:member_id/g, fixture.member.id)
+        .replace(/:user_id/g, fixture.targetUser.id)
+        .replace(/:overwrite_id/g, fixture.role.id)
+        .replace(/:tag_id/g, "contract-tag")
+        .replace(/:emoji_id/g, "contract-emoji")
+        .replace(/:sticker_id/g, "contract-sticker")
+        .replace(/:rule_id/g, "contract-rule")
+        .replace(/:code/g, "contract-code")
+        .replace(/:burst/g, "false")
+        .replace(/:emoji/g, "contract-emoji");
+
+    assert.equal(samplePath.includes(":"), false, \`\${contract.manifestId} should have a fully substituted permission fixture path\`);
+    return samplePath;
 }
 
 function samplePathForAuthenticatedResponseContract(contract: GeneratedHttpContract, userId: string) {
@@ -782,6 +953,51 @@ test(
                     assert.equal(body.code, 50013, \`\${contract.manifestId} should return the missing-rights error code\`);
                     assert.equal(body.message, \`You lack rights to perform that action (\${requiredRight})\`, \`\${contract.manifestId} should return the missing-rights message\`);
                     assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
+                }
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);
+
+test(
+    "generated HTTP permission-only authorization contracts reject members without declared permissions through the real API stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(permissionOnlyDenialContracts.length, matrix.summary.runtimePermissionOnlyDenialContracts);
+        assert.ok(permissionOnlyDenialContracts.length > 0, "expected permission-only API routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_permission_denial", async ({ api, token, user }) => {
+                const fixture = await createPermissionDeniedFixture(user);
+
+                for (const contract of permissionOnlyDenialContracts) {
+                    const requiredPermission = requiredPermissionForContract(contract);
+                    const samplePath = samplePathForPermissionDenialContract(contract, fixture);
+                    const response = await fetch(\`\${api.apiBaseUrl}\${samplePath}\`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: \`Bearer \${token}\`,
+                        },
+                    });
+
+                    assert.equal(response.status, 403, \`\${contract.manifestId} should reject members missing \${requiredPermission}\`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON authorization error\`);
+
+                    const body = (await response.json()) as Record<string, unknown>;
+                    assert.equal(body.code, 50013, \`\${contract.manifestId} should return the missing-permissions error code\`);
+                    assert.equal(
+                        body.message,
+                        \`You lack permissions to perform that action (\${requiredPermission})\`,
+                        \`\${contract.manifestId} should return the missing-permissions message\`,
+                    );
+                    assert.equal(body.request, \`\${contract.method} /api/v9\${samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
         } finally {
