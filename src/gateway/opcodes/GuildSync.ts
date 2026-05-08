@@ -21,7 +21,6 @@ import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest, isPub
 import { PublicMember } from "@spacebar/schemas";
 import { In } from "typeorm";
 
-// TODO: only show roles/members that have access to this channel
 // TODO: rewrite typeorm
 
 export async function onGuildSync(this: WebSocket, { d }: Payload) {
