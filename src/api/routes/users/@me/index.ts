@@ -26,6 +26,7 @@ import {
     generateToken,
     handleFile,
     isNormalizedEmailUniqueViolation,
+    isUserTagUniqueViolation,
     normalizeOptionalEmail,
     User,
     UserUpdateEvent,
@@ -253,6 +254,14 @@ router.patch(
         } catch (error) {
             if (isNormalizedEmailUniqueViolation(error)) {
                 throw emailAlreadyRegisteredFieldError(req.t("auth:register.EMAIL_ALREADY_REGISTERED"));
+            }
+            if (isUserTagUniqueViolation(error)) {
+                throw FieldErrors({
+                    discriminator: {
+                        code: "INVALID_DISCRIMINATOR",
+                        message: "This discriminator is already in use.",
+                    },
+                });
             }
             throw error;
         }
