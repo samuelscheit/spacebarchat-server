@@ -8437,7 +8437,9 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": "number",
+                "properties": {},
+                "additionalProperties": false
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -8456,7 +8458,9 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "type": "number",
+                    "properties": {},
+                    "additionalProperties": false
                 }
             },
             "guild_subscriptions": {
@@ -8893,6 +8897,42 @@
         "required": [
             "name"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ThreadMemberMuteConfigSchema": {
+        "type": "object",
+        "properties": {
+            "end_time": {
+                "type": "string"
+            },
+            "selected_time_window": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ThreadMemberSettingsUpdateSchema": {
+        "type": "object",
+        "properties": {
+            "flags": {
+                "type": "integer"
+            },
+            "muted": {
+                "type": "boolean"
+            },
+            "mute_config": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/ThreadMemberMuteConfigSchema"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PostDataSchema": {

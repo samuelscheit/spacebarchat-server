@@ -698,7 +698,18 @@ export interface ThreadListSyncEvent extends Event {
 
 export interface ThreadMemberUpdateEvent extends Event {
     event: "THREAD_MEMBER_UPDATE";
-    data: ThreadMember & { guild_id: string };
+    data: {
+        guild_id: string;
+        id: string;
+        user_id: string;
+        join_timestamp: string;
+        flags: number;
+        muted?: boolean;
+        mute_config?: {
+            end_time?: string;
+            selected_time_window?: number;
+        };
+    };
 }
 
 export interface ThreadMembersUpdateEvent extends Event {

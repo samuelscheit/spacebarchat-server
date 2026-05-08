@@ -27,17 +27,20 @@ import {
     ThreadDeleteEvent,
     ThreadMember,
     ThreadMemberFlags,
+    ThreadMemberUpdateEvent,
     ThreadMembersUpdateEvent,
 } from "@spacebar/util";
-import { ChannelType, Snowflake } from "@spacebar/schemas";
+import { ChannelType, Snowflake, ThreadMemberSettingsUpdateSchema } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import {
     applyThreadMemberListQuery,
+    applyThreadMemberSettingsUpdate,
     assertThreadIsNotArchived,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    serializePublicThreadMember,
 } from "../../../util/utility/ThreadMembers";
 
 const router = Router({ mergeParams: true });
@@ -219,27 +222,37 @@ router.delete(
 router.patch(
     "/@me/settings",
     route({
+        requestBody: "ThreadMemberSettingsUpdateSchema",
         responses: {
             200: {},
+            204: {},
             403: {},
         },
         permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
-        // TODO
-        // eslint-disable-next-line prefer-const
-        let { channel_id } = req.params as { [key: string]: string };
-        const thread = await Channel.findOneOrFail({ where: { id: channel_id } });
-        await Member.IsInGuildOrFail(req.params.user_id as string, thread.guild_id!);
-        // var threadMember = await ThreadMember.findOneOrFail({ where: { member_id: req.user_id, id: channel_id } });
+        const { channel_id } = req.params as { [key: string]: string };
+        const body = req.body as ThreadMemberSettingsUpdateSchema;
+        const thread = await Channel.findOneOrFail({ where: { id: channel_id }, select: { guild_id: true, id: true } });
+        const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: thread.guild_id! }, select: { index: true } });
+        const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
+        const { changed } = applyThreadMemberSettingsUpdate(threadMember, body);
 
-        // await emitEvent({
-        //     event: "THREAD_MEMBER_UPDATE",
-        //     data: ,
-        //     user_id: user_id,
-        // } satisfies ThreadMemberUpdateEvent);
+        if (!changed) return res.status(204).send();
 
-        return res.status(500).send("not implemented");
+        await threadMember.save();
+        const publicThreadMember = serializePublicThreadMember(threadMember, req.user_id);
+
+        await emitEvent({
+            event: "THREAD_MEMBER_UPDATE",
+            data: {
+                guild_id: thread.guild_id!,
+                ...publicThreadMember,
+            },
+            user_id: req.user_id,
+        } satisfies ThreadMemberUpdateEvent);
+
+        return res.json(publicThreadMember);
     },
 );
 
