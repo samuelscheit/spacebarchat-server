@@ -40,10 +40,7 @@ function activityPayload(activity: object) {
 }
 
 function generatedActivitySchemaSymbols() {
-    const generator = TJS.buildGenerator(
-        TJS.programFromConfig(path.join(process.cwd(), "tsconfig.json"), [ActivitySchemaSourcePath]),
-        SchemaGeneratorSettings,
-    );
+    const generator = TJS.buildGenerator(TJS.programFromConfig(path.join(process.cwd(), "tsconfig.json"), [ActivitySchemaSourcePath]), SchemaGeneratorSettings);
     assert.ok(generator);
     return generator;
 }
