@@ -19,6 +19,7 @@
 import type { Channel, PermissionResolvable, Permissions } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
+import { isExpectedPermissionMiss } from "../../../util/util/PermissionResolution";
 
 export type ChannelVisibilityTarget = Pick<Channel, "id"> & Partial<Pick<Channel, "guild_id">>;
 
@@ -55,11 +56,6 @@ const defaultGuildMemberLookup: GuildMemberLookup = async (userId, guildId) => {
 
 export async function assertGuildMember(userId: string | undefined, guildId: string, memberLookup: GuildMemberLookup = defaultGuildMemberLookup) {
     if (!userId || !(await memberLookup(userId, guildId))) throw new HTTPError("You are not member of this guild", 403);
-}
-
-function isExpectedPermissionMiss(error: unknown) {
-    if (error instanceof HTTPError) return true;
-    return error instanceof Error && error.name === "EntityNotFoundError";
 }
 
 export async function hasChannelPermissions(
