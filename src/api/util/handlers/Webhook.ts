@@ -149,13 +149,19 @@ async function resolveWebhookSendChannel(webhook: Webhook, body: WebhookExecuteS
     );
 }
 
-export const executeWebhook = async (req: Request, res: Response) => {
+type ExecuteWebhookOptions = {
+    wait?: boolean;
+};
+
+export const executeWebhook = (req: Request, res: Response) => executeWebhookWithOptions(req, res);
+
+export const executeWebhookWithOptions = async (req: Request, res: Response, options: ExecuteWebhookOptions = {}) => {
     const body = req.body as WebhookExecuteSchema;
     const messageId = Snowflake.generate();
 
     const { webhook_id, token } = req.params as { [key: string]: string };
 
-    const wait = req.query.wait === "true";
+    const wait = options.wait ?? req.query.wait === "true";
     const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
     assertWebhookThreadRequest(body, thread_id);
 
