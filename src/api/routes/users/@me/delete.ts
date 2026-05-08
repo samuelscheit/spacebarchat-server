@@ -17,12 +17,36 @@
 */
 
 import { route } from "@spacebar/api";
-import { Guild, Member, User, UserSettingsProtos } from "@spacebar/util";
+import { User } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { deleteSelfUserAccount } from "../../../util/handlers/SelfDeleteAccount";
 
 const router = Router({ mergeParams: true });
+
+export async function deleteSelfUserAccountRoute(req: Request, res: Response) {
+    const user = await User.findOneOrFail({
+        where: { id: req.user_id },
+        select: { data: true },
+    }); //User object
+    let correctpass = true;
+
+    if (user.data.hash) {
+        // guest accounts can delete accounts without password
+        correctpass = await bcrypt.compare(req.body.password, user.data.hash);
+        if (!correctpass) {
+            throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
+        }
+    }
+
+    if (correctpass) {
+        await deleteSelfUserAccount(req.user_id);
+        res.sendStatus(204);
+    } else {
+        res.sendStatus(401);
+    }
+}
 
 router.post(
     "/",
@@ -37,38 +61,7 @@ router.post(
             },
         },
     }),
-    async (req: Request, res: Response) => {
-        const user = await User.findOneOrFail({
-            where: { id: req.user_id },
-            select: { data: true },
-        }); //User object
-        let correctpass = true;
-
-        if (user.data.hash) {
-            // guest accounts can delete accounts without password
-            correctpass = await bcrypt.compare(req.body.password, user.data.hash);
-            if (!correctpass) {
-                throw new HTTPError(req.t("auth:login.INVALID_PASSWORD"));
-            }
-        }
-
-        if (correctpass) {
-            // Check if the user owns any guilds.
-            const ownedGuilds = await Guild.findOne({ where: { owner_id: req.user_id } });
-            if (ownedGuilds) {
-                throw new HTTPError("User owns guilds and cannot be deleted", 403);
-            }
-
-            const members = await Member.find({ where: { id: req.user_id } });
-            await UserSettingsProtos.delete({ user_id: req.user_id });
-            await Promise.all(members.map((member) => Member.removeFromGuild(member.id, member.guild_id)));
-            await User.delete({ id: req.user_id });
-
-            res.sendStatus(204);
-        } else {
-            res.sendStatus(401);
-        }
-    },
+    deleteSelfUserAccountRoute,
 );
 
 export default router;
