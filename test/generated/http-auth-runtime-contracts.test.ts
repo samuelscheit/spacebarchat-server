@@ -5,8 +5,9 @@ import path from "node:path";
 import { test } from "node:test";
 import Ajv, { type AnySchema } from "ajv";
 import addFormats from "ajv-formats";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Permissions, Role, Session, User } from "@spacebar/util";
+import { Channel, closeDatabase, CloudAttachment, Config, generateToken, Guild, initDatabase, Member, Message, Permissions, Role, Session, User } from "@spacebar/util";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
+import { makeChannel, makeGuild, makeUser } from "../fixtures/entities";
 import { withFileStorage } from "../fixtures/files";
 import { startApi } from "../server/startApi";
 import { startCdn } from "../server/startCdn";
@@ -52,6 +53,7 @@ type GeneratedHttpContractMatrix = {
         runtimeCdnDeleteContracts: number;
         runtimeCdnUploadContracts: number;
         runtimeCdnInvalidUploadContracts: number;
+        runtimeCdnInternalAttachmentContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -174,6 +176,12 @@ const cdnUploadContracts = matrix.contracts.filter(
         contract.manifestId !== "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
 );
 const cdnInvalidUploadContracts = cdnUploadContracts.filter((contract) => contract.manifestId !== "cdn:http:POST:/attachments/:channel_id/:message_id");
+const cdnInternalAttachmentManifestIds = [
+    "cdn:http:PUT:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
+    "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
+    "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
+];
+const cdnInternalAttachmentContracts = matrix.contracts.filter((contract) => cdnInternalAttachmentManifestIds.includes(contract.manifestId));
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
 const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 
@@ -365,6 +373,26 @@ async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeo
     } finally {
         restoreProcessState(previous);
         await rm(tempCwd, { recursive: true, force: true });
+    }
+}
+
+async function withGeneratedCdnDatabase<T>(prefix: string, fn: (context: { cdn: Awaited<ReturnType<typeof startCdn>>; storage: GeneratedCdnStorage }) => Promise<T>): Promise<T> {
+    const previous = snapshotProcessState();
+    const database = await createDisposablePostgresDatabase({ prefix });
+    let databaseInitialized = false;
+
+    try {
+        process.env.DATABASE = database.url;
+        process.env.APPLY_DB_MIGRATIONS = "true";
+        delete process.env.DB_SYNC;
+        await initDatabase();
+        databaseInitialized = true;
+
+        return await withGeneratedCdn(fn);
+    } finally {
+        if (databaseInitialized) await closeDatabase();
+        await database.close();
+        restoreProcessState(previous);
     }
 }
 
@@ -645,6 +673,34 @@ async function assertCdnInvalidUploadResponse(contract: GeneratedHttpContract, r
     assert.equal(body.code, 400, `${contract.manifestId} should return the invalid-file error code`);
     assert.equal(body.message, "Error: Invalid file type", `${contract.manifestId} should return the invalid-file message`);
     assert.equal(body.request, `${contract.method} ${contract.samplePath}`, `${contract.manifestId} should include the CDN request path`);
+}
+
+function requiredCdnInternalAttachmentContract(manifestId: string) {
+    const contract = cdnInternalAttachmentContracts.find((entry) => entry.manifestId === manifestId);
+    assert.ok(contract, `${manifestId} should be present in generated CDN internal attachment contracts`);
+    return contract;
+}
+
+async function createGeneratedCloudAttachmentFixture() {
+    const channelId = "100000000000000002";
+    const batchId = "value";
+    const attachmentId = "value";
+    const filename = "file.png";
+    const messageId = "100000000000000003";
+    const uploadFilename = `${channelId}/${batchId}/${attachmentId}/${filename}`;
+    const user = await makeUser({ id: "100000000000000100" }).save();
+    const guild = await makeGuild(user, { id: "100000000000000101" }).save();
+    const channel = await makeChannel(guild, { id: channelId }).save();
+    const attachment = await CloudAttachment.create({
+        user,
+        channel,
+        uploadFilename,
+        userAttachmentId: attachmentId,
+        userFilename: filename,
+        userFileSize: cdnRuntimePng.length,
+    }).save();
+
+    return { attachment, channelId, batchId, attachmentId, filename, messageId, uploadFilename };
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -1289,3 +1345,75 @@ test("generated CDN invalid-upload contracts reject non-image multipart files th
         restoreConsole();
     }
 });
+
+test(
+    "generated CDN internal attachment contracts upload, clone, and delete cloud attachments through the real CDN stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(cdnInternalAttachmentContracts.length, matrix.summary.runtimeCdnInternalAttachmentContracts);
+        assert.equal(cdnInternalAttachmentContracts.length, 3, "expected CDN internal attachment routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withGeneratedCdnDatabase("spacebar_contracts_cdn_internal", async ({ cdn, storage }) => {
+                const fixture = await createGeneratedCloudAttachmentFixture();
+                const storagePath = `attachments/${fixture.uploadFilename}`;
+                const uploadContract = requiredCdnInternalAttachmentContract("cdn:http:PUT:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename");
+                const cloneContract = requiredCdnInternalAttachmentContract(
+                    "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
+                );
+                const deleteContract = requiredCdnInternalAttachmentContract("cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename");
+
+                const upload = await fetch(`${cdn.baseUrl}${uploadContract.samplePath}`, {
+                    method: "PUT",
+                    headers: {
+                        "content-length": String(cdnRuntimePng.length),
+                        "content-type": "image/png",
+                    },
+                    body: cdnRuntimePng,
+                });
+                assert.equal(upload.status, 200, `${uploadContract.manifestId} should upload cloud attachment bytes`);
+                assert.equal(await upload.text(), "", `${uploadContract.manifestId} should return an empty upload response`);
+
+                const uploaded = await CloudAttachment.findOneByOrFail({ id: fixture.attachment.id });
+                assert.equal(uploaded.size, cdnRuntimePng.length, `${uploadContract.manifestId} should persist the uploaded byte size`);
+                assert.equal(uploaded.contentType, "image/png", `${uploadContract.manifestId} should detect PNG content`);
+                assert.equal(uploaded.width, 1, `${uploadContract.manifestId} should persist PNG width`);
+                assert.equal(uploaded.height, 1, `${uploadContract.manifestId} should persist PNG height`);
+                assert.equal(await storage.exists(storagePath), true, `${uploadContract.manifestId} should write the CDN object`);
+                assert.deepEqual(await storage.get(storagePath), cdnRuntimePng, `${uploadContract.manifestId} should write uploaded bytes`);
+
+                const clone = await fetch(`${cdn.baseUrl}${cloneContract.samplePath}`, {
+                    method: "POST",
+                    headers: {
+                        accept: "application/json",
+                        signature: cdnRuntimeRequestSignature,
+                    },
+                });
+                assert.equal(clone.status, 200, `${cloneContract.manifestId} should clone uploaded cloud attachments`);
+                assert.match(clone.headers.get("content-type") ?? "", /application\/json/, `${cloneContract.manifestId} should return a JSON clone response`);
+                const cloneBody = (await clone.json()) as Record<string, unknown>;
+                const clonedPath = `attachments/${fixture.channelId}/${fixture.messageId}/${fixture.filename}`;
+                assert.deepEqual(cloneBody, { success: true, new_path: clonedPath }, `${cloneContract.manifestId} should return the cloned CDN path`);
+                assert.deepEqual(await storage.get(clonedPath), cdnRuntimePng, `${cloneContract.manifestId} should clone uploaded bytes`);
+
+                const deleted = await fetch(`${cdn.baseUrl}${deleteContract.samplePath}`, {
+                    method: "DELETE",
+                    headers: {
+                        accept: "application/json",
+                        signature: cdnRuntimeRequestSignature,
+                    },
+                });
+                await assertCdnDeleteResponse(deleteContract, deleted);
+                assert.equal(await CloudAttachment.findOneBy({ id: fixture.attachment.id }), null, `${deleteContract.manifestId} should remove the cloud attachment row`);
+                assert.equal(await storage.exists(storagePath), false, `${deleteContract.manifestId} should remove the uploaded CDN object`);
+                assert.equal(await storage.exists(clonedPath), true, `${deleteContract.manifestId} should leave cloned message CDN objects intact`);
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);

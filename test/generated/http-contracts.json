@@ -27,7 +27,8 @@
         "runtimeCdnSignatureRequiredContracts": 36,
         "runtimeCdnDeleteContracts": 17,
         "runtimeCdnUploadContracts": 17,
-        "runtimeCdnInvalidUploadContracts": 16
+        "runtimeCdnInvalidUploadContracts": 16,
+        "runtimeCdnInternalAttachmentContracts": 3
     },
     "contracts": [
         {
