@@ -28,7 +28,6 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
