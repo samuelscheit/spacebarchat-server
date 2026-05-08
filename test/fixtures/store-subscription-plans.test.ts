@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
+import { createServer } from "node:http";
 import { describe, it } from "node:test";
+import express from "express";
 import { ConfigValue, StoreConfiguration, StoreSubscriptionPlanConfiguration } from "@spacebar/util";
-import { getSubscriptionPlansForSku, type SubscriptionPlan } from "../../src/api/routes/store/published-listings/skus/#sku_id/subscription-plans";
+import subscriptionPlansRouter, { getSubscriptionPlansForSku, type SubscriptionPlan } from "../../src/api/routes/store/published-listings/skus/#sku_id/subscription-plans";
 
 function createPlan(overrides: Partial<SubscriptionPlan> = {}): SubscriptionPlan {
     return {
@@ -16,6 +18,36 @@ function createPlan(overrides: Partial<SubscriptionPlan> = {}): SubscriptionPlan
         price_tier: null,
         ...overrides,
     };
+}
+
+async function requestSubscriptionPlans(path: string) {
+    const app = express();
+    app.use("/:sku_id/subscription-plans", subscriptionPlansRouter);
+
+    const server = createServer(app);
+
+    await new Promise<void>((resolve) => {
+        server.listen(0, "127.0.0.1", resolve);
+    });
+
+    try {
+        const address = server.address();
+        if (!address || typeof address === "string") throw new Error("Expected HTTP server to listen on a TCP port");
+
+        const response = await fetch(`http://127.0.0.1:${address.port}${path}`);
+
+        return {
+            body: await response.text(),
+            status: response.status,
+        };
+    } finally {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => {
+                if (error) reject(error);
+                else resolve();
+            });
+        });
+    }
 }
 
 describe("published listing SKU subscription plans", () => {
@@ -60,6 +92,22 @@ describe("published listing SKU subscription plans", () => {
         assert.equal(plans.length, 1);
         assert.equal(plans[0].id, "978380692553465866");
         assert.equal(Array.isArray(plans[0]), false);
+    });
+
+    it("responds with flat built-in plans from the mounted route", async () => {
+        const response = await requestSubscriptionPlans("/978380684370378762/subscription-plans/");
+        const body = JSON.parse(response.body) as SubscriptionPlan[];
+
+        assert.equal(response.status, 200);
+        assert.equal(body.length, 1);
+        assert.equal(body[0].id, "978380692553465866");
+        assert.equal(Array.isArray(body[0]), false);
+    });
+
+    it("responds 404 for invalid SKU route requests", async () => {
+        const response = await requestSubscriptionPlans("/missing-sku/subscription-plans/");
+
+        assert.equal(response.status, 404);
     });
 });
 
