@@ -38,6 +38,7 @@ import {
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    updateThreadMemberCountAfterRemoval,
 } from "../../../util/utility/ThreadMembers";
 
 const router = Router({ mergeParams: true });
@@ -184,18 +185,14 @@ router.delete(
         const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
         await threadMember.remove();
 
-        // decrement member count
-        if (thread.member_count !== null && thread.member_count !== undefined && thread.member_count > 0) {
-            thread.member_count--;
-            await thread.save();
-        }
+        const memberCount = await updateThreadMemberCountAfterRemoval(thread, (threadId) => ThreadMember.countBy({ id: threadId }));
 
         await emitEvent({
             event: "THREAD_MEMBERS_UPDATE",
             data: {
                 guild_id: thread.guild_id!,
                 id: thread.id,
-                member_count: thread.member_count ?? 0, // TODO: is this the right fix?
+                member_count: memberCount,
                 removed_member_ids: [user_id],
             },
             channel_id: thread.id,

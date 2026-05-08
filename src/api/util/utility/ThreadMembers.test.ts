@@ -9,6 +9,7 @@ import {
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    updateThreadMemberCountAfterRemoval,
 } from "./ThreadMembers";
 
 describe("thread member helpers", () => {
@@ -88,6 +89,43 @@ describe("thread member helpers", () => {
         assert.deepEqual(builder.calls.at(-2), ["orderBy", '"member"."id"', "ASC"]);
         assert.deepEqual(builder.calls.at(-1), ["take", 100]);
     });
+
+    test("decrements and persists a known thread member count after removal", async () => {
+        const thread = createThreadCountCache("thread-id", 3);
+
+        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async () => {
+            throw new Error("should not recount when cached count is known");
+        });
+
+        assert.equal(memberCount, 2);
+        assert.equal(thread.member_count, 2);
+        assert.equal(thread.saveCalls, 1);
+    });
+
+    test("does not decrement a known thread member count below zero", async () => {
+        const thread = createThreadCountCache("thread-id", 0);
+
+        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async () => 12);
+
+        assert.equal(memberCount, 0);
+        assert.equal(thread.member_count, 0);
+        assert.equal(thread.saveCalls, 1);
+    });
+
+    test("repairs a missing thread member count from remaining persisted members after removal", async () => {
+        const thread = createThreadCountCache("thread-id", null);
+        const countedThreadIds: string[] = [];
+
+        const memberCount = await updateThreadMemberCountAfterRemoval(thread, async (threadId) => {
+            countedThreadIds.push(threadId);
+            return 4;
+        });
+
+        assert.equal(memberCount, 4);
+        assert.equal(thread.member_count, 4);
+        assert.deepEqual(countedThreadIds, ["thread-id"]);
+        assert.equal(thread.saveCalls, 1);
+    });
 });
 
 function assertInvalidThreadMemberLimit(value: string) {
@@ -132,6 +170,17 @@ function createFakeQueryBuilder() {
         take(take?: number) {
             this.calls.push(["take", take ?? 0]);
             return this;
+        },
+    };
+}
+
+function createThreadCountCache(id: string, memberCount: number | null | undefined) {
+    return {
+        id,
+        member_count: memberCount,
+        saveCalls: 0,
+        async save() {
+            this.saveCalls++;
         },
     };
 }
