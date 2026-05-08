@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, test } from "node:test";
 import { ajv } from "../Validator";
 
@@ -60,6 +62,27 @@ describe("ChannelModifySchema", () => {
             true,
             JSON.stringify(validate.errors),
         );
+    });
+
+    test("keeps generated OpenAPI available_tags entries id-less for new tags", () => {
+        const openApiPath = path.join(process.cwd(), "assets/openapi.json");
+        const openApi = JSON.parse(readFileSync(openApiPath, "utf8")) as {
+            components: {
+                schemas: {
+                    ChannelModifySchema: {
+                        properties: {
+                            available_tags: {
+                                items: {
+                                    required?: string[];
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+
+        assert.deepEqual(openApi.components.schemas.ChannelModifySchema.properties.available_tags.items.required, ["name"]);
     });
 });
 

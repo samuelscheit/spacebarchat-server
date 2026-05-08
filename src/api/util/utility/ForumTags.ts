@@ -1,9 +1,11 @@
 import { Channel, ErrorList, makeObjectErrorContent, Tag } from "@spacebar/util";
 import { TagCreateSchema } from "@spacebar/schemas";
+import type { EntityManager } from "typeorm";
 
 export type ForumTagModifyPayload = TagCreateSchema & { id?: string };
 
 type ForumTagChannel = Pick<Channel, "available_tags" | "isForum">;
+export type ForumTagPersistenceManager = Pick<EntityManager, "save" | "remove">;
 
 export function getAvailableTagsModifyError(channel: ForumTagChannel, payload: readonly ForumTagModifyPayload[]): ErrorList | undefined {
     if (!channel.isForum()) {
@@ -39,7 +41,7 @@ function assignTagPayload(tag: Tag, payload: ForumTagModifyPayload) {
     tag.emoji_name = payload.emoji_name ?? undefined;
 }
 
-export async function replaceForumAvailableTags(channel: Channel, payload: readonly ForumTagModifyPayload[]): Promise<void> {
+export async function replaceForumAvailableTags(channel: Channel, payload: readonly ForumTagModifyPayload[], manager: ForumTagPersistenceManager): Promise<void> {
     const currentTags = channel.available_tags ?? [];
     const currentTagsById = new Map(currentTags.map((tag) => [tag.id, tag]));
     const nextTags: Tag[] = [];
@@ -67,6 +69,13 @@ export async function replaceForumAvailableTags(channel: Channel, payload: reado
 
     const tagsToRemove = currentTags.filter((tag) => !payloadIds.has(tag.id));
 
-    await Promise.all([...tagsToSave.map((tag) => tag.save()), ...tagsToRemove.map((tag) => tag.remove())]);
+    for (const tag of tagsToSave) {
+        await manager.save(tag);
+    }
+
+    for (const tag of tagsToRemove) {
+        await manager.remove(tag);
+    }
+
     channel.available_tags = nextTags;
 }

@@ -29,6 +29,7 @@ import {
     Recipient,
     emitEvent,
     getChannelOrderInsertPoint,
+    getDatabase,
     getInvalidThreadChannelOrderFields,
     handleFile,
     makeObjectErrorContent,
@@ -195,11 +196,11 @@ router.patch(
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
 
-        if (payload.available_tags) {
-            const tagErrors = getAvailableTagsModifyError(channel, payload.available_tags);
+        const availableTagsPayload = payload.available_tags;
+        if (availableTagsPayload !== undefined) {
+            const tagErrors = getAvailableTagsModifyError(channel, availableTagsPayload);
             if (tagErrors) throw new FieldError(400, "Invalid form body", tagErrors);
 
-            await replaceForumAvailableTags(channel, payload.available_tags);
             delete payload.available_tags;
         }
 
@@ -288,7 +289,18 @@ router.patch(
             }
         }
 
-        await channel.save();
+        if (availableTagsPayload !== undefined) {
+            const database = getDatabase();
+            if (!database) throw new Error("Database is not initialized");
+
+            await database.transaction(async (manager) => {
+                await replaceForumAvailableTags(channel, availableTagsPayload, manager);
+                await manager.save(channel);
+            });
+        } else {
+            await channel.save();
+        }
+
         if (channel.guild_id && orderInsertPoint !== undefined) {
             channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, orderInsertPoint);
         }
