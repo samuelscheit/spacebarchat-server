@@ -9665,7 +9665,7 @@
             "method": "POST",
             "path": "/science/",
             "sourceFile": "src/api/routes/science.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
