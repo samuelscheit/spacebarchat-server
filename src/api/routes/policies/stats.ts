@@ -19,6 +19,7 @@
 import { route } from "@spacebar/api";
 import { Config, getRights, Guild, Member, Message, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { HTTPError } from "lambert-server";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -36,6 +37,7 @@ router.get(
     }),
     async (req: Request, res: Response) => {
         if (!Config.get().security.statsWorldReadable) {
+            if (!req.user_id) throw new HTTPError("Missing Authorization Header", 401);
             const rights = await getRights(req.user_id);
             rights.hasThrow("VIEW_SERVER_STATS");
         }
