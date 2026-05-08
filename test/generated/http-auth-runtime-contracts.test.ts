@@ -923,7 +923,6 @@ function cdnUploadStoragePathForContract(contract: GeneratedHttpContract, body: 
 
     assert.equal(typeof body.id, "string", `${contract.manifestId} should return an uploaded CDN object id`);
     const id = body.id as string;
-    if (contract.manifestId === "cdn:http:POST:/role-icons/:role_id") return `${samplePath}/${id}.png`;
     return `${samplePath}/${id}`;
 }
 
