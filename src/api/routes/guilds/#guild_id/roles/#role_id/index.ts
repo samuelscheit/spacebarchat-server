@@ -17,10 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import { emitEvent, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
+import { emitEvent, Guild, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { RoleModifySchema } from "@spacebar/schemas";
+import { assertRoleIconPolicy } from "../../../../../util/utility/RoleIconPolicy";
 
 const router = Router({ mergeParams: true });
 
@@ -115,15 +116,20 @@ router.patch(
         const { role_id, guild_id } = req.params as { [key: string]: string };
         const body = req.body as RoleModifySchema;
 
+        const [role, guild] = await Promise.all([
+            Role.findOneOrFail({
+                where: { id: role_id, guild: { id: guild_id } },
+            }),
+            Guild.findOneOrFail({ where: { id: guild_id }, select: { features: true } }),
+        ]);
+
+        assertRoleIconPolicy({ guildFeatures: guild.features, body });
+
         if (body.icon && body.icon.length) body.icon = await handleFile(`/role-icons/${role_id}`, body.icon as string);
         else body.icon = undefined;
 
         // TODO: proper field error
         if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
-
-        const role = await Role.findOneOrFail({
-            where: { id: role_id, guild: { id: guild_id } },
-        });
         role.assign({
             ...body,
             permissions: String((req.permission?.bitfield || 0n) & BigInt(body.permissions || "0")),

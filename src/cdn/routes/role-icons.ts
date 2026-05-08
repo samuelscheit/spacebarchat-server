@@ -27,7 +27,6 @@ import { cache } from "../util/cache";
 
 //Role icons ---> avatars.ts modified
 
-// TODO: check user rights and perks and animated pfp are allowed in the policies
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
 
