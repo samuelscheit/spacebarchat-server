@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { runtimeModuleGlob } from "./Database";
 import { getDatabaseType, getDatabaseUrl } from "./DatabaseConfig";
 
 describe("Database startup validation", () => {
@@ -21,5 +22,9 @@ describe("Database startup validation", () => {
     it("derives the database type from the connection string", () => {
         assert.equal(getDatabaseType("postgres://user:password@localhost:5432/database"), "postgres");
         assert.equal(getDatabaseType("mongodb+srv://localhost/database"), "mongodb");
+    });
+
+    it("excludes compiled test files from TypeORM runtime module globs", () => {
+        assert.match(runtimeModuleGlob("/spacebar", "dist", "util", "entities"), /!\(\*\.test\|\*\.spec\)\.js$/);
     });
 });

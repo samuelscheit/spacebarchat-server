@@ -84,14 +84,16 @@ router.post(
         const where = applicationCommandNameWhere(scope, commandForDb.name);
         const commandExists = await ApplicationCommand.exists({ where });
 
+        let command: ApplicationCommand;
         if (commandExists) {
             await ApplicationCommand.update(where, commandForDb);
+            command = await ApplicationCommand.findOneOrFail({ where });
         } else {
             commandForDb.id = Snowflake.generate(); // Have to be done that way so the id doesn't change
-            await ApplicationCommand.save(commandForDb);
+            command = await ApplicationCommand.save(commandForDb);
         }
 
-        res.send(body);
+        res.send(command);
     },
 );
 
@@ -127,6 +129,7 @@ router.put(
             await ApplicationCommand.delete(applicationCommandIdWhere(scope, command.id));
         }
 
+        const savedCommands: ApplicationCommand[] = [];
         for (const command of body) {
             const commandForDb = buildApplicationCommand(scope, command);
             const where = applicationCommandNameWhere(scope, commandForDb.name);
@@ -134,13 +137,14 @@ router.put(
 
             if (commandExists) {
                 await ApplicationCommand.update(where, commandForDb);
+                savedCommands.push(await ApplicationCommand.findOneOrFail({ where }));
             } else {
                 commandForDb.id = Snowflake.generate(); // Have to be done that way so the id doesn't change
-                await ApplicationCommand.save(commandForDb);
+                savedCommands.push(await ApplicationCommand.save(commandForDb));
             }
         }
 
-        res.send(body);
+        res.send(savedCommands);
     },
 );
 
