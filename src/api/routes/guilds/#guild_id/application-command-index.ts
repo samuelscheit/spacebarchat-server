@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getApplicationCommandLocalizedText, route } from "@spacebar/api";
+import { getApplicationCommandLocalizedFields, resolveApplicationCommandLocale, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { Application, ApplicationCommand, Member, Snowflake, UserSettings } from "@spacebar/util";
 import { IsNull } from "typeorm";
@@ -54,7 +54,11 @@ router.get("/", route({}), async (req: Request, res: Response) => {
     }
 
     const applicationCommandsSendable: ApplicationCommandSchema[] = [];
-    const userLocale = (await UserSettings.getOrDefault(req.user_id)).locale ?? req.language;
+    let userLocale = resolveApplicationCommandLocale({
+        discordLocale: req.get("X-Discord-Locale"),
+        acceptLanguage: req.get("Accept-Language"),
+    });
+    userLocale ??= resolveApplicationCommandLocale({ userSettingsLocale: (await UserSettings.getOrDefault(req.user_id)).locale });
 
     for (const command of applicationCommands.flat()) {
         applicationCommandsSendable.push({
@@ -64,10 +68,9 @@ router.get("/", route({}), async (req: Request, res: Response) => {
             guild_id: command.guild_id,
             name: command.name,
             name_localizations: command.name_localizations,
-            name_localized: getApplicationCommandLocalizedText(command.name_localizations, userLocale),
+            ...getApplicationCommandLocalizedFields(command, userLocale),
             description: command.description,
             description_localizations: command.description_localizations,
-            // description_localized: // TODO: make this work
             options: command.type === ApplicationCommandType.CHAT_INPUT ? command.options : undefined,
             default_member_permissions: command.default_member_permissions,
             dm_permission: command.dm_permission,

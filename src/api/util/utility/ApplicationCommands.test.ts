@@ -10,8 +10,10 @@ import {
     applicationCommandNameWhere,
     applicationCommandScopeWhere,
     buildApplicationCommand,
+    getApplicationCommandLocalizedFields,
     getApplicationCommandLocalizedText,
     normalizeApplicationCommandName,
+    resolveApplicationCommandLocale,
 } from "./ApplicationCommands";
 
 function assertIsNullOperator(value: unknown) {
@@ -92,13 +94,67 @@ describe("application command localization helpers", () => {
         assert.equal(getApplicationCommandLocalizedText({ de: "spielen", "en-US": "play" }, "de"), "spielen");
     });
 
-    test("returns null when no localizations are stored", () => {
-        assert.equal(getApplicationCommandLocalizedText(undefined, "de"), null);
-        assert.equal(getApplicationCommandLocalizedText(null, "de"), null);
+    test("returns undefined when no localizations are stored", () => {
+        assert.equal(getApplicationCommandLocalizedText(undefined, "de"), undefined);
+        assert.equal(getApplicationCommandLocalizedText(null, "de"), undefined);
     });
 
-    test("returns null when the requested locale has no localization", () => {
-        assert.equal(getApplicationCommandLocalizedText({ "en-US": "play" }, "de"), null);
-        assert.equal(getApplicationCommandLocalizedText({ de: "spielen" }, undefined), null);
+    test("returns undefined when the requested locale has no localization", () => {
+        assert.equal(getApplicationCommandLocalizedText({ "en-US": "play" }, "de"), undefined);
+        assert.equal(getApplicationCommandLocalizedText({ de: "spielen" }, undefined), undefined);
+    });
+
+    test("normalizes locales, applies documented locale fallbacks, and handles language-region headers", () => {
+        assert.equal(getApplicationCommandLocalizedText({ "en-GB": "colour" }, "en-US"), "colour");
+        assert.equal(getApplicationCommandLocalizedText({ "en-US": "color" }, "en_GB"), "color");
+        assert.equal(getApplicationCommandLocalizedText({ "es-ES": "jugar" }, "es-419"), "jugar");
+        assert.equal(getApplicationCommandLocalizedText({ de: "spielen" }, "de-DE"), "spielen");
+    });
+
+    test("resolves locale from Discord locale, Accept-Language, then user settings", () => {
+        assert.equal(
+            resolveApplicationCommandLocale({
+                discordLocale: "de",
+                acceptLanguage: "fr;q=1",
+                userSettingsLocale: "en-US",
+            }),
+            "de",
+        );
+        assert.equal(
+            resolveApplicationCommandLocale({
+                acceptLanguage: "de;q=0, fr;q=0.4, es-ES;q=0.9",
+                userSettingsLocale: "en-US",
+            }),
+            "es-ES",
+        );
+        assert.equal(resolveApplicationCommandLocale({ userSettingsLocale: "en_US" }), "en-US");
+    });
+
+    test("builds localized command fields and omits unavailable localized values", () => {
+        assert.deepEqual(
+            getApplicationCommandLocalizedFields(
+                {
+                    name_localizations: { de: "spielen" },
+                    description_localizations: { de: "Starte ein Spiel" },
+                },
+                "de",
+            ),
+            {
+                name_localized: "spielen",
+                description_localized: "Starte ein Spiel",
+            },
+        );
+
+        const missingFields = getApplicationCommandLocalizedFields(
+            {
+                name_localizations: { "en-US": "play" },
+                description_localizations: { "en-US": "Start a game" },
+            },
+            "de",
+        );
+        assert.deepEqual(missingFields, {});
+        assert.equal("name_localized" in missingFields, false);
+        assert.equal("description_localized" in missingFields, false);
+        assert.equal(JSON.stringify({ name: "play", ...missingFields }), '{"name":"play"}');
     });
 });

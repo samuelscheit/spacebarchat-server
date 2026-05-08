@@ -65,10 +65,90 @@ export function normalizeApplicationCommandName(name: string) {
     return trimmedName;
 }
 
-export function getApplicationCommandLocalizedText(localizations: Record<string, string> | null | undefined, locale: string | null | undefined) {
-    if (!localizations || !locale) return null;
+const APPLICATION_COMMAND_LOCALE_FALLBACKS: Record<string, string> = {
+    "en-US": "en-GB",
+    "en-GB": "en-US",
+    "es-419": "es-ES",
+};
 
-    return localizations[locale] ?? null;
+type ApplicationCommandLocaleSource = string | string[] | null | undefined;
+
+export type ApplicationCommandLocaleSources = {
+    discordLocale?: ApplicationCommandLocaleSource;
+    acceptLanguage?: ApplicationCommandLocaleSource;
+    userSettingsLocale?: ApplicationCommandLocaleSource;
+};
+
+type ApplicationCommandLocalizationSource = {
+    name_localizations?: Record<string, string> | null;
+    description_localizations?: Record<string, string> | null;
+};
+
+function firstLocaleValue(locale: ApplicationCommandLocaleSource) {
+    const localeValue = Array.isArray(locale) ? locale[0] : locale;
+
+    return localeValue?.trim();
+}
+
+function normalizeApplicationCommandLocale(locale: ApplicationCommandLocaleSource) {
+    const trimmedLocale = firstLocaleValue(locale);
+    if (!trimmedLocale) return undefined;
+
+    const [language, region] = trimmedLocale.replace(/_/g, "-").split("-");
+    if (!region) return language.toLowerCase() === "en" ? "en-US" : language.toLowerCase();
+
+    return `${language.toLowerCase()}-${region.toUpperCase()}`;
+}
+
+function parseAcceptLanguageLocale(acceptLanguage: ApplicationCommandLocaleSource) {
+    const acceptLanguageValue = firstLocaleValue(acceptLanguage);
+    if (!acceptLanguageValue) return undefined;
+
+    return acceptLanguageValue
+        .split(",")
+        .map((language, index) => {
+            const [locale, ...parameters] = language.trim().split(";");
+            const qualityParameter = parameters.find((parameter) => parameter.trim().startsWith("q="));
+            const quality = qualityParameter ? Number(qualityParameter.trim().slice(2)) : 1;
+
+            return {
+                index,
+                locale: normalizeApplicationCommandLocale(locale),
+                quality: Number.isFinite(quality) ? quality : 0,
+            };
+        })
+        .filter((language): language is { index: number; locale: string; quality: number } => !!language.locale && language.quality > 0)
+        .sort((a, b) => b.quality - a.quality || a.index - b.index)[0]?.locale;
+}
+
+export function resolveApplicationCommandLocale(sources: ApplicationCommandLocaleSources) {
+    return (
+        normalizeApplicationCommandLocale(sources.discordLocale) ??
+        parseAcceptLanguageLocale(sources.acceptLanguage) ??
+        normalizeApplicationCommandLocale(sources.userSettingsLocale)
+    );
+}
+
+export function getApplicationCommandLocalizedText(localizations: Record<string, string> | null | undefined, locale: string | null | undefined) {
+    const normalizedLocale = normalizeApplicationCommandLocale(locale);
+    if (!localizations || !normalizedLocale) return undefined;
+
+    const fallbackLocale = APPLICATION_COMMAND_LOCALE_FALLBACKS[normalizedLocale];
+    const baseLocale = normalizedLocale.split("-")[0];
+
+    return (
+        localizations[normalizedLocale] ?? (fallbackLocale ? localizations[fallbackLocale] : undefined) ?? (baseLocale === normalizedLocale ? undefined : localizations[baseLocale])
+    );
+}
+
+export function getApplicationCommandLocalizedFields(command: ApplicationCommandLocalizationSource, locale: string | null | undefined) {
+    const nameLocalized = getApplicationCommandLocalizedText(command.name_localizations, locale);
+    const descriptionLocalized = getApplicationCommandLocalizedText(command.description_localizations, locale);
+
+    return {
+        ...(nameLocalized === undefined ? {} : { name_localized: nameLocalized }),
+        ...(descriptionLocalized === undefined ? {} : { description_localized: descriptionLocalized }),
+    };
 }
 
 export function buildApplicationCommand(scope: ApplicationCommandScope, body: ApplicationCommandCreateSchema): ApplicationCommandSchema {
