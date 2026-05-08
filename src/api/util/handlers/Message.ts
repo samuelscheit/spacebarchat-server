@@ -77,7 +77,6 @@ import { collectMessageComponentMedia } from "../utility/MessagePayloadPermissio
 import { findCloudAttachmentForChannel, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
 // TODO: check webhook, application, system author, stickers
-// TODO: embed gifs/videos/images
 
 function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], errors: Record<string, { code?: string; message: string }>, rowIndex: number) {
     if (!row.components) {
