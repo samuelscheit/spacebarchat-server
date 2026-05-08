@@ -702,7 +702,6 @@ export class Channel extends BaseClass {
         }
 
         // check if we can resolve here to short-circuit possibly calling the database unnecessarily
-        // TODO: do we want to have an instance-wide opt out of this behavior? It would just be an extra if statement here
         const ownerId = guild?.owner?.id ?? guild?.owner_id;
         if (!!opts.user_id && ownerId === opts.user_id) return Permissions.ALL;
         if (!!opts.user?.id && ownerId === opts.user?.id) return Permissions.ALL;
