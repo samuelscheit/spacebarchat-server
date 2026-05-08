@@ -404,7 +404,6 @@ export class Message extends BaseClass {
             flags: this.flags,
             application_id: this.application_id,
             //channel: this.channel, // TODO: ephemeral DM channels
-            // recipient_id: this.recipient_id, // TODO: ephemeral DM channels
         };
     }
 
