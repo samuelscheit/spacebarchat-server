@@ -7163,7 +7163,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 52,
+            "line": 53,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7207,7 +7207,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 27,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7250,7 +7250,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 94,
+            "line": 95,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7418,7 +7418,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 38,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7454,7 +7454,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 131,
+            "line": 135,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7499,11 +7499,12 @@
             "method": "POST",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 48,
+            "line": 50,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "MANAGE_ROLES",
+                "right": "CREATE_ROLES",
                 "requestBody": "RoleModifySchema",
                 "responseBodies": [
                     "APIErrorResponse",
@@ -14419,7 +14420,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id/:hash",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 77,
+            "line": 76,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14450,7 +14451,7 @@
             "method": "DELETE",
             "path": "/role-icons/:role_id/:id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 99,
+            "line": 98,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14481,7 +14482,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 63,
+            "line": 62,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14512,7 +14513,7 @@
             "method": "POST",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 39,
+            "line": 38,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
