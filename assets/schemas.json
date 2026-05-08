@@ -3475,6 +3475,9 @@
             "cdn": {
                 "$ref": "#/definitions/CdnConfiguration"
             },
+            "cors": {
+                "$ref": "#/definitions/CorsConfiguration"
+            },
             "api": {
                 "$ref": "#/definitions/ApiConfiguration"
             },
@@ -3545,6 +3548,7 @@
             "api",
             "cdn",
             "components",
+            "cors",
             "defaults",
             "email",
             "embeds",
@@ -18708,6 +18712,60 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CorsConfiguration": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowCredentials": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowedOrigins": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "*"
+                ]
+            },
+            "allowedMethods": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "*"
+                ]
+            },
+            "allowedHeaders": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "*"
+                ]
+            },
+            "maxAgeSeconds": {
+                "type": "integer",
+                "default": 60
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowCredentials",
+            "allowedHeaders",
+            "allowedMethods",
+            "allowedOrigins",
+            "enabled",
+            "maxAgeSeconds"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApiConfiguration": {
         "type": "object",
         "properties": {
@@ -20385,6 +20443,9 @@
             "cdn": {
                 "$ref": "#/definitions/CdnConfiguration"
             },
+            "cors": {
+                "$ref": "#/definitions/CorsConfiguration"
+            },
             "api": {
                 "$ref": "#/definitions/ApiConfiguration"
             },
@@ -20455,6 +20516,7 @@
             "api",
             "cdn",
             "components",
+            "cors",
             "defaults",
             "email",
             "embeds",

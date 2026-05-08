@@ -20,6 +20,7 @@ import {
     ApiConfiguration,
     CdnConfiguration,
     ComponentConfiguration,
+    CorsConfiguration,
     DefaultsConfiguration,
     EmailConfiguration,
     EmbedConfiguration,
@@ -47,6 +48,7 @@ export class ConfigValue {
     admin: EndpointConfiguration = new EndpointConfiguration();
     gateway: GatewayConfiguration = new GatewayConfiguration();
     cdn: CdnConfiguration = new CdnConfiguration();
+    cors: CorsConfiguration = new CorsConfiguration();
     api: ApiConfiguration = new ApiConfiguration();
     general: GeneralConfiguration = new GeneralConfiguration();
     limits: LimitsConfiguration = new LimitsConfiguration();

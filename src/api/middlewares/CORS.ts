@@ -17,15 +17,30 @@
 */
 
 import { NextFunction, Request, Response } from "express";
+import { Config } from "@spacebar/util";
 
-// TODO: config settings
+function headerFromList(configured: string[], requested: string | undefined) {
+    if (configured.includes("*")) return requested || "*";
+    return configured.join(", ");
+}
+
+function isOriginAllowed(origin: string | undefined, allowedOrigins: string[]) {
+    if (allowedOrigins.includes("*")) return true;
+    if (!origin) return false;
+    return allowedOrigins.includes(origin);
+}
 
 export function CORS(req: Request, res: Response, next: NextFunction) {
-    res.set("Access-Control-Allow-Credentials", "true");
-    res.set("Access-Control-Allow-Headers", req.header("Access-Control-Request-Headers") || "*");
-    res.set("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method") || "*");
-    res.set("Access-Control-Allow-Origin", req.header("Origin") ?? "*");
-    res.set("Access-Control-Max-Age", "60"); // dont make it too long so we can change it dynamically
+    const { cors } = Config.get();
+    const origin = req.header("Origin");
+
+    if (cors.enabled && isOriginAllowed(origin, cors.allowedOrigins)) {
+        if (cors.allowCredentials) res.set("Access-Control-Allow-Credentials", "true");
+        res.set("Access-Control-Allow-Headers", headerFromList(cors.allowedHeaders, req.header("Access-Control-Request-Headers")));
+        res.set("Access-Control-Allow-Methods", headerFromList(cors.allowedMethods, req.header("Access-Control-Request-Method")));
+        res.set("Access-Control-Allow-Origin", origin ?? "*");
+        res.set("Access-Control-Max-Age", String(cors.maxAgeSeconds)); // dont make it too long so we can change it dynamically
+    }
     // TODO: use better CSP
     res.set(
         "Content-security-policy",

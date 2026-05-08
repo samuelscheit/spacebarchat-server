@@ -3386,6 +3386,9 @@
                     },
                     "embeds": {
                         "$ref": "#/components/schemas/EmbedConfiguration"
+                    },
+                    "cors": {
+                        "$ref": "#/components/schemas/CorsConfiguration"
                     }
                 },
                 "required": [
@@ -3393,6 +3396,7 @@
                     "api",
                     "cdn",
                     "components",
+                    "cors",
                     "defaults",
                     "email",
                     "embeds",
@@ -19556,6 +19560,9 @@
                     },
                     "embeds": {
                         "$ref": "#/components/schemas/EmbedConfiguration"
+                    },
+                    "cors": {
+                        "$ref": "#/components/schemas/CorsConfiguration"
                     }
                 },
                 "required": [
@@ -19563,6 +19570,7 @@
                     "api",
                     "cdn",
                     "components",
+                    "cors",
                     "defaults",
                     "email",
                     "embeds",
@@ -21852,6 +21860,58 @@
                     1,
                     2,
                     3
+                ]
+            },
+            "CorsConfiguration": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowCredentials": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowedOrigins": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "*"
+                        ]
+                    },
+                    "allowedMethods": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "*"
+                        ]
+                    },
+                    "allowedHeaders": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "*"
+                        ]
+                    },
+                    "maxAgeSeconds": {
+                        "type": "integer",
+                        "default": 60
+                    }
+                },
+                "required": [
+                    "allowCredentials",
+                    "allowedHeaders",
+                    "allowedMethods",
+                    "allowedOrigins",
+                    "enabled",
+                    "maxAgeSeconds"
                 ]
             }
         }
