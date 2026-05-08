@@ -5540,7 +5540,7 @@
             "path": "/channels/:channel_id/recipients/:user_id",
             "samplePath": "/channels/100000000000000002/recipients/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 79,
+            "line": 81,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
