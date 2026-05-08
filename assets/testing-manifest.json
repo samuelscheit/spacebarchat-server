@@ -5636,7 +5636,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/bans/:user_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 250,
+            "line": 217,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5679,7 +5679,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/bans/:user_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 140,
+            "line": 116,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5723,7 +5723,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/bans/:user_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 183,
+            "line": 150,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5767,7 +5767,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/bans/",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 29,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5810,7 +5810,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/bans/search",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 75,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
