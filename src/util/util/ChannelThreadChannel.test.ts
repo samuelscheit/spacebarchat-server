@@ -106,6 +106,7 @@ const originals = {
     channelFindOneOrFail: Channel.findOneOrFail,
     channelSave: Channel.prototype.save,
     guildFindOneOrFail: Guild.findOneOrFail,
+    guildInsertChannelInOrder: Guild.insertChannelInOrder,
     snowflakeGenerate: Snowflake.generate,
     threadMemberCreateForUser: ThreadMember.createForUser,
 };
@@ -120,6 +121,7 @@ afterEach(() => {
     });
     Object.assign(Guild, {
         findOneOrFail: originals.guildFindOneOrFail,
+        insertChannelInOrder: originals.guildInsertChannelInOrder,
     });
     Object.assign(Snowflake, {
         generate: originals.snowflakeGenerate,
@@ -217,5 +219,38 @@ describe("Channel.createThreadChannel", () => {
             findOneCalls.map((call) => call.where?.id),
             ["message-id"],
         );
+    });
+
+    test("keeps created threads out of guild channel ordering", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        let orderingCalls = 0;
+        Object.assign(Snowflake, {
+            generate: () => "generated-thread-id",
+        });
+        Object.assign(Guild, {
+            insertChannelInOrder: async () => {
+                orderingCalls += 1;
+                return 999;
+            },
+        });
+
+        const thread = await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "standalone-thread",
+                type: GUILD_PRIVATE_THREAD,
+            },
+            {},
+            "user",
+            { skipEventEmit: true, skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        assert.equal(thread.id, "generated-thread-id");
+        assert.equal(thread.guild_id, "guild");
+        assert.equal(thread.parent_id, "parent");
+        assert.equal(thread.position, 0);
+        assert.equal(orderingCalls, 0);
     });
 });
