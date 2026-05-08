@@ -866,7 +866,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     });
 
     //TODO send GUILD_MEMBER_LIST_UPDATE
-    //TODO send VOICE_STATE_UPDATE to let the client know if another device is already connected to a voice channel
     await setupListener.call(this);
     console.log(
         `[Gateway/${this.user_id}] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`,
