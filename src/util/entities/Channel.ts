@@ -343,23 +343,27 @@ export class Channel extends BaseClass {
             throw new HTTPError("createThreadChannel can only create thread channel types", 400);
         }
 
-        const exists = await Channel.findOne({
-            where: {
-                id: channel.id,
-            },
-        });
+        if (!channel.parent_id) throw new HTTPError("Parent id not set", 400);
+        const parent = await Channel.findOneOrFail({ where: { id: channel.parent_id } });
+        const parentGuildId = parent.guild_id;
+        if (!parentGuildId) throw new HTTPError("Parent channel guild id not set", 400);
+        if (channel.guild_id && channel.guild_id !== parentGuildId) throw new HTTPError("The thread channel needs to be in the same guild as the parent", 400);
 
-        const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
+        const [exists, guild] = await Promise.all([
+            Channel.findOne({
+                where: {
+                    id: channel.id,
+                },
+            }),
+            Guild.findOneOrFail({ where: { id: parentGuildId } }),
+        ]);
 
         if (!opts?.skipExistsCheck && !guild.features.includes(GuildFeature.AllowExistingThreadForMessage) && exists)
             throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
 
-        if (!channel.parent_id) throw new HTTPError("Parent id not set", 400);
-        const parent = await Channel.findOneOrFail({ where: { id: channel.parent_id } });
-
         if (!opts?.skipPermissionCheck) {
             // Always check if user has permission first
-            const permissions = await getPermission(user_id, parent.guild_id);
+            const permissions = await getPermission(user_id, parentGuildId);
             permissions.hasThrow(channel.type === ChannelType.GUILD_PRIVATE_THREAD ? "CREATE_PRIVATE_THREADS" : "CREATE_PUBLIC_THREADS");
         }
 
@@ -368,7 +372,7 @@ export class Channel extends BaseClass {
             permission_overwrites: parent.permission_overwrites,
             nsfw: parent.nsfw,
             owner_id: user_id,
-            guild_id: parent.guild_id,
+            guild_id: parentGuildId,
             thread_metadata: {
                 create_timestamp: new Date().toISOString(),
                 archive_timestamp: new Date().toISOString(),
@@ -380,13 +384,7 @@ export class Channel extends BaseClass {
             },
         };
 
-        if (!opts?.skipParentExistsCheck) {
-            if (!parent) throw new HTTPError("Parent channel doesn't exist", 400);
-            if (parent.guild_id !== channel.guild_id) throw new HTTPError("The category channel needs to be in the guild");
-        }
-
         if (!opts?.skipNameChecks) {
-            const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
             channel.name = normalizeThreadName(channel.name, guild.features);
             assertChannelNamePresent(channel.name, guild.features);
         }
@@ -395,6 +393,8 @@ export class Channel extends BaseClass {
 
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
+        const guildId = thread.guild_id;
+        if (!guildId) throw new HTTPError("Thread guild id not set", 500);
         const threadMember = await ThreadMember.createForUser(user_id, thread);
 
         if (!opts?.skipEventEmit) {
@@ -405,18 +405,18 @@ export class Channel extends BaseClass {
                         ...thread,
                         newly_created: true,
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadCreateEvent),
                 emitEvent({
                     event: "THREAD_MEMBERS_UPDATE",
                     data: {
-                        guild_id: channel.guild_id!, // TODO: is this the right fix?
+                        guild_id: guildId,
                         id: thread.id,
                         member_count: channel.member_count ?? 0, //TODO: is this the right fix?
                         added_members: [{ user_id, ...threadMember.toJSON() }],
                         removed_member_ids: [],
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadMembersUpdateEvent),
             ]);
         }
