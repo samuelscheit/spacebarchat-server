@@ -4,6 +4,11 @@ import Module from "node:module";
 
 type LoadFunction = (request: string, parent?: NodeJS.Module | null, isMain?: boolean) => unknown;
 type Range = [number, number];
+type MockSessionStatus = "idle" | "dnd" | "online" | "offline" | "invisible" | "unknown";
+
+interface MockSession {
+    status: MockSessionStatus;
+}
 
 interface MockMemberListOperation {
     items: unknown[];
@@ -51,7 +56,7 @@ const state: {
     channelOverwrites: { allow: string; deny: string; id: string }[] | undefined;
     getManyCalls: number;
     guildOwnerLookups: number;
-    includeOfflineLazyMembers: boolean;
+    includeOfflineLazyMembers: boolean | undefined;
     queryAndWhereCalls: { condition: string; params: unknown }[];
     guildMembers: unknown[];
     memberCount: number;
@@ -93,6 +98,12 @@ const queryBuilder = {
     },
     async getMany() {
         state.getManyCalls++;
+        if (state.queryAndWhereCalls.some(({ condition }) => condition === "session.status IS NOT NULL AND session.status NOT IN (:...offlineStatuses)")) {
+            return state.guildMembers.filter((member) =>
+                ((member as { user?: { sessions?: MockSession[] } }).user?.sessions ?? []).some((session) => !["offline", "invisible"].includes(session.status)),
+            );
+        }
+
         return state.guildMembers;
     },
     leftJoinAndSelect() {
@@ -260,13 +271,17 @@ function memberRole(id: string, permissions: string, position = 0) {
     return { guild_id: "guild", id, permissions, position };
 }
 
-function viewableMember(id: string, roles = [memberRole("guild", mockUtil.Permissions.FLAGS.VIEW_CHANNEL.toString())]) {
+function session(status: MockSessionStatus): MockSession {
+    return { status };
+}
+
+function viewableMember(id: string, roles = [memberRole("guild", mockUtil.Permissions.FLAGS.VIEW_CHANNEL.toString())], sessions: MockSession[] = []) {
     return {
         id,
         guild_id: "guild",
         communication_disabled_until: null,
         roles,
-        user: { flags: 0 },
+        user: { flags: 0, sessions },
     };
 }
 
@@ -369,6 +384,34 @@ describe("lazy request member list loading", () => {
         await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
 
         assert.deepEqual(state.queryAndWhereCalls, []);
+    });
+
+    test("keeps backward-compatible include-offline behavior when older configs omit the lazy member flag", async () => {
+        state.includeOfflineLazyMembers = undefined;
+
+        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.queryAndWhereCalls, []);
+    });
+
+    test("passes only members with non-offline sessions to the member list builder when offline lazy members are disabled", async () => {
+        state.includeOfflineLazyMembers = false;
+        state.guildMembers = [
+            viewableMember("online-user", undefined, [session("online")]),
+            viewableMember("offline-user", undefined, [session("offline")]),
+            viewableMember("no-session-user"),
+            viewableMember("mixed-user", undefined, [session("offline"), session("dnd")]),
+            viewableMember("invisible-user", undefined, [session("invisible")]),
+            viewableMember("idle-user", undefined, [session("idle")]),
+        ];
+
+        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
+
+        assert.deepEqual(
+            state.buildCalls[0].members.map((member) => (member as { id: string }).id),
+            ["online-user", "mixed-user", "idle-user"],
+        );
+        assert.equal(sentUpdate().d.member_count, 3);
     });
 
     test("keeps computed online count and groups when no ranges are requested", async () => {

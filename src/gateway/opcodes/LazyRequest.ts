@@ -26,10 +26,13 @@ import { unsubscribeGuildMemberEventIds } from "../listener/subscriptions";
 
 // TODO: rewrite typeorm
 
+const OFFLINE_LAZY_MEMBER_LIST_STATUSES = ["offline", "invisible"] as const;
+const ONLINE_LAZY_MEMBER_LIST_FILTER = "session.status IS NOT NULL AND session.status NOT IN (:...offlineStatuses)";
+
 async function getMembers(guild_id: string) {
     let members: Member[] = [];
     try {
-        const includeOffline = Config.get().gateway.lazyMemberListIncludeOffline;
+        const includeOffline = Config.get().gateway.lazyMemberListIncludeOffline !== false;
         const query = getDatabase()
             ?.getRepository(Member)
             .createQueryBuilder("member")
@@ -44,7 +47,7 @@ async function getMembers(guild_id: string) {
             .addOrderBy("user.username", "ASC");
 
         if (!includeOffline) {
-            query?.andWhere("session.status IS NOT NULL AND session.status NOT IN (:...offlineStatuses)", { offlineStatuses: ["offline", "invisible"] });
+            query?.andWhere(ONLINE_LAZY_MEMBER_LIST_FILTER, { offlineStatuses: [...OFFLINE_LAZY_MEMBER_LIST_STATUSES] });
         }
 
         members = (await query?.getMany()) ?? [];
