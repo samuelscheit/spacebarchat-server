@@ -519,6 +519,34 @@ function scanRouterCalls(source, externalEventsByCall = new Map()) {
     return calls;
 }
 
+function scanHashImageRouterCalls(source) {
+    const calls = [];
+    const regex = /\bcreateHashImageRouter\s*\(/g;
+
+    for (const match of source.matchAll(regex)) {
+        const open = source.indexOf("(", match.index);
+        const close = findMatching(source, open);
+        if (close === -1) continue;
+
+        const [optionsText] = splitTopLevelArguments(source.slice(open + 1, close));
+        if (!optionsText || !optionsText.trim().startsWith("{")) continue;
+
+        const resourceParam = parseStringLiteral(extractPropertyValue(optionsText, "resourceParam") || "");
+        if (!resourceParam) continue;
+
+        const line = lineOf(source, match.index);
+        const routeMetadata = { present: false };
+        calls.push(
+            { method: "POST", localPath: `/:${resourceParam}`, line, routeMetadata },
+            { method: "GET", localPath: `/:${resourceParam}`, line, routeMetadata },
+            { method: "GET", localPath: `/:${resourceParam}/:hash`, line, routeMetadata },
+            { method: "DELETE", localPath: `/:${resourceParam}/:id`, line, routeMetadata },
+        );
+    }
+
+    return calls;
+}
+
 function scanAppCalls(source, appVariable = "app", externalEventsByCall = new Map()) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
@@ -793,7 +821,7 @@ function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules, externalEve
         const routePrefix = routePathFromFile(routeRoot, file);
         const sourceFile = toPosix(path.relative(repoRoot, file));
 
-        for (const call of scanRouterCalls(source, externalEventsByCall)) {
+        for (const call of [...scanRouterCalls(source, externalEventsByCall), ...scanHashImageRouterCalls(source)]) {
             entries.push(
                 makeHttpEntry({
                     service,
@@ -1107,6 +1135,7 @@ module.exports = {
     parseRouteOptions,
     routePathFromFile,
     scanAppCalls,
+    scanHashImageRouterCalls,
     scanRouterCalls,
     serializeManifest,
     parseRegexLiteral,

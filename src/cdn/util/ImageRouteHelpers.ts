@@ -20,3 +20,17 @@ export function isAllowedImageMimeType(mimeType: string | undefined, allowedMime
 export function getCdnImagePath(pathPrefix: string, resourceId: string, hash?: string) {
     return hash ? `${pathPrefix}/${resourceId}/${stripFileExtension(hash)}` : `${pathPrefix}/${stripFileExtension(resourceId)}`;
 }
+
+export function getCdnImageHashPaths(pathPrefix: string, resourceId: string, hash: string, legacyExtensions: string[] = []) {
+    const basePath = getCdnImagePath(pathPrefix, resourceId, hash);
+    const paths = [basePath];
+    const requestedExtension = hash.includes(".") ? hash.split(".")[1] : undefined;
+    const extensions = requestedExtension && legacyExtensions.length ? [requestedExtension, ...legacyExtensions] : legacyExtensions;
+
+    for (const extension of extensions) {
+        const normalizedExtension = extension.replace(/^\./, "");
+        if (normalizedExtension) paths.push(`${basePath}.${normalizedExtension}`);
+    }
+
+    return [...new Set(paths)];
+}

@@ -3,10 +3,10 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 376,
+        "totalContracts": 408,
         "byService": {
             "api": 335,
-            "cdn": 41
+            "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 287,
         "runtimeMalformedAuthContracts": 287,
@@ -23,13 +23,13 @@
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
         "runtimeRateLimitHeaderContracts": 152,
-        "runtimeCdnMissingObjectContracts": 19,
-        "runtimeCdnHeadMissingObjectContracts": 19,
-        "runtimeCdnValidObjectContracts": 19,
-        "runtimeCdnSignatureRequiredContracts": 20,
-        "runtimeCdnDeleteContracts": 9,
-        "runtimeCdnUploadContracts": 9,
-        "runtimeCdnInvalidUploadContracts": 8,
+        "runtimeCdnMissingObjectContracts": 35,
+        "runtimeCdnHeadMissingObjectContracts": 35,
+        "runtimeCdnValidObjectContracts": 35,
+        "runtimeCdnSignatureRequiredContracts": 36,
+        "runtimeCdnDeleteContracts": 17,
+        "runtimeCdnUploadContracts": 17,
+        "runtimeCdnInvalidUploadContracts": 16,
         "runtimeCdnInternalAttachmentContracts": 3,
         "runtimeCdnSignedUrlContracts": 1,
         "runtimeCdnFilenameSanitizationContracts": 1
@@ -19945,6 +19945,374 @@
             ]
         },
         {
+            "manifestId": "cdn:http:GET:/app-assets/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id/:hash",
+            "samplePath": "/app-assets/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/app-assets/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-assets/:guild_id/:id",
+            "samplePath": "/app-assets/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/app-assets/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id",
+            "samplePath": "/app-assets/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/app-assets/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-assets/:guild_id",
+            "samplePath": "/app-assets/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/app-icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id/:hash",
+            "samplePath": "/app-icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/app-icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-icons/:guild_id/:id",
+            "samplePath": "/app-icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/app-icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id",
+            "samplePath": "/app-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/app-icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-icons/:guild_id",
+            "samplePath": "/app-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
             "manifestId": "cdn:http:GET:/attachments/:channel_id/:message_id/:filename",
             "service": "cdn",
             "method": "GET",
@@ -20408,6 +20776,558 @@
             "samplePath": "/banners/100000000000000001",
             "sourceFile": "src/cdn/routes/banners.ts",
             "line": 38,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/channel-icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id/:hash",
+            "samplePath": "/channel-icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/channel-icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/channel-icons/:guild_id/:id",
+            "samplePath": "/channel-icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/channel-icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id",
+            "samplePath": "/channel-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/channel-icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/channel-icons/:guild_id",
+            "samplePath": "/channel-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discover-splashes/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id/:hash",
+            "samplePath": "/discover-splashes/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/discover-splashes/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discover-splashes/:guild_id/:id",
+            "samplePath": "/discover-splashes/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discover-splashes/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id",
+            "samplePath": "/discover-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/discover-splashes/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discover-splashes/:guild_id",
+            "samplePath": "/discover-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discovery-splashes/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id/:hash",
+            "samplePath": "/discovery-splashes/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/discovery-splashes/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discovery-splashes/:guild_id/:id",
+            "samplePath": "/discovery-splashes/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/discovery-splashes/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id",
+            "samplePath": "/discovery-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/discovery-splashes/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discovery-splashes/:guild_id",
+            "samplePath": "/discovery-splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21229,6 +22149,190 @@
             ]
         },
         {
+            "manifestId": "cdn:http:GET:/icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id/:hash",
+            "samplePath": "/icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/icons/:guild_id/:id",
+            "samplePath": "/icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id",
+            "samplePath": "/icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/icons/:guild_id",
+            "samplePath": "/icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
             "manifestId": "cdn:http:GET:/ping/",
             "service": "cdn",
             "method": "GET",
@@ -21279,7 +22383,7 @@
             "path": "/role-icons/:role_id/:hash",
             "samplePath": "/role-icons/100000000000000005/abcdef",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 78,
+            "line": 28,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21323,7 +22427,7 @@
             "path": "/role-icons/:role_id/:id",
             "samplePath": "/role-icons/100000000000000005/value",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 100,
+            "line": 28,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21371,7 +22475,7 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 64,
+            "line": 28,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21415,7 +22519,191 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 40,
+            "line": 28,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/splashes/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id/:hash",
+            "samplePath": "/splashes/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/splashes/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/splashes/:guild_id/:id",
+            "samplePath": "/splashes/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/splashes/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id",
+            "samplePath": "/splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/splashes/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/splashes/:guild_id",
+            "samplePath": "/splashes/100000000000000001",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21556,6 +22844,190 @@
             "samplePath": "/stickers/100000000000000010",
             "sourceFile": "src/cdn/routes/stickers.ts",
             "line": 38,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/team-icons/:guild_id/:hash",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id/:hash",
+            "samplePath": "/team-icons/100000000000000001/abcdef",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:DELETE:/team-icons/:guild_id/:id",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/team-icons/:guild_id/:id",
+            "samplePath": "/team-icons/100000000000000001/value",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "cdn-mutation-auth",
+                    "checks": ["request-signature", "status"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:GET:/team-icons/:guild_id",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id",
+            "samplePath": "/team-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "cdn-hot-path",
+            "fixtureRequirements": ["files", "request-signature", "signed-urls"],
+            "contractChecks": ["upload-download-delete", "cache-headers", "mime", "missing-file", "oversized-upload"],
+            "routeMetadata": {
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "cdn-object-contract",
+                    "checks": ["missing-file", "mime", "cache-headers"]
+                },
+                {
+                    "id": "policy-upload-download-delete",
+                    "checks": ["upload-download-delete"]
+                },
+                {
+                    "id": "policy-oversized-upload",
+                    "checks": ["oversized-upload"]
+                }
+            ]
+        },
+        {
+            "manifestId": "cdn:http:POST:/team-icons/:guild_id",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/team-icons/:guild_id",
+            "samplePath": "/team-icons/100000000000000001",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
