@@ -32,7 +32,7 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
+import { CLOSECODES, GatewayShard, isGuildOnShard, OPCODES, Send, sendReconnectAndClose } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
@@ -145,6 +145,12 @@ export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string
     return true;
 }
 
+function getSocketShard(socket: WebSocket): GatewayShard | undefined {
+    if (socket.shard_id == null || socket.shard_count == null) return undefined;
+
+    return { id: socket.shard_id, count: socket.shard_count };
+}
+
 function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionData) {
     const member = guild.members?.find((member) => member.user?.id === userId || member.id === userId);
     const roleIds = member?.roles?.length ? member.roles : [guild.id];
@@ -204,7 +210,8 @@ export async function setupListener(this: WebSocket) {
             }),
         ]);
 
-        const guilds = members.map((x) => x.guild);
+        const gatewayShard = getSocketShard(this);
+        const guilds = members.map((x) => x.guild).filter((guild) => isGuildOnShard(guild.id, gatewayShard));
         const dm_channels = recipients.map((x) => x.channel);
 
         if (RabbitMQ.connection) {
@@ -334,6 +341,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
     opts.acknowledge?.();
     const eventRouteId = getEventRouteId(opts);
     if (eventRouteId && !this.events[eventRouteId]) return;
+
+    const eventGuildId = guildId ?? (event.startsWith("GUILD_") ? id : undefined);
+    if (eventGuildId && !isGuildOnShard(eventGuildId, getSocketShard(this))) return;
     // console.log("event", event);
 
     // deduplicate gateway messages
