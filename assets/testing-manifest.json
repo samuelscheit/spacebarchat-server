@@ -11388,12 +11388,14 @@
             "method": "POST",
             "path": "/track/",
             "sourceFile": "src/api/routes/track.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
-                "responseStatuses": [],
+                "responseStatuses": [
+                    204
+                ],
                 "hasQuery": false
             },
             "coverage": {

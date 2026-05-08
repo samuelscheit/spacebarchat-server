@@ -14843,7 +14843,7 @@
             "path": "/science/",
             "samplePath": "/science/",
             "sourceFile": "src/api/routes/science.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -15517,7 +15517,7 @@
             "path": "/track/",
             "samplePath": "/track/",
             "sourceFile": "src/api/routes/track.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -15525,7 +15525,7 @@
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [204]
             },
             "cases": [
                 {

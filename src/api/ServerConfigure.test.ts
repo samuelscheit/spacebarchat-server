@@ -21,6 +21,16 @@ describe("SpacebarServer.configureApp", () => {
             const pingBody = (await apiPing.json()) as { ping: string };
             assert.equal(pingBody.ping, "pong!");
 
+            for (const telemetryPath of ["/science?events=1", "/track?source=client"]) {
+                const telemetry = await fetch(`http://127.0.0.1:${port}/api/v9${telemetryPath}`, {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ events: [{ type: "client_heartbeat" }] }),
+                });
+                assert.equal(telemetry.status, 204);
+                assert.equal(await telemetry.text(), "");
+            }
+
             const openapi = await fetch(`http://127.0.0.1:${port}/_spacebar/api/openapi.json`);
             assert.equal(openapi.status, 200);
             await openapi.arrayBuffer();
