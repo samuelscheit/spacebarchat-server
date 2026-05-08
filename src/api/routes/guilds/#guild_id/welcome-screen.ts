@@ -51,7 +51,9 @@ router.patch(
         requestBody: "GuildUpdateWelcomeScreenSchema",
         permission: "MANAGE_GUILD",
         responses: {
-            204: {},
+            200: {
+                body: "GuildWelcomeScreen",
+            },
             400: {
                 body: "APIErrorResponse",
             },
