@@ -24,12 +24,12 @@ import { EntityNotFoundError, In } from "typeorm";
 
 const router = Router({ mergeParams: true });
 
-export async function assertChannelOverridesExist(channel_overrides: NonNullable<UserGuildSettingsSchema["channel_overrides"]>) {
+export async function assertChannelOverridesExist(guild_id: string, channel_overrides: NonNullable<UserGuildSettingsSchema["channel_overrides"]>) {
     const channelIds = Object.keys(channel_overrides);
     if (!channelIds.length) return;
 
     const channels = await Channel.find({
-        where: { id: In(channelIds) },
+        where: { guild_id, id: In(channelIds) },
         select: { id: true },
     });
     if (channels.length === channelIds.length) return;
@@ -75,7 +75,7 @@ router.patch(
         const body = req.body as UserGuildSettingsSchema;
 
         if (body.channel_overrides) {
-            await assertChannelOverridesExist(body.channel_overrides);
+            await assertChannelOverridesExist(req.params.guild_id as string, body.channel_overrides);
         }
 
         const user = await Member.findOneOrFail({

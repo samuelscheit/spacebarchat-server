@@ -50,6 +50,7 @@
                         "test/scenarios/users-profile-settings.test.ts",
                         "test/scenarios/users-relationships.test.ts",
                         "test/scenarios/users-notes.test.ts",
+                        "test/scenarios/users-guild-settings-route.test.ts",
                         "test/scenarios/users-supplemental.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",

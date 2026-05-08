@@ -1,17 +1,12 @@
 import assert from "node:assert/strict";
-import { afterEach, describe, test } from "node:test";
+import { describe, test } from "node:test";
 import { EntityNotFoundError, type FindManyOptions } from "typeorm";
 import { Channel } from "@spacebar/util";
-import { assertChannelOverridesExist } from "../../../routes/users/@me/guilds/#guild_id/settings.js";
+import { assertChannelOverridesExist } from "../../src/api/routes/users/@me/guilds/#guild_id/settings.js";
 
 type ChannelFindOptions = FindManyOptions<InstanceType<typeof Channel>>;
 
-const originalChannelFind = Channel.find;
 const mute_config = { end_time: 0, selected_time_window: 0 };
-
-afterEach(() => {
-    Channel.find = originalChannelFind;
-});
 
 function getFindOperatorValue(operator: unknown) {
     assert.equal(typeof operator, "object");
@@ -23,29 +18,30 @@ function getFindOperatorValue(operator: unknown) {
 }
 
 describe("assertChannelOverridesExist", () => {
-    test("queries all override channel ids in one lookup", async () => {
+    test("queries all override channel ids in one guild-scoped lookup", async (t) => {
         const findCalls: ChannelFindOptions[] = [];
-        Channel.find = (async (options: ChannelFindOptions) => {
+        t.mock.method(Channel, "find", async (options: ChannelFindOptions) => {
             findCalls.push(options);
             return [{ id: "channel-a" }, { id: "channel-b" }] as InstanceType<typeof Channel>[];
-        }) as typeof Channel.find;
+        });
 
-        await assertChannelOverridesExist({
+        await assertChannelOverridesExist("guild-a", {
             "channel-a": { channel_id: "channel-a", message_notifications: 1, mute_config, muted: false },
             "channel-b": { channel_id: "channel-b", message_notifications: 2, mute_config, muted: true },
         });
 
         assert.equal(findCalls.length, 1);
         assert.deepEqual(findCalls[0].select, { id: true });
+        assert.equal((findCalls[0].where as { guild_id: string }).guild_id, "guild-a");
         assert.deepEqual(getFindOperatorValue((findCalls[0].where as { id: unknown }).id), ["channel-a", "channel-b"]);
     });
 
-    test("rejects when any override channel id does not exist", async () => {
-        Channel.find = (async () => [{ id: "channel-a" }] as InstanceType<typeof Channel>[]) as typeof Channel.find;
+    test("rejects when any override channel id does not exist in the guild", async (t) => {
+        t.mock.method(Channel, "find", async () => [{ id: "channel-a" }] as InstanceType<typeof Channel>[]);
 
         await assert.rejects(
             () =>
-                assertChannelOverridesExist({
+                assertChannelOverridesExist("guild-a", {
                     "channel-a": { channel_id: "channel-a", message_notifications: 1, mute_config, muted: false },
                     missing: { channel_id: "missing", message_notifications: 1, mute_config, muted: false },
                 }),
@@ -57,15 +53,11 @@ describe("assertChannelOverridesExist", () => {
         );
     });
 
-    test("does not query when no override ids are present", async () => {
-        let findCalled = false;
-        Channel.find = (async () => {
-            findCalled = true;
-            return [];
-        }) as typeof Channel.find;
+    test("does not query when no override ids are present", async (t) => {
+        const findMock = t.mock.method(Channel, "find", async () => [] as InstanceType<typeof Channel>[]);
 
-        await assertChannelOverridesExist({});
+        await assertChannelOverridesExist("guild-a", {});
 
-        assert.equal(findCalled, false);
+        assert.equal(findMock.mock.callCount(), 0);
     });
 });
