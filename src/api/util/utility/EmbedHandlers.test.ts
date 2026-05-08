@@ -14,9 +14,11 @@ delete process.env.EVENT_TRANSMISSION;
 
 const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
+const imagorServerUrl = "https://imagor.example.com";
+const imagorSecret = "test-secret";
 
 async function loadEmbedModules() {
-    const util = await import("../../../util/index.js");
+    const util = require("@spacebar/util") as UtilModule;
     const handlers = await import("./EmbedHandlers.js");
 
     return {
@@ -30,10 +32,24 @@ async function loadEmbedModules() {
     };
 }
 
-async function createLocalPixivFixture(t: TestContext) {
+async function createLocalPixivFixture(t: TestContext, options: { failImageProbe?: boolean } = {}) {
     const image = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
     const server = createServer((req, res) => {
-        if (req.url === "/preview.png") {
+        const requestUrl = new URL(req.url ?? "/", "http://fixture.local");
+
+        if (requestUrl.pathname === "/preview.png") {
+            if (options.failImageProbe) {
+                res.writeHead(403, { "content-type": "text/plain" });
+                res.end("Image probe denied");
+                return;
+            }
+
+            if (req.headers.referer !== `http://${req.headers.host}/`) {
+                res.writeHead(403, { "content-type": "text/plain" });
+                res.end("Pixiv-style image requests must include the artwork page as referer");
+                return;
+            }
+
             res.writeHead(200, {
                 "content-type": "image/png",
                 "content-length": image.length,
@@ -48,7 +64,7 @@ async function createLocalPixivFixture(t: TestContext) {
                 <head>
                     <meta property="og:title" content="Pixiv sample">
                     <meta property="og:description" content="Artwork preview">
-                    <meta property="og:image" content="/preview.png">
+                    <meta property="og:image" content="/preview.png?illust_id=123&amp;mdate=456">
                 </head>
             </html>`);
     });
@@ -60,6 +76,18 @@ async function createLocalPixivFixture(t: TestContext) {
 
     const { port } = server.address() as AddressInfo;
     return `http://127.0.0.1:${port}`;
+}
+
+function imagorSignature(path: string) {
+    return crypto.createHmac("sha1", imagorSecret).update(path).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+function signedImagorUrl(path: string) {
+    return `${imagorServerUrl}/${imagorSignature(path)}/${path}`;
+}
+
+function b64SourceUrl(url: string) {
+    return `b64:${Buffer.from(url).toString("base64url")}`;
 }
 
 function createMessage(content: string, embeds: Embed[]) {
@@ -163,16 +191,30 @@ describe("getProxyUrl", () => {
     test("generates signed Imagor URLs for proxied embed images", async (t) => {
         const { Config, getProxyUrl } = await loadEmbedModules();
         const config = Config.get();
-        config.cdn.imagorServerUrl = "https://imagor.example.com";
+        config.cdn.imagorServerUrl = imagorServerUrl;
         config.cdn.resizeWidthMax = 1000;
         config.cdn.resizeHeightMax = 1000;
-        config.security.requestSignature = "test-secret";
+        config.security.requestSignature = imagorSecret;
         t.mock.method(Config, "get", () => config);
 
         const path = "600x800/i.pximg.net/img-original/img/2026/05/08/00/00/00/123456789_p0.png";
-        const hash = crypto.createHmac("sha1", "test-secret").update(path).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
 
-        assert.equal(getProxyUrl(new URL("https://i.pximg.net/img-original/img/2026/05/08/00/00/00/123456789_p0.png"), 600, 800), `https://imagor.example.com/${hash}/${path}`);
+        assert.equal(getProxyUrl(new URL("https://i.pximg.net/img-original/img/2026/05/08/00/00/00/123456789_p0.png"), 600, 800), signedImagorUrl(path));
+    });
+
+    test("encodes query-bearing source URLs before signing Imagor proxy paths", async (t) => {
+        const { Config, getProxyUrl } = await loadEmbedModules();
+        const config = Config.get();
+        config.cdn.imagorServerUrl = imagorServerUrl;
+        config.cdn.resizeWidthMax = 1200;
+        config.cdn.resizeHeightMax = 630;
+        config.security.requestSignature = imagorSecret;
+        t.mock.method(Config, "get", () => config);
+
+        const source = "https://embed.pixiv.net/artwork.php?illust_id=123&mdate=456";
+        const path = `1200x630/${b64SourceUrl(source)}`;
+
+        assert.equal(getProxyUrl(new URL(source), 1200, 630), signedImagorUrl(path));
     });
 });
 
@@ -181,15 +223,15 @@ describe("Pixiv embeds", () => {
         const { Config, EmbedHandlers } = await loadEmbedModules();
         const fixtureOrigin = await createLocalPixivFixture(t);
         const config = Config.get();
-        config.cdn.imagorServerUrl = "https://imagor.example.com";
+        config.cdn.imagorServerUrl = imagorServerUrl;
         config.cdn.resizeWidthMax = 1000;
         config.cdn.resizeHeightMax = 1000;
-        config.security.requestSignature = "test-secret";
+        config.security.requestSignature = imagorSecret;
         t.mock.method(Config, "get", () => config);
 
         const embed = await EmbedHandlers["www.pixiv.net"](new URL(`${fixtureOrigin}/artworks/123`));
-        const proxyPath = `1x1/127.0.0.1:${new URL(fixtureOrigin).port}/preview.png`;
-        const hash = crypto.createHmac("sha1", "test-secret").update(proxyPath).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
+        const imageUrl = `${fixtureOrigin}/preview.png?illust_id=123&mdate=456`;
+        const proxyPath = `1x1/${b64SourceUrl(imageUrl)}`;
 
         assert.deepEqual(embed, {
             url: `${fixtureOrigin}/artworks/123`,
@@ -197,16 +239,29 @@ describe("Pixiv embeds", () => {
             title: "Pixiv sample",
             description: "Artwork preview",
             image: {
-                url: `${fixtureOrigin}/preview.png`,
+                url: imageUrl,
                 width: 1,
                 height: 1,
-                proxy_url: `https://imagor.example.com/${hash}/${proxyPath}`,
+                proxy_url: signedImagorUrl(proxyPath),
             },
             provider: {
                 url: "https://pixiv.net",
                 name: "Pixiv",
             },
         });
+    });
+
+    test("returns null when Pixiv image dimensions cannot be probed", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        const fixtureOrigin = await createLocalPixivFixture(t, { failImageProbe: true });
+        const config = Config.get();
+        config.cdn.imagorServerUrl = imagorServerUrl;
+        config.cdn.resizeWidthMax = 1000;
+        config.cdn.resizeHeightMax = 1000;
+        config.security.requestSignature = imagorSecret;
+        t.mock.method(Config, "get", () => config);
+
+        assert.equal(await EmbedHandlers["www.pixiv.net"](new URL(`${fixtureOrigin}/artworks/123`)), null);
     });
 });
 
