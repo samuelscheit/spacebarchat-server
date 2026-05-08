@@ -31,11 +31,13 @@ import {
     Recipient,
     Relationship,
     Role,
+    UserUpdateEvent,
+    profilePronouns,
 } from "@spacebar/util";
 import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
-import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
+import { PublicChannel, PublicMember, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { bgRedBright } from "picocolors";
 import {
     getEventRouteId,
@@ -73,16 +75,26 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
     return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
 }
 
-export function canDispatchGuildUserUpdate(guildMemberEventIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
+export function canDispatchGuildUserUpdate(memberEventGuildIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
     if (!updatedUserId) return false;
 
-    return Object.values(guildMemberEventIds).some((userIds) => userIds.has(updatedUserId));
+    return !!memberEventGuildIds[updatedUserId]?.size;
 }
 
-export function canDispatchUserUpdate(events: Record<string, unknown>, guildMemberEventIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
+export function canDispatchUserUpdate(events: Record<string, unknown>, memberEventGuildIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
     if (!updatedUserId) return false;
 
-    return Boolean(events[updatedUserId]) || canDispatchGuildUserUpdate(guildMemberEventIds, updatedUserId);
+    return Boolean(events[updatedUserId]) || canDispatchGuildUserUpdate(memberEventGuildIds, updatedUserId);
+}
+
+export function toPublicUserUpdateData(data: UserUpdateEvent["data"]) {
+    if (typeof data.toPublicUser === "function") return data.toPublicUser();
+
+    const source = data as unknown as Record<string, unknown>;
+    const user = Object.fromEntries(PublicUserProjection.map((field) => [field, source[field]])) as PublicUser;
+    user.pronouns = profilePronouns(source.pronouns as string | null | undefined);
+
+    return user;
 }
 
 // TODO: close connection on Invalidated Token
@@ -106,11 +118,11 @@ export function handlePresenceUpdate(this: WebSocket, opts: EventOpts) {
         });
     }
 
-    if (event === EVENTEnum.UserUpdate && canDispatchUserUpdate(this.events, this.guild_member_event_ids, data.id)) {
+    if (event === EVENTEnum.UserUpdate && canDispatchUserUpdate(this.events, this.member_event_guild_ids, data.id)) {
         return Send(this, {
             op: OPCODES.Dispatch,
             t: event,
-            d: data,
+            d: toPublicUserUpdateData(data),
             s: this.sequence++,
         });
     }
@@ -139,6 +151,33 @@ async function subscribeEvent(this: WebSocket, eventId: string, callback: (event
     if (guildId) trackGuildEventId(this.guild_event_ids, guildId, eventId);
 }
 
+export async function subscribeDirectUserEvent(this: WebSocket, userId: string, opts: ListenEventOpts) {
+    if (this.events[userId]) return;
+
+    const memberUnsubscribe = this.member_events[userId];
+    if (memberUnsubscribe) {
+        delete this.member_events[userId];
+        this.events[userId] = memberUnsubscribe;
+        return;
+    }
+
+    await subscribeEvent.call(this, userId, handlePresenceUpdate.bind(this), opts);
+}
+
+export async function unsubscribeDirectUserEvent(this: WebSocket, userId: string) {
+    const unsubscribe = this.events[userId];
+    if (!unsubscribe) return;
+
+    delete this.events[userId];
+
+    if (this.member_event_guild_ids[userId]?.size && !this.member_events[userId]) {
+        this.member_events[userId] = unsubscribe;
+        return;
+    }
+
+    await unsubscribe();
+}
+
 export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string, userId: string) {
     if (hasGuildMemberEventId(this.guild_member_event_ids, guildId, userId)) return false;
 
@@ -147,9 +186,10 @@ export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string
         return false;
     }
 
+    trackGuildMemberEventId(this.guild_member_event_ids, this.member_event_guild_ids, guildId, userId);
+
     if (this.events[userId]) return false; // already subscribed as friend
 
-    trackGuildMemberEventId(this.guild_member_event_ids, this.member_event_guild_ids, guildId, userId);
     const unsubscribe = await listenEvent(userId, handlePresenceUpdate.bind(this), this.listen_options);
 
     if (!hasGuildMemberEventId(this.guild_member_event_ids, guildId, userId)) {
@@ -242,7 +282,7 @@ export async function setupListener(this: WebSocket) {
 
         await Promise.all(
             relationships.map(async (relationship) => {
-                await subscribeEvent.call(this, relationship.to_id, handlePresenceUpdate.bind(this), opts);
+                await subscribeDirectUserEvent.call(this, relationship.to_id, opts);
             }),
         );
 
@@ -397,7 +437,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
             await unsubscribeGuildMemberEventIds(this.member_events, this.guild_member_event_ids, this.member_event_guild_ids, guildId, [data.user.id]);
             break;
         case "RELATIONSHIP_REMOVE":
-            await unsubscribeEventIds(this.events, [id]);
+            await unsubscribeDirectUserEvent.call(this, id);
             break;
         case "CHANNEL_DELETE":
             untrackGuildEventId(this.guild_event_ids, guildId, id);
@@ -426,7 +466,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
             await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
             break;
         case "RELATIONSHIP_ADD":
-            await subscribeEvent.call(this, data.user.id, handlePresenceUpdate.bind(this), this.listen_options);
+            await subscribeDirectUserEvent.call(this, data.user.id, this.listen_options);
             break;
         case "GUILD_CREATE": {
             const guildPermission = getGuildCreatePermission(this.user_id, data as GuildCreatePermissionData);
