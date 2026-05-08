@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, Config, generateToken, Guild, initDatabase, Member, Role, User } from "@spacebar/util";
+import { closeDatabase, Config, generateToken, Guild, GuildFeature, initDatabase, Member, Role, User } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -114,7 +114,7 @@ test(
             const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `roles-${suffix.slice(-8)}` }, ownerToken);
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
-            await Guild.update({ id: guildId }, { features: ["DISCOVERABLE"] });
+            await Guild.update({ id: guildId }, { features: [GuildFeature.Discoverable] });
             events = await captureEvents([guildId, member.id]);
 
             const joinGuild = await putJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, {}, memberToken);

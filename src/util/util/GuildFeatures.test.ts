@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { describe, test } from "node:test";
 import { GuildFeature, getVanityUrlFeatureState, setVanityUrlFeature } from "./GuildFeatures";
 
@@ -6,6 +8,16 @@ describe("Guild feature helpers", () => {
     test("keeps enum values compatible with stored guild feature strings", () => {
         assert.equal(GuildFeature.Discoverable, "DISCOVERABLE");
         assert.equal(GuildFeature.VanityUrl, "VANITY_URL");
+    });
+
+    test("covers every public guild feature string in the feature manifest", () => {
+        const publicFeatures = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "public", "features.json"), "utf8")) as string[];
+        const enumValues = new Set(Object.values(GuildFeature));
+
+        assert.deepEqual(
+            publicFeatures.filter((feature) => !enumValues.has(feature as GuildFeature)),
+            [],
+        );
     });
 
     test("removes VANITY_URL when a guild has no vanity URL", () => {

@@ -4875,7 +4875,7 @@
             "features": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "$ref": "#/definitions/GuildFeature"
                 }
             },
             "preferred_locale": {
@@ -10155,7 +10155,9 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": "number",
+                "properties": {},
+                "additionalProperties": false
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -10174,7 +10176,9 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "type": "number",
+                    "properties": {},
+                    "additionalProperties": false
                 }
             },
             "guild_subscriptions": {
@@ -15002,7 +15006,7 @@
             "features": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "$ref": "#/definitions/GuildFeature"
                 },
                 "default": []
             },
@@ -15268,6 +15272,43 @@
             "id",
             "user",
             "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildFeature": {
+        "type": "string",
+        "enum": [
+            "ALIASABLE_NAMES",
+            "ALLOW_EXISTING_THREAD_FOR_MESSAGE",
+            "ALLOW_INVALID_CHANNEL_NAMES",
+            "ALLOW_UNNAMED_CHANNELS",
+            "ANIMATED_ICON",
+            "BANNER",
+            "COMMERCE",
+            "COMMUNITY",
+            "DISCOVERABLE",
+            "DISCOVERABLE_DISABLED",
+            "ENABLED_DISCOVERABLE_BEFORE",
+            "HUB",
+            "INTERNAL_EMPLOYEE_ONLY",
+            "INVITE_SPLASH",
+            "INVITES_DISABLED",
+            "IRC_LIKE_CATEGORY_NAMES",
+            "MONETIZATION_ENABLED",
+            "MORE_EMOJI",
+            "MORE_STICKERS",
+            "NEWS",
+            "PARTNERED",
+            "PREVIEW_ENABLED",
+            "PRIVATE_THREADS",
+            "SEVEN_DAY_THREAD_ARCHIVE",
+            "THREE_DAY_THREAD_ARCHIVE",
+            "THREADS_ENABLED",
+            "TICKETED_EVENTS_ENABLED",
+            "VANITY_URL",
+            "VERIFIED",
+            "VIP_REGIONS",
+            "WELCOME_SCREEN_ENABLED"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -19701,7 +19742,7 @@
             "defaultFeatures": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "$ref": "#/definitions/GuildFeature"
                 },
                 "default": []
             },
