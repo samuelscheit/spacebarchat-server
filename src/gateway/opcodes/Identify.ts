@@ -81,6 +81,7 @@ import {
 import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { hasLoadedDmChannel } from "../util/DmRecipient";
+import { buildReadySupplementalGuilds } from "../util/ReadySupplemental";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
@@ -91,7 +92,6 @@ import {
     buildIdentifyBotReadyGuildPlaceholder,
     buildIdentifyPendingGuildCreateData,
     IdentifyPendingGuildCreateData,
-    serializeIdentifyReadyVoiceState,
 } from "../util/IdentifyGuildCreate";
 
 export async function onIdentify(this: WebSocket, data: Payload) {
@@ -822,11 +822,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         }),
     );
 
-    const readySupplementalGuilds = (guilds.filter((guild) => !guild.unavailable) as Guild[]).map((guild) => ({
-        voice_states: guild.voice_states.map(serializeIdentifyReadyVoiceState),
-        id: guild.id,
-        embedded_activities: [],
-    }));
+    const readySupplementalGuilds = buildReadySupplementalGuilds(guilds);
 
     // TODO: ready supplemental
     await Send(this, {
@@ -848,7 +844,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     });
 
     //TODO send GUILD_MEMBER_LIST_UPDATE
-    //TODO send VOICE_STATE_UPDATE to let the client know if another device is already connected to a voice channel
     await setupListener.call(this);
     console.log(
         `[Gateway/${this.user_id}] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`,
