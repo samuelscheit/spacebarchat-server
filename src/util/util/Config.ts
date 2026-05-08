@@ -17,7 +17,7 @@
 */
 
 import fs from "node:fs/promises";
-import { OrmUtils } from "..";
+import { OrmUtils } from "../imports/OrmUtils";
 import {
     DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS,
     DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT,
@@ -27,7 +27,7 @@ import {
     isValidGatewayHeartbeatTimeout,
     isValidGuildSyncMemberMode,
 } from "../config";
-import { ConfigEntity } from "../entities";
+import { ConfigEntity } from "../entities/Config";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
 import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";

@@ -20,7 +20,7 @@ import { Channel } from "amqplib";
 import { RabbitMQ } from "./RabbitMQ";
 import { decodeRabbitMqPayload, encodeRabbitMqPayload } from "./RabbitMqPayloadCodec";
 import EventEmitter from "node:events";
-import { EVENT, Event } from "../interfaces";
+import type { EVENT, Event } from "../interfaces/Event";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import net, { Socket } from "node:net";

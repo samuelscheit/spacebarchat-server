@@ -33,6 +33,10 @@ export interface Storage {
 
 let configuredStorage: Storage | undefined;
 
+export function ensureFileStorageDirectory(location: string) {
+    fs.mkdirSync(location, { recursive: true });
+}
+
 function getInitializedStorage(): Storage {
     if (!configuredStorage) throw new Error("CDN storage has not been initialized. Call initializeStorage() during server startup before using storage.");
     return configuredStorage;
@@ -59,7 +63,7 @@ export function initializeStorage(): Storage {
             location = path.join(process.cwd(), "files");
         }
 
-        fs.mkdirSync(location, { recursive: true });
+        ensureFileStorageDirectory(location);
         process.env.STORAGE_LOCATION = location;
 
         configuredStorage = new FileStorage();

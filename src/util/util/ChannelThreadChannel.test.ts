@@ -106,13 +106,35 @@ const utilMock = {
     getDatabase: () => null,
     getPermission: async () => ({ hasThrow: () => undefined }),
     handleFile: async () => undefined,
+    isGuildOwner: () => false,
+    normalizeChannelName: (value?: string) => value,
+    normalizeThreadName: (value?: string) => value,
+    assertChannelNamePresent: () => undefined,
     trimSpecial: (value?: string) => value,
 };
 
-for (const path of [localRequire.resolve("."), localRequire.resolve("..")]) {
+function mockModule(path: string, exports: unknown) {
     (localRequire.cache as Record<string, { exports: unknown } | undefined>)[path] = {
-        exports: utilMock,
+        exports,
     };
+}
+
+for (const path of [localRequire.resolve("."), localRequire.resolve("..")]) {
+    mockModule(path, utilMock);
+}
+
+for (const [path, moduleExports] of [
+    [localRequire.resolve("./ChannelName"), utilMock],
+    [localRequire.resolve("./Config"), { Config: utilMock.Config }],
+    [localRequire.resolve("./Constants"), { DiscordApiErrors: utilMock.DiscordApiErrors }],
+    [localRequire.resolve("./Database"), { getDatabase: utilMock.getDatabase }],
+    [localRequire.resolve("./Event"), { emitEvent: utilMock.emitEvent }],
+    [localRequire.resolve("./GuildFeatures"), { GuildFeature: utilMock.GuildFeature }],
+    [localRequire.resolve("./Permissions"), utilMock],
+    [localRequire.resolve("./String"), { trimSpecial: utilMock.trimSpecial }],
+    [localRequire.resolve("./cdn"), { handleFile: utilMock.handleFile }],
+] as const) {
+    mockModule(path, moduleExports);
 }
 
 const { Channel } = localRequire("../entities/Channel") as { Channel: ChannelClass };
