@@ -54,9 +54,10 @@ const representativePublicMember = {
 
 describe("PublicMember schema", () => {
     test("projection remains covered by the explicit API member shape", () => {
-        const projected: Pick<PublicMember, PublicMemberKeys> = Object.fromEntries(
-            PublicMemberProjection.map((key) => [key, representativePublicMember[key]]),
-        ) as Pick<PublicMember, PublicMemberKeys>;
+        const projected: Pick<PublicMember, PublicMemberKeys> = Object.fromEntries(PublicMemberProjection.map((key) => [key, representativePublicMember[key]])) as Pick<
+            PublicMember,
+            PublicMemberKeys
+        >;
 
         assert.deepEqual(Object.keys(projected).sort(), [...PublicMemberProjection].sort());
         assert.deepEqual(projected.roles, ["role-id"]);
