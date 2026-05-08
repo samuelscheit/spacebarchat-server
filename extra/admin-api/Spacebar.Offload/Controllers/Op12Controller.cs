@@ -1,6 +1,7 @@
 using System.Collections.Frozen;
 using System.Text.Json;
 using ArcaneLibs.Extensions;
+using Spacebar.GatewayOffload.Extensions.Gateway;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Spacebar.DataMappings.Generic;
@@ -9,7 +10,6 @@ using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.Models.Db.Contexts;
 using Spacebar.Models.Gateway;
 using Spacebar.Models.Generic;
-using Spacebar.GatewayOffload.Extensions.Gateway;
 
 namespace Spacebar.GatewayOffload.Controllers;
 
@@ -40,7 +40,6 @@ public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
         }
     }
 
-
     private async Task<GuildSyncResponse> GetGuildSyncAsync(long guildId)
     {
         await using var sc = sp.CreateAsyncScope();
@@ -52,10 +51,9 @@ public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
 
         var members = await _db.Members.AsNoTracking().Where(x => x.GuildId == guildId)
             .Include(x => x.IdNavigation)
-            .ThenInclude(x => x.Sessions.Where(s =>
-                !s.IsAdminSession &&
-                !GuildSyncSessionFilters.ExcludedPresenceStatuses.Contains(s.Status) &&
-                (!isLargeGuild || s.LastSeen >= offlineTreshold)))
+            .ThenInclude(x => x.Sessions.AsQueryable()
+                .Where(SessionPresenceProjection.IsPubliclyOnlineExpression)
+                .Where(s => !s.IsAdminSession && (!isLargeGuild || s.LastSeen >= offlineTreshold)))
             .Where(x => x.IdNavigation.Sessions.Count > 0) // ignore members without sessions
             .ToListAsync();
 
@@ -69,7 +67,7 @@ public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
             {
                 GuildId = guildId,
                 User = mappedPartialUsers[x.Id],
-                Activities = x.Sessions.Where(GuildSyncSessionFilters.IsOnline)
+                Activities = x.Sessions.Where(SessionPresenceProjection.IsPubliclyOnline)
                     .SelectMany(s => JsonSerializer.Deserialize<Activity[]>(s.Activities) ?? []).ToList(),
                 Status = sortedSessions.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Status))?.Status ?? "offline",
                 ClientStatus = JsonSerializer.Deserialize<Presence.ClientStatuses>(sortedSessions.First(s => !string.IsNullOrWhiteSpace(s.ClientStatus)).ClientStatus) ??
