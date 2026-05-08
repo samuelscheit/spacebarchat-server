@@ -52,8 +52,6 @@ router.post(
             }
         }
 
-        // TODO: decrement guild member count
-
         if (correctpass) {
             // Check if the user owns any guilds.
             const ownedGuilds = await Guild.findOne({ where: { owner_id: req.user_id } });
@@ -63,7 +61,8 @@ router.post(
 
             const members = await Member.find({ where: { id: req.user_id } });
             await UserSettingsProtos.delete({ user_id: req.user_id });
-            await Promise.all([User.delete({ id: req.user_id }), ...members.map((member) => Member.removeFromGuild(member.id, member.guild_id))]);
+            await Promise.all(members.map((member) => Member.removeFromGuild(member.id, member.guild_id)));
+            await User.delete({ id: req.user_id });
 
             res.sendStatus(204);
         } else {
