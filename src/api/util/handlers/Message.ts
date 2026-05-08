@@ -63,7 +63,7 @@ import {
     Embed,
     EmbedType,
     MessageComponentType,
-    MessageCreateAttachment,
+    MessageCreateAttachmentMetadata,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
     MessageType,
@@ -725,7 +725,7 @@ export async function sendMessage(opts: MessageOptions) {
     return message;
 }
 
-type MessageOptionAttachment = MessageCreateAttachment | MessageCreateCloudAttachment | Attachment;
+type MessageOptionAttachment = MessageCreateAttachmentMetadata | Attachment;
 interface MessageOptions extends MessageCreateSchema {
     id?: string;
     type?: MessageType;
@@ -736,7 +736,7 @@ interface MessageOptions extends MessageCreateSchema {
     embeds?: Embed[] | null;
     reactions?: StoredReaction[];
     channel_id?: string;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
+    attachments?: MessageOptionAttachment[]; // why are we masking this?
     attachment_user_id?: string;
     attachment_channel_ids?: string[];
     cloud_attachment_upload_channel_id?: string;

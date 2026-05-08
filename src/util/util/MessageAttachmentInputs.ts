@@ -1,4 +1,4 @@
-import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateFile } from "@spacebar/schemas";
+import { MessageCreateAttachment, MessageCreateAttachmentMetadata, MessageCreateCloudAttachment, MessageCreateFile } from "@spacebar/schemas";
 
 export type MessageAttachmentUploadMetadata = MessageCreateAttachment | MessageCreateFile;
 export type MessageAttachmentMetadata = MessageAttachmentUploadMetadata | MessageCreateCloudAttachment;
@@ -39,7 +39,7 @@ export function getAttachmentFilename(attachment: MessageAttachmentMetadata | un
     return undefined;
 }
 
-export function normalizeMessageAttachmentInputs(attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] | undefined, files: MessageCreateFile[] | undefined) {
+export function normalizeMessageAttachmentInputs(attachments: MessageCreateAttachmentMetadata[] | undefined, files: MessageCreateFile[] | undefined) {
     const fileMetadataById = new Map(files?.filter((file) => file.id !== undefined).map((file) => [file.id, file]) ?? []);
     const consumedFileMetadata = new Set<MessageCreateFile>();
     const inputs: MessageAttachmentInput[] = [];

@@ -88,7 +88,7 @@ router.post(
                 /*
 			const files = (req.files as Express.Multer.File[]) ?? [];
 			//I don't think traditional attachments are allowed anyways
-			const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = [];
+			const attachments: (Attachment | MessageCreateAttachmentMetadata)[] = [];
 			for (const currFile of files) {
 				try {
 					const file = await uploadFile(`/attachments/${interaction.channelId}`, currFile);
