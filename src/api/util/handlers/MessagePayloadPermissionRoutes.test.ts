@@ -68,6 +68,12 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await sendMessage({");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
+        const updateMessageCase = source.slice(
+            indexOf(source, "case InteractionCallbackType.UPDATE_MESSAGE:"),
+            indexOf(source, "case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:"),
+        );
+        assertBefore(updateMessageCase, 'event: "MESSAGE_UPDATE"', "                break;");
+        assert.equal(updateMessageCase.includes("// TODO"), false);
     });
 
     test("component media extraction is shared between permission gates and message handling", () => {

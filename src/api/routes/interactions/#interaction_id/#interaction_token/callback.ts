@@ -180,7 +180,6 @@ router.post(
                         data: message.toJSON(),
                     } satisfies MessageUpdateEvent);
                 }
-                // TODO
                 break;
             /*
             case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:
