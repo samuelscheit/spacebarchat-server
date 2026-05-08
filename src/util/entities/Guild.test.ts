@@ -272,6 +272,69 @@ describe("Guild.createGuild", () => {
         assert.deepEqual(guild.channel_ordering, ["new-category", "new-text"]);
     });
 
+    test("Channel.createChannel inserts new guild channels into guild channel_ordering", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+        const { Guild } = await import("./Guild.js");
+        const { Channel } = await import("./Channel.js");
+        const mutableGuild = Guild as unknown as Record<string, unknown>;
+        const mutableChannel = Channel as unknown as Record<string, unknown>;
+
+        const originalChannelCreate = mutableChannel.create;
+        const originalGuildFindOneOrFail = mutableGuild.findOneOrFail;
+        const originalGuildUpdate = mutableGuild.update;
+
+        const guild = { id: "guild", features: [], channel_ordering: ["existing"] };
+        const guildFindCalls: unknown[] = [];
+        const guildUpdates: {
+            criteria: unknown;
+            partial: { channel_ordering?: string[] };
+        }[] = [];
+
+        try {
+            mutableChannel.create = (entity: object) => ({
+                ...entity,
+                save: async () => entity,
+                toJSON: () => entity,
+            });
+            mutableGuild.findOneOrFail = async (options: unknown) => {
+                guildFindCalls.push(options);
+                return guild;
+            };
+            mutableGuild.update = async (criteria: unknown, partial: { channel_ordering?: string[] }) => {
+                guildUpdates.push({ criteria, partial });
+                return { affected: 1, generatedMaps: [], raw: [] };
+            };
+
+            const channel = await Channel.createChannel({ id: "new", guild_id: "guild", name: "general", type: 0 }, "owner", {
+                keepId: true,
+                skipPermissionCheck: true,
+                skipEventEmit: true,
+            });
+
+            assert.equal(channel.id, "new");
+            assert.deepEqual(guildFindCalls[0], {
+                where: { id: "guild" },
+                select: {
+                    features: true,
+                    channel_ordering: true,
+                    id: true,
+                },
+            });
+            assert.deepEqual(guild.channel_ordering, ["new", "existing"]);
+            assert.deepEqual(guildUpdates, [
+                {
+                    criteria: { id: "guild" },
+                    partial: { channel_ordering: ["new", "existing"] },
+                },
+            ]);
+        } finally {
+            mutableChannel.create = originalChannelCreate;
+            mutableGuild.findOneOrFail = originalGuildFindOneOrFail;
+            mutableGuild.update = originalGuildUpdate;
+        }
+    });
+
     test("Channel.createChannel can skip immediate guild channel_ordering insertion for template imports", async () => {
         process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
 
