@@ -33,28 +33,54 @@ public class MimesTests {
     }
 
     [Theory]
-    [InlineData("screenshot")]
-    [InlineData("win")]
+    [InlineData("avi")]
     [InlineData("clipboard")]
+    [InlineData("data")]
+    [InlineData("dds")]
+    [InlineData("emf")]
+    [InlineData("eps")]
+    [InlineData("file")]
+    [InlineData("ftp")]
+    [InlineData("html")]
+    [InlineData("http")]
+    [InlineData("https")]
+    [InlineData("inline")]
+    [InlineData("mkv")]
+    [InlineData("mp4")]
+    [InlineData("msl")]
+    [InlineData("mvg")]
+    [InlineData("null")]
+    [InlineData("pdf")]
+    [InlineData("ps")]
+    [InlineData("screenshot")]
+    [InlineData("svg")]
+    [InlineData("xps")]
+    [InlineData(" .PDF ")]
+    public void GetFormatForExtension_RejectsKnownMagickFormatsOutsideCdnOutputAllowlist(string extension) {
+        Assert.Throws<AccessViolationException>(() => Mimes.GetFormatForExtension(extension));
+        Assert.Throws<AccessViolationException>(() => Spacebar.Cdn.Worker.Mimes.GetFormatForExtension(extension));
+    }
+
+    [Theory]
+    [InlineData("win")]
     [InlineData("x")]
     [InlineData("xwd")]
     [InlineData("open")]
     [InlineData("print")]
     [InlineData("scan")]
+    [InlineData("scanx")]
     [InlineData("dmr")]
     [InlineData("mpr")]
-    [InlineData("pdf")]
-    [InlineData("svg")]
-    [InlineData("mp4")]
     [InlineData("url")]
-    public void GetFormatForExtension_RejectsFormatsOutsideCdnOutputAllowlist(string extension) {
-        Assert.IsAssignableFrom<Exception>(Record.Exception(() => Mimes.GetFormatForExtension(extension)));
-        Assert.IsAssignableFrom<Exception>(Record.Exception(() => Spacebar.Cdn.Worker.Mimes.GetFormatForExtension(extension)));
+    public void GetFormatForExtension_RejectsOtherUnsafeOrUnsupportedOutputAliases(string extension) {
+        Assert.NotNull(Record.Exception(() => Mimes.GetFormatForExtension(extension)));
+        Assert.NotNull(Record.Exception(() => Spacebar.Cdn.Worker.Mimes.GetFormatForExtension(extension)));
     }
 
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
+    [InlineData(".")]
     [InlineData("not-a-real-format")]
     public void GetFormatForExtension_RejectsUnknownFormats(string extension) {
         Assert.Throws<InvalidEnumArgumentException>(() => Mimes.GetFormatForExtension(extension));

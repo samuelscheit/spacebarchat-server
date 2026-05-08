@@ -139,6 +139,13 @@ nixpkgs.lib.recursiveUpdate (
           ];
         };
 
+        # Shared CDN helpers
+        Spacebar-Cdn-Shared = buildSpacebarDotnetModule {
+          name = "Spacebar.Cdn.Shared";
+          projectFile = "Spacebar.Cdn.Shared.csproj";
+          srcRoot = Spacebar.Cdn.Shared;
+        };
+
         # Main projects
         Spacebar-AdminApi = buildSpacebarDotnetModule {
           name = "Spacebar.AdminApi";
@@ -166,6 +173,7 @@ nixpkgs.lib.recursiveUpdate (
           packNupkg = false;
           projectReferences = [
             proj.Spacebar-Models-Db
+            proj.Spacebar-Cdn-Shared
             proj.Spacebar-Interop-Cdn-Abstractions
             proj.Spacebar-Interop-Cdn-Signing
           ];

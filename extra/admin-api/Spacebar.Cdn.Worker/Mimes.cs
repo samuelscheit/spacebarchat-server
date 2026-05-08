@@ -1,45 +1,25 @@
 using System.ComponentModel;
 using ImageMagick;
+using Spacebar.Cdn.Shared;
 
 namespace Spacebar.Cdn.Worker;
 
-// Keep up to date with CDN!
 public static class Mimes {
-    private static readonly Dictionary<string, MagickFormat> SafeOutputFormats = new(StringComparer.OrdinalIgnoreCase) {
-        ["png"] = MagickFormat.Png,
-        ["jpg"] = MagickFormat.Jpg,
-        ["jpeg"] = MagickFormat.Jpeg,
-        ["gif"] = MagickFormat.Gif,
-        ["bmp"] = MagickFormat.Bmp,
-        ["tif"] = MagickFormat.Tiff,
-        ["tiff"] = MagickFormat.Tiff,
-        ["webp"] = MagickFormat.WebP,
-    };
+    private static readonly string[] MagickFormatNames = Enum.GetNames<MagickFormat>();
 
     private static string PrintLogged(string msg, string mime) {
         Console.WriteLine($"{msg}: {mime}");
         return mime;
     }
 
-    public static MagickFormat GetFormatForExtension(string extension) {
-        if (string.IsNullOrWhiteSpace(extension)) throw new InvalidEnumArgumentException("Unknown format: " + extension);
+    public static MagickFormat GetFormatForExtension(string extension) => ParseFormat(
+        CdnImageOutputFormats.GetSafeMagickFormatNameForExtension(extension, MagickFormatNames));
 
-        extension = extension.Trim().TrimStart('.');
-        if (SafeOutputFormats.TryGetValue(extension, out var format)) return format;
+    public static string GetMime(MagickFormat fmt) => CdnImageOutputFormats.TryGetMimeType(fmt.ToString(), out var mime)
+        ? mime
+        : PrintLogged("Unknown mime for format " + fmt.ToString() + "!", "application/octet-stream");
 
-        if (Enum.GetNames<MagickFormat>().Any(f => string.Equals(f, extension, StringComparison.OrdinalIgnoreCase)))
-            throw new AccessViolationException("Disallowed extension: " + extension);
-
-        throw new InvalidEnumArgumentException("Unknown format: " + extension);
-    }
-
-    public static string GetMime(MagickFormat fmt) => fmt switch {
-        MagickFormat.Png => "image/png",
-        MagickFormat.Jpeg or MagickFormat.Jpg => "image/jpeg",
-        MagickFormat.Gif => "image/gif",
-        MagickFormat.Bmp => "image/bmp",
-        MagickFormat.Tiff => "image/tiff",
-        MagickFormat.WebP => "image/webp",
-        _ => PrintLogged("Unknown mime for format " + fmt.ToString() + "!", "application/octet-stream")
-    };
+    private static MagickFormat ParseFormat(string magickFormatName) => Enum.TryParse(magickFormatName, out MagickFormat fmt)
+        ? fmt
+        : throw new InvalidEnumArgumentException("Unknown format: " + magickFormatName);
 }
