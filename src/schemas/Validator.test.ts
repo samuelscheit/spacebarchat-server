@@ -8,7 +8,7 @@ const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
 const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<
     string,
-    { properties?: Record<string, { format?: string }> }
+    { properties?: Record<string, { format?: string; maxLength?: number; minLength?: number; pattern?: string; type?: string | string[] }> }
 >;
 
 const ImageDataUriFields = [
@@ -118,6 +118,15 @@ describe("schema validator custom formats", () => {
             icon: AssetHash,
             banner: `a_${AssetHash}`,
             splash: null,
+        });
+    });
+
+    test("documents writable guild profile tags", () => {
+        assert.deepEqual(Schemas.GuildUpdateSchema.properties?.profile_tag, {
+            type: ["null", "string"],
+            minLength: 1,
+            maxLength: 4,
+            pattern: "^[A-Za-z0-9]+$",
         });
     });
 

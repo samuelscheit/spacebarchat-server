@@ -2044,6 +2044,15 @@
             "premium_progress_bar_enabled": {
                 "type": "boolean"
             },
+            "profile_tag": {
+                "minLength": 1,
+                "maxLength": 4,
+                "pattern": "^[A-Za-z0-9]+$",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "discovery_splash": {
                 "format": "image-data-uri-or-asset-hash",
                 "type": "string"
@@ -2819,6 +2828,12 @@
             },
             "mfa_level": {
                 "type": "integer"
+            },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "owner_id": {
                 "type": "string"
@@ -4953,6 +4968,12 @@
                     "$ref": "#/definitions/Emoji"
                 }
             },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "permissions": {
                 "type": "integer"
             },
@@ -5646,6 +5667,12 @@
             },
             "mfa_level": {
                 "type": "integer"
+            },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "owner_id": {
                 "type": "string"
@@ -15091,6 +15118,12 @@
             },
             "name": {
                 "type": "string"
+            },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "owner_id": {
                 "type": "string"

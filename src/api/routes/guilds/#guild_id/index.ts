@@ -44,6 +44,13 @@ async function handleGuildImageField(path: string, value?: string | null, curren
     return await handleFile(path, value);
 }
 
+export function normalizeGuildProfileTag(profile_tag: string | null | undefined): string | null | undefined {
+    if (profile_tag === undefined || profile_tag === null) return profile_tag;
+    const normalized = profile_tag.toUpperCase();
+    if (!/^[A-Z0-9]{1,4}$/.test(normalized)) throw new HTTPError("Invalid profile_tag");
+    return normalized;
+}
+
 router.get(
     "/",
     route({
@@ -119,6 +126,7 @@ router.patch(
         if ("splash" in body) body.splash = await handleGuildImageField(`/splashes/${guild_id}`, body.splash, guild.splash);
         if ("discovery_splash" in body)
             body.discovery_splash = (await handleGuildImageField(`/discovery-splashes/${guild_id}`, body.discovery_splash, guild.discovery_splash)) as string | undefined;
+        if ("profile_tag" in body) body.profile_tag = normalizeGuildProfileTag(body.profile_tag);
 
         if (body.features) {
             const diff = guild.features.filter((x) => !body.features?.includes(x)).concat(body.features.filter((x) => !guild.features.includes(x)));

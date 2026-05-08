@@ -224,6 +224,9 @@ export class Guild extends BaseClass {
     @Column()
     name: string;
 
+    @Column({ nullable: true, type: "varchar", length: 4 })
+    profile_tag?: string | null;
+
     @Column({ nullable: true })
     @RelationId((guild: Guild) => guild.owner)
     owner_id?: string; // optional to allow for ownerless guilds

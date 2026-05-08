@@ -46,7 +46,7 @@ router.get(
             banner_hash: null,
             game_application_ids: [], // We don't track this
             game_activity: {}, // We don't track this
-            tag: guild.name.substring(0, 4).toUpperCase(), // TODO: allow custom tags
+            tag: guild.profile_tag ?? null,
             badge: 0,
             badge_color_primary: "#FF00FF",
             badge_color_secondary: "#00FFFF",

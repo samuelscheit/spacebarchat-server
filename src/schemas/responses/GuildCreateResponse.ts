@@ -28,6 +28,7 @@ export interface GuildCreateResponse {
     member_count?: number;
     presence_count?: number;
     mfa_level?: number;
+    profile_tag?: string | null;
     owner_id?: string;
     premium_subscription_count?: number;
     premium_tier?: number;
