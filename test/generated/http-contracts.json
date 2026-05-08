@@ -17683,7 +17683,7 @@
             "path": "/users/@me/mfa/codes/",
             "samplePath": "/users/@me/mfa/codes/",
             "sourceFile": "src/api/routes/users/@me/mfa/codes.ts",
-            "line": 29,
+            "line": 27,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
