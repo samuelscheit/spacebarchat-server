@@ -211,9 +211,9 @@ export class User extends BaseClass {
     @Column({ type: "jsonb", nullable: true })
     primary_guild?: PrimaryGuild;
 
-    static normalizeDiscriminator(discriminator: string) {
-        const discrim = Number(discriminator);
-        if (Number.isNaN(discrim) || !Number.isInteger(discrim) || discrim <= 0 || discrim >= 10000)
+    static normalizeDiscriminator(discriminator: string): string {
+        const discrim = /^\d{1,4}$/.test(discriminator) ? Number(discriminator) : NaN;
+        if (Number.isNaN(discrim) || discrim <= 0 || discrim >= 10000)
             throw FieldErrors({
                 discriminator: {
                     message: "Discriminator must be a number.",

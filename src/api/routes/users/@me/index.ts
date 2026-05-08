@@ -183,21 +183,14 @@ router.patch(
         }
 
         if (body.discriminator) {
-            // TODO: HACK - maybe make this optional?
-            if (!/^\d{4}$/.test(body.discriminator)) {
-                throw FieldErrors({
-                    discriminator: {
-                        code: "INVALID_DISCRIMINATOR",
-                        message: "Discriminator must be 4 digits.",
-                    },
-                });
-            }
+            body.discriminator = User.normalizeDiscriminator(body.discriminator);
 
             if (
                 await User.findOne({
                     where: {
                         discriminator: body.discriminator,
                         username: body.username || user.username,
+                        id: Not(req.user_id),
                     },
                 })
             ) {
@@ -245,8 +238,6 @@ router.patch(
                 user.display_name_styles!.colors = body.display_name_colors;
             }
         }
-
-        if (body.discriminator) body.discriminator = User.normalizeDiscriminator(body.discriminator);
 
         user.assign(body);
         try {

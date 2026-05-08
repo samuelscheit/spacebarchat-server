@@ -28,7 +28,9 @@ test("User.normalizeDiscriminator pads valid numeric discriminators", async () =
     const { User } = await import("./User.js");
 
     assert.equal(User.normalizeDiscriminator("1"), "0001");
+    assert.equal(User.normalizeDiscriminator("0001"), "0001");
     assert.equal(User.normalizeDiscriminator("42"), "0042");
+    assert.equal(User.normalizeDiscriminator("0042"), "0042");
     assert.equal(User.normalizeDiscriminator("9999"), "9999");
 });
 
@@ -37,7 +39,7 @@ test("User.normalizeDiscriminator rejects invalid discriminators", async () => {
 
     const { User } = await import("./User.js");
 
-    for (const discriminator of ["0", "0000", "10000", "1.5", "abcd", ""]) {
+    for (const discriminator of ["0", "0000", "10000", "1.5", "1e3", "0x10", "+1", "-1", " 42", "42 ", "9999.0", "abcd", ""]) {
         assert.throws(
             () => User.normalizeDiscriminator(discriminator),
             (error: unknown) => {

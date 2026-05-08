@@ -85,4 +85,28 @@ describe("UserModifySchema", () => {
             true,
         );
     });
+
+    test("accepts 1 to 4 digit discriminator strings for route-level normalization", () => {
+        for (const discriminator of ["1", "01", "0001", "9999"]) {
+            assert.equal(
+                ajv.validate("UserModifySchema", {
+                    discriminator,
+                }),
+                true,
+                `expected ${JSON.stringify(discriminator)} to be accepted`,
+            );
+        }
+    });
+
+    test("rejects discriminator strings outside the 1 through 9999 decimal range", () => {
+        for (const discriminator of ["", "0", "0000", "10000", "1e3", "0x10", "+1", "-1", " 42", "42 ", "9999.0", "abcd"]) {
+            assert.equal(
+                ajv.validate("UserModifySchema", {
+                    discriminator,
+                }),
+                false,
+                `expected ${JSON.stringify(discriminator)} to be rejected`,
+            );
+        }
+    });
 });

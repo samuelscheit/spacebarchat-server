@@ -59,8 +59,9 @@ export interface UserModifySchema {
      */
     email?: string | null;
     /**
-     * @minLength 4
+     * @minLength 1
      * @maxLength 4
+     * @pattern ^(?!0{1,4}$)\d{1,4}$
      */
     discriminator?: string;
 
