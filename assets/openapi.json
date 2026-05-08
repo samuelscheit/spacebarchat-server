@@ -7478,7 +7478,7 @@
                     "self_mute"
                 ]
             },
-            "GenerateWebAuthnCredentialsSchema": {
+            "StartWebAuthnCredentialRegistrationSchema": {
                 "type": "object",
                 "properties": {
                     "password": {
@@ -7511,7 +7511,7 @@
             "WebAuthnPostSchema": {
                 "anyOf": [
                     {
-                        "$ref": "#/components/schemas/GenerateWebAuthnCredentialsSchema"
+                        "$ref": "#/components/schemas/StartWebAuthnCredentialRegistrationSchema"
                     },
                     {
                         "$ref": "#/components/schemas/FinishWebAuthnCredentialRegistrationSchema"

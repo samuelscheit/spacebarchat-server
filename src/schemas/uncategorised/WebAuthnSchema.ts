@@ -16,8 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// FIXME: better naming
-export interface GenerateWebAuthnCredentialsSchema {
+export interface StartWebAuthnCredentialRegistrationSchema {
     password: string;
 }
 
@@ -27,7 +26,7 @@ export interface FinishWebAuthnCredentialRegistrationSchema {
     ticket: string;
 }
 
-export type WebAuthnPostSchema = GenerateWebAuthnCredentialsSchema | FinishWebAuthnCredentialRegistrationSchema;
+export type WebAuthnPostSchema = StartWebAuthnCredentialRegistrationSchema | FinishWebAuthnCredentialRegistrationSchema;
 
 export interface WebAuthnTotpSchema {
     code: string;
