@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.test.json",
+    "compilerOptions": {
+        "noEmit": false,
+        "outDir": "./dist-test",
+        "declaration": false,
+        "declarationMap": false,
+        "tsBuildInfoFile": "./dist-test/test.tsbuildinfo"
+    }
+}
