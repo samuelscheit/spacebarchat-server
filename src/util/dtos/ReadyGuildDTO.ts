@@ -89,7 +89,8 @@ export interface IReadyGuildDTO {
         nsfw_level: number | undefined;
         hub_type?: unknown | null; // ????
 
-        home_header: null; // TODO
+        // Discord currently includes this READY guild property as null; keep it for client compatibility until a non-null shape is observed.
+        home_header: null;
         latest_onboarding_question_id: null; // TODO
         safety_alerts_channel_id: null; // TODO
         max_stage_video_channel_users: 50; // TODO

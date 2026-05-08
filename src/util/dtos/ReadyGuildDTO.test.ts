@@ -81,3 +81,9 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
 });
+
+test("ReadyGuildDTO keeps home_header as a null READY compatibility property", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.home_header, null);
+});
