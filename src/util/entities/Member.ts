@@ -18,10 +18,10 @@
 
 import { HTTPError } from "lambert-server";
 import { BeforeInsert, BeforeUpdate, Column, Entity, EntityManager, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { Ban, Channel, PublicGuildRelations, StageInstance } from ".";
+import { Ban, Channel, isReadyGuildThreadChannel, PublicGuildRelations, StageInstance } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { type Event, GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
-import { Config, emitEvent, DiscordApiErrors } from "../util";
+import { applyReadyChannelOrdering, Config, emitEvent, DiscordApiErrors } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
@@ -349,6 +349,11 @@ export class Member extends BaseClassWithoutId {
             throw new HTTPError("You are already a member of this guild", 400);
 
         const stageInstances = await stageInstanceRepository.find({ where: { guild_id } });
+        const activeThreads = guild.channels.filter((channel) => isReadyGuildThreadChannel(channel, guild_id));
+        guild.channels = applyReadyChannelOrdering(
+            guild.channels.filter((channel) => !channel.isThread()),
+            guild.channel_ordering,
+        );
 
         const member = {
             id: user_id,
@@ -408,7 +413,7 @@ export class Member extends BaseClassWithoutId {
                     joined_at: newMember.joined_at,
                     presences: [],
                     stage_instances: stageInstances.map((x) => x.toPublicStageInstance()),
-                    threads: [],
+                    threads: activeThreads.map((thread) => thread.toJSON()),
                     embedded_activities: [],
                     voice_states: guild.voice_states.map((x) => x.toPublicVoiceState()),
                 },

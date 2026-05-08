@@ -32,6 +32,7 @@ import {
     getDatabase,
     Guild,
     GuildOrUnavailable,
+    ReadyGuildThreadTypes,
     Intents,
     Member,
     MemberPrivateProjection,
@@ -407,7 +408,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         timePromise(() =>
             Channel.find({
                 where: {
-                    type: In([ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD]),
+                    type: In(ReadyGuildThreadTypes),
                     guild_id: In(memberGuildIds),
                 },
             }),

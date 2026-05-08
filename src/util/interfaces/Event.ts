@@ -228,7 +228,7 @@ export interface GuildCreateEvent extends Event {
         guild_hashes: unknown;
         presences: never[];
         stage_instances: StageInstanceResponse[];
-        threads: never[];
+        threads: unknown[];
         embedded_activities: never[];
         // Only when not using PRIORITISED_READY_PAYLOAD capability
         voice_states?: PublicVoiceState[];

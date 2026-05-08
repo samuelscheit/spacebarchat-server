@@ -43,7 +43,7 @@ import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import type { GuildCreateResponse } from "@spacebar/schemas";
+import { ChannelType, type GuildCreateResponse } from "@spacebar/schemas";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 import { setVanityUrlFeature } from "../util/GuildFeatures";
@@ -51,7 +51,6 @@ import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelP
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
 // TODO: stage_instances
-// TODO: threads
 // TODO:
 // "keywords": [
 // 		"Genshin Impact",
@@ -67,6 +66,12 @@ import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelP
 // 	],
 
 type GuildCreateChannelInput = Omit<Partial<Channel>, "permission_overwrites"> & TemplateChannelLike;
+
+export const ReadyGuildThreadTypes = [ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD] as const;
+const readyGuildThreadTypeSet = new Set<number>(ReadyGuildThreadTypes);
+
+export const isReadyGuildThreadChannel = (channel: Pick<Channel, "guild_id" | "type" | "thread_metadata">, guildId: string) =>
+    channel.guild_id === guildId && readyGuildThreadTypeSet.has(channel.type) && channel.thread_metadata?.archived === false;
 
 export const PublicGuildRelations = [
     "channels",
