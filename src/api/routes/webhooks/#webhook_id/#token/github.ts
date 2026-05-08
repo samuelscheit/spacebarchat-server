@@ -1,7 +1,7 @@
 import { getProxyUrl, route } from "@spacebar/api";
 import { NextFunction, Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { executeWebhook } from "../../../../util/handlers/Webhook";
+import { executeWebhookWithOptions } from "../../../../util/handlers/Webhook";
 import { EmbedType, WebhookExecuteSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -385,7 +385,6 @@ const parseGitHubWebhook = (req: Request, res: Response, next: NextFunction) => 
     }
 
     req.body = discordPayload;
-    req.query.wait ||= "true";
 
     next();
 };
@@ -421,7 +420,7 @@ router.post(
             404: {},
         },
     }),
-    executeWebhook,
+    (req, res) => executeWebhookWithOptions(req, res, { wait: req.query.wait === undefined || req.query.wait === "" || req.query.wait === "true" }),
 );
 
 export default router;
