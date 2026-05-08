@@ -55,6 +55,9 @@ public class SecurityConfiguration {
 
     [JsonPropertyName("cdnSignatureIncludeUserAgent")]
     public bool CdnSignatureIncludeUserAgent { get; set; } = true;
+
+    [JsonPropertyName("contentSecurityPolicy")]
+    public string? ContentSecurityPolicy { get; set; } = null;
 }
 
 public class CaptchaConfiguration {

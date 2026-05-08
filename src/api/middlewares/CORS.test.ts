@@ -3,7 +3,7 @@ import http, { type Server } from "node:http";
 import { AddressInfo } from "node:net";
 import { describe, test } from "node:test";
 import express from "express";
-import { ConfigValue } from "@spacebar/util";
+import { Config, ConfigValue } from "@spacebar/util";
 import { buildDefaultContentSecurityPolicy, CORS, getConfiguredContentSecurityPolicy } from "./CORS";
 
 function testConfig() {
@@ -32,6 +32,14 @@ async function close(server: Server) {
     });
 }
 
+function useConfig(t: { after(fn: () => void): void }, config: ConfigValue) {
+    const originalGet = Config.get;
+    Config.get = () => config;
+    t.after(() => {
+        Config.get = originalGet;
+    });
+}
+
 describe("CORS middleware content security policy", () => {
     test("builds a scoped default CSP from configured public endpoints", () => {
         const policy = buildDefaultContentSecurityPolicy(testConfig());
@@ -45,7 +53,10 @@ describe("CORS middleware content security policy", () => {
         assert.match(policy, /connect-src[^;]*wss:\/\/gateway\.spacebar\.example/);
         assert.match(policy, /img-src[^;]*https:\/\/cdn\.spacebar\.example/);
         assert.match(policy, /script-src[^;]*https:\/\/\*\.hcaptcha\.com/);
-        assert.match(policy, /script-src[^;]*https:\/\/www\.google\.com/);
+        assert.match(policy, /script-src[^;]*https:\/\/www\.google\.com\/recaptcha\//);
+        assert.match(policy, /script-src[^;]*https:\/\/www\.gstatic\.com\/recaptcha\//);
+        assert.match(policy, /connect-src[^;]*https:\/\/www\.google\.com\/recaptcha\//);
+        assert.match(policy, /frame-src[^;]*https:\/\/recaptcha\.google\.com\/recaptcha\//);
         assert.match(policy, /style-src[^;]*https:\/\/fonts\.googleapis\.com/);
         assert.match(policy, /font-src[^;]*https:\/\/fonts\.gstatic\.com/);
         assert.doesNotMatch(policy, /default-src \*/);
@@ -53,6 +64,24 @@ describe("CORS middleware content security policy", () => {
         assert.doesNotMatch(policy, /'unsafe-eval'/);
         assert.doesNotMatch(policy, /filesystem:/);
         assert.doesNotMatch(policy, /about:/);
+    });
+
+    test("normalizes configured endpoint URLs before using them as CSP sources", () => {
+        const config = testConfig();
+        config.api.endpointPublic = "https://api.spacebar.example/api/v9?redirect=https://evil.example;script-src *";
+        config.cdn.endpointPublic = "https://cdn.spacebar.example/assets#fragment";
+        config.gateway.endpointPublic = "wss://gateway.spacebar.example/socket?transport=websocket;connect-src *";
+
+        const policy = buildDefaultContentSecurityPolicy(config);
+
+        assert.match(policy, /connect-src[^;]*wss:\/\/gateway\.spacebar\.example/);
+        assert.doesNotMatch(policy, /evil\.example/);
+        assert.doesNotMatch(policy, /script-src \*/);
+        assert.doesNotMatch(policy, /connect-src \*/);
+        assert.doesNotMatch(policy, /\/api\/v9/);
+        assert.doesNotMatch(policy, /\/assets/);
+        assert.doesNotMatch(policy, /\/socket/);
+        assert.doesNotMatch(policy, /transport=websocket/);
     });
 
     test("allows the public widget page to remain embeddable", () => {
@@ -73,6 +102,25 @@ describe("CORS middleware content security policy", () => {
         config.security.contentSecurityPolicy = " off ";
 
         assert.equal(getConfiguredContentSecurityPolicy(config), undefined);
+    });
+
+    test("does not set the CSP response header when configured off", async (t) => {
+        const config = testConfig();
+        config.security.contentSecurityPolicy = "off";
+        useConfig(t, config);
+
+        const app = express();
+        app.use(CORS);
+        app.get("/ping", (req, res) => res.json({ ok: true }));
+
+        const server = http.createServer(app);
+        t.after(() => close(server));
+        const port = await listen(server);
+
+        const response = await fetch(`http://127.0.0.1:${port}/ping`);
+
+        assert.equal(response.status, 200);
+        assert.equal(response.headers.get("content-security-policy"), null);
     });
 
     test("sets CSP and CORS headers on regular and preflight requests", async (t) => {

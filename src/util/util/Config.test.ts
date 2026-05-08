@@ -54,6 +54,7 @@ test("Config.set merges partial config updates into memory and persists the full
     assert.equal(persisted.api.endpointPublic, "http://localhost:3001/api/v9");
     assert.equal(persisted.cdn.endpointPrivate, "http://localhost:3001");
     assert.equal(persisted.gateway.endpointPublic, "ws://localhost:3001");
+    assert.equal(persisted.security.contentSecurityPolicy, null);
 });
 
 test("Config.set writes to the current CONFIG_PATH even when the module was imported first", async () => {

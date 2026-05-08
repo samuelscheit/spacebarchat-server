@@ -19,19 +19,24 @@
 import { NextFunction, Request, Response } from "express";
 import { Config, type ConfigValue } from "@spacebar/util";
 
-// TODO: config settings
-
 const CSP_DISABLED = "off";
+const HTTP_ENDPOINT_PROTOCOLS = new Set(["http:", "https:"]);
+const GATEWAY_ENDPOINT_PROTOCOLS = new Set(["http:", "https:", "ws:", "wss:"]);
 
 const STATIC_ASSET_SOURCES = ["https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://raw.githubusercontent.com", "https://rawcdn.githack.com"];
 
-const CAPTCHA_SOURCES = ["https://hcaptcha.com", "https://*.hcaptcha.com", "https://www.google.com", "https://www.gstatic.com"];
+const HCAPTCHA_SOURCES = ["https://hcaptcha.com", "https://*.hcaptcha.com"];
+const RECAPTCHA_SCRIPT_SOURCES = ["https://www.google.com/recaptcha/", "https://www.gstatic.com/recaptcha/"];
+const RECAPTCHA_FRAME_SOURCES = ["https://www.google.com/recaptcha/", "https://recaptcha.google.com/recaptcha/"];
+const RECAPTCHA_CONNECT_SOURCES = ["https://www.google.com/recaptcha/"];
 
-function endpointOrigin(endpoint: string | null | undefined) {
+function endpointOrigin(endpoint: string | null | undefined, allowedProtocols: ReadonlySet<string> = HTTP_ENDPOINT_PROTOCOLS) {
     if (!endpoint) return undefined;
 
     try {
-        return new URL(endpoint).origin;
+        const url = new URL(endpoint);
+        if (!allowedProtocols.has(url.protocol) || url.origin === "null") return undefined;
+        return url.origin;
     } catch {
         return undefined;
     }
@@ -66,11 +71,11 @@ export function buildDefaultContentSecurityPolicy(config: ConfigValue = Config.g
         endpointOrigin(config.admin.endpointPublic),
         endpointOrigin(config.api.endpointPublic),
         endpointOrigin(config.cdn.endpointPublic),
-        endpointOrigin(config.gateway.endpointPublic),
-        config.gateway.endpointPublic ?? undefined,
-        ...CAPTCHA_SOURCES,
+        endpointOrigin(config.gateway.endpointPublic, GATEWAY_ENDPOINT_PROTOCOLS),
+        ...HCAPTCHA_SOURCES,
+        ...RECAPTCHA_CONNECT_SOURCES,
     ]);
-    const frameSources = dedupe(["'self'", ...CAPTCHA_SOURCES]);
+    const frameSources = dedupe(["'self'", ...HCAPTCHA_SOURCES, ...RECAPTCHA_FRAME_SOURCES]);
 
     return [
         directive("default-src", ["'self'"]),
@@ -78,10 +83,10 @@ export function buildDefaultContentSecurityPolicy(config: ConfigValue = Config.g
         directive("object-src", ["'none'"]),
         options.allowEmbedding ? undefined : directive("frame-ancestors", ["'self'"]),
         directive("form-action", ["'self'"]),
-        directive("script-src", dedupe(["'self'", "'unsafe-inline'", ...CAPTCHA_SOURCES])),
-        directive("style-src", dedupe(["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", ...CAPTCHA_SOURCES])),
+        directive("script-src", dedupe(["'self'", "'unsafe-inline'", ...HCAPTCHA_SOURCES, ...RECAPTCHA_SCRIPT_SOURCES])),
+        directive("style-src", dedupe(["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", ...HCAPTCHA_SOURCES])),
         directive("font-src", dedupe(["'self'", "data:", "https://fonts.gstatic.com"])),
-        directive("img-src", dedupe([...httpEndpointSources, ...CAPTCHA_SOURCES, "data:", "blob:"])),
+        directive("img-src", dedupe([...httpEndpointSources, ...HCAPTCHA_SOURCES, "data:", "blob:"])),
         directive("connect-src", connectSources),
         directive("frame-src", frameSources),
         directive("worker-src", ["'self'", "blob:"]),
