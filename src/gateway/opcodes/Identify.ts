@@ -64,11 +64,10 @@ import {
     getReadyReadStateWhere,
     READY_READ_STATE_SELECT,
 } from "@spacebar/util";
-import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
+import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, validateSchema } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 
 // TODO: user sharding
@@ -87,8 +86,13 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     clearTimeout(this.readyTimeout);
 
     // Check payload matches schema
-    check.call(this, IdentifySchema, data.d);
-    const identify: IdentifySchema = data.d;
+    let identify: IdentifySchema;
+    try {
+        identify = validateSchema("IdentifySchema", data.d as object) as IdentifySchema;
+    } catch (error) {
+        console.error(error);
+        return this.close(CLOSECODES.Decode_error);
+    }
 
     this.capabilities = new Capabilities(identify.capabilities || 0);
     this.large_threshold = identify.large_threshold || 250;

@@ -8373,7 +8373,7 @@
                     "os": {
                         "type": "string"
                     },
-                    "os_atch": {
+                    "os_arch": {
                         "type": "string"
                     },
                     "browser": {
@@ -8403,7 +8403,13 @@
                     "referrer": {
                         "type": "string"
                     },
+                    "$referrer": {
+                        "type": "string"
+                    },
                     "referring_domain": {
+                        "type": "string"
+                    },
+                    "$referring_domain": {
                         "type": "string"
                     },
                     "referrer_current": {
@@ -8431,6 +8437,12 @@
                         "type": "string"
                     },
                     "system_locale": {
+                        "type": "string"
+                    },
+                    "window_manager": {
+                        "type": "string"
+                    },
+                    "distro": {
                         "type": "string"
                     }
                 },
@@ -8524,6 +8536,9 @@
                 "additionalProperties": false
             },
             "v": {
+                "type": "integer"
+            },
+            "version": {
                 "type": "integer"
             }
         },
