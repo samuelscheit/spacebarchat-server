@@ -213,3 +213,9 @@ test("ReadyGuildDTO emits null for an unconfigured safety alerts channel id", ()
 
     assert.equal(dto.properties.safety_alerts_channel_id, null);
 });
+
+test("ReadyGuildDTO keeps home_header as a null READY compatibility property", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.home_header, null);
+});

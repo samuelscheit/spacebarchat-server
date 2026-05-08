@@ -56,6 +56,44 @@ function stageInstanceToResponse(stageInstance: ReadyStageInstance): StageInstan
 
 export type ReadyApplicationCommandCounts = Partial<Record<1 | 2 | 3, number>>;
 
+export interface ReadyGuildProperties {
+    name: string;
+    description?: string | null;
+    icon?: string | null;
+    splash?: string | null;
+    banner?: string | null;
+    features: string[];
+    preferred_locale?: string | null;
+    owner_id?: string | null;
+    application_id?: string | null;
+    afk_channel_id?: string | null;
+    afk_timeout: number | undefined;
+    system_channel_id?: string | null;
+    verification_level: number | undefined;
+    explicit_content_filter: number | undefined;
+    default_message_notifications: number | undefined;
+    mfa_level: number | undefined;
+    vanity_url_code?: string | null;
+    premium_tier: number | undefined;
+    premium_progress_bar_enabled: boolean;
+    system_channel_flags: number | undefined;
+    discovery_splash?: string | null;
+    rules_channel_id?: string | null;
+    public_updates_channel_id?: string | null;
+    max_video_channel_users: number | undefined;
+    max_members: number | undefined;
+    nsfw_level: number | undefined;
+    hub_type?: unknown | null; // ????
+
+    // Discord currently includes this READY guild property as null; keep it for client compatibility until a non-null shape is observed.
+    home_header: null;
+    latest_onboarding_question_id: null; // TODO
+    safety_alerts_channel_id: string | null;
+    max_stage_video_channel_users: typeof READY_GUILD_MAX_STAGE_VIDEO_CHANNEL_USERS;
+    nsfw: boolean;
+    id: string;
+}
+
 export interface IReadyGuildDTO {
     application_command_counts?: ReadyApplicationCommandCounts;
     channels: Channel[];
@@ -68,42 +106,7 @@ export interface IReadyGuildDTO {
     member_count: number | undefined;
     members: PublicMember[];
     premium_subscription_count: number | undefined;
-    properties: {
-        name: string;
-        description?: string | null;
-        icon?: string | null;
-        splash?: string | null;
-        banner?: string | null;
-        features: string[];
-        preferred_locale?: string | null;
-        owner_id?: string | null;
-        application_id?: string | null;
-        afk_channel_id?: string | null;
-        afk_timeout: number | undefined;
-        system_channel_id?: string | null;
-        verification_level: number | undefined;
-        explicit_content_filter: number | undefined;
-        default_message_notifications: number | undefined;
-        mfa_level: number | undefined;
-        vanity_url_code?: string | null;
-        premium_tier: number | undefined;
-        premium_progress_bar_enabled: boolean;
-        system_channel_flags: number | undefined;
-        discovery_splash?: string | null;
-        rules_channel_id?: string | null;
-        public_updates_channel_id?: string | null;
-        max_video_channel_users: number | undefined;
-        max_members: number | undefined;
-        nsfw_level: number | undefined;
-        hub_type?: unknown | null; // ????
-
-        home_header: null; // TODO
-        latest_onboarding_question_id: null; // TODO
-        safety_alerts_channel_id: string | null;
-        max_stage_video_channel_users: typeof READY_GUILD_MAX_STAGE_VIDEO_CHANNEL_USERS;
-        nsfw: boolean;
-        id: string;
-    };
+    properties: ReadyGuildProperties;
     roles: Role[];
     stage_instances: StageInstanceResponse[];
     stickers: Sticker[];
@@ -125,42 +128,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
     member_count: number | undefined;
     members: PublicMember[];
     premium_subscription_count: number | undefined;
-    properties: {
-        name: string;
-        description?: string | null;
-        icon?: string | null;
-        splash?: string | null;
-        banner?: string | null;
-        features: string[];
-        preferred_locale?: string | null;
-        owner_id?: string | null;
-        application_id?: string | null;
-        afk_channel_id?: string | null;
-        afk_timeout: number | undefined;
-        system_channel_id?: string | null;
-        verification_level: number | undefined;
-        explicit_content_filter: number | undefined;
-        default_message_notifications: number | undefined;
-        mfa_level: number | undefined;
-        vanity_url_code?: string | null;
-        premium_tier: number | undefined;
-        premium_progress_bar_enabled: boolean;
-        system_channel_flags: number | undefined;
-        discovery_splash?: string | null;
-        rules_channel_id?: string | null;
-        public_updates_channel_id?: string | null;
-        max_video_channel_users: number | undefined;
-        max_members: number | undefined;
-        nsfw_level: number | undefined;
-        hub_type?: unknown | null; // ????
-
-        home_header: null; // TODO
-        latest_onboarding_question_id: null; // TODO
-        safety_alerts_channel_id: string | null;
-        max_stage_video_channel_users: typeof READY_GUILD_MAX_STAGE_VIDEO_CHANNEL_USERS;
-        nsfw: boolean;
-        id: string;
-    };
+    properties: ReadyGuildProperties;
     roles: Role[];
     stage_instances: StageInstanceResponse[];
     stickers: Sticker[];
