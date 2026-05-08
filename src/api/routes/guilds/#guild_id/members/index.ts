@@ -25,7 +25,6 @@ import { PublicMemberProjection } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
-// TODO: send over websocket
 // TODO: check for GUILD_MEMBERS intent
 
 router.get(
