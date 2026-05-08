@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ajv } from "../../../schemas/Validator";
-import { toGuildDiscoveryRequirements } from "./GuildDiscoveryRequirements";
+import { toGuildDiscoveryRequirements } from "@spacebar/api";
+import { ajv } from "@spacebar/schemas";
 
 test("toGuildDiscoveryRequirements returns the current permissive requirements contract", () => {
     const requirements = toGuildDiscoveryRequirements("123");
