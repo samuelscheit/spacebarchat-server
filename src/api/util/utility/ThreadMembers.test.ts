@@ -99,10 +99,10 @@ describe("thread member helpers", () => {
         );
 
         assert.deepEqual(builder.calls, [
-            ["where", '"thread_member"."id" = :threadId', { threadId: "thread-id" }],
+            ["where", "thread_member.id = :threadId", { threadId: "thread-id" }],
             ["leftJoinAndSelect", "thread_member.member", "member"],
-            ["andWhere", '"member"."id" > :afterUserId', { afterUserId: "after-user" }],
-            ["orderBy", '"member"."id"', "ASC"],
+            ["andWhere", "member.id > :afterUserId", { afterUserId: "after-user" }],
+            ["orderBy", "member.id", "ASC"],
             ["take", 26],
         ]);
     });
@@ -121,11 +121,12 @@ describe("thread member helpers", () => {
             false,
         );
         assert.deepEqual(builder.calls.at(1), ["innerJoin", "thread_member.member", "member"]);
+        assert.deepEqual(builder.calls.at(2), ["addSelect", "member.id"]);
         assert.equal(
             builder.calls.some(([method, condition]) => method === "andWhere" && typeof condition === "string" && condition.includes(":afterUserId")),
             false,
         );
-        assert.deepEqual(builder.calls.at(-2), ["orderBy", '"member"."id"', "ASC"]);
+        assert.deepEqual(builder.calls.at(-2), ["orderBy", "member.id", "ASC"]);
         assert.deepEqual(builder.calls.at(-1), ["take", 100]);
     });
 });
@@ -156,7 +157,7 @@ function createThreadMemberCountSource({ member_count }: { member_count?: number
     };
 }
 
-type FakeQueryBuilderCall = [string, string, string] | [string, string, Record<string, unknown>?] | [string, number];
+type FakeQueryBuilderCall = [string, string, string] | [string, string, Record<string, unknown>?] | [string, number] | [string, string];
 
 function createFakeQueryBuilder() {
     return {
@@ -167,6 +168,10 @@ function createFakeQueryBuilder() {
         },
         leftJoinAndSelect(relation: string, alias: string) {
             this.calls.push(["leftJoinAndSelect", relation, alias]);
+            return this;
+        },
+        addSelect(selection: string) {
+            this.calls.push(["addSelect", selection]);
             return this;
         },
         where(condition: string, parameters?: Record<string, unknown>) {
