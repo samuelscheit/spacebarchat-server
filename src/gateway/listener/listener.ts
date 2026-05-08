@@ -32,7 +32,7 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
+import { OPCODES, Send } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
@@ -49,6 +49,7 @@ import {
     unsubscribeGuildMemberEventIds,
 } from "./subscriptions";
 import { getEventPermissionLookupId } from "../util/EventPermissions";
+import { handlePreDispatchGatewayEvent } from "./sessionControl";
 
 type GuildCreatePermissionData = {
     id: string;
@@ -179,7 +180,7 @@ export async function setupListener(this: WebSocket) {
         acknowledge: true,
     };
     this.listen_options = opts;
-    const consumer = consume.bind(this);
+    const consumer = consumeGatewayEvent.bind(this);
 
     const handleChannelError = (err: unknown) => {
         console.error(`[RabbitMQ] [user-${this.user_id}] Channel Error (Handled):`, err);
@@ -321,45 +322,22 @@ export async function setupListener(this: WebSocket) {
 }
 
 // TODO: only subscribe for events that are in the connection intents
-async function consume(this: WebSocket, opts: EventOpts) {
-    const { data, event } = opts;
+export async function consumeGatewayEvent(this: WebSocket, opts: EventOpts) {
+    const { event } = opts;
+    if (await handlePreDispatchGatewayEvent(this, opts)) return;
+    // console.log("event", event);
+
+    const { data } = opts;
+    if (!data || typeof data !== "object") return;
+
     const id = data.id as string;
     const guildId = data.guild_id as string | undefined;
     const permissionLookupId = getEventPermissionLookupId(event, data);
     const permission =
         (permissionLookupId && this.permissions[permissionLookupId]) || (guildId && this.permissions[guildId]) || this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
 
-    const consumer = consume.bind(this);
+    const consumer = consumeGatewayEvent.bind(this);
     const listenOpts = opts as ListenEventOpts;
-    opts.acknowledge?.();
-    const eventRouteId = getEventRouteId(opts);
-    if (eventRouteId && !this.events[eventRouteId]) return;
-    // console.log("event", event);
-
-    // deduplicate gateway messages
-    if (opts.transaction_id) {
-        if (this.recentTransactions.includes(opts.transaction_id)) return;
-        this.recentTransactions.push(opts.transaction_id);
-        if (this.recentTransactions.length > 100) this.recentTransactions = this.recentTransactions.slice(1);
-    }
-
-    // special codes
-    switch (event) {
-        case "SB_SESSION_CLOSE":
-            await sendReconnectAndClose(this, opts.reconnect_delay ?? opts.data ?? 1000);
-            return;
-        case "SB_SESSION_REMOVE":
-            // TODO: what do we even send here?
-            await Send(this, {
-                op: OPCODES.Invalid_Session,
-                s: this.sequence++,
-            });
-            this.close(CLOSECODES.Invalid_session); // TODO: this is deprecated?
-            return;
-        default:
-            // no special treatment
-            break;
-    }
 
     // subscription managment
     switch (event) {

@@ -283,6 +283,7 @@ test(
             const invalid = await readJsonMessage(client);
             assert.equal(invalid.op, 9);
             assert.equal(invalid.d, false);
+            assert.equal("s" in invalid, false);
             const close = await readClose(client);
             assert.equal(close.code, 4006);
         } finally {
