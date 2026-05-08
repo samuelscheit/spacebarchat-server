@@ -32,6 +32,44 @@ describe("guild create normalization", () => {
         assert.deepEqual(getGuildCreateCustomRoles(roles, "template-guild"), [{ id: "member-role", name: "Member" }]);
     });
 
+    test("recognizes numeric Discord template @everyone role ids", () => {
+        const roles = [
+            { id: 0, permissions: "8" },
+            { id: 1, name: "Moderator" },
+        ];
+
+        assert.deepEqual(getGuildCreateEveryoneRole(roles, "template-guild"), { id: 0, permissions: "8" });
+        assert.deepEqual(getGuildCreateCustomRoles(roles, "template-guild"), [{ id: 1, name: "Moderator" }]);
+        assert.deepEqual(
+            normalizeGuildCreateRole(
+                { id: 0, permissions: "8" },
+                {
+                    name: "@everyone",
+                    permissions: "0",
+                    color: 0,
+                    colors: { primary_color: 0 },
+                    hoist: false,
+                    managed: false,
+                    mentionable: false,
+                    position: 0,
+                    flags: 0,
+                },
+            ),
+            {
+                id: "0",
+                name: "@everyone",
+                permissions: "8",
+                color: 0,
+                colors: { primary_color: 0 },
+                hoist: false,
+                managed: false,
+                mentionable: false,
+                position: 0,
+                flags: 0,
+            },
+        );
+    });
+
     test("normalizes sparse role payloads with required defaults", () => {
         assert.deepEqual(
             normalizeGuildCreateRole(

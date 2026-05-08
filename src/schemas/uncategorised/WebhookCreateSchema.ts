@@ -21,5 +21,8 @@ export interface WebhookCreateSchema {
      * @maxLength 80
      */
     name: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     avatar?: string;
 }

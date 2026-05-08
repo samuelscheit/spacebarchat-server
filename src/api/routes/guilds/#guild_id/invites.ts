@@ -40,15 +40,10 @@ router.get(
             relations: PublicInviteRelation,
         });
 
-        await Promise.all(
-            invites
-                .filter((i) => i.isExpired())
-                .map(async (i) => {
-                    await Invite.delete({ code: i.code });
-                }),
-        );
+        const expiredInvites = invites.filter((i) => i.isExpired());
+        await Invite.deleteWithVanityUrlFeatureSync(expiredInvites);
 
-        return res.json(invites.filter((i) => !i.isExpired()));
+        return res.json(invites.filter((i) => !expiredInvites.includes(i)));
     },
 );
 

@@ -30,6 +30,9 @@ export interface GuildCreateSchema {
      */
     name?: string;
     region?: string;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string | null;
     verification_level?: number | null;
     default_message_notifications?: number | null;

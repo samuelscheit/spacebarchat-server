@@ -18,6 +18,8 @@
 
 export * from "./Application";
 export * from "./ApplicationCommand";
+export * from "./AdminAuditRecord";
+export * from "./AdminJob";
 export * from "./Attachment";
 export * from "./AuditLog";
 export * from "./AutomodRule";
@@ -51,6 +53,7 @@ export * from "./SecurityKey";
 export * from "./Session";
 export * from "./Sticker";
 export * from "./StickerPack";
+export * from "./StageInstance";
 export * from "./Stream";
 export * from "./StreamSession";
 export * from "./Team";
@@ -58,6 +61,8 @@ export * from "./TeamMember";
 export * from "./Template";
 export * from "./ThreadMember";
 export * from "./User";
+export * from "./AuthActionToken";
+export * from "./UserRecentAvatar";
 export * from "./UserSettings";
 export * from "./UserSettingsProtos";
 export * from "./ValidRegistrationTokens";

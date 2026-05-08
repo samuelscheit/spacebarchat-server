@@ -17,6 +17,9 @@
 */
 
 export interface MemberChangeProfileSchema {
+    /**
+     * @TJS-format image-data-uri
+     */
     banner?: string | null;
     nick?: string;
     bio?: string;

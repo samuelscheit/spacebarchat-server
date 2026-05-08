@@ -35,8 +35,16 @@
         <Project Path="Utilities/Spacebar.CleanSettingsRows/Spacebar.CleanSettingsRows.csproj"/>
     </Folder>
     <Folder Name="/Tests/">
+        <Project Path="Tests/Spacebar.AdminApi.TestClient.Tests/Spacebar.AdminApi.TestClient.Tests.csproj"/>
         <Project Path="Tests/Spacebar.AdminApi.Tests/Spacebar.AdminApi.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Cdn.Migration.Tests/Spacebar.Cdn.Migration.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Cdn.Tests/Spacebar.Cdn.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Interop.Replication.RabbitMq.Tests/Spacebar.Interop.Replication.RabbitMq.Tests.csproj"/>
         <Project Path="Tests/Spacebar.Models.Config.Tests/Spacebar.Models.Config.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Models.Db.Tests/Spacebar.Models.Db.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Models.Generic.Tests/Spacebar.Models.Generic.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Models.Gateway.Tests/Spacebar.Models.Gateway.Tests.csproj"/>
+        <Project Path="Tests/Spacebar.Offload.Tests/Spacebar.Offload.Tests.csproj"/>
         <Project Path="Tests/Spacebar.UApi.Tests/Spacebar.UApi.Tests.csproj"/>
     </Folder>
     <Project Path="Spacebar.AdminApi/Spacebar.AdminApi.csproj"/>

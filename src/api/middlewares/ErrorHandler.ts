@@ -29,7 +29,6 @@ export function ErrorHandler(error: Error & { type?: string }, req: Request, res
         let httpcode = code;
         let message = error?.toString();
         let errors = undefined;
-        let _ajvErrors = undefined;
 
         if (error instanceof HTTPError && error.code) code = httpcode = error.code;
         else if (error instanceof ApiError) {
@@ -43,7 +42,6 @@ export function ErrorHandler(error: Error & { type?: string }, req: Request, res
             code = Number(error.code);
             message = error.message;
             errors = error.errors;
-            _ajvErrors = error._ajvErrors;
         } else if (error?.type == "entity.parse.failed") {
             // body-parser failed
             httpcode = 400;
@@ -61,9 +59,9 @@ export function ErrorHandler(error: Error & { type?: string }, req: Request, res
 
         if (httpcode > 511) httpcode = 400;
 
-        res.status(httpcode).json({ code, message, errors, _ajvErrors, request: `${req.method} ${req.url}` });
+        res.status(httpcode).json({ code, message, errors });
     } catch (error) {
         console.error(`[Internal Server Error] 500`, error);
-        return res.status(500).json({ code: 500, message: `Internal server error while handling error`, request: `${req.method} ${req.url}` });
+        return res.status(500).json({ code: 500, message: `Internal server error while handling error` });
     }
 }

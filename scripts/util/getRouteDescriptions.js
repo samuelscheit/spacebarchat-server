@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const { traverseDirectory } = require("lambert-server");
 const RouteUtility = require("../../dist/api/util/handlers/route.js");
+const { ROUTE_FILE_FILTER } = require("../../dist/util/util/TraverseDirectory.js");
 const { greenBright, yellowBright, blueBright, redBright, underline, bgYellow, black } = require("picocolors");
 
 const methods = ["get", "post", "put", "delete", "patch"];
@@ -71,7 +72,7 @@ RouteUtility.route = (opts) => {
 
 module.exports = function getRouteDescriptions() {
     const root = path.join(__dirname, "..", "..", "dist", "api", "routes", "/");
-    traverseDirectory({ dirname: root, recursive: true }, (file) => {
+    traverseDirectory({ dirname: root, recursive: true, filter: ROUTE_FILE_FILTER }, (file) => {
         currentFile = file;
 
         currentPath = file.replace(root.slice(0, -1), "");

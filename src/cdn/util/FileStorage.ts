@@ -21,6 +21,7 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { Readable } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import ExifTransformer from "exif-be-gone";
 
 function isOutsideRoot(root: string, path: string): boolean {
@@ -76,10 +77,7 @@ export class FileStorage implements Storage {
         path = this.getFsPath(path);
         if (!fs.existsSync(dirname(path))) fs.mkdirSync(dirname(path), { recursive: true });
 
-        const ret = Readable.from(value);
-        const cleaned_file = fs.createWriteStream(path);
-
-        ret.pipe(new ExifTransformer()).pipe(cleaned_file);
+        await pipeline(Readable.from(value), new ExifTransformer(), fs.createWriteStream(path));
     }
 
     async delete(path: string) {

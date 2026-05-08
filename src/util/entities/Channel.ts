@@ -17,24 +17,42 @@
 */
 
 import { HTTPError } from "lambert-server";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { DmChannelDTO } from "../dtos";
+import { Column, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { DmChannelDTO, getCreateDMChannelResponse, saveGroupDMOwnerAfterRecipientRemoval } from "../dtos";
 import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import { InvisibleCharacters, Snowflake, emitEvent, getPermission, trimSpecial, Permissions, Config, DiscordApiErrors } from "../util";
+import {
+    Snowflake,
+    emitEvent,
+    getPermission,
+    trimSpecial,
+    Permissions,
+    Config,
+    DiscordApiErrors,
+    getDatabase,
+    handleFile,
+    normalizeChannelName,
+    normalizeThreadName,
+    assertChannelNamePresent,
+    canCreateServerDm,
+    shouldCheckServerDmPrivacy,
+} from "../util";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
 import { Message } from "./Message";
 import { Tag } from "./Tag";
-import { ReadState } from "./ReadState";
 import { Recipient } from "./Recipient";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
+import { ReadState } from "./ReadState";
+import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
+import { Relationship } from "./Relationship";
 
 @Entity({
     name: "channels",
@@ -143,12 +161,6 @@ export class Channel extends BaseClass {
     })
     voice_states?: VoiceState[];
 
-    @OneToMany(() => ReadState, (read_state: ReadState) => read_state.channel, {
-        cascade: true,
-        orphanedRowAction: "delete",
-    })
-    read_states?: ReadState[];
-
     @OneToMany(() => Webhook, (webhook: Webhook) => webhook.channel, {
         cascade: true,
         orphanedRowAction: "delete",
@@ -199,6 +211,7 @@ export class Channel extends BaseClass {
             skipPermissionCheck?: boolean;
             skipEventEmit?: boolean;
             skipNameChecks?: boolean;
+            skipOrdering?: boolean;
         },
     ): Promise<Channel> {
         if (!opts?.skipPermissionCheck) {
@@ -217,26 +230,8 @@ export class Channel extends BaseClass {
         });
 
         if (!opts?.skipNameChecks) {
-            if (!guild.features.includes("ALLOW_INVALID_CHANNEL_NAMES") && channel.name) {
-                for (const character of InvisibleCharacters) if (channel.name.includes(character)) throw new HTTPError("Channel name cannot include invalid characters", 403);
-
-                // Categories skip these checks on discord.com
-                if (
-                    (channel.type !== ChannelType.GUILD_CATEGORY && channel.type !== ChannelType.GUILD_STAGE_VOICE && channel.type !== ChannelType.GUILD_VOICE) ||
-                    guild.features.includes("IRC_LIKE_CATEGORY_NAMES")
-                ) {
-                    if (channel.name.includes(" ")) throw new HTTPError("Channel name cannot include invalid characters", 403);
-
-                    if (channel.name.match(/--+/g)) throw new HTTPError("Channel name cannot include multiple adjacent dashes.", 403);
-
-                    if (channel.name.charAt(0) === "-" || channel.name.charAt(channel.name.length - 1) === "-")
-                        throw new HTTPError("Channel name cannot start/end with dash.", 403);
-                } else channel.name = channel.name.trim(); //category names are trimmed client side on discord.com
-            }
-
-            if (!guild.features.includes("ALLOW_UNNAMED_CHANNELS")) {
-                if (!channel.name) throw new HTTPError("Channel name cannot be empty.", 403);
-            }
+            channel.name = normalizeChannelName(channel.name, channel.type, guild.features);
+            assertChannelNamePresent(channel.name, guild.features);
         }
 
         switch (channel.type) {
@@ -272,10 +267,15 @@ export class Channel extends BaseClass {
         // TODO: eagerly auto generate position of all guild channels
 
         const position = (channel.type === ChannelType.UNHANDLED ? 0 : channel.position) || 0;
+        const id = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
+
+        if (typeof channel.icon === "string" && channel.icon.startsWith("data:")) {
+            channel.icon = await handleFile(`/channel-icons/${id}`, channel.icon);
+        }
 
         channel = {
             ...channel,
-            ...(!opts?.keepId && { id: Snowflake.generate() }),
+            id,
             created_at: new Date(),
             position,
             // from #876 (threads): shouldnt these be undefined?
@@ -296,7 +296,7 @@ export class Channel extends BaseClass {
                       guild_id: channel.guild_id,
                   } satisfies ChannelCreateEvent)
                 : Promise.resolve(),
-            Guild.insertChannelInOrder(guild.id, ret.id, position, guild),
+            opts?.skipOrdering ? Promise.resolve() : Guild.insertChannelInOrder(guild.id, ret.id, position, guild),
         ]);
 
         return ret;
@@ -318,11 +318,13 @@ export class Channel extends BaseClass {
             skipNameChecks?: boolean;
         },
     ): Promise<Channel> {
+        const threadId = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
+
         channel = {
             // set the default type to private
             type: ChannelType.GUILD_PRIVATE_THREAD,
             ...channel,
-            ...(!opts?.keepId && { id: Snowflake.generate() }),
+            id: threadId,
             created_at: new Date(),
             position: 0, // TODO:
             message_count: 0,
@@ -373,32 +375,15 @@ export class Channel extends BaseClass {
 
         if (!opts?.skipNameChecks) {
             const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
-            if (!guild.features.includes("ALLOW_INVALID_CHANNEL_NAMES") && channel.name) {
-                for (const character of InvisibleCharacters) if (channel.name.includes(character)) throw new HTTPError("Channel name cannot include invalid characters", 403);
-
-                channel.name = channel.name.trim(); //category names are trimmed client side on discord.com
-            }
-
-            if (!guild.features.includes("ALLOW_UNNAMED_CHANNELS")) {
-                if (!channel.name) throw new HTTPError("Channel name cannot be empty.", 403);
-            }
+            channel.name = normalizeThreadName(channel.name, guild.features);
+            assertChannelNamePresent(channel.name, guild.features);
         }
 
         // TODO: eagerly auto generate position of all guild channels
 
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
-        const member = {
-            id: thread.id,
-            user_id,
-            join_timestamp: new Date(),
-            muted: false,
-            mute_config: null,
-            flags: 0,
-        };
-        if (channel.member_count) channel.member_count++;
-
-        const threadMember = await OrmUtils.mergeDeep(new ThreadMember(), member).save();
+        const threadMember = await ThreadMember.createForUser(user_id, thread);
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
@@ -416,7 +401,7 @@ export class Channel extends BaseClass {
                         guild_id: channel.guild_id!, // TODO: is this the right fix?
                         id: thread.id,
                         member_count: channel.member_count ?? 0, //TODO: is this the right fix?
-                        added_members: [threadMember],
+                        added_members: [{ user_id, ...threadMember.toJSON() }],
                         removed_member_ids: [],
                     },
                     guild_id: channel.guild_id,
@@ -442,6 +427,7 @@ export class Channel extends BaseClass {
 
         let channel = null;
         let needsTx = true;
+        let creatorRecipient: Recipient | null = null;
 
         const channelRecipients = [...recipients, creator_user_id];
 
@@ -457,11 +443,21 @@ export class Channel extends BaseClass {
                 if (channelRecipients.every((_) => re.includes(_))) {
                     if (channel == null) {
                         channel = ur.channel;
+                        creatorRecipient = ur;
                         if (!ur.closed) needsTx = false;
-                        await ur.assign({ closed: false }).save();
                     }
                 }
             }
+        }
+
+        if (
+            type === ChannelType.DM &&
+            shouldCheckServerDmPrivacy({
+                recipientCount: recipients.length,
+                existingCreatorRecipientClosed: creatorRecipient?.closed,
+            })
+        ) {
+            await Channel.checkServerDmPrivacy(creator_user_id, recipients[0]);
         }
 
         if (channel == null) {
@@ -481,6 +477,10 @@ export class Channel extends BaseClass {
                 ),
                 nsfw: false,
             }).save();
+        }
+
+        if (creatorRecipient?.closed) {
+            await creatorRecipient.assign({ closed: false }).save();
         }
 
         const channel_dto = await DmChannelDTO.from(channel);
@@ -503,7 +503,63 @@ export class Channel extends BaseClass {
             });
         }
 
-        return channel_dto.forRecipient(creator_user_id);
+        return getCreateDMChannelResponse(channel_dto, creator_user_id);
+    }
+
+    static async checkServerDmReopenPrivacy(channel: Channel, creatorUserId: string) {
+        if (channel.type !== ChannelType.DM) return;
+
+        const recipients = channel.recipients ?? (await Recipient.find({ where: { channel_id: channel.id } }));
+        const creatorRecipient = recipients.find((recipient) => recipient.user_id === creatorUserId);
+        const recipient = recipients.find((recipient) => recipient.user_id !== creatorUserId);
+
+        if (
+            creatorRecipient &&
+            recipient &&
+            shouldCheckServerDmPrivacy({
+                recipientCount: recipients.length - 1,
+                existingCreatorRecipientClosed: creatorRecipient.closed,
+            })
+        ) {
+            await Channel.checkServerDmPrivacy(creatorUserId, recipient.user_id);
+        }
+    }
+
+    static async checkServerDmPrivacy(creatorUserId: string, recipientUserId: string) {
+        const [relationships, recipient, members] = await Promise.all([
+            Relationship.find({
+                where: [
+                    { from_id: recipientUserId, to_id: creatorUserId },
+                    { from_id: creatorUserId, to_id: recipientUserId },
+                ],
+            }),
+            User.findOne({
+                where: { id: recipientUserId },
+                relations: { settings: true },
+            }),
+            Member.find({
+                where: { id: In([creatorUserId, recipientUserId]) },
+                select: { id: true, guild_id: true },
+            }),
+        ]);
+
+        if (!recipient) throw new HTTPError("Recipient/s not found");
+
+        const isFriend = relationships.some((relationship) => relationship.type === RelationshipType.friends);
+        const isBlocked = relationships.some((relationship) => relationship.type === RelationshipType.blocked);
+        const creatorGuildIds = new Set(members.filter((member) => member.id === creatorUserId).map((member) => member.guild_id));
+        const sharedGuildIds = members.filter((member) => member.id === recipientUserId && creatorGuildIds.has(member.guild_id)).map((member) => member.guild_id);
+
+        if (
+            !canCreateServerDm({
+                isBlocked,
+                isFriend,
+                recipientSettings: recipient?.settings,
+                sharedGuildIds,
+            })
+        ) {
+            throw DiscordApiErrors.CANNOT_MESSAGE_USER;
+        }
     }
 
     static async removeRecipientFromChannel(channel: Channel, user_id: string) {
@@ -520,23 +576,21 @@ export class Channel extends BaseClass {
             return;
         }
 
+        const ownerChanged = await saveGroupDMOwnerAfterRecipientRemoval(channel, channel.recipients?.map((recipient) => recipient.user_id) ?? []);
+
         await emitEvent({
             event: "CHANNEL_DELETE",
             data: await DmChannelDTO.from(channel, [user_id]),
             user_id: user_id,
         });
 
-        //If the owner leave the server user is the new owner
-        if (channel.owner_id === user_id) {
-            channel.owner_id = "1"; // The channel is now owned by the server user
+        if (ownerChanged) {
             await emitEvent({
                 event: "CHANNEL_UPDATE",
                 data: await DmChannelDTO.from(channel, [user_id]),
                 channel_id: channel.id,
             });
         }
-
-        await channel.save();
 
         await emitEvent({
             event: "CHANNEL_RECIPIENT_REMOVE",
@@ -553,17 +607,30 @@ export class Channel extends BaseClass {
 
     static async deleteChannel(channel: Channel) {
         // TODO Delete attachments from the CDN for messages in the channel
-        await Channel.delete({ id: channel.id });
+        const database = getDatabase();
+        if (!database) throw new Error("Tried to delete a channel before the database was initialised");
 
-        if (channel.guild_id) {
-            const guild = await Guild.findOneOrFail({
-                where: { id: channel.guild_id },
-                select: { channel_ordering: true },
-            });
+        const updatedGuilds = await database.transaction(async (entityManager) => {
+            await entityManager.delete(ReadState, { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL });
+            await entityManager.delete(Channel, { id: channel.id });
 
-            const updatedOrdering = guild.channel_ordering.filter((id) => id != channel.id);
-            await Guild.update({ id: channel.guild_id }, { channel_ordering: updatedOrdering });
-        }
+            if (channel.guild_id) {
+                const guild = await entityManager.findOneOrFail(Guild, {
+                    where: { id: channel.guild_id },
+                    select: { channel_ordering: true },
+                });
+
+                const updatedOrdering = getGuildChannelOrdering(guild).filter((id) => id != channel.id);
+                await entityManager.update(Guild, { id: channel.guild_id }, { channel_ordering: updatedOrdering });
+
+                const updatedGuild = await Invite.syncGuildVanityUrlFeature(channel.guild_id, entityManager);
+                return updatedGuild ? [updatedGuild] : [];
+            }
+
+            return [];
+        });
+
+        await Promise.all(updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild)));
     }
 
     static async calculatePosition(channel_id: string, guild_id: string, guild?: Guild) {
@@ -573,7 +640,7 @@ export class Channel extends BaseClass {
                 select: { channel_ordering: true },
             });
 
-        return guild.channel_ordering.findIndex((id) => channel_id == id);
+        return getGuildChannelOrdering(guild).findIndex((id) => channel_id == id);
     }
 
     static async getOrderedChannels(guild_id: string, guild?: Guild) {
@@ -583,14 +650,15 @@ export class Channel extends BaseClass {
                 select: { channel_ordering: true },
             });
 
-        const channels = await Promise.all(guild.channel_ordering.map((id) => Channel.findOne({ where: { id } })));
+        const channelOrdering = getGuildChannelOrdering(guild);
+        const channels = await Promise.all(channelOrdering.map((id) => Channel.findOne({ where: { id } })));
 
         return channels
             .filter((channel) => channel !== null)
             .reduce((r, v) => {
                 v = v as Channel;
 
-                v.position = (guild as Guild).channel_ordering.indexOf(v.id);
+                v.position = channelOrdering.indexOf(v.id);
                 r[v.position] = v;
                 return r;
             }, [] as Array<Channel>);

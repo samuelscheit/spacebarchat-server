@@ -28,8 +28,8 @@ interface PendingInteraction {
     nonce?: string;
     messageId?: string;
     type: InteractionType;
-    commandType: ApplicationCommandType;
-    commandName: string;
+    commandType?: ApplicationCommandType;
+    commandName?: string;
 }
 
 export const pendingInteractions = new Map<Snowflake, PendingInteraction>();

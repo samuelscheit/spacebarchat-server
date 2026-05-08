@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import crypto from "node:crypto";
 import fsp from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, basename } from "node:path";
 import { tmpdir } from "node:os";
+import { describe, it } from "node:test";
 import { FileStorage } from "./FileStorage";
 
 async function withStorageRoot(test: (root: string, storage: FileStorage) => Promise<void>) {
@@ -22,6 +23,19 @@ async function withStorageRoot(test: (root: string, storage: FileStorage) => Pro
 }
 
 describe("FileStorage", () => {
+    it("waits until direct file writes are durable before set resolves", async () => {
+        await withStorageRoot(async (_root, storage) => {
+            const key = "attachments/channel/message/file.bin";
+            const data = crypto.randomBytes(8 * 1024 * 1024);
+
+            await storage.set(key, data);
+
+            const stat = await fsp.stat(storage.getFsPath(key));
+            assert.equal(stat.size, data.length);
+            assert.deepEqual(await storage.get(key), data);
+        });
+    });
+
     it("deletes empty parent directories under the storage root", async () => {
         await withStorageRoot(async (root, storage) => {
             const filePath = join(root, "attachments", "channel", "message", "file.txt");
@@ -75,6 +89,27 @@ describe("FileStorage", () => {
 
             assert.equal(existsSync(join(root, "file.txt")), false);
             assert.equal(existsSync(root), true);
+        });
+    });
+
+    it("rejects paths that escape to storage-root sibling directories", async () => {
+        await withStorageRoot(async (root, storage) => {
+            const sibling = `${basename(root)}-escape`;
+
+            assert.throws(() => storage.getFsPath(`../${sibling}/file.bin`), /invalid path/);
+            assert.throws(() => storage.getFsPath(`nested/../../${sibling}/file.bin`), /invalid path/);
+        });
+    });
+
+    it("rejects null bytes in storage paths", async () => {
+        await withStorageRoot(async (_root, storage) => {
+            assert.throws(() => storage.getFsPath("attachments/channel/message/\0file.bin"), /invalid path/);
+        });
+    });
+
+    it("allows paths with leading-dot names that stay inside the storage root", async () => {
+        await withStorageRoot(async (root, storage) => {
+            assert.equal(storage.getFsPath("attachments/..visible-file.bin"), join(root, "attachments", "..visible-file.bin"));
         });
     });
 

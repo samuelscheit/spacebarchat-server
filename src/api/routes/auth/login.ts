@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route, verifyCaptcha } from "@spacebar/api";
+import { buildWebAuthnTicketPayload, encodeWebAuthnClientChallenge, route, verifyCaptcha } from "@spacebar/api";
 import { Config, emailMatches, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import crypto from "node:crypto";
@@ -133,7 +133,7 @@ router.post(
             const challenge = JSON.stringify({
                 publicKey: {
                     ...options,
-                    challenge: Buffer.from(options.challenge).toString("base64"),
+                    challenge: encodeWebAuthnClientChallenge(options.challenge),
                     allowCredentials: user.security_keys.map((x) => ({
                         id: x.key_id,
                         type: "public-key",
@@ -143,7 +143,16 @@ router.post(
                 },
             });
 
-            const ticket = await generateWebAuthnTicket(challenge);
+            const ticket = await generateWebAuthnTicket(
+                buildWebAuthnTicketPayload(
+                    req,
+                    options.challenge,
+                    user.id,
+                    "login_mfa",
+                    Config.get().api.endpointPublic,
+                    user.security_keys.map((key) => key.key_id),
+                ),
+            );
             await User.update({ id: user.id }, { totp_last_ticket: ticket });
 
             const response = {

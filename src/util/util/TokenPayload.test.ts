@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { createTokenPayload, CurrentTokenFormatVersion, getTokenUserId } from "./TokenPayload";
+import { createTokenPayload, CurrentTokenFormatVersion, FirstTokenFormatVersionWithDeviceId, getTokenUserId } from "./TokenPayload";
 
 describe("TokenPayload", () => {
     test("creates current tokens with the user id in the standard sub claim", () => {
@@ -12,6 +12,7 @@ describe("TokenPayload", () => {
         assert.equal(payload.kid, "key-id");
         assert.equal(payload.did, "device-id");
         assert.equal(payload.ver, CurrentTokenFormatVersion);
+        assert.equal(FirstTokenFormatVersionWithDeviceId, 3);
         assert.equal(CurrentTokenFormatVersion, 4);
     });
 

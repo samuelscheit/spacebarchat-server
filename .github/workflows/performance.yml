@@ -57,7 +57,9 @@ jobs:
 
       - name: Install head benchmark harness
         working-directory: head
-        run: npm ci
+        run: |
+          npm ci
+          npm run test:manifest
 
       - name: Benchmark base
         working-directory: base

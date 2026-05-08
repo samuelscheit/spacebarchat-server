@@ -16,21 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, getPermission, Member, Role, Session, User, Presence, Channel, Permissions, arrayPartition, getMostRelevantSession } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent } from "@spacebar/gateway";
+import { getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
+import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
+import { assertGatewayChannelAccess } from "../util/Authorization";
+import { unsubscribeGuildMemberEventIds } from "../listener/subscriptions";
 
-// TODO: only show roles/members that have access to this channel
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
 // TODO: rewrite typeorm
 
-async function getMembers(guild_id: string, range: [number, number]) {
-    if (!Array.isArray(range) || range.length !== 2) {
-        throw new Error("range is not a valid array");
-    }
-
+async function getMembers(guild_id: string) {
     let members: Member[] = [];
     try {
         members =
@@ -46,105 +43,69 @@ async function getMembers(guild_id: string, range: [number, number]) {
                 .orderBy("_status", "DESC")
                 .addOrderBy("role.position", "DESC")
                 .addOrderBy("user.username", "ASC")
-                .offset(Number(range[0]) || 0)
-                .limit(Number(range[1]) || 100)
                 .getMany()) ?? [];
     } catch (e) {
         console.error(`LazyRequest`, e);
     }
 
-    if (!members || !members.length) {
-        return {
-            items: [],
-            groups: [],
-            range: [],
-            members: [],
-        };
+    return members ?? [];
+}
+
+function memberCanViewChannel(member: Member, channel: Channel, guildOwnerId?: string) {
+    return Permissions.finalPermission({
+        user: {
+            id: member.id,
+            roles: member.roles?.map((role) => role.id) ?? [],
+            communication_disabled_until: member.communication_disabled_until ?? null,
+            flags: member.user?.flags ?? 0,
+        },
+        guild: {
+            id: member.guild_id,
+            owner_id: guildOwnerId ?? "",
+            roles: member.roles ?? [],
+        },
+        channel: {
+            overwrites: channel.permission_overwrites,
+        },
+    }).has("VIEW_CHANNEL");
+}
+
+async function canUserViewChannel(guildId: string, channelId: string, userId: string) {
+    try {
+        await assertGatewayChannelAccess({
+            userId,
+            guildId,
+            channelId,
+            permission: "VIEW_CHANNEL",
+        });
+        return true;
+    } catch {
+        return false;
     }
+}
 
-    const groups = [];
-    const items = [];
-    const member_roles = [
-        ...new Map(
-            members
-                .map((m) => m.roles)
-                .flat()
-                .map((role) => [role.id, role] as [string, Role]),
-        ).values(),
-    ];
-    member_roles.push(
-        member_roles.splice(
-            member_roles.findIndex((x) => x.id === x.guild_id),
-            1,
-        )[0],
-    );
-
-    const offlineItems = [];
-
-    for (const role of member_roles) {
-        const [role_members, other_members] = arrayPartition(members, (m: Member) => !!m.roles.find((r) => r.id === role.id));
-        const group = {
-            count: role_members.length,
-            id: role.id === guild_id ? "online" : role.id,
-        };
-
-        items.push({ group });
-        groups.push(group);
-
-        for (const member of role_members) {
-            const roles = member.roles.filter((x: Role) => x.id !== guild_id).map((x: Role) => x.id);
-
-            const session: Session | undefined = getMostRelevantSession(member.user.sessions);
-
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (session?.status == "unknown") {
-                session.status = member?.user?.settings?.status || "online";
-            }
-
-            const item = {
-                member: {
-                    ...member,
-                    roles,
-                    user: member.user.toPublicUser(),
-                    presence: {
-                        activities: session?.activities || [],
-                        user: { id: member.user.id },
-                        client_status: session?.client_status,
-                        status: session?.status,
-                    },
-                },
-            };
-
-            if (!session || session.status == "invisible" || session.status == "offline") {
-                item.member.presence.status = "offline";
-                offlineItems.push(item);
-                group.count--;
-                continue;
-            }
-
-            items.push(item);
+function getRequestedRanges(ranges: unknown[]): [number, number][] {
+    return ranges.map((range) => {
+        if (!Array.isArray(range) || range.length !== 2) {
+            throw new Error("range is not a valid array");
         }
-        members = other_members;
-    }
 
-    if (offlineItems.length) {
-        const group = {
-            count: offlineItems.length,
-            id: "offline",
-        };
-        items.push({ group });
-        groups.push(group);
+        return range as [number, number];
+    });
+}
 
-        items.push(...offlineItems);
-    }
+function getLazyMemberIds(memberList: ReturnType<typeof buildLazyMemberListOperations>) {
+    return new Set(memberList.ops.flatMap((op) => op.members.map((member) => member?.user.id).filter((userId): userId is string => Boolean(userId))));
+}
 
-    return {
-        items,
-        groups,
-        range,
-        members: items.map((x) => ("member" in x ? { ...x.member, settings: undefined } : undefined)).filter((x) => !!x),
-    };
+async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
+    const trackedUserIds = socket.guild_member_event_ids[guildId];
+    if (!trackedUserIds?.size) return;
+
+    const staleUserIds = [...trackedUserIds].filter((userId) => !subscribedUserIds.has(userId));
+    if (!staleUserIds.length) return;
+
+    await unsubscribeGuildMemberEventIds(socket.member_events, socket.guild_member_event_ids, socket.member_event_guild_ids, guildId, staleUserIds);
 }
 
 export async function onLazyRequest(this: WebSocket, { d }: Payload) {
@@ -153,13 +114,30 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     check.call(this, LazyRequestSchema, d);
     // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
     const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
+    const channel_id = Object.keys(channels || {})[0];
+    const shouldAuthorizeChannel = Boolean(channel_id);
+    const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);
+    const authorized = shouldAuthorizeChannel
+        ? await assertGatewayChannelAccess({
+              userId: this.user_id,
+              guildId: guild_id,
+              channelId: channel_id,
+              permission: "VIEW_CHANNEL",
+          })
+        : undefined;
 
+    if (requiresAuthorizedChannel && !authorized) return;
+
+    const subscribedUserIds = new Set<string>();
     if (members) {
         // Client has requested a PRESENCE_UPDATE for specific member
 
-        await Promise.all([
+        await Promise.all(
             members.map(async (x) => {
                 if (!x) return;
+                if (!(await canUserViewChannel(guild_id, authorized!.channel.id, x))) return;
+
+                subscribedUserIds.add(x);
                 const didSubscribe = await subscribeGuildMemberEvent.call(this, guild_id, x);
                 if (!didSubscribe) return;
 
@@ -185,30 +163,28 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
                     } as Presence,
                 });
             }),
-        ]);
+        );
 
         if (!channels) return;
     }
 
     if (!channels) return;
 
-    const channel_id = Object.keys(channels || {})[0];
     if (!channel_id) return;
-
-    const permissions = await getPermission(this.user_id, guild_id, channel_id);
-    permissions.hasThrow("VIEW_CHANNEL");
 
     const ranges = channels[channel_id];
     if (!Array.isArray(ranges)) throw new Error("Not a valid Array");
 
-    const member_count = await Member.count({ where: { guild_id } });
-    const ops = await Promise.all(ranges.map((x) => getMembers(guild_id, x as [number, number])));
+    const requestedRanges = getRequestedRanges(ranges);
+    const guildMembers = await getMembers(guild_id);
+    const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.guildOwnerId));
+    const member_count = visibleGuildMembers.length;
+    const memberList = buildLazyMemberListOperations(visibleGuildMembers, guild_id, requestedRanges);
+    for (const userId of getLazyMemberIds(memberList)) subscribedUserIds.add(userId);
 
     let list_id = "everyone";
 
-    const channel = await Channel.findOneOrFail({
-        where: { id: channel_id },
-    });
+    const channel = authorized!.channel;
     if (channel.permission_overwrites) {
         const perms: string[] = [];
 
@@ -224,32 +200,24 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         }
     }
 
-    // TODO: unsubscribe member_events that are not in op.members
-
-    ops.forEach((op) => {
-        op.members.forEach(async (member) => {
-            if (!member?.user.id) return;
-            return subscribeGuildMemberEvent.call(this, guild_id, member.user.id);
-        });
-    });
-
-    const groups = [...new Set(ops.map((x) => x.groups).flat())];
+    await Promise.all([...subscribedUserIds].map((userId) => subscribeGuildMemberEvent.call(this, guild_id, userId)));
+    await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
 
     await Send(this, {
         op: OPCODES.Dispatch,
         s: this.sequence++,
         t: "GUILD_MEMBER_LIST_UPDATE",
         d: {
-            ops: ops.map((x) => ({
+            ops: memberList.ops.map((x) => ({
                 items: x.items,
                 op: "SYNC",
                 range: x.range,
             })),
-            online_count: member_count - (groups.find((x) => x.id == "offline")?.count ?? 0),
+            online_count: memberList.online_count,
             member_count,
             id: list_id,
             guild_id,
-            groups,
+            groups: memberList.groups,
         },
     });
 

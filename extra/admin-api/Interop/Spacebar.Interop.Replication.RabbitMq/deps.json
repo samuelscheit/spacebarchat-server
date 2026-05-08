@@ -1,10 +1,5 @@
 [
   {
-    "pname": "ArcaneLibs",
-    "version": "1.0.1-preview.20260420-212318",
-    "hash": "sha256-y+gU8S3jbcFgIwwc0vkkEPMfHzGZ+55//9uvsKOEGXY="
-  },
-  {
     "pname": "Microsoft.Extensions.Configuration",
     "version": "10.0.7",
     "hash": "sha256-2RqDs7+dXtGY78E5jSd1qyKu+dMQkbzv+oMY09SEJm0="

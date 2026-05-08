@@ -16,7 +16,23 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity import
-import { Team } from "@spacebar/util";
+import { TeamMemberRole, TeamMemberState } from "../api/developers/Team";
 
-export type TeamListResponse = Team[];
+export interface TeamListTeamMember {
+    id: string;
+    membership_state: TeamMemberState;
+    permissions: string[];
+    role: TeamMemberRole;
+    team_id: string;
+    user_id: string;
+}
+
+export interface TeamListTeam {
+    id: string;
+    icon?: string | null;
+    members: TeamListTeamMember[];
+    name: string;
+    owner_user_id: string;
+}
+
+export type TeamListResponse = TeamListTeam[];
