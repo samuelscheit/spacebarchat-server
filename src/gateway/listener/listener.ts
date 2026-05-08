@@ -31,6 +31,7 @@ import {
     Recipient,
     Relationship,
     Role,
+    Intents,
 } from "@spacebar/util";
 import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
 import { WebSocket } from "@spacebar/gateway";
@@ -71,6 +72,10 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
     if (!presenceUserId) return false;
 
     return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
+}
+
+export function canDispatchUserDelete(intents: Intents | undefined) {
+    return !!intents?.has(Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES);
 }
 
 // TODO: close connection on Invalidated Token
@@ -486,6 +491,9 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "GUILD_EMOJI_UPDATE":
         case "GUILD_EMOJIS_UPDATE":
         case "READY": // will be sent by the gateway
+        case "USER_DELETE":
+            if (!canDispatchUserDelete(this.intents)) return;
+            break;
         case "USER_UPDATE":
         case "APPLICATION_COMMAND_CREATE":
         case "APPLICATION_COMMAND_DELETE":
