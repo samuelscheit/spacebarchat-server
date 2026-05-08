@@ -6,7 +6,8 @@
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
-        "src/util/util/TraverseDirectory.test.ts"
+        "src/util/util/TraverseDirectory.test.ts",
+        "src/api/util/utility/WebAuthn.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {

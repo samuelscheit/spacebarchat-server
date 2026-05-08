@@ -24,7 +24,17 @@ import {
     parseWebAuthnCredentialResponse,
     route,
 } from "@spacebar/api";
-import { Config, DiscordApiErrors, FieldErrors, generateWebAuthnTicket, isWebAuthnTicketPayload, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import {
+    Config,
+    DiscordApiErrors,
+    FieldErrors,
+    generateWebAuthnTicket,
+    isWebAuthnTicketPayload,
+    requireWebAuthnFido2,
+    SecurityKey,
+    User,
+    verifyWebAuthnToken,
+} from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -63,10 +73,7 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
-        if (!WebAuthn.fido2) {
-            // TODO: I did this for typescript and I can't use !
-            throw new Error("WebAuthn not enabled");
-        }
+        const fido2 = requireWebAuthnFido2();
 
         const user = await User.findOneOrFail({
             where: {
@@ -88,7 +95,7 @@ router.post(
                 });
             }
 
-            const registrationOptions = await WebAuthn.fido2.attestationOptions();
+            const registrationOptions = await fido2.attestationOptions();
             const challenge = JSON.stringify({
                 publicKey: {
                     ...registrationOptions,
@@ -124,7 +131,7 @@ router.post(
             const parsedCredential = parseWebAuthnCredentialResponse(credential);
             if (!parsedCredential) throw new HTTPError("Missing rawId", 400);
 
-            const regResult = await WebAuthn.fido2.attestationResult(parsedCredential.credential, buildWebAuthnAttestationExpectations(verified));
+            const regResult = await fido2.attestationResult(parsedCredential.credential, buildWebAuthnAttestationExpectations(verified));
 
             const authnrData = regResult.authnrData;
             const keyId = Buffer.from(authnrData.get("credId")).toString("base64");
