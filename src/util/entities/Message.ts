@@ -171,6 +171,8 @@ export function signMessageAttachmentUrls<T extends object>(message: T, data: Ne
     name: "messages",
 })
 @Index(["channel_id", "id"], { unique: true })
+@Index("IDX_messages_channel_timestamp", ["channel_id", "timestamp"])
+@Index("IDX_messages_channel_author_timestamp", ["channel_id", "author_id", "timestamp"])
 export class Message extends BaseClass {
     @Column({ nullable: true })
     @RelationId((message: Message) => message.channel)

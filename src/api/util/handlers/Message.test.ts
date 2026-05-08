@@ -113,7 +113,7 @@ describe("handleMessage", () => {
             },
         }));
         t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
-        t.mock.method(spacebarUtil.Message, "findOne", async () => ({
+        const findOneMock = t.mock.method(spacebarUtil.Message, "findOne", async () => ({
             timestamp: new Date(),
         }));
         const createMessageMock = t.mock.method(spacebarUtil.Message, "create", (input: Record<string, unknown>) => ({
@@ -143,6 +143,11 @@ describe("handleMessage", () => {
 
         assert.equal(createMessageMock.mock.callCount(), 0);
         assert.equal(getPermissionMock.mock.callCount(), 1);
+        assert.deepEqual(findOneMock.mock.calls[0].arguments[0], {
+            where: { channel_id: channel.id, author_id: "author_id" },
+            select: { timestamp: true },
+            order: { timestamp: "DESC" },
+        });
     });
 
     test("allows channel slowmode bypass permissions", async (t) => {

@@ -636,6 +636,8 @@ export class initial0 implements MigrationInterface {
 		await queryRunner.query(`CREATE INDEX "IDX_40bb6f23e7cc133292e92829d2" ON public.message_stickers USING btree ("messagesId");`);
 		await queryRunner.query(`CREATE INDEX "IDX_5d7ddc8a5f9c167f548625e772" ON public.member_roles USING btree (index);`);
 		await queryRunner.query(`CREATE INDEX "IDX_86b9109b155eb70c0a2ca3b4b6" ON public.messages USING btree (channel_id);`);
+		await queryRunner.query(`CREATE INDEX "IDX_messages_channel_timestamp" ON public.messages USING btree (channel_id, "timestamp");`);
+		await queryRunner.query(`CREATE INDEX "IDX_messages_channel_author_timestamp" ON public.messages USING btree (channel_id, author_id, "timestamp");`);
 		await queryRunner.query(`CREATE UNIQUE INDEX "IDX_a0b2ff0a598df0b0d055934a17" ON public.relationships USING btree (from_id, to_id);`);
 		await queryRunner.query(`CREATE INDEX "IDX_a343387fc560ef378760681c23" ON public.message_user_mentions USING btree ("messagesId");`);
 		await queryRunner.query(`CREATE INDEX "IDX_a8242cf535337a490b0feaea0b" ON public.message_role_mentions USING btree ("messagesId");`);
