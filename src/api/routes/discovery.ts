@@ -22,9 +22,39 @@ import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
 
+type DiscoveryCategoryResponse = Pick<Categories, "id" | "name" | "localizations" | "is_primary" | "icon">;
+
+export function localizeDiscoveryCategories(categories: Categories[], locale: unknown): DiscoveryCategoryResponse[] {
+    if (typeof locale !== "string" || locale.length === 0) return categories;
+
+    return categories.map((category) => {
+        const name = category.localizations?.[locale];
+        if (!name) return category;
+
+        return { ...category, name };
+    });
+}
+
+export async function getDiscoveryCategories(query: Request["query"]): Promise<DiscoveryCategoryResponse[]> {
+    const { locale, primary_only } = query;
+    const categories = primary_only ? await Categories.find({ where: { is_primary: true } }) : await Categories.find();
+
+    return localizeDiscoveryCategories(categories, locale);
+}
+
 router.get(
     "/categories",
     route({
+        query: {
+            locale: {
+                type: "string",
+                description: "Locale to use when selecting localized category names.",
+            },
+            primary_only: {
+                type: "boolean",
+                description: "Only return primary discovery categories.",
+            },
+        },
         responses: {
             200: {
                 body: "APIDiscoveryCategoryArray",
@@ -32,15 +62,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO:
-        // Get locale instead
-
-        // const { locale, primary_only } = req.query;
-        const { primary_only } = req.query;
-
-        const out = primary_only ? await Categories.find({ where: { is_primary: true } }) : await Categories.find();
-
-        res.send(out);
+        res.send(await getDiscoveryCategories(req.query));
     },
 );
 
