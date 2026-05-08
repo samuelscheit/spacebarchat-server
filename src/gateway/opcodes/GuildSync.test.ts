@@ -87,8 +87,10 @@ function createQueryBuilder(entity: unknown, alias: string) {
         },
         async getMany() {
             if (entity === MockMemberEntity) {
-                const guildId = (call.wheres[0]?.parameters as { guild_id?: string } | undefined)?.guild_id;
-                return state.guildMembers[guildId ?? ""] ?? [];
+                const parameters = call.wheres[0]?.parameters as { guild_id?: string; guildIds?: string[] } | undefined;
+                if (parameters?.guildIds) return parameters.guildIds.flatMap((guildId) => state.guildMembers[guildId] ?? []);
+
+                return state.guildMembers[parameters?.guild_id ?? ""] ?? [];
             }
 
             const userIds = ((call.wheres[0]?.parameters as { userIds?: string[] } | undefined)?.userIds ?? []) as string[];
@@ -223,6 +225,16 @@ async function waitForGuildSyncDispatches(count: number) {
 }
 
 describe("guild sync query loading", () => {
+    test("does not query when the request contains no guild ids", async () => {
+        await onGuildSync.call(socket(), { d: [] });
+        await new Promise<void>((resolve) => {
+            setImmediate(resolve);
+        });
+
+        assert.equal(state.sentPayloads.length, 0);
+        assert.equal(state.queryCalls.length, 0);
+    });
+
     test("syncs only guilds joined by the socket user", async () => {
         state.joinedGuildIds = ["guild-a"];
         state.guildMembers = {
@@ -245,6 +257,7 @@ describe("guild sync query loading", () => {
         assert.deepEqual(state.queryCalls[0].selects, [{ selection: "member.guild_id", alias: "guild_id" }]);
         assert.deepEqual(state.queryCalls[0].wheres, [{ sql: "member.id = :userId", parameters: { userId: "viewer" } }]);
         assert.deepEqual(state.queryCalls[0].andWheres, [{ sql: "member.guild_id IN (:...guildIds)", parameters: { guildIds: ["guild-a", "guild-b"] } }]);
+        assert.deepEqual(state.queryCalls[1].wheres, [{ sql: "member.guild_id IN (:...guildIds)", parameters: { guildIds: ["guild-a"] } }]);
         assert.deepEqual(state.queryCalls[1].joins, ["member.user user", "member.roles role", "member.guild guild"]);
         assert.deepEqual(state.queryCalls[2].wheres, [{ sql: "session.user_id IN (:...userIds)", parameters: { userIds: ["online-user"] } }]);
         assert.deepEqual(state.queryCalls[2].orderBys, [{ sort: "session.user_id", direction: "ASC" }]);
@@ -287,6 +300,65 @@ describe("guild sync query loading", () => {
                 user: { id: "multi-session", username: "multi-session" },
             },
         ]);
+    });
+
+    test("sends an empty payload without querying sessions when a joined guild has no members", async () => {
+        state.joinedGuildIds = ["empty-guild"];
+        state.guildMembers = {
+            "empty-guild": [],
+        };
+
+        await onGuildSync.call(socket(), { d: ["empty-guild"] });
+        await waitForGuildSyncDispatches(1);
+
+        assert.equal(state.sentPayloads.length, 1);
+        assert.deepEqual(
+            state.queryCalls.map((call) => ({ alias: call.alias, entity: call.entity })),
+            [
+                { alias: "member", entity: MockMemberEntity },
+                { alias: "member", entity: MockMemberEntity },
+            ],
+        );
+        assert.deepEqual(state.sentPayloads[0].d, {
+            id: "empty-guild",
+            members: [],
+            presences: [],
+        });
+    });
+
+    test("batches member and session loading for multiple joined guilds", async () => {
+        state.joinedGuildIds = ["guild-a", "guild-b"];
+        state.guildMembers = {
+            "guild-a": [member("shared-user", "guild-a"), member("guild-a-user", "guild-a")],
+            "guild-b": [member("shared-user", "guild-b")],
+        };
+        state.sessions = [new MockSession("shared-user", "online"), new MockSession("guild-a-user", "idle")];
+
+        await onGuildSync.call(socket(), { d: ["guild-a", "guild-b"] });
+        await waitForGuildSyncDispatches(2);
+
+        assert.equal(state.sentPayloads.length, 2);
+        assert.deepEqual(
+            state.queryCalls.map((call) => ({ alias: call.alias, entity: call.entity })),
+            [
+                { alias: "member", entity: MockMemberEntity },
+                { alias: "member", entity: MockMemberEntity },
+                { alias: "session", entity: MockSessionEntity },
+            ],
+        );
+        assert.deepEqual(state.queryCalls[1].wheres, [{ sql: "member.guild_id IN (:...guildIds)", parameters: { guildIds: ["guild-a", "guild-b"] } }]);
+        assert.deepEqual(state.queryCalls[2].wheres, [{ sql: "session.user_id IN (:...userIds)", parameters: { userIds: ["shared-user", "guild-a-user"] } }]);
+        assert.deepEqual(
+            state.sentPayloads.map((payload) => ({ id: payload.d.id, sequence: payload.s })),
+            [
+                { id: "guild-a", sequence: 0 },
+                { id: "guild-b", sequence: 1 },
+            ],
+        );
+        assert.deepEqual(
+            state.sentPayloads.map((payload) => payload.d.presences.map((presence) => (presence as { user: { id: string } }).user.id)),
+            [["shared-user", "guild-a-user"], ["shared-user"]],
+        );
     });
 
     test("does not issue member or session queries when no requested guilds are joined", async () => {

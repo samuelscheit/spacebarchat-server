@@ -35,14 +35,11 @@ export async function onGuildSync(this: WebSocket, { d }: Payload) {
 
     const joinedGuildIds = await getJoinedGuildIds(this.user_id, guild_ids);
 
-    const tasks = joinedGuildIds.map((guildId) => timePromise(async () => handleGuildSync(this, guildId)));
     // not awaiting lol
-    Promise.all(tasks)
-        .then((res) => {
+    timePromise(async () => handleGuildSync(this, joinedGuildIds))
+        .then(({ result, elapsed }) => {
             console.log(`[Gateway/${this.user_id}] GUILD_SYNC processed ${guild_ids.length} guilds in ${sw.elapsed().totalMilliseconds}ms:`, {
-                ...Object.fromEntries(
-                    res.map((r) => [r.result.id, `${r.result.id}: ${r.result.members.length}U/${r.result.presences.length}P in ${r.elapsed.totalMilliseconds}ms`]),
-                ),
+                ...Object.fromEntries(result.map((r) => [r.id, `${r.id}: ${r.members.length}U/${r.presences.length}P in ${elapsed.totalMilliseconds}ms`])),
             });
         })
         .catch((err) => {
@@ -73,14 +70,16 @@ async function getJoinedGuildIds(userId: string, guildIds: string[]) {
     return rows.map((row) => row.guild_id);
 }
 
-async function getGuildMembers(guild_id: string) {
+async function getGuildMembers(guildIds: string[]) {
+    if (guildIds.length === 0) return [];
+
     const db = getDatabase();
     if (!db) throw new Error("Database not initialized");
 
     return db
         .getRepository(Member)
         .createQueryBuilder("member")
-        .where("member.guild_id = :guild_id", { guild_id })
+        .where("member.guild_id IN (:...guildIds)", { guildIds })
         .leftJoinAndSelect("member.user", "user")
         .leftJoinAndSelect("member.roles", "role")
         .leftJoinAndSelect("member.guild", "guild")
@@ -88,7 +87,7 @@ async function getGuildMembers(guild_id: string) {
 }
 
 async function getSessionsForMembers(members: Member[]) {
-    const userIds = members.map((member) => member.id);
+    const userIds = [...new Set(members.map((member) => member.id))];
     if (userIds.length === 0) return [];
 
     const db = getDatabase();
@@ -97,18 +96,30 @@ async function getSessionsForMembers(members: Member[]) {
     return db.getRepository(Session).createQueryBuilder("session").where("session.user_id IN (:...userIds)", { userIds }).orderBy("session.user_id", "ASC").getMany();
 }
 
-async function handleGuildSync(ws: WebSocket, guild_id: string) {
-    const res: GuildSyncResult = { id: guild_id, presences: [], members: [] };
-
-    const members = await getGuildMembers(guild_id);
-    res.members = members.map((m) => m.toPublicMember());
-
-    const sessions = await getSessionsForMembers(members);
+function groupByUserId(sessions: Session[]) {
     const sessionsByUserId = new Map<string, Session[]>();
     for (const session of sessions) {
         if (!sessionsByUserId.has(session.user_id)) sessionsByUserId.set(session.user_id, []);
         sessionsByUserId.get(session.user_id)!.push(session);
     }
+
+    return sessionsByUserId;
+}
+
+function groupMembersByGuildId(members: Member[]) {
+    const membersByGuildId = new Map<string, Member[]>();
+    for (const member of members) {
+        if (!membersByGuildId.has(member.guild_id)) membersByGuildId.set(member.guild_id, []);
+        membersByGuildId.get(member.guild_id)!.push(member);
+    }
+
+    return membersByGuildId;
+}
+
+function buildGuildSyncResult(guild_id: string, members: Member[], sessionsByUserId: Map<string, Session[]>) {
+    const res: GuildSyncResult = { id: guild_id, presences: [], members: [] };
+
+    res.members = members.map((m) => m.toPublicMember());
 
     for (const member of members) {
         const userSessions = sessionsByUserId.get(member.id) || [];
@@ -125,12 +136,25 @@ async function handleGuildSync(ws: WebSocket, guild_id: string) {
         res.presences.push(presence);
     }
 
-    await Send(ws, {
-        op: OPCODES.Dispatch,
-        t: "GUILD_SYNC",
-        s: ws.sequence++,
-        d: res,
-    });
-
     return res;
+}
+
+async function handleGuildSync(ws: WebSocket, guildIds: string[]) {
+    const members = await getGuildMembers(guildIds);
+    const sessionsByUserId = groupByUserId(await getSessionsForMembers(members));
+    const membersByGuildId = groupMembersByGuildId(members);
+    const results = guildIds.map((guildId) => buildGuildSyncResult(guildId, membersByGuildId.get(guildId) ?? [], sessionsByUserId));
+
+    await Promise.all(
+        results.map((res) =>
+            Send(ws, {
+                op: OPCODES.Dispatch,
+                t: "GUILD_SYNC",
+                s: ws.sequence++,
+                d: res,
+            }),
+        ),
+    );
+
+    return results;
 }
