@@ -84,7 +84,7 @@ export class Config {
         if (process.env.IPDATA_API_KEY_PATH) config.security.ipdataApiKey = await Config.readSecret("IPDATA_API_KEY_PATH");
         if (process.env.REQUEST_SIGNATURE_PATH) config.security.requestSignature = await Config.readSecret("REQUEST_SIGNATURE_PATH");
 
-        await this.set(config);
+        await this.set(config, { validate: false });
         await applyEnvConfigOverrides(config as unknown as Record<string, unknown>);
         validateFinalConfig(config);
         return config;
@@ -110,9 +110,12 @@ export class Config {
 
         return config;
     }
-    public static set(val: Partial<ConfigValue>) {
+    public static set(val: Partial<ConfigValue>, options: { validate?: boolean } = {}) {
         if (!config || !val) return;
-        config = OrmUtils.mergeDeep(config, val);
+        const next = options.validate === false ? OrmUtils.mergeDeep(config, val) : OrmUtils.mergeDeep(structuredClone(config), val);
+
+        if (options.validate !== false) validateFinalConfig(next);
+        config = next;
 
         return applyConfig(config);
     }

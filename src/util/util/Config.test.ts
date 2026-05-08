@@ -72,6 +72,31 @@ test("Config.set writes to the current CONFIG_PATH even when the module was impo
     assert.equal(persisted.updates.lastNotifiedCommit, "current-path");
 });
 
+test("Config.set rejects unsupported CAPTCHA service updates without mutating current config", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    await assert.rejects(async () => {
+        await Config.set({
+            security: {
+                captcha: {
+                    enabled: true,
+                    service: "turnstile",
+                    sitekey: "turnstile-sitekey",
+                    secret: "turnstile-secret",
+                },
+            },
+        } as unknown as Partial<ConfigValue>);
+    }, /Your config has invalid values/);
+
+    assert.equal(Config.get().security.captcha.enabled, false);
+    assert.equal(Config.get().security.captcha.service, null);
+    const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
+    assert.equal(persisted.security.captcha.enabled, false);
+    assert.equal(persisted.security.captcha.service, null);
+});
+
 test("Config.init rejects unsupported CAPTCHA services", async () => {
     const config = validConfig();
     (config.security.captcha as { service: string }).service = "turnstile";
