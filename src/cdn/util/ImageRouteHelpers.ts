@@ -13,7 +13,7 @@ export function hashImageBuffer(buffer: Buffer, mimeType: string) {
     return ANIMATED_IMAGE_MIME_TYPES.includes(mimeType) ? `a_${hash}` : hash;
 }
 
-export function isAllowedImageMimeType(mimeType: string | undefined, allowedMimeTypes: string[] = DEFAULT_IMAGE_MIME_TYPES) {
+export function isAllowedImageMimeType(mimeType: string | undefined, allowedMimeTypes: string[] = DEFAULT_IMAGE_MIME_TYPES): mimeType is string {
     return !!mimeType && allowedMimeTypes.includes(mimeType);
 }
 

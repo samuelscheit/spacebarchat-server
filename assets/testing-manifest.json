@@ -15278,7 +15278,7 @@
             "method": "GET",
             "path": "/guild-profiles/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 90,
+            "line": 84,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15309,7 +15309,7 @@
             "method": "DELETE",
             "path": "/guild-profiles/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 104,
+            "line": 98,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15340,7 +15340,7 @@
             "method": "GET",
             "path": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 78,
+            "line": 72,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15371,7 +15371,7 @@
             "method": "POST",
             "path": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 44,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15402,7 +15402,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 90,
+            "line": 84,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15434,7 +15434,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 104,
+            "line": 98,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -15466,7 +15466,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 78,
+            "line": 72,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15498,7 +15498,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 44,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -15530,7 +15530,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 90,
+            "line": 84,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15562,7 +15562,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/banners/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 104,
+            "line": 98,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -15594,7 +15594,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 78,
+            "line": 72,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15626,7 +15626,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 44,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {

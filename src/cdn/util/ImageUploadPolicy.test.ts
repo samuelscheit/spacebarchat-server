@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { CdnConfiguration } from "@spacebar/util";
+import { CdnConfiguration, User } from "@spacebar/util";
 import {
     assertAnimatedImageUploadAllowed,
     getGuildProfileImageLimits,
@@ -60,6 +60,31 @@ describe("CDN image upload policy", () => {
         assert.equal(await getPremiumStatusForAnimatedImageUpload("image/png", premium, "1"), undefined);
         assert.equal(await getPremiumStatusForAnimatedImageUpload("image/gif", always, "1"), undefined);
         assert.equal(await getPremiumStatusForAnimatedImageUpload("image/gif", never, "1"), undefined);
+        assert.equal(await getPremiumStatusForAnimatedImageUpload("image/gif", premium, undefined), undefined);
+    });
+
+    test("loads premium status using normalized user IDs", async () => {
+        const originalFindOne = User.findOne;
+        let query: unknown;
+
+        User.findOne = (async (options) => {
+            query = options;
+            return { premium: false, premium_type: 1 } as User;
+        }) as typeof User.findOne;
+
+        try {
+            assert.deepEqual(await getPremiumStatusForAnimatedImageUpload("image/gif", premium, "123.png"), { premium: false, premium_type: 1 });
+            assert.deepEqual(query, {
+                where: { id: "123" },
+                select: {
+                    id: true,
+                    premium: true,
+                    premium_type: true,
+                },
+            });
+        } finally {
+            User.findOne = originalFindOne;
+        }
     });
 
     test("treats boolean premium or positive premium_type as entitlement", () => {

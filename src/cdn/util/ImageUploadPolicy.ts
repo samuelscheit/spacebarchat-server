@@ -1,6 +1,6 @@
 import { Config, User, type CdnImageLimitsConfiguration } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { ANIMATED_IMAGE_MIME_TYPES } from "./ImageRouteHelpers";
+import { ANIMATED_IMAGE_MIME_TYPES, stripFileExtension } from "./ImageRouteHelpers";
 
 export type PremiumStatus = Pick<User, "premium" | "premium_type"> | null | undefined;
 
@@ -32,11 +32,11 @@ export function getGuildProfileImageLimits(baseUrl: string, cdnConfig = Config.g
     return baseUrl.includes("/banners") ? cdnConfig.limits.banner : cdnConfig.limits.guildAvatar;
 }
 
-export async function getPremiumStatusForAnimatedImageUpload(mimeType: string | undefined, limits: Pick<CdnImageLimitsConfiguration, "allowAnimated">, userId: string) {
-    if (!isAnimatedImageMimeType(mimeType) || limits.allowAnimated !== "premium") return undefined;
+export async function getPremiumStatusForAnimatedImageUpload(mimeType: string | undefined, limits: Pick<CdnImageLimitsConfiguration, "allowAnimated">, userId?: string) {
+    if (!isAnimatedImageMimeType(mimeType) || limits.allowAnimated !== "premium" || !userId) return undefined;
 
     return User.findOne({
-        where: { id: userId },
+        where: { id: stripFileExtension(userId) },
         select: {
             id: true,
             premium: true,
