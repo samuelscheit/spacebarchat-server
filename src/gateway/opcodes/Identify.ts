@@ -85,6 +85,13 @@ import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 import { getConfiguredPrivilegedIntents, getRequestedIdentifyIntents, hasDisallowedPrivilegedIntents } from "./IdentifyPrivilegedIntents";
+import {
+    buildIdentifyBotGuildCreateData,
+    buildIdentifyBotReadyGuildPlaceholder,
+    buildIdentifyPendingGuildCreateData,
+    IdentifyPendingGuildCreateData,
+    serializeIdentifyReadyVoiceState,
+} from "../util/IdentifyGuildCreate";
 
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
@@ -520,10 +527,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const merged_members = toReadyMergedMembers(shardMembers, user.toPublicUser());
     const mergedMembersTime = taskSw.getElapsedAndReset();
 
-    // Populated with guilds 'unavailable' currently
-    // Just for bots
-    //TODO get this a better type
-    const pending_guilds: { id: string }[] = [];
+    // Populated with full guild payloads that are initially sent as unavailable in READY,
+    // then delivered to bot users as GUILD_CREATE dispatches.
+    const pending_guilds: IdentifyPendingGuildCreateData[] = [];
 
     // Generate guilds list ( make them unavailable if user is bot )
     const guilds: GuildOrUnavailable[] = shardMembers.map((member) => {
@@ -546,25 +552,17 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
         const threads: Channel[] = threadsByGuild.get(member.guild_id) ?? [];
 
-        const guildjson = {
-            ...member.guild.toJSON(),
-            joined_at: member.joined_at,
-
-            threads: threads.map((thread) => {
-                const member = threadMemberMap.get(thread.id)?.toJSON();
-                return {
-                    ...thread.toJSON(),
-                    member,
-                };
-            }),
-            guild_scheduled_events: [],
-            presences: [],
-            stage_instances: (stageInstancesByGuild.get(member.guild_id) ?? []).map((stageInstance) => stageInstance.toPublicStageInstance()),
-        };
+        const guildjson = buildIdentifyPendingGuildCreateData({
+            guild: member.guild,
+            joinedAt: member.joined_at,
+            threads,
+            threadMemberMap,
+            stageInstances: stageInstancesByGuild.get(member.guild_id) ?? [],
+        });
 
         if (user.bot) {
             pending_guilds.push(guildjson);
-            return { id: member.guild.id, unavailable: true };
+            return buildIdentifyBotReadyGuildPlaceholder(member.guild);
         }
 
         return guildjson;
@@ -808,28 +806,23 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         pending_guilds.map((x) => {
             //Even with the GUILD_MEMBERS intent, the bot always receives just itself as the guild members
             const botMemberObject = shardMembers.find((member) => member.guild_id === x.id);
+            const guildCreatePayload = buildIdentifyBotGuildCreateData({
+                pendingGuild: x,
+                botMember: botMemberObject,
+                botUser: user,
+            });
 
             return Send(this, {
                 op: OPCODES.Dispatch,
                 t: EVENTEnum.GuildCreate,
                 s: this.sequence++,
-                d: {
-                    ...x,
-                    members: botMemberObject
-                        ? [
-                              {
-                                  ...botMemberObject.toPublicMember(),
-                                  user: user.toPublicUser(),
-                              },
-                          ]
-                        : [],
-                },
+                d: guildCreatePayload,
             })?.catch((e) => console.error(`[Gateway/${this.user_id}] error when sending bot guilds`, e));
         }),
     );
 
     const readySupplementalGuilds = (guilds.filter((guild) => !guild.unavailable) as Guild[]).map((guild) => ({
-        voice_states: guild.voice_states.map((state) => VoiceState.prototype.toPublicVoiceState.apply(state)),
+        voice_states: guild.voice_states.map(serializeIdentifyReadyVoiceState),
         id: guild.id,
         embedded_activities: [],
     }));

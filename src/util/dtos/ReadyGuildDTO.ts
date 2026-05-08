@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
-import type { ChannelOverride, ChannelType, PublicMember, PublicUser, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
+import type { Channel, Emoji, Guild, Role, StageInstance, Sticker, ThreadMember } from "../entities";
+import type { ChannelOverride, ChannelType, PublicChannel, PublicMember, PublicUser, PublicVoiceState, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
 
 // TODO: this is not the best place for this type
 export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
@@ -45,13 +45,21 @@ export interface ReadyPrivateChannel {
 }
 
 type ReadyStageInstance = StageInstance | StageInstanceResponse;
+type ReadyThreadMember = Pick<ThreadMember, "id" | "index" | "member_idx" | "join_timestamp" | "muted" | "mute_config" | "flags">;
+type ReadyThread = Channel | (Omit<PublicChannel, "member"> & { member?: ReadyThreadMember });
+type ReadyVoiceState = Guild["voice_states"][number] | PublicVoiceState;
+type AvailableReadyGuild = Omit<Partial<Guild>, "channels" | "emojis" | "features" | "id" | "name" | "roles" | "stage_instances" | "stickers" | "threads" | "voice_states"> &
+    Pick<Guild, "channels" | "emojis" | "features" | "id" | "name" | "roles" | "stickers"> & {
+        joined_at?: Date;
+        unavailable: undefined;
+        stage_instances: ReadyStageInstance[];
+        threads: ReadyThread[];
+        voice_states?: ReadyVoiceState[];
+    };
 
-export type GuildOrUnavailable =
-    | { id: string; unavailable: boolean }
-    | (Guild & { joined_at?: Date; unavailable: undefined; threads: Channel[]; stage_instances: ReadyStageInstance[] });
+export type GuildOrUnavailable = { id: string; unavailable: boolean } | AvailableReadyGuild;
 
-const guildIsAvailable = (guild: GuildOrUnavailable): guild is Guild & { joined_at: Date; unavailable: false; threads: Channel[]; stage_instances: ReadyStageInstance[] } =>
-    guild.unavailable != true;
+const guildIsAvailable = (guild: GuildOrUnavailable): guild is AvailableReadyGuild & { joined_at: Date } => guild.unavailable != true;
 
 function stageInstanceToResponse(stageInstance: ReadyStageInstance): StageInstanceResponse {
     if ("toPublicStageInstance" in stageInstance) return stageInstance.toPublicStageInstance();
@@ -192,7 +200,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
         this.large = guild.large;
         this.lazy = true; // ??????????
         this.member_count = guild.member_count;
-        this.members = guild.members?.map((x) => x.toPublicMember());
+        this.members = guild.members?.map((x) => x.toPublicMember()) ?? [];
         this.premium_subscription_count = guild.premium_subscription_count;
         this.properties = {
             name: guild.name,
@@ -213,7 +221,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             mfa_level: guild.mfa_level,
             vanity_url_code: null, // ?????
             premium_tier: guild.premium_tier,
-            premium_progress_bar_enabled: guild.premium_progress_bar_enabled,
+            premium_progress_bar_enabled: guild.premium_progress_bar_enabled ?? false,
             system_channel_flags: guild.system_channel_flags,
             discovery_splash: guild.discovery_splash,
             rules_channel_id: guild.rules_channel_id,
@@ -227,7 +235,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             id: guild.id,
             latest_onboarding_question_id: null,
             max_stage_video_channel_users: 50, // TODO
-            nsfw: guild.nsfw,
+            nsfw: guild.nsfw ?? false,
             safety_alerts_channel_id: null,
         };
         this.roles = guild.roles.map((x) => x.toJSON());

@@ -10,6 +10,7 @@
         "src/gateway/opcodes/GuildSync.test.ts",
         "src/gateway/opcodes/GatewayOpcodeAuthorization.test.ts",
         "src/gateway/opcodes/LazyRequest.test.ts",
+        "src/gateway/util/IdentifyGuildCreate.test.ts",
         "src/gateway/util/LazyMemberList.test.ts",
         "src/gateway/util/RequestGuildMembers.test.ts",
         "src/gateway/util/Shard.test.ts",
