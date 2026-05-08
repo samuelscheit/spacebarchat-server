@@ -21,8 +21,18 @@ import { route } from "@spacebar/api";
 
 const router = Router({ mergeParams: true });
 
-router.get("/gifts", route({}), (req: Request, res: Response) => {
-    res.json([]).status(200);
-});
+router.get(
+    "/gifts",
+    route({
+        responses: {
+            200: {
+                body: "UserEntitlementGiftsResponse",
+            },
+        },
+    }),
+    (req: Request, res: Response) => {
+        res.status(200).json([]);
+    },
+);
 
 export default router;

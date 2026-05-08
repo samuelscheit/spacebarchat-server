@@ -41,6 +41,7 @@ export interface UserUpdateResponse extends APIPrivateUser {
 export type ApplicationDetectableResponse = unknown[];
 export type ApplicationEntitlementsResponse = unknown[];
 export type ApplicationSkusResponse = unknown[];
+export type UserEntitlementGiftsResponse = unknown[];
 export type APIApplicationArray = Application[];
 export type APIInviteArray = Invite[];
 export type APIPublicMessage = PublicMessage;

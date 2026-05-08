@@ -113,6 +113,7 @@ const authenticatedResponseSchemaManifestIds = new Set([
     "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
     "api:http:GET:/users/@me/channels/",
     "api:http:GET:/users/@me/collectibles-marketing/",
+    "api:http:GET:/users/@me/entitlements/gifts",
     "api:http:GET:/users/@me/guilds/",
     "api:http:GET:/users/@me/relationships/",
     "api:http:GET:/users/@me/settings/",

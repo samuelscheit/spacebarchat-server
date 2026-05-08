@@ -5379,6 +5379,11 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserEntitlementGiftsResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "APIApplicationArray": {
         "type": "array",
         "items": {

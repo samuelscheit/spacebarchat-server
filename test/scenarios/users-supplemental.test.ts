@@ -245,7 +245,7 @@ test(
                 },
                 initialized: false,
             });
-            await assertArrayResponse(`${api.apiBaseUrl}/users/@me/entitlements/gifts`, ownerToken);
+            assert.deepEqual(await assertArrayResponse(`${api.apiBaseUrl}/users/@me/entitlements/gifts`, ownerToken), []);
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/guilds/premium/subscription-slots`, ownerToken);
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/library`, ownerToken);
 

@@ -16,7 +16,7 @@
         "runtimePublicInvalidBodyContracts": 13,
         "runtimeProtectedInvalidBodyContracts": 53,
         "runtimePublicResponseSchemaContracts": 8,
-        "runtimeAuthenticatedResponseSchemaContracts": 18,
+        "runtimeAuthenticatedResponseSchemaContracts": 19,
         "runtimeRightOnlyDenialContracts": 6,
         "runtimePermissionOnlyDenialContracts": 80,
         "runtimePermissionAndRightPermissionDenialContracts": 7,
@@ -17240,8 +17240,8 @@
             "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
             "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": []
+                "responses": ["UserEntitlementGiftsResponse"],
+                "responseStatuses": [200]
             },
             "cases": [
                 {
