@@ -19,7 +19,38 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { FieldError } from "../../util/util/FieldError";
-import { assertAppliedTagsExist } from "./ChannelAppliedTagsValidation";
+import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "./ChannelAppliedTagsValidation";
+
+test("assertRequiredAppliedTagsPresent allows missing tags when the parent forum does not require one", () => {
+    assert.doesNotThrow(() => assertRequiredAppliedTagsPresent(undefined, false));
+    assert.doesNotThrow(() => assertRequiredAppliedTagsPresent([], false));
+});
+
+test("assertRequiredAppliedTagsPresent allows at least one tag when the parent forum requires one", () => {
+    assert.doesNotThrow(() => assertRequiredAppliedTagsPresent(["tag-a"], true));
+});
+
+test("assertRequiredAppliedTagsPresent reports missing required applied_tags as an invalid form body", () => {
+    assert.throws(
+        () => assertRequiredAppliedTagsPresent([], true),
+        (error) => {
+            assert.ok(error instanceof FieldError);
+            assert.equal(error.code, 50035);
+            assert.equal(error.message, "Invalid Form Body");
+            assert.deepEqual(error.errors, {
+                applied_tags: {
+                    _errors: [
+                        {
+                            code: "BASE_TYPE_REQUIRED",
+                            message: "Tag is required for this API.",
+                        },
+                    ],
+                },
+            });
+            return true;
+        },
+    );
+});
 
 test("assertAppliedTagsExist allows tags present on the parent forum", () => {
     assert.doesNotThrow(() => assertAppliedTagsExist(["tag-a", "tag-b"], ["tag-a", "tag-b", "tag-c"]));
@@ -38,6 +69,27 @@ test("assertAppliedTagsExist reports invalid applied_tags as an invalid form bod
                         {
                             code: "BASE_TYPE_CHOICES",
                             message: "Tag missing-tag is not available for this forum channel.",
+                        },
+                    ],
+                },
+            });
+            return true;
+        },
+    );
+});
+
+test("assertAppliedTagsExist reports empty-string tags as invalid applied_tags", () => {
+    assert.throws(
+        () => assertAppliedTagsExist([""], ["tag-a"]),
+        (error) => {
+            assert.ok(error instanceof FieldError);
+            assert.equal(error.code, 50035);
+            assert.deepEqual(error.errors, {
+                applied_tags: {
+                    _errors: [
+                        {
+                            code: "BASE_TYPE_CHOICES",
+                            message: "Tag '' is not available for this forum channel.",
                         },
                     ],
                 },

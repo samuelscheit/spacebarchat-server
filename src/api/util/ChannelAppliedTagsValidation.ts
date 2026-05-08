@@ -18,16 +18,29 @@
 
 import { FieldErrors } from "../../util/util/FieldError";
 
+export function assertRequiredAppliedTagsPresent(appliedTags: string[] | undefined, requireTag: boolean) {
+    if (!requireTag || appliedTags?.length) return;
+
+    throw FieldErrors({
+        applied_tags: {
+            code: "BASE_TYPE_REQUIRED",
+            message: "Tag is required for this API.",
+        },
+    });
+}
+
 export function assertAppliedTagsExist(appliedTags: string[], availableTagIds: Iterable<string>) {
     const availableTagIdSet = new Set(availableTagIds);
     const invalidTag = appliedTags.find((tag) => !availableTagIdSet.has(tag));
 
-    if (!invalidTag) return;
+    if (invalidTag === undefined) return;
+
+    const invalidTagDescription = invalidTag.length ? invalidTag : "''";
 
     throw FieldErrors({
         applied_tags: {
             code: "BASE_TYPE_CHOICES",
-            message: `Tag ${invalidTag} is not available for this forum channel.`,
+            message: `Tag ${invalidTagDescription} is not available for this forum channel.`,
         },
     });
 }
