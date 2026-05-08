@@ -24,7 +24,8 @@
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
-        "runtimeCdnSignatureRequiredContracts": 36
+        "runtimeCdnSignatureRequiredContracts": 36,
+        "runtimeCdnDeleteContracts": 17
     },
     "contracts": [
         {

@@ -49,6 +49,7 @@ type GeneratedHttpContractMatrix = {
         runtimeCdnHeadMissingObjectContracts: number;
         runtimeCdnValidObjectContracts: number;
         runtimeCdnSignatureRequiredContracts: number;
+        runtimeCdnDeleteContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -158,6 +159,12 @@ const permissionAndRightDenialContracts = matrix.contracts.filter(
 const cdnMissingObjectContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/");
 const cdnValidObjectContracts = cdnMissingObjectContracts;
 const cdnSignatureRequiredContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && ["POST", "DELETE"].includes(contract.method));
+const cdnDeleteContracts = matrix.contracts.filter(
+    (contract) =>
+        contract.service === "cdn" &&
+        contract.method === "DELETE" &&
+        contract.manifestId !== "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
+);
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
 const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 
@@ -558,6 +565,14 @@ async function assertCdnMissingSignatureResponse(contract: GeneratedHttpContract
     assert.equal(body.code, 400, `${contract.manifestId} should return the signature error code`);
     assert.match(String(body.message), /^Error: Invalid request signature/, `${contract.manifestId} should return the signature error message`);
     assert.equal(body.request, `${contract.method} ${contract.samplePath}`, `${contract.manifestId} should include the CDN request path`);
+}
+
+async function assertCdnDeleteResponse(contract: GeneratedHttpContract, response: Response) {
+    assert.equal(response.status, 200, `${contract.manifestId} should delete seeded CDN objects`);
+    assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON delete response`);
+
+    const body = (await response.json()) as Record<string, unknown>;
+    assert.deepEqual(body, { success: true }, `${contract.manifestId} should return the CDN delete success body`);
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -1128,6 +1143,36 @@ test("generated CDN signature-required contracts reject unsigned mutating reques
                 });
 
                 await assertCdnMissingSignatureResponse(contract, response);
+            }
+        });
+    } finally {
+        restoreConsole();
+    }
+});
+
+test("generated CDN delete contracts remove seeded objects through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnDeleteContracts.length, matrix.summary.runtimeCdnDeleteContracts);
+    assert.ok(cdnDeleteContracts.length > 0, "expected CDN delete routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        await withGeneratedCdn(async ({ cdn, storage }) => {
+            for (const contract of cdnDeleteContracts) {
+                const storagePath = cdnStoragePathForContract(contract);
+                assert.ok(storagePath, `${contract.manifestId} should map to a seeded storage path`);
+                await storage.set(storagePath, cdnRuntimePng);
+                assert.equal(await storage.exists(storagePath), true, `${contract.manifestId} should seed the CDN object before deletion`);
+
+                const response = await fetch(`${cdn.baseUrl}${contract.samplePath}`, {
+                    method: "DELETE",
+                    headers: {
+                        accept: "application/json",
+                        signature: cdnRuntimeRequestSignature,
+                    },
+                });
+
+                await assertCdnDeleteResponse(contract, response);
+                assert.equal(await storage.exists(storagePath), false, `${contract.manifestId} should remove the seeded CDN object`);
             }
         });
     } finally {
