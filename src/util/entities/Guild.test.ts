@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, test } from "node:test";
 import { getMetadataArgsStorage } from "typeorm";
 
@@ -322,5 +324,13 @@ describe("Guild entity metadata", () => {
 
         assert.equal(columns.find((column) => column.propertyName === "description")?.options.type, "varchar");
         assert.equal(columns.find((column) => column.propertyName === "primary_category_id")?.options.type, "int8");
+    });
+
+    test("does not carry the orphaned discovery keyword TODO sample", () => {
+        const source = readFileSync(join(process.cwd(), "src/util/entities/Guild.ts"), "utf8");
+
+        assert.doesNotMatch(source, /^\s*\/\/ TODO:\s*$/m);
+        assert.doesNotMatch(source, /^\s*\/\/\s*"Genshin Impact",\s*$/m);
+        assert.doesNotMatch(source, /^\s*\/\/\s*"miHoYo",\s*$/m);
     });
 });
