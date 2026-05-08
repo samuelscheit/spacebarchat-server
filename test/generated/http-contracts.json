@@ -7386,7 +7386,7 @@
             "path": "/discovery/categories",
             "samplePath": "/discovery/categories",
             "sourceFile": "src/api/routes/discovery.ts",
-            "line": 25,
+            "line": 45,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",

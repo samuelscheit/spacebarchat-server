@@ -50,7 +50,7 @@ describe("discovery categories", () => {
         assert.strictEqual(localizeDiscoveryCategories(categories, ["de"])[0], categories[0]);
     });
 
-    test("fetches only primary categories when primary_only is present", async () => {
+    test("fetches only primary categories when primary_only is true", async () => {
         const categories = [category({ name: "Gaming", localizations: { de: "Spiele" } })];
         const find = test.mock.method(Categories, "find", async () => categories);
 
@@ -58,6 +58,16 @@ describe("discovery categories", () => {
 
         assert.deepEqual(find.mock.calls[0].arguments, [{ where: { is_primary: true } }]);
         assert.equal(result[0].name, "Spiele");
+    });
+
+    test("fetches all categories when primary_only is explicitly false", async () => {
+        const categories = [category({ name: "Gaming" })];
+        const find = test.mock.method(Categories, "find", async () => categories);
+
+        const result = await getDiscoveryCategories({ primary_only: "false", locale: "de" });
+
+        assert.deepEqual(find.mock.calls[0].arguments, []);
+        assert.strictEqual(result[0], categories[0]);
     });
 
     test("fetches all categories when primary_only is absent", async () => {

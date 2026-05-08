@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { parseBooleanQuery, route } from "@spacebar/api";
 import { Categories } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -37,7 +37,7 @@ export function localizeDiscoveryCategories(categories: Categories[], locale: un
 
 export async function getDiscoveryCategories(query: Request["query"]): Promise<DiscoveryCategoryResponse[]> {
     const { locale, primary_only } = query;
-    const categories = primary_only ? await Categories.find({ where: { is_primary: true } }) : await Categories.find();
+    const categories = parseBooleanQuery(primary_only) ? await Categories.find({ where: { is_primary: true } }) : await Categories.find();
 
     return localizeDiscoveryCategories(categories, locale);
 }
