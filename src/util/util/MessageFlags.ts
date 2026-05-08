@@ -25,3 +25,7 @@ export class MessageFlags extends BitField {
         SENT_BY_SOCIAL_LAYER_INTEGRATION: 1n << 16n,
     };
 }
+
+export function withThreadMessageFlag(flags: number | null | undefined): number {
+    return (flags ?? 0) | Number(MessageFlags.FLAGS.HAS_THREAD);
+}
