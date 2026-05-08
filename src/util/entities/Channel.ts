@@ -747,7 +747,7 @@ export class Channel extends BaseClass {
         });
     }
 
-    // TODO: should we throw for missing args?
+    // Authorization predicates fail closed when caller context is incomplete.
     async canViewChannel(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<boolean> {
         if (this.isDm()) return await this.canViewDmChannel(opts.user_id, opts.user);
 
@@ -761,11 +761,10 @@ export class Channel extends BaseClass {
             console.error("Channel.canViewChannel: called without user for DM channel.");
             return false;
         }
-        if (!user) return false;
-        if (this.recipients) return this.recipients.some((r) => r.user_id === user.id && !r.closed);
+        if (this.recipients) return this.recipients.some((r) => r.user_id === userId && !r.closed);
         else {
             // we dont have recipients on hand
-            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: user.id } });
+            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: userId } });
             return recipient == null ? false : !recipient.closed;
         }
     }
