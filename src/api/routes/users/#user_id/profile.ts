@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, profilePronouns, Relationship, User, UserUpdateEvent } from "@spacebar/util";
+import { Badge, Config, FieldErrors, handleFile, Member, profilePronouns, Relationship, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import {
@@ -31,6 +31,7 @@ import {
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
 import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
+import { emitUserUpdateEvents } from "../../../util/UserUpdateEvents";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -192,12 +193,7 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
     // @ts-ignore
     delete user.data;
 
-    // TODO: send update member list event in gateway
-    await emitEvent({
-        event: "USER_UPDATE",
-        user_id: req.user_id,
-        data: user,
-    } satisfies UserUpdateEvent);
+    await emitUserUpdateEvents(user);
 
     res.json({
         accent_color: user.accent_color,
