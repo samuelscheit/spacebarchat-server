@@ -10156,7 +10156,10 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": [
+                    "string",
+                    "integer"
+                ]
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -10175,7 +10178,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "$ref": "#/definitions/IdentifyBitfield"
                 }
             },
             "guild_subscriptions": {
@@ -10635,6 +10638,33 @@
     },
     "JsonSchema": {
         "type": "object",
+        "properties": {
+            "anyOf": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonSchema"
+                }
+            },
+            "items": {
+                "$ref": "#/definitions/JsonSchema"
+            },
+            "properties": {
+                "$ref": "#/definitions/Record%3Cstring%2CJsonSchema%3E"
+            },
+            "type": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -22908,6 +22938,13 @@
             1,
             2,
             3
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "IdentifyBitfield": {
+        "type": [
+            "string",
+            "integer"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     }

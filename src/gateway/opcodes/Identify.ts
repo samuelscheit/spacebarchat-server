@@ -70,6 +70,7 @@ import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
+import { toIdentifyIntents, toIdentifyShard } from "../util/IdentifyPayload";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -126,17 +127,17 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const userQueryTime = taskSw.getElapsedAndReset();
 
     // Check intents
-    if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
-    this.intents = new Intents(identify.intents);
+    this.intents = new Intents(toIdentifyIntents(identify.intents)); // TODO: what is this default number?
 
     // TODO: actually do intent things.
 
     // Validate sharding
     if (identify.shard) {
-        this.shard_id = identify.shard[0];
-        this.shard_count = identify.shard[1];
+        const [shardId, shardCount] = toIdentifyShard(identify.shard);
+        this.shard_id = shardId;
+        this.shard_count = shardCount;
 
-        if (this.shard_count == null || this.shard_id == null || this.shard_id > this.shard_count || this.shard_id < 0 || this.shard_count <= 0) {
+        if (shardId > shardCount || shardId < 0n || shardCount <= 0n) {
             // TODO: why do we even care about this right now?
             console.log(`[Gateway/${this.user_id}] Invalid sharding from ${user.id}: ${identify.shard}`);
             return this.close(CLOSECODES.Invalid_shard);

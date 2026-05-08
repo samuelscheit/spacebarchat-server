@@ -20,6 +20,8 @@
 
 import { ActivitySchema } from "@spacebar/schemas";
 
+export type IdentifyBitfield = number | string;
+
 // TODO: can we get rid of this somehow?
 export const IdentifySchema = {
     token: String,
@@ -107,7 +109,7 @@ export interface IdentifySchema {
         client_version?: string;
         system_locale?: string;
     };
-    intents?: bigint; // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
+    intents?: IdentifyBitfield; // discord uses an integer for bitfields; Spacebar also accepts strings for large bitfields
     presence?: ActivitySchema;
     compress?: boolean;
     large_threshold?: number;
@@ -116,7 +118,7 @@ export interface IdentifySchema {
      * @minItems 2
      * @maxItems 2
      */
-    shard?: bigint[]; // puyo: changed from [bigint, bigint] because it breaks openapi
+    shard?: IdentifyBitfield[]; // puyo: changed from [bigint, bigint] because it breaks openapi
     guild_subscriptions?: boolean;
     capabilities?: number;
     client_state?: {
