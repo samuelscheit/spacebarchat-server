@@ -53,6 +53,21 @@ describe("readJsonConfigFile", () => {
         });
     });
 
+    it("keeps CONFIG_PATH intentionally JSON-only by rejecting YAML documents", async () => {
+        await withTempDir(async (dir) => {
+            const configPath = path.join(dir, "config.yaml");
+            await fs.writeFile(configPath, "general:\n  serverName: localhost\n");
+
+            await assert.rejects(
+                () => readJsonConfigFile(configPath),
+                (error) => {
+                    assert.match((error as Error).message, new RegExp(`^\\[Config\\] Failed to parse CONFIG_PATH JSON '${configPath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}':`));
+                    return true;
+                },
+            );
+        });
+    });
+
     it("requires the JSON document to be an object", async () => {
         await withTempDir(async (dir) => {
             const configPath = path.join(dir, "config.json");
