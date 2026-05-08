@@ -65,6 +65,9 @@ const state: {
     memberCount: number;
     memberListResult: MockMemberListResult;
     omitPermissionGuildCache: boolean;
+    offloadCalls: { body: unknown; socket: unknown; url: string }[];
+    offloadEvents: { data?: unknown; event: string }[];
+    offloadUrl: string | null;
     permissionError: Error | undefined;
     permissionChecks: string[];
     permissionRequests: { channelId: string; guildId: string; userId: string }[];
@@ -82,6 +85,9 @@ const state: {
     memberCount: 0,
     memberListResult: { groups: [], online_count: 0, ops: [] },
     omitPermissionGuildCache: false,
+    offloadCalls: [],
+    offloadEvents: [],
+    offloadUrl: null,
     permissionError: undefined,
     permissionChecks: [],
     permissionRequests: [],
@@ -93,7 +99,16 @@ const state: {
 const mockUtil = {
     Config: {
         get() {
-            return { gateway: { lazyMemberListIncludeOffline: state.includeOfflineLazyMembers } };
+            return {
+                gateway: {
+                    lazyMemberListIncludeOffline: state.includeOfflineLazyMembers,
+                },
+                offload: {
+                    gateway: {
+                        lazyRequestUrl: state.offloadUrl,
+                    },
+                },
+            };
         },
     },
     Channel: {
@@ -208,6 +223,11 @@ const mockGateway = {
         state.buildOptions.push(options);
         return state.memberListResult;
     },
+    async handleOffloadedGatewayRequest(socket: MockSocket, url: string, body: unknown, onEvent?: (event: { data?: unknown; event: string }) => Promise<void> | void) {
+        state.offloadCalls.push({ body, socket, url });
+        for (const event of state.offloadEvents) await onEvent?.(event);
+        return "offloaded";
+    },
     async subscribeGuildMemberEvent(this: MockSocket, guildId: string, userId: string) {
         if (this.guild_member_event_ids[guildId]?.has(userId)) return false;
 
@@ -227,13 +247,13 @@ moduleLoader._load = (request: string, parent?: NodeJS.Module | null, isMain?: b
     if (request === "@spacebar/util") return mockUtil;
     if (request === "@spacebar/gateway") return mockGateway;
     if (request === "@spacebar/schemas") return { LazyRequestSchema: {} };
-    if (request === "./instanceOf" && parent?.filename?.endsWith("/LazyRequest.js")) return { check: () => true };
+    if (request === "./instanceOf" && /\/LazyRequest\.[jt]s$/.test(parent?.filename ?? "")) return { check: () => true };
 
     return originalLoad(request, parent, isMain);
 };
 
 const { onLazyRequest } = require("./LazyRequest") as {
-    onLazyRequest(this: MockSocket, payload: { d: unknown }): Promise<void>;
+    onLazyRequest(this: MockSocket, payload: { d: unknown }): Promise<unknown>;
 };
 
 after(() => {
@@ -269,6 +289,9 @@ beforeEach(() => {
     state.memberCount = 3;
     state.memberListResult = { groups: [], online_count: 0, ops: [] };
     state.omitPermissionGuildCache = false;
+    state.offloadCalls = [];
+    state.offloadEvents = [];
+    state.offloadUrl = null;
     state.permissionError = undefined;
     state.permissionChecks = [];
     state.permissionRequests = [];
@@ -313,6 +336,93 @@ function sentUpdate() {
 }
 
 describe("lazy request member list loading", () => {
+    test("offloads configured lazy requests without local permission or member-list queries", async () => {
+        state.offloadUrl = "http://offload.example/lazy-request";
+        const activeSocket = socket();
+        const body = { channels: { channel: [[0, 0] as Range] }, guild_id: "guild" };
+
+        const result = await onLazyRequest.call(activeSocket, { d: body });
+
+        assert.equal(result, "offloaded");
+        assert.deepEqual(state.offloadCalls, [{ body: { ...body, include_presences: true }, socket: activeSocket, url: "http://offload.example/lazy-request" }]);
+        assert.deepEqual(state.permissionChecks, []);
+        assert.equal(state.findCalls.length, 0);
+        assert.deepEqual(state.buildCalls, []);
+        assert.deepEqual(state.sentPayloads, []);
+    });
+
+    test("tracks lazy member subscriptions from offloaded events", async () => {
+        state.offloadUrl = "http://offload.example/lazy-request";
+        state.offloadEvents = [
+            {
+                event: "GUILD_MEMBER_LIST_UPDATE",
+                data: {
+                    ops: [
+                        {
+                            items: [{ group: { count: 2, id: "online" } }, { member: { user: { id: "visible-user" } } }, { member: { user: { id: 42 } } }],
+                        },
+                    ],
+                },
+            },
+            {
+                event: "PRESENCE_UPDATE",
+                data: { user: { id: "presence-user" } },
+            },
+        ];
+        const activeSocket = socket();
+        activeSocket.member_events = {
+            "stale-user": async () => state.unsubscriptions.push("stale-user"),
+        };
+        activeSocket.guild_member_event_ids = {
+            guild: new Set(["stale-user"]),
+        };
+        activeSocket.member_event_guild_ids = {
+            "stale-user": new Set(["guild"]),
+        };
+
+        await onLazyRequest.call(activeSocket, { d: { channels: { channel: [[0, 0] as Range] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.permissionChecks, []);
+        assert.equal(state.findCalls.length, 0);
+        assert.deepEqual(state.subscriptions, ["visible-user", "42", "presence-user"]);
+        assert.deepEqual(state.unsubscriptions, ["stale-user"]);
+        assert.deepEqual(activeSocket.guild_member_event_ids, {
+            guild: new Set(["visible-user", "42", "presence-user"]),
+        });
+        assert.deepEqual(activeSocket.member_event_guild_ids, {
+            "visible-user": new Set(["guild"]),
+            "42": new Set(["guild"]),
+            "presence-user": new Set(["guild"]),
+        });
+        assert.deepEqual(Object.keys(activeSocket.member_events).sort(), ["42", "presence-user", "visible-user"]);
+    });
+
+    test("passes the absence of guild presences intent to offloaded lazy requests", async () => {
+        state.offloadUrl = "http://offload.example/lazy-request";
+        state.offloadEvents = [
+            {
+                event: "GUILD_MEMBER_LIST_UPDATE",
+                data: {
+                    ops: [{ items: [{ member: { user: { id: "visible-user" } } }] }],
+                },
+            },
+        ];
+        const activeSocket = socket(0n);
+        activeSocket.guild_member_event_ids = { guild: new Set(["stale-user"]) };
+        activeSocket.member_event_guild_ids = { "stale-user": new Set(["guild"]) };
+        activeSocket.member_events = { "stale-user": async () => state.unsubscriptions.push("stale-user") };
+
+        await onLazyRequest.call(activeSocket, { d: { channels: { channel: [[0, 0] as Range] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.offloadCalls[0].body, {
+            channels: { channel: [[0, 0]] },
+            guild_id: "guild",
+            include_presences: false,
+        });
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.unsubscriptions, ["stale-user"]);
+    });
+
     test("loads guild members once and emits one sync op per requested range", async () => {
         const ranges: Range[] = [
             [0, 0],

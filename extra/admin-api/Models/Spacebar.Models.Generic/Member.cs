@@ -38,6 +38,6 @@ public class Member {
 
 // Unsure if this is used anywhere outside of op14...?
 public class MemberWithPresence : Member {
-    [JsonPropertyName("presence")]
+    [JsonPropertyName("presence"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Presence? Presence { get; set; }
 }

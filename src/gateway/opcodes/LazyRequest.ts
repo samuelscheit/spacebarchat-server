@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel, Intents } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
+import { Config, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel, Intents, type Event } from "@spacebar/util";
+import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
 import { LazyRequestSchema } from "@spacebar/schemas";
@@ -127,15 +127,51 @@ function validateRequestedMembers(members: unknown) {
 }
 
 function getRequestedChannelRanges(channels: LazyRequestSchema["channels"] | undefined) {
-    const [channel_id, ranges] = Object.entries(channels ?? {})[0] ?? [];
-    if (!channel_id) return { channel_id, requestedRanges: undefined };
+    const entries = Object.entries(channels ?? {});
+    for (const [, ranges] of entries) {
+        if (!Array.isArray(ranges)) throw new Error("range list is not a valid array");
+        getRequestedRanges(ranges);
+    }
 
-    if (!Array.isArray(ranges)) throw new Error("range list is not a valid array");
+    const [channel_id, ranges] = entries[0] ?? [];
+    if (!channel_id) return { channel_id, requestedRanges: undefined };
 
     return {
         channel_id,
         requestedRanges: getRequestedRanges(ranges),
     };
+}
+
+function getOffloadedLazyMemberIds(event: Event) {
+    if (event.event === "PRESENCE_UPDATE") {
+        const userId = (event.data as Presence | undefined)?.user?.id;
+        return userId ? [String(userId)] : [];
+    }
+
+    if (event.event !== "GUILD_MEMBER_LIST_UPDATE") return [];
+
+    const update = event.data as
+        | {
+              ops?: {
+                  items?: {
+                      member?: {
+                          user?: {
+                              id?: string | number | bigint | null;
+                          } | null;
+                      } | null;
+                  }[];
+              }[];
+          }
+        | undefined;
+
+    return (
+        update?.ops?.flatMap((op) =>
+            (op.items ?? [])
+                .map((item) => item.member?.user?.id)
+                .filter((userId): userId is string | number | bigint => userId !== undefined && userId !== null)
+                .map((userId) => String(userId)),
+        ) ?? []
+    );
 }
 
 async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
@@ -154,6 +190,23 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const { guild_id, channels, members } = d as LazyRequestSchema;
     validateRequestedMembers(members);
     const { channel_id, requestedRanges } = getRequestedChannelRanges(channels);
+    const includePresences = this.intents.has(Intents.FLAGS.GUILD_PRESENCES);
+    const lazyRequestUrl = Config.get().offload.gateway.lazyRequestUrl;
+    if (lazyRequestUrl !== null) {
+        const subscribedUserIds = new Set<string>();
+        const offloadBody = { ...(d as LazyRequestSchema), include_presences: includePresences };
+
+        const result = await handleOffloadedGatewayRequest(this, lazyRequestUrl, offloadBody, async (event) => {
+            if (!includePresences) return;
+
+            for (const userId of getOffloadedLazyMemberIds(event)) {
+                subscribedUserIds.add(userId);
+                await subscribeGuildMemberEvent.call(this, guild_id, userId);
+            }
+        });
+        await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
+        return result;
+    }
     const shouldAuthorizeChannel = Boolean(channel_id);
     const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);
     const authorized = shouldAuthorizeChannel
@@ -168,7 +221,6 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     if (requiresAuthorizedChannel && !authorized) return;
 
     const subscribedUserIds = new Set<string>();
-    const includePresences = this.intents.has(Intents.FLAGS.GUILD_PRESENCES);
     if (members && includePresences) {
         // Client has requested a PRESENCE_UPDATE for specific member
 
