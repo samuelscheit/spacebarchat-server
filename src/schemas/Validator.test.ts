@@ -133,3 +133,19 @@ describe("schema validator custom formats", () => {
         }
     });
 });
+
+describe("RoleModifySchema", () => {
+    test("accepts role names up to 255 characters", () => {
+        const name = "a".repeat(255);
+
+        assert.deepEqual(validateSchema("RoleModifySchema", { name }), { name });
+    });
+
+    test("rejects role names over 255 characters", () => {
+        const validate = ajv.getSchema("RoleModifySchema");
+        assert.ok(validate);
+
+        assert.equal(validate({ name: "a".repeat(256) }), false);
+        assert.ok(validate.errors?.some((error) => error.instancePath === "/name" && error.keyword === "maxLength"));
+    });
+});

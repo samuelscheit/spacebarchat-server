@@ -1741,6 +1741,7 @@
                 "type": "integer"
             },
             "name": {
+                "maxLength": 255,
                 "type": "string"
             },
             "permissions": {
@@ -7154,6 +7155,7 @@
         "type": "object",
         "properties": {
             "name": {
+                "maxLength": 255,
                 "type": "string"
             },
             "permissions": {
