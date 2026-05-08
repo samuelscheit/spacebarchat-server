@@ -27,7 +27,6 @@ import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
 /*
 ? bucket limit? Max actions/sec per bucket?
 (ANSWER: a small spacebar instance might not need a complex rate limiting system)
-TODO: delay database requests to include multiple queries
 TODO: different for methods (GET/POST)
 > IP addresses that make too many invalid HTTP requests are automatically and temporarily restricted from accessing the Discord API. Currently, this limit is 10,000 per 10 minutes. An invalid request is one that results in 401, 403, or 429 statuses.
 > All bots can make up to 50 requests per second to our API. This is independent of any individual rate limit on a route. If your bot gets big enough, based on its functionality, it may be impossible to stay below 50 requests per second during normal operations.
@@ -227,31 +226,4 @@ async function hitRoute(opts: { executor_id: string; bucket_id: string; max_hits
     if (limit.hits >= opts.max_hits) {
         limit.blocked = true;
     }
-
-    /*
-	let ratelimit = await RateLimit.findOne({ where: { id: opts.bucket_id, executor_id: opts.executor_id } });
-	if (!ratelimit) {
-		ratelimit = new RateLimit({
-			id: opts.bucket_id,
-			executor_id: opts.executor_id,
-			expires_at: new Date(Date.now() + opts.window * 1000),
-			hits: 0,
-			blocked: false
-		});
-	}
-	ratelimit.hits++;
-	const updateBlock = !ratelimit.blocked && ratelimit.hits >= opts.max_hits;
-	if (updateBlock) {
-		ratelimit.blocked = true;
-		Cache.set(opts.executor_id + opts.bucket_id, ratelimit);
-		await emitEvent({
-			channel_id: EventRateLimit,
-			event: EventRateLimit,
-			data: ratelimit
-		});
-	} else {
-		Cache.delete(opts.executor_id);
-	}
-	await ratelimit.save();
-	*/
 }
