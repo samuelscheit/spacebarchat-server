@@ -30,12 +30,17 @@ import {
     emitEvent,
     getChannelOrderInsertPoint,
     getInvalidThreadChannelOrderFields,
+    getPermission,
     handleFile,
     makeObjectErrorContent,
+    Member,
     normalizeChannelName,
+    resolveChannelPermissionOverwrites,
+    Role,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import { HTTPError } from "lambert-server";
+import { ChannelModifySchema, ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
 
 const router: Router = Router({ mergeParams: true });
@@ -45,6 +50,18 @@ const router: Router = Router({ mergeParams: true });
 function isStatusOnlyUpdate(payload: ChannelModifySchema) {
     const fields = Object.keys(payload) as (keyof ChannelModifySchema)[];
     return fields.length === 1 && fields[0] === "status";
+}
+
+async function assertPermissionOverwriteTargetsInGuild(guild_id: string, overwrites: NonNullable<ChannelModifySchema["permission_overwrites"]>) {
+    await Promise.all(
+        overwrites.map(async ({ id, type }) => {
+            if (type === ChannelPermissionOverwriteType.role) {
+                if (!(await Role.count({ where: { id, guild_id } }))) throw new HTTPError("role not found", 404);
+            } else if (type === ChannelPermissionOverwriteType.member) {
+                if (!(await Member.count({ where: { id, guild_id } }))) throw new HTTPError("user not found", 404);
+            } else throw new HTTPError("type not supported", 501);
+        }),
+    );
 }
 
 router.get(
@@ -192,6 +209,20 @@ router.patch(
             }
         } else {
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
+            if (payload.permission_overwrites) {
+                if (!channel.guild_id) throw new HTTPError("Channel not found", 404);
+
+                req.permission!.hasThrow("MANAGE_ROLES");
+                await assertPermissionOverwriteTargetsInGuild(channel.guild_id, payload.permission_overwrites);
+                const actorOverwritePermissions = await getPermission(req.user_id, channel.guild_id, channel.parent_id ?? undefined);
+                payload.permission_overwrites = resolveChannelPermissionOverwrites({
+                    requestedOverwrites: payload.permission_overwrites,
+                    existingOverwrites: channel.permission_overwrites ?? [],
+                    actorPermissions: actorOverwritePermissions,
+                    actorChannelPermissions: req.permission,
+                    channelOverwrites: channel.permission_overwrites,
+                });
+            }
         }
 
         if (payload.available_tags) {

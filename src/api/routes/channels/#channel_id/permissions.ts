@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, ChannelUpdateEvent, emitEvent, Member, resolveChannelPermissionOverwritePermissions, Role } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, emitEvent, getPermission, Member, resolveChannelPermissionOverwritePermissions, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -47,9 +47,9 @@ router.put(
         channel.position = await Channel.calculatePosition(channel_id, channel.guild_id, channel.guild);
 
         if (body.type === ChannelPermissionOverwriteType.role) {
-            if (!(await Role.count({ where: { id: overwrite_id } }))) throw new HTTPError("role not found", 404);
+            if (!(await Role.count({ where: { id: overwrite_id, guild_id: channel.guild_id } }))) throw new HTTPError("role not found", 404);
         } else if (body.type === ChannelPermissionOverwriteType.member) {
-            if (!(await Member.count({ where: { id: overwrite_id } }))) throw new HTTPError("user not found", 404);
+            if (!(await Member.count({ where: { id: overwrite_id, guild_id: channel.guild_id } }))) throw new HTTPError("user not found", 404);
         } else throw new HTTPError("type not supported", 501);
 
         channel.permission_overwrites ??= [];
@@ -64,10 +64,14 @@ router.put(
             channel.permission_overwrites.push(overwrite);
         }
 
+        const actorOverwritePermissions = await getPermission(req.user_id, channel.guild_id, channel.parent_id ?? undefined);
         const resolvedPermissions = resolveChannelPermissionOverwritePermissions({
             requestedAllow: body.allow,
             requestedDeny: body.deny,
-            actorPermissions: req.permission,
+            existingAllow: overwrite.allow,
+            existingDeny: overwrite.deny,
+            actorPermissions: actorOverwritePermissions,
+            actorChannelPermissions: req.permission,
             channelOverwrites: channel.permission_overwrites,
         });
         overwrite.allow = resolvedPermissions.allow;
