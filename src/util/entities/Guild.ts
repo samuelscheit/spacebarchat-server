@@ -255,7 +255,15 @@ export class Guild extends BaseClass {
 
     @JoinColumn({ name: "rules_channel_id" })
     @ManyToOne(() => Channel)
-    rules_channel?: string;
+    rules_channel?: Channel;
+
+    @Column({ type: "int8", nullable: true })
+    @RelationId((guild: Guild) => guild.safety_alerts_channel)
+    safety_alerts_channel_id?: string | null;
+
+    @JoinColumn({ name: "safety_alerts_channel_id" })
+    @ManyToOne(() => Channel)
+    safety_alerts_channel?: Channel;
 
     @Column({ nullable: true })
     region?: string;
@@ -373,6 +381,7 @@ export class Guild extends BaseClass {
             description: data.description ?? undefined,
             public_updates_channel_id: data.public_updates_channel_id ?? undefined,
             rules_channel_id: data.rules_channel_id ?? undefined,
+            safety_alerts_channel_id: data.safety_alerts_channel_id ?? undefined,
             system_channel_id: data.system_channel_id ?? undefined,
         } satisfies GuildCreateResponse;
     }
@@ -393,6 +402,7 @@ export class Guild extends BaseClass {
         system_channel_id?: string | null;
         system_channel_flags?: number;
         rules_channel_id?: string | null;
+        safety_alerts_channel_id?: string | null;
     }) {
         const guild_id = Snowflake.generate();
         const roleIds = createTemplateRoleIdMap(body.roles ?? [], body.source_guild_id, guild_id, () => Snowflake.generate());
@@ -519,10 +529,12 @@ export class Guild extends BaseClass {
             afk_channel_id?: string | null;
             channel_ordering: string[];
             rules_channel_id?: string | null;
+            safety_alerts_channel_id?: string | null;
             system_channel_id?: string | null;
         } = { channel_ordering: guild.channel_ordering };
         if (channelReferences.afk_channel_id !== undefined) guildUpdate.afk_channel_id = channelReferences.afk_channel_id;
         if (channelReferences.rules_channel_id !== undefined) guildUpdate.rules_channel_id = channelReferences.rules_channel_id;
+        if (channelReferences.safety_alerts_channel_id !== undefined) guildUpdate.safety_alerts_channel_id = channelReferences.safety_alerts_channel_id;
         if (channelReferences.system_channel_id !== undefined) guildUpdate.system_channel_id = channelReferences.system_channel_id;
         Object.assign(guild, guildUpdate);
         await Guild.update({ id: guild.id }, guildUpdate);

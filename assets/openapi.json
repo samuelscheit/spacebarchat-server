@@ -1810,6 +1810,12 @@
                             "string"
                         ]
                     },
+                    "safety_alerts_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
                     "guild_template_code": {
                         "type": "string"
                     },

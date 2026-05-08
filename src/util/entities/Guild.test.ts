@@ -64,6 +64,7 @@ describe("Guild.createGuild", () => {
                 afk_channel_id?: string | null;
                 channel_ordering?: string[];
                 rules_channel_id?: string | null;
+                safety_alerts_channel_id?: string | null;
                 system_channel_id?: string | null;
             };
         }[] = [];
@@ -105,6 +106,7 @@ describe("Guild.createGuild", () => {
                 owner_id: "owner",
                 source_guild_id: "source-guild",
                 rules_channel_id: "child-1",
+                safety_alerts_channel_id: "child-2",
                 system_channel_id: "top-level",
                 channels: [
                     { id: "category", name: "category", type: 4, position: 50 },
@@ -131,12 +133,14 @@ describe("Guild.createGuild", () => {
             assert(channelCreateCalls.every(({ options }) => options?.skipOrdering));
             assert.deepEqual(guild.channel_ordering, ["new-category", "new-child-1", "new-child-2", "new-top-level"]);
             assert.equal(guild.rules_channel_id, "new-child-1");
+            assert.equal(guild.safety_alerts_channel_id, "new-child-2");
             assert.equal(guild.system_channel_id, "new-top-level");
             assert.deepEqual(guildUpdates.at(-1), {
                 criteria: { id: "new-guild" },
                 partial: {
                     channel_ordering: ["new-category", "new-child-1", "new-child-2", "new-top-level"],
                     rules_channel_id: "new-child-1",
+                    safety_alerts_channel_id: "new-child-2",
                     system_channel_id: "new-top-level",
                 },
             });

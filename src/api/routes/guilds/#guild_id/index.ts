@@ -170,6 +170,16 @@ router.patch(
             });
         }
 
+        if (body.safety_alerts_channel_id != undefined) {
+            // ensure channel exists in this guild when set; null clears it
+            if (body.safety_alerts_channel_id !== null) {
+                await Channel.findOneOrFail({
+                    where: { guild_id, id: body.safety_alerts_channel_id },
+                    select: { id: true },
+                });
+            }
+        }
+
         if (body.rules_channel_id == "1") {
             // create a rules for them
             const channel = await Channel.createChannel(

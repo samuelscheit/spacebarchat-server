@@ -91,7 +91,7 @@ export interface IReadyGuildDTO {
 
         home_header: null; // TODO
         latest_onboarding_question_id: null; // TODO
-        safety_alerts_channel_id: null; // TODO
+        safety_alerts_channel_id?: string | null;
         max_stage_video_channel_users: 50; // TODO
         nsfw: boolean;
         id: string;
@@ -148,7 +148,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
 
         home_header: null; // TODO
         latest_onboarding_question_id: null; // TODO
-        safety_alerts_channel_id: null; // TODO
+        safety_alerts_channel_id?: string | null;
         max_stage_video_channel_users: 50; // TODO
         nsfw: boolean;
         id: string;
@@ -218,7 +218,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             latest_onboarding_question_id: null,
             max_stage_video_channel_users: 50, // TODO
             nsfw: guild.nsfw,
-            safety_alerts_channel_id: null,
+            safety_alerts_channel_id: guild.safety_alerts_channel_id ?? null,
         };
         this.roles = guild.roles.map((x) => x.toJSON());
         this.stage_instances = guild.stage_instances?.map(stageInstanceToResponse) ?? [];
