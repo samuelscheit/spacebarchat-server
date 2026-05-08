@@ -53,7 +53,6 @@ export interface GuildTrait {
     position: number;
 }
 
-// TODO: move
 export enum GuildVisibilityLevel {
     PUBLIC = 1,
     RESTRICTED = 2,
