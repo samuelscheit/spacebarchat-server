@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { ChannelFlags, FieldError } from "@spacebar/util";
-import { assertRequiredForumTag } from "./threads";
+import { assertRequiredForumTag } from "../../src/api/routes/channels/#channel_id/threads";
 
 const requireTagFlag = Number(ChannelFlags.FLAGS.REQUIRE_TAG);
 

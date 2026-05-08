@@ -3,9 +3,9 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
+import { Channel, ChannelFlags, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
 import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
@@ -117,6 +117,7 @@ test(
 
             await coverPermissionOverwriteRoutes(api.apiBaseUrl, textChannelId, guildId, ownerToken, events);
             const tagId = await coverTagCreateAndUpdate(api.apiBaseUrl, forumChannelId, ownerToken, events);
+            await coverRequiredForumTagValidation(api.apiBaseUrl, forumChannelId, ownerToken, events);
             await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, events);
             await coverTagDelete(api.apiBaseUrl, forumChannelId, tagId, ownerToken, events);
         } finally {
@@ -244,6 +245,41 @@ async function coverThreadRoutes(
     const message = await Message.findOneOrFail({ where: { id: messageId }, relations: { thread: true } });
     assert.ok(message.thread);
     assert.equal(message.thread.id, messageId);
+}
+
+async function coverRequiredForumTagValidation(apiBaseUrl: string, forumChannelId: string, token: string, events: EventCapture) {
+    await Channel.update({ id: forumChannelId }, { flags: Number(ChannelFlags.FLAGS.REQUIRE_TAG) });
+
+    await assertRequiredTagThreadRejected(apiBaseUrl, forumChannelId, token, events, "scenario-missing-required-tag", {
+        name: "scenario-missing-required-tag",
+        message: { content: "thread starter content" },
+    });
+    await assertRequiredTagThreadRejected(apiBaseUrl, forumChannelId, token, events, "scenario-empty-required-tag", {
+        name: "scenario-empty-required-tag",
+        applied_tags: [],
+        message: { content: "thread starter content" },
+    });
+}
+
+async function assertRequiredTagThreadRejected(apiBaseUrl: string, forumChannelId: string, token: string, events: EventCapture, name: string, body: Record<string, unknown>) {
+    const beforeCreate = markCapturedEvents(events);
+    const createThread = await postJson(`${apiBaseUrl}/channels/${forumChannelId}/threads`, body, token);
+    const error = await assertJsonError(createThread, 400);
+    assert.equal(error.code, 50035);
+    assert.equal(error.message, "Invalid Form Body");
+    assert.deepEqual((error.errors as Record<string, unknown>).applied_tags, {
+        _errors: [
+            {
+                code: "BASE_TYPE_REQUIRED",
+                message: "This field is required",
+            },
+        ],
+    });
+    assert.equal(await Channel.findOneBy({ parent_id: forumChannelId, name }), null);
+    await assert.rejects(
+        () => waitForEventAfter(events, beforeCreate, (event) => event.event === "THREAD_CREATE" && event.channel_id === forumChannelId && event.data.name === name),
+        /Timed out waiting for event/,
+    );
 }
 
 async function createForumThread(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string, events: EventCapture) {
