@@ -39,13 +39,16 @@ export async function updateRelationship(user_id: string, friend: User, type: Re
     let relationship = user.relationships.find((x) => x.to_id === id);
     const friendRequest = friend.relationships.find((x) => x.to_id === user_id);
 
-    // TODO: you can add infinitely many blocked users (should this be prevented?)
+    const { maxFriends } = Config.get().limits.user;
+
     if (type === RelationshipType.blocked) {
         if (relationship) {
             if (relationship.type === RelationshipType.blocked) throw new HTTPError("You already blocked the user");
             relationship.type = RelationshipType.blocked;
             await relationship.save();
         } else {
+            if (user.relationships.length >= maxFriends) throw DiscordApiErrors.MAXIMUM_FRIENDS.withParams(maxFriends);
+
             relationship = await Relationship.create({
                 to_id: id,
                 type: RelationshipType.blocked,
@@ -73,7 +76,6 @@ export async function updateRelationship(user_id: string, friend: User, type: Re
         return;
     }
 
-    const { maxFriends } = Config.get().limits.user;
     if (user.relationships.length >= maxFriends) throw DiscordApiErrors.MAXIMUM_FRIENDS.withParams(maxFriends);
 
     const initialIncomingType = options.directFriendship ? RelationshipType.friends : RelationshipType.incoming;
