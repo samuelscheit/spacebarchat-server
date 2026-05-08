@@ -16939,7 +16939,7 @@
             "path": "/users/@me/connections/:connection_name/:connection_id/access-token/",
             "samplePath": "/users/@me/connections/github/value/access-token/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/access-token.ts",
-            "line": 30,
+            "line": 39,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

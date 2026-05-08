@@ -6,7 +6,7 @@ import { pathToFileURL } from "node:url";
 process.env.DATABASE ??= "postgres://localhost/spacebar";
 
 function getAccessTokenRouteModuleUrl(): string {
-    return pathToFileURL(path.join(__dirname, "..", "routes", "users", "@me", "connections", "#connection_name", "#connection_id", "access-token.js")).href;
+    return pathToFileURL(path.join(process.cwd(), "dist", "api", "routes", "users", "@me", "connections", "#connection_name", "#connection_id", "access-token.js")).href;
 }
 
 describe("connection access-token route policy", () => {
