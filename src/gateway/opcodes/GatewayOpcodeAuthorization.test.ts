@@ -417,6 +417,21 @@ function assertVoiceStateMemberProjection(member: unknown) {
     assert.deepEqual(Object.keys(projectedMember.user).sort(), ["avatar", "discriminator", "id", "username"]);
 }
 
+function expectedVoiceStateMemberProjection() {
+    return {
+        deaf: false,
+        joined_at: new Date("2026-01-02T03:04:05.000Z"),
+        mute: false,
+        roles: ["role-a"],
+        user: {
+            avatar: null,
+            discriminator: "0001",
+            id: "viewer",
+            username: "alice",
+        },
+    };
+}
+
 function assertVoiceStateMemberLookup(call: unknown, guildId = "guild") {
     const options = call as { relations?: unknown; where?: { guild_id?: string; id?: string } };
 
@@ -652,14 +667,15 @@ describe("gateway opcode authorization", () => {
         assert.deepEqual(state.voiceFindOneCalls[0], { where: { user_id: "viewer" } });
         assert.equal(state.voiceSaves.length, 1);
         assert.equal((state.voiceSaves[0] as { self_stream?: boolean }).self_stream, false);
-        assert.deepEqual(state.memberFindOneCalls, [{ where: { id: "viewer", guild_id: "guild" } }]);
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
         assert.deepEqual(state.emittedEvents, [
             {
                 event: "VOICE_STATE_UPDATE",
                 data: {
                     channel_id: "voice",
                     guild_id: "guild",
-                    member: { user: { id: "viewer" } },
+                    member: expectedVoiceStateMemberProjection(),
                     session_id: "session",
                     user_id: "viewer",
                 },
@@ -752,14 +768,15 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.streamDeleteCalls.length, 0);
         assert.equal(state.streamRemoveCalls.length, 1);
         assert.equal(state.voiceSaves.length, 1);
-        assert.deepEqual(state.memberFindOneCalls, [{ where: { id: "viewer", guild_id: "guild" } }]);
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
         assert.deepEqual(state.emittedEvents, [
             {
                 event: "VOICE_STATE_UPDATE",
                 data: {
                     channel_id: "voice",
                     guild_id: "guild",
-                    member: { user: { id: "viewer" } },
+                    member: expectedVoiceStateMemberProjection(),
                     session_id: "session",
                     user_id: "viewer",
                 },
