@@ -44,12 +44,19 @@ export async function createChannelInvite(user_id: string, channel_id: string, b
     data.guild = await Guild.findOne({ where: { id: guild_id } });
     data.channel = channel;
 
-    const emitInviteEvent = options.emitEvent ?? emitEvent;
-    await emitInviteEvent({
-        event: "INVITE_CREATE",
-        data,
-        guild_id,
-    } satisfies InviteCreateEvent);
+    if (options.emitEvent) {
+        await options.emitEvent({
+            event: "INVITE_CREATE",
+            data,
+            guild_id,
+        } satisfies InviteCreateEvent);
+    } else {
+        await emitEvent({
+            event: "INVITE_CREATE",
+            data,
+            guild_id,
+        } satisfies InviteCreateEvent);
+    }
 
     return { status: 201, data };
 }
