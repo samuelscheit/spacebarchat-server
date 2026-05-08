@@ -57,6 +57,9 @@ router.delete(
             400: {
                 body: "APIErrorResponse",
             },
+            403: {
+                body: "APIErrorResponse",
+            },
             404: {
                 body: "APIErrorResponse",
             },

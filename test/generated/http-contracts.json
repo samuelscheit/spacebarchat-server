@@ -17387,7 +17387,7 @@
             "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
-                "responseStatuses": [204, 400, 404],
+                "responseStatuses": [204, 400, 403, 404],
                 "emittedEvents": ["GUILD_DELETE", "GUILD_MEMBER_REMOVE"]
             },
             "cases": [
