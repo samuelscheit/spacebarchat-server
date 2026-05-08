@@ -32,6 +32,7 @@ import {
     VoiceStateUpdateEvent,
     Config,
     distributePresenceUpdate,
+    getDatabase,
     serializePrivateGatewaySessions,
 } from "@spacebar/util";
 import { randomString } from "@spacebar/api";
@@ -87,6 +88,12 @@ const closeSessionCleanupDependencies: CloseSessionCleanupDependencies = {
     createTransactionId: (userId) => `IDENT_${userId}_${randomString()}`,
 };
 
+type CloseSessionCleanupDatabase = { isInitialized: boolean } | null | undefined;
+
+export function shouldRunClosedSessionCleanup(scheduledDatabase: CloseSessionCleanupDatabase, currentDatabase: CloseSessionCleanupDatabase) {
+    return scheduledDatabase !== null && scheduledDatabase !== undefined && scheduledDatabase === currentDatabase && scheduledDatabase.isInitialized;
+}
+
 export async function cleanupClosedSessionPresence(
     userId: string | undefined,
     authSessionId: string | undefined,
@@ -138,9 +145,14 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
         if (this.user_id && this.session_id) {
             const authSessionId = this.session?.session_id;
             const closedAt = Date.now();
+            const scheduledDatabase = getDatabase();
 
             delayedSessionCleanup = runDelayedGatewayCloseCleanup(async () => {
                 try {
+                    if (!shouldRunClosedSessionCleanup(scheduledDatabase, getDatabase())) {
+                        console.log("Skipping presence update after disconnect because the database connection changed");
+                        return;
+                    }
                     console.log("Handling presence update after disconnect");
                     const updated = await cleanupClosedSessionPresence(this.user_id, authSessionId, closedAt);
                     if (updated) console.log("... done!");
