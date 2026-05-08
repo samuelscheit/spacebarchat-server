@@ -188,10 +188,6 @@ public class UserController(
         }
     }
 
-    // [HttpGet("{id}/Dms")]
-    // public async IEnumerable<object> GetDmsAsync(string userId) {
-        // yield break; // TODO
-    // }
 
     private async IAsyncEnumerable<AsyncActionResult> DeleteMessagesForChannel(
         // context
