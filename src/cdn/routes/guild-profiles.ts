@@ -24,8 +24,8 @@ import { multer } from "../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
+import { assertAnimatedImageUploadAllowed, getGuildProfileImageLimits, getPremiumStatusForAnimatedImageUpload } from "../util/ImageUploadPolicy";
 
-// TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
 // TODO: delete old icons
@@ -55,6 +55,11 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
 
     const type = await fileTypeFromBuffer(buffer);
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
+
+    const imageLimits = getGuildProfileImageLimits(req.baseUrl);
+    const premiumStatus = await getPremiumStatusForAnimatedImageUpload(type.mime, imageLimits, user_id);
+    assertAnimatedImageUploadAllowed(type.mime, imageLimits, premiumStatus);
+
     if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = getProfileUploadPath(req, hash);
