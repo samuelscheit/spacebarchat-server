@@ -84,6 +84,21 @@ describe("InteractionCreateSchema", () => {
         assert.equal(validate(applicationCommandInteractionPayload()), true, JSON.stringify(validate.errors));
     });
 
+    test("accepts public channel objects without entity-only fields", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = {
+            ...applicationCommandInteractionPayload(),
+            channel_id: "100000000000000011",
+            channel: {
+                id: "100000000000000011",
+                type: 0,
+                name: "general",
+            },
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
+    });
+
     test("accepts Discord-compatible message component interactions", () => {
         const validate = compileInteractionCreateSchema();
         const payload = {
