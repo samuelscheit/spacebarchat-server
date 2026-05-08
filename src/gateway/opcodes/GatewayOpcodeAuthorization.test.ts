@@ -4,6 +4,8 @@ import Module from "node:module";
 
 type LoadFunction = (request: string, parent?: NodeJS.Module | null, isMain?: boolean) => unknown;
 
+type MockRegion = { endpoint: string; id: string; name: string };
+
 type MockChannel = {
     guild_id?: string | null;
     id: string;
@@ -39,6 +41,7 @@ const state: {
     generatedTokens: string[];
     memberFindOneCalls: unknown[];
     permissionError: Error | undefined;
+    regions: { default: string; available: MockRegion[] };
     permissionCalls: { channelId: string; guildId?: string; permission?: unknown; userId: string }[];
     streamDeleteCalls: unknown[];
     streamFindCalls: unknown[];
@@ -56,6 +59,7 @@ const state: {
     generatedTokens: [],
     memberFindOneCalls: [],
     permissionError: undefined,
+    regions: { default: "local", available: [{ endpoint: "rtc.local", id: "local", name: "Local" }] },
     permissionCalls: [],
     streamDeleteCalls: [],
     streamFindCalls: [],
@@ -132,10 +136,7 @@ const mockUtil = {
     Config: {
         get() {
             return {
-                regions: {
-                    default: "local",
-                    available: [{ endpoint: "rtc.local", id: "local", name: "Local" }],
-                },
+                regions: state.regions,
             };
         },
     },
@@ -318,6 +319,7 @@ beforeEach(() => {
     state.generatedTokens = [];
     state.memberFindOneCalls = [];
     state.permissionError = undefined;
+    state.regions = { default: "local", available: [{ endpoint: "rtc.local", id: "local", name: "Local" }] };
     state.permissionCalls = [];
     state.streamDeleteCalls = [];
     state.streamFindCalls = [];
@@ -345,6 +347,29 @@ describe("gateway opcode authorization", () => {
                 },
             }),
             /missing CONNECT/,
+        );
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.equal(state.voiceFindOneOrFailCalls.length, 0);
+        assert.equal(state.voiceCreateCalls.length, 0);
+        assert.equal(state.voiceSaves.length, 0);
+        assert.equal(state.generatedTokens.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("VOICE_STATE_UPDATE checks configured voice server region before creating voice state or issuing a token", async () => {
+        state.regions = { default: "missing", available: [] };
+
+        await assert.rejects(
+            onVoiceStateUpdate.call(makeSocket(), {
+                d: {
+                    channel_id: "voice",
+                    guild_id: "guild",
+                    self_deaf: false,
+                    self_mute: false,
+                },
+            }),
+            /No default region configured/,
         );
 
         assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
