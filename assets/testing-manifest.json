@@ -9524,7 +9524,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/widget.json/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.json.ts",
-            "line": 40,
+            "line": 42,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
