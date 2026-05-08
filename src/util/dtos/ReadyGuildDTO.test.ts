@@ -81,3 +81,9 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
 });
+
+test("ReadyGuildDTO exposes Discord-compatible stage video limit", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.max_stage_video_channel_users, 50);
+});
