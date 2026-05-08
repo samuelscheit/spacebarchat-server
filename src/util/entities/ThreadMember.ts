@@ -101,6 +101,9 @@ export class ThreadMember extends BaseClassWithoutId {
 
     static async removeFromThread(member_id: string, thread_id: string) {
         const channel = await Channel.findOneOrFail({ where: { id: thread_id } });
+        if (!channel.isThread()) throw new HTTPError("Channel is not a thread", 400);
+        if (!channel.guild_id) throw new HTTPError("Thread guild id not set", 500);
+
         if (
             !(await ThreadMember.count({
                 where: {
@@ -123,7 +126,7 @@ export class ThreadMember extends BaseClassWithoutId {
             emitEvent({
                 event: "THREAD_MEMBERS_UPDATE",
                 data: {
-                    guild_id: channel.guild_id!, // TODO: is this the right fix?
+                    guild_id: channel.guild_id,
                     id: channel.id,
                     member_count: channel.member_count ?? 0,
                     removed_member_ids: [member_id],
