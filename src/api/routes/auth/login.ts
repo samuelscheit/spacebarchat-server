@@ -17,7 +17,7 @@
 */
 
 import { buildWebAuthnTicketPayload, encodeWebAuthnClientChallenge, route, verifyCaptcha } from "@spacebar/api";
-import { Config, emailMatches, FieldErrors, User, WebAuthn, generateToken, generateWebAuthnTicket } from "@spacebar/util";
+import { Config, emailMatches, FieldErrors, User, generateToken, generateWebAuthnTicket, requireWebAuthnFido2 } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
@@ -124,12 +124,9 @@ router.post(
         }
 
         if (user.mfa_enabled && user.webauthn_enabled) {
-            if (!WebAuthn.fido2) {
-                // TODO: I did this for typescript and I can't use !
-                throw new Error("WebAuthn not enabled");
-            }
+            const fido2 = requireWebAuthnFido2();
 
-            const options = await WebAuthn.fido2.assertionOptions();
+            const options = await fido2.assertionOptions();
             const challenge = JSON.stringify({
                 publicKey: {
                     ...options,

@@ -11,6 +11,7 @@ import {
     webAuthnLoginMfaSecurityKeyLookup,
     webAuthnSecurityKeyLookup,
 } from "./WebAuthn";
+import { requireWebAuthnFido2, WebAuthn } from "../../../util/util/WebAuthn";
 
 function request(headers: Record<string, string>, protocol = "http") {
     return {
@@ -28,6 +29,28 @@ function arrayBufferBytes(value: ArrayBuffer) {
 }
 
 describe("WebAuthn API helpers", () => {
+    test("requires WebAuthn to be initialized before using FIDO2 operations", () => {
+        const originalFido2 = WebAuthn.fido2;
+        WebAuthn.fido2 = null;
+
+        try {
+            assert.throws(() => requireWebAuthnFido2(), /WebAuthn not enabled/);
+        } finally {
+            WebAuthn.fido2 = originalFido2;
+        }
+    });
+
+    test("returns the initialized FIDO2 instance", () => {
+        const originalFido2 = WebAuthn.fido2;
+        WebAuthn.init();
+
+        try {
+            assert.equal(requireWebAuthnFido2(), WebAuthn.fido2);
+        } finally {
+            WebAuthn.fido2 = originalFido2;
+        }
+    });
+
     test("uses configured public endpoint as the server-owned WebAuthn origin", () => {
         const req = request({
             origin: "https://attacker.example",
