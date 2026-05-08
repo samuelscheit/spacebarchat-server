@@ -150,6 +150,7 @@ describe("Permissions", () => {
             flags: true,
             roles: {
                 id: true,
+                guild_id: true,
                 permissions: true,
             },
         });
@@ -167,6 +168,7 @@ describe("Permissions", () => {
         }
         assert.deepEqual(select.roles, {
             id: true,
+            guild_id: true,
             permissions: true,
         });
     });

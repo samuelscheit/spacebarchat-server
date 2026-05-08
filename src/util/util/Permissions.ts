@@ -264,6 +264,7 @@ export function getPermissionMemberQueryOptions(guild_id: string, user_id: strin
     const select: FindOptionsSelect<Member> = {
         roles: {
             id: true,
+            guild_id: true,
             permissions: true,
         },
     };
