@@ -13,6 +13,15 @@ describe("gateway event permission lookup", () => {
         );
     });
 
+    test("uses the channel id for message acknowledgement permission checks", () => {
+        assert.equal(
+            getEventPermissionLookupId("MESSAGE_ACK", {
+                channel_id: "channel-id",
+            }),
+            "channel-id",
+        );
+    });
+
     test("keeps default event permission lookups on the payload id", () => {
         assert.equal(
             getEventPermissionLookupId("CHANNEL_UPDATE", {

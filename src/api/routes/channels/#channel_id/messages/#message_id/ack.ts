@@ -24,7 +24,6 @@ import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
-// TODO: send read state event to all channel members
 // TODO: advance-only notification cursor
 
 router.post(
@@ -53,7 +52,7 @@ router.post(
 
         await emitEvent({
             event: "MESSAGE_ACK",
-            user_id: req.user_id,
+            channel_id,
             data: {
                 channel_id,
                 message_id,
