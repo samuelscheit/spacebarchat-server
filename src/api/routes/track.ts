@@ -24,10 +24,12 @@ const router = Router({ mergeParams: true });
 router.post(
     "/",
     route({
+        responses: {
+            204: {},
+        },
         spacebarOnly: false, // Not part of the public OpenAPI schema
     }),
     (req: Request, res: Response) => {
-        // TODO:
         res.sendStatus(204);
     },
 );
