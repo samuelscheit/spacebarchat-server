@@ -16,7 +16,7 @@ let voiceModule: VoiceModule | undefined;
 let discordApiErrors: DiscordApiErrors | undefined;
 
 async function loadRuntime(): Promise<VoiceModule & { DiscordApiErrors: DiscordApiErrors }> {
-    voiceModule ??= (await import("./Voice.js")) as VoiceModule;
+    voiceModule ??= require("./Voice") as VoiceModule;
     discordApiErrors ??= (require("@spacebar/util") as typeof import("@spacebar/util")).DiscordApiErrors;
     return { ...(voiceModule as VoiceModule), DiscordApiErrors: discordApiErrors };
 }
