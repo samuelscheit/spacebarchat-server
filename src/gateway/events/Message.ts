@@ -39,7 +39,6 @@ const PRE_AUTHENTICATION_OPCODES = new Set<number>([OPCODES.Heartbeat, OPCODES.I
 // }
 
 export async function Message(this: WebSocket, buffer: WS.Data) {
-    // TODO: compression
     let data: Payload;
 
     if (
