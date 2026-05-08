@@ -24,6 +24,13 @@ import { Channel } from "./Channel";
 import { HTTPError } from "lambert-server";
 import { Member } from "./Member";
 
+export const MAX_THREAD_MEMBER_COUNT = 50;
+
+export interface ThreadMemberCountSource {
+    id: string;
+    member_count?: number | null;
+}
+
 // TODO: move
 interface ThreadMemberMuteConfig {
     end_time?: Date;
@@ -94,6 +101,13 @@ export class ThreadMember extends BaseClassWithoutId {
         }).save();
     }
 
+    static async refreshThreadMemberCount(thread: ThreadMemberCountSource) {
+        const member_count = Math.min(await ThreadMember.countBy({ id: thread.id }), MAX_THREAD_MEMBER_COUNT);
+        thread.member_count = member_count;
+        await Channel.update({ id: thread.id }, { member_count });
+        return member_count;
+    }
+
     static async IsInThreadOrFail(member_id: string, thread_id: string) {
         if (await ThreadMember.count({ where: { id: thread_id, member_idx: member_id } })) return true;
         throw new HTTPError("You are not member of this thread", 403);
@@ -101,36 +115,26 @@ export class ThreadMember extends BaseClassWithoutId {
 
     static async removeFromThread(member_id: string, thread_id: string) {
         const channel = await Channel.findOneOrFail({ where: { id: thread_id } });
-        if (
-            !(await ThreadMember.count({
-                where: {
-                    id: thread_id,
-                    member_idx: member_id,
-                },
-            }))
-        )
-            throw new HTTPError("You are not member of this thread", 403);
-        // // use promise all to execute all promises at the same time -> save time
-        // TODO: check for bugs
-        if (channel.member_count) channel.member_count--;
-        return Promise.all([
-            ThreadMember.delete({
-                id: thread_id,
-                member_idx: member_id,
-            }),
-            // 	//Guild.decrement({ id: guild_id }, "member_count", -1),
+        const threadMember = await ThreadMember.findOne({
+            where: { id: thread_id, member_idx: member_id },
+            relations: { member: true },
+        });
+        if (!threadMember) throw new HTTPError("You are not member of this thread", 403);
 
-            emitEvent({
-                event: "THREAD_MEMBERS_UPDATE",
-                data: {
-                    guild_id: channel.guild_id!, // TODO: is this the right fix?
-                    id: channel.id,
-                    member_count: channel.member_count ?? 0,
-                    removed_member_ids: [member_id],
-                },
-                channel_id: thread_id,
-            } satisfies ThreadMembersUpdateEvent),
-        ]);
+        const removedUserId = threadMember.member?.id ?? member_id;
+        await threadMember.remove();
+        const member_count = await ThreadMember.refreshThreadMemberCount(channel);
+
+        return emitEvent({
+            event: "THREAD_MEMBERS_UPDATE",
+            data: {
+                guild_id: channel.guild_id!, // TODO: is this the right fix?
+                id: channel.id,
+                member_count,
+                removed_member_ids: [removedUserId],
+            },
+            channel_id: thread_id,
+        } satisfies ThreadMembersUpdateEvent);
     }
 
     // static async addRole(user_id: string, guild_id: string, role_id: string) {
