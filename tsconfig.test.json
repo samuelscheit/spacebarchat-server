@@ -3,6 +3,7 @@
     "include": [
         "test/**/*.ts",
         "src/api/ServerConfigure.test.ts",
+        "src/api/util/StickerUpload.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/cdn/routes/banners.test.ts",
         "src/gateway/events/Message.test.ts",
