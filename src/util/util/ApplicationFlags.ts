@@ -19,6 +19,9 @@
 import { BitField, BitFlag } from "./BitField";
 
 export class ApplicationFlags extends BitField {
+    // Publicly documented flags come from Discord's Application Flags table.
+    // Undocumented flags mirror known values from discord-api-types so existing
+    // client/API bitfields can be inspected without losing future or private bits.
     static FLAGS = {
         EMBEDDED_RELEASED: BitFlag(1),
         MANAGED_EMOJI: BitFlag(2),
