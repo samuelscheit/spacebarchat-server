@@ -48,6 +48,7 @@ type GeneratedHttpContractMatrix = {
         runtimeCdnMissingObjectContracts: number;
         runtimeCdnHeadMissingObjectContracts: number;
         runtimeCdnValidObjectContracts: number;
+        runtimeCdnSignatureRequiredContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -156,6 +157,7 @@ const permissionAndRightDenialContracts = matrix.contracts.filter(
 );
 const cdnMissingObjectContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/");
 const cdnValidObjectContracts = cdnMissingObjectContracts;
+const cdnSignatureRequiredContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && ["POST", "DELETE"].includes(contract.method));
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
 const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 
@@ -546,6 +548,16 @@ async function assertCdnValidObjectResponse(contract: GeneratedHttpContract, res
     } else {
         assert.ok(body.length > 0, `${contract.manifestId} should return a checked-in default asset`);
     }
+}
+
+async function assertCdnMissingSignatureResponse(contract: GeneratedHttpContract, response: Response) {
+    assert.equal(response.status, 400, `${contract.manifestId} should reject missing CDN request signatures`);
+    assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON signature error`);
+
+    const body = (await response.json()) as Record<string, unknown>;
+    assert.equal(body.code, 400, `${contract.manifestId} should return the signature error code`);
+    assert.match(String(body.message), /^Error: Invalid request signature/, `${contract.manifestId} should return the signature error message`);
+    assert.equal(body.request, `${contract.method} ${contract.samplePath}`, `${contract.manifestId} should include the CDN request path`);
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -1097,6 +1109,27 @@ test("generated CDN valid-object contracts download seeded objects through the r
                 await assertCdnValidObjectResponse(contract, response);
             });
         }
+    } finally {
+        restoreConsole();
+    }
+});
+
+test("generated CDN signature-required contracts reject unsigned mutating requests through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnSignatureRequiredContracts.length, matrix.summary.runtimeCdnSignatureRequiredContracts);
+    assert.ok(cdnSignatureRequiredContracts.length > 0, "expected CDN signature-required routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        await withGeneratedCdn(async ({ cdn }) => {
+            for (const contract of cdnSignatureRequiredContracts) {
+                const response = await fetch(`${cdn.baseUrl}${contract.samplePath}`, {
+                    method: contract.method,
+                    headers: { accept: "application/json" },
+                });
+
+                await assertCdnMissingSignatureResponse(contract, response);
+            }
+        });
     } finally {
         restoreConsole();
     }
