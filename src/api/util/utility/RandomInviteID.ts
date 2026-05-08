@@ -19,9 +19,6 @@
 import { Snowflake } from "@spacebar/util";
 import crypto from "node:crypto";
 
-// TODO: 'random'? seriously? who named this?
-// And why is this even here? Just use cryto.randomBytes?
-
 export function randomString(length = 6) {
     // Declare all characters
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
