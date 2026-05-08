@@ -24,11 +24,11 @@ import { HTTPError } from "lambert-server";
 import crypto from "node:crypto";
 import { multer } from "../util/multer";
 import { cache } from "../util/cache";
+import { parseCdnImageSize, resizeCdnImage } from "../util/ImageRouteHelpers";
 
 //Role icons ---> avatars.ts modified
 
 // TODO: check user rights and perks and animated pfp are allowed in the policies
-// TODO: generate different sizes of icon
 // TODO: generate different image types of icon
 
 const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
@@ -68,10 +68,11 @@ router.get("/:role_id", cache, async (req: Request, res: Response) => {
     const file = await storage.get(path);
     if (!file) throw new HTTPError("not found", 404);
     const type = await fileTypeFromBuffer(file);
+    const resizedFile = await resizeCdnImage(file, type?.mime, parseCdnImageSize(req.query.size));
 
     res.set("Content-Type", type?.mime);
 
-    return res.send(file);
+    return res.send(resizedFile);
 });
 
 router.get("/:role_id/:hash", cache, async (req: Request, res: Response) => {
@@ -90,10 +91,11 @@ router.get("/:role_id/:hash", cache, async (req: Request, res: Response) => {
 
     if (!file) throw new HTTPError("not found", 404);
     const type = await fileTypeFromBuffer(file);
+    const resizedFile = await resizeCdnImage(file, type?.mime, parseCdnImageSize(req.query.size));
 
     res.set("Content-Type", type?.mime);
 
-    return res.send(file);
+    return res.send(resizedFile);
 });
 
 router.delete("/:role_id/:id", async (req: Request, res: Response) => {
