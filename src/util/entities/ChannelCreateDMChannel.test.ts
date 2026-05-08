@@ -3,9 +3,13 @@ import { describe, test } from "node:test";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
+function loadUtil() {
+    return require("@spacebar/util") as typeof import("../index.js");
+}
+
 describe("Channel.createDMChannel recipient validation", () => {
     test("rejects unknown one-to-one DM recipients with Discord's invalid recipient error", async (t) => {
-        const { Channel, DiscordApiErrors, User } = await import("../index.js");
+        const { Channel, DiscordApiErrors, User } = loadUtil();
         const originalFind = User.find;
 
         t.after(() => {
@@ -21,7 +25,7 @@ describe("Channel.createDMChannel recipient validation", () => {
     });
 
     test("rejects unknown group DM recipients before channel persistence", async (t) => {
-        const { Channel, DiscordApiErrors, User } = await import("../index.js");
+        const { Channel, DiscordApiErrors, User } = loadUtil();
         const originalFind = User.find;
         const originalCreate = Channel.create;
         let attemptedPersistence = false;
@@ -45,8 +49,7 @@ describe("Channel.createDMChannel recipient validation", () => {
     });
 
     test("does not validate self-only note-to-self channels as invalid recipients", async (t) => {
-        const { Channel, Recipient, User } = await import("../index.js");
-        const { DmChannelDTO } = await import("../dtos/DmChannelDTO.js");
+        const { Channel, DmChannelDTO, Recipient, User } = loadUtil();
         const originalFind = User.find;
         const originalFindRecipient = Recipient.find;
         const originalCreateRecipient = Recipient.create;

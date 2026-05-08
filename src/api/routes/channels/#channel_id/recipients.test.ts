@@ -5,10 +5,14 @@ process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
 const GROUP_DM_CHANNEL_TYPE = 3;
 
+function loadUtil() {
+    return require("@spacebar/util") as typeof import("../../../../util/index.js");
+}
+
 describe("group DM recipient route guards", () => {
     test("rejects adding an existing group DM recipient as invalid before lookup", async (t) => {
         const { loadAddableGroupDmRecipient } = await import("./recipients.js");
-        const { DiscordApiErrors, User } = await import("../../../../util/index.js");
+        const { DiscordApiErrors, User } = loadUtil();
         const originalFindOne = User.findOne;
         let userLookups = 0;
 
@@ -36,7 +40,7 @@ describe("group DM recipient route guards", () => {
 
     test("rejects adding an unknown group DM recipient before persistence", async (t) => {
         const { putChannelRecipient } = await import("./recipients.js");
-        const { Channel, DiscordApiErrors, Recipient, User } = await import("../../../../util/index.js");
+        const { Channel, DiscordApiErrors, Recipient, User } = loadUtil();
         const originalFindOneOrFail = Channel.findOneOrFail;
         const originalFindOne = User.findOne;
         const originalCreate = Recipient.create;
@@ -85,7 +89,7 @@ describe("group DM recipient route guards", () => {
 
     test("allows adding a user who exists and is not already in the group DM", async (t) => {
         const { loadAddableGroupDmRecipient } = await import("./recipients.js");
-        const { User } = await import("../../../../util/index.js");
+        const { User } = loadUtil();
         const originalFindOne = User.findOne;
         const loadedUser = {
             toPublicUser: () => ({ id: "new-user" }),

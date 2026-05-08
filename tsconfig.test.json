@@ -3,9 +3,11 @@
     "include": [
         "test/**/*.ts",
         "src/api/ServerConfigure.test.ts",
+        "src/api/routes/channels/#channel_id/recipients.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
+        "src/util/entities/ChannelCreateDMChannel.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
