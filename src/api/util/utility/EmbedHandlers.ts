@@ -111,48 +111,94 @@ export const getMetaDescriptions = (text: string) => {
     };
 };
 
-const doFetch = async (url: URL, opts?: RequestInit) => {
+const fetchResponse = async (url: URL, opts?: RequestInit) => {
     try {
-        const res = await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
-        if (res.headers.get("content-length")) {
-            const contentLength = parseInt(res.headers.get("content-length")!);
-            if (Config.get().limits.message.maxEmbedDownloadSize && contentLength > Config.get().limits.message.maxEmbedDownloadSize) {
-                return null;
-            }
-        }
-        return res;
+        return await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
     } catch (e) {
         return null;
     }
 };
 
-const genericImageHandler = async (url: URL): Promise<Embed | null> => {
-    const type = await fetch(url, {
-        ...getDefaultFetchOptions(),
-        method: "HEAD",
-    });
+const exceedsMaxEmbedDownloadSize = (response: Response): boolean => {
+    if (!response.headers.get("content-length")) return false;
 
-    let image;
+    const contentLength = parseInt(response.headers.get("content-length")!);
+    return !!Config.get().limits.message.maxEmbedDownloadSize && contentLength > Config.get().limits.message.maxEmbedDownloadSize;
+};
 
-    if (type.headers.get("content-type")?.indexOf("image") !== -1) {
+const doFetch = async (url: URL, opts?: RequestInit) => {
+    const res = await fetchResponse(url, opts);
+    if (!res) return null;
+    if (exceedsMaxEmbedDownloadSize(res)) return null;
+    return res;
+};
+
+const getMediaContentFamily = (contentType: string | null): "image" | "video" | undefined => {
+    const mimeType = contentType?.split(";", 1)[0].trim().toLowerCase();
+    if (mimeType?.startsWith("image/")) return "image";
+    if (mimeType?.startsWith("video/")) return "video";
+    return undefined;
+};
+
+const makeDirectVideoEmbed = (url: URL): Embed => ({
+    url: url.href,
+    type: EmbedType.video,
+    video: {
+        url: url.href,
+        proxy_url: url.href,
+    },
+});
+
+const makeDirectMediaEmbed = async (url: URL, contentType: string | null): Promise<Embed | null | undefined> => {
+    const mediaFamily = getMediaContentFamily(contentType);
+
+    if (mediaFamily === "image") {
         const result = await probe(url.href);
-        image = makeEmbedImage(url.href, result.width, result.height);
-    } else if (type.headers.get("content-type")?.indexOf("video") !== -1) {
+        const image = makeEmbedImage(url.href, result.width, result.height);
+        if (!image) return null;
+
         return {
             url: url.href,
-            type: EmbedType.video,
-            video: {
-                url: url.href,
-                proxy_url: url.href,
-            },
+            type: EmbedType.image,
+            thumbnail: image,
         };
-    } else {
-        // have to download the page, unfortunately
-        const response = await doFetch(url);
-        if (!response) return null;
-        const metas = getMetaDescriptions(await response.text());
-        image = makeEmbedImage(metas.image || metas.image_fallback, metas.width, metas.height);
     }
+
+    if (mediaFamily === "video") return makeDirectVideoEmbed(url);
+
+    return undefined;
+};
+
+const makeResponseDirectMediaEmbed = async (url: URL, response: Response | null): Promise<Embed | null | undefined> => {
+    if (!response) return undefined;
+    return await makeDirectMediaEmbed(url, response.headers.get("content-type"));
+};
+
+const cancelResponseBody = async (response: Response): Promise<void> => {
+    try {
+        await response.body?.cancel();
+    } catch (e) {
+        // ignore cleanup failures; the embed decision was already made from headers
+    }
+};
+
+const genericMediaHandler = async (url: URL): Promise<Embed | null> => {
+    const type = await fetchResponse(url, { method: "HEAD" });
+    const directMediaEmbed = await makeResponseDirectMediaEmbed(url, type);
+    if (directMediaEmbed !== undefined) return directMediaEmbed;
+
+    // have to download the page, unfortunately
+    const response = await fetchResponse(url);
+    if (!response) return null;
+    const getDirectMediaEmbed = await makeResponseDirectMediaEmbed(url, response);
+    if (getDirectMediaEmbed !== undefined) {
+        await cancelResponseBody(response);
+        return getDirectMediaEmbed;
+    }
+    if (exceedsMaxEmbedDownloadSize(response)) return null;
+
+    const metas = getMetaDescriptions(await response.text());
+    const image = makeEmbedImage(metas.image || metas.image_fallback, metas.width, metas.height);
 
     if (!image) return null;
 
@@ -168,19 +214,21 @@ export const EmbedHandlers: {
 } = {
     // the url does not have a special handler
     default: async (url: URL) => {
-        const type = await fetch(url, {
-            ...getDefaultFetchOptions(),
-            method: "HEAD",
-        });
-        if (type.headers.get("content-type")?.indexOf("image") !== -1 || type.headers.get("content-type")?.indexOf("video") !== -1) return await genericImageHandler(url);
+        const type = await fetchResponse(url, { method: "HEAD" });
+        const directMediaEmbed = await makeResponseDirectMediaEmbed(url, type);
+        if (directMediaEmbed !== undefined) return directMediaEmbed;
 
-        const response = await doFetch(url);
+        const response = await fetchResponse(url);
         if (!response) return null;
+        const getDirectMediaEmbed = await makeResponseDirectMediaEmbed(url, response);
+        if (getDirectMediaEmbed !== undefined) {
+            await cancelResponseBody(response);
+            return getDirectMediaEmbed;
+        }
+        if (exceedsMaxEmbedDownloadSize(response)) return null;
 
         const text = await response.text();
         const metas = getMetaDescriptions(text);
-
-        // TODO: handle video
 
         if (!metas.image) metas.image = metas.image_fallback;
 
@@ -216,12 +264,12 @@ export const EmbedHandlers: {
         };
     },
 
-    "giphy.com": genericImageHandler,
-    "media4.giphy.com": genericImageHandler,
-    "tenor.com": genericImageHandler,
-    "c.tenor.com": genericImageHandler,
-    "media.tenor.com": genericImageHandler,
-    "media1.tenor.com": genericImageHandler,
+    "giphy.com": genericMediaHandler,
+    "media4.giphy.com": genericMediaHandler,
+    "tenor.com": genericMediaHandler,
+    "c.tenor.com": genericMediaHandler,
+    "media.tenor.com": genericMediaHandler,
+    "media1.tenor.com": genericMediaHandler,
 
     "facebook.com": (url) => EmbedHandlers["www.facebook.com"](url),
     "www.facebook.com": async (url: URL) => {
