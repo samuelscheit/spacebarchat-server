@@ -19,7 +19,7 @@
 import FormData from "form-data";
 import { HTTPError } from "lambert-server";
 import { ApiError } from "./ApiError";
-import { Attachment } from "../entities";
+import type { Attachment } from "../entities/Attachment";
 import { assertCdnFileSizeLimit } from "./CdnFileLimits";
 import { Config } from "./Config";
 import { parseBase64DataUri } from "../../schemas/ImageData";

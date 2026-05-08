@@ -17,6 +17,23 @@ const CHANNEL_PERMISSION_OVERWRITE_MEMBER = 1;
 const GUILD_PRIVATE_THREAD = 12;
 const USER_FLAG_QUARANTINED = 1n << 44n;
 
+type GuildOwnerIdentity = {
+    owner_id?: string | null;
+    owner?: { id?: string | null } | null;
+};
+
+type UserIdentity = string | { id?: string | null } | null | undefined;
+
+export function isGuildOwner(guild: GuildOwnerIdentity | null | undefined, ...users: UserIdentity[]) {
+    const ownerId = guild?.owner?.id ?? guild?.owner_id;
+    if (!ownerId) return false;
+
+    return users.some((user) => {
+        const userId = typeof user === "string" ? user : user?.id;
+        return ownerId === userId;
+    });
+}
+
 // BigInt doesn't have a bit limit (https://stackoverflow.com/questions/53335545/whats-the-biggest-bigint-value-in-js-as-per-spec)
 // const CUSTOM_PERMISSION_OFFSET = BigInt(1) << BigInt(64); // 27 permission bits left for discord to add new ones
 
@@ -165,7 +182,7 @@ export class Permissions extends BitField {
         };
     }) {
         if (user.id === "0") return new Permissions("ADMINISTRATOR"); // system user id
-        if (guild?.owner_id === user.id) return new Permissions(Permissions.ALL);
+        if (isGuildOwner(guild, user)) return new Permissions(Permissions.ALL);
 
         const roles = guild.roles.filter((x) => user.roles.includes(x.id));
         let permission = Permissions.rolePermission(roles);
@@ -311,7 +328,7 @@ export async function getPermission(
         } else {
             guild = guild_id;
         }
-        if (guild.owner_id === user_id) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
+        if (isGuildOwner(guild, user_id)) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
 
         member = await Member.findOneOrFail({
             where: { guild_id: guild.id, id: user_id },
