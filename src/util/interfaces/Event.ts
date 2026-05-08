@@ -100,6 +100,9 @@ export interface ReadyNonChannelReadState {
 
 export type ReadyReadState = ReadyChannelReadState | ReadyNonChannelReadState;
 
+export const READY_SESSION_TYPE = "normal" as const;
+export type ReadySessionType = typeof READY_SESSION_TYPE;
+
 export interface ReadyEventData {
     v: number;
     user: UserPrivate;
@@ -151,7 +154,7 @@ export interface ReadyEventData {
     api_code_version: number;
     tutorial: number | null;
     resume_gateway_url: string;
-    session_type: string;
+    session_type: ReadySessionType;
     auth_session_id_hash: string;
     required_action?:
         | "REQUIRE_VERIFIED_EMAIL"

@@ -39,6 +39,7 @@ import {
     PresenceUpdateEvent,
     ReadState,
     applyReadyChannelOrdering,
+    READY_SESSION_TYPE,
     ReadyEventData,
     ReadyGuildDTO,
     ReadyUserGuildSettingsEntries,
@@ -708,7 +709,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 friend_suggestion_count: 0,
                 analytics_token: "",
                 tutorial: null,
-                session_type: "normal",
+                session_type: READY_SESSION_TYPE,
                 auth_session_id_hash: this.session!.getDiscordDeviceInfo().id_hash,
                 notification_settings: {
                     // ????
