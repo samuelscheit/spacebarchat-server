@@ -127,10 +127,10 @@ router.delete(
     async (req: Request, res: Response) => {
         const { code, guild_id } = req.params as { [key: string]: string };
 
-        const template = await Template.delete({
-            code,
-            source_guild_id: guild_id,
+        const template = await Template.findOneOrFail({
+            where: { code, source_guild_id: guild_id },
         });
+        await template.remove();
 
         res.json(template);
     },
@@ -153,10 +153,12 @@ router.put(
             relations: { roles: true, channels: true },
         });
 
-        const template = await Template.create({
-            code,
-            serialized_source_guild: serializeTemplateGuild(guild),
-        }).save();
+        const template = await Template.findOneOrFail({
+            where: { code, source_guild_id: guild_id },
+        });
+        template.serialized_source_guild = serializeTemplateGuild(guild);
+        template.updated_at = new Date();
+        await template.save();
 
         res.json(template);
     },
