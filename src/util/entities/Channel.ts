@@ -403,7 +403,7 @@ export class Channel extends BaseClass {
                         guild_id: channel.guild_id!, // TODO: is this the right fix?
                         id: thread.id,
                         member_count: channel.member_count ?? 0, //TODO: is this the right fix?
-                        added_members: [{ user_id, ...serializeThreadMemberPayload(threadMember) }],
+                        added_members: [serializeThreadMemberPayload(threadMember, user_id)],
                         removed_member_ids: [],
                     },
                     guild_id: channel.guild_id,

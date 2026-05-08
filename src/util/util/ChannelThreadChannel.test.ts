@@ -8,6 +8,7 @@ type SnowflakeClass = typeof import("./Snowflake").Snowflake;
 type ChannelClass = typeof import("../entities/Channel").Channel;
 type GuildClass = typeof import("../entities/Guild").Guild;
 type ThreadMemberClass = typeof import("../entities/ThreadMember").ThreadMember;
+type SerializeThreadMemberPayload = typeof import("../entities/ThreadMember").serializeThreadMemberPayload;
 type CapturedEvent = { event: string; data?: Record<string, unknown> };
 
 type FindOneOptionsWithId = {
@@ -103,7 +104,10 @@ for (const path of [localRequire.resolve("."), localRequire.resolve("..")]) {
 
 const { Channel } = localRequire("../entities/Channel") as { Channel: ChannelClass };
 const { Guild } = localRequire("../entities/Guild") as { Guild: GuildClass };
-const { ThreadMember } = localRequire("../entities/ThreadMember") as { ThreadMember: ThreadMemberClass };
+const { ThreadMember, serializeThreadMemberPayload } = localRequire("../entities/ThreadMember") as {
+    ThreadMember: ThreadMemberClass;
+    serializeThreadMemberPayload: SerializeThreadMemberPayload;
+};
 
 const originals = {
     channelFindOne: Channel.findOne,
@@ -170,6 +174,49 @@ function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
 }
 
 describe("Channel.createThreadChannel", () => {
+    test("serializes thread member event payloads without ORM-only fields", () => {
+        const payload = serializeThreadMemberPayload(
+            {
+                id: "thread-id",
+                index: "internal-row-id",
+                member_idx: "internal-member-index",
+                join_timestamp: new Date("2026-01-02T03:04:05.000Z"),
+                muted: true,
+                mute_config: {
+                    end_time: new Date("2026-01-03T04:05:06.000Z"),
+                    selected_time_window: 3600,
+                },
+                flags: 2,
+                member: { id: "user" },
+                channel: { id: "thread-id" },
+                toJSON: () => ({
+                    id: "thread-id",
+                    index: "internal-row-id",
+                    member_idx: "internal-member-index",
+                    member: { id: "user" },
+                    channel: { id: "thread-id" },
+                }),
+            } as Parameters<typeof serializeThreadMemberPayload>[0],
+            "user",
+        );
+
+        assert.deepEqual(payload, {
+            id: "thread-id",
+            user_id: "user",
+            join_timestamp: "2026-01-02T03:04:05.000Z",
+            muted: true,
+            mute_config: {
+                end_time: "2026-01-03T04:05:06.000Z",
+                selected_time_window: 3600,
+            },
+            flags: 2,
+        });
+        assert.equal("index" in payload, false);
+        assert.equal("member_idx" in payload, false);
+        assert.equal("member" in payload, false);
+        assert.equal("channel" in payload, false);
+    });
+
     test("generates an id before duplicate lookup when keepId is set without an id", async () => {
         const findOneCalls: FindOneOptionsWithId[] = [];
         stubThreadPersistence(findOneCalls);
@@ -241,10 +288,16 @@ describe("Channel.createThreadChannel", () => {
             createForUser: async (userId: string, thread: Pick<ChannelEntity, "id" | "guild_id">) =>
                 ({
                     id: thread.id,
+                    index: "internal-row-id",
+                    member_idx: "internal-member-index",
+                    join_timestamp: new Date("2026-01-01T00:00:00.000Z"),
+                    muted: false,
+                    flags: 0,
                     member: {
                         id: userId,
                         toPublicMember: () => publicOwner,
                     },
+                    channel: { id: thread.id },
                     toJSON: () => ({ id: thread.id }),
                 }) as unknown,
         });
@@ -286,11 +339,25 @@ describe("Channel.createThreadChannel", () => {
             createForUser: async (userId: string, thread: Pick<ChannelEntity, "id" | "guild_id">) =>
                 ({
                     id: thread.id,
+                    index: "internal-row-id",
+                    member_idx: "internal-member-index",
+                    join_timestamp: new Date("2026-01-01T00:00:00.000Z"),
+                    muted: false,
+                    flags: 0,
                     member: {
                         id: userId,
                         toPublicMember: () => publicOwner,
                     },
-                    toJSON: () => ({ id: thread.id, flags: 0, join_timestamp: "2026-01-01T00:00:00.000Z", member: { id: userId } }),
+                    channel: { id: thread.id },
+                    toJSON: () => ({
+                        id: thread.id,
+                        index: "internal-row-id",
+                        member_idx: "internal-member-index",
+                        flags: 0,
+                        join_timestamp: "2026-01-01T00:00:00.000Z",
+                        member: { id: userId },
+                        channel: { id: thread.id },
+                    }),
                 }) as unknown,
         });
 
@@ -315,8 +382,17 @@ describe("Channel.createThreadChannel", () => {
         const threadMembersUpdate = emittedEvents.find((event) => event.event === "THREAD_MEMBERS_UPDATE");
         assert.ok(threadMembersUpdate);
         const addedMember = (threadMembersUpdate.data?.added_members as Record<string, unknown>[] | undefined)?.[0];
-        assert.equal(addedMember?.user_id, "user");
+        assert.deepEqual(addedMember, {
+            id: "event-owned-thread",
+            user_id: "user",
+            join_timestamp: "2026-01-01T00:00:00.000Z",
+            muted: false,
+            flags: 0,
+        });
+        assert.equal(addedMember?.index, undefined);
+        assert.equal(addedMember?.member_idx, undefined);
         assert.equal(addedMember?.member, undefined);
+        assert.equal(addedMember?.channel, undefined);
     });
 
     test("omits thread owner when thread member relations are not loaded", () => {

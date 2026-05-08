@@ -25,8 +25,13 @@ import { HTTPError } from "lambert-server";
 import { Member } from "./Member";
 
 // TODO: move
-interface ThreadMemberMuteConfig {
-    end_time?: Date;
+export interface ThreadMemberMuteConfig {
+    end_time?: Date | string;
+    selected_time_window?: number;
+}
+
+export interface ThreadMemberPayloadMuteConfig {
+    end_time?: string;
     selected_time_window?: number;
 }
 
@@ -39,11 +44,42 @@ export enum ThreadMemberFlags {
     NO_MESSAGES = 1 << 3,
 }
 
-export function serializeThreadMemberPayload(threadMember: ThreadMember): ReturnType<ThreadMember["toJSON"]> {
-    const payload = { ...threadMember.toJSON() };
-    delete payload.channel;
-    delete payload.member;
-    return payload;
+export interface ThreadMemberPayload {
+    id: string;
+    user_id: string;
+    join_timestamp: string;
+    muted: boolean;
+    mute_config?: ThreadMemberPayloadMuteConfig;
+    flags: ThreadMemberFlags;
+}
+
+type ThreadMemberPayloadSource = Pick<ThreadMember, "id" | "join_timestamp" | "muted" | "mute_config" | "flags">;
+
+function toIsoString(value: Date | string | undefined): string | undefined {
+    if (value === undefined) return undefined;
+    return value instanceof Date ? value.toISOString() : value;
+}
+
+function serializeThreadMemberMuteConfig(muteConfig: ThreadMemberMuteConfig | undefined): ThreadMemberPayloadMuteConfig | undefined {
+    if (!muteConfig) return undefined;
+
+    return {
+        ...muteConfig,
+        end_time: toIsoString(muteConfig.end_time),
+    };
+}
+
+export function serializeThreadMemberPayload(threadMember: ThreadMemberPayloadSource, user_id: string): ThreadMemberPayload {
+    const mute_config = serializeThreadMemberMuteConfig(threadMember.mute_config);
+
+    return {
+        id: threadMember.id,
+        user_id,
+        join_timestamp: toIsoString(threadMember.join_timestamp) as string,
+        muted: threadMember.muted,
+        ...(mute_config ? { mute_config } : {}),
+        flags: threadMember.flags,
+    };
 }
 
 @Entity("thread_members")

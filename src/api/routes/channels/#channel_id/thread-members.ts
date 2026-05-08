@@ -85,7 +85,7 @@ async function addThreadMember(req: Request, res: Response) {
             guild_id: thread.guild_id!,
             id: thread.id,
             member_count: thread.member_count ?? 0, //TODO: is this the right fix?
-            added_members: [{ user_id: user_id, ...serializeThreadMemberPayload(threadMember) }],
+            added_members: [serializeThreadMemberPayload(threadMember, user_id)],
         },
         channel_id: thread.id,
     } satisfies ThreadMembersUpdateEvent);
