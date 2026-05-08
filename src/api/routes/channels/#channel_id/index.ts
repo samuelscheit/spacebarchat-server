@@ -29,6 +29,7 @@ import {
     Recipient,
     emitEvent,
     getChannelOrderInsertPoint,
+    getDatabase,
     getInvalidThreadChannelOrderFields,
     handleFile,
     makeObjectErrorContent,
@@ -39,6 +40,7 @@ import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 import { addInvalidAppliedTagsError } from "../../../util/ChannelModifyAppliedTags";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
 import { assertAppliedTagsExist } from "../../../util/ChannelAppliedTagsValidation";
+import { getAvailableTagsModifyError, replaceForumAvailableTags } from "../../../util/utility/ForumTags";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -195,6 +197,13 @@ router.patch(
         }
 
         const errors: ErrorList = {};
+        const availableTagsPayload = payload.available_tags;
+        if (availableTagsPayload !== undefined) {
+            const tagErrors = getAvailableTagsModifyError(channel, availableTagsPayload);
+            if (tagErrors) Object.assign(errors, tagErrors);
+
+            delete payload.available_tags;
+        }
 
         if (payload.applied_tags !== undefined) {
             if (channel.isThread()) {
@@ -258,16 +267,6 @@ router.patch(
             throw new FieldError(400, "Invalid form body", errors);
         }
 
-        if (payload.available_tags) {
-            if (channel.isForum() && channel.available_tags) {
-                //TODO maybe error if this fails, and maybe handle creating tags?
-                const filter = new Set(payload.available_tags.map(({ id }) => id));
-                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
-                tags.forEach((_) => _.remove());
-                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
-            }
-        }
-
         if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
 
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
@@ -287,7 +286,18 @@ router.patch(
             }
         }
 
-        await channel.save();
+        if (availableTagsPayload !== undefined) {
+            const database = getDatabase();
+            if (!database) throw new Error("Database is not initialized");
+
+            await database.transaction(async (manager) => {
+                await replaceForumAvailableTags(channel, availableTagsPayload, manager);
+                await manager.save(channel);
+            });
+        } else {
+            await channel.save();
+        }
+
         if (channel.guild_id && orderInsertPoint !== undefined) {
             channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, orderInsertPoint);
         }
