@@ -80,6 +80,16 @@ export interface PublicRelationship {
     nickname?: string;
 }
 
+export interface ReadyRelationship {
+    id: string;
+    user_id: string;
+    type: RelationshipType;
+    nickname: string | null;
+    since: string | null;
+    is_spam_request: boolean;
+    user_ignored: boolean;
+}
+
 // ! END Custom Events that shouldn't get sent to the client but processed by the server
 
 export interface ReadyChannelReadState {
@@ -137,7 +147,7 @@ export interface ReadyEventData {
     user_settings?: UserSettings;
     user_settings_proto?: string;
     user_settings_proto_json?: JsonValue;
-    relationships?: PublicRelationship[]; // TODO
+    relationships?: ReadyRelationship[];
     read_state: ReadyReadState[];
     user_guild_settings?: {
         entries: ReadyUserGuildSettingsEntries[];

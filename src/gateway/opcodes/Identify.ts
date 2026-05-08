@@ -27,6 +27,7 @@ import {
     Payload,
     Send,
     serializeReadyReadState,
+    serializeReadyRelationships,
     setupListener,
     WebSocket,
 } from "@spacebar/gateway";
@@ -668,7 +669,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     );
     buildReadyTrace.calls!.push(this.capabilities!.has(Capabilities.FLAGS.CLIENT_STATE_V2) ? "remapGuilds" : "[NoOP] remapGuilds", { micros: remapGuildsTime.totalMicroseconds });
 
-    const { result: remappedRelationships, elapsed: remapRelationshipsTime } = timeFunction(() => user.relationships.map((x) => x.toPublicRelationship()));
+    const { result: remappedRelationships, elapsed: remapRelationshipsTime } = timeFunction(() => serializeReadyRelationships(user.relationships));
     buildReadyTrace.calls!.push("remapRelationships", { micros: remapRelationshipsTime.totalMicroseconds });
 
     buildReadyTrace.micros = buildReadyTrace.calls!.reduce((a, b) => {
@@ -855,7 +856,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         for (const rel of d.relationships ?? []) {
             await emitEvent({
                 ...presenceUpdateEventData,
-                user_id: rel.user.id,
+                user_id: rel.user_id,
             });
         }
         for (const guild of d.guilds) {
