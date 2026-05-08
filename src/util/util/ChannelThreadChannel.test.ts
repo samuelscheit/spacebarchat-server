@@ -16,6 +16,8 @@ type FindOneOptionsWithId = {
 };
 
 const localRequire = createRequire(__filename);
+const DM = 1;
+const GROUP_DM = 3;
 const GUILD_PUBLIC_THREAD = 11;
 const GUILD_PRIVATE_THREAD = 12;
 
@@ -34,6 +36,8 @@ const schemasMock = new Proxy(
     {
         ApplicationCommandType: { CHAT_INPUT: 1 },
         ChannelType: {
+            DM,
+            GROUP_DM,
             GUILD_NEWS_THREAD: 10,
             GUILD_PUBLIC_THREAD,
             GUILD_PRIVATE_THREAD,
@@ -76,6 +80,9 @@ const utilMock = {
         THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE: new Error("THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE"),
     },
     FieldErrors: class FieldErrors extends Error {},
+    GuildFeature: {
+        AllowExistingThreadForMessage: "ALLOW_EXISTING_THREAD_FOR_MESSAGE",
+    },
     InvisibleCharacters: [],
     Permissions: {
         ALL: {},
@@ -163,6 +170,40 @@ function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
             }) satisfies { id: string; toJSON: () => { id: string } },
     });
 }
+
+describe("Channel.createChannel", () => {
+    test("rejects DM channel types because direct messages are created outside guild channel creation", async () => {
+        Object.assign(Guild, {
+            findOneOrFail: async () =>
+                ({
+                    id: "guild",
+                    features: [],
+                    channel_ordering: [],
+                }) satisfies Partial<GuildEntity>,
+        });
+
+        for (const type of [DM, GROUP_DM]) {
+            await assert.rejects(
+                () =>
+                    Channel.createChannel(
+                        {
+                            guild_id: "guild",
+                            name: "not-a-guild-channel",
+                            type,
+                        },
+                        "user",
+                        {
+                            skipEventEmit: true,
+                            skipNameChecks: true,
+                            skipOrdering: true,
+                            skipPermissionCheck: true,
+                        },
+                    ),
+                /You can't create a dm channel in a guild/,
+            );
+        }
+    });
+});
 
 describe("Channel.createThreadChannel", () => {
     test("generates an id before duplicate lookup when keepId is set without an id", async () => {

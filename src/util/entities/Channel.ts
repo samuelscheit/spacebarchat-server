@@ -203,7 +203,6 @@ export class Channel extends BaseClass {
     /** Must be calculated Channel.calculatePosition */
     position: number;
 
-    // TODO: DM channel
     static async createChannel(
         channel: Partial<Channel>,
         user_id: string = "0",
