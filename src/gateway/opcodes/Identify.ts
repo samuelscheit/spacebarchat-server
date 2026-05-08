@@ -80,6 +80,7 @@ import {
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
+import { hasLoadedDmChannel } from "../util/DmRecipient";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
@@ -574,7 +575,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Generate dm channels from recipients list. Append recipients to `users` list
     const currentUser = user.toPublicUser();
-    const readyPrivateChannels = recipients.filter(({ channel }) => channel.isDm()).map((r) => serializeReadyPrivateChannel(r.channel, this.user_id, currentUser));
+    const readyPrivateChannels = recipients.filter(hasLoadedDmChannel).map((r) => serializeReadyPrivateChannel(r.channel, this.user_id, currentUser));
     const channels = readyPrivateChannels.map(({ channel }) => channel);
     readyPrivateChannels.forEach(({ users: channelUsers }) => channelUsers.forEach((channelUser) => users.add(channelUser)));
     const generateDmChannelsTime = taskSw.getElapsedAndReset();
