@@ -2,6 +2,7 @@
     "extends": "./tsconfig.json",
     "include": [
         "test/**/*.ts",
+        "src/api/routes/guild-recommendations.test.ts",
         "src/api/ServerConfigure.test.ts",
         "src/api/util/ChannelAppliedTagsValidation.test.ts",
         "src/api/util/ChannelModifyAppliedTags.test.ts",

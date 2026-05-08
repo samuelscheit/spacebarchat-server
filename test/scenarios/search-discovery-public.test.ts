@@ -276,6 +276,12 @@ async function coverDiscoveryRoutes(api: StartedApi, token: string) {
     assert.equal("discovery_splash" in guilds[0], false);
 
     await assertJsonError(await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`), 401);
+    assert.equal(Config.get().guild.discovery.useRecommendation, false);
+    const disabledRecommendations = await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`, token);
+    const disabledRecommendationsBody = await assertJsonError(disabledRecommendations, 404);
+    assert.match(disabledRecommendationsBody.message as string, /Guild recommendations are disabled/);
+
+    Config.get().guild.discovery.useRecommendation = true;
     const recommendations = await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`, token);
     await assertStatus(recommendations, 200);
     const recommendationsBody = await assertJsonObject(recommendations);
