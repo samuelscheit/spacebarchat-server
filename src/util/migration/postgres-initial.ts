@@ -207,6 +207,7 @@ export class initial0 implements MigrationInterface {
 			premium_tier integer NOT NULL,
 			public_updates_channel_id character varying,
 			rules_channel_id character varying,
+			safety_alerts_channel_id character varying,
 			region character varying,
 			splash character varying,
 			system_channel_id character varying,
@@ -686,6 +687,7 @@ export class initial0 implements MigrationInterface {
 		await queryRunner.query(`ALTER TABLE ONLY public.guilds ADD CONSTRAINT "FK_8d450b016dc8bec35f36729e4b0" FOREIGN KEY (public_updates_channel_id) REFERENCES public.channels(id);`);
 		await queryRunner.query(`ALTER TABLE ONLY public.stickers ADD CONSTRAINT "FK_8f4ee73f2bb2325ff980502e158" FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;`);
 		await queryRunner.query(`ALTER TABLE ONLY public.guilds ADD CONSTRAINT "FK_95828668aa333460582e0ca6396" FOREIGN KEY (rules_channel_id) REFERENCES public.channels(id);`);
+		await queryRunner.query(`ALTER TABLE ONLY public.guilds ADD CONSTRAINT "FK_guilds_safety_alerts_channel_id" FOREIGN KEY (safety_alerts_channel_id) REFERENCES public.channels(id);`);
 		await queryRunner.query(`ALTER TABLE ONLY public.relationships ADD CONSTRAINT "FK_9af4194bab1250b1c584ae4f1d7" FOREIGN KEY (from_id) REFERENCES public.users(id) ON DELETE CASCADE;`);
 		await queryRunner.query(`ALTER TABLE ONLY public.relationships ADD CONSTRAINT "FK_9c7f6b98a9843b76dce1b0c878b" FOREIGN KEY (to_id) REFERENCES public.users(id) ON DELETE CASCADE;`);
 		await queryRunner.query(`ALTER TABLE ONLY public.guilds ADD CONSTRAINT "FK_9d1d665379eefde7876a17afa99" FOREIGN KEY (widget_channel_id) REFERENCES public.channels(id);`);

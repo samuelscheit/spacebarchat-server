@@ -324,3 +324,57 @@ describe("Guild entity metadata", () => {
         assert.equal(columns.find((column) => column.propertyName === "primary_category_id")?.options.type, "int8");
     });
 });
+
+describe("Guild.toGuildUpdateEventData", () => {
+    test("includes the configured safety alerts channel id", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+        const { Guild } = await import("./Guild.js");
+        const guild = Object.assign(Object.create(Guild.prototype), {
+            id: "guild",
+            name: "Guild",
+            features: [],
+            large: false,
+            nsfw: false,
+            premium_tier: 0,
+            unavailable: false,
+            welcome_screen: {
+                enabled: false,
+                description: null,
+                welcome_channels: [],
+            },
+            widget_enabled: false,
+            safety_alerts_channel_id: "safety-channel",
+        }) as InstanceType<typeof Guild>;
+
+        const data = guild.toGuildUpdateEventData();
+
+        assert.equal(data.safety_alerts_channel_id, "safety-channel");
+    });
+
+    test("includes null for an unconfigured safety alerts channel id", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+        const { Guild } = await import("./Guild.js");
+        const guild = Object.assign(Object.create(Guild.prototype), {
+            id: "guild",
+            name: "Guild",
+            features: [],
+            large: false,
+            nsfw: false,
+            premium_tier: 0,
+            unavailable: false,
+            welcome_screen: {
+                enabled: false,
+                description: null,
+                welcome_channels: [],
+            },
+            widget_enabled: false,
+            safety_alerts_channel_id: null,
+        }) as InstanceType<typeof Guild>;
+
+        const data = guild.toGuildUpdateEventData();
+
+        assert.equal(data.safety_alerts_channel_id, null);
+    });
+});

@@ -56,6 +56,7 @@ function makeReadyGuild(stage_instances: unknown[]): GuildOrUnavailable {
         discovery_splash: null,
         rules_channel_id: null,
         public_updates_channel_id: null,
+        safety_alerts_channel_id: null,
         max_video_channel_users: 25,
         max_members: 250000,
         nsfw_level: 0,
@@ -80,4 +81,18 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
     ).toJSON();
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
+});
+
+test("ReadyGuildDTO emits a configured safety alerts channel id", () => {
+    const dto = new ReadyGuildDTO({
+        ...(makeReadyGuild([]) as object),
+        safety_alerts_channel_id: "safety-channel",
+    } as unknown as GuildOrUnavailable).toJSON();
+
+    assert.equal(dto.properties.safety_alerts_channel_id, "safety-channel");
+});
+test("ReadyGuildDTO emits null for an unconfigured safety alerts channel id", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.safety_alerts_channel_id, null);
 });

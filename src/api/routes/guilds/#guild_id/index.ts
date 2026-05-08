@@ -201,6 +201,14 @@ router.patch(
             });
         }
 
+        if (body.safety_alerts_channel_id != undefined) {
+            // ensure channel exists in this guild
+            await Channel.findOneOrFail({
+                where: { guild_id, id: body.safety_alerts_channel_id },
+                select: { id: true },
+            });
+        }
+
         // Channel.createChannel owns guild.channel_ordering writes. Do not let this
         // route's guild save overwrite ordering with a stale select:false value.
         removeChannelOrderingFromGuildSave(guild);
