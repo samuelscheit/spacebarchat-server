@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { EventOpts, Intents } from "@spacebar/util";
-import { canDispatchGuildPresenceUpdate, canDispatchIntentEvent, shouldSubscribeDirectMessageEvents, shouldSubscribeGuildEvents, shouldSubscribePresenceEvents } from "./listener";
+import {
+    canDispatchGuildPresenceUpdate,
+    canDispatchIntentEvent,
+    shouldSubscribeDirectMessageEvents,
+    shouldSubscribeGuildChannelEvents,
+    shouldSubscribeGuildEvents,
+    shouldSubscribePresenceEvents,
+} from "./listener";
 import { trackGuildMemberEventId } from "./subscriptions";
 
 function eventOpts(event: string, data: Record<string, unknown> = {}, guild_id?: string, channel_id?: string) {
@@ -74,15 +81,40 @@ describe("gateway listener intent filtering", () => {
         const noIntents = new Intents(0n);
         const directMessages = new Intents(Intents.FLAGS.DIRECT_MESSAGES);
         const guilds = new Intents(Intents.FLAGS.GUILDS);
+        const guildMembers = new Intents(Intents.FLAGS.GUILD_MEMBERS);
+        const guildInvites = new Intents(Intents.FLAGS.GUILD_INVITES);
+        const guildMessages = new Intents(Intents.FLAGS.GUILD_MESSAGES);
         const presences = new Intents(Intents.FLAGS.GUILD_PRESENCES);
 
         assert.equal(shouldSubscribeDirectMessageEvents(noIntents), false);
         assert.equal(shouldSubscribeGuildEvents(noIntents), false);
+        assert.equal(shouldSubscribeGuildChannelEvents(noIntents), false);
         assert.equal(shouldSubscribePresenceEvents(noIntents), false);
 
         assert.equal(shouldSubscribeDirectMessageEvents(directMessages), true);
         assert.equal(shouldSubscribeGuildEvents(guilds), true);
+        assert.equal(shouldSubscribeGuildChannelEvents(guilds), true);
+        assert.equal(shouldSubscribeGuildEvents(guildMembers), true);
+        assert.equal(shouldSubscribeGuildChannelEvents(guildMembers), false);
+        assert.equal(shouldSubscribeGuildEvents(guildInvites), true);
+        assert.equal(shouldSubscribeGuildChannelEvents(guildInvites), false);
+        assert.equal(shouldSubscribeGuildEvents(guildMessages), true);
+        assert.equal(shouldSubscribeGuildChannelEvents(guildMessages), true);
         assert.equal(shouldSubscribePresenceEvents(presences), true);
+        assert.equal(shouldSubscribeGuildChannelEvents(presences), false);
+    });
+
+    test("uses direct message intents for non-guild channel lifecycle events", () => {
+        const guilds = new Intents(Intents.FLAGS.GUILDS);
+        const directMessages = new Intents(Intents.FLAGS.DIRECT_MESSAGES);
+        const guildChannelCreate = eventOpts("CHANNEL_CREATE", { id: "guild-channel", guild_id: "guild" });
+        const directChannelCreate = eventOpts("CHANNEL_CREATE", { id: "dm-channel", type: 1 });
+
+        assert.equal(canDispatchIntentEvent(guilds, guildChannelCreate), true);
+        assert.equal(canDispatchIntentEvent(directMessages, guildChannelCreate), false);
+        assert.equal(canDispatchIntentEvent(guilds, directChannelCreate), false);
+        assert.equal(canDispatchIntentEvent(directMessages, directChannelCreate), true);
+        assert.equal(canDispatchIntentEvent(directMessages, eventOpts("CHANNEL_RECIPIENT_REMOVE", { channel_id: "dm-channel" })), true);
     });
 
     test("uses current invite and thread member event names from the intent maps", () => {

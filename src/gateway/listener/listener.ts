@@ -79,12 +79,34 @@ function getIntentEventAllowance(intents: Intents, event: string, map: IntentEve
     return undefined;
 }
 
+const GUILD_CHANNEL_ROUTE_INTENT_BITS = new Set<number>([
+    0, // GUILDS: channel/thread/stage lifecycle events can be emitted on channel routes.
+    5, // GUILD_WEBHOOKS
+    9, // GUILD_MESSAGES
+    10, // GUILD_MESSAGE_REACTIONS
+    11, // GUILD_MESSAGE_TYPING
+    16, // GUILD_SCHEDULED_EVENTS
+    24, // GUILD_MESSAGE_POLLS
+]);
+
 function hasAnyIntent(intents: Intents, map: IntentEventMap) {
     return Object.keys(map).some((intentBit) => intents.has(BigInt(1) << BigInt(intentBit)));
 }
 
+function hasAnyIntentBit(intents: Intents, intentBits: Iterable<number>) {
+    for (const intentBit of intentBits) {
+        if (intents.has(BigInt(1) << BigInt(intentBit))) return true;
+    }
+
+    return false;
+}
+
 export function shouldSubscribeGuildEvents(intents: Intents) {
     return hasAnyIntent(intents, Intents.GUILD_INTENT_TO_EVENTS_MAP);
+}
+
+export function shouldSubscribeGuildChannelEvents(intents: Intents) {
+    return hasAnyIntentBit(intents, GUILD_CHANNEL_ROUTE_INTENT_BITS);
 }
 
 export function shouldSubscribeDirectMessageEvents(intents: Intents) {
@@ -288,21 +310,28 @@ export async function setupListener(this: WebSocket) {
             );
         }
 
-        if (!shouldSubscribeGuildEvents(this.intents)) return;
+        const shouldSubscribeGuildRoutes = shouldSubscribeGuildEvents(this.intents);
+        const shouldSubscribeGuildChannelRoutes = shouldSubscribeGuildChannelEvents(this.intents);
+        if (!shouldSubscribeGuildRoutes && !shouldSubscribeGuildChannelRoutes) return;
 
         await Promise.all(
             guilds.map(async (guild) => {
                 const permission = await getPermission(this.user_id, guild.id);
                 this.permissions[guild.id] = permission;
-                await subscribeEvent.call(this, guild.id, consumer, opts, guild.id);
 
-                await Promise.all(
-                    guild.channels.map(async (channel) => {
-                        if (permission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) {
-                            await subscribeEvent.call(this, channel.id, consumer, opts, guild.id);
-                        }
-                    }),
-                );
+                const subscriptions: Promise<unknown>[] = [];
+                if (shouldSubscribeGuildRoutes) subscriptions.push(subscribeEvent.call(this, guild.id, consumer, opts, guild.id));
+                if (shouldSubscribeGuildChannelRoutes) {
+                    subscriptions.push(
+                        ...guild.channels.map(async (channel) => {
+                            if (permission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) {
+                                await subscribeEvent.call(this, channel.id, consumer, opts, guild.id);
+                            }
+                        }),
+                    );
+                }
+
+                await Promise.all(subscriptions);
             }),
         );
     };
@@ -461,7 +490,7 @@ async function consume(this: WebSocket, opts: EventOpts) {
         }
         case "CHANNEL_CREATE":
             if (!permission.overwriteChannel(data.permission_overwrites).has("VIEW_CHANNEL")) return;
-            if (shouldSubscribeGuildEvents(this.intents)) await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
+            if (shouldSubscribeGuildChannelEvents(this.intents)) await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
             break;
         case "RELATIONSHIP_ADD":
             if (shouldSubscribePresenceEvents(this.intents)) await subscribeEvent.call(this, data.user.id, handlePresenceUpdate.bind(this), this.listen_options);
@@ -469,22 +498,24 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "GUILD_CREATE": {
             const guildPermission = getGuildCreatePermission(this.user_id, data as GuildCreatePermissionData);
             this.permissions[id] = guildPermission;
-            if (shouldSubscribeGuildEvents(this.intents)) {
-                await Promise.all([
+            const subscriptions: Promise<unknown>[] = [];
+            if (shouldSubscribeGuildEvents(this.intents)) subscriptions.push(subscribeEvent.call(this, id, consumer, listenOpts, id));
+            if (shouldSubscribeGuildChannelEvents(this.intents)) {
+                subscriptions.push(
                     ...((data.channels ?? []) as PublicChannel[]).map(async (channel) => {
                         if (!guildPermission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) return;
                         await subscribeEvent.call(this, channel.id, consumer, listenOpts, id);
                     }),
-                    subscribeEvent.call(this, id, consumer, listenOpts, id),
-                ]);
+                );
             }
+            await Promise.all(subscriptions);
             break;
         }
         case "CHANNEL_UPDATE": {
             const exists = this.events[id];
             if (permission.overwriteChannel(data.permission_overwrites).has("VIEW_CHANNEL")) {
                 if (exists) break;
-                if (shouldSubscribeGuildEvents(this.intents)) await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
+                if (shouldSubscribeGuildChannelEvents(this.intents)) await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
             } else {
                 if (!exists) return; // return -> do not send channel update events for hidden channels
                 untrackGuildEventId(this.guild_event_ids, guildId, id);
