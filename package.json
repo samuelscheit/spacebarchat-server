@@ -45,7 +45,7 @@
         "add:license": "node  -r dotenv/config -r module-alias/register --enable-source-maps scripts/license.js",
         "build:test-fixtures": "rm -rf dist-test && tsc -p tsconfig.test.build.json",
         "test:manifest": "node --test scripts/testing-manifest/*.test.js && node scripts/testing-manifest/verify.js",
-        "test:contracts": "node scripts/testing-manifest/generate-contract-tests.js --check && node --test test/generated/http-contracts.test.js && npm run test:contracts:runtime",
+        "test:contracts": "node scripts/testing-manifest/generate-contract-tests.js --check && node --test test/generated/http-contracts.test.js test/contracts/*.test.cjs && npm run test:contracts:runtime",
         "test:contracts:runtime": "npm run build:src:tsgo && npm run build:test-fixtures && node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/test/generated/http-auth-runtime-contracts.test.js",
         "test:fixtures": "npm run build:src:tsgo && npm run test:fixtures:built",
         "test:fixtures:built": "npm run build:test-fixtures && node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/test/fixtures/*.test.js dist-test/test/assertions/*.test.js",
