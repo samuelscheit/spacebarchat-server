@@ -63,6 +63,7 @@ export * from "./Permissions";
 export * from "./RabbitMQ";
 export * from "./RabbitMqPayloadCodec";
 export * from "./Regex";
+export * from "./ReplacedCdnAsset";
 export * from "./Reactions";
 export * from "./Rights";
 export * from "./RolePermissions";

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions } from "@spacebar/util";
+import { emitEvent, getPermission, getRights, deleteReplacedCdnAsset, GuildMemberUpdateEvent, handleFile, Member, OrmUtils, Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeProfileSchema } from "@spacebar/schemas";
 
@@ -65,7 +65,9 @@ router.patch(
             relations: { roles: true, user: true },
         });
 
-        if (body.banner) body.banner = await handleFile(`/guilds/${guild_id}/users/${member_id}/banners`, body.banner as string);
+        const previousBanner = member.banner;
+        const memberBannerPath = `/guilds/${guild_id}/users/${member_id}/banners`;
+        if (body.banner) body.banner = await handleFile(memberBannerPath, body.banner as string);
 
         member = await OrmUtils.mergeDeep(member, body);
 
@@ -77,6 +79,8 @@ router.patch(
             guild_id,
             data: { ...member, roles: member.roles.map((x) => x.id) },
         } satisfies GuildMemberUpdateEvent);
+
+        if ("banner" in body) await deleteReplacedCdnAsset(memberBannerPath, previousBanner, member.banner);
 
         res.json(member);
     },
