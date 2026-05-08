@@ -31,6 +31,7 @@ import {
     handleFile,
     Config,
     removeChannelOrderingFromGuildSave,
+    canPatchGuildFeature,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -123,11 +124,8 @@ router.patch(
         if (body.features) {
             const diff = guild.features.filter((x) => !body.features?.includes(x)).concat(body.features.filter((x) => !guild.features.includes(x)));
 
-            // TODO move these
-            const MUTABLE_FEATURES = ["COMMUNITY", "INVITES_DISABLED", "DISCOVERABLE"];
-
             for (const feature of diff) {
-                if (MUTABLE_FEATURES.includes(feature)) continue;
+                if (canPatchGuildFeature(feature)) continue;
 
                 throw SpacebarApiErrors.FEATURE_IS_IMMUTABLE.withParams(feature);
             }

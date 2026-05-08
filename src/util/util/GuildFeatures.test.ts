@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { getVanityUrlFeatureState, setVanityUrlFeature } from "./GuildFeatures";
+import { PATCH_MUTABLE_GUILD_FEATURES, canPatchGuildFeature, getVanityUrlFeatureState, setVanityUrlFeature } from "./GuildFeatures";
 
 describe("Guild feature helpers", () => {
     test("removes VANITY_URL when a guild has no vanity URL", () => {
@@ -46,5 +46,19 @@ describe("Guild feature helpers", () => {
             features: ["COMMUNITY"],
             changed: false,
         });
+    });
+
+    test("identifies guild features that the guild update route may patch", () => {
+        assert.deepEqual(PATCH_MUTABLE_GUILD_FEATURES, ["COMMUNITY", "INVITES_DISABLED", "DISCOVERABLE"]);
+
+        for (const feature of PATCH_MUTABLE_GUILD_FEATURES) {
+            assert.equal(canPatchGuildFeature(feature), true, `${feature} should be patch-mutable`);
+        }
+    });
+
+    test("keeps privileged and derived guild features immutable through guild updates", () => {
+        assert.equal(canPatchGuildFeature("VANITY_URL"), false);
+        assert.equal(canPatchGuildFeature("NEWS"), false);
+        assert.equal(canPatchGuildFeature(""), false);
     });
 });

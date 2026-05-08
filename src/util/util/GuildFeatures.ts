@@ -1,3 +1,10 @@
+export const PATCH_MUTABLE_GUILD_FEATURES = ["COMMUNITY", "INVITES_DISABLED", "DISCOVERABLE"] as const;
+const PATCH_MUTABLE_GUILD_FEATURE_SET = new Set<string>(PATCH_MUTABLE_GUILD_FEATURES);
+
+export function canPatchGuildFeature(feature: string) {
+    return PATCH_MUTABLE_GUILD_FEATURE_SET.has(feature);
+}
+
 export const VANITY_URL_FEATURE = "VANITY_URL";
 
 export function setVanityUrlFeature(features: string[] | null | undefined, hasVanityUrl: boolean) {
