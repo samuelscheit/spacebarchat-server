@@ -1,7 +1,7 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Spacebar.GatewayOffload.Extensions.Db;
+using Spacebar.GatewayOffload.Extensions.Gateway;
 using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.Models.Db.Contexts;
@@ -42,10 +42,6 @@ public class Op14Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
         var channel = await db.Channels.AsNoTracking().FirstOrDefaultAsync(c => c.Id == channelId && c.GuildId == guildId);
         if (channel == null) return null;
 
-        if (string.IsNullOrWhiteSpace(channel.PermissionOverwrites) || channel.PermissionOverwrites == "[]") {
-            return "everyone";
-        }
-
-        return null; // TODO
+        return LazyMemberListProjection.GetMemberListId(channel.PermissionOverwrites);
     }
 }
