@@ -20,11 +20,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { ajv } from "../Validator";
+import { ajv } from "@spacebar/schemas/Validator";
 
 const assetsPath = path.join(process.cwd(), "assets");
 
 interface JsonShape {
+    components?: {
+        schemas?: Record<string, JsonShape>;
+    };
     minLength?: number;
     properties?: Record<string, JsonShape>;
     type?: string | string[];
@@ -34,13 +37,14 @@ function readAssetJson<T>(name: string): T {
     return JSON.parse(fs.readFileSync(path.join(assetsPath, name), "utf8")) as T;
 }
 
-test("ApplicationAuthorizeSchema requires a non-empty guild_id", () => {
+test("ApplicationAuthorizeSchema requires a non-empty guild_id in generated contracts", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
+    const openapi = readAssetJson<JsonShape>("openapi.json");
 
-    assert.deepEqual(schemas.ApplicationAuthorizeSchema.properties?.guild_id, {
-        minLength: 1,
-        type: "string",
-    });
+    assert.equal(schemas.ApplicationAuthorizeSchema.properties?.guild_id?.type, "string");
+    assert.equal(schemas.ApplicationAuthorizeSchema.properties?.guild_id?.minLength, 1);
+    assert.equal(openapi.components?.schemas?.ApplicationAuthorizeSchema.properties?.guild_id?.type, "string");
+    assert.equal(openapi.components?.schemas?.ApplicationAuthorizeSchema.properties?.guild_id?.minLength, 1);
 });
 
 test("ApplicationAuthorizeSchema rejects empty guild_id values", () => {
