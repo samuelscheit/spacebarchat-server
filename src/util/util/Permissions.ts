@@ -16,6 +16,7 @@ const CHANNEL_PERMISSION_OVERWRITE_ROLE = 0;
 const CHANNEL_PERMISSION_OVERWRITE_MEMBER = 1;
 const GUILD_PRIVATE_THREAD = 12;
 const USER_FLAG_QUARANTINED = 1n << 44n;
+type PermissionRecipient = Pick<Recipient, "user_id"> & Partial<Pick<Recipient, "closed">>;
 
 // BigInt doesn't have a bit limit (https://stackoverflow.com/questions/53335545/whats-the-biggest-bigint-value-in-js-as-per-spec)
 // const CUSTOM_PERMISSION_OFFSET = BigInt(1) << BigInt(64); // 27 permission bits left for discord to add new ones
@@ -160,7 +161,7 @@ export class Permissions extends BitField {
         guild: { id: string; owner_id: string };
         channel?: {
             overwrites?: ChannelPermissionOverwrite[];
-            recipients?: Pick<Recipient, "user_id" | "closed">[] | null;
+            recipients?: PermissionRecipient[] | null;
             owner_id?: string;
         };
     }) {
@@ -180,22 +181,9 @@ export class Permissions extends BitField {
 
         if (channel?.recipients) {
             if (channel?.owner_id === user.id) return new Permissions("ADMINISTRATOR");
-            if (channel.recipients.some((recipient) => recipient.user_id === user.id && !recipient.closed)) {
+            if (channel.recipients.some((recipient) => recipient.user_id === user.id && recipient.closed === false)) {
                 // Default dm permissions
-                return new Permissions([
-                    "VIEW_CHANNEL",
-                    "SEND_MESSAGES",
-                    "STREAM",
-                    "ADD_REACTIONS",
-                    "EMBED_LINKS",
-                    "ATTACH_FILES",
-                    "READ_MESSAGE_HISTORY",
-                    "MENTION_EVERYONE",
-                    "USE_EXTERNAL_EMOJIS",
-                    "CONNECT",
-                    "SPEAK",
-                    "MANAGE_CHANNELS",
-                ]);
+                return new Permissions(Permissions.DEFAULT_DM_PERMISSIONS);
             }
 
             return new Permissions();

@@ -115,6 +115,27 @@ describe("Permissions", () => {
         assert.equal(permissions.bitfield, 0n);
     });
 
+    test("DM recipients without loaded closed state receive no permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "user_id" }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, 0n);
+    });
+
     test("DM non-recipients receive no permissions", () => {
         const permissions = Permissions.finalPermission({
             user: {
