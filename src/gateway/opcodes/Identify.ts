@@ -16,7 +16,18 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, OPCODES, Payload, Send, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
+import {
+    Capabilities,
+    CLOSECODES,
+    OPCODES,
+    Payload,
+    Send,
+    createBotGuildCreatePayloads,
+    serializeReadyReadState,
+    setupListener,
+    WebSocket,
+    type BotGuildCreatePayloadInput,
+} from "@spacebar/gateway";
 import {
     Application,
     arrayGroupBy,
@@ -510,8 +521,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Populated with guilds 'unavailable' currently
     // Just for bots
-    //TODO get this a better type
-    const pending_guilds: { id: string }[] = [];
+    const pending_guilds: BotGuildCreatePayloadInput[] = [];
 
     // Generate guilds list ( make them unavailable if user is bot )
     const guilds: GuildOrUnavailable[] = members.map((member) => {
@@ -823,30 +833,16 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         d,
     });
 
-    // If we're a bot user, send GUILD_CREATE for each unavailable guild
-    // TODO: check if bot has permission to view some of these based on intents (i.e. GUILD_MEMBERS, GUILD_PRESENCES, GUILD_VOICE_STATES)
+    // If we're a bot user, send GUILD_CREATE for each unavailable guild.
     await Promise.all(
-        pending_guilds.map((x) => {
-            //Even with the GUILD_MEMBERS intent, the bot always receives just itself as the guild members
-            const botMemberObject = members.find((member) => member.guild_id === x.id);
-
-            return Send(this, {
+        createBotGuildCreatePayloads(pending_guilds, members, user, this.intents).map((payload) =>
+            Send(this, {
                 op: OPCODES.Dispatch,
                 t: EVENTEnum.GuildCreate,
                 s: this.sequence++,
-                d: {
-                    ...x,
-                    members: botMemberObject
-                        ? [
-                              {
-                                  ...botMemberObject.toPublicMember(),
-                                  user: user.toPublicUser(),
-                              },
-                          ]
-                        : [],
-                },
-            })?.catch((e) => console.error(`[Gateway/${this.user_id}] error when sending bot guilds`, e));
-        }),
+                d: payload,
+            })?.catch((e) => console.error(`[Gateway/${this.user_id}] error when sending bot guilds`, e)),
+        ),
     );
 
     const readySupplementalGuilds = (guilds.filter((guild) => !guild.unavailable) as Guild[]).map((guild) => ({
