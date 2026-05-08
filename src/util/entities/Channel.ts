@@ -33,6 +33,7 @@ import {
     normalizeChannelName,
     normalizeThreadName,
     assertChannelNamePresent,
+    assertExistingGroupDmRecipient,
     canCreateServerDm,
     shouldCheckServerDmPrivacy,
 } from "../util";
@@ -564,6 +565,8 @@ export class Channel extends BaseClass {
     }
 
     static async removeRecipientFromChannel(channel: Channel, user_id: string) {
+        assertExistingGroupDmRecipient(channel.recipients, user_id);
+
         await Recipient.delete({ channel_id: channel.id, user_id: user_id });
         channel.recipients = channel.recipients?.filter((r) => r.user_id !== user_id);
 

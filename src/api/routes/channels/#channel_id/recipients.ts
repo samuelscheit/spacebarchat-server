@@ -92,10 +92,6 @@ router.delete(
         });
         if (!(channel.type === ChannelType.GROUP_DM && (channel.owner_id === req.user_id || user_id === req.user_id))) throw DiscordApiErrors.MISSING_PERMISSIONS;
 
-        if (!channel.recipients?.map((r) => r.user_id).includes(user_id)) {
-            throw DiscordApiErrors.INVALID_RECIPIENT; //TODO is this the right error?
-        }
-
         await Channel.removeRecipientFromChannel(channel, user_id);
 
         return res.sendStatus(204);
