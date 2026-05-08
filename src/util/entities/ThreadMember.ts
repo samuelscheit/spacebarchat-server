@@ -99,28 +99,34 @@ export class ThreadMember extends BaseClassWithoutId {
         throw new HTTPError("You are not member of this thread", 403);
     }
 
-    static async removeFromThread(member_id: string, thread_id: string) {
+    static async removeFromThread(user_id: string, thread_id: string) {
         const channel = await Channel.findOneOrFail({ where: { id: thread_id } });
         if (!channel.isThread()) throw new HTTPError("Channel is not a thread", 400);
         if (!channel.guild_id) throw new HTTPError("Thread guild id not set", 500);
 
+        const member = await Member.findOneOrFail({
+            where: { id: user_id, guild_id: channel.guild_id },
+            select: { index: true },
+        });
+        const threadMemberQuery = {
+            id: thread_id,
+            member_idx: member.index,
+        };
+
         if (
             !(await ThreadMember.count({
-                where: {
-                    id: thread_id,
-                    member_idx: member_id,
-                },
+                where: threadMemberQuery,
             }))
         )
             throw new HTTPError("You are not member of this thread", 403);
-        // // use promise all to execute all promises at the same time -> save time
-        // TODO: check for bugs
-        if (channel.member_count) channel.member_count--;
+
+        if (channel.member_count) {
+            channel.member_count--;
+            await channel.save();
+        }
+
         return Promise.all([
-            ThreadMember.delete({
-                id: thread_id,
-                member_idx: member_id,
-            }),
+            ThreadMember.delete(threadMemberQuery),
             // 	//Guild.decrement({ id: guild_id }, "member_count", -1),
 
             emitEvent({
@@ -129,7 +135,7 @@ export class ThreadMember extends BaseClassWithoutId {
                     guild_id: channel.guild_id,
                     id: channel.id,
                     member_count: channel.member_count ?? 0,
-                    removed_member_ids: [member_id],
+                    removed_member_ids: [user_id],
                 },
                 channel_id: thread_id,
             } satisfies ThreadMembersUpdateEvent),
