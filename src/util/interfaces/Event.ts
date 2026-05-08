@@ -223,7 +223,6 @@ export interface GuildCreateEvent extends Event {
     event: "GUILD_CREATE";
     data: IReadyGuildDTO & {
         joined_at: Date;
-        // TODO: add them to guild
         guild_scheduled_events: never[];
         guild_hashes: unknown;
         presences: never[];
