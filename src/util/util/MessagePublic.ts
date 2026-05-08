@@ -18,7 +18,7 @@
 
 import type { PartialUser, PublicMessage, StoredReaction } from "@spacebar/schemas";
 import { serializePublicMember, type PublicMemberLike } from "./MemberRoles";
-import { serializeMessageMentions } from "./MessageMentions";
+import { serializeMessageMentions, toMessageMentionUser } from "./MessageMentions";
 import { serializeMessageRoleMentions, type SerializableRoleMention } from "./MessageRoleMentions";
 import { toPublicReactions } from "./Reactions";
 
@@ -32,13 +32,12 @@ interface PublicMessageInteractionSource {
     id: string;
     type: NonNullable<PublicMessage["interaction"]>["type"];
     name: string;
-    user?: PublicUserSource | PartialUser;
+    user?: object;
 }
 
 function serializeInteractionUser(user: PublicMessageInteractionSource["user"]): PartialUser | undefined {
     if (!user) return undefined;
-    if ("toPublicUser" in user && typeof user.toPublicUser === "function") return user.toPublicUser() as PartialUser;
-    return user as PartialUser;
+    return toMessageMentionUser(user);
 }
 
 interface PublicMessageSource {

@@ -3386,7 +3386,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 78,
+            "line": 79,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

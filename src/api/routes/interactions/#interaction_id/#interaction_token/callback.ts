@@ -85,6 +85,7 @@ router.post(
                 break;
             case InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE: {
                 const user = await User.findOneOrFail({ where: { id: interaction.userId } });
+                const interactionUser = user.toPublicUser();
                 /*
 			const files = (req.files as Express.Multer.File[]) ?? [];
 			//I don't think traditional attachments are allowed anyways
@@ -118,13 +119,13 @@ router.post(
                         id: interactionId,
                         name: interaction.commandName ?? "",
                         type: 2,
-                        user,
+                        user: interactionUser,
                     },
                     interaction_metadata: {
                         id: interactionId,
                         type: 2,
                         user_id: interaction.userId,
-                        user,
+                        user: interactionUser,
                         authorizing_integration_owners: {
                             "1": interaction.userId,
                         },

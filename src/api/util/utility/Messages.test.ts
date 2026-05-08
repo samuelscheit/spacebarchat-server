@@ -109,8 +109,7 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
     assert.equal(ajv.validate("PreloadMessagesResponse", [serializedDto]), true, ajv.errorsText());
 });
 
-
-test("messageToPublicMessage serializes legacy interaction users as public users", () => {
+test("messageToPublicMessage serializes stored legacy interaction users as public users", () => {
     const publicUser = makePublicUser();
     const entityMessage = {
         id: "201",
@@ -132,9 +131,12 @@ test("messageToPublicMessage serializes legacy interaction users as public users
             type: 2,
             name: "command",
             user: {
-                ...publicUser,
+                id: publicUser.id,
+                username: publicUser.username,
+                discriminator: publicUser.discriminator,
                 email: "private@example.invalid",
-                toPublicUser: () => publicUser,
+                phone: "private-phone",
+                verified: true,
             },
         },
         author: {

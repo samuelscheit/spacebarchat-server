@@ -50,6 +50,7 @@ import {
     Snowflake,
     uploadFile,
     User,
+    toMessageMentionUser,
     ThreadMember,
     ThreadMemberFlags,
     ThreadMembersUpdateEvent,
@@ -215,8 +216,7 @@ router.get(
             (ret as MessageWithInteraction[])
                 .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
                 .map(async (x) => {
-                    const user = (await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } })).toPublicUser() as PartialUser;
-                    user.avatar ??= null;
+                    const user = toMessageMentionUser(await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } }));
                     x.interaction_metadata!.user = user;
                     if (x.interaction) x.interaction.user = user;
                 }),
