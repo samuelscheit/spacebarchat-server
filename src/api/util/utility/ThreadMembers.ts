@@ -1,3 +1,4 @@
+import { ThreadMember } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 
 export const DEFAULT_THREAD_MEMBER_LIMIT = 100;
@@ -39,6 +40,12 @@ export async function syncThreadMemberCount(thread: ThreadMemberCountThread, cou
     await thread.save();
 
     return thread.member_count;
+}
+
+export const countPersistedThreadMembers: ThreadMemberCountReader = (threadId) => ThreadMember.countBy({ id: threadId });
+
+export async function syncPersistedThreadMemberCount(thread: ThreadMemberCountThread) {
+    return await syncThreadMemberCount(thread, countPersistedThreadMembers);
 }
 
 type QueryParameters = Record<string, unknown>;

@@ -39,6 +39,7 @@ import {
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    syncPersistedThreadMemberCount,
 } from "../../../util/utility/ThreadMembers";
 
 const router = Router({ mergeParams: true });
@@ -71,19 +72,14 @@ async function addThreadMember(req: Request, res: Response) {
     }
 
     const threadMember = await ThreadMember.createForUser(user_id, thread, ThreadMemberFlags.ALL_MESSAGES);
-
-    // increment member count
-    if (thread.member_count !== null && thread.member_count !== undefined) {
-        thread.member_count++;
-        await thread.save();
-    }
+    const memberCount = await syncPersistedThreadMemberCount(thread);
 
     await emitEvent({
         event: "THREAD_MEMBERS_UPDATE",
         data: {
             guild_id: thread.guild_id!,
             id: thread.id,
-            member_count: thread.member_count ?? 0, //TODO: is this the right fix?
+            member_count: memberCount,
             added_members: [{ user_id: user_id, ...threadMember.toJSON() }],
         },
         channel_id: thread.id,
@@ -184,19 +180,14 @@ router.delete(
         const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id! } });
         const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
         await threadMember.remove();
-
-        // decrement member count
-        if (thread.member_count !== null && thread.member_count !== undefined && thread.member_count > 0) {
-            thread.member_count--;
-            await thread.save();
-        }
+        const memberCount = await syncPersistedThreadMemberCount(thread);
 
         await emitEvent({
             event: "THREAD_MEMBERS_UPDATE",
             data: {
                 guild_id: thread.guild_id!,
                 id: thread.id,
-                member_count: thread.member_count ?? 0, // TODO: is this the right fix?
+                member_count: memberCount,
                 removed_member_ids: [user_id],
             },
             channel_id: thread.id,

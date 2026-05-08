@@ -26,7 +26,7 @@ import {
     sortMessagesNewestFirst,
     toPublicReactions,
 } from "@spacebar/api";
-import { syncThreadMemberCount } from "../../../../util/utility/ThreadMembers";
+import { syncPersistedThreadMemberCount } from "../../../../util/utility/ThreadMembers";
 import {
     Attachment,
     Channel,
@@ -306,7 +306,7 @@ router.post(
                     });
                     await threadMember.save();
 
-                    const memberCount = await syncThreadMemberCount(channel, (threadId) => ThreadMember.countBy({ id: threadId }));
+                    const memberCount = await syncPersistedThreadMemberCount(channel);
 
                     await emitEvent({
                         event: "THREAD_MEMBERS_UPDATE",

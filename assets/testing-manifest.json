@@ -4440,7 +4440,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 160,
+            "line": 156,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4491,7 +4491,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 132,
+            "line": 128,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4539,7 +4539,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 158,
+            "line": 154,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4590,7 +4590,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 153,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4641,7 +4641,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 220,
+            "line": 211,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4691,7 +4691,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 101,
+            "line": 97,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

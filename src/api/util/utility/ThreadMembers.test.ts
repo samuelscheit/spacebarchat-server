@@ -1,16 +1,26 @@
 import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { afterEach, describe, test } from "node:test";
+import { ThreadMember } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import {
     applyThreadMemberListQuery,
     assertThreadIsNotArchived,
     DEFAULT_THREAD_MEMBER_LIMIT,
+    syncPersistedThreadMemberCount,
     syncThreadMemberCount,
     MAX_THREAD_MEMBER_LIMIT,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
 } from "./ThreadMembers";
+
+const originalThreadMemberCountBy = ThreadMember.countBy;
+
+afterEach(() => {
+    Object.assign(ThreadMember, {
+        countBy: originalThreadMemberCountBy,
+    });
+});
 
 describe("thread member helpers", () => {
     test("defaults thread member limit", () => {
@@ -68,6 +78,24 @@ describe("thread member helpers", () => {
         assert.equal(thread.member_count, 4);
         assert.equal(thread.saveCalls, 1);
         assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("syncs thread member counts from persisted ThreadMember rows by default", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: null });
+        const countByCalls: unknown[] = [];
+        Object.assign(ThreadMember, {
+            countBy: async (where: unknown) => {
+                countByCalls.push(where);
+                return 3;
+            },
+        });
+
+        const memberCount = await syncPersistedThreadMemberCount(thread);
+
+        assert.equal(memberCount, 3);
+        assert.equal(thread.member_count, 3);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
     });
 
     test("builds thread member list query against member user ids", () => {
