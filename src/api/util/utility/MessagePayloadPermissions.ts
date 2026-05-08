@@ -1,4 +1,5 @@
 import { BaseMessageComponents, MessageComponentType, UnfurledMediaItem } from "@spacebar/schemas";
+import { isNewMessagePayloadAttachment } from "./MessageEditAttachments";
 
 export interface MessagePayloadPermissionOptions {
     embed?: unknown | null;
@@ -10,10 +11,6 @@ export interface MessagePayloadPermissionOptions {
 
 export interface MessagePayloadPermissionChecker {
     hasThrow(permission: "EMBED_LINKS" | "ATTACH_FILES"): unknown;
-}
-
-export function isNewMessagePayloadAttachment(attachment: unknown): boolean {
-    return typeof attachment === "object" && attachment !== null && "uploaded_filename" in attachment;
 }
 
 function collectMessageComponentMediaFromComponent(component: BaseMessageComponents, media: UnfurledMediaItem[]): void {

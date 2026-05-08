@@ -36,7 +36,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
-import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, messageToResponse, normalizeMessageEditBodyAttachments, postHandleMessage, route } from "@spacebar/api";
 import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
@@ -91,19 +91,7 @@ router.patch(
 
         assertMessagePayloadPermissions(permissions, body);
 
-        const normalizedBody = { ...body } as MessageEditSchema & {
-            attachments?: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[];
-        };
-        if (body.attachments) {
-            const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
-            normalizedBody.attachments = body.attachments.map((attachment) => {
-                if (isNewMessagePayloadAttachment(attachment)) return attachment;
-                if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
-                const retained = existingAttachmentsById.get(attachment.id);
-                if (!retained) throw new HTTPError("Unknown attachment", 400);
-                return retained;
-            });
-        }
+        const normalizedBody = normalizeMessageEditBodyAttachments(body, message.attachments);
 
         const new_message = await handleMessage(
             buildMessageEditHandleMessageOptions(message, normalizedBody, channel_id, message_id, new Date(), {

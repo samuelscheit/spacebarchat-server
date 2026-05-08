@@ -21,9 +21,7 @@ describe("message media permission route integration", () => {
     test("message edit resolves retained attachment references before handleMessage", () => {
         const source = readSource("src/api/routes/channels/#channel_id/messages/#message_id/index.ts");
 
-        assertBefore(source, "const existingAttachmentsById = new Map", "const new_message = await handleMessage(");
-        assertBefore(source, "if (isNewMessagePayloadAttachment(attachment)) return attachment;", "const retained = existingAttachmentsById.get(attachment.id);");
-        assertBefore(source, 'throw new HTTPError("Unknown attachment", 400);', "const new_message = await handleMessage(");
+        assertBefore(source, "normalizeMessageEditBodyAttachments(body, message.attachments);", "const new_message = await handleMessage(");
     });
 
     test("normal message create checks media permissions before thread side effects", () => {
@@ -67,8 +65,21 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "clearTimeout(interaction.timeout);");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await sendMessage({");
-        assertBefore(source, 'throw new HTTPError("Unknown attachment", 400);', "const newMessage = await handleMessage(");
+        assertBefore(source, "normalizeMessageEditBodyAttachments(body.data, message.attachments);", "const newMessage = await handleMessage(");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "const newMessage = await handleMessage(");
+        assertBefore(source, "attachment_user_id: interaction.applicationId,", "attachment_channel_ids: [channelId],");
+    });
+
+    test("message edit attachment resolution is shared by normal edits and interaction callbacks", () => {
+        const channelEditSource = readSource("src/api/routes/channels/#channel_id/messages/#message_id/index.ts");
+        const interactionCallbackSource = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
+        const attachmentSource = readSource("src/api/util/utility/MessageEditAttachments.ts");
+
+        assert.notEqual(indexOf(channelEditSource, "normalizeMessageEditBodyAttachments(body, message.attachments);"), -1);
+        assert.notEqual(indexOf(interactionCallbackSource, "normalizeMessageEditBodyAttachments(body.data, message.attachments);"), -1);
+        assert.notEqual(indexOf(attachmentSource, "const existingAttachmentsById = new Map"), -1);
+        assert.notEqual(indexOf(attachmentSource, "if (isNewMessagePayloadAttachment(attachment)) return attachment;"), -1);
+        assert.notEqual(indexOf(attachmentSource, 'throw new HTTPError("Unknown attachment", 400);'), -1);
     });
 
     test("component media extraction is shared between permission gates and message handling", () => {
@@ -77,5 +88,11 @@ describe("message media permission route integration", () => {
 
         assert.notEqual(indexOf(permissionSource, "hasMessagePayloadComponentMedia(opts.components)"), -1);
         assertBefore(messageSource, "const medias = collectMessageComponentMedia(components);", "processMedia(m, messageId");
+        assertBefore(
+            messageSource,
+            "const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;",
+            "if (isEdit) await handle?.(message.id, message.author as User, message.channel);",
+        );
+        assertBefore(messageSource, "if (isEdit) await handle?.(message.id, message.author as User, message.channel);", "return message;");
     });
 });

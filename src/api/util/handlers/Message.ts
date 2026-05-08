@@ -687,6 +687,8 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 
     // TODO: check and put it all in the body
 
+    if (isEdit) await handle?.(message.id, message.author as User, message.channel);
+
     return message;
 }
 

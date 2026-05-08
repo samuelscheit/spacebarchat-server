@@ -17,10 +17,9 @@
 */
 
 import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, postHandleMessage, route, sendMessage } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, normalizeMessageEditBodyAttachments, postHandleMessage, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
-    Attachment,
     emitEvent,
     getPermission,
     InteractionSuccessEvent,
@@ -171,22 +170,10 @@ router.post(
                             channel_id: channelId,
                         },
                     });
-                    const normalizedBody = { ...body.data } as typeof body.data & {
-                        attachments?: (Attachment | NonNullable<typeof body.data.attachments>[number])[];
-                    };
-                    if (body.data.attachments) {
-                        const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
-                        normalizedBody.attachments = body.data.attachments.map((attachment) => {
-                            if (isNewMessagePayloadAttachment(attachment)) return attachment;
-                            if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
-                            const retained = existingAttachmentsById.get(attachment.id);
-                            if (!retained) throw new HTTPError("Unknown attachment", 400);
-                            return retained;
-                        });
-                    }
+                    const normalizedBody = normalizeMessageEditBodyAttachments(body.data, message.attachments);
                     const newMessage = await handleMessage(
                         buildMessageEditHandleMessageOptions(message, normalizedBody, channelId, message.id, new Date(), {
-                            attachment_user_id: interaction.userId,
+                            attachment_user_id: interaction.applicationId,
                             attachment_channel_ids: [channelId],
                             is_edit: true,
                         }),
