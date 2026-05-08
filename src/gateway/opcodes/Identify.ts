@@ -63,12 +63,13 @@ import {
     VoiceState,
     getReadyReadStateWhere,
     READY_READ_STATE_SELECT,
+    serializeReadyPrivateChannel,
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
-import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
+import { ChannelType, DefaultUserGuildSettings, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 
 // TODO: user sharding
@@ -318,7 +319,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     channel: {
                         id: true,
                         flags: true,
-                        // is_spam: true,	// TODO
                         last_message_id: true,
                         last_pin_timestamp: true,
                         type: true,
@@ -573,39 +573,10 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const users: Set<PublicUser> = new Set();
 
     // Generate dm channels from recipients list. Append recipients to `users` list
-    const channels = recipients
-        .filter(({ channel }) => channel.isDm())
-        .map((r) => {
-            // TODO: fix the types of Recipient
-            // Their channels are only ever private (I think) and thus are always DM channels
-            const channel = r.channel as DMChannel;
-
-            // Remove ourself from the list of other users in dm channel
-            channel.recipients = channel.recipients.filter((recipient) => recipient.user.id !== this.user_id);
-
-            let channelUsers = channel.recipients?.map((recipient) => recipient.user.toPublicUser());
-
-            if (channelUsers && channelUsers.length > 0) channelUsers.forEach((user) => users.add(user));
-            // HACK: insert self into recipients for DMs with users that no longer exist
-            else if (channel.type === ChannelType.DM) {
-                const selfUser = user.toPublicUser();
-                users.add(selfUser);
-                channelUsers ??= [];
-                channelUsers.push(selfUser);
-            }
-
-            return {
-                id: channel.id,
-                flags: channel.flags,
-                last_message_id: channel.last_message_id,
-                type: channel.type,
-                recipients: channelUsers || [],
-                icon: channel.icon,
-                name: channel.name,
-                is_spam: false, // TODO
-                owner_id: channel.owner_id || undefined,
-            };
-        });
+    const currentUser = user.toPublicUser();
+    const readyPrivateChannels = recipients.filter(({ channel }) => channel.isDm()).map((r) => serializeReadyPrivateChannel(r.channel, this.user_id, currentUser));
+    const channels = readyPrivateChannels.map(({ channel }) => channel);
+    readyPrivateChannels.forEach(({ users: channelUsers }) => channelUsers.forEach((channelUser) => users.add(channelUser)));
     const generateDmChannelsTime = taskSw.getElapsedAndReset();
 
     // From user relationships ( friends ), also append to `users` list
