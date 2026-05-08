@@ -9120,7 +9120,7 @@
             "method": "POST",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 156,
+            "line": 154,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
