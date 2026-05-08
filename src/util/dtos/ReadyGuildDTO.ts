@@ -19,6 +19,8 @@
 import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
 import type { ChannelType, PublicMember, PublicUser, StageInstanceResponse } from "@spacebar/schemas";
 
+export type { ReadyUserGuildSettingsEntries } from "../interfaces/ReadyUserGuildSettingsEntries";
+
 // TODO: probably should move somewhere else
 export interface ReadyPrivateChannel {
     id: string;

@@ -18,6 +18,7 @@
 
 import type { ChannelOverride, UserGuildSettings } from "@spacebar/schemas";
 
-export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
+export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides" | "guild_id"> & {
+    guild_id: string;
     channel_overrides: (ChannelOverride & { channel_id: string })[];
 };
