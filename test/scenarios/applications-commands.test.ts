@@ -341,6 +341,10 @@ test(
                 "application INTERACTION_CREATE",
             );
             assert.equal(applicationInteractionEvent.data.application_id, applicationId);
+            assert.equal(Object.hasOwn(applicationInteractionEvent.data, "member_id"), false);
+            assert.equal(applicationInteractionEvent.data.member.id, owner.id);
+            assert.equal(applicationInteractionEvent.data.member.guild_id, guildId);
+            assert.equal(applicationInteractionEvent.data.member.user.id, owner.id);
             const interactionId = applicationInteractionEvent.data.id as string;
             const interactionToken = applicationInteractionEvent.data.token as string;
             assert.ok(interactionToken);

@@ -12,6 +12,8 @@ const interactionCreateSchema = {
 };
 
 function compileInteractionCreateSchema() {
+    // The injected generated definitions include unrelated schemas that Ajv cannot meta-validate.
+    // Payload assertions below still validate against the generated InteractionCreateSchema contract.
     return new Ajv({ strict: false, validateFormats: false, validateSchema: false }).compile(interactionCreateSchema);
 }
 
