@@ -20,7 +20,6 @@ import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailure
 import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
-    Config,
     emitEvent,
     getPermission,
     InteractionSuccessEvent,
@@ -32,6 +31,7 @@ import {
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
+import { assertMessagePayloadLimits } from "../../../../util/utility/MessagePayloadLimits";
 
 const router = Router({ mergeParams: true });
 
@@ -57,6 +57,7 @@ router.post(
             body.type === InteractionCallbackType.UPDATE_MESSAGE ||
             body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ) {
+            assertMessagePayloadLimits(body.data);
             if (!interaction.channelId) throw new HTTPError("Interaction channel not found", 400);
             const permissions = await getPermission(interaction.applicationId, interaction.guildId, interaction.channelId);
             assertMessagePayloadPermissions(permissions, body.data);
@@ -166,9 +167,6 @@ router.post(
                             id: interaction.messageId,
                         },
                     });
-                    if (body.data.content && body.data.content.length > Config.get().limits.message.maxCharacters) {
-                        throw new HTTPError("Content length over max character limit");
-                    }
                     message.embeds = body.data.embeds || [];
                     const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
                     await handle?.(message.id, message.author as User, message.channel);

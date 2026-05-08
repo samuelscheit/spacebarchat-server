@@ -56,6 +56,7 @@ import {
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
 import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
+import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 import {
     ActionRowComponent,
     ButtonStyle,
@@ -294,7 +295,7 @@ export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id
 }
 
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
-    const conf = Config.get();
+    assertMessagePayloadLimits(opts);
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const isEdit = isMessageEditOperation(opts);
     const messageOptions = { ...opts };
@@ -364,10 +365,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     }
 
     // TODO: Removed cloud attachment handling being inline - handle components!
-
-    if (message.content && message.content.length > conf.limits.message.maxCharacters) {
-        throw new HTTPError("Content length over max character limit");
-    }
 
     if (opts.application_id) {
         message.application_id = opts.application_id;

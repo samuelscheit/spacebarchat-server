@@ -17,29 +17,37 @@
 */
 
 import { Config, FieldErrors } from "@spacebar/util";
-import type { MessageCreateSchema } from "@spacebar/schemas";
+import type { NextFunction, Request, Response } from "express";
 
-type MessagePayloadLimitInput = Pick<MessageCreateSchema, "content" | "embeds" | "tts">;
+export type MessagePayloadLimitInput = {
+    content?: string | null;
+    embeds?: readonly unknown[] | null;
+    tts?: boolean | null;
+};
 
-export function assertMessagePayloadLimits(body: MessagePayloadLimitInput) {
+export function assertMessagePayloadLimits(body: MessagePayloadLimitInput | null | undefined) {
+    if (!body) return;
+
     const { maxCharacters, maxTTSCharacters, maxEmbeds } = Config.get().limits.message;
     const errors: Record<string, { code: string; message: string }> = {};
+    const content = body.content;
+    const embeds = body.embeds;
 
-    if (body.content && body.content.length > maxCharacters) {
+    if (typeof content === "string" && content.length > maxCharacters) {
         errors.content = {
             code: "BASE_TYPE_MAX_LENGTH",
             message: `Must be ${maxCharacters} or fewer in length.`,
         };
     }
 
-    if (body.tts && body.content && body.content.length > maxTTSCharacters) {
+    if (body.tts && typeof content === "string" && content.length > maxTTSCharacters) {
         errors.content = {
             code: "BASE_TYPE_MAX_LENGTH",
             message: `TTS messages must be ${maxTTSCharacters} or fewer in length.`,
         };
     }
 
-    if (body.embeds && body.embeds.length > maxEmbeds) {
+    if (Array.isArray(embeds) && embeds.length > maxEmbeds) {
         errors.embeds = {
             code: "BASE_TYPE_MAX_ITEMS",
             message: `Must contain ${maxEmbeds} or fewer items.`,
@@ -47,4 +55,9 @@ export function assertMessagePayloadLimits(body: MessagePayloadLimitInput) {
     }
 
     if (Object.keys(errors).length) throw FieldErrors(errors);
+}
+
+export function validateMessagePayloadLimits(req: Request, _res: Response, next: NextFunction) {
+    assertMessagePayloadLimits(req.body as MessagePayloadLimitInput);
+    next();
 }

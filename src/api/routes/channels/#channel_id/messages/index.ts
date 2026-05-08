@@ -70,7 +70,7 @@ import {
     ReadStateType,
     RelationshipType,
 } from "@spacebar/schemas";
-import { assertMessagePayloadLimits } from "../../../../util/utility/MessagePayloadLimits";
+import { validateMessagePayloadLimits } from "../../../../util/utility/MessagePayloadLimits";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -270,10 +270,7 @@ router.post(
             404: {},
         },
     }),
-    (req, res, next) => {
-        assertMessagePayloadLimits(req.body as MessageCreateSchema);
-        next();
-    },
+    validateMessagePayloadLimits,
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;

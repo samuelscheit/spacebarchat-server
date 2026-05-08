@@ -22,6 +22,7 @@ import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schema
 import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
 import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
+import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
@@ -67,6 +68,7 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     const { webhook_id, token } = req.params as { [key: string]: string };
 
     const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: true });
+    assertMessagePayloadLimits(body);
 
     if (body.username) {
         body.username = ValidateWebhookName(body.username);

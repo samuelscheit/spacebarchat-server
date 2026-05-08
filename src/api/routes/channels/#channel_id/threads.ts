@@ -57,6 +57,7 @@ import {
     PRIVATE_ARCHIVED_THREAD_PERMISSIONS,
     serializePrivateArchivedThreadMember,
 } from "../../../util/utility/PrivateArchivedThreads";
+import { assertMessagePayloadLimits } from "../../../util/utility/MessagePayloadLimits";
 
 const router = Router({ mergeParams: true });
 
@@ -86,6 +87,7 @@ router.post(
         // TODO: check for differences with https://github.com/spacebarchat/server/pull/876/files#diff-95be9c4cdfd8ba6f67361cd40b9abc8226b35d83e2bb44bf5b4682f1d66155e9
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as ThreadCreationSchema;
+        if (body.message) assertMessagePayloadLimits(body.message);
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },

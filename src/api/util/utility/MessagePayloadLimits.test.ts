@@ -1,7 +1,8 @@
 import { describe, test, type TestContext } from "node:test";
 import assert from "node:assert/strict";
 import { Config } from "@spacebar/util";
-import { assertMessagePayloadLimits } from "./MessagePayloadLimits";
+import { assertMessagePayloadLimits, validateMessagePayloadLimits } from "./MessagePayloadLimits";
+import type { Request, Response } from "express";
 
 function mockMessageLimits(t: TestContext, limits: { maxCharacters: number; maxTTSCharacters: number; maxEmbeds: number }) {
     t.mock.method(Config, "get", () => ({
@@ -66,5 +67,17 @@ describe("assertMessagePayloadLimits", () => {
                 return true;
             },
         );
+    });
+
+    test("middleware delegates to the dynamic assertion before continuing", (t) => {
+        mockMessageLimits(t, { maxCharacters: 3, maxTTSCharacters: 3, maxEmbeds: 1 });
+        let nextCalled = false;
+
+        validateMessagePayloadLimits({ body: { content: "123" } } as Request, {} as Response, () => {
+            nextCalled = true;
+        });
+
+        assert.equal(nextCalled, true);
+        assert.throws(() => validateMessagePayloadLimits({ body: { content: "1234" } } as Request, {} as Response, () => assert.fail("next should not be called")));
     });
 });
