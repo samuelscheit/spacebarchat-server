@@ -39,13 +39,14 @@ router.post(
             if (Object.keys(req.body).length != 0) console.log(`[LOGOUT]: Extra fields sent in logout!`, req.body);
         }
 
+        const removedSessionId = req.session?.session_id;
         if (req.session) await Session.remove(req.session);
 
         res.status(204).send();
 
-        if (req.session)
+        if (removedSessionId)
             await emitEvent({
-                session_id: req.session.session_id,
+                session_id: removedSessionId,
                 event: "SB_SESSION_REMOVE",
                 origin: "Self logout",
             });
