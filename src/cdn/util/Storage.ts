@@ -39,13 +39,13 @@ function getInitializedStorage(): Storage {
 }
 
 export const storage: Storage = {
-    set: (filePath, data) => getInitializedStorage().set(filePath, data),
-    clone: (filePath, newPath) => getInitializedStorage().clone(filePath, newPath),
-    get: (filePath) => getInitializedStorage().get(filePath),
-    delete: (filePath) => getInitializedStorage().delete(filePath),
-    exists: (filePath) => getInitializedStorage().exists(filePath),
-    isFile: (filePath) => getInitializedStorage().isFile(filePath),
-    move: (filePath, newPath) => getInitializedStorage().move(filePath, newPath),
+    set: async (filePath, data) => getInitializedStorage().set(filePath, data),
+    clone: async (filePath, newPath) => getInitializedStorage().clone(filePath, newPath),
+    get: async (filePath) => getInitializedStorage().get(filePath),
+    delete: async (filePath) => getInitializedStorage().delete(filePath),
+    exists: async (filePath) => getInitializedStorage().exists(filePath),
+    isFile: async (filePath) => getInitializedStorage().isFile(filePath),
+    move: async (filePath, newPath) => getInitializedStorage().move(filePath, newPath),
 };
 
 export function initializeStorage(): Storage {
