@@ -187,6 +187,8 @@ function buildContractMatrix(manifest) {
     const runtimePermissionOnlyDenialContracts = contracts.filter(supportsRuntimePermissionOnlyDenialContract).length;
     const runtimePermissionAndRightPermissionDenialContracts = contracts.filter(supportsRuntimePermissionAndRightDenialContract).length;
     const runtimePermissionAndRightRightDenialContracts = contracts.filter(supportsRuntimePermissionAndRightDenialContract).length;
+    const runtimeCdnMissingObjectContracts = contracts.filter(supportsRuntimeCdnMissingObjectContract).length;
+    const runtimeCdnHeadMissingObjectContracts = contracts.filter(supportsRuntimeCdnMissingObjectContract).length;
 
     return {
         schemaVersion: 1,
@@ -211,6 +213,8 @@ function buildContractMatrix(manifest) {
             runtimePermissionOnlyDenialContracts,
             runtimePermissionAndRightPermissionDenialContracts,
             runtimePermissionAndRightRightDenialContracts,
+            runtimeCdnMissingObjectContracts,
+            runtimeCdnHeadMissingObjectContracts,
         },
         contracts,
     };
@@ -251,6 +255,10 @@ function supportsRuntimePermissionAndRightDenialContract(contract) {
         !hasExpandedRouteMetadataValue(contract.routeMetadata.permission) &&
         !hasExpandedRouteMetadataValue(contract.routeMetadata.right)
     );
+}
+
+function supportsRuntimeCdnMissingObjectContract(contract) {
+    return contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/";
 }
 
 function supportsRuntimePublicInvalidBodyContract(contract) {
@@ -367,7 +375,7 @@ describe("generated HTTP contract matrix", () => {
 
 function generatedRuntimeTestSource() {
     return `import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -375,7 +383,9 @@ import Ajv, { type AnySchema } from "ajv";
 import addFormats from "ajv-formats";
 import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Permissions, Role, Session, User } from "@spacebar/util";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
+import { withFileStorage } from "../fixtures/files";
 import { startApi } from "../server/startApi";
+import { startCdn } from "../server/startCdn";
 
 type GeneratedHttpContract = {
     manifestId: string;
@@ -409,6 +419,8 @@ type GeneratedHttpContractMatrix = {
         runtimePermissionOnlyDenialContracts: number;
         runtimePermissionAndRightPermissionDenialContracts: number;
         runtimePermissionAndRightRightDenialContracts: number;
+        runtimeCdnMissingObjectContracts: number;
+        runtimeCdnHeadMissingObjectContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -519,6 +531,8 @@ const permissionAndRightDenialContracts = matrix.contracts.filter(
         !metadataValues(contract.routeMetadata.permission).some((value) => value.startsWith("...")) &&
         !metadataValues(contract.routeMetadata.right).some((value) => value.startsWith("...")),
 );
+const cdnMissingObjectContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/");
+const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
 
 function silenceConsole() {
     const previous = {
@@ -581,6 +595,7 @@ function snapshotProcessState() {
         DATABASE: process.env.DATABASE,
         APPLY_DB_MIGRATIONS: process.env.APPLY_DB_MIGRATIONS,
         CONFIG_PATH: process.env.CONFIG_PATH,
+        CONFIG_READONLY: process.env.CONFIG_READONLY,
         DB_SYNC: process.env.DB_SYNC,
         LOG_ROUTES: process.env.LOG_ROUTES,
     };
@@ -591,6 +606,7 @@ function restoreProcessState(state: ReturnType<typeof snapshotProcessState>) {
     restoreEnv("DATABASE", state.DATABASE);
     restoreEnv("APPLY_DB_MIGRATIONS", state.APPLY_DB_MIGRATIONS);
     restoreEnv("CONFIG_PATH", state.CONFIG_PATH);
+    restoreEnv("CONFIG_READONLY", state.CONFIG_READONLY);
     restoreEnv("DB_SYNC", state.DB_SYNC);
     restoreEnv("LOG_ROUTES", state.LOG_ROUTES);
 }
@@ -671,6 +687,41 @@ async function withAuthenticatedApi<T>(
         if (database) await database.close();
         restoreProcessState(previous);
         if (tempCwd) await rm(tempCwd, { recursive: true, force: true });
+    }
+}
+
+async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeof startCdn>> }) => Promise<T>): Promise<T> {
+    const previous = snapshotProcessState();
+    const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-contract-cdn-"));
+    const configPath = path.join(tempCwd, "config.json");
+
+    try {
+        process.env.CONFIG_PATH = configPath;
+        process.env.CONFIG_READONLY = "true";
+        process.env.LOG_ROUTES = "false";
+        await writeFile(
+            configPath,
+            JSON.stringify({
+                general: { serverName: "localhost" },
+                api: { endpointPublic: "http://localhost:3001/api/v9" },
+                cdn: { endpointPublic: "https://cdn.example", endpointPrivate: "http://127.0.0.1:3003" },
+                gateway: { endpointPublic: "ws://localhost:3002" },
+                security: { requestSignature: cdnRuntimeRequestSignature, cdnSignUrls: true },
+            }),
+        );
+        await Config.init(true);
+
+        return await withFileStorage(async () => {
+            const cdn = await startCdn();
+            try {
+                return await fn({ cdn });
+            } finally {
+                await cdn.stop();
+            }
+        });
+    } finally {
+        restoreProcessState(previous);
+        await rm(tempCwd, { recursive: true, force: true });
     }
 }
 
@@ -808,6 +859,36 @@ function samplePathForPermissionDenialContract(contract: GeneratedHttpContract, 
 
 function samplePathForAuthenticatedResponseContract(contract: GeneratedHttpContract, userId: string) {
     return contract.path.replace(/:user_id/g, userId).replace(/:payment_source_id/g, "fixture-payment-source");
+}
+
+function cdnHeadersForContract(contract: GeneratedHttpContract) {
+    if (contract.manifestId === "cdn:http:GET:/attachments/:channel_id/:message_id/:filename") {
+        return { accept: "application/json", signature: cdnRuntimeRequestSignature };
+    }
+    return { accept: "application/json" };
+}
+
+async function assertCdnMissingObjectResponse(contract: GeneratedHttpContract, method: "GET" | "HEAD", response: Response) {
+    assert.equal(response.status, 404, \`\${contract.manifestId} should report missing CDN objects for \${method}\`);
+    assert.match(
+        response.headers.get("cache-control") ?? "",
+        /^public, max-age=\\d+, s-maxage=\\d+, immutable$/,
+        \`\${contract.manifestId} should include cache headers for missing CDN objects\`,
+    );
+
+    if (method === "HEAD") return;
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+        const body = (await response.json()) as Record<string, unknown>;
+        assert.equal(body.code, 404, \`\${contract.manifestId} should return a JSON missing-object code\`);
+        assert.match(String(body.message), /^Error: (File )?not found$/i, \`\${contract.manifestId} should return a JSON missing-object message\`);
+        assert.equal(body.request, \`\${method} \${contract.samplePath}\`, \`\${contract.manifestId} should include the CDN request path\`);
+        return;
+    }
+
+    const body = await response.text();
+    assert.match(body, /not found|no longer available/i, \`\${contract.manifestId} should return a missing-object body\`);
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -1296,6 +1377,48 @@ test("generated HTTP public request-body contracts reject schema-invalid bodies 
     } finally {
         restoreConsole();
         if (api) await api.stop();
+    }
+});
+
+test("generated CDN missing-object contracts reject absent GET objects through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnMissingObjectContracts.length, matrix.summary.runtimeCdnMissingObjectContracts);
+    assert.ok(cdnMissingObjectContracts.length > 0, "expected CDN missing-object routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        await withGeneratedCdn(async ({ cdn }) => {
+            for (const contract of cdnMissingObjectContracts) {
+                const response = await fetch(\`\${cdn.baseUrl}\${contract.samplePath}\`, {
+                    method: "GET",
+                    headers: cdnHeadersForContract(contract),
+                });
+
+                await assertCdnMissingObjectResponse(contract, "GET", response);
+            }
+        });
+    } finally {
+        restoreConsole();
+    }
+});
+
+test("generated CDN missing-object contracts reject absent HEAD objects through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnMissingObjectContracts.length, matrix.summary.runtimeCdnHeadMissingObjectContracts);
+    assert.ok(cdnMissingObjectContracts.length > 0, "expected CDN HEAD missing-object routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        await withGeneratedCdn(async ({ cdn }) => {
+            for (const contract of cdnMissingObjectContracts) {
+                const response = await fetch(\`\${cdn.baseUrl}\${contract.samplePath}\`, {
+                    method: "HEAD",
+                    headers: cdnHeadersForContract(contract),
+                });
+
+                await assertCdnMissingObjectResponse(contract, "HEAD", response);
+            }
+        });
+    } finally {
+        restoreConsole();
     }
 });
 `;
