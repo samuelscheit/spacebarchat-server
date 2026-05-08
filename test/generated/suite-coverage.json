@@ -42,13 +42,7 @@
         {
             "id": "scenarios",
             "command": "test:scenarios",
-            "requiredTestTiers": [
-                "auth-scenario",
-                "stateful-domain",
-                "integration",
-                "cdn-integration",
-                "middleware-contract"
-            ],
+            "requiredTestTiers": ["auth-scenario", "stateful-domain", "integration", "cdn-integration", "middleware-contract"],
             "additionalRequiredManifestIds": [
                 "api:http:GET:/apex/experiments/",
                 "api:http:GET:/discovery/categories",
@@ -753,16 +747,8 @@
                         "src/util/util/Totp.test.ts",
                         "src/schemas/responses/TokenResponse.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "sessions",
-                        "tokens"
-                    ],
-                    "checks": [
-                        "session-state",
-                        "schema-validation",
-                        "response-shape"
-                    ],
+                    "fixtures": ["users", "sessions", "tokens"],
+                    "checks": ["session-state", "schema-validation", "response-shape"],
                     "manifestIds": [
                         "api:http:GET:/auth/generate-registration-tokens/",
                         "api:http:GET:/auth/location-metadata/",
@@ -797,18 +783,8 @@
                         "src/api/util/utility/PaymentSources.test.ts",
                         "src/util/dtos/ConnectedAccountDTO.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "sessions",
-                        "relationships",
-                        "settings"
-                    ],
-                    "checks": [
-                        "ownership-boundary",
-                        "schema-validation",
-                        "db-state",
-                        "events"
-                    ],
+                    "fixtures": ["users", "sessions", "relationships", "settings"],
+                    "checks": ["ownership-boundary", "schema-validation", "db-state", "events"],
                     "manifestIds": [
                         "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                         "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
@@ -892,19 +868,8 @@
                         "src/api/util/utility/RoleMembers.test.ts",
                         "src/util/util/RolePermissions.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "guilds",
-                        "members",
-                        "roles",
-                        "permissions"
-                    ],
-                    "checks": [
-                        "permission-denied",
-                        "schema-validation",
-                        "db-state",
-                        "events"
-                    ],
+                    "fixtures": ["users", "guilds", "members", "roles", "permissions"],
+                    "checks": ["permission-denied", "schema-validation", "db-state", "events"],
                     "manifestIds": [
                         "api:http:DELETE:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                         "api:http:DELETE:/guilds/:guild_id/bans/:user_id",
@@ -1006,19 +971,8 @@
                         "src/util/util/MessageReactionRoutes.test.ts",
                         "src/util/util/ReadStateAck.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "guilds",
-                        "channels",
-                        "messages",
-                        "permissions"
-                    ],
-                    "checks": [
-                        "permission-denied",
-                        "schema-validation",
-                        "db-state",
-                        "events"
-                    ],
+                    "fixtures": ["users", "guilds", "channels", "messages", "permissions"],
+                    "checks": ["permission-denied", "schema-validation", "db-state", "events"],
                     "manifestIds": [
                         "api:http:DELETE:/channels/:channel_id/",
                         "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
@@ -1096,19 +1050,8 @@
                         "src/util/dtos/WebhookDTO.test.ts",
                         "src/schemas/responses/WebhookCreateResponse.test.ts"
                     ],
-                    "fixtures": [
-                        "guilds",
-                        "channels",
-                        "webhooks",
-                        "messages"
-                    ],
-                    "checks": [
-                        "token-auth-boundary",
-                        "schema-validation",
-                        "response-shape",
-                        "db-state",
-                        "events"
-                    ],
+                    "fixtures": ["guilds", "channels", "webhooks", "messages"],
+                    "checks": ["token-auth-boundary", "schema-validation", "response-shape", "db-state", "events"],
                     "manifestIds": [
                         "api:http:DELETE:/webhooks/:webhook_id/",
                         "api:http:DELETE:/webhooks/:webhook_id/:token/",
@@ -1133,19 +1076,8 @@
                         "src/api/util/utility/ApplicationAuthorization.test.ts",
                         "src/api/util/utility/ApplicationCommands.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "applications",
-                        "guilds",
-                        "commands",
-                        "interactions"
-                    ],
-                    "checks": [
-                        "ownership-boundary",
-                        "token-auth-boundary",
-                        "schema-validation",
-                        "db-state"
-                    ],
+                    "fixtures": ["users", "applications", "guilds", "commands", "interactions"],
+                    "checks": ["ownership-boundary", "token-auth-boundary", "schema-validation", "db-state"],
                     "manifestIds": [
                         "api:http:DELETE:/applications/:application_id/commands/:command_id/",
                         "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
@@ -1187,18 +1119,8 @@
                         "src/connections/Reddit/Reddit.test.ts",
                         "src/connections/Twitter/Twitter.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "applications",
-                        "oauth-clients",
-                        "connected-accounts"
-                    ],
-                    "checks": [
-                        "auth-boundary",
-                        "redirects",
-                        "provider-state",
-                        "token-state"
-                    ],
+                    "fixtures": ["users", "applications", "oauth-clients", "connected-accounts"],
+                    "checks": ["auth-boundary", "redirects", "provider-state", "token-state"],
                     "manifestIds": [
                         "api:http:GET:/connections/",
                         "api:http:GET:/connections/:connection_name/authorize/",
@@ -1215,22 +1137,9 @@
                     "title": "Search, discovery, public policy, and gateway discovery",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": [
-                        "test/scenarios/search-discovery-public.test.ts"
-                    ],
-                    "fixtures": [
-                        "config",
-                        "users",
-                        "guilds",
-                        "categories",
-                        "gif-provider"
-                    ],
-                    "checks": [
-                        "auth-boundary",
-                        "response-shape",
-                        "db-state",
-                        "provider-stub"
-                    ],
+                    "testFiles": ["test/scenarios/search-discovery-public.test.ts"],
+                    "fixtures": ["config", "users", "guilds", "categories", "gif-provider"],
+                    "checks": ["auth-boundary", "response-shape", "db-state", "provider-stub"],
                     "manifestIds": [
                         "api:http:GET:/apex/experiments/",
                         "api:http:GET:/discoverable-guilds/",
@@ -1262,13 +1171,7 @@
                         "src/cdn/util/FileStorage.test.ts",
                         "src/util/util/CdnRoutes.test.ts"
                     ],
-                    "fixtures": [
-                        "files",
-                        "request-signature",
-                        "signed-urls",
-                        "attachments",
-                        "cloud-attachments"
-                    ],
+                    "fixtures": ["files", "request-signature", "signed-urls", "attachments", "cloud-attachments"],
                     "checks": [
                         "upload-download-delete",
                         "cache-headers",
@@ -1330,36 +1233,17 @@
                     "title": "Middleware and server event bus",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": [
-                        "src/api/middlewares/Authentication.test.ts",
-                        "src/gateway/listener/subscriptions.test.ts",
-                        "src/util/util/Presence.test.ts"
-                    ],
-                    "fixtures": [
-                        "config",
-                        "users",
-                        "sessions",
-                        "event-bus"
-                    ],
-                    "checks": [
-                        "auth-boundary",
-                        "rate-limit-headers",
-                        "emit-listen",
-                        "subscription-filter"
-                    ],
-                    "manifestIds": [
-                        "api:middleware:auth-rate-limit-error",
-                        "server:event-bus"
-                    ]
+                    "testFiles": ["src/api/middlewares/Authentication.test.ts", "src/gateway/listener/subscriptions.test.ts", "src/util/util/Presence.test.ts"],
+                    "fixtures": ["config", "users", "sessions", "event-bus"],
+                    "checks": ["auth-boundary", "rate-limit-headers", "emit-listen", "subscription-filter"],
+                    "manifestIds": ["api:middleware:auth-rate-limit-error", "server:event-bus"]
                 }
             ]
         },
         {
             "id": "protocol",
             "command": "test:protocol",
-            "requiredTestTiers": [
-                "protocol-integration"
-            ],
+            "requiredTestTiers": ["protocol-integration"],
             "additionalRequiredManifestIds": [],
             "summary": {
                 "totalRequiredManifestEntries": 21,
@@ -1429,15 +1313,7 @@
                         "src/gateway/util/Send.test.ts",
                         "src/gateway/util/StreamRegion.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "sessions",
-                        "guilds",
-                        "channels",
-                        "voice-states",
-                        "streams",
-                        "event-bus"
-                    ],
+                    "fixtures": ["users", "sessions", "guilds", "channels", "voice-states", "streams", "event-bus"],
                     "checks": [
                         "hello",
                         "identify",
@@ -1481,13 +1357,7 @@
                         "src/webrtc/util/Send.test.ts",
                         "src/webrtc/util/WebRtcMessageGuard.test.ts"
                     ],
-                    "fixtures": [
-                        "users",
-                        "sessions",
-                        "voice-states",
-                        "streams",
-                        "fake-media-server"
-                    ],
+                    "fixtures": ["users", "sessions", "voice-states", "streams", "fake-media-server"],
                     "checks": [
                         "auth-required",
                         "heartbeat",
@@ -1514,9 +1384,7 @@
         {
             "id": "migrations",
             "command": "test:migrations",
-            "requiredTestTiers": [
-                "migration-integration"
-            ],
+            "requiredTestTiers": ["migration-integration"],
             "additionalRequiredManifestIds": [],
             "summary": {
                 "totalRequiredManifestEntries": 1,
@@ -1524,12 +1392,8 @@
                 "totalCoveredRequiredManifestEntries": 1,
                 "totalSuites": 1
             },
-            "requiredManifestIds": [
-                "server:database:migrations-startup"
-            ],
-            "coveredManifestIds": [
-                "server:database:migrations-startup"
-            ],
+            "requiredManifestIds": ["server:database:migrations-startup"],
+            "coveredManifestIds": ["server:database:migrations-startup"],
             "suites": [
                 {
                     "id": "database-migrations-startup",
@@ -1545,18 +1409,9 @@
                         "src/util/migration/postgres/__tests__/1776204936000-JsonbForJsonColumns.test.ts",
                         "src/util/migration/postgres/__tests__/1776400000000-CategoryLocalizationsDefault.test.ts"
                     ],
-                    "fixtures": [
-                        "postgres"
-                    ],
-                    "checks": [
-                        "fresh-boot",
-                        "full-chain",
-                        "idempotent-rerun",
-                        "apply-migrations-toggle"
-                    ],
-                    "manifestIds": [
-                        "server:database:migrations-startup"
-                    ]
+                    "fixtures": ["postgres"],
+                    "checks": ["fresh-boot", "full-chain", "idempotent-rerun", "apply-migrations-toggle"],
+                    "manifestIds": ["server:database:migrations-startup"]
                 }
             ]
         }

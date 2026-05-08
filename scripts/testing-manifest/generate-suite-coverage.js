@@ -3,6 +3,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const prettier = require("prettier");
 const { DEFAULT_MANIFEST_PATH } = require("./lib");
 
 const DEFAULT_SUITE_POLICY_PATH = path.join("testing", "suite-coverage-policy.json");
@@ -19,8 +20,9 @@ function readJson(file) {
     return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-function serialize(value) {
-    return `${JSON.stringify(value, null, 4)}\n`;
+async function serialize(value, filePath) {
+    const options = (await prettier.resolveConfig(filePath)) || {};
+    return prettier.format(JSON.stringify(value, null, 4), { ...options, filepath: filePath, parser: "json" });
 }
 
 function uniqueSorted(values) {
@@ -272,7 +274,7 @@ describe("generated suite coverage matrix", () => {
 `;
 }
 
-function main() {
+async function main() {
     const args = process.argv.slice(2);
     const repoRoot = path.resolve(optionValue(args, "--repo-root", path.join(__dirname, "..", "..")));
     const manifestPath = path.resolve(repoRoot, optionValue(args, "--manifest", DEFAULT_MANIFEST_PATH));
@@ -296,7 +298,7 @@ function main() {
     }
 
     const matrix = buildSuiteCoverage(manifest, policy);
-    const expectedMatrix = serialize(matrix);
+    const expectedMatrix = await serialize(matrix, matrixPath);
     const expectedTest = generatedTestSource();
 
     if (check) {
@@ -328,4 +330,7 @@ function main() {
     );
 }
 
-main();
+main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});

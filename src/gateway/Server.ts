@@ -228,8 +228,7 @@ export class Server {
                 const closeCleanup = socket.closeCleanup;
                 if (!closeCleanup) return;
 
-                let tracked: Promise<unknown>;
-                tracked = Promise.resolve(closeCleanup)
+                const tracked = Promise.resolve(closeCleanup)
                     .catch((error) => {
                         console.error("[Gateway] Connection close cleanup failed", error);
                     })

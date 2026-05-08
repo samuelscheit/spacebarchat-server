@@ -135,19 +135,16 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
             const authSessionId = this.session?.session_id;
             const closedAt = Date.now();
 
-            delayedSessionCleanup = runDelayedGatewayCloseCleanup(
-                async () => {
-                    try {
-                        console.log("Handling presence update after disconnect");
-                        const updated = await cleanupClosedSessionPresence(this.user_id, authSessionId, closedAt);
-                        if (updated) console.log("... done!");
-                        else console.log("... Discarding presence update as the session reactivated");
-                    } catch (e) {
-                        console.error("[WebSocket] Close session cleanup failed", code, e);
-                    }
-                },
-                Config.get().gateway.disconnectedSessionCleanupDelayMs,
-            );
+            delayedSessionCleanup = runDelayedGatewayCloseCleanup(async () => {
+                try {
+                    console.log("Handling presence update after disconnect");
+                    const updated = await cleanupClosedSessionPresence(this.user_id, authSessionId, closedAt);
+                    if (updated) console.log("... done!");
+                    else console.log("... Discarding presence update as the session reactivated");
+                } catch (e) {
+                    console.error("[WebSocket] Close session cleanup failed", code, e);
+                }
+            }, Config.get().gateway.disconnectedSessionCleanupDelayMs);
 
             const voiceState = await VoiceState.findOne({
                 where: { user_id: this.user_id },

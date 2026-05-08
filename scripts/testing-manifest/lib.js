@@ -636,10 +636,7 @@ function extractNoAuthorizationRulesFromSource(source) {
 }
 
 function extractNoAuthorizationRules(repoRoot) {
-    const files = [
-        path.join(repoRoot, "src", "api", "middlewares", "NoAuthorizationRoutes.ts"),
-        path.join(repoRoot, "src", "api", "middlewares", "Authentication.ts"),
-    ];
+    const files = [path.join(repoRoot, "src", "api", "middlewares", "NoAuthorizationRoutes.ts"), path.join(repoRoot, "src", "api", "middlewares", "Authentication.ts")];
 
     for (const file of files) {
         if (!fs.existsSync(file)) continue;

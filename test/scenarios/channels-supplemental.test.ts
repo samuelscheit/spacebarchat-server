@@ -203,11 +203,7 @@ async function coverAckSearchPreloadAndStubs(
     const crosspost = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${newsChannelId}/messages/${newsMessageId}/crosspost`, {}, token));
     assert.equal(crosspost.id, newsMessageId);
     assert.equal(crosspost.channel_id, newsChannelId);
-    await waitForEventAfter(
-        events,
-        beforeCrosspost,
-        (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === newsChannelId && event.data.id === newsMessageId,
-    );
+    await waitForEventAfter(events, beforeCrosspost, (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === newsChannelId && event.data.id === newsMessageId);
 }
 
 async function coverBulkDelete(apiBaseUrl: string, channelId: string, token: string, events: EventCapture) {

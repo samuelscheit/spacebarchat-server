@@ -3,6 +3,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const prettier = require("prettier");
 const { DEFAULT_MANIFEST_PATH } = require("./lib");
 
 const DEFAULT_CONTRACT_MATRIX_PATH = path.join("test", "generated", "http-contracts.json");
@@ -421,8 +422,9 @@ function supportsRuntimeAuthenticatedResponseSchemaContract(contract) {
     );
 }
 
-function serialize(value) {
-    return `${JSON.stringify(value, null, 4)}\n`;
+async function serialize(value, filePath) {
+    const options = (await prettier.resolveConfig(filePath)) || {};
+    return prettier.format(JSON.stringify(value, null, 4), { ...options, filepath: filePath, parser: "json" });
 }
 
 function generatedTestSource() {
@@ -2306,7 +2308,7 @@ test(
 `;
 }
 
-function main() {
+async function main() {
     const args = process.argv.slice(2);
     const repoRoot = path.resolve(optionValue(args, "--repo-root", path.join(__dirname, "..", "..")));
     const manifestPath = path.resolve(repoRoot, optionValue(args, "--manifest", DEFAULT_MANIFEST_PATH));
@@ -2315,7 +2317,7 @@ function main() {
     const runtimeTestPath = path.resolve(repoRoot, optionValue(args, "--runtime-test-output", DEFAULT_RUNTIME_CONTRACT_TEST_PATH));
     const check = args.includes("--check");
     const matrix = buildContractMatrix(readJson(manifestPath));
-    const expectedMatrix = serialize(matrix);
+    const expectedMatrix = await serialize(matrix, matrixPath);
     const expectedTest = generatedTestSource();
     const expectedRuntimeTest = generatedRuntimeTestSource();
 
@@ -2347,4 +2349,7 @@ function main() {
     );
 }
 
-main();
+main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});
