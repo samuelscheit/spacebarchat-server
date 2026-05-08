@@ -290,7 +290,7 @@ export class Guild extends BaseClass {
 
     @Column({ nullable: true, type: "int8" })
     @RelationId((guild: Guild) => guild.widget_channel)
-    widget_channel_id?: string;
+    widget_channel_id?: string | null;
 
     @JoinColumn({ name: "widget_channel_id" })
     @ManyToOne(() => Channel)
@@ -370,12 +370,6 @@ export class Guild extends BaseClass {
 
         return {
             ...data,
-            // TODO: did i do this right?
-            afk_channel_id: data.afk_channel_id ?? undefined,
-            description: data.description ?? undefined,
-            public_updates_channel_id: data.public_updates_channel_id ?? undefined,
-            rules_channel_id: data.rules_channel_id ?? undefined,
-            system_channel_id: data.system_channel_id ?? undefined,
         } satisfies GuildCreateResponse;
     }
 

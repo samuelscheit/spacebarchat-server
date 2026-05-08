@@ -67,7 +67,7 @@ router.get(
     },
 );
 
-async function getWidgetJsonData(guild_id: string) {
+export async function getWidgetJsonData(guild_id: string) {
     const guild = await Guild.findOneOrFail({
         where: { id: guild_id },
         select: {
@@ -81,20 +81,23 @@ async function getWidgetJsonData(guild_id: string) {
     });
     if (!guild.widget_enabled) throw DiscordApiErrors.EMBED_DISABLED;
 
-    // Fetch existing widget invite for widget channel
-    let invite = await Invite.findOne({
-        where: { channel_id: guild.widget_channel_id },
-    });
+    let invite: Invite | null = null;
+    if (guild.widget_channel_id) {
+        // Fetch existing widget invite for widget channel
+        invite = await Invite.findOne({
+            where: { channel_id: guild.widget_channel_id },
+        });
 
-    if (guild.widget_channel_id && !invite) {
-        invite = await Invite.createForChannel(
-            randomString(),
-            {
-                guild_id,
-                channel_id: guild.widget_channel_id,
-            },
-            normalizeInviteCreateOptions({}),
-        ).save();
+        if (!invite) {
+            invite = await Invite.createForChannel(
+                randomString(),
+                {
+                    guild_id,
+                    channel_id: guild.widget_channel_id,
+                },
+                normalizeInviteCreateOptions({}),
+            ).save();
+        }
     }
 
     // Fetch voice channels, and the @everyone permissions object

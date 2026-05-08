@@ -2831,7 +2831,10 @@
                 "$ref": "#/definitions/GuildWelcomeScreen"
             },
             "widget_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "widget_enabled": {
                 "type": "boolean"
@@ -2855,10 +2858,16 @@
                 ]
             },
             "system_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "rules_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "guild_template_code": {
                 "type": "string"
@@ -2879,7 +2888,10 @@
                 ]
             },
             "description": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "features": {
                 "type": "array",
@@ -2900,13 +2912,19 @@
                 "type": "integer"
             },
             "public_updates_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "afk_timeout": {
                 "type": "integer"
             },
             "afk_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "preferred_locale": {
                 "type": "string"
@@ -4949,7 +4967,10 @@
                 "description": "DEPRECATED: Look at the new Guild onboarding screens."
             },
             "widget_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "widget_enabled": {
                 "type": "boolean"
@@ -5665,7 +5686,10 @@
                 "$ref": "#/definitions/GuildWelcomeScreen"
             },
             "widget_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "widget_enabled": {
                 "type": "boolean"
@@ -5689,10 +5713,16 @@
                 ]
             },
             "system_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "rules_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "guild_template_code": {
                 "type": "string"
@@ -5713,7 +5743,10 @@
                 ]
             },
             "description": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "features": {
                 "type": "array",
@@ -5734,13 +5767,19 @@
                 "type": "integer"
             },
             "public_updates_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "afk_timeout": {
                 "type": "integer"
             },
             "afk_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "preferred_locale": {
                 "type": "string"
@@ -14960,7 +14999,10 @@
                 "description": "DEPRECATED: Look at the new Guild onboarding screens."
             },
             "widget_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "widget_channel": {
                 "$ref": "#/definitions/Channel"

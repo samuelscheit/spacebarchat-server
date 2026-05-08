@@ -10,6 +10,7 @@
         "src/api/util/utility/ActiveThreads.test.ts",
         "src/api/routes/channels/#channel_id/recipients.test.ts",
         "src/api/routes/guilds/GuildImageField.test.ts",
+        "src/api/routes/guilds/GuildWidgetJson.test.ts",
         "src/api/util/StickerUpload.test.ts",
         "src/api/util/handlers/Message.test.ts",
         "src/api/util/handlers/InviteAcceptancePolicy.test.ts",
