@@ -11440,12 +11440,17 @@
             "method": "GET",
             "path": "/users/@me/email-settings/",
             "sourceFile": "src/api/routes/users/@me/email-settings.ts",
-            "line": 24,
+            "line": 46,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
                 "hasQuery": false
             },
             "coverage": {
