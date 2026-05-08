@@ -86,6 +86,13 @@ type GeneratedHttpContractMatrix = {
     contracts: GeneratedHttpContract[];
 };
 
+type AuthenticatedApiContext = {
+    api: Awaited<ReturnType<typeof startApi>>;
+    token: string;
+    user: User;
+    session: Session;
+};
+
 // This path is resolved from the compiled dist-test/test/generated directory.
 const matrix = require("../../../test/generated/http-contracts.json") as GeneratedHttpContractMatrix;
 
@@ -188,7 +195,13 @@ const permissionAndRightDenialContracts = matrix.contracts.filter(
         !metadataValues(contract.routeMetadata.permission).some((value) => value.startsWith("...")) &&
         !metadataValues(contract.routeMetadata.right).some((value) => value.startsWith("...")),
 );
-const eventEmissionContracts = matrix.contracts.filter((contract) => contract.manifestId === "api:http:POST:/auth/logout/");
+const eventEmissionManifestIds = new Set([
+    "api:http:POST:/auth/logout/",
+    "api:http:POST:/auth/sessions/logout",
+    "api:http:PATCH:/users/@me/",
+    "api:http:PATCH:/users/@me/settings/",
+]);
+const eventEmissionContracts = matrix.contracts.filter((contract) => eventEmissionManifestIds.has(contract.manifestId));
 const rateLimitHeaderContracts = matrix.contracts.filter((contract) => contract.service === "api" && contract.method !== "OPTIONS" && contract.rateLimit);
 const cdnMissingObjectContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/");
 const cdnValidObjectContracts = cdnMissingObjectContracts;
@@ -404,6 +417,81 @@ async function withAuthenticatedApi<T>(
         restoreProcessState(previous);
         if (tempCwd) await rm(tempCwd, { recursive: true, force: true });
     }
+}
+
+async function assertGeneratedEventEmissionContract(contract: GeneratedHttpContract, context: AuthenticatedApiContext) {
+    switch (contract.manifestId) {
+        case "api:http:POST:/auth/logout/":
+            return await assertSessionRemoveEvent(contract, context, {}, "Self logout");
+        case "api:http:POST:/auth/sessions/logout":
+            return await assertSessionRemoveEvent(contract, context, { session_ids: [context.session.session_id] }, "Sessions logout");
+        case "api:http:PATCH:/users/@me/":
+            return await assertUserUpdateEvent(contract, context);
+        case "api:http:PATCH:/users/@me/settings/":
+            return await assertPresenceUpdateEvent(contract, context);
+        default:
+            assert.fail(`No runtime event-emission assertion configured for ${contract.manifestId}`);
+    }
+}
+
+async function assertSessionRemoveEvent(contract: GeneratedHttpContract, { api, token, session }: AuthenticatedApiContext, body: unknown, origin: string) {
+    const capture = await captureEvents(session.session_id);
+    try {
+        const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, jsonRequest(contract.method, token, body));
+
+        assert.equal(response.status, 204, `${contract.manifestId} should complete the session removal request`);
+        const event = await capture.waitFor("SB_SESSION_REMOVE", 1000);
+        assert.equal(event.session_id, session.session_id, `${contract.manifestId} should emit to the removed session id`);
+        assert.equal(event.origin, origin, `${contract.manifestId} should include the session removal origin`);
+    } finally {
+        await capture.stop();
+    }
+}
+
+async function assertUserUpdateEvent(contract: GeneratedHttpContract, { api, token, user }: AuthenticatedApiContext) {
+    const bio = "generated event contract";
+    const capture = await captureEvents(user.id);
+    try {
+        const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, jsonRequest(contract.method, token, { bio }));
+
+        assert.equal(response.status, 200, `${contract.manifestId} should update the authenticated user`);
+        const event = await capture.waitFor("USER_UPDATE", 1000);
+        const update = event as { user_id?: unknown; data?: { id?: unknown; bio?: unknown } };
+        assert.equal(update.user_id, user.id, `${contract.manifestId} should emit on the authenticated user id`);
+        assert.equal(update.data?.id, user.id, `${contract.manifestId} should include the updated user id`);
+        assert.equal(update.data?.bio, bio, `${contract.manifestId} should include the updated bio`);
+    } finally {
+        await capture.stop();
+    }
+}
+
+async function assertPresenceUpdateEvent(contract: GeneratedHttpContract, { api, token, user }: AuthenticatedApiContext) {
+    const status = "idle";
+    const capture = await captureEvents(user.id);
+    try {
+        const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, jsonRequest(contract.method, token, { status }));
+
+        assert.equal(response.status, 200, `${contract.manifestId} should update the authenticated user's presence setting`);
+        const event = await capture.waitFor("PRESENCE_UPDATE", 1000);
+        const presence = event as { user_id?: unknown; data?: { status?: unknown; user?: { id?: unknown } } };
+        assert.equal(presence.user_id, user.id, `${contract.manifestId} should emit on the authenticated user id`);
+        assert.equal(presence.data?.user?.id, user.id, `${contract.manifestId} should include the public user id`);
+        assert.equal(presence.data?.status, status, `${contract.manifestId} should include the updated public status`);
+    } finally {
+        await capture.stop();
+    }
+}
+
+function jsonRequest(method: string, token: string, body: unknown): RequestInit {
+    return {
+        method,
+        headers: {
+            accept: "application/json",
+            authorization: `Bearer ${token}`,
+            "content-type": "application/json",
+        },
+        body: JSON.stringify(body),
+    };
 }
 
 async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeof startCdn>>; storage: GeneratedCdnStorage }) => Promise<T>): Promise<T> {
@@ -1325,32 +1413,16 @@ test(
     },
     async () => {
         assert.equal(eventEmissionContracts.length, matrix.summary.runtimeEventEmissionContracts);
-        assert.equal(eventEmissionContracts.length, 1, "expected auth logout event-emission route to be covered");
+        assert.equal(eventEmissionContracts.length, eventEmissionManifestIds.size, "expected configured event-emission routes to be covered");
 
         const restoreConsole = silenceConsole();
         try {
-            await withAuthenticatedApi("spacebar_contracts_events", async ({ api, token, session }) => {
-                const [contract] = eventEmissionContracts;
-                const capture = await captureEvents(session.session_id);
-                try {
-                    const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, {
-                        method: contract.method,
-                        headers: {
-                            accept: "application/json",
-                            authorization: `Bearer ${token}`,
-                            "content-type": "application/json",
-                        },
-                        body: "{}",
-                    });
-
-                    assert.equal(response.status, 204, `${contract.manifestId} should complete the logout request`);
-                    const event = await capture.waitFor("SB_SESSION_REMOVE", 1000);
-                    assert.equal(event.session_id, session.session_id, `${contract.manifestId} should emit to the removed session id`);
-                    assert.equal(event.origin, "Self logout", `${contract.manifestId} should include the logout origin`);
-                } finally {
-                    await capture.stop();
-                }
-            });
+            let index = 0;
+            for (const contract of eventEmissionContracts) {
+                await withAuthenticatedApi(`spacebar_contracts_events_${index++}`, async (context) => {
+                    await assertGeneratedEventEmissionContract(contract, context);
+                });
+            }
         } finally {
             restoreConsole();
         }

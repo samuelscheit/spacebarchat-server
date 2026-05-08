@@ -21,7 +21,7 @@
         "runtimePermissionOnlyDenialContracts": 74,
         "runtimePermissionAndRightPermissionDenialContracts": 6,
         "runtimePermissionAndRightRightDenialContracts": 6,
-        "runtimeEventEmissionContracts": 1,
+        "runtimeEventEmissionContracts": 4,
         "runtimeRateLimitHeaderContracts": 140,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
