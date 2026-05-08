@@ -1,6 +1,6 @@
 import { before, describe, test } from "node:test";
 import assert from "node:assert/strict";
-import type { PublicMember } from "@spacebar/schemas";
+import { PublicMemberProjection, type PublicMember } from "@spacebar/schemas";
 import type { NewUrlUserSignatureData as NewUrlUserSignatureDataType } from "../Signing";
 import type { Member as MemberType } from "./Member";
 import type { Message as MessageType } from "./Message";
@@ -11,6 +11,13 @@ let Member: typeof import("./Member").Member;
 let Message: typeof import("./Message").Message;
 let NewUrlUserSignatureData: typeof import("../Signing").NewUrlUserSignatureData;
 let signatureData: NewUrlUserSignatureDataType;
+
+type PublicMemberProjectionKey = (typeof PublicMemberProjection)[number];
+type PublicMemberProjectedField = Exclude<keyof PublicMember, "user">;
+type MissingPublicMemberProjectionKeys = Exclude<PublicMemberProjectedField, PublicMemberProjectionKey>;
+type ExtraPublicMemberProjectionKeys = Exclude<PublicMemberProjectionKey, PublicMemberProjectedField>;
+
+const _publicMemberProjectionCoversSchema: [MissingPublicMemberProjectionKeys, ExtraPublicMemberProjectionKeys] extends [never, never] ? true : never = true;
 
 before(async () => {
     process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar-tests";
@@ -143,6 +150,9 @@ describe("message member serialization", () => {
             theme_colors: undefined,
             pronouns: undefined,
             communication_disabled_until: null,
+            avatar_decoration_data: undefined,
+            display_name_styles: undefined,
+            collectibles: undefined,
             flags: 0,
         };
 

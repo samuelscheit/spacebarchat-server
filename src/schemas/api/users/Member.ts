@@ -16,9 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PublicUser } from "@spacebar/schemas";
-// TODO: remove entity import
-import type { Member } from "@spacebar/util";
+import type { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicUser } from "./User";
 
 export interface ChannelOverride {
     message_notifications: number;
@@ -73,28 +71,32 @@ export interface MuteConfig {
     selected_time_window: number;
 }
 
-export type PublicMemberKeys =
-    | "id"
-    | "guild_id"
-    | "nick"
-    | "roles"
-    | "joined_at"
-    | "pending"
-    | "deaf"
-    | "mute"
-    | "premium_since"
-    | "avatar"
-    | "banner"
-    | "bio"
-    | "theme_colors"
-    | "pronouns"
-    | "communication_disabled_until"
-    | "avatar_decoration_data"
-    | "display_name_styles"
-    | "collectibles"
-    | "flags";
+export interface PublicMember {
+    id: string;
+    guild_id: string;
+    nick?: string;
+    roles: string[];
+    joined_at: Date;
+    pending: boolean;
+    deaf: boolean;
+    mute: boolean;
+    premium_since?: number;
+    avatar?: string;
+    banner: string;
+    bio: string;
+    theme_colors?: number[];
+    pronouns?: string;
+    communication_disabled_until: Date | null;
+    avatar_decoration_data?: AvatarDecorationData;
+    display_name_styles?: DisplayNameStyle;
+    collectibles?: Collectibles;
+    flags: number;
+    user: PublicUser;
+}
 
-export const PublicMemberProjection: PublicMemberKeys[] = [
+export type PublicMemberKeys = Exclude<keyof PublicMember, "user">;
+
+export const PublicMemberProjection = [
     "id",
     "guild_id",
     "nick",
@@ -114,10 +116,4 @@ export const PublicMemberProjection: PublicMemberKeys[] = [
     "display_name_styles",
     "collectibles",
     "flags",
-];
-
-// TODO: make a proper schema rather than inheriting entity
-export type PublicMember = Omit<Pick<Member, PublicMemberKeys>, "roles"> & {
-    user: PublicUser;
-    roles: string[]; // only role ids not objects
-};
+] satisfies PublicMemberKeys[];
