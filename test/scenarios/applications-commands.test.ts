@@ -3,6 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { MessageComponentType } from "@spacebar/schemas";
 import { Application, ApplicationCommand, closeDatabase, Config, generateToken, initDatabase, Member, Message, pendingInteractions, User } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -370,7 +371,69 @@ test(
                 "interaction MESSAGE_CREATE",
             );
             assert.equal(interactionMessageEvent.data.content, "interaction callback response");
-            assert.ok(await Message.findOneBy({ id: interactionMessageEvent.data.id as string, application_id: applicationId }));
+            const interactionMessageId = interactionMessageEvent.data.id as string;
+            assert.ok(await Message.findOneBy({ id: interactionMessageId, application_id: applicationId }));
+
+            const componentInteraction = await postJson(
+                `${api.apiBaseUrl}/interactions`,
+                {
+                    type: 3,
+                    application_id: applicationId,
+                    guild_id: guildId,
+                    channel_id: channelId,
+                    message_id: interactionMessageId,
+                    nonce: `component-interaction-${suffix}`,
+                    data: {
+                        custom_id: "scenario-edit-message",
+                        component_type: MessageComponentType.Button,
+                    },
+                },
+                ownerToken,
+            );
+            await assertStatus(componentInteraction, 204);
+            const userComponentInteractionEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) => event.event === "INTERACTION_CREATE" && event.user_id === owner.id && event.data.nonce === `component-interaction-${suffix}`,
+                "user component INTERACTION_CREATE",
+            );
+            const applicationComponentInteractionEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) => event.event === "INTERACTION_CREATE" && event.user_id === applicationId && event.data.type === 3 && event.data.message?.id === interactionMessageId,
+                "application component INTERACTION_CREATE",
+            );
+            const componentInteractionId = applicationComponentInteractionEvent.data.id as string;
+            const componentInteractionToken = applicationComponentInteractionEvent.data.token as string;
+            assert.equal(userComponentInteractionEvent.data.id, componentInteractionId);
+            assert.equal(pendingInteractions.get(componentInteractionId)?.messageId, interactionMessageId);
+
+            const updatedContent = "interaction callback edited response";
+            const updateCallback = await postPublicJson(`${api.apiBaseUrl}/interactions/${componentInteractionId}/${componentInteractionToken}/callback`, {
+                type: 7,
+                data: {
+                    content: updatedContent,
+                },
+            });
+            await assertStatus(updateCallback, 204);
+            assert.ok(
+                await waitForLabeledEvent(
+                    eventCapture,
+                    (event) =>
+                        event.event === "INTERACTION_SUCCESS" &&
+                        event.user_id === owner.id &&
+                        event.data.id === componentInteractionId &&
+                        event.data.nonce === `component-interaction-${suffix}`,
+                    "component INTERACTION_SUCCESS",
+                ),
+            );
+            const interactionMessageUpdateEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === channelId && event.data.id === interactionMessageId,
+                "interaction MESSAGE_UPDATE",
+            );
+            assert.equal(interactionMessageUpdateEvent.data.content, updatedContent);
+            const updatedInteractionMessage = await Message.findOneByOrFail({ id: interactionMessageId, application_id: applicationId });
+            assert.equal(updatedInteractionMessage.content, updatedContent);
+            assert.equal(pendingInteractions.has(componentInteractionId), false);
 
             const globalBulkCommand = await ApplicationCommand.findOneByOrFail({ application_id: applicationId, guild_id: undefined, name: "scenario-global-bulk" });
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/applications/${applicationId}/commands/${globalBulkCommand.id}`, ownerToken), 204);

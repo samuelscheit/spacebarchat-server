@@ -17,10 +17,10 @@
 */
 
 import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
+import { assertMessagePayloadPermissions, handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
-    Config,
+    buildMessageEditHandleMessageOptions,
     emitEvent,
     getPermission,
     InteractionSuccessEvent,
@@ -166,19 +166,28 @@ router.post(
                             id: interaction.messageId,
                         },
                     });
-                    if (body.data.content && body.data.content.length > Config.get().limits.message.maxCharacters) {
-                        throw new HTTPError("Content length over max character limit");
-                    }
-                    message.embeds = body.data.embeds || [];
-                    const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
-                    await handle?.(message.id, message.author as User, message.channel);
-                    message.components = body.data.components;
-                    await message.save();
-                    emitEvent({
+                    if (!message.channel_id) throw new HTTPError("Interaction message channel not found", 400);
+
+                    const updatedMessage = await handleMessage(
+                        buildMessageEditHandleMessageOptions(message, body.data, message.channel_id, message.id, new Date(), {
+                            attachment_user_id: interaction.userId,
+                            attachment_channel_ids: [message.channel_id],
+                            is_edit: true,
+                        }),
+                        { suppress_notifications: true },
+                    );
+
+                    await updatedMessage.save();
+                    await emitEvent({
                         event: "MESSAGE_UPDATE",
-                        channel_id: message.channel_id,
-                        data: message.toJSON(),
+                        channel_id: updatedMessage.channel_id,
+                        data: {
+                            ...updatedMessage.toJSON(),
+                            nonce: undefined,
+                        },
                     } satisfies MessageUpdateEvent);
+
+                    postHandleMessage(updatedMessage).catch((e) => console.error("[InteractionCallback] post-message handler failed", e));
                 }
                 break;
             /*

@@ -67,7 +67,8 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "clearTimeout(interaction.timeout);");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await sendMessage({");
-        assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
+        assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await handleMessage(");
+        assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "buildMessageEditHandleMessageOptions(message, body.data");
     });
 
     test("component media extraction is shared between permission gates and message handling", () => {
