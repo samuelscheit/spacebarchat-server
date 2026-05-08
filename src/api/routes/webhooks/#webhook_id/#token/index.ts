@@ -42,7 +42,6 @@ router.get(
     },
 );
 
-// TODO: config max upload size
 const messageUpload = multer({
     limits: {
         fileSize: Config.get().limits.message.maxAttachmentSize,
@@ -50,7 +49,7 @@ const messageUpload = multer({
         // files: 1
     },
     storage: multer.memoryStorage(),
-}); // max upload 50 mb
+});
 
 // https://discord.com/developers/docs/resources/webhook#execute-webhook
 // TODO: Slack compatible hooks
