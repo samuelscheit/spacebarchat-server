@@ -10,6 +10,7 @@
         "src/api/util/utility/PostData.test.ts",
         "src/api/util/utility/ActiveThreads.test.ts",
         "src/api/routes/channels/#channel_id/purge.test.ts",
+        "src/api/util/utility/Messages.test.ts",
         "src/api/routes/channels/#channel_id/recipients.test.ts",
         "src/api/routes/guilds/GuildImageField.test.ts",
         "src/api/routes/guilds/GuildWidgetJson.test.ts",

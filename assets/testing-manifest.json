@@ -5,6 +5,7 @@
     "sources": [
         "src/api/routes",
         "src/api/util/handlers",
+        "src/api/util/utility",
         "src/api/Server.ts",
         "src/api/middlewares/RateLimit.ts",
         "src/api/middlewares/NoAuthorizationRoutes.ts",
@@ -4127,7 +4128,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/purge/",
             "sourceFile": "src/api/routes/channels/#channel_id/purge.ts",
-            "line": 30,
+            "line": 31,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -13482,7 +13483,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -13563,7 +13568,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",

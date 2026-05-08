@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, Message, MessageDeleteBulkEvent, emitEvent, getPermission, getRights } from "@spacebar/util";
+import { DEFAULT_MESSAGE_DELETE_CHUNK_SIZE, deleteMessagesAndEmitBulkEvents, route } from "@spacebar/api";
+import { Channel, Message, getPermission, getRights } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOperator, Not } from "typeorm";
@@ -27,6 +27,7 @@ import { deleteMessagesInBatches } from "../../../util/handlers/PurgeMessages";
 const router: Router = Router({ mergeParams: true });
 
 export default router;
+
 router.post(
     "/",
     route({
@@ -79,23 +80,25 @@ router.post(
                     take: limit,
                 });
 
-                return messages.map((x) => x.id);
+                return messages.map((message) => message.id);
             },
-            async (ids) => Message.delete(ids),
-            async (ids) => {
-                await emitEvent({
-                    event: "MESSAGE_DELETE_BULK",
-                    channel_id,
-                    data: {
+            async (ids) =>
+                deleteMessagesAndEmitBulkEvents(
+                    {
                         ids,
                         channel_id,
                         guild_id: channel.guild_id,
                     },
-                } satisfies MessageDeleteBulkEvent);
-            },
+                    {
+                        chunkSize: DEFAULT_MESSAGE_DELETE_CHUNK_SIZE,
+                        deleteMessageIds: async (messageIds) => Message.delete(messageIds),
+                    },
+                ),
+            undefined,
+            DEFAULT_MESSAGE_DELETE_CHUNK_SIZE,
         );
 
-        if (deletedMessageCount == 0) {
+        if (deletedMessageCount === 0) {
             res.sendStatus(304);
             return;
         }
