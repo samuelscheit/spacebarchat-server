@@ -26,6 +26,21 @@ export function assertThreadIsNotArchived(thread: { thread_metadata?: { archived
     if (thread.thread_metadata?.archived) throw new RangeError("Cannot modify archived thread members");
 }
 
+export interface ThreadMemberCountThread {
+    id: string;
+    member_count?: number | null;
+    save(): Promise<unknown>;
+}
+
+export type ThreadMemberCountReader = (threadId: string) => Promise<number>;
+
+export async function syncThreadMemberCount(thread: ThreadMemberCountThread, countThreadMembers: ThreadMemberCountReader) {
+    thread.member_count = await countThreadMembers(thread.id);
+    await thread.save();
+
+    return thread.member_count;
+}
+
 type QueryParameters = Record<string, unknown>;
 
 export interface ThreadMemberListQueryBuilder<TBuilder> {

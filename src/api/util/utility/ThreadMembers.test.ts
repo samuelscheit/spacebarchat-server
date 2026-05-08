@@ -5,6 +5,7 @@ import {
     applyThreadMemberListQuery,
     assertThreadIsNotArchived,
     DEFAULT_THREAD_MEMBER_LIMIT,
+    syncThreadMemberCount,
     MAX_THREAD_MEMBER_LIMIT,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
@@ -43,6 +44,30 @@ describe("thread member helpers", () => {
         assert.doesNotThrow(() => assertThreadIsNotArchived({}));
         assert.doesNotThrow(() => assertThreadIsNotArchived({ thread_metadata: { archived: false } }));
         assert.throws(() => assertThreadIsNotArchived({ thread_metadata: { archived: true } }), RangeError);
+    });
+
+    test("syncs an existing thread member count from persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: 2 });
+        const countThreadMembers = createThreadMemberCountReader(5);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 5);
+        assert.equal(thread.member_count, 5);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("repairs a missing thread member count by counting persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: null });
+        const countThreadMembers = createThreadMemberCountReader(4);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 4);
+        assert.equal(thread.member_count, 4);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
     });
 
     test("builds thread member list query against member user ids", () => {
@@ -134,4 +159,25 @@ function createFakeQueryBuilder() {
             return this;
         },
     };
+}
+
+function createCountedThread({ id, member_count }: { id: string; member_count?: number | null }) {
+    return {
+        id,
+        member_count,
+        saveCalls: 0,
+        async save() {
+            this.saveCalls++;
+        },
+    };
+}
+
+function createThreadMemberCountReader(count: number) {
+    const countThreadMembers = async (threadId: string) => {
+        countThreadMembers.threadIds.push(threadId);
+        return count;
+    };
+    countThreadMembers.threadIds = [] as string[];
+
+    return countThreadMembers;
 }

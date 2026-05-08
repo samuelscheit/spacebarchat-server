@@ -26,6 +26,7 @@ import {
     sortMessagesNewestFirst,
     toPublicReactions,
 } from "@spacebar/api";
+import { syncThreadMemberCount } from "../../../../util/utility/ThreadMembers";
 import {
     Attachment,
     Channel,
@@ -305,18 +306,14 @@ router.post(
                     });
                     await threadMember.save();
 
-                    // increment member count
-                    if (channel.member_count !== null && channel.member_count !== undefined) {
-                        channel.member_count++;
-                        await channel.save();
-                    }
+                    const memberCount = await syncThreadMemberCount(channel, (threadId) => ThreadMember.countBy({ id: threadId }));
 
                     await emitEvent({
                         event: "THREAD_MEMBERS_UPDATE",
                         data: {
                             guild_id: channel.guild_id!,
                             id: channel.id,
-                            member_count: channel.member_count ?? 0, // TODO: is this the right fix?
+                            member_count: memberCount,
                             added_members: [{ user_id: req.user_id, ...threadMember.toJSON() }],
                         },
                         channel_id: channel.id,
