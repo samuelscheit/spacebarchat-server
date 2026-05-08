@@ -12,6 +12,7 @@ public class GuildSyncSessionFiltersTests {
     public void IsOnlineRejectsEveryExcludedPresenceStatus() {
         foreach (var status in GuildSyncSessionFilters.ExcludedPresenceStatuses) {
             Assert.False(GuildSyncSessionFilters.IsOnline(NewSession(status: status)));
+            Assert.False(GuildSyncSessionFilters.IsOnlineStatus(status));
         }
     }
 
@@ -23,6 +24,7 @@ public class GuildSyncSessionFiltersTests {
         var session = NewSession(status: status);
 
         Assert.True(GuildSyncSessionFilters.IsOnline(session));
+        Assert.True(GuildSyncSessionFilters.IsOnlineStatus(status));
     }
 
     [Fact]
@@ -30,6 +32,7 @@ public class GuildSyncSessionFiltersTests {
         var session = NewSession(isAdminSession: true, status: "online", lastSeen: OfflineThreshold);
 
         Assert.False(GuildSyncSessionFilters.CanPublishPresence(session, isLargeGuild: false, OfflineThreshold));
+        Assert.False(GuildSyncSessionFilters.IsGuildSyncVisible(session, isLargeGuild: false, OfflineThreshold));
     }
 
     [Fact]
@@ -70,34 +73,67 @@ public class GuildSyncSessionFiltersTests {
     }
 
     [Fact]
-    public void GuildSyncFilteredIncludeUsingSharedStatusesCanGenerateSql() {
-        var options = new DbContextOptionsBuilder<SpacebarDbContext>()
-            .UseNpgsql("Host=localhost;Database=spacebar_test;Username=spacebar;Password=spacebar")
-            .Options;
-        using var db = new SpacebarDbContext(options);
-        var isLargeGuild = true;
+    public void GuildSyncVisibleSessionPredicateMatchesRuntimeHelper() {
+        var sessions = new[] {
+            NewSession(sessionId: "online", status: "online", lastSeen: OfflineThreshold),
+            NewSession(sessionId: "offline", status: "offline", lastSeen: OfflineThreshold),
+            NewSession(sessionId: "admin", status: "online", isAdminSession: true, lastSeen: OfflineThreshold),
+            NewSession(sessionId: "stale", status: "online", lastSeen: OfflineThreshold.AddTicks(-1)),
+            NewSession(sessionId: "never-seen", status: "online", lastSeen: null),
+        };
+        var expressionPredicate = GuildSyncSessionFilters.IsGuildSyncVisibleExpression(isLargeGuild: true, OfflineThreshold).Compile();
 
-        var sql = db.Members.AsNoTracking()
-            .Where(member => member.GuildId == 123)
-            .Include(member => member.IdNavigation)
-            .ThenInclude(user => user.Sessions.Where(session =>
-                !session.IsAdminSession &&
-                !GuildSyncSessionFilters.ExcludedPresenceStatuses.Contains(session.Status) &&
-                (!isLargeGuild || session.LastSeen >= OfflineThreshold)))
-            .Where(member => member.IdNavigation.Sessions.Count > 0)
-            .ToQueryString();
+        var helperResults = sessions
+            .Where(session => GuildSyncSessionFilters.IsGuildSyncVisible(session, isLargeGuild: true, OfflineThreshold))
+            .Select(session => session.SessionId)
+            .ToList();
+        var expressionResults = sessions.Where(expressionPredicate).Select(session => session.SessionId).ToList();
 
-        Assert.Contains("sessions", sql, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("is_admin_session", sql, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("last_seen", sql, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(["online"], helperResults);
+        Assert.Equal(helperResults, expressionResults);
+    }
+
+    [Fact]
+    public void ForGuildSyncLargeGuildQueryAppliesVisibleSessionPredicateToIncludeAndMemberFilter() {
+        var sql = BuildGuildSyncSql(isLargeGuild: true);
+
+        Assert.Contains("m.guild_id", sql);
+        Assert.Contains("is_admin_session", sql);
+        Assert.Contains("status", sql);
+        Assert.Contains("last_seen", sql);
         foreach (var status in GuildSyncSessionFilters.ExcludedPresenceStatuses) {
             Assert.Contains(status, sql, StringComparison.OrdinalIgnoreCase);
         }
     }
 
-    private static Session NewSession(string status = "online", bool isAdminSession = false, DateTime? lastSeen = null) =>
+    [Fact]
+    public void ForGuildSyncSmallGuildQueryDoesNotApplyLastSeenThreshold() {
+        var sql = BuildGuildSyncSql(isLargeGuild: false);
+
+        Assert.Contains("m.guild_id", sql);
+        Assert.Contains("is_admin_session", sql);
+        Assert.Contains("status", sql);
+        Assert.DoesNotContain("last_seen >=", sql, StringComparison.OrdinalIgnoreCase);
+        foreach (var status in GuildSyncSessionFilters.ExcludedPresenceStatuses) {
+            Assert.Contains(status, sql, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private static string BuildGuildSyncSql(bool isLargeGuild) {
+        var options = new DbContextOptionsBuilder<SpacebarDbContext>()
+            .UseNpgsql("Host=localhost;Database=spacebar_translation_test;Username=spacebar;Password=spacebar")
+            .Options;
+
+        using var db = new SpacebarDbContext(options);
+        return db.Members
+            .AsNoTracking()
+            .ForGuildSync(123, isLargeGuild, OfflineThreshold)
+            .ToQueryString();
+    }
+
+    private static Session NewSession(string status = "online", bool isAdminSession = false, DateTime? lastSeen = null, string? sessionId = null) =>
         new() {
-            SessionId = Guid.NewGuid().ToString("N"),
+            SessionId = sessionId ?? Guid.NewGuid().ToString("N"),
             Activities = "[]",
             ClientInfo = "{}",
             ClientStatus = "{}",

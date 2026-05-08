@@ -1,9 +1,9 @@
 using System.Collections.Frozen;
 using System.Text.Json;
 using ArcaneLibs.Extensions;
-using Spacebar.GatewayOffload.Extensions.Gateway;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Spacebar.GatewayOffload.Extensions.Gateway;
 using Spacebar.DataMappings.Generic;
 using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Interop.Replication.Abstractions;
@@ -49,12 +49,8 @@ public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
         var offlineTreshold = DateTime.Now.Subtract(TimeSpan.FromDays(14));
         var isLargeGuild = memberCount > 10000;
 
-        var members = await _db.Members.AsNoTracking().Where(x => x.GuildId == guildId)
-            .Include(x => x.IdNavigation)
-            .ThenInclude(x => x.Sessions.AsQueryable()
-                .Where(SessionPresenceProjection.IsPubliclyOnlineExpression)
-                .Where(s => !s.IsAdminSession && (!isLargeGuild || s.LastSeen >= offlineTreshold)))
-            .Where(x => x.IdNavigation.Sessions.Count > 0) // ignore members without sessions
+        var members = await _db.Members.AsNoTracking()
+            .ForGuildSync(guildId, isLargeGuild, offlineTreshold)
             .ToListAsync();
 
         var mappedPartialUsers = members.Select(x => x.IdNavigation).ToFrozenDictionary(x => x.Id, x => x.ToPartialUser());
@@ -67,7 +63,7 @@ public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
             {
                 GuildId = guildId,
                 User = mappedPartialUsers[x.Id],
-                Activities = x.Sessions.Where(SessionPresenceProjection.IsPubliclyOnline)
+                Activities = x.Sessions.Where(GuildSyncSessionFilters.IsOnline)
                     .SelectMany(s => JsonSerializer.Deserialize<Activity[]>(s.Activities) ?? []).ToList(),
                 Status = sortedSessions.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Status))?.Status ?? "offline",
                 ClientStatus = JsonSerializer.Deserialize<Presence.ClientStatuses>(sortedSessions.First(s => !string.IsNullOrWhiteSpace(s.ClientStatus)).ClientStatus) ??
