@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
+import { assertExistingGroupDmRecipient } from "../../../util/utility/GroupDmRecipients";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -92,9 +93,7 @@ router.delete(
         });
         if (!(channel.type === ChannelType.GROUP_DM && (channel.owner_id === req.user_id || user_id === req.user_id))) throw DiscordApiErrors.MISSING_PERMISSIONS;
 
-        if (!channel.recipients?.map((r) => r.user_id).includes(user_id)) {
-            throw DiscordApiErrors.INVALID_RECIPIENT; //TODO is this the right error?
-        }
+        assertExistingGroupDmRecipient(channel.recipients, user_id);
 
         await Channel.removeRecipientFromChannel(channel, user_id);
 
