@@ -85,5 +85,7 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
 test("ReadyGuildDTO exposes the Discord-compatible stage video user limit", () => {
     const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
 
-    assert.equal(dto.properties.max_stage_video_channel_users, MAX_STAGE_VIDEO_CHANNEL_USERS);
+    assert.equal(MAX_STAGE_VIDEO_CHANNEL_USERS, 50);
+    assert.equal(dto.properties.max_stage_video_channel_users, 50);
+    assert.equal(dto.properties.max_video_channel_users, 25);
 });
