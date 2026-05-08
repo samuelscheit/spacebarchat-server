@@ -308,6 +308,7 @@ async function main() {
         filterSchema(definitions[defKey]);
     }
     aliasPublicMessageSchema(definitions);
+    normalizeJsonSchemaTypes(definitions);
 
     if (process.env.WRITE_SCHEMA_DIR === "true") {
         await Promise.all(writePromises);
@@ -372,6 +373,36 @@ function aliasPublicMessageSchema(definitions) {
     // Several legacy response schemas still pull in the TypeORM Message entity as a
     // nested definition; keep the public API contract tied to PublicMessage instead.
     definitions.Message = structuredClone(definitions.PublicMessage);
+}
+
+function normalizeJsonSchemaTypes(schema) {
+    if (!schema || typeof schema !== "object") return;
+
+    const hasSchemaType = typeof schema.type === "string" || Array.isArray(schema.type);
+
+    const hasEmptyObjectShape =
+        schema.properties && Object.keys(schema.properties).length === 0 && schema.additionalProperties === false && (!schema.required || schema.required.length === 0);
+
+    if (schema.type === "bigint" || (schema.type === "number" && hasEmptyObjectShape)) {
+        schema.type = "integer";
+    } else if (Array.isArray(schema.type)) {
+        const normalizedTypes = schema.type.map((type) => (type === "bigint" ? "integer" : type));
+        schema.type = [...new Set(normalizedTypes)];
+    }
+
+    if (hasSchemaType && !schemaAllowsType(schema, "object")) {
+        delete schema.properties;
+        delete schema.additionalProperties;
+        delete schema.required;
+    }
+
+    for (const value of Object.values(schema)) {
+        normalizeJsonSchemaTypes(value);
+    }
+}
+
+function schemaAllowsType(schema, type) {
+    return schema.type === type || (Array.isArray(schema.type) && schema.type.includes(type));
 }
 
 function deepEqual(a, b) {

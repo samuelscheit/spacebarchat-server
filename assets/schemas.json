@@ -10155,7 +10155,7 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": "integer"
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -10174,7 +10174,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "type": "integer"
                 }
             },
             "guild_subscriptions": {
