@@ -412,7 +412,7 @@ export class Channel extends BaseClass {
                     data: {
                         guild_id: guildId,
                         id: thread.id,
-                        member_count: channel.member_count ?? 0, //TODO: is this the right fix?
+                        member_count: thread.member_count ?? 1,
                         added_members: [{ user_id, ...threadMember.toJSON() }],
                         removed_member_ids: [],
                     },
