@@ -1,13 +1,13 @@
 diff --git a/node_modules/typescript-json-schema/dist/typescript-json-schema.js b/node_modules/typescript-json-schema/dist/typescript-json-schema.js
-index 3eab401..69658a4 100644
+index feabae3..871906c 100644
 --- a/node_modules/typescript-json-schema/dist/typescript-json-schema.js
 +++ b/node_modules/typescript-json-schema/dist/typescript-json-schema.js
-@@ -470,6 +470,9 @@ var JsonSchemaGenerator = (function () {
+@@ -479,6 +479,9 @@ var JsonSchemaGenerator = (function () {
              else if (flags & ts.TypeFlags.Boolean) {
                  definition.type = "boolean";
              }
 +			else if (flags & ts.TypeFlags.BigInt) {
-+				definition.type = "bigint";
++				definition.type = "integer";
 +			}
              else if (flags & ts.TypeFlags.ESSymbol) {
                  definition.type = "object";

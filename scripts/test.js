@@ -25,6 +25,16 @@ const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
+const testFiles = process.argv.slice(2);
+if (testFiles.length) {
+    const test = spawn(process.execPath, ["-r", "dotenv/config", "-r", "ts-node/register/transpile-only", "-r", "module-alias/register", "--enable-source-maps", "--test", ...testFiles], {
+        stdio: "inherit",
+    });
+
+    test.on("close", (code) => process.exit(code ?? 1));
+    return;
+}
+
 const cfgFile = path.join(__dirname, "test_config.json");
 process.env.CONFIG_PATH = cfgFile;
 

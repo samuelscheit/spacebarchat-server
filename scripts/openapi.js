@@ -29,6 +29,7 @@ const { isNoAuthorizationRoute } = require("../dist/api/middlewares/NoAuthorizat
 require("../dist/util/util/extensions");
 const { bgRedBright, bgYellow, black, bgYellowBright, blue, white } = require("picocolors");
 const { normalizeNullableTypes } = require("./util/openapiSchema");
+const { normalizeGeneratedJsonSchemaTypes } = require("./util/jsonSchemaTypes");
 
 const openapiPath = path.join(__dirname, "..", "assets", "openapi.json");
 const SchemaPath = path.join(__dirname, "..", "assets", "schemas.json");
@@ -98,6 +99,7 @@ function combineSchemas(schemas) {
         specification.components = specification.components || {};
         specification.components.schemas = specification.components.schemas || {};
         specification.components.schemas[key] = definitions[key];
+        normalizeGeneratedJsonSchemaTypes(definitions[key]);
         if (definitions[key].additionalProperties === false) delete definitions[key].additionalProperties;
         delete definitions[key].$schema;
         normalizeNullableTypes(definitions[key], specification.openapi);
@@ -261,7 +263,7 @@ async function main() {
     combineSchemas(schemas);
     apiRoutes(missingRoutes);
 
-    fs.writeFileSync(openapiPath, JSON.stringify(specification, null, 4).replaceAll("#/definitions", "#/components/schemas").replaceAll("bigint", "number"));
+    fs.writeFileSync(openapiPath, JSON.stringify(specification, null, 4).replaceAll("#/definitions", "#/components/schemas"));
     console.log("Wrote OpenAPI specification to", openapiPath);
     const elapsedMs = Number(totalSw.elapsed().totalMilliseconds + "." + totalSw.elapsed().microseconds);
     console.log(
