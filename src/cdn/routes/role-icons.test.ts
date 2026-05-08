@@ -9,6 +9,7 @@ import crypto from "node:crypto";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { after, before, describe, mock, test } from "node:test";
 import { Config, ConfigValue } from "@spacebar/util";
+import { initializeStorage } from "@spacebar/cdn";
 
 const PNG_IMAGE = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 const JPEG_IMAGE = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
@@ -35,6 +36,7 @@ describe("role icon CDN route", () => {
             config.security.requestSignature = requestSignature;
             return config;
         });
+        initializeStorage();
 
         const roleIconModule = await import("./role-icons.js");
         roleIconMimeTypes = roleIconModule.ROLE_ICON_MIME_TYPES;

@@ -33,6 +33,7 @@ import {
     type MetricSample,
     registerPrometheusMetricsRoute,
 } from "@spacebar/util";
+import { initializeStorage } from "../cdn/util/Storage";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
@@ -223,6 +224,7 @@ export class SpacebarServer extends Server {
 
     async start() {
         await initStartupConfigAndDatabase();
+        initializeStorage();
         await initEvent();
         await Email.init();
         await ConnectionConfig.init();

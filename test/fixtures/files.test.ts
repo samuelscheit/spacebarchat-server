@@ -36,9 +36,10 @@ test("file storage startup tolerates concurrent creation of the same root", asyn
     const root = join(parent, "files");
     const script = `
 const assert = require("node:assert/strict");
-const { storage } = require("./dist/cdn");
+const { initializeStorage, storage } = require("./dist/cdn");
 
 (async () => {
+    initializeStorage();
     assert.equal(await storage.exists("."), true);
 })().catch((error) => {
     console.error(error);

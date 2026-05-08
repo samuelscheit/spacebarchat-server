@@ -6,6 +6,7 @@ import path from "node:path";
 import { describe, test } from "node:test";
 import express, { NextFunction, Request, Response } from "express";
 import { Config } from "@spacebar/util";
+import { initializeStorage } from "@spacebar/cdn";
 
 const requestSignature = "test-banner-upload-signature";
 const animatedGif = Buffer.from("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", "base64");
@@ -48,6 +49,7 @@ async function configureTestRuntime() {
         }),
     );
     await Config.init(true);
+    initializeStorage();
 
     return root;
 }
