@@ -1,4 +1,3 @@
-import { deleteFile } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
 
@@ -31,6 +30,10 @@ function getUserRecentAvatarEntity(): UserRecentAvatarEntity {
 
 function getUserEntity(): UserEntity {
     return require("@spacebar/util").User as UserEntity;
+}
+
+function getDeleteFile(): SpacebarUtil["deleteFile"] {
+    return require("@spacebar/util").deleteFile as SpacebarUtil["deleteFile"];
 }
 
 export function toRecentAvatarResponse(avatar: RecentAvatarRecord): RecentAvatar {
@@ -141,6 +144,7 @@ async function getCurrentUserAvatarHash(userId: string): Promise<string | null |
 
 async function deletePrunedUserAvatar(userId: string, storageHash: string): Promise<void> {
     try {
+        const deleteFile = getDeleteFile();
         await deleteFile(`/avatars/${userId}/${storageHash}`);
     } catch (error) {
         console.warn(`[API] Failed to delete pruned recent avatar ${storageHash} for user ${userId}.`, error);
