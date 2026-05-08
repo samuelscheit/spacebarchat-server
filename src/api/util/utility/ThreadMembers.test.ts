@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { describe, test, type TestContext } from "node:test";
 import { HTTPError } from "lambert-server";
 import {
     applyThreadMemberListQuery,
     assertThreadIsNotArchived,
     DEFAULT_THREAD_MEMBER_LIMIT,
-    incrementThreadMemberCount,
     MAX_THREAD_MEMBER_COUNT,
     MAX_THREAD_MEMBER_LIMIT,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
+    refreshThreadMemberCount,
     resolveThreadMemberUserId,
 } from "./ThreadMembers";
 import { ThreadMember } from "@spacebar/util";
@@ -50,37 +50,42 @@ describe("thread member helpers", () => {
         assert.throws(() => assertThreadIsNotArchived({ thread_metadata: { archived: true } }), RangeError);
     });
 
-    test("increments and persists an existing thread member count", async () => {
+    test("refreshes and persists a stale thread member count from persisted thread members", async (t) => {
+        const countByCalls = stubThreadMemberCountBy(t, 7);
         const thread = createThreadMemberCountSource({ member_count: 2 });
 
-        assert.equal(await incrementThreadMemberCount(thread), 3);
-        assert.equal(thread.member_count, 3);
+        assert.equal(await refreshThreadMemberCount(thread), 7);
+        assert.equal(thread.member_count, 7);
+        assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
         assert.equal(thread.saveCalls, 1);
     });
 
-    test("caps incremented thread member counts to Discord's approximate count maximum", async () => {
-        const thread = createThreadMemberCountSource({ member_count: MAX_THREAD_MEMBER_COUNT });
+    test("caps refreshed thread member counts to Discord's approximate count maximum", async (t) => {
+        const countByCalls = stubThreadMemberCountBy(t, MAX_THREAD_MEMBER_COUNT + 10);
+        const thread = createThreadMemberCountSource({ member_count: 2 });
 
-        assert.equal(await incrementThreadMemberCount(thread), MAX_THREAD_MEMBER_COUNT);
+        assert.equal(await refreshThreadMemberCount(thread), MAX_THREAD_MEMBER_COUNT);
         assert.equal(thread.member_count, MAX_THREAD_MEMBER_COUNT);
+        assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
         assert.equal(thread.saveCalls, 1);
     });
 
-    test("backfills missing thread member count from persisted thread members", async (t) => {
-        const countByCalls: unknown[] = [];
-        Object.assign(ThreadMember, {
-            countBy: async (where: unknown) => {
-                countByCalls.push(where);
-                return MAX_THREAD_MEMBER_COUNT + 10;
-            },
-        });
-        t.after(() => {
-            Object.assign(ThreadMember, { countBy: originalThreadMemberCountBy });
-        });
+    test("backfills an undefined thread member count from persisted thread members", async (t) => {
+        const countByCalls = stubThreadMemberCountBy(t, 4);
         const thread = createThreadMemberCountSource({ member_count: undefined });
 
-        assert.equal(await incrementThreadMemberCount(thread), MAX_THREAD_MEMBER_COUNT);
-        assert.equal(thread.member_count, MAX_THREAD_MEMBER_COUNT);
+        assert.equal(await refreshThreadMemberCount(thread), 4);
+        assert.equal(thread.member_count, 4);
+        assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
+        assert.equal(thread.saveCalls, 1);
+    });
+
+    test("backfills a null thread member count from persisted thread members", async (t) => {
+        const countByCalls = stubThreadMemberCountBy(t, 3);
+        const thread = createThreadMemberCountSource({ member_count: null });
+
+        assert.equal(await refreshThreadMemberCount(thread), 3);
+        assert.equal(thread.member_count, 3);
         assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
         assert.equal(thread.saveCalls, 1);
     });
@@ -145,7 +150,21 @@ function assertInvalidThreadMemberLimit(value: string) {
     assert.equal(error.message, `limit must be between 1 and ${MAX_THREAD_MEMBER_LIMIT}`);
 }
 
-function createThreadMemberCountSource({ member_count }: { member_count?: number }) {
+function stubThreadMemberCountBy(t: TestContext, count: number) {
+    const countByCalls: unknown[] = [];
+    Object.assign(ThreadMember, {
+        countBy: async (where: unknown) => {
+            countByCalls.push(where);
+            return count;
+        },
+    });
+    t.after(() => {
+        Object.assign(ThreadMember, { countBy: originalThreadMemberCountBy });
+    });
+    return countByCalls;
+}
+
+function createThreadMemberCountSource({ member_count }: { member_count?: number | null }) {
     return {
         id: "thread-id",
         member_count,

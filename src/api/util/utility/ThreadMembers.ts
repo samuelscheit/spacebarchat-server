@@ -34,8 +34,8 @@ export interface ThreadMemberCountSource {
     save(): Promise<unknown>;
 }
 
-export async function incrementThreadMemberCount(thread: ThreadMemberCountSource) {
-    thread.member_count = Math.min(typeof thread.member_count === "number" ? thread.member_count + 1 : await ThreadMember.countBy({ id: thread.id }), MAX_THREAD_MEMBER_COUNT);
+export async function refreshThreadMemberCount(thread: ThreadMemberCountSource) {
+    thread.member_count = Math.min(await ThreadMember.countBy({ id: thread.id }), MAX_THREAD_MEMBER_COUNT);
     await thread.save();
     return thread.member_count;
 }

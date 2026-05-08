@@ -325,6 +325,7 @@ async function coverThreadMemberRoutes(
         (event) =>
             event.event === "THREAD_MEMBERS_UPDATE" &&
             event.channel_id === threadId &&
+            event.data.member_count === 2 &&
             event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
     );
     await assertThreadMember(threadId, joinedMemberIndex);
@@ -334,7 +335,8 @@ async function coverThreadMemberRoutes(
     await waitForEventAfter(
         events,
         beforeDelete,
-        (event) => event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.removed_member_ids?.includes(joinedUserId),
+        (event) =>
+            event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.member_count === 1 && event.data.removed_member_ids?.includes(joinedUserId),
     );
     assert.equal(await ThreadMember.findOneBy({ id: threadId, member_idx: joinedMemberIndex }), null);
 
@@ -346,6 +348,7 @@ async function coverThreadMemberRoutes(
         (event) =>
             event.event === "THREAD_MEMBERS_UPDATE" &&
             event.channel_id === threadId &&
+            event.data.member_count === 2 &&
             event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
     );
     await assertThreadMember(threadId, joinedMemberIndex);

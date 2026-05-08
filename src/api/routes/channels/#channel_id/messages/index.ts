@@ -70,6 +70,7 @@ import {
     ReadStateType,
     RelationshipType,
 } from "@spacebar/schemas";
+import { refreshThreadMemberCount } from "../../../../util/utility/ThreadMembers";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -304,19 +305,14 @@ router.post(
                         flags: ThreadMemberFlags.ALL_MESSAGES,
                     });
                     await threadMember.save();
-
-                    // increment member count
-                    if (channel.member_count !== null && channel.member_count !== undefined) {
-                        channel.member_count++;
-                        await channel.save();
-                    }
+                    const member_count = await refreshThreadMemberCount(channel);
 
                     await emitEvent({
                         event: "THREAD_MEMBERS_UPDATE",
                         data: {
                             guild_id: channel.guild_id!,
                             id: channel.id,
-                            member_count: channel.member_count ?? 0, // TODO: is this the right fix?
+                            member_count,
                             added_members: [{ user_id: req.user_id, ...threadMember.toJSON() }],
                         },
                         channel_id: channel.id,
