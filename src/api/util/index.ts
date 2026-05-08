@@ -44,6 +44,7 @@ export * from "./utility/UserInvites";
 export * from "./handlers/Voice";
 export * from "./utility/captcha";
 export * from "./utility/BillingLocationInfo";
+export * from "./utility/BillingSubscriptions";
 export * from "./utility/EmbedHandlers";
 export * from "./utility/CrosspostMessage";
 export * from "./utility/RoleMembers";

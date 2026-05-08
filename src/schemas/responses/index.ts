@@ -22,6 +22,7 @@ export * from "./AccountStandingResponse";
 export * from "./ActiveThreadsResponse";
 export * from "./BackupCodesChallengeResponse";
 export * from "./BillingLocationInfoResponse";
+export * from "./BillingSubscriptionResponse";
 export * from "./CaptchaRequiredResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
