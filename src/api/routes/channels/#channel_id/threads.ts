@@ -43,6 +43,7 @@ import {
     ChannelFlags,
     Snowflake,
     messagePublicRelations,
+    advanceChannelReadStateNotificationCursor,
 } from "@spacebar/util";
 import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
 
@@ -62,7 +63,6 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -147,8 +147,8 @@ router.post(
                 },
             }),
         ]);
-        if (body.type !== ChannelType.GUILD_PRIVATE_THREAD && !channel.isForum())
-            await sendMessage({
+        if (body.type !== ChannelType.GUILD_PRIVATE_THREAD && !channel.isForum()) {
+            const threadCreatedMessage = await sendMessage({
                 channel_id: channel.id,
                 type: MessageType.THREAD_CREATED,
                 content: thread.name,
@@ -158,6 +158,8 @@ router.post(
                 },
                 author_id: user.id,
             });
+            await advanceChannelReadStateNotificationCursor(req.user_id, channel.id, threadCreatedMessage.id);
+        }
         if (body.message) {
             const attachments = messageAttachments;
 

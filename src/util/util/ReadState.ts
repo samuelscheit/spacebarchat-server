@@ -17,6 +17,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 */
 
 import { AckBulkSchema, ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
+import { Snowflake } from "./Snowflake";
 
 export type AckBulkReadStateUpdate = AckBulkSchema["read_states"][number];
 
@@ -77,6 +78,28 @@ export function advanceReadStateNotificationCursor<T extends WritableReadState>(
     }
 
     return readState;
+}
+
+export async function advanceChannelReadStateNotificationCursor(user_id: string, channel_id: string, messageId: string) {
+    const { ReadState: ReadStateEntity } = require("../entities/ReadState") as typeof import("../entities/ReadState");
+
+    // Keep the max comparable snowflake in the database so concurrent route
+    // handlers cannot overwrite a newer cursor with an older in-memory value.
+    await ReadStateEntity.getRepository().query(
+        `
+            INSERT INTO "read_states" ("id", "user_id", "channel_id", "read_state_type", "notifications_cursor")
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT ("channel_id", "user_id", "read_state_type")
+            DO UPDATE SET "notifications_cursor" = EXCLUDED."notifications_cursor"
+            WHERE "read_states"."notifications_cursor" IS NULL
+                OR (
+                    "read_states"."notifications_cursor" ~ '^[0-9]+$'
+                    AND EXCLUDED."notifications_cursor" ~ '^[0-9]+$'
+                    AND "read_states"."notifications_cursor"::numeric < EXCLUDED."notifications_cursor"::numeric
+                )
+        `,
+        [Snowflake.generate(), user_id, channel_id, ReadStateType.CHANNEL, messageId],
+    );
 }
 
 export function applyAckBulkReadStateUpdate<T extends WritableReadState>(readState: T, update: AckBulkReadStateUpdate): T {

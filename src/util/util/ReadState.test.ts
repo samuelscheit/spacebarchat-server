@@ -3,7 +3,15 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, test } from "node:test";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
-import { advanceReadStateNotificationCursor, applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity, READY_READ_STATE_SELECT } from "./ReadState";
+import { ReadState } from "../entities/ReadState";
+import {
+    advanceChannelReadStateNotificationCursor,
+    advanceReadStateNotificationCursor,
+    applyAckBulkReadStateUpdate,
+    getReadyReadStateWhere,
+    getReadStateIdentity,
+    READY_READ_STATE_SELECT,
+} from "./ReadState";
 
 describe("read state helpers", () => {
     test("defaults bulk acknowledgements to channel read states", () => {
@@ -91,6 +99,20 @@ describe("read state helpers", () => {
         assert.equal(readState.notifications_cursor, "legacy-cursor");
     });
 
+    test("persists notification cursor with one advance-only upsert", async (t) => {
+        const queries: { sql: string; parameters: unknown[] }[] = [];
+        t.mock.method(ReadState, "getRepository", () => ({
+            query: async (sql: string, parameters: unknown[]) => queries.push({ sql, parameters }),
+        }));
+
+        await advanceChannelReadStateNotificationCursor("user-id", "channel-id", "1001");
+
+        assert.equal(queries.length, 1);
+        assert.match(queries[0].sql, /ON CONFLICT \("channel_id", "user_id", "read_state_type"\)/);
+        assert.match(queries[0].sql, /"notifications_cursor"::numeric < EXCLUDED\."notifications_cursor"::numeric/);
+        assert.deepEqual(queries[0].parameters.slice(1), ["user-id", "channel-id", ReadStateType.CHANNEL, "1001"]);
+    });
+
     test("writes channel bulk acknowledgements to channel read-state fields", () => {
         const channelState = applyAckBulkReadStateUpdate(
             {
@@ -159,5 +181,6 @@ describe("read state helpers", () => {
 
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_message_id\?: string \| null;/);
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_acked_id\?: string \| null;/);
+        assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+notifications_cursor\?: string \| null;/);
     });
 });
