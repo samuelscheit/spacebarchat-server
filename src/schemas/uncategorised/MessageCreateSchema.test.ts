@@ -17,11 +17,12 @@ describe("MessageCreateSchema", () => {
 });
 
 describe("MessageEditSchema", () => {
-    test("does not expose deprecated singular embed", () => {
+    test("does not expose deprecated singular embed or creation-only message_reference", () => {
         const properties = schemas.MessageEditSchema.properties;
 
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
+        assert.equal("message_reference" in properties, false);
     });
 });
 

@@ -63,6 +63,28 @@ describe("Message edit helpers", () => {
         assert.equal(options.reactions, persisted);
     });
 
+    test("does not allow edit payload message_reference to replace persisted message_reference", () => {
+        const persistedReference = { message_id: "referenced_message_id" };
+        const incomingReference = { message_id: "attacker_reference_id" };
+        const body = { content: "after", message_reference: incomingReference } as MessageEditSchema & {
+            message_reference: typeof incomingReference;
+        };
+
+        const options = buildMessageEditHandleMessageOptions(
+            {
+                author_id: "author_id",
+                content: "before",
+                message_reference: persistedReference,
+                reactions: [],
+            },
+            body,
+            "channel_id",
+            "message_id",
+        );
+
+        assert.deepEqual(options.message_reference, persistedReference);
+    });
+
     test("generated MessageEditSchema rejects client-supplied reactions", () => {
         const validate = ajv.getSchema("MessageEditSchema");
         assert.ok(validate);
