@@ -141,8 +141,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Check intents
     this.intents = new Intents(Intents.resolveGatewayIdentifyIntents(identify.intents));
-
-    // TODO: actually do intent things.
+    // Event dispatch filtering is enforced by the gateway listener using this.intents.
 
     // Validate sharding
     const gatewayShard = createGatewayShard(identify.shard);

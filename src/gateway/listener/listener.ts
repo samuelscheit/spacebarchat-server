@@ -21,6 +21,7 @@ import {
     EVENTEnum,
     EventOpts,
     getPermission,
+    Intents,
     listenEvent,
     ListenEventOpts,
     Member,
@@ -73,9 +74,46 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
     return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
 }
 
+type IntentEventMap = Record<number, readonly string[]>;
+const GUILD_ID_DATA_ID_EVENTS = new Set(["GUILD_CREATE", "GUILD_UPDATE", "GUILD_DELETE"]);
+
+function getIntentBitForEvent(eventMap: IntentEventMap, event: string): bigint | undefined {
+    for (const [intentBit, events] of Object.entries(eventMap)) {
+        if (events.includes(event)) return BigInt(1) << BigInt(intentBit);
+    }
+
+    return undefined;
+}
+
+export function getRequiredIntentForEvent(event: string, guildId: string | undefined): bigint | undefined {
+    const commonIntent = getIntentBitForEvent(Intents.INTENT_TO_EVENTS_MAP, event);
+    if (commonIntent !== undefined) return commonIntent;
+
+    const eventMap: IntentEventMap = guildId ? Intents.GUILD_INTENT_TO_EVENTS_MAP : Intents.DM_INTENT_TO_EVENTS_MAP;
+    return getIntentBitForEvent(eventMap, event);
+}
+
+export function getIntentGuildIdForEvent(opts: Pick<EventOpts, "event" | "guild_id" | "data">): string | undefined {
+    const data = opts.data as { guild_id?: string; id?: string } | undefined;
+    const guildId = opts.guild_id ?? data?.guild_id;
+    if (guildId) return guildId;
+
+    return GUILD_ID_DATA_ID_EVENTS.has(opts.event) ? data?.id : undefined;
+}
+
+function isCurrentUserGuildMemberUpdate(event: string, userId: string | undefined, data: { user?: { id?: string } } | undefined) {
+    return event === "GUILD_MEMBER_UPDATE" && !!userId && data?.user?.id === userId;
+}
+
+export function canDispatchEventForIntents(intents: Intents | undefined, event: string, guildId: string | undefined, userId?: string, data?: { user?: { id?: string } }) {
+    const requiredIntent = getRequiredIntentForEvent(event, guildId);
+    if (requiredIntent === undefined) return true;
+    if (requiredIntent === Intents.FLAGS.GUILD_MEMBERS && isCurrentUserGuildMemberUpdate(event, userId, data)) return true;
+
+    return intents?.has(requiredIntent) ?? true;
+}
+
 // TODO: close connection on Invalidated Token
-// TODO: check intent
-// TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
 
 // Sharding: calculate if the current shard id matches the formula: shard_id = (guild_id >> 22) % num_shards
 // https://discord.com/developers/docs/topics/gateway#sharding
@@ -86,6 +124,7 @@ export function handlePresenceUpdate(this: WebSocket, opts: EventOpts) {
     if (!isEventRouteSubscribed(this.events, opts) && !isEventRouteSubscribed(this.member_events, opts)) return;
 
     if (event === EVENTEnum.PresenceUpdate) {
+        if (!canDispatchEventForIntents(this.intents, event, getIntentGuildIdForEvent(opts), this.user_id, data)) return;
         return Send(this, {
             op: OPCODES.Dispatch,
             t: event,
@@ -327,7 +366,6 @@ export async function setupListener(this: WebSocket) {
     });
 }
 
-// TODO: only subscribe for events that are in the connection intents
 async function consume(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
     const id = data.id as string;
@@ -445,6 +483,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
             // no special treatment
             break;
     }
+
+    if (!canDispatchEventForIntents(this.intents, event, getIntentGuildIdForEvent(opts), this.user_id, data)) return;
 
     // permission checking
     switch (event) {

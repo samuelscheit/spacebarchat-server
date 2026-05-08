@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
+import { Config, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel, Intents } from "@spacebar/util";
 import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
@@ -168,7 +168,8 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     if (requiresAuthorizedChannel && !authorized) return;
 
     const subscribedUserIds = new Set<string>();
-    if (members) {
+    const includePresences = this.intents.has(Intents.FLAGS.GUILD_PRESENCES);
+    if (members && includePresences) {
         // Client has requested a PRESENCE_UPDATE for specific member
 
         await Promise.all(
@@ -205,7 +206,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         );
 
         if (!channels) return;
-    }
+    } else if (members && !channels) return;
 
     if (!channels) return;
 
@@ -214,8 +215,10 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const guildMembers = await getMembers(guild_id);
     const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.guildOwnerId));
     const member_count = visibleGuildMembers.length;
-    const memberList = buildLazyMemberListOperations(visibleGuildMembers, guild_id, requestedRanges);
-    for (const userId of getLazyMemberIds(memberList)) subscribedUserIds.add(userId);
+    const memberList = buildLazyMemberListOperations(visibleGuildMembers, guild_id, requestedRanges, { includePresences });
+    if (includePresences) {
+        for (const userId of getLazyMemberIds(memberList)) subscribedUserIds.add(userId);
+    }
 
     let list_id = "everyone";
 
@@ -235,7 +238,9 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
         }
     }
 
-    await Promise.all([...subscribedUserIds].map((userId) => subscribeGuildMemberEvent.call(this, guild_id, userId)));
+    if (includePresences) {
+        await Promise.all([...subscribedUserIds].map((userId) => subscribeGuildMemberEvent.call(this, guild_id, userId)));
+    }
     await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
 
     await Send(this, {

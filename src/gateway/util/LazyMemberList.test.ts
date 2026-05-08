@@ -126,6 +126,17 @@ describe("lazy guild member list ordering", () => {
         assert.equal(result.online_count, 1);
     });
 
+    test("omits presence data and treats members as offline when presences are disabled", () => {
+        const everyone = role("guild", 0, false);
+
+        const result = buildLazyMemberList([member("online-member", "Online Member", [everyone], [session("online")])], "guild", [0, 99], { includePresences: false });
+
+        assert.equal(result.online_count, 0);
+        assert.deepEqual(groupIds(result.groups), ["offline"]);
+        assert.deepEqual(itemIds(result.items), ["offline", "online-member"]);
+        assert.equal(result.members[0].presence, undefined);
+    });
+
     test("keeps online count and groups when no ranges are requested", () => {
         const everyone = role("guild", 0, false);
 

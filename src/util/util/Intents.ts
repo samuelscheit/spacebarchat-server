@@ -95,7 +95,6 @@ export class Intents extends BitField {
             "THREAD_DELETE",
             "THREAD_LIST_SYNC",
             "THREAD_MEMBER_UPDATE",
-            "THREAD_MEMBERS_UPDATE", // *
             "STAGE_INSTANCE_CREATE",
             "STAGE_INSTANCE_UPDATE",
             "STAGE_INSTANCE_DELETE",
@@ -105,7 +104,7 @@ export class Intents extends BitField {
             "GUILD_MEMBER_ADD",
             "GUILD_MEMBER_UPDATE",
             "GUILD_MEMBER_REMOVE",
-            "THREAD_MEMBERS_UPDATE ", // *
+            "THREAD_MEMBERS_UPDATE", // *
         ],
         // GUILD_BANS
         2: ["GUILD_AUDIT_LOG_ENTRY_CREATE", "GUILD_BAN_ADD", "GUILD_BAN_REMOVE"],
@@ -124,7 +123,7 @@ export class Intents extends BitField {
         // GUILD_WEBHOOKS
         5: ["WEBHOOKS_UPDATE"],
         // GUILD_INVITES
-        6: ["GUILD_INVITE_CREATE", "GUILD_INVITE_DELETE"],
+        6: ["INVITE_CREATE", "INVITE_DELETE"],
         // GUILD_VOICE_STATES
         7: ["VOICE_CHANNEL_EFFECT_SEND", "VOICE_STATE_UPDATE"],
         // GUILD_PRESENCES
