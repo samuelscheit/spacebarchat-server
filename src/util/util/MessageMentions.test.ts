@@ -41,7 +41,7 @@ function makeMessage(mentions: object[] = [rawMention]): MessageEntity {
         tts: false,
         mention_everyone: false,
         mentions,
-        mention_roles: [],
+        mention_roles: [{ id: "mentioned_role_id" }],
         mention_channels: [],
         attachments: [],
         embeds: [],
@@ -94,14 +94,16 @@ describe("Message mention serialization", () => {
         assert.deepEqual(toMessageMentionUsers(null), []);
     });
 
-    test("Message.toJSON and snapshots expose partial mention users", () => {
+    test("Message.toJSON and snapshots expose partial mention users and role ids", () => {
         const message = makeMessage();
 
         const json = message.toJSON();
         const snapshot = message.toSnapshot();
 
         assert.deepEqual(json.mentions, [serializedMention]);
+        assert.deepEqual(json.mention_roles, ["mentioned_role_id"]);
         assert.deepEqual(snapshot.message.mentions, [serializedMention]);
+        assert.deepEqual(snapshot.message.mention_roles, ["mentioned_role_id"]);
         assert.equal((json.mentions[0] as Record<string, unknown>).bio, undefined);
         assert.equal((snapshot.message.mentions[0] as Record<string, unknown>).bio, undefined);
     });

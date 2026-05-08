@@ -551,7 +551,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             message.type = MessageType.DEFAULT;
 
             if (message.referenced_message) {
-                // TODO: mention_roles and mentions arrays - not needed it seems, but discord still returns that
                 message.message_snapshots = [message.referenced_message.toSnapshot()];
             }
         }
