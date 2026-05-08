@@ -9,6 +9,7 @@
         "src/gateway/opcodes/GatewayOpcodeAuthorization.test.ts",
         "src/gateway/opcodes/LazyRequest.test.ts",
         "src/gateway/util/LazyMemberList.test.ts",
+        "src/gateway/util/Shard.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/dtos/ReadyPrivateChannelDTO.test.ts",
         "src/util/config/types/GatewayConfiguration.test.ts",
