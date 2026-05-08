@@ -20,6 +20,79 @@ function createSaveableEntity(payload: EntityPayload): SaveableEntity {
 }
 
 describe("Guild.createGuild", () => {
+    test("rejects custom role payloads without CREATE_ROLES before creating guild records", async (t) => {
+        process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
+
+        const [{ Guild }, { Config }] = await Promise.all([import("./Guild.js"), import("../util/index.js")]);
+
+        const guildClass = Guild as unknown as {
+            create: (guild: EntityPayload) => SaveableEntity;
+        };
+        const configClass = Config as unknown as {
+            get: () => EntityPayload;
+        };
+        let createGuildCalls = 0;
+
+        t.mock.method(configClass, "get", () => ({
+            guild: {
+                defaultFeatures: [],
+            },
+        }));
+        t.mock.method(guildClass, "create", (guild: EntityPayload) => {
+            createGuildCalls++;
+            return createSaveableEntity(guild);
+        });
+
+        await assert.rejects(
+            () =>
+                Guild.createGuild({
+                    name: "Missing role rights",
+                    owner_id: "owner",
+                    roles: [{ id: "moderator", name: "Moderator" }],
+                    source_guild_id: null,
+                }),
+            /CREATE_ROLES/,
+        );
+        assert.equal(createGuildCalls, 0);
+    });
+
+    test("rejects guild creation role icon payloads without the ROLE_ICONS feature before creating guild records", async (t) => {
+        process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
+
+        const [{ Guild }, { Config, Rights }] = await Promise.all([import("./Guild.js"), import("../util/index.js")]);
+
+        const guildClass = Guild as unknown as {
+            create: (guild: EntityPayload) => SaveableEntity;
+        };
+        const configClass = Config as unknown as {
+            get: () => EntityPayload;
+        };
+        let createGuildCalls = 0;
+
+        t.mock.method(configClass, "get", () => ({
+            guild: {
+                defaultFeatures: [],
+            },
+        }));
+        t.mock.method(guildClass, "create", (guild: EntityPayload) => {
+            createGuildCalls++;
+            return createSaveableEntity(guild);
+        });
+
+        await assert.rejects(
+            () =>
+                Guild.createGuild({
+                    name: "No role icon perk",
+                    owner_id: "owner",
+                    roles: [{ id: "moderator", name: "Moderator", unicode_emoji: "🔥" }],
+                    source_guild_id: null,
+                    rights: new Rights("CREATE_ROLES"),
+                }),
+            /ROLE_ICONS/,
+        );
+        assert.equal(createGuildCalls, 0);
+    });
+
     test("persists imported template channel ordering from serialized channel order", async () => {
         process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
 
@@ -154,7 +227,7 @@ describe("Guild.createGuild", () => {
         process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
         process.env.APPLY_DB_MIGRATIONS ??= "false";
 
-        const [{ Guild }, { Role }, { Channel }, { Config, Snowflake }] = await Promise.all([
+        const [{ Guild }, { Role }, { Channel }, { Config, Rights, Snowflake }] = await Promise.all([
             import("./Guild.js"),
             import("./Role.js"),
             import("./Channel.js"),
@@ -253,6 +326,7 @@ describe("Guild.createGuild", () => {
                 },
             ],
             source_guild_id: "source-guild",
+            rights: new Rights("CREATE_ROLES"),
         });
 
         assert.equal(guild.id, "new-guild");

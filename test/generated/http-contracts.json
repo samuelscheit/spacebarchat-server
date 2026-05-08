@@ -14,13 +14,13 @@
         "runtimeStaleTokenAuthContracts": 287,
         "runtimePublicAuthBoundaryContracts": 40,
         "runtimePublicInvalidBodyContracts": 13,
-        "runtimeProtectedInvalidBodyContracts": 53,
+        "runtimeProtectedInvalidBodyContracts": 52,
         "runtimePublicResponseSchemaContracts": 8,
         "runtimeAuthenticatedResponseSchemaContracts": 18,
-        "runtimeRightOnlyDenialContracts": 6,
-        "runtimePermissionOnlyDenialContracts": 80,
-        "runtimePermissionAndRightPermissionDenialContracts": 7,
-        "runtimePermissionAndRightRightDenialContracts": 7,
+        "runtimeRightOnlyDenialContracts": 7,
+        "runtimePermissionOnlyDenialContracts": 79,
+        "runtimePermissionAndRightPermissionDenialContracts": 8,
+        "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
         "runtimeRateLimitHeaderContracts": 152,
         "runtimeCdnMissingObjectContracts": 19,
@@ -11485,7 +11485,7 @@
             "path": "/guilds/:guild_id/roles/",
             "samplePath": "/guilds/100000000000000001/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 38,
+            "line": 40,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11555,7 +11555,7 @@
             "path": "/guilds/:guild_id/roles/",
             "samplePath": "/guilds/100000000000000001/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 131,
+            "line": 135,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11631,7 +11631,7 @@
             "path": "/guilds/:guild_id/roles/",
             "samplePath": "/guilds/100000000000000001/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 48,
+            "line": 50,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11649,6 +11649,7 @@
                 "responses": ["APIErrorResponse", "Role"],
                 "responseStatuses": [200, 400, 403],
                 "permission": "MANAGE_ROLES",
+                "right": "CREATE_ROLES",
                 "emittedEvents": ["GUILD_ROLE_CREATE"]
             },
             "cases": [
@@ -11676,7 +11677,8 @@
                 {
                     "id": "authorization-denied",
                     "checks": ["permission-denied", "error-shape"],
-                    "permission": "MANAGE_ROLES"
+                    "permission": "MANAGE_ROLES",
+                    "right": "CREATE_ROLES"
                 },
                 {
                     "id": "event-emission",
@@ -13594,7 +13596,8 @@
             "routeMetadata": {
                 "requestBody": "GuildTemplateCreateSchema",
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "right": "CREATE_GUILDS"
             },
             "cases": [
                 {
@@ -13619,8 +13622,9 @@
                     "requestBody": "GuildTemplateCreateSchema"
                 },
                 {
-                    "id": "policy-permission-denied",
-                    "checks": ["permission-denied"]
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "right": "CREATE_GUILDS"
                 },
                 {
                     "id": "policy-db-state",
@@ -21275,7 +21279,7 @@
             "path": "/role-icons/:role_id/:hash",
             "samplePath": "/role-icons/100000000000000005/abcdef",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 77,
+            "line": 78,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21319,7 +21323,7 @@
             "path": "/role-icons/:role_id/:id",
             "samplePath": "/role-icons/100000000000000005/value",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 99,
+            "line": 100,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21367,7 +21371,7 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 63,
+            "line": 64,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -21411,7 +21415,7 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 39,
+            "line": 40,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",

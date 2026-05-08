@@ -17,6 +17,7 @@ function createCdnConfig() {
     cdn.limits.avatar.maxSize = 1024;
     cdn.limits.banner.maxSize = 2048;
     cdn.limits.guildAvatar.maxSize = 4096;
+    cdn.limits.roleIcon.maxSize = 512;
     return cdn;
 }
 
@@ -28,6 +29,7 @@ describe("CDN file size limits", () => {
         assert.equal(getCdnFileSizeLimit("/banners/guild-id", cdn), 2048);
         assert.equal(getCdnFileSizeLimit("/guilds/guild-id/users/user-id/avatars", cdn), 4096);
         assert.equal(getCdnFileSizeLimit("/guilds/guild-id/users/user-id/banners", cdn), 2048);
+        assert.equal(getCdnFileSizeLimit("/role-icons/role-id", cdn), 512);
     });
 
     test("resolves sticker image limits from CDN sticker upload paths", () => {
@@ -42,6 +44,15 @@ describe("CDN file size limits", () => {
         const cdn = createCdnConfig();
 
         assert.throws(() => assertCdnFileSizeLimit("/avatars/user-id", 1025, cdn), {
+            code: 50045,
+            message: "File uploaded exceeds the maximum size",
+        });
+    });
+
+    test("rejects configured role icon uploads that exceed the limit", () => {
+        const cdn = createCdnConfig();
+
+        assert.throws(() => assertCdnFileSizeLimit("/role-icons/role-id", 513, cdn), {
             code: 50045,
             message: "File uploaded exceeds the maximum size",
         });
@@ -105,7 +116,7 @@ describe("CDN file size limits", () => {
 
         assert.equal(getConfiguredImageUploadBodyLimit(cdn), 10 * 1024 * 1024);
 
-        cdn.limits.banner.maxSize = 12 * 1024 * 1024;
+        cdn.limits.roleIcon.maxSize = 12 * 1024 * 1024;
         assert.equal(getConfiguredImageUploadBodyLimit(cdn), 17 * 1024 * 1024);
     });
 
@@ -115,7 +126,7 @@ describe("CDN file size limits", () => {
 
         assert.equal(getConfiguredCdnMultipartFileLimit(cdn), 25 * 1024 * 1024);
 
-        cdn.limits.avatar.maxSize = 128 * 1024 * 1024;
+        cdn.limits.roleIcon.maxSize = 128 * 1024 * 1024;
         assert.equal(getConfiguredCdnMultipartFileLimit(cdn), 128 * 1024 * 1024);
 
         cdn.maxAttachmentSize = 256 * 1024 * 1024;

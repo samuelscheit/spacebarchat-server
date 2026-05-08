@@ -23,6 +23,7 @@ import {
     GuildCreateRoleInput,
     GuildWelcomeScreen,
     Snowflake,
+    assertGuildCreateRolePolicy,
     getGuildCreateCustomRoles,
     getGuildCreateEveryoneRole,
     handleFile,
@@ -30,6 +31,7 @@ import {
     normalizeGuildCreateRole,
     resolveGuildCreateChannelReferences,
     resolveGuildCreatePermissionOverwrites,
+    type Rights,
 } from "..";
 import { Ban } from "./Ban";
 import { BaseClass } from "./BaseClass";
@@ -393,10 +395,19 @@ export class Guild extends BaseClass {
         system_channel_id?: string | null;
         system_channel_flags?: number;
         rules_channel_id?: string | null;
+        rights?: Rights;
     }) {
         const guild_id = Snowflake.generate();
         const roleIds = createTemplateRoleIdMap(body.roles ?? [], body.source_guild_id, guild_id, () => Snowflake.generate());
         const defaultFeatures = setVanityUrlFeature(Config.get().guild.defaultFeatures, false);
+        const customRoles = getGuildCreateCustomRoles(body.roles, body.source_guild_id);
+
+        assertGuildCreateRolePolicy({
+            guildFeatures: defaultFeatures,
+            roles: body.roles ?? [],
+            creatingCustomRoles: customRoles.length > 0,
+            rights: body.rights,
+        });
 
         if (body.channels?.length) {
             body.channels = body.channels.map((channel) => ({
@@ -449,6 +460,7 @@ export class Guild extends BaseClass {
             position: 0,
             flags: 0,
         });
+        everyoneRole.icon = await handleFile(`/role-icons/${guild_id}`, everyoneRole.icon);
 
         await Role.create({
             ...everyoneRole,
@@ -458,10 +470,9 @@ export class Guild extends BaseClass {
         }).save();
 
         // create custom roles if provided
-        const customRoles = getGuildCreateCustomRoles(body.roles, body.source_guild_id);
         if (customRoles.length) {
             await Promise.all(
-                customRoles.map((role, index) => {
+                customRoles.map(async (role, index) => {
                     const id = getMappedTemplateRoleId(role.id, roleIds) ?? Snowflake.generate();
                     const normalized = normalizeGuildCreateRole(role, {
                         color: 0,
@@ -474,6 +485,7 @@ export class Guild extends BaseClass {
                         position: index + 1,
                         flags: 0,
                     });
+                    normalized.icon = await handleFile(`/role-icons/${id}`, normalized.icon);
 
                     return Role.create({
                         ...normalized,

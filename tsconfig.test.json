@@ -7,6 +7,7 @@
         "src/api/util/StickerUpload.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/cdn/routes/banners.test.ts",
+        "src/cdn/routes/role-icons.test.ts",
         "src/cdn/util/AvatarUploadPolicy.test.ts",
         "src/cdn/util/ImageRouteHelpers.test.ts",
         "src/cdn/util/ImageUploadPolicy.test.ts",
@@ -27,6 +28,7 @@
         "src/gateway/util/BotGuildCreatePayload.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/dtos/ReadyPrivateChannelDTO.test.ts",
+        "src/util/entities/Guild.test.ts",
         "src/util/config/types/GatewayConfiguration.test.ts",
         "src/util/interfaces/Event.test.ts",
         "src/util/util/ChannelFlags.test.ts",
@@ -34,6 +36,7 @@
         "src/util/util/Intents.test.ts",
         "src/util/util/InternalCdnRoutes.test.ts",
         "src/util/util/ReplacedCdnAsset.test.ts",
+        "src/util/util/RoleIconPolicy.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
