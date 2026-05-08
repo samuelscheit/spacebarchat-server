@@ -7489,7 +7489,7 @@
                     "password"
                 ]
             },
-            "CreateWebAuthnCredentialSchema": {
+            "FinishWebAuthnCredentialRegistrationSchema": {
                 "type": "object",
                 "properties": {
                     "credential": {
@@ -7514,7 +7514,7 @@
                         "$ref": "#/components/schemas/GenerateWebAuthnCredentialsSchema"
                     },
                     {
-                        "$ref": "#/components/schemas/CreateWebAuthnCredentialSchema"
+                        "$ref": "#/components/schemas/FinishWebAuthnCredentialRegistrationSchema"
                     }
                 ]
             },

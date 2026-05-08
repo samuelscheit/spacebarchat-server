@@ -21,14 +21,13 @@ export interface GenerateWebAuthnCredentialsSchema {
     password: string;
 }
 
-// FIXME: better naming
-export interface CreateWebAuthnCredentialSchema {
+export interface FinishWebAuthnCredentialRegistrationSchema {
     credential: string;
     name: string;
     ticket: string;
 }
 
-export type WebAuthnPostSchema = GenerateWebAuthnCredentialsSchema | CreateWebAuthnCredentialSchema;
+export type WebAuthnPostSchema = GenerateWebAuthnCredentialsSchema | FinishWebAuthnCredentialRegistrationSchema;
 
 export interface WebAuthnTotpSchema {
     code: string;

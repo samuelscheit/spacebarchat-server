@@ -7861,7 +7861,7 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "CreateWebAuthnCredentialSchema": {
+    "FinishWebAuthnCredentialRegistrationSchema": {
         "type": "object",
         "properties": {
             "credential": {
@@ -7888,7 +7888,7 @@
                 "$ref": "#/definitions/GenerateWebAuthnCredentialsSchema"
             },
             {
-                "$ref": "#/definitions/CreateWebAuthnCredentialSchema"
+                "$ref": "#/definitions/FinishWebAuthnCredentialRegistrationSchema"
             }
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
