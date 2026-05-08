@@ -3174,6 +3174,160 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildScheduledEventExceptionResponse": {
+        "type": "object",
+        "properties": {
+            "event_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "event_exception_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "is_canceled": {
+                "type": "boolean"
+            },
+            "scheduled_start_time": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "scheduled_end_time": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "event_exception_id",
+            "event_id",
+            "is_canceled"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "creator_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "creator": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "name": {
+                "type": "string"
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "scheduled_start_time": {
+                "type": "string"
+            },
+            "scheduled_end_time": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "auto_start": {
+                "type": "boolean"
+            },
+            "privacy_level": {
+                "$ref": "#/definitions/GuildScheduledEventPrivacyLevel"
+            },
+            "status": {
+                "$ref": "#/definitions/GuildScheduledEventStatus"
+            },
+            "entity_type": {
+                "$ref": "#/definitions/GuildScheduledEventEntityType"
+            },
+            "entity_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "entity_metadata": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/GuildScheduledEventEntityMetadata"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "user_count": {
+                "type": "integer"
+            },
+            "image": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "recurrence_rule": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/GuildScheduledEventRecurrenceRule"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "guild_scheduled_event_exceptions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildScheduledEventExceptionResponse"
+                }
+            },
+            "sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "entity_metadata",
+            "entity_type",
+            "guild_id",
+            "id",
+            "name",
+            "privacy_level",
+            "scheduled_end_time",
+            "scheduled_start_time",
+            "status"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildVanityUrlResponse": {
         "anyOf": [
             {
@@ -18390,6 +18544,180 @@
             "description",
             "enabled",
             "welcome_channels"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventPrivacyLevel": {
+        "type": "number",
+        "const": 2,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventStatus": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventEntityType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventEntityMetadata": {
+        "type": "object",
+        "properties": {
+            "location": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventRecurrenceRule": {
+        "type": "object",
+        "properties": {
+            "start": {
+                "type": "string"
+            },
+            "end": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "frequency": {
+                "$ref": "#/definitions/GuildScheduledEventRecurrenceRuleFrequency"
+            },
+            "interval": {
+                "type": "integer"
+            },
+            "by_weekday": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/GuildScheduledEventRecurrenceRuleWeekday"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "by_n_weekday": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/GuildScheduledEventRecurrenceRuleNWeekday"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "by_month": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "by_month_day": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "by_year_day": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "count": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "end",
+            "frequency",
+            "interval",
+            "start"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventRecurrenceRuleFrequency": {
+        "type": "number",
+        "enum": [
+            0,
+            1,
+            2,
+            3
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventRecurrenceRuleWeekday": {
+        "type": "number",
+        "enum": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventRecurrenceRuleNWeekday": {
+        "type": "object",
+        "properties": {
+            "n": {
+                "type": "integer"
+            },
+            "day": {
+                "$ref": "#/definitions/GuildScheduledEventRecurrenceRuleWeekday"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day",
+            "n"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

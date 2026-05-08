@@ -17,7 +17,7 @@
 */
 
 import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
-import type { ChannelOverride, ChannelType, PublicMember, PublicUser, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
+import type { ChannelOverride, ChannelType, GuildScheduledEventResponse, PublicMember, PublicUser, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
 
 // TODO: this is not the best place for this type
 export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
@@ -38,10 +38,23 @@ type ReadyStageInstance = StageInstance | StageInstanceResponse;
 
 export type GuildOrUnavailable =
     | { id: string; unavailable: boolean }
-    | (Guild & { joined_at?: Date; unavailable: undefined; threads: Channel[]; stage_instances: ReadyStageInstance[] });
+    | (Guild & {
+          joined_at?: Date;
+          unavailable: undefined;
+          threads: Channel[];
+          stage_instances: ReadyStageInstance[];
+          guild_scheduled_events?: GuildScheduledEventResponse[];
+      });
 
-const guildIsAvailable = (guild: GuildOrUnavailable): guild is Guild & { joined_at: Date; unavailable: false; threads: Channel[]; stage_instances: ReadyStageInstance[] } =>
-    guild.unavailable != true;
+const guildIsAvailable = (
+    guild: GuildOrUnavailable,
+): guild is Guild & {
+    joined_at: Date;
+    unavailable: false;
+    threads: Channel[];
+    stage_instances: ReadyStageInstance[];
+    guild_scheduled_events?: GuildScheduledEventResponse[];
+} => guild.unavailable != true;
 
 function stageInstanceToResponse(stageInstance: ReadyStageInstance): StageInstanceResponse {
     if ("toPublicStageInstance" in stageInstance) return stageInstance.toPublicStageInstance();
@@ -53,7 +66,7 @@ export interface IReadyGuildDTO {
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
-    guild_scheduled_events: never[];
+    guild_scheduled_events: GuildScheduledEventResponse[];
     id: string;
     large: boolean | undefined;
     lazy: boolean;
@@ -110,7 +123,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
-    guild_scheduled_events: never[];
+    guild_scheduled_events: GuildScheduledEventResponse[];
     id: string;
     large: boolean | undefined;
     lazy: boolean;
@@ -177,7 +190,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
         this.channels = guild.channels;
         this.data_mode = "full";
         this.emojis = guild.emojis;
-        this.guild_scheduled_events = [];
+        this.guild_scheduled_events = guild.guild_scheduled_events ?? [];
         this.id = guild.id;
         this.large = guild.large;
         this.lazy = true; // ??????????
