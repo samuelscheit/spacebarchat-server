@@ -98,11 +98,19 @@ router.get("/:role_id/:hash", cache, async (req: Request, res: Response) => {
 router.delete("/:role_id/:id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
     const { role_id, id } = req.params as { [key: string]: string };
-    const path = `role-icons/${role_id}/${id}`;
+    const candidateIds = id.includes(".") ? [id] : [id, `${id}.png`, `${id}.jpg`, `${id}.jpeg`, `${id}.webp`, `${id}.svg`];
+    const paths = candidateIds.map((candidate) => `role-icons/${role_id}/${candidate}`);
+    const path = (await firstExistingPath(paths)) ?? paths[0];
 
     await storage.delete(path);
 
     return res.send({ success: true });
 });
+
+async function firstExistingPath(paths: string[]) {
+    for (const path of paths) {
+        if (await storage.exists(path)) return path;
+    }
+}
 
 export default router;
