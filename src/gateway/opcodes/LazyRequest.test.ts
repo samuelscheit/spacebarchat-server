@@ -49,7 +49,7 @@ const originalLoad = moduleLoader._load;
 const state: {
     buildCalls: { guildId: string; members: unknown[]; ranges: Range[] }[];
     channelOverwrites: { allow: string; deny: string; id: string }[] | undefined;
-    getManyCalls: number;
+    findCalls: unknown[];
     guildOwnerLookups: number;
     guildMembers: unknown[];
     memberCount: number;
@@ -63,7 +63,7 @@ const state: {
 } = {
     buildCalls: [],
     channelOverwrites: undefined,
-    getManyCalls: 0,
+    findCalls: [],
     guildOwnerLookups: 0,
     guildMembers: [],
     memberCount: 0,
@@ -74,28 +74,6 @@ const state: {
     sentPayloads: [],
     subscriptions: [],
     unsubscriptions: [],
-};
-
-const queryBuilder = {
-    addOrderBy() {
-        return queryBuilder;
-    },
-    addSelect() {
-        return queryBuilder;
-    },
-    async getMany() {
-        state.getManyCalls++;
-        return state.guildMembers;
-    },
-    leftJoinAndSelect() {
-        return queryBuilder;
-    },
-    orderBy() {
-        return queryBuilder;
-    },
-    where() {
-        return queryBuilder;
-    },
 };
 
 const mockUtil = {
@@ -113,6 +91,10 @@ const mockUtil = {
     Member: {
         async count() {
             return state.memberCount;
+        },
+        async find(options: unknown) {
+            state.findCalls.push(options);
+            return state.guildMembers;
         },
         async findOne({ where }: { where: { guild_id: string; id: string } }) {
             return state.guildMembers.some((member) => (member as { id?: string }).id === where.id) ? { id: where.id } : null;
@@ -160,17 +142,6 @@ const mockUtil = {
         async getPublicUser(id: string) {
             return { id };
         },
-    },
-    getDatabase() {
-        return {
-            getRepository() {
-                return {
-                    createQueryBuilder() {
-                        return queryBuilder;
-                    },
-                };
-            },
-        };
     },
     getMostRelevantSession() {
         return undefined;
@@ -260,7 +231,7 @@ function viewableMember(id: string, roles = [memberRole("guild", mockUtil.Permis
 beforeEach(() => {
     state.buildCalls = [];
     state.channelOverwrites = undefined;
-    state.getManyCalls = 0;
+    state.findCalls = [];
     state.guildOwnerLookups = 0;
     state.guildMembers = [viewableMember("online-user"), viewableMember("offline-user")];
     state.memberCount = 3;
@@ -317,7 +288,18 @@ describe("lazy request member list loading", () => {
 
         await onLazyRequest.call(socket(), { d: { channels: { channel: ranges }, guild_id: "guild" } });
 
-        assert.equal(state.getManyCalls, 1);
+        assert.deepEqual(state.findCalls, [
+            {
+                where: { guild_id: "guild" },
+                relations: {
+                    roles: true,
+                    user: {
+                        sessions: true,
+                        settings: true,
+                    },
+                },
+            },
+        ]);
         assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: state.guildMembers, ranges }]);
         assert.deepEqual(state.permissionChecks, ["VIEW_CHANNEL"]);
 
@@ -348,7 +330,7 @@ describe("lazy request member list loading", () => {
 
         await onLazyRequest.call(socket(), { d: { channels: { channel: [] }, guild_id: "guild" } });
 
-        assert.equal(state.getManyCalls, 1);
+        assert.equal(state.findCalls.length, 1);
         assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: state.guildMembers, ranges: [] }]);
 
         const payload = sentUpdate();
@@ -378,7 +360,7 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(state.permissionChecks, ["VIEW_CHANNEL"]);
         assert.deepEqual(state.subscriptions, []);
         assert.deepEqual(state.sentPayloads, []);
-        assert.equal(state.getManyCalls, 0);
+        assert.equal(state.findCalls.length, 0);
     });
 
     test("does not subscribe to requested presences for users outside the authorized guild", async () => {
@@ -504,6 +486,6 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(state.permissionChecks, []);
         assert.deepEqual(state.subscriptions, []);
         assert.deepEqual(state.sentPayloads, []);
-        assert.equal(state.getManyCalls, 0);
+        assert.equal(state.findCalls.length, 0);
     });
 });

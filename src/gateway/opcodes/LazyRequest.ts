@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
+import { Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
 import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
@@ -25,25 +25,19 @@ import { assertGatewayChannelAccess } from "../util/Authorization";
 import { unsubscribeGuildMemberEventIds } from "../listener/subscriptions";
 
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
-// TODO: rewrite typeorm
-
 async function getMembers(guild_id: string) {
     let members: Member[] = [];
     try {
-        members =
-            (await getDatabase()
-                ?.getRepository(Member)
-                .createQueryBuilder("member")
-                .where("member.guild_id = :guild_id", { guild_id })
-                .leftJoinAndSelect("member.roles", "role")
-                .leftJoinAndSelect("member.user", "user")
-                .leftJoinAndSelect("user.sessions", "session")
-                .addSelect("user.settings")
-                .addSelect("CASE WHEN session.status IS NULL OR session.status = 'offline' OR session.status = 'invisible' THEN 0 ELSE 1 END", "_status")
-                .orderBy("_status", "DESC")
-                .addOrderBy("role.position", "DESC")
-                .addOrderBy("user.username", "ASC")
-                .getMany()) ?? [];
+        members = await Member.find({
+            where: { guild_id },
+            relations: {
+                roles: true,
+                user: {
+                    sessions: true,
+                    settings: true,
+                },
+            },
+        });
     } catch (e) {
         console.error(`LazyRequest`, e);
     }
