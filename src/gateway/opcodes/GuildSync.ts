@@ -16,14 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Member, Session, Presence, timePromise, Stopwatch, Config, getMostRelevantSession } from "@spacebar/util";
+import { Member, Session, Presence, timePromise, Stopwatch, Config, getMostRelevantSession, getDatabase } from "@spacebar/util";
 import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import { PublicMember } from "@spacebar/schemas";
-import { In } from "typeorm";
 
 // TODO: only show roles/members that have access to this channel
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
-// TODO: rewrite typeorm
 
 export async function onGuildSync(this: WebSocket, { d }: Payload) {
     const sw = Stopwatch.startNew();
@@ -35,9 +33,7 @@ export async function onGuildSync(this: WebSocket, { d }: Payload) {
 
     const guild_ids = d as string[];
 
-    const joinedGuildIds = await Member.find({ where: { id: this.user_id, guild_id: In(guild_ids) }, select: { guild_id: true } }).then((members) =>
-        members.map((m) => m.guild_id),
-    );
+    const joinedGuildIds = await getJoinedGuildIds(this.user_id, guild_ids);
 
     const tasks = joinedGuildIds.map((guildId) => timePromise(async () => handleGuildSync(this, guildId)));
     // not awaiting lol
@@ -60,13 +56,54 @@ interface GuildSyncResult {
     members: PublicMember[];
 }
 
+async function getJoinedGuildIds(userId: string, guildIds: string[]) {
+    if (guildIds.length === 0) return [];
+
+    const db = getDatabase();
+    if (!db) throw new Error("Database not initialized");
+
+    const rows = await db
+        .getRepository(Member)
+        .createQueryBuilder("member")
+        .select("member.guild_id", "guild_id")
+        .where("member.id = :userId", { userId })
+        .andWhere("member.guild_id IN (:...guildIds)", { guildIds })
+        .getRawMany<{ guild_id: string }>();
+
+    return rows.map((row) => row.guild_id);
+}
+
+async function getGuildMembers(guild_id: string) {
+    const db = getDatabase();
+    if (!db) throw new Error("Database not initialized");
+
+    return db
+        .getRepository(Member)
+        .createQueryBuilder("member")
+        .where("member.guild_id = :guild_id", { guild_id })
+        .leftJoinAndSelect("member.user", "user")
+        .leftJoinAndSelect("member.roles", "role")
+        .leftJoinAndSelect("member.guild", "guild")
+        .getMany();
+}
+
+async function getSessionsForMembers(members: Member[]) {
+    const userIds = members.map((member) => member.id);
+    if (userIds.length === 0) return [];
+
+    const db = getDatabase();
+    if (!db) throw new Error("Database not initialized");
+
+    return db.getRepository(Session).createQueryBuilder("session").where("session.user_id IN (:...userIds)", { userIds }).orderBy("session.user_id", "ASC").getMany();
+}
+
 async function handleGuildSync(ws: WebSocket, guild_id: string) {
     const res: GuildSyncResult = { id: guild_id, presences: [], members: [] };
 
-    const members = await Member.find({ where: { guild_id }, relations: { user: true, roles: true, guild: true } });
+    const members = await getGuildMembers(guild_id);
     res.members = members.map((m) => m.toPublicMember());
 
-    const sessions = await Session.find({ where: { user_id: In(members.map((m) => m.id)) }, order: { user_id: "ASC" } });
+    const sessions = await getSessionsForMembers(members);
     const sessionsByUserId = new Map<string, Session[]>();
     for (const session of sessions) {
         if (!sessionsByUserId.has(session.user_id)) sessionsByUserId.set(session.user_id, []);
