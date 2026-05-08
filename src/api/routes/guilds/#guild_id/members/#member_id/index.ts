@@ -26,6 +26,7 @@ import {
     getPermission,
     getRights,
     Guild,
+    GuildFeature,
     GuildMemberUpdateEvent,
     handleFile,
     Member,
@@ -206,7 +207,7 @@ router.put(
             where: { id: guild_id },
         });
 
-        if (!guild.features.includes("DISCOVERABLE")) {
+        if (!guild.features.includes(GuildFeature.Discoverable)) {
             throw DiscordApiErrors.UNKNOWN_GUILD;
         }
 

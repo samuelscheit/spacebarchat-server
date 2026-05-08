@@ -28,6 +28,7 @@ import {
     Permissions,
     Config,
     DiscordApiErrors,
+    GuildFeature,
     getDatabase,
     handleFile,
     normalizeChannelName,
@@ -342,7 +343,8 @@ export class Channel extends BaseClass {
 
         const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
 
-        if (!opts?.skipExistsCheck && !guild.features.includes("ALLOW_EXISTING_THREAD_FOR_MESSAGE") && exists) throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
+        if (!opts?.skipExistsCheck && !guild.features.includes(GuildFeature.AllowExistingThreadForMessage) && exists)
+            throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
 
         if (!channel.parent_id) throw new HTTPError("Parent id not set", 400);
         const parent = await Channel.findOneOrFail({ where: { id: channel.parent_id } });

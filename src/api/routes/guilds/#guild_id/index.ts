@@ -21,6 +21,7 @@ import {
     Channel,
     DiscordApiErrors,
     Guild,
+    GuildFeature,
     GuildUpdateEvent,
     Member,
     Permissions,
@@ -177,10 +178,11 @@ router.patch(
             body.discovery_splash = (await handleGuildImageField(`/discovery-splashes/${guild_id}`, body.discovery_splash, guild.discovery_splash)) as string | undefined;
 
         if (body.features) {
-            const diff = guild.features.filter((x) => !body.features?.includes(x)).concat(body.features.filter((x) => !guild.features.includes(x)));
+            const requestedFeatures = body.features as GuildFeature[];
+            const diff = guild.features.filter((x) => !requestedFeatures.includes(x)).concat(requestedFeatures.filter((x) => !guild.features.includes(x)));
 
             // TODO move these
-            const MUTABLE_FEATURES = ["COMMUNITY", "INVITES_DISABLED", "DISCOVERABLE"];
+            const MUTABLE_FEATURES = [GuildFeature.Community, GuildFeature.InvitesDisabled, GuildFeature.Discoverable];
 
             for (const feature of diff) {
                 if (MUTABLE_FEATURES.includes(feature)) continue;
@@ -189,7 +191,7 @@ router.patch(
             }
 
             // for some reason, they don't update in the assign.
-            guild.features = body.features;
+            guild.features = requestedFeatures;
         }
 
         // TODO: check if body ids are valid

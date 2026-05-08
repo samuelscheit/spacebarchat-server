@@ -16,7 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export type InviteAcceptanceDenial = "USER_BANNED" | "QUARANTINED" | "INTERNAL_EMPLOYEE_ONLY" | "INVITES_DISABLED";
+import { GuildFeature } from "../../../util/util/GuildFeatures";
+
+export type InviteAcceptanceDenial = "USER_BANNED" | "QUARANTINED" | GuildFeature.InternalEmployeeOnly | GuildFeature.InvitesDisabled;
 
 export const InviteAcceptanceUserFlags = {
     DISCORD_EMPLOYEE: 1n << 0n,
@@ -25,7 +27,7 @@ export const InviteAcceptanceUserFlags = {
 
 export interface InviteAcceptancePolicy {
     banned?: boolean;
-    features: string[];
+    features: GuildFeature[];
     publicFlags?: bigint | number | string | null;
 }
 
@@ -38,9 +40,10 @@ export function getInviteAcceptanceDenial(policy: InviteAcceptancePolicy): Invit
 
     if (hasPublicFlag(policy.publicFlags, InviteAcceptanceUserFlags.QUARANTINED)) return "QUARANTINED";
 
-    if (policy.features.includes("INTERNAL_EMPLOYEE_ONLY") && !hasPublicFlag(policy.publicFlags, InviteAcceptanceUserFlags.DISCORD_EMPLOYEE)) return "INTERNAL_EMPLOYEE_ONLY";
+    if (policy.features.includes(GuildFeature.InternalEmployeeOnly) && !hasPublicFlag(policy.publicFlags, InviteAcceptanceUserFlags.DISCORD_EMPLOYEE))
+        return GuildFeature.InternalEmployeeOnly;
 
-    if (policy.features.includes("INVITES_DISABLED")) return "INVITES_DISABLED";
+    if (policy.features.includes(GuildFeature.InvitesDisabled)) return GuildFeature.InvitesDisabled;
 
     return undefined;
 }

@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Categories, closeDatabase, Config, generateToken, initDatabase, User } from "@spacebar/util";
+import { Categories, closeDatabase, Config, generateToken, GuildFeature, initDatabase, User } from "@spacebar/util";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeGuild } from "../fixtures/entities";
@@ -320,7 +320,7 @@ async function seedDiscoveryData(owner: User) {
     await makeGuild(owner, {
         id: "100000000000002001",
         name: "Discoverable Scenario",
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         primary_category_id: "1",
         member_count: 42,
         discovery_weight: 100,
@@ -331,7 +331,7 @@ async function seedDiscoveryData(owner: User) {
     await makeGuild(owner, {
         id: "100000000000002002",
         name: "Excluded Scenario",
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         primary_category_id: "1",
         member_count: 99,
         discovery_weight: 200,

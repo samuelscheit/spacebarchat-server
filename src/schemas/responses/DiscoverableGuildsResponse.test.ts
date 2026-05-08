@@ -20,6 +20,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { GuildFeature } from "../../util/util/GuildFeatures";
 import { ajv } from "../Validator";
 import { toDiscoverableGuild } from "./DiscoverableGuildsResponse";
 
@@ -45,7 +46,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         banner: "banner-hash",
         splash: null,
         description: undefined,
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         preferred_locale: "en-US",
         premium_subscription_count: 2,
         member_count: 42,
@@ -100,7 +101,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         banner: "banner-hash",
         splash: null,
         description: null,
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         preferred_locale: "en-US",
         premium_subscription_count: 2,
         member_count: 42,
@@ -166,7 +167,7 @@ test("DiscoverableGuildsResponse validates public guilds and rejects entity inte
                 banner: null,
                 splash: null,
                 description: null,
-                features: ["DISCOVERABLE"],
+                features: [GuildFeature.Discoverable],
                 widget_enabled: true,
                 welcome_screen: {
                     enabled: false,

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { GuildFeature } from "../../util/util/GuildFeatures";
 import { describe, test } from "node:test";
 import { getChannelModifyTypeConversionError } from "./ChannelModifyTypeConversion";
 
@@ -32,7 +33,7 @@ describe("channel modify type conversion guard", () => {
     });
 
     test("allows text to news conversion only with the NEWS guild feature", () => {
-        assertAllowed(ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS, ["NEWS"]);
+        assertAllowed(ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS, [GuildFeature.News]);
 
         assertRejected(ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS, "News channels require the NEWS guild feature");
     });
@@ -46,7 +47,7 @@ describe("channel modify type conversion guard", () => {
 
         for (const currentType of rejectedTypes) {
             assertRejected(currentType, ChannelType.GUILD_TEXT, "Only text and news channels can be converted");
-            assertRejected(currentType, ChannelType.GUILD_NEWS, "Only text and news channels can be converted", ["NEWS"]);
+            assertRejected(currentType, ChannelType.GUILD_NEWS, "Only text and news channels can be converted", [GuildFeature.News]);
         }
     });
 });

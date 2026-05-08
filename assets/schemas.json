@@ -4827,7 +4827,13 @@
             "features": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "$ref": "#/definitions/GuildFeature"
+                }
+            },
+            "stage_instances": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StageInstance"
                 }
             },
             "stickers": {
@@ -4991,6 +4997,7 @@
             "premium_progress_bar_enabled",
             "public_updates_channel_id",
             "roles",
+            "stage_instances",
             "stickers",
             "toGuildUpdateEventData",
             "unavailable",
@@ -14792,7 +14799,7 @@
             "features": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "$ref": "#/definitions/GuildFeature"
                 },
                 "default": []
             },
@@ -14864,6 +14871,12 @@
                 "type": "array",
                 "items": {
                     "$ref": "#/definitions/Invite"
+                }
+            },
+            "stage_instances": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StageInstance"
                 }
             },
             "voice_states": {
@@ -15008,6 +15021,7 @@
             "premium_progress_bar_enabled",
             "public_updates_channel_id",
             "roles",
+            "stage_instances",
             "stickers",
             "template",
             "unavailable",
@@ -15058,6 +15072,43 @@
             "id",
             "user",
             "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildFeature": {
+        "type": "string",
+        "enum": [
+            "ALIASABLE_NAMES",
+            "ALLOW_EXISTING_THREAD_FOR_MESSAGE",
+            "ALLOW_INVALID_CHANNEL_NAMES",
+            "ALLOW_UNNAMED_CHANNELS",
+            "ANIMATED_ICON",
+            "BANNER",
+            "COMMERCE",
+            "COMMUNITY",
+            "DISCOVERABLE",
+            "DISCOVERABLE_DISABLED",
+            "ENABLED_DISCOVERABLE_BEFORE",
+            "HUB",
+            "INTERNAL_EMPLOYEE_ONLY",
+            "INVITE_SPLASH",
+            "INVITES_DISABLED",
+            "IRC_LIKE_CATEGORY_NAMES",
+            "MONETIZATION_ENABLED",
+            "MORE_EMOJI",
+            "MORE_STICKERS",
+            "NEWS",
+            "PARTNERED",
+            "PREVIEW_ENABLED",
+            "PRIVATE_THREADS",
+            "SEVEN_DAY_THREAD_ARCHIVE",
+            "THREE_DAY_THREAD_ARCHIVE",
+            "THREADS_ENABLED",
+            "TICKETED_EVENTS_ENABLED",
+            "VANITY_URL",
+            "VERIFIED",
+            "VIP_REGIONS",
+            "WELCOME_SCREEN_ENABLED"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -15703,6 +15754,62 @@
             "target_user_id",
             "temporary",
             "uses"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StageInstance": {
+        "type": "object",
+        "properties": {
+            "guild_id": {
+                "type": "string"
+            },
+            "guild": {
+                "$ref": "#/definitions/Guild"
+            },
+            "channel_id": {
+                "type": "string"
+            },
+            "channel": {
+                "$ref": "#/definitions/Channel"
+            },
+            "topic": {
+                "type": "string"
+            },
+            "privacy_level": {
+                "$ref": "#/definitions/StageInstancePrivacyLevel"
+            },
+            "discoverable_disabled": {
+                "type": "boolean",
+                "default": false
+            },
+            "guild_scheduled_event_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel",
+            "channel_id",
+            "discoverable_disabled",
+            "guild",
+            "guild_id",
+            "id",
+            "privacy_level",
+            "topic"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StageInstancePrivacyLevel": {
+        "type": "number",
+        "enum": [
+            1,
+            2
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -19539,7 +19646,7 @@
             "defaultFeatures": {
                 "type": "array",
                 "items": {
-                    "type": "string"
+                    "$ref": "#/definitions/GuildFeature"
                 },
                 "default": []
             },
@@ -20579,14 +20686,6 @@
         "additionalProperties": {
             "$ref": "#/definitions/JsonValue"
         },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "StageInstancePrivacyLevel": {
-        "type": "number",
-        "enum": [
-            1,
-            2
-        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "TeamListTeam": {

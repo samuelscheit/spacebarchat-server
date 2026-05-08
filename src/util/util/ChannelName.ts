@@ -1,4 +1,5 @@
 import { HTTPError } from "lambert-server";
+import { GuildFeature } from "./GuildFeatures";
 import { InvisibleCharacters } from "./InvisibleCharacters";
 
 const DISPLAY_NAME_CHANNEL_TYPES = new Set<number>([
@@ -15,14 +16,14 @@ const THREAD_CHANNEL_TYPES = new Set<number>([
 
 const CONTROL_CHARACTER_PATTERN = /\p{Cc}/u;
 
-export function normalizeChannelName(name: string | undefined, type: number | undefined, features: string[]): string | undefined {
+export function normalizeChannelName(name: string | undefined, type: number | undefined, features: readonly GuildFeature[]): string | undefined {
     if (usesThreadNameRules(type)) return normalizeThreadName(name, features);
 
     return normalizeGuildChannelName(name, type, features);
 }
 
-export function normalizeGuildChannelName(name: string | undefined, type: number | undefined, features: string[]): string | undefined {
-    if (!name || features.includes("ALLOW_INVALID_CHANNEL_NAMES")) return name;
+export function normalizeGuildChannelName(name: string | undefined, type: number | undefined, features: readonly GuildFeature[]): string | undefined {
+    if (!name || features.includes(GuildFeature.AllowInvalidChannelNames)) return name;
 
     assertNoInvalidChannelNameCharacters(name);
 
@@ -31,15 +32,15 @@ export function normalizeGuildChannelName(name: string | undefined, type: number
     return name.trim().toLocaleLowerCase().replace(/\s+/gu, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
-export function normalizeThreadName(name: string | undefined, features: string[]): string | undefined {
-    if (!name || features.includes("ALLOW_INVALID_CHANNEL_NAMES")) return name;
+export function normalizeThreadName(name: string | undefined, features: readonly GuildFeature[]): string | undefined {
+    if (!name || features.includes(GuildFeature.AllowInvalidChannelNames)) return name;
 
     assertNoInvalidChannelNameCharacters(name);
     return name.trim();
 }
 
-export function assertChannelNamePresent(name: string | undefined, features: string[]) {
-    if (!features.includes("ALLOW_UNNAMED_CHANNELS") && !name) throw new HTTPError("Channel name cannot be empty.", 403);
+export function assertChannelNamePresent(name: string | undefined, features: readonly GuildFeature[]) {
+    if (!features.includes(GuildFeature.AllowUnnamedChannels) && !name) throw new HTTPError("Channel name cannot be empty.", 403);
 }
 
 function assertNoInvalidChannelNameCharacters(name: string) {
@@ -54,6 +55,6 @@ function usesThreadNameRules(type: number | undefined) {
     return type !== undefined && THREAD_CHANNEL_TYPES.has(type);
 }
 
-function usesDisplayNameRules(type: number | undefined, features: string[]) {
-    return !features.includes("IRC_LIKE_CATEGORY_NAMES") && type !== undefined && DISPLAY_NAME_CHANNEL_TYPES.has(type);
+function usesDisplayNameRules(type: number | undefined, features: readonly GuildFeature[]) {
+    return !features.includes(GuildFeature.IrcLikeCategoryNames) && type !== undefined && DISPLAY_NAME_CHANNEL_TYPES.has(type);
 }

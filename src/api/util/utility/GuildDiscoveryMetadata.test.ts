@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { GuildFeature } from "../../../util/util/GuildFeatures";
 import { describe, it } from "node:test";
 import { getGuildDiscoveryMetadataUpdate, toGuildDiscoveryMetadata } from "./GuildDiscoveryMetadata";
 
 describe("guild discovery metadata response", () => {
     it("serializes stored discovery category with client-required metadata defaults", () => {
-        assert.deepEqual(toGuildDiscoveryMetadata({ id: "123", primary_category_id: "5", features: ["DISCOVERABLE"], description: "About this guild" }), {
+        assert.deepEqual(toGuildDiscoveryMetadata({ id: "123", primary_category_id: "5", features: [GuildFeature.Discoverable], description: "About this guild" }), {
             guild_id: "123",
             primary_category_id: 5,
             category_ids: [5],
@@ -27,7 +28,7 @@ describe("guild discovery metadata response", () => {
     it("builds database nulls when nullable fields are cleared", () => {
         assert.deepEqual(
             getGuildDiscoveryMetadataUpdate(
-                { id: "123", primary_category_id: "5", features: ["DISCOVERABLE"], description: "About this guild" },
+                { id: "123", primary_category_id: "5", features: [GuildFeature.Discoverable], description: "About this guild" },
                 { primary_category_id: null, about: null },
             ),
             {
@@ -39,20 +40,20 @@ describe("guild discovery metadata response", () => {
 
     it("builds persisted values for category, about text, and publication state", () => {
         assert.deepEqual(
-            getGuildDiscoveryMetadataUpdate({ id: "123", features: ["COMMUNITY"], description: null }, { primary_category_id: 5, about: "About", is_published: true }),
+            getGuildDiscoveryMetadataUpdate({ id: "123", features: [GuildFeature.Community], description: null }, { primary_category_id: 5, about: "About", is_published: true }),
             {
                 primary_category_id: "5",
                 description: "About",
-                features: ["COMMUNITY", "DISCOVERABLE"],
+                features: [GuildFeature.Community, GuildFeature.Discoverable],
             },
         );
     });
 
     it("removes discoverability without mutating the loaded guild feature list", () => {
-        const features = ["COMMUNITY", "DISCOVERABLE"];
+        const features = [GuildFeature.Community, GuildFeature.Discoverable];
         const update = getGuildDiscoveryMetadataUpdate({ id: "123", features }, { is_published: false });
 
-        assert.deepEqual(update, { features: ["COMMUNITY"] });
-        assert.deepEqual(features, ["COMMUNITY", "DISCOVERABLE"]);
+        assert.deepEqual(update, { features: [GuildFeature.Community] });
+        assert.deepEqual(features, [GuildFeature.Community, GuildFeature.Discoverable]);
     });
 });

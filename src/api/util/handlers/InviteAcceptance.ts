@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Ban, DiscordApiErrors, Guild } from "@spacebar/util";
+import { Ban, DiscordApiErrors, Guild, GuildFeature } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { EntityManager, FindOptionsWhere } from "typeorm";
 import { getInviteAcceptanceDenial, InviteAcceptanceDenial } from "./InviteAcceptancePolicy";
@@ -35,9 +35,9 @@ function throwInviteAcceptanceDenial(denial: InviteAcceptanceDenial): never {
             throw DiscordApiErrors.USER_BANNED;
         case "QUARANTINED":
             throw DiscordApiErrors.UNKNOWN_INVITE;
-        case "INTERNAL_EMPLOYEE_ONLY":
+        case GuildFeature.InternalEmployeeOnly:
             throw new HTTPError("Only intended for the staff of this instance.", 401);
-        case "INVITES_DISABLED":
+        case GuildFeature.InvitesDisabled:
             throw new HTTPError("Sorry, this guild has joins closed.", 403);
         default: {
             const exhaustive: never = denial;
