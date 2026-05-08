@@ -1,4 +1,10 @@
-export const VANITY_URL_FEATURE = "VANITY_URL";
+export enum GuildFeature {
+    VanityUrl = "VANITY_URL",
+    VipRegions = "VIP_REGIONS",
+}
+
+export const VANITY_URL_FEATURE = GuildFeature.VanityUrl;
+export const VIP_REGIONS_FEATURE = GuildFeature.VipRegions;
 
 export function setVanityUrlFeature(features: string[] | null | undefined, hasVanityUrl: boolean) {
     const filteredFeatures = (features ?? []).filter((feature) => feature !== VANITY_URL_FEATURE);
