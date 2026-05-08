@@ -17,10 +17,9 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelUpdateEvent, emitEvent, Tag } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, DiscordApiErrors, emitEvent, Tag } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { TagCreateSchema } from "@spacebar/schemas";
-import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -93,8 +92,7 @@ router.put(
         if (!channel.isForum()) throw new Error("is not thread only channel");
 
         const tag = channel.available_tags?.find((tag) => tag.id == tag_id);
-        //TODO better error
-        if (!tag) throw new HTTPError("Tag not found");
+        if (!tag) throw DiscordApiErrors.UNKNOWN_TAG;
         tag.assign(body);
 
         await Promise.all([
