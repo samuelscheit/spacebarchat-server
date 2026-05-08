@@ -52,6 +52,7 @@ import {
     getCloudAttachmentAccessError,
     getAttachmentMutationPath,
     getCdnMutationUrl,
+    Snowflake,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -118,7 +119,7 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
     if (!["http:", "https:", "attachment:"].includes(url.protocol)) throw new HTTPError("invalid media protocol");
     let attEnt: CloudAttachment;
     let delWhenDone = false;
-    if (url.protocol === "attachment") {
+    if (url.protocol === "attachment:") {
         attEnt = await CloudAttachment.findOneOrFail({
             where: {
                 uploadFilename: url.hostname,
@@ -183,14 +184,13 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
     });
     await realAtt.save();
 
-    //TODO maybe this needs to be a new DB object? I don't see a reason to do this rn though, though this id *should* technically be different from the id of the attachment
-    media.id = realAtt.id;
+    media.id = Snowflake.generate();
 
     media.height = attEnt.height;
     media.width = attEnt.width;
     media.content_type = attEnt.contentType;
     //TODO flags?
-    media.attachment_id = attEnt.id;
+    media.attachment_id = realAtt.id;
     //TODO preview stuff
 
     if (delWhenDone) {
@@ -471,6 +471,10 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 			 otherwise backfilling won't work **/
             if (MessageType.THREAD_STARTER_MESSAGE !== message.type && MessageType.THREAD_CREATED !== message.type) message.type = MessageType.REPLY;
         }
+    }
+
+    if (handle && !isEdit) {
+        await handle(message.id, message.author as User, channel);
     }
 
     // TODO: stickers/activity

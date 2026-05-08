@@ -79,4 +79,122 @@ describe("handleMessage", () => {
         assert.equal(message.reactions, reactions);
         assert.equal((createMessageMock.mock.calls[0].arguments[0] as Record<string, unknown>).reactions, reactions);
     });
+
+    test("processes component media for newly created messages", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
+
+        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+        const spacebarSchemas = requireModule("@spacebar/schemas") as typeof import("@spacebar/schemas");
+        const permissionsModule = requireModule("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const rightsModule = requireModule("../../../util/util/Rights") as typeof import("../../../util/util/Rights");
+
+        const channel = {
+            id: "channel-id",
+            guild_id: "guild-id",
+            type: 0,
+            rate_limit_per_user: 0,
+            recipients: [],
+            save: async () => undefined,
+        };
+        const permission = {
+            cache: {},
+            has: () => false,
+            hasThrow: () => undefined,
+        };
+        const rights = {
+            hasThrow: () => undefined,
+        };
+        const media: import("@spacebar/schemas").UnfurledMediaItem = { url: "attachment://uploaded-file" };
+
+        t.mock.method(spacebarUtil.Config, "get", () => ({
+            cdn: {
+                endpointPrivate: "https://cdn.internal",
+                endpointPublic: "https://cdn.example",
+            },
+            components: {},
+            limits: {
+                message: {
+                    maxCharacters: 2000,
+                },
+            },
+            security: {
+                requestSignature: "secret",
+            },
+        }));
+        t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
+        t.mock.method(spacebarUtil.Message, "create", (input: Record<string, unknown>) => ({
+            ...input,
+            id: input.id,
+            flags: (input.flags as number | undefined) ?? 0,
+            attachments: (input.attachments as unknown[] | undefined) ?? [],
+            embeds: (input.embeds as unknown[] | undefined) ?? [],
+            mentions: (input.mentions as unknown[] | undefined) ?? [],
+            mention_roles: [],
+            save: async () => undefined,
+        }));
+        t.mock.method(spacebarUtil.User, "findOneOrFail", async () => ({
+            id: "author-id",
+            clean_data: () => undefined,
+        }));
+        t.mock.method(spacebarUtil.User, "findOne", async () => null);
+        t.mock.method(spacebarUtil.Role, "findOne", async () => null);
+        t.mock.method(spacebarUtil.Member, "find", async () => []);
+        t.mock.method(spacebarUtil.Session, "find", async () => []);
+        t.mock.method(spacebarUtil.ReadState, "findBy", async () => []);
+        t.mock.method(spacebarUtil.ReadState, "create", (value: Record<string, unknown>) => ({
+            ...value,
+            save: async () => value,
+        }));
+        t.mock.method(spacebarUtil.ReadState, "getRepository", () => ({
+            update: async () => undefined,
+            increment: async () => undefined,
+        }));
+        t.mock.method(spacebarUtil.CloudAttachment, "findOneOrFail", async () => ({
+            id: "cloud-attachment-id",
+            uploadFilename: "uploaded-file",
+            userFilename: "image.png",
+            size: 123,
+            height: 64,
+            width: 32,
+            contentType: "image/png",
+            userOriginalContentType: "image/png",
+        }));
+        t.mock.method(spacebarUtil.Attachment, "create", (input: Record<string, unknown>) => ({
+            id: "message-attachment-id",
+            ...input,
+            save: async () => undefined,
+        }));
+        t.mock.method(spacebarUtil.Snowflake, "generate", () => "component-media-id");
+        t.mock.method(
+            globalThis,
+            "fetch",
+            async () =>
+                new Response(JSON.stringify({ success: true, new_path: "attachments/channel/message/image.png" }), {
+                    status: 200,
+                    headers: { "content-type": "application/json" },
+                }),
+        );
+        t.mock.method(permissionsModule, "getPermission", async () => permission);
+        t.mock.method(rightsModule, "getRights", async () => rights);
+
+        const { handleMessage } = (await import("./Message.js")) as typeof import("./Message");
+
+        await handleMessage({
+            id: "message-id",
+            channel_id: "channel-id",
+            author_id: "author-id",
+            flags: Number(spacebarUtil.MessageFlags.FLAGS.IS_COMPONENTS_V2),
+            components: [
+                {
+                    type: spacebarSchemas.MessageComponentType.MediaGallery,
+                    items: [{ media }],
+                },
+            ],
+        });
+
+        assert.equal(media.id, "component-media-id");
+        assert.equal(media.attachment_id, "message-attachment-id");
+        assert.notEqual(media.id, media.attachment_id);
+        assert.equal(media.proxy_url, "https://cdn.example/attachments/channel/message/image.png");
+    });
 });
