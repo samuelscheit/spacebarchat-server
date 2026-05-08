@@ -7,6 +7,7 @@ import {
     GatewayConfiguration,
     isValidGatewayDisconnectedSessionCleanupDelay,
     isValidGatewayHeartbeatTimeout,
+    isValidGuildSyncMemberMode,
 } from "./GatewayConfiguration";
 
 describe("GatewayConfiguration", () => {
@@ -17,6 +18,7 @@ describe("GatewayConfiguration", () => {
         assert.equal(config.endpointPublic, null);
         assert.equal(config.heartbeatTimeout, DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT);
         assert.equal(config.disconnectedSessionCleanupDelayMs, DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS);
+        assert.equal(config.guildSyncMemberMode, "all");
         assert.equal(DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, 45_000);
         assert.equal(GATEWAY_HEARTBEAT_INTERVAL, 30_000);
         assert.equal(DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS, 10_000);
@@ -41,5 +43,12 @@ describe("GatewayConfiguration", () => {
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(Number.NaN), false);
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(Number.POSITIVE_INFINITY), false);
         assert.equal(isValidGatewayDisconnectedSessionCleanupDelay("0"), false);
+    });
+
+    it("accepts only supported guild sync member modes", () => {
+        assert.equal(isValidGuildSyncMemberMode("all"), true);
+        assert.equal(isValidGuildSyncMemberMode("online"), true);
+        assert.equal(isValidGuildSyncMemberMode("offline"), false);
+        assert.equal(isValidGuildSyncMemberMode(null), false);
     });
 });

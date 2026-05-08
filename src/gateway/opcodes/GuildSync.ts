@@ -16,13 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Member, Session, Presence, timePromise, Stopwatch, Config, getMostRelevantSession } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
+import { Member, Session, Presence, timePromise, Stopwatch, Config, getMostRelevantSession, type GuildSyncMemberMode } from "@spacebar/util";
+import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest, isPublicOnlineSession, sortMembersByRole } from "@spacebar/gateway";
 import { PublicMember } from "@spacebar/schemas";
 import { In } from "typeorm";
 
 // TODO: only show roles/members that have access to this channel
-// TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
 // TODO: rewrite typeorm
 
 export async function onGuildSync(this: WebSocket, { d }: Payload) {
@@ -60,33 +59,57 @@ interface GuildSyncResult {
     members: PublicMember[];
 }
 
-async function handleGuildSync(ws: WebSocket, guild_id: string) {
-    const res: GuildSyncResult = { id: guild_id, presences: [], members: [] };
+export interface GuildSyncMemberSnapshot {
+    member: Member;
+    session?: Session;
+}
 
-    const members = await Member.find({ where: { guild_id }, relations: { user: true, roles: true, guild: true } });
-    res.members = members.map((m) => m.toPublicMember());
-
-    const sessions = await Session.find({ where: { user_id: In(members.map((m) => m.id)) }, order: { user_id: "ASC" } });
+function getSessionsByUserId(sessions: Session[]) {
     const sessionsByUserId = new Map<string, Session[]>();
     for (const session of sessions) {
         if (!sessionsByUserId.has(session.user_id)) sessionsByUserId.set(session.user_id, []);
         sessionsByUserId.get(session.user_id)!.push(session);
     }
 
-    for (const member of members) {
-        const userSessions = sessionsByUserId.get(member.id) || [];
-        if (userSessions.length === 0) continue;
+    return sessionsByUserId;
+}
 
-        const mostRelevantSession = getMostRelevantSession(userSessions);
-        const presence: Presence = {
-            user: member.user.toPublicUser(),
-            guild_id: guild_id,
-            status: mostRelevantSession.getPublicStatus(),
-            activities: mostRelevantSession.activities,
-            client_status: mostRelevantSession.client_status,
-        };
-        res.presences.push(presence);
-    }
+export function buildGuildSyncResult(
+    guild_id: string,
+    members: Member[],
+    sessions: Session[],
+    memberMode: GuildSyncMemberMode = Config.get().gateway.guildSyncMemberMode,
+): GuildSyncResult {
+    const sessionsByUserId = getSessionsByUserId(sessions);
+    const snapshots: GuildSyncMemberSnapshot[] = sortMembersByRole(members).map((member) => ({
+        member,
+        session: getMostRelevantSession(sessionsByUserId.get(member.id) || []),
+    }));
+    const selectedSnapshots = memberMode === "online" ? snapshots.filter(({ session }) => isPublicOnlineSession(session)) : snapshots;
+
+    return {
+        id: guild_id,
+        members: selectedSnapshots.map(({ member }) => member.toPublicMember()),
+        presences: snapshots.flatMap(({ member, session }) => {
+            if (!isPublicOnlineSession(session)) return [];
+
+            return [
+                {
+                    user: member.user.toPublicUser(),
+                    guild_id: guild_id,
+                    status: session.getPublicStatus(),
+                    activities: session.activities,
+                    client_status: session.client_status,
+                } satisfies Presence,
+            ];
+        }),
+    };
+}
+
+async function handleGuildSync(ws: WebSocket, guild_id: string) {
+    const members = await Member.find({ where: { guild_id }, relations: { user: true, roles: true, guild: true } });
+    const sessions = members.length ? await Session.find({ where: { user_id: In(members.map((m) => m.id)) }, order: { user_id: "ASC" } }) : [];
+    const res = buildGuildSyncResult(guild_id, members, sessions);
 
     await Send(ws, {
         op: OPCODES.Dispatch,

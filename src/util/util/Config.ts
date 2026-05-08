@@ -25,6 +25,7 @@ import {
     ConfigValue,
     isValidGatewayDisconnectedSessionCleanupDelay,
     isValidGatewayHeartbeatTimeout,
+    isValidGuildSyncMemberMode,
 } from "../config";
 import { ConfigEntity } from "../entities";
 import { JsonValue } from "@protobuf-ts/runtime";
@@ -243,6 +244,7 @@ function validateFinalConfig(config: ConfigValue) {
         isValidGatewayDisconnectedSessionCleanupDelay,
         `${DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS} (must be a non-negative millisecond delay)`,
     );
+    assertConfig("gateway_guildSyncMemberMode", isValidGuildSyncMemberMode, '"all" or "online"');
 
     if (hasErrors) {
         const message = "[Config] Your config has invalid values. Fix them first https://docs.spacebar.chat/setup/server/configuration";
