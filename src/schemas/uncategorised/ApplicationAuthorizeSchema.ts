@@ -23,7 +23,7 @@ export interface ApplicationAuthorizeSchema {
     captcha_key?: string;
     /**
      * @minLength 6
-     * @maxLength 6
+     * @maxLength 8
      */
     code?: string; // 2fa code
 }

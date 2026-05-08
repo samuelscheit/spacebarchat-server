@@ -4,6 +4,7 @@ import { assertMfaCode, consumeMfaBackupCode } from "./Totp";
 
 interface OAuth2AuthorizationUser {
     id: string;
+    bot: boolean;
     mfa_enabled: boolean;
     totp_secret?: string | null;
 }
@@ -19,7 +20,7 @@ interface GuildRepository {
 type AssertOAuth2MfaCode = typeof assertMfaCode;
 
 export interface RequireOAuth2BotAuthorizationOptions {
-    getPermission(userId: string, guildId: string, channelId: undefined, opts: { guild_select: ["mfa_level"]; member_relations: ["user"] }): Promise<Permissions>;
+    getPermission(userId: string, guildId: string, channelId: undefined): Promise<Permissions>;
     guildId: string;
     guildRepository?: GuildRepository;
     mfaCode: unknown;
@@ -37,10 +38,14 @@ export async function requireOAuth2BotAuthorization({
     userId,
     userRepository = User as unknown as UserRepository,
 }: RequireOAuth2BotAuthorizationOptions): Promise<void> {
-    const perms = await getPermission(userId, guildId, undefined, { guild_select: ["mfa_level"], member_relations: ["user"] });
+    const user = await userRepository.findOneOrFail({
+        where: { id: userId },
+        select: { id: true, bot: true, mfa_enabled: true, totp_secret: true },
+    });
 
-    // getPermission cache won't include member data when the caller owns the guild.
-    if (Object.keys(perms.cache || {}).length > 0 && perms.cache.member?.user.bot) throw DiscordApiErrors.UNAUTHORIZED;
+    if (user.bot) throw DiscordApiErrors.UNAUTHORIZED;
+
+    const perms = await getPermission(userId, guildId, undefined);
 
     perms.hasThrow("MANAGE_GUILD");
 
@@ -50,11 +55,6 @@ export async function requireOAuth2BotAuthorization({
     });
 
     if (!guild.mfa_level) return;
-
-    const user = await userRepository.findOneOrFail({
-        where: { id: userId },
-        select: { id: true, mfa_enabled: true, totp_secret: true },
-    });
 
     if (!user.mfa_enabled) throw DiscordApiErrors.TWO_FACTOR_REQUIRED;
 
