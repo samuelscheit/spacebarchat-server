@@ -68,8 +68,8 @@ describe("joined private archived thread helpers", () => {
             ["andWhere", '"thread"."type" = :privateThreadType', { privateThreadType: 12 }],
             ["andWhere", '"thread_member"."member_idx" = :memberIndex', { memberIndex: "member-index" }],
             ["andWhere", `${joinedPrivateArchivedThreadJsonTextExpression("archived")} = :archived`, { archived: "true" }],
-            ["andWhere", '"thread"."id" < :before', { before: "123456789012345678" }],
-            ["orderBy", '"thread"."id"', "DESC"],
+            ["andWhere", "thread.id < :before", { before: "123456789012345678" }],
+            ["orderBy", "thread.id", "DESC"],
             ["take", 26],
         ]);
     });
@@ -92,7 +92,7 @@ describe("joined private archived thread helpers", () => {
             builder.calls.some(([method, condition]) => method === "andWhere" && typeof condition === "string" && condition.includes(":before")),
             false,
         );
-        assert.deepEqual(builder.calls.at(-2), ["orderBy", '"thread"."id"', "DESC"]);
+        assert.deepEqual(builder.calls.at(-2), ["orderBy", "thread.id", "DESC"]);
         assert.deepEqual(builder.calls.at(-1), ["take", 51]);
     });
 
