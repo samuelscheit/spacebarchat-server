@@ -6165,7 +6165,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/discovery-requirements/",
             "sourceFile": "src/api/routes/guilds/#guild_id/discovery-requirements.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
