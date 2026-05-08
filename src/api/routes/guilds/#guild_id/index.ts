@@ -28,6 +28,7 @@ import {
     emitEvent,
     getPermission,
     getRights,
+    deleteFile,
     handleFile,
     Config,
     removeChannelOrderingFromGuildSave,
@@ -38,10 +39,62 @@ import { GuildUpdateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
-async function handleGuildImageField(path: string, value?: string | null, current?: string | null): Promise<string | null | undefined> {
-    if (!value || value === current) return value;
-    if (!value.startsWith("data:")) throw new HTTPError("Invalid " + path);
-    return await handleFile(path, value);
+type GuildImageFieldMutation = {
+    uploadFile: typeof handleFile;
+};
+
+type GuildImageFieldOptions = {
+    mutation?: GuildImageFieldMutation;
+    replacedImagePaths?: string[];
+};
+
+type GuildUpdateImageCleanupOptions = {
+    saveGuild: () => Promise<unknown>;
+    emitGuildUpdate: () => Promise<unknown>;
+    replacedImagePaths: string[];
+    deleteReplacedImages?: (paths: string[]) => Promise<unknown>;
+};
+
+const defaultGuildImageFieldMutation: GuildImageFieldMutation = {
+    uploadFile: handleFile,
+};
+
+export async function handleGuildImageField(
+    path: string,
+    value?: string | null,
+    current?: string | null,
+    options: GuildImageFieldOptions = {},
+): Promise<string | null | undefined> {
+    if (value === undefined || value === current) return value;
+
+    let next = value;
+    if (value) {
+        if (!value.startsWith("data:")) throw new HTTPError("Invalid " + path);
+        next = (await (options.mutation ?? defaultGuildImageFieldMutation).uploadFile(path, value)) ?? null;
+    }
+
+    if (current && next !== current) options.replacedImagePaths?.push(`${path}/${current}`);
+
+    return next;
+}
+
+export async function deleteReplacedGuildImages(paths: string[], removeFile: typeof deleteFile = deleteFile) {
+    const results = await Promise.allSettled(paths.map((path) => removeFile(path)));
+
+    results.forEach((result, index) => {
+        if (result.status === "rejected") console.error(`Failed to delete replaced guild image ${paths[index]}`, result.reason);
+    });
+}
+
+export async function saveGuildUpdateAndDeleteReplacedImages({
+    saveGuild,
+    emitGuildUpdate,
+    replacedImagePaths,
+    deleteReplacedImages = deleteReplacedGuildImages,
+}: GuildUpdateImageCleanupOptions) {
+    await saveGuild();
+    await deleteReplacedImages(replacedImagePaths);
+    await emitGuildUpdate();
 }
 
 router.get(
@@ -114,8 +167,11 @@ router.patch(
             })
         ).channel_ordering;
 
+        const replacedGuildImagePaths: string[] = [];
+        const imageFieldOptions = { replacedImagePaths: replacedGuildImagePaths };
+
         if ("icon" in body) body.icon = await handleGuildImageField(`/icons/${guild_id}`, body.icon, guild.icon);
-        if ("banner" in body) body.banner = await handleGuildImageField(`/banners/${guild_id}`, body.banner, guild.banner);
+        if ("banner" in body) body.banner = await handleGuildImageField(`/banners/${guild_id}`, body.banner, guild.banner, imageFieldOptions);
         if ("splash" in body) body.splash = await handleGuildImageField(`/splashes/${guild_id}`, body.splash, guild.splash);
         if ("discovery_splash" in body)
             body.discovery_splash = (await handleGuildImageField(`/discovery-splashes/${guild_id}`, body.discovery_splash, guild.discovery_splash)) as string | undefined;
@@ -207,14 +263,16 @@ router.patch(
 
         const data = guild.toGuildUpdateEventData();
 
-        await Promise.all([
-            guild.save(),
-            emitEvent({
-                event: "GUILD_UPDATE",
-                data,
-                guild_id,
-            } satisfies GuildUpdateEvent),
-        ]);
+        await saveGuildUpdateAndDeleteReplacedImages({
+            saveGuild: () => guild.save(),
+            replacedImagePaths: replacedGuildImagePaths,
+            emitGuildUpdate: () =>
+                emitEvent({
+                    event: "GUILD_UPDATE",
+                    data,
+                    guild_id,
+                } satisfies GuildUpdateEvent),
+        });
 
         return res.json(data);
     },
