@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ReadyGuildDTO, type GuildOrUnavailable } from "./ReadyGuildDTO";
+import { MAX_STAGE_VIDEO_CHANNEL_USERS, ReadyGuildDTO, type GuildOrUnavailable } from "./ReadyGuildDTO";
 
 type StageInstanceResponse = {
     id: string;
@@ -80,4 +80,10 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
     ).toJSON();
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
+});
+
+test("ReadyGuildDTO exposes the Discord-compatible stage video user limit", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.max_stage_video_channel_users, MAX_STAGE_VIDEO_CHANNEL_USERS);
 });
