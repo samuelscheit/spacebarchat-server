@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Capabilities, CLOSECODES, OPCODES, Payload, Send, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
+import { Capabilities, CLOSECODES, createReadyConsents, OPCODES, Payload, Send, serializeReadyReadState, setupListener, WebSocket } from "@spacebar/gateway";
 import {
     Application,
     arrayGroupBy,
@@ -675,11 +675,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 // lol hack whatever
                 required_action: Config.get().login.requireVerification && !user.verified ? "REQUIRE_VERIFIED_EMAIL" : undefined,
 
-                consents: {
-                    personalization: {
-                        consented: false, // TODO
-                    },
-                },
+                consents: createReadyConsents(),
                 experiments: [],
                 guild_join_requests: [],
                 connected_accounts: [],
