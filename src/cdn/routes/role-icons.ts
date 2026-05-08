@@ -17,7 +17,7 @@
 */
 
 import { Router, Response, Request } from "express";
-import { Config } from "@spacebar/util";
+import { assertCdnFileSizeLimit, Config, type CdnConfiguration } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
@@ -35,6 +35,10 @@ import { STATIC_IMAGE_MIME_TYPES, isAllowedImageMimeType } from "../util/ImageRo
 // formats this route can classify as static from MIME detection alone.
 export const ROLE_ICON_MIME_TYPES = STATIC_IMAGE_MIME_TYPES.filter((mimeType) => mimeType !== "image/webp");
 
+export function assertRoleIconUploadSize(roleId: string, size: number, cdnConfig: CdnConfiguration = Config.get().cdn) {
+    assertCdnFileSizeLimit(`/role-icons/${roleId}`, size, cdnConfig);
+}
+
 const router = Router({ mergeParams: true });
 
 router.post("/:role_id", multer.single("file"), async (req: Request, res: Response) => {
@@ -42,6 +46,7 @@ router.post("/:role_id", multer.single("file"), async (req: Request, res: Respon
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
     const { role_id } = req.params as { [key: string]: string };
+    assertRoleIconUploadSize(role_id, size);
 
     const hash = crypto.createHash("md5").update(buffer).digest("hex");
 
