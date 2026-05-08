@@ -76,4 +76,30 @@ describe("public message generated contract", () => {
         assert.equal(apiMessageArray.items?.$ref, "#/definitions/PublicMessage");
         assert.ok(item.properties?.member, "APIMessageArray items should expose the public message schema");
     });
+
+    test("generated public message contracts expose interaction metadata", () => {
+        const schemas = readJson("assets/schemas.json");
+        const publicMessage = resolveAssetSchema(schemas, schemas.PublicMessage);
+        const interactionMetadata = resolveAssetSchema(schemas, publicMessage.properties!.interaction_metadata!);
+
+        assert.equal(publicMessage.properties?.interaction, undefined);
+        assert.ok(publicMessage.properties?.interaction_metadata, "PublicMessage should document interaction_metadata");
+        assert.equal(interactionMetadata.properties?.id?.type, "string");
+        assert.equal(interactionMetadata.properties?.user_id?.type, "string");
+        assert.equal(interactionMetadata.properties?.name?.type, "string");
+        assert.equal(interactionMetadata.properties?.authorizing_integration_owners?.type, "object");
+    });
+
+    test("OpenAPI public message contract exposes interaction metadata", () => {
+        const openapi = readJson("assets/openapi.json");
+        const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
+        const interactionMetadata = resolveOpenApi(openapi, publicMessage.properties!.interaction_metadata!);
+
+        assert.equal(publicMessage.properties?.interaction, undefined);
+        assert.ok(publicMessage.properties?.interaction_metadata, "APIPublicMessage should document interaction_metadata");
+        assert.equal(interactionMetadata.properties?.id?.type, "string");
+        assert.equal(interactionMetadata.properties?.user_id?.type, "string");
+        assert.equal(interactionMetadata.properties?.name?.type, "string");
+        assert.equal(interactionMetadata.properties?.authorizing_integration_owners?.type, "object");
+    });
 });

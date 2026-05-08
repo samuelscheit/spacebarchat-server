@@ -48,6 +48,7 @@ interface PublicMessageSource {
     mention_roles?: SerializableRoleMention[];
     mentions?: object[] | null;
     message_reference?: PublicMessage["message_reference"];
+    interaction_metadata?: PublicMessage["interaction_metadata"];
     message_snapshots?: PublicMessage["message_snapshots"];
     nonce?: string | null;
     pinned: boolean;
@@ -100,6 +101,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         activity: message.activity ?? undefined,
         components: message.components ?? [],
         message_snapshots: message.message_snapshots ?? undefined,
+        interaction_metadata: message.interaction_metadata ?? undefined,
         poll: message.poll ?? undefined,
         thread: message.thread && "toJSON" in message.thread ? message.thread.toJSON() : message.thread,
         referenced_message: message.referenced_message && !shallow ? message.referenced_message.toJSON(true) : undefined,

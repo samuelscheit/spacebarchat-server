@@ -4171,6 +4171,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -6774,6 +6777,9 @@
                     }
                 ]
             },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionSchema"
+            },
             "components": {
                 "anyOf": [
                     {
@@ -6826,9 +6832,6 @@
                 "type": "string"
             },
             "interaction": {
-                "$ref": "#/definitions/MessageInteractionSchema"
-            },
-            "interaction_metadata": {
                 "$ref": "#/definitions/MessageInteractionSchema"
             }
         },
@@ -13239,6 +13242,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -16467,6 +16473,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -18079,6 +18088,9 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -18135,6 +18147,67 @@
             "timestamp",
             "tts",
             "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageInteractionMetadata": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/InteractionType"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "authorizing_integration_owners": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "name": {
+                "type": "string"
+            },
+            "command_type": {
+                "$ref": "#/definitions/ApplicationCommandType"
+            },
+            "ephemerality_reason": {
+                "type": "integer"
+            },
+            "user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "original_response_message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "interacted_message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "triggering_interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
+            "target_user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "target_message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "authorizing_integration_owners",
+            "command_type",
+            "id",
+            "name",
+            "type",
+            "user_id"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

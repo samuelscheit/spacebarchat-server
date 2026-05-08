@@ -18,7 +18,7 @@
 
 // TODO: remove entity import
 import type { Sticker } from "@spacebar/util";
-import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { ApplicationCommandType, Embed, InteractionType, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, PublicUser, Snowflake } from "@spacebar/schemas";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
 
@@ -214,7 +214,7 @@ export interface PublicMessage {
     message_snapshots?: MessageSnapshot[];
     // call?: MessageCall;
     // interaction?: PartialMessageInteraction; // TODO
-    // interaction_metadata?: MessageInteraction; // TODO
+    interaction_metadata?: MessageInteractionMetadata;
     // resolved?: ResolvedData; // TODO
     thread?: PublicChannel;
     // role_subscription_data?: MessageRoleSubscription;
@@ -228,6 +228,22 @@ export interface PublicMessage {
     // soundboard_sounds?: SoundboardSound[];
     potions?: Potion[];
     shared_client_theme?: SharedClientTheme;
+}
+
+export interface MessageInteractionMetadata {
+    id: Snowflake;
+    type: InteractionType;
+    user_id: Snowflake;
+    authorizing_integration_owners: object;
+    name: string;
+    command_type: ApplicationCommandType;
+    ephemerality_reason?: number;
+    user?: PublicUser;
+    original_response_message_id?: Snowflake;
+    interacted_message_id?: Snowflake;
+    triggering_interaction_metadata?: MessageInteractionMetadata;
+    target_user?: PublicUser;
+    target_message_id?: Snowflake;
 }
 
 export interface SharedClientTheme {

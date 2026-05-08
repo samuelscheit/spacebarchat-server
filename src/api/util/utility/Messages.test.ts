@@ -79,6 +79,9 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
     const publicMessage = messageToPublicMessage(entityMessage);
     const dto = toPreloadMessageResponse({ toJSON: () => publicMessage } as never);
 
+    assert.deepEqual(publicMessage.interaction_metadata, entityMessage.interaction_metadata);
+    assert.deepEqual(dto.interaction_metadata, entityMessage.interaction_metadata);
+    assert.equal("interaction" in publicMessage, false);
     assert.equal("reactions" in dto, false);
     for (const field of [
         "guild_id",
@@ -94,7 +97,6 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
         "application",
         "sticker_items",
         "interaction",
-        "interaction_metadata",
     ]) {
         assert.equal(Object.hasOwn(dto, field), false, `${field} should not be exposed`);
     }
