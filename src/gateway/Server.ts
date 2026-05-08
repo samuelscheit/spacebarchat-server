@@ -50,6 +50,7 @@ export class Server {
     private stopping = false;
     private stopPromise?: Promise<void>;
     private readonly upgradeHandler: (request: http.IncomingMessage, socket: Duplex, head: Buffer) => void;
+    private readonly connectionCloseCleanups = new Set<Promise<unknown>>();
 
     constructor({ port, server, production }: { port: number; server?: http.Server; production?: boolean }) {
         this.port = port;
@@ -213,8 +214,40 @@ export class Server {
             maxPayload: getGatewayTransportMaxPayload(Config.get().limits.gateway),
             noServer: true,
         });
-        this.ws.on("connection", Connection);
+        this.ws.on("connection", (socket, request) => {
+            const gatewaySocket = socket as WebSocket;
+            void Connection.call(this.ws!, gatewaySocket, request);
+            this.trackConnectionCloseCleanup(gatewaySocket);
+        });
         this.ws.on("error", console.error);
+    }
+
+    private trackConnectionCloseCleanup(socket: WebSocket) {
+        socket.once("close", () => {
+            void Promise.resolve().then(() => {
+                const closeCleanup = socket.closeCleanup;
+                if (!closeCleanup) return;
+
+                const tracked = Promise.resolve(closeCleanup)
+                    .catch((error) => {
+                        console.error("[Gateway] Connection close cleanup failed", error);
+                    })
+                    .finally(() => {
+                        this.connectionCloseCleanups.delete(tracked);
+                    });
+                this.connectionCloseCleanups.add(tracked);
+            });
+        });
+    }
+
+    private async waitForConnectionCloseCleanups() {
+        while (this.connectionCloseCleanups.size) {
+            await Promise.all(Array.from(this.connectionCloseCleanups));
+        }
+    }
+
+    configureWebSocketServer() {
+        this.initializeWebSocketServer();
     }
 
     getExtraMetricSamples(): MetricSample[] {
@@ -267,6 +300,8 @@ export class Server {
             await broadcastReconnect(this.ws.clients as Iterable<WebSocket>);
             await closeGatewayServer(this.ws);
         }
+
+        await this.waitForConnectionCloseCleanups();
 
         if (this.ownsHttpServer) {
             if (this.server.listening) await closeHttpServer(this.server);
