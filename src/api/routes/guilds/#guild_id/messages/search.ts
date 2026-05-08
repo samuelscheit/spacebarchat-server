@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { messageToSearchResult, route } from "@spacebar/api";
+import { getSearchChannelNsfwFilter, messageToSearchResult, route } from "@spacebar/api";
 import { Channel, FieldErrors, Member, Message, Snowflake, getPermission, messagePublicRelations } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -42,7 +42,7 @@ router.get(
     async (req: Request, res: Response) => {
         const {
             content,
-            // include_nsfw, // TODO
+            include_nsfw,
             offset,
             sort_order,
             // sort_by, // TODO: Handle 'relevance'
@@ -91,6 +91,7 @@ router.get(
             guild: {
                 id: req.params.guild_id as string,
             },
+            ...getSearchChannelNsfwFilter(include_nsfw),
             ...(content ? { content: Like(`%${content}%`) } : {}),
             ...(author_id ? (author_id instanceof Array ? { author_id: In(author_id) } : { author_id }) : {}),
             ...(channel_id
