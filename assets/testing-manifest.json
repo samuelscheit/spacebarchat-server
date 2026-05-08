@@ -11189,7 +11189,7 @@
             "method": "DELETE",
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 65,
+            "line": 64,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11223,7 +11223,7 @@
             "method": "PATCH",
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 26,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
