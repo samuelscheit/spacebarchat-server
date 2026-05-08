@@ -1,8 +1,29 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, test } from "node:test";
-import { ajv } from "../Validator";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+import { ImageDataUriFormat, ImageDataUriOrAssetHashFormat, isImageDataUri, isImageDataUriOrAssetHash } from "../ImageData";
 
 const validPngDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=";
+const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8").replaceAll("#/definitions/", ""));
+const ajv = new Ajv({
+    allErrors: true,
+    allowUnionTypes: true,
+    coerceTypes: true,
+    schemas,
+    strict: false,
+});
+
+addFormats(ajv);
+ajv.addFormat(ImageDataUriFormat, {
+    type: "string",
+    validate: isImageDataUri,
+});
+ajv.addFormat(ImageDataUriOrAssetHashFormat, {
+    type: "string",
+    validate: isImageDataUriOrAssetHash,
+});
 
 describe("UserModifySchema", () => {
     const validate = ajv.getSchema("UserModifySchema");
@@ -84,5 +105,29 @@ describe("UserModifySchema", () => {
             ajv.errors?.some((error) => error.instancePath === "/avatar_description" && error.keyword === "maxLength"),
             true,
         );
+    });
+
+    test("accepts 1 to 4 digit discriminator strings for route-level normalization", () => {
+        for (const discriminator of ["1", "01", "0001", "9999"]) {
+            assert.equal(
+                ajv.validate("UserModifySchema", {
+                    discriminator,
+                }),
+                true,
+                `expected ${JSON.stringify(discriminator)} to be accepted`,
+            );
+        }
+    });
+
+    test("rejects discriminator strings outside the 1 through 9999 decimal range", () => {
+        for (const discriminator of ["", "0", "0000", "10000", "1e3", "0x10", "+1", "-1", " 42", "42 ", "9999.0", "abcd"]) {
+            assert.equal(
+                ajv.validate("UserModifySchema", {
+                    discriminator,
+                }),
+                false,
+                `expected ${JSON.stringify(discriminator)} to be rejected`,
+            );
+        }
     });
 });

@@ -213,20 +213,17 @@ export class User extends BaseClass {
     @Column({ type: "jsonb", nullable: true })
     primary_guild?: PrimaryGuild;
 
-    // TODO: I don't like this method?
-    validate() {
-        if (this.discriminator) {
-            const discrim = Number(this.discriminator);
-            if (isNaN(discrim) || !Number.isInteger(discrim) || discrim <= 0 || discrim >= 10000)
-                throw FieldErrors({
-                    discriminator: {
-                        message: "Discriminator must be a number.",
-                        code: "DISCRIMINATOR_INVALID",
-                    },
-                });
+    static normalizeDiscriminator(discriminator: string): string {
+        const discrim = /^\d{1,4}$/.test(discriminator) ? Number(discriminator) : NaN;
+        if (Number.isNaN(discrim) || discrim <= 0 || discrim >= 10000)
+            throw FieldErrors({
+                discriminator: {
+                    message: "Discriminator must be a number.",
+                    code: "DISCRIMINATOR_INVALID",
+                },
+            });
 
-            this.discriminator = discrim.toString().padStart(4, "0");
-        }
+        return discrim.toString().padStart(4, "0");
     }
 
     toPublicUser() {
@@ -365,7 +362,7 @@ export class User extends BaseClass {
 
         const user = userRepository.create({
             username: username,
-            discriminator,
+            discriminator: User.normalizeDiscriminator(discriminator),
             id: id || Snowflake.generate(),
             email: email,
             data: {
@@ -384,7 +381,6 @@ export class User extends BaseClass {
             nsfw_allowed: nsfwAllowed,
         });
 
-        user.validate();
         try {
             await userRepository.save(user);
         } catch (error) {

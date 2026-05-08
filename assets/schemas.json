@@ -7586,8 +7586,9 @@
                 ]
             },
             "discriminator": {
-                "minLength": 4,
+                "minLength": 1,
                 "maxLength": 4,
+                "pattern": "^(?!0{1,4}$)\\d{1,4}$",
                 "type": "string"
             },
             "display_name_colors": {

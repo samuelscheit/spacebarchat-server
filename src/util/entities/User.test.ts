@@ -148,3 +148,33 @@ test("User.register derives nsfw_allowed from date_of_birth instead of storing d
     assert.equal("date_of_birth" in serializedUser.toPublicUser(), false, "date_of_birth should not be serialized publicly");
     assert.equal("date_of_birth" in serializedUser.toPrivateUser(), false, "date_of_birth should not be serialized privately");
 });
+
+test("User.normalizeDiscriminator pads valid numeric discriminators", async () => {
+    process.env.DATABASE ??= "postgres://localhost/spacebar";
+
+    const { User } = await import("./User.js");
+
+    assert.equal(User.normalizeDiscriminator("1"), "0001");
+    assert.equal(User.normalizeDiscriminator("0001"), "0001");
+    assert.equal(User.normalizeDiscriminator("42"), "0042");
+    assert.equal(User.normalizeDiscriminator("0042"), "0042");
+    assert.equal(User.normalizeDiscriminator("9999"), "9999");
+});
+
+test("User.normalizeDiscriminator rejects invalid discriminators", async () => {
+    process.env.DATABASE ??= "postgres://localhost/spacebar";
+
+    const { User } = await import("./User.js");
+
+    for (const discriminator of ["0", "0000", "10000", "1.5", "1e3", "0x10", "+1", "-1", " 42", "42 ", "9999.0", "abcd", ""]) {
+        assert.throws(
+            () => User.normalizeDiscriminator(discriminator),
+            (error: unknown) => {
+                assert.equal((error as { code?: number }).code, 50035);
+                assert.equal((error as { errors?: { discriminator?: { _errors?: { code?: string }[] } } }).errors?.discriminator?._errors?.[0]?.code, "DISCRIMINATOR_INVALID");
+                return true;
+            },
+            `expected ${JSON.stringify(discriminator)} to be rejected`,
+        );
+    }
+});
