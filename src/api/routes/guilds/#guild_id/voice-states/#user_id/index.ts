@@ -17,7 +17,17 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, memberToVoiceStateMember, VoiceStateUpdateEvent } from "@spacebar/util";
+import {
+    Channel,
+    DiscordApiErrors,
+    emitEvent,
+    getPermission,
+    Member,
+    VoiceState,
+    VoiceStateMemberRelations,
+    memberToVoiceStateMember,
+    VoiceStateUpdateEvent,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, VoiceStateUpdateSchema } from "@spacebar/schemas";
 
@@ -81,6 +91,7 @@ router.patch(
                 id: voiceState.user_id,
                 guild_id: voiceState.guild_id,
             },
+            relations: VoiceStateMemberRelations,
         });
 
         await Promise.all([

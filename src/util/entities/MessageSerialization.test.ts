@@ -20,7 +20,7 @@ before(async () => {
     signatureData = new NewUrlUserSignatureData({ ip: "127.0.0.1", userAgent: "node:test" });
 });
 
-function createMemberWithRoles(roles: (string | { id: string })[]) {
+function createMemberWithRoles(roles: (string | ({ id: string } & Partial<Role>))[]) {
     const member = new Member();
     member.id = "user-a";
     member.guild_id = "guild-a";
@@ -87,9 +87,17 @@ describe("message member serialization", () => {
         assert.deepEqual(member.toPublicMember().roles, ["role-a", "role-b"]);
     });
 
-    test("memberToVoiceStateMember narrows nested users to the voice state user projection", async () => {
+    test("memberToVoiceStateMember only exposes voice state member and user projections", async () => {
         const { memberToVoiceStateMember } = await import("./MemberPublic.js");
-        const member = createMemberWithRoles([{ id: "role-a" }]);
+        const member = createMemberWithRoles([
+            { id: "role-a", hoist: false, position: 30 },
+            { id: "role-b", hoist: true, position: 20 },
+            { id: "role-c", hoist: true, position: 10 },
+        ]);
+        member.nick = "extra member field";
+        member.bio = "extra profile field";
+        member.banner = "banner-hash";
+        member.pending = true;
         member.user = {
             ...createAuthor(),
             public_flags: 64,
@@ -101,6 +109,7 @@ describe("message member serialization", () => {
 
         const voiceStateMember = memberToVoiceStateMember(member);
 
+        assert.deepEqual(Object.keys(voiceStateMember).sort(), ["deaf", "hoisted_role", "joined_at", "mute", "roles", "user"]);
         assert.deepEqual(Object.keys(voiceStateMember.user ?? {}).sort(), ["avatar", "discriminator", "id", "username"]);
         assert.deepEqual(voiceStateMember.user, {
             avatar: null,
@@ -108,7 +117,8 @@ describe("message member serialization", () => {
             id: "user-a",
             username: "alice",
         });
-        assert.deepEqual(voiceStateMember.roles, ["role-a"]);
+        assert.equal(voiceStateMember.hoisted_role, "role-b");
+        assert.deepEqual(voiceStateMember.roles, ["role-a", "role-b", "role-c"]);
     });
 
     test("Message.toJSON returns a public member instead of the raw member entity", () => {

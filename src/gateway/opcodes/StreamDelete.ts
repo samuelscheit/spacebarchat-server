@@ -1,5 +1,5 @@
 import { parseStreamKey, Payload, WebSocket } from "@spacebar/gateway";
-import { emitEvent, Member, memberToVoiceStateMember, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { emitEvent, Member, VoiceStateMemberRelations, memberToVoiceStateMember, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamDeleteSchema } from "@spacebar/schemas";
 
@@ -53,18 +53,21 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
     if (voiceState) {
         voiceState.self_stream = false;
         await voiceState.save();
-        voiceState.member = await Member.findOneOrFail({
-            where: {
-                id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
-            },
-        });
+        const member = voiceState.guild_id
+            ? await Member.findOne({
+                  where: {
+                      id: voiceState.user_id,
+                      guild_id: voiceState.guild_id,
+                  },
+                  relations: VoiceStateMemberRelations,
+              })
+            : undefined;
 
         await emitEvent({
             event: "VOICE_STATE_UPDATE",
             data: {
                 ...voiceState.toPublicVoiceState(),
-                member: memberToVoiceStateMember(voiceState.member),
+                member: member ? memberToVoiceStateMember(member) : undefined,
             },
             guild_id: guildId,
             channel_id: channelId,

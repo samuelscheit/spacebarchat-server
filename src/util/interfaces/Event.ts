@@ -51,6 +51,7 @@ import {
     StageInstanceResponse,
     UserPrivate,
 } from "@spacebar/schemas";
+import type { VoiceStateMember } from "../entities/MemberPublic";
 
 export interface Event {
     guild_id?: string;
@@ -490,8 +491,10 @@ export interface UserConnectionsUpdateEvent extends Event {
 
 export interface VoiceStateUpdateEvent extends Event {
     event: "VOICE_STATE_UPDATE";
-    data: PublicVoiceState & {
-        member?: Omit<PublicMember, "user"> & { user?: Pick<PublicUser, "avatar" | "discriminator" | "id" | "username"> };
+    data: Omit<PublicVoiceState, "channel_id" | "guild_id"> & {
+        channel_id: string | null;
+        guild_id: string | null;
+        member?: VoiceStateMember;
     };
 }
 

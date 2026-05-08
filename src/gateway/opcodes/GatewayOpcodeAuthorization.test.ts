@@ -149,6 +149,21 @@ const mockUtil = {
         async findOne(options: unknown) {
             state.memberFindOneCalls.push(options);
             return {
+                deaf: false,
+                joined_at: new Date("2026-01-02T03:04:05.000Z"),
+                mute: false,
+                roles: [{ id: "role-a" }],
+                user: {
+                    toPublicUser() {
+                        return {
+                            avatar: null,
+                            discriminator: "0001",
+                            id: "viewer",
+                            public_flags: 64,
+                            username: "alice",
+                        };
+                    },
+                },
                 toPublicMember() {
                     return { user: { id: "viewer" } };
                 },
@@ -157,6 +172,21 @@ const mockUtil = {
         async findOneOrFail(options: unknown) {
             state.memberFindOneCalls.push(options);
             return {
+                deaf: false,
+                joined_at: new Date("2026-01-02T03:04:05.000Z"),
+                mute: false,
+                roles: [{ id: "role-a" }],
+                user: {
+                    toPublicUser() {
+                        return {
+                            avatar: null,
+                            discriminator: "0001",
+                            id: "viewer",
+                            public_flags: 64,
+                            username: "alice",
+                        };
+                    },
+                },
                 toPublicMember() {
                     return { user: { id: "viewer" } };
                 },
@@ -226,6 +256,35 @@ const mockUtil = {
     async emitEvent(payload: unknown) {
         state.emittedEvents.push(payload);
     },
+    memberToVoiceStateMember(member: {
+        deaf: boolean;
+        joined_at: Date;
+        mute: boolean;
+        roles: { id: string }[];
+        user: {
+            toPublicUser(): {
+                avatar: string | null;
+                discriminator: string;
+                id: string;
+                username: string;
+            };
+        };
+    }) {
+        const user = member.user.toPublicUser();
+        return {
+            deaf: member.deaf,
+            joined_at: member.joined_at,
+            mute: member.mute,
+            roles: member.roles.map((role) => role.id),
+            user: {
+                avatar: user.avatar,
+                discriminator: user.discriminator,
+                id: user.id,
+                username: user.username,
+            },
+        };
+    },
+    VoiceStateMemberRelations: { roles: true, user: true },
     async getPermission(userId: string, guildId: string | undefined, channelId: string) {
         return {
             cache: {
@@ -317,6 +376,38 @@ beforeEach(() => {
     state.voiceState = undefined;
 });
 
+type EmittedEvent = {
+    channel_id?: string;
+    data?: {
+        channel_id?: string | null;
+        guild_id?: string | null;
+        member?: unknown;
+    };
+    event?: string;
+    guild_id?: string | null;
+};
+
+function emittedVoiceStateUpdates() {
+    return state.emittedEvents.filter((event): event is EmittedEvent => typeof event === "object" && event !== null && (event as EmittedEvent).event === "VOICE_STATE_UPDATE");
+}
+
+function assertVoiceStateMemberProjection(member: unknown) {
+    assert.ok(member && typeof member === "object");
+    const projectedMember = member as { roles?: unknown; user?: unknown };
+
+    assert.deepEqual(Object.keys(projectedMember).sort(), ["deaf", "joined_at", "mute", "roles", "user"]);
+    assert.deepEqual(projectedMember.roles, ["role-a"]);
+    assert.ok(projectedMember.user && typeof projectedMember.user === "object");
+    assert.deepEqual(Object.keys(projectedMember.user).sort(), ["avatar", "discriminator", "id", "username"]);
+}
+
+function assertVoiceStateMemberLookup(call: unknown, guildId = "guild") {
+    const options = call as { relations?: unknown; where?: { guild_id?: string; id?: string } };
+
+    assert.deepEqual(options.where, { guild_id: guildId, id: "viewer" });
+    assert.deepEqual(options.relations, mockUtil.VoiceStateMemberRelations);
+}
+
 describe("gateway opcode authorization", () => {
     test("VOICE_STATE_UPDATE checks CONNECT before creating voice state or issuing a token", async () => {
         state.permissionError = new Error("missing CONNECT");
@@ -396,6 +487,53 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.voiceSaves.length, 0);
         assert.equal(state.generatedTokens.length, 0);
         assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("VOICE_STATE_UPDATE includes projected members on explicit leave events", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", user_id: "viewer" });
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: null,
+                guild_id: null,
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        const voiceStateUpdates = emittedVoiceStateUpdates();
+
+        assert.equal(voiceStateUpdates.length, 2);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[1]);
+        assert.deepEqual(voiceStateUpdates[0].data?.channel_id, null);
+        assert.deepEqual(voiceStateUpdates[0].data?.guild_id, null);
+        assert.equal(voiceStateUpdates[0].guild_id, "guild");
+        voiceStateUpdates.forEach((event) => assertVoiceStateMemberProjection(event.data?.member));
+    });
+
+    test("VOICE_STATE_UPDATE includes projected members when moving between guild voice channels", async () => {
+        state.channels["other-voice"] = defaultChannel("other-voice", "other-guild");
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", user_id: "viewer" });
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "other-voice",
+                guild_id: "other-guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        const voiceStateUpdates = emittedVoiceStateUpdates();
+
+        assert.equal(voiceStateUpdates.length, 2);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[1], "other-guild");
+        assert.equal(voiceStateUpdates[0].guild_id, "guild");
+        assert.equal(voiceStateUpdates[0].data?.channel_id, null);
+        assert.equal(voiceStateUpdates[1].guild_id, "other-guild");
+        voiceStateUpdates.forEach((event) => assertVoiceStateMemberProjection(event.data?.member));
     });
 
     test("STREAM_CREATE checks STREAM and current voice channel before creating stream state", async () => {
