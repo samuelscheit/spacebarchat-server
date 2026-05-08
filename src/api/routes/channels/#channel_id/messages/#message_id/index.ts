@@ -18,6 +18,7 @@
 
 import {
     Attachment,
+    buildMessageEditComponentProcessingOptions,
     buildMessageEditHandleMessageOptions,
     Channel,
     Message,
@@ -92,12 +93,14 @@ router.patch(
         assertMessagePayloadPermissions(permissions, body);
 
         const normalizedBody = normalizeMessageEditBodyAttachments(body, message.attachments);
+        const componentProcessingOptions = buildMessageEditComponentProcessingOptions(normalizedBody);
 
         const new_message = await handleMessage(
             buildMessageEditHandleMessageOptions(message, normalizedBody, channel_id, message_id, new Date(), {
                 attachment_user_id: req.user_id,
                 attachment_channel_ids: [channel_id],
                 is_edit: true,
+                ...componentProcessingOptions,
             }),
             { suppress_notifications: true },
         );

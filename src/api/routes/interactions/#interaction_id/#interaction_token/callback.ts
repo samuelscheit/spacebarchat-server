@@ -29,6 +29,7 @@ import {
     User,
     InteractionFailureEvent,
     messagePublicWithThreadRelations,
+    buildMessageEditComponentProcessingOptions,
     buildMessageEditHandleMessageOptions,
 } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
@@ -171,11 +172,13 @@ router.post(
                         },
                     });
                     const normalizedBody = normalizeMessageEditBodyAttachments(body.data, message.attachments);
+                    const componentProcessingOptions = buildMessageEditComponentProcessingOptions(normalizedBody);
                     const newMessage = await handleMessage(
                         buildMessageEditHandleMessageOptions(message, normalizedBody, channelId, message.id, new Date(), {
                             attachment_user_id: interaction.applicationId,
                             attachment_channel_ids: [channelId],
                             is_edit: true,
+                            ...componentProcessingOptions,
                         }),
                         { suppress_notifications: true },
                     );

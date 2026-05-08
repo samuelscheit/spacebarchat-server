@@ -295,12 +295,13 @@ export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id
 
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     const conf = Config.get();
-    const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const isEdit = isMessageEditOperation(opts);
+    const handle = (!isEdit || opts.process_component_media === true) && opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const messageOptions = { ...opts };
     delete messageOptions.attachment_channel_ids;
     delete messageOptions.attachment_user_id;
     delete messageOptions.cloud_attachment_upload_channel_id;
+    delete messageOptions.process_component_media;
 
     const channel = await Channel.findOneOrFail({
         where: { id: opts.channel_id },
@@ -750,6 +751,7 @@ interface MessageOptions extends MessageCreateSchema {
     attachment_user_id?: string;
     attachment_channel_ids?: string[];
     cloud_attachment_upload_channel_id?: string;
+    process_component_media?: boolean;
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;

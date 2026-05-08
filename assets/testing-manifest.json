@@ -2481,7 +2481,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 256,
+            "line": 259,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2533,7 +2533,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 225,
+            "line": 228,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2585,7 +2585,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 54,
+            "line": 55,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2642,7 +2642,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 122,
+            "line": 125,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10032,7 +10032,7 @@
             "method": "POST",
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
-            "line": 38,
+            "line": 39,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

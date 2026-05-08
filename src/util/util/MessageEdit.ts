@@ -21,6 +21,16 @@ export function preserveEditedMessageReactions(existing: StoredReaction[] | null
     return existing ?? [];
 }
 
+export function hasExplicitMessageEditComponentUpdate(body: object): boolean {
+    return Object.hasOwn(body, "components");
+}
+
+export function buildMessageEditComponentProcessingOptions(body: object): { process_component_media: boolean } {
+    return {
+        process_component_media: hasExplicitMessageEditComponentUpdate(body),
+    };
+}
+
 export function buildMessageEditHandleMessageOptions<T extends MessageEditSource, B extends object, E extends object = object>(
     message: T,
     body: B,
