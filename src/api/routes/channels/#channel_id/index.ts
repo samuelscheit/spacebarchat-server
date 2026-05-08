@@ -36,6 +36,7 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import { addInvalidAppliedTagsError } from "../../../util/ChannelModifyAppliedTags";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
 
 const router: Router = Router({ mergeParams: true });
@@ -194,6 +195,8 @@ router.patch(
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
 
+        const errors: ErrorList = {};
+
         if (payload.available_tags) {
             if (channel.isForum() && channel.available_tags) {
                 //TODO maybe error if this fails, and maybe handle creating tags?
@@ -204,7 +207,7 @@ router.patch(
             }
         }
 
-        if (payload.applied_tags) {
+        if (payload.applied_tags !== undefined) {
             if (channel.isThread()) {
                 const parent = await Channel.findOneOrFail({
                     where: {
@@ -224,8 +227,7 @@ router.patch(
                 }
                 channel.applied_tags = payload.applied_tags;
             } else {
-                //TODO maybe error instead?
-                payload.applied_tags = undefined;
+                addInvalidAppliedTagsError(payload, isThread, errors);
             }
         }
 
@@ -233,7 +235,6 @@ router.patch(
 
         const channelLimits = Config.get().limits.channel;
 
-        const errors: ErrorList = {};
         let allowUnnamedChannels = false;
         if (payload.name !== undefined && channel.guild_id) {
             const guild = await Guild.findOneOrFail({
