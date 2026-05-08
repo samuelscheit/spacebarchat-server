@@ -285,7 +285,13 @@ test(
 
             const guildBulk = await putJson(
                 `${api.apiBaseUrl}/applications/${applicationId}/guilds/${guildId}/commands`,
-                [commandBody("scenario-guild-updated", "Updated guild command"), commandBody("scenario-guild-bulk", "Bulk guild command")],
+                [
+                    commandBody("scenario-guild-updated", "Updated guild command"),
+                    commandBody("scenario-guild-bulk", "Bulk guild command", {
+                        name: { "pt-BR": "scenario-guild-bulk-pt" },
+                        description: { "pt-BR": "Comando guild em portugues" },
+                    }),
+                ],
                 ownerToken,
             );
             await assertStatus(guildBulk, 200);
@@ -309,6 +315,19 @@ test(
                 "scenario-guild-bulk",
                 "scenario-guild-updated",
             ]);
+
+            const localizedCommandIndex = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/application-command-index`, ownerToken, { "x-discord-locale": "pt-BR" });
+            await assertStatus(localizedCommandIndex, 200);
+            const localizedCommandIndexBody = await assertJsonObject(localizedCommandIndex);
+            const localizedIndexedCommands = localizedCommandIndexBody.application_commands as Array<Record<string, unknown>>;
+            const localizedGuildCommand = localizedIndexedCommands.find((command) => command.name === "scenario-guild-bulk");
+            assert.ok(localizedGuildCommand);
+            assert.equal(localizedGuildCommand.name_localized, "scenario-guild-bulk-pt");
+            assert.equal(localizedGuildCommand.description_localized, "Comando guild em portugues");
+            const unlocalizedGuildCommand = localizedIndexedCommands.find((command) => command.name === "scenario-guild-updated");
+            assert.ok(unlocalizedGuildCommand);
+            assert.equal("name_localized" in unlocalizedGuildCommand, false);
+            assert.equal("description_localized" in unlocalizedGuildCommand, false);
 
             eventCapture = await captureEvents([owner.id, applicationId, channelId]);
             const interaction = await postJson(
@@ -395,18 +414,28 @@ test(
     },
 );
 
-function commandBody(name: string, description: string) {
+function commandBody(
+    name: string,
+    description: string,
+    localizations?: {
+        name?: Record<string, string>;
+        description?: Record<string, string>;
+    },
+) {
     return {
         name,
+        name_localizations: localizations?.name,
         description,
+        description_localizations: localizations?.description,
         type: 1,
     };
 }
 
-async function getJson(url: string, token: string) {
+async function getJson(url: string, token: string, headers?: Record<string, string>) {
     return await fetch(url, {
         headers: {
             authorization: `Bearer ${token}`,
+            ...headers,
         },
     });
 }

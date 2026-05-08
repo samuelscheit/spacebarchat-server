@@ -18,7 +18,7 @@
 
 import { resolveApplicationCommandLocale, route, serializeApplicationCommand } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, Member, Snowflake } from "@spacebar/util";
+import { Application, ApplicationCommand, Member, Snowflake, User } from "@spacebar/util";
 import { IsNull } from "typeorm";
 import { ApplicationCommandSchema } from "@spacebar/schemas";
 
@@ -54,7 +54,11 @@ router.get("/", route({}), async (req: Request, res: Response) => {
     }
 
     const applicationCommandsSendable: ApplicationCommandSchema[] = [];
-    const locale = resolveApplicationCommandLocale(req.headers["x-discord-locale"], req.user, req.language);
+    let locale = resolveApplicationCommandLocale(req.headers["x-discord-locale"], req.headers["accept-language"], req.user?.settings?.locale);
+    if (!locale) {
+        const user = await User.findOne({ where: { id: req.user_id }, relations: { settings: true } });
+        locale = resolveApplicationCommandLocale(undefined, undefined, user?.settings?.locale);
+    }
 
     for (const command of applicationCommands.flat()) {
         applicationCommandsSendable.push(serializeApplicationCommand(command, locale));
