@@ -370,7 +370,73 @@ test(
                 "interaction MESSAGE_CREATE",
             );
             assert.equal(interactionMessageEvent.data.content, "interaction callback response");
-            assert.ok(await Message.findOneBy({ id: interactionMessageEvent.data.id as string, application_id: applicationId }));
+            const interactionMessageId = interactionMessageEvent.data.id as string;
+            assert.ok(await Message.findOneBy({ id: interactionMessageId, application_id: applicationId }));
+
+            const componentInteractionNonce = `component-interaction-${suffix}`;
+            const componentInteraction = await postJson(
+                `${api.apiBaseUrl}/interactions`,
+                {
+                    type: 3,
+                    application_id: applicationId,
+                    guild_id: guildId,
+                    channel_id: channelId,
+                    message_id: interactionMessageId,
+                    nonce: componentInteractionNonce,
+                    data: {
+                        id: 1,
+                        custom_id: "scenario-update-message",
+                        component_type: 2,
+                        resolved: {},
+                    },
+                },
+                ownerToken,
+            );
+            await assertStatus(componentInteraction, 204);
+            const componentUserInteractionEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) => event.event === "INTERACTION_CREATE" && event.user_id === owner.id && event.data.nonce === componentInteractionNonce,
+                "component user INTERACTION_CREATE",
+            );
+            const componentApplicationInteractionEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) => event.event === "INTERACTION_CREATE" && event.user_id === applicationId && event.data.id === componentUserInteractionEvent.data.id,
+                "component application INTERACTION_CREATE",
+            );
+            const componentInteractionId = componentApplicationInteractionEvent.data.id as string;
+            const componentInteractionToken = componentApplicationInteractionEvent.data.token as string;
+            assert.ok(componentInteractionToken);
+
+            const updatedInteractionContent = "interaction callback updated message";
+            const updateCallback = await postPublicJson(`${api.apiBaseUrl}/interactions/${componentInteractionId}/${componentInteractionToken}/callback`, {
+                type: 7,
+                data: {
+                    content: updatedInteractionContent,
+                },
+            });
+            await assertStatus(updateCallback, 204);
+            assert.ok(
+                await waitForLabeledEvent(
+                    eventCapture,
+                    (event) =>
+                        event.event === "INTERACTION_SUCCESS" &&
+                        event.user_id === owner.id &&
+                        event.data.id === componentInteractionId &&
+                        event.data.nonce === componentInteractionNonce,
+                    "component INTERACTION_SUCCESS",
+                ),
+            );
+            const updateMessageEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) =>
+                    event.event === "MESSAGE_UPDATE" &&
+                    event.channel_id === channelId &&
+                    event.data.id === interactionMessageId &&
+                    event.data.content === updatedInteractionContent,
+                "interaction MESSAGE_UPDATE",
+            );
+            assert.equal(updateMessageEvent.data.content, updatedInteractionContent);
+            assert.equal((await Message.findOneByOrFail({ id: interactionMessageId })).content, updatedInteractionContent);
 
             const globalBulkCommand = await ApplicationCommand.findOneByOrFail({ application_id: applicationId, guild_id: undefined, name: "scenario-global-bulk" });
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/applications/${applicationId}/commands/${globalBulkCommand.id}`, ownerToken), 204);

@@ -67,13 +67,17 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "clearTimeout(interaction.timeout);");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await sendMessage({");
-        assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
+        assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "const updatedMessage = await handleMessage(");
         const updateMessageCase = source.slice(
             indexOf(source, "case InteractionCallbackType.UPDATE_MESSAGE:"),
             indexOf(source, "case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:"),
         );
+        assertBefore(updateMessageCase, "const existingAttachmentsById = new Map", "const updatedMessage = await handleMessage(");
+        assertBefore(updateMessageCase, "buildMessageEditHandleMessageOptions(message, messageData", 'event: "MESSAGE_UPDATE"');
+        assertBefore(updateMessageCase, "const updatedMessage = await handleMessage(", 'event: "MESSAGE_UPDATE"');
         assertBefore(updateMessageCase, 'event: "MESSAGE_UPDATE"', "                break;");
         assert.equal(updateMessageCase.includes("// TODO"), false);
+        assert.equal(updateMessageCase.includes("message.embeds = body.data.embeds || []"), false);
     });
 
     test("component media extraction is shared between permission gates and message handling", () => {

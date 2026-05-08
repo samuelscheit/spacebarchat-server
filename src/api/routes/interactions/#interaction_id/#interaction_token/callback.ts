@@ -16,11 +16,19 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
+import {
+    InteractionCallbacksSchema,
+    InteractionCallbackType,
+    InteractionFailureReason,
+    MessageCreateAttachment,
+    MessageCreateCloudAttachment,
+    MessageType,
+} from "@spacebar/schemas";
+import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, postHandleMessage, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
     Config,
+    Attachment,
     emitEvent,
     getPermission,
     InteractionSuccessEvent,
@@ -29,6 +37,7 @@ import {
     pendingInteractions,
     User,
     InteractionFailureEvent,
+    buildMessageEditHandleMessageOptions,
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
@@ -169,16 +178,36 @@ router.post(
                     if (body.data.content && body.data.content.length > Config.get().limits.message.maxCharacters) {
                         throw new HTTPError("Content length over max character limit");
                     }
-                    message.embeds = body.data.embeds || [];
-                    const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
-                    await handle?.(message.id, message.author as User, message.channel);
-                    message.components = body.data.components;
-                    await message.save();
-                    emitEvent({
+                    const messageData: typeof body.data & {
+                        attachments?: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[];
+                    } = { ...body.data };
+                    if (body.data.attachments) {
+                        const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
+                        messageData.attachments = body.data.attachments.map((attachment) => {
+                            if (isNewMessagePayloadAttachment(attachment)) return attachment;
+                            if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
+                            const retained = existingAttachmentsById.get(attachment.id);
+                            if (!retained) throw new HTTPError("Unknown attachment", 400);
+                            return retained;
+                        });
+                    }
+                    const channelId = message.channel_id ?? interaction.channelId;
+                    if (!channelId) throw new HTTPError("Interaction channel not found", 400);
+                    const updatedMessage = await handleMessage(
+                        buildMessageEditHandleMessageOptions(message, messageData, channelId, message.id, new Date(), {
+                            attachment_user_id: interaction.applicationId,
+                            attachment_channel_ids: [channelId],
+                            is_edit: true,
+                        }),
+                        { suppress_notifications: true },
+                    );
+                    await updatedMessage.save();
+                    await emitEvent({
                         event: "MESSAGE_UPDATE",
-                        channel_id: message.channel_id,
-                        data: message.toJSON(),
+                        channel_id: channelId,
+                        data: updatedMessage.toJSON(),
                     } satisfies MessageUpdateEvent);
+                    postHandleMessage(updatedMessage).catch((e) => console.error("[Message] post-message handler failed", e));
                 }
                 break;
             /*
