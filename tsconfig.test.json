@@ -45,6 +45,8 @@
         "src/util/util/cdn.test.ts",
         "src/util/util/Intents.test.ts",
         "src/util/util/InternalCdnRoutes.test.ts",
+        "src/util/util/json/JsonSerializerAsyncEnumerable.test.ts",
+        "src/util/util/json/jsonWorker.ts",
         "src/util/util/lambert-server/check.test.ts",
         "src/util/util/ReplacedCdnAsset.test.ts",
         "src/util/util/RoleIconPolicy.test.ts",
