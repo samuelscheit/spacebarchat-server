@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
-using System.Linq.Expressions;
 using System.Text.Json;
 using ArcaneLibs.Extensions;
+using Spacebar.GatewayOffload.Extensions.Gateway;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Spacebar.DataMappings.Generic;
@@ -41,9 +41,6 @@ public class Op8Controller(ILogger<Op8Controller> logger, SpacebarAspNetAuthenti
         }
     }
 
-    // TODO: figure out how to abstract this to a function without EFCore complaining about not being translatable...
-    private static Expression<Func<Session, bool>> IsOnline = (Session session) => session.Status != "offline" && session.Status != "invisible" && session.Status != "unknown";
-
     private async Task<GuildSyncResponse> GetGuildSyncAsync(long guildId)
     {
         await using var sc = sp.CreateAsyncScope();
@@ -56,10 +53,7 @@ public class Op8Controller(ILogger<Op8Controller> logger, SpacebarAspNetAuthenti
         var members = await _db.Members.AsNoTracking().Where(x => x.GuildId == guildId)
             .Include(x => x.IdNavigation)
             .ThenInclude(x => x.Sessions.Where(s =>
-                !s.IsAdminSession && (
-                    // see TODO on IsOnline - somehow need to replicate `IsOnline(s)`
-                    s.Status != "offline" && s.Status != "invisible" && s.Status != "unknown"
-                ) && (!isLargeGuild || s.LastSeen >= offlineTreshold)))
+                !s.IsAdminSession && !SessionPresenceProjection.NonPublicStatuses.Contains(s.Status) && (!isLargeGuild || s.LastSeen >= offlineTreshold)))
             .Where(x => x.IdNavigation.Sessions.Count > 0) // ignore members without sessions
             .ToListAsync();
 
@@ -73,7 +67,7 @@ public class Op8Controller(ILogger<Op8Controller> logger, SpacebarAspNetAuthenti
             {
                 GuildId = guildId,
                 User = mappedPartialUsers[x.Id],
-                Activities = x.Sessions.Where(s => s.Status is not ("offline" or "invisible" or "unknown"))
+                Activities = x.Sessions.Where(SessionPresenceProjection.IsPubliclyOnline)
                     .SelectMany(s => JsonSerializer.Deserialize<Activity[]>(s.Activities) ?? []).ToList(),
                 Status = sortedSessions.FirstOrDefault(s => !string.IsNullOrWhiteSpace(s.Status))?.Status ?? "offline",
                 ClientStatus = JsonSerializer.Deserialize<Presence.ClientStatuses>(sortedSessions.First(s => !string.IsNullOrWhiteSpace(s.ClientStatus)).ClientStatus) ??
