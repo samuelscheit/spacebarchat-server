@@ -37,7 +37,7 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: 
     });
 
     if (!connection) return DiscordApiErrors.UNKNOWN_CONNECTION;
-    // TODO: do we need to do anything if the connection is revoked?
+    if (connection.revoked) throw DiscordApiErrors.CONNECTION_REVOKED;
 
     if (typeof body.visibility === "boolean")
         //@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
