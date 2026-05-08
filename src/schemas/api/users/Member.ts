@@ -16,9 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PublicUser } from "@spacebar/schemas";
-// TODO: remove entity import
-import type { Member } from "@spacebar/util";
+import type { Snowflake } from "../../Identifiers";
+import type { AvatarDecorationData, Collectibles, DisplayNameStyle, PublicUser } from "./User";
 
 export interface ChannelOverride {
     message_notifications: number;
@@ -116,8 +115,25 @@ export const PublicMemberProjection: PublicMemberKeys[] = [
     "flags",
 ];
 
-// TODO: make a proper schema rather than inheriting entity
-export type PublicMember = Omit<Pick<Member, PublicMemberKeys>, "roles"> & {
-    user: PublicUser;
+export interface PublicMember {
+    id: Snowflake;
+    guild_id: Snowflake;
+    nick?: string;
     roles: string[]; // only role ids not objects
-};
+    joined_at: Date;
+    pending: boolean;
+    deaf: boolean;
+    mute: boolean;
+    premium_since?: number;
+    avatar?: string;
+    banner: string;
+    bio: string;
+    theme_colors?: number[];
+    pronouns?: string;
+    communication_disabled_until: Date | null;
+    avatar_decoration_data?: AvatarDecorationData;
+    display_name_styles?: DisplayNameStyle;
+    collectibles?: Collectibles;
+    flags: number;
+    user: PublicUser;
+}
