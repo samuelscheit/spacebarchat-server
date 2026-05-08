@@ -5863,7 +5863,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 47,
+            "line": 48,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5912,7 +5912,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 75,
+            "line": 76,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7352,7 +7352,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 212,
+            "line": 226,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7404,7 +7404,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 26,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7454,7 +7454,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 68,
+            "line": 82,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7509,7 +7509,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 155,
+            "line": 169,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
