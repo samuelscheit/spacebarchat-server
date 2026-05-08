@@ -20,6 +20,7 @@ async function loadEmbedModules() {
         util,
         Config: util.Config,
         EmbedCache: util.EmbedCache,
+        EmbedHandlers: handlers.EmbedHandlers,
         Message: util.Message,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
     };
@@ -71,6 +72,31 @@ function rejectUnexpectedPersistence(t: TestContext, Message: UtilModule["Messag
     });
 }
 
+async function captureYoutubeRequestHeaders(
+    t: TestContext,
+    Config: UtilModule["Config"],
+    EmbedHandlers: (typeof import("./EmbedHandlers.js"))["EmbedHandlers"],
+    youtubeConfig: Partial<ReturnType<typeof Config.get>["embeds"]["youtube"]>,
+) {
+    const config = Config.get();
+    config.embeds.youtube.cookie = null;
+    config.embeds.youtube.useCurlUserAgent = false;
+    config.embeds.youtube.userAgent = null;
+    Object.assign(config.embeds.youtube, youtubeConfig);
+    t.mock.method(Config, "get", () => config);
+
+    const fetchCalls: { url: URL; init?: RequestInit }[] = [];
+    t.mock.method(globalThis, "fetch", async (url: URL, init?: RequestInit) => {
+        fetchCalls.push({ url, init });
+        return new Response(`<html><head><meta property="og:title" content="Video"></head></html>`);
+    });
+
+    await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=test"));
+
+    assert.equal(fetchCalls.length, 1);
+    return fetchCalls[0].init?.headers;
+}
+
 describe("mergeGeneratedUrlEmbeds", () => {
     test("does not report a change when no embeds are generated", () => {
         const result = mergeGeneratedUrlEmbeds([], [], 10);
@@ -119,6 +145,48 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("YouTube embed request headers", () => {
+    test("uses the default consent cookie without a YouTube user-agent override", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+
+        const headers = await captureYoutubeRequestHeaders(t, Config, EmbedHandlers, {});
+
+        assert.deepEqual(headers, {
+            "user-agent": "Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)",
+            "accept-language": "en-US,en;q=0.9",
+            cookie: "CONSENT=PENDING+999; hl=en",
+        });
+    });
+
+    test("uses the legacy curl user-agent only when the YouTube curl option is enabled", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+
+        const headers = await captureYoutubeRequestHeaders(t, Config, EmbedHandlers, { useCurlUserAgent: true });
+
+        assert.deepEqual(headers, {
+            "user-agent": "curl/8.18.0",
+            "accept-language": "en-US,en;q=0.9",
+            cookie: "CONSENT=PENDING+999; hl=en",
+        });
+    });
+
+    test("lets explicit YouTube user-agent config override the legacy curl option", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+
+        const headers = await captureYoutubeRequestHeaders(t, Config, EmbedHandlers, {
+            cookie: "CONSENT=YES; hl=en",
+            useCurlUserAgent: true,
+            userAgent: "custom-youtube-agent",
+        });
+
+        assert.deepEqual(headers, {
+            "user-agent": "custom-youtube-agent",
+            "accept-language": "en-US,en;q=0.9",
+            cookie: "CONSENT=YES; hl=en",
+        });
     });
 });
 
