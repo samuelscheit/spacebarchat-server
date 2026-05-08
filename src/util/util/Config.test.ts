@@ -4,7 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, test } from "node:test";
 import { ConfigValue } from "../config";
-import { Config } from "./Config";
+import { ConfigEntity } from "../entities";
+import { Config, findStaleConfigKeys, generateConfigPairs, pairsToConfig } from "./Config";
 
 let tempDir: string | undefined;
 
@@ -24,6 +25,46 @@ async function writeConfigFile() {
     await fs.writeFile(configPath, JSON.stringify(validConfig(), null, 4));
     return configPath;
 }
+
+function configPair(key: string, value: ConfigEntity["value"]) {
+    const pair = new ConfigEntity();
+    pair.key = key;
+    pair.value = value;
+    return pair;
+}
+
+test("database config pair generation stores arrays as single JSON values", () => {
+    const config = validConfig();
+    config.register.email.domains = ["blocked.example", "mail.example"];
+
+    const pairs = generateConfigPairs(config);
+    const domainsPair = pairs.find((pair) => pair.key === "register_email_domains");
+
+    assert.ok(domainsPair);
+    assert.deepEqual(domainsPair.value, ["blocked.example", "mail.example"]);
+    assert.equal(
+        pairs.some((pair) => pair.key.startsWith("register_email_domains_")),
+        false,
+    );
+});
+
+test("database config pair loading supports JSON array rows and legacy indexed rows", () => {
+    const jsonArrayConfig = pairsToConfig([configPair("register_email_domains", ["blocked.example", "mail.example"])]);
+    assert.deepEqual(jsonArrayConfig.register.email.domains, ["blocked.example", "mail.example"]);
+
+    const legacyIndexedConfig = pairsToConfig([configPair("register_email_domains_0", "blocked.example"), configPair("register_email_domains_1", "mail.example")]);
+    assert.deepEqual(legacyIndexedConfig.register.email.domains, ["blocked.example", "mail.example"]);
+});
+
+test("database config persistence removes stale flattened children when a parent is saved as JSON", () => {
+    assert.deepEqual(
+        findStaleConfigKeys(
+            ["register_email_domains_0", "register_email_domains_1", "register_email_domains", "general_serverName", "custom_unknown_key"],
+            ["register_email_domains", "general_serverName"],
+        ),
+        ["register_email_domains_0", "register_email_domains_1"],
+    );
+});
 
 afterEach(async () => {
     delete process.env.CONFIG_PATH;
@@ -70,4 +111,34 @@ test("Config.set writes to the current CONFIG_PATH even when the module was impo
 
     const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
     assert.equal(persisted.updates.lastNotifiedCommit, "current-path");
+});
+
+test("Config.set replaces array config values instead of leaving stale entries", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    await Config.set({
+        register: {
+            ...Config.get().register,
+            email: {
+                ...Config.get().register.email,
+                domains: ["blocked.example", "mail.example"],
+            },
+        },
+    });
+    await Config.set({
+        register: {
+            ...Config.get().register,
+            email: {
+                ...Config.get().register.email,
+                domains: ["blocked.example"],
+            },
+        },
+    });
+
+    assert.deepEqual(Config.get().register.email.domains, ["blocked.example"]);
+
+    const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
+    assert.deepEqual(persisted.register.email.domains, ["blocked.example"]);
 });
