@@ -43,7 +43,6 @@ router.post(
         });
 
         if (!user.email) {
-            // TODO: whats the proper error response for this?
             throw new HTTPError("User does not have an email address", 400);
         }
 
