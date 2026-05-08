@@ -5,7 +5,7 @@ describe("executeWebhook", () => {
     test("loads the application bot relation for rate-limit bypass decisions", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
-        const util = require("../../../util") as typeof import("../../../util");
+        const util = require("@spacebar/util") as typeof import("../../../util");
 
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
@@ -52,8 +52,8 @@ describe("executeWebhook", () => {
     test("applies the absolute send-message rate limit when the webhook owner cannot bypass rate limits", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
-        const util = require("../../../util") as typeof import("../../../util");
-        const rightsModule = require("../../../util/util/Rights") as typeof import("../../../util/util/Rights");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const rightsModule = require("@spacebar/util/util/Rights") as typeof import("../../../util/util/Rights");
 
         const channel = {
             id: "channel-id",
@@ -118,11 +118,12 @@ describe("executeWebhook", () => {
     test("skips the absolute send-message rate limit for application bot users with bypass rights", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
-        const util = require("../../../util") as typeof import("../../../util");
-        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
-        const messageHandlers = require("./Message") as typeof import("./Message");
-        const messageResponse = require("../utility/MessageResponse") as typeof import("../utility/MessageResponse");
-        const rightsModule = require("../../../util/util/Rights") as typeof import("../../../util/util/Rights");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
+        const messageResponse = require("@spacebar/api/util/utility/MessageResponse") as typeof import("../utility/MessageResponse");
+        const permissionsModule = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const rightsModule = require("@spacebar/util/util/Rights") as typeof import("../../../util/util/Rights");
 
         const channel = {
             id: "channel-id",
@@ -139,6 +140,7 @@ describe("executeWebhook", () => {
             avatar: null,
             channel_id: channel.id,
             channel,
+            application_id: "application-id",
             application: { id: "application-id", bot: { id: "bot-user-id" } },
         };
         const message = {
@@ -167,6 +169,13 @@ describe("executeWebhook", () => {
         });
         t.mock.method(util.Message, "count", async () => {
             throw new Error("rate-limit count should be skipped for bypassing webhook principals");
+        });
+        t.mock.method(permissionsModule, "getPermission", async (userId: string, guildId: string | undefined, checkedChannel: unknown) => {
+            assert.equal(userId, "bot-user-id");
+            assert.notEqual(userId, webhook.application_id);
+            assert.equal(guildId, "guild-id");
+            assert.equal(checkedChannel, channel);
+            return { hasThrow: () => true };
         });
         t.mock.method(messageHandlers, "handleMessage", async () => message);
         t.mock.method(messageHandlers, "postHandleMessage", () => Promise.resolve());
@@ -202,10 +211,10 @@ describe("executeWebhook", () => {
     test("uses the signed message response for wait=true responses", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
-        const util = require("../../../util") as typeof import("../../../util");
-        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
-        const messageHandlers = require("./Message") as typeof import("./Message");
-        const messageResponse = require("../utility/MessageResponse") as typeof import("../utility/MessageResponse");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
+        const messageResponse = require("@spacebar/api/util/utility/MessageResponse") as typeof import("../utility/MessageResponse");
 
         const channel = {
             id: "channel-id",
@@ -312,7 +321,7 @@ describe("executeWebhook", () => {
 
 describe("PATCH /webhooks/:webhook_id/:token", () => {
     test("returns the Discord unknown webhook error when the id is missing", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
+        const util = require("@spacebar/util") as typeof import("../../../util");
         const { updateWebhookWithToken } = require("./Webhook") as typeof import("./Webhook");
 
         t.mock.method(util.Webhook, "findOne", async () => null);
@@ -333,7 +342,7 @@ describe("PATCH /webhooks/:webhook_id/:token", () => {
     });
 
     test("rejects an invalid webhook token before applying metadata updates", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
+        const util = require("@spacebar/util") as typeof import("../../../util");
         const { updateWebhookWithToken } = require("./Webhook") as typeof import("./Webhook");
         let assigned = false;
         let saved = false;
@@ -376,8 +385,8 @@ describe("PATCH /webhooks/:webhook_id/:token", () => {
     });
 
     test("only applies token-auth metadata fields and returns the updated webhook", async (t) => {
-        const util = require("../../../util") as typeof import("../../../util");
-        const eventUtil = require("../../../util/util/Event") as typeof import("../../../util/util/Event");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
         let assigned: unknown;
         let saved = false;
         let responseBody: unknown;

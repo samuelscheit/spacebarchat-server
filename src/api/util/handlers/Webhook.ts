@@ -25,8 +25,12 @@ import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
 import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
 
+function getWebhookExecuteUserId(webhook: Webhook) {
+    return webhook.user_id ?? webhook.application?.bot?.id;
+}
+
 async function webhookCanBypassSendMessageRateLimit(webhook: Webhook) {
-    const userId = webhook.user_id ?? webhook.application?.bot?.id;
+    const userId = getWebhookExecuteUserId(webhook);
     if (!userId) return false;
 
     const rights = await getRights(userId);
@@ -140,7 +144,7 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     }
 
     const files = (req.files as Express.Multer.File[]) ?? [];
-    const permissionSubjectId = webhook.user_id ?? webhook.application_id;
+    const permissionSubjectId = getWebhookExecuteUserId(webhook);
     const messagePayload = { ...body, attachments: body.attachments ?? [], uploadedFileCount: files.length };
     if (permissionSubjectId) {
         const permissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
