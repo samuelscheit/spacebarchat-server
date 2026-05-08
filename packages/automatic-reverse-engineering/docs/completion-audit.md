@@ -100,10 +100,10 @@ The current package test suite covers static asset persistence and failure behav
 - Userdoccers routes: 910 method-route entries
 - Userdoccers Gateway snapshot: 44 opcodes, 196 dispatch events
 
-## Not Yet Complete
+## Operational Boundaries
 
 - Static module mapping uses sanitized CDP initiator frames when present and falls back to conservative string search over downloaded assets with Webpack-style module-ID heuristics. Advertised Source Map v3 files are retained as redacted durable artifacts when discovered and decoded for generated-to-original source/name/line metadata plus bounded `sourcesContent`-derived context hashes; full source contents are not emitted.
-- CI/scheduling is wired for the public static pipeline and a manual credentialed runtime smoke workflow; the local credentialed smoke equivalent has run, but the GitHub credentialed workflow itself has not been executed from this worktree.
-- CAPTCHA/checkpoint aborts are covered with recorder tests but were not triggered against a live browser session.
+- CI/scheduling is wired for the public static pipeline and a manual credentialed runtime smoke workflow. The local credentialed smoke equivalent has run; repository operators still need to decide when to enable credentialed scheduled runtime jobs.
+- CAPTCHA/checkpoint aborts are covered with recorder tests. They were not intentionally triggered against a live browser session.
 
 Status: smoke pipeline complete through Milestone 5 with live canary/stable evidence. The stable expanded run is fixture-ready, live-validated, redaction-audited, coverage-indexed, and completion-audited for all 26 built-in scenarios.
