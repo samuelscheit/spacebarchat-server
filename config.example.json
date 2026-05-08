@@ -10,6 +10,7 @@
         "endpointPrivate": "http://localhost:3001"
     },
     "gateway": {
-        "endpointPublic": "ws://localhost:3001"
+        "endpointPublic": "ws://localhost:3001",
+        "guildSyncMemberMode": "all"
     }
 }

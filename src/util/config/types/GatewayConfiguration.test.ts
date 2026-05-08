@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
     DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS,
@@ -50,5 +51,17 @@ describe("GatewayConfiguration", () => {
         assert.equal(isValidGuildSyncMemberMode("online"), true);
         assert.equal(isValidGuildSyncMemberMode("offline"), false);
         assert.equal(isValidGuildSyncMemberMode(null), false);
+    });
+
+    it("keeps generated config schemas in sync with supported guild sync member modes", () => {
+        const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8")) as Record<string, { enum?: string[]; properties?: Record<string, { $ref?: string }> }>;
+        const openapi = JSON.parse(readFileSync("assets/openapi.json", "utf8")) as {
+            components: { schemas: Record<string, { enum?: string[]; properties?: Record<string, { $ref?: string }> }> };
+        };
+
+        assert.deepEqual(schemas.GuildSyncMemberMode.enum, ["all", "online"]);
+        assert.equal(schemas.GatewayConfiguration.properties?.guildSyncMemberMode?.$ref, "#/definitions/GuildSyncMemberMode");
+        assert.deepEqual(openapi.components.schemas.GuildSyncMemberMode.enum, ["all", "online"]);
+        assert.equal(openapi.components.schemas.GatewayConfiguration.properties?.guildSyncMemberMode?.$ref, "#/components/schemas/GuildSyncMemberMode");
     });
 });
