@@ -72,6 +72,15 @@ async function getApplicationModifyRoute() {
     });
 }
 
+async function getInteractionCallbackRoute() {
+    process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+    return route({
+        stripNulls: true,
+        requestBody: "InteractionCallbacksSchema",
+    });
+}
+
 describe("bigNumberToString", () => {
     test("converts nested own BigNumber values without changing other values", () => {
         const nullPrototypeChild = Object.assign(Object.create(null), {
@@ -264,5 +273,50 @@ describe("route body coercion", () => {
 
             assert.equal(nextCalled, true);
         }
+    });
+
+    test("rejects deprecated interaction channel message callbacks before route handlers run", async () => {
+        const middleware = await getInteractionCallbackRoute();
+        const req = {
+            body: {
+                type: 3,
+                data: { content: "message" },
+            },
+            method: "POST",
+            originalUrl: "/interactions/100000000000000001/token/callback",
+        } as Request;
+        let nextCalled = false;
+
+        await assert.rejects(
+            () => middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction),
+            (error: { code?: number; _ajvErrors?: { instancePath: string; keyword: string; params?: { allowedValue?: number } }[] }) => {
+                assert.equal(error.code, 50035);
+                assert.equal(
+                    error._ajvErrors?.some((ajvError) => ajvError.instancePath === "/type" && ajvError.keyword === "const" && ajvError.params?.allowedValue === 4),
+                    true,
+                );
+                assert.equal(
+                    error._ajvErrors?.some((ajvError) => ajvError.instancePath === "" && ajvError.keyword === "anyOf"),
+                    true,
+                );
+                return true;
+            },
+        );
+        assert.equal(nextCalled, false);
+    });
+
+    test("allows current interaction channel message callbacks", async () => {
+        const middleware = await getInteractionCallbackRoute();
+        const req = {
+            body: {
+                type: 4,
+                data: { content: "message" },
+            },
+        } as Request;
+        let nextCalled = false;
+
+        await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+        assert.equal(nextCalled, true);
     });
 });
