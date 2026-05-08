@@ -20,7 +20,7 @@ import { route } from "@spacebar/api";
 import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
-import { toOAuthAuthorizeBot } from "./authorizeResponse";
+import { toOAuthAuthorizeBot } from "../../util/utility/OAuthAuthorizeResponse";
 const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types

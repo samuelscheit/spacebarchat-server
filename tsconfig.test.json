@@ -3,7 +3,7 @@
     "include": [
         "test/**/*.ts",
         "src/api/ServerConfigure.test.ts",
-        "src/api/routes/oauth2/authorizeResponse.test.ts",
+        "src/api/util/utility/OAuthAuthorizeResponse.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",

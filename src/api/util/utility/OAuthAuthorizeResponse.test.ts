@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { AvatarDecorationData } from "@spacebar/schemas";
-import { toOAuthAuthorizeBot } from "./authorizeResponse";
+import { toOAuthAuthorizeBot } from "./OAuthAuthorizeResponse";
 
 test("toOAuthAuthorizeBot exposes persisted avatar decoration data", () => {
     const avatarDecorationData: AvatarDecorationData = {
