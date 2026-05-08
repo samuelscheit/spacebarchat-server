@@ -125,7 +125,7 @@ export class Guild extends BaseClass {
     //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
     @Column({ nullable: true, type: "int8" })
-    primary_category_id?: string | null; // TODO: this was number?
+    primary_category_id?: string | null;
 
     @Column({ nullable: true })
     icon?: string;
