@@ -24,6 +24,25 @@ const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
 
+type OAuthAuthorizeUserPreview = Omit<
+    Pick<User, "id" | "username" | "avatar" | "avatar_decoration_data" | "discriminator" | "public_flags">,
+    "avatar" | "avatar_decoration_data"
+> & {
+    avatar?: User["avatar"] | null;
+    avatar_decoration_data?: User["avatar_decoration_data"] | null;
+};
+
+export function toOAuthAuthorizeUserPreview(user: OAuthAuthorizeUserPreview) {
+    return {
+        id: user.id,
+        username: user.username,
+        avatar: user.avatar,
+        avatar_decoration_data: user.avatar_decoration_data ?? null,
+        discriminator: user.discriminator,
+        public_flags: user.public_flags,
+    };
+}
+
 router.get(
     "/",
     route({
@@ -75,7 +94,7 @@ router.get(
                 id: req.user_id,
                 bot: false,
             },
-            select: { id: true, username: true, avatar: true, discriminator: true, public_flags: true },
+            select: { id: true, username: true, avatar: true, avatar_decoration_data: true, discriminator: true, public_flags: true },
         });
 
         const guilds = await Member.find({
@@ -116,14 +135,7 @@ router.get(
 
         return res.json({
             guilds: guildsWithPermissions,
-            user: {
-                id: user.id,
-                username: user.username,
-                avatar: user.avatar,
-                avatar_decoration: null, // TODO
-                discriminator: user.discriminator,
-                public_flags: user.public_flags,
-            },
+            user: toOAuthAuthorizeUserPreview(user),
             application: {
                 id: app.id,
                 name: app.name,
