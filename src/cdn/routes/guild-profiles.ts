@@ -37,17 +37,18 @@ const ALLOWED_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
 const router = Router({ mergeParams: true });
 
 function getProfileUploadPath(req: Request, hash?: string) {
-    const { guild_id } = req.params as { [key: string]: string };
-    const user_id = (req.params as { [key: string]: string }).user_id.split(".")[0];
+    const { guild_id, user_id } = req.params as { [key: string]: string | undefined };
+    if (!guild_id || !user_id) return `guild-profiles${hash ? `/${hash}` : ""}`;
+
+    const cleanUserId = user_id.split(".")[0];
     const assetType = req.baseUrl.includes("/banners") ? "banners" : "avatars";
-    return `guilds/${guild_id}/users/${user_id}/${assetType}${hash ? `/${hash}` : ""}`;
+    return `guilds/${guild_id}/users/${cleanUserId}/${assetType}${hash ? `/${hash}` : ""}`;
 }
 
 router.post("/", multer.single("file"), async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
-    const { guild_id, user_id } = req.params as { [key: string]: string };
     assertCdnFileSizeLimit(`/${getProfileUploadPath(req)}`, size, Config.get().cdn);
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
@@ -65,7 +66,7 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
         id: hash,
         content_type: type.mime,
         size,
-        url: `${endpoint}${req.baseUrl}/${user_id}/${hash}`,
+        url: `${endpoint}${req.baseUrl.replace(/\/$/, "")}/${hash}`,
     });
 });
 
