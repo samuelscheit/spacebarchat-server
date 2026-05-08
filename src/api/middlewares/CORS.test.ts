@@ -6,6 +6,14 @@ import { CORS } from "./CORS";
 
 type HeaderMap = Record<string, string>;
 
+const accessControlHeaders = [
+    "Access-Control-Allow-Credentials",
+    "Access-Control-Allow-Origin",
+    "Access-Control-Allow-Headers",
+    "Access-Control-Allow-Methods",
+    "Access-Control-Max-Age",
+];
+
 function runCors(config: ConfigValue, options: { method?: string; headers?: HeaderMap } = {}) {
     const originalConfigGet = Config.get;
     const requestHeaders = Object.fromEntries(Object.entries(options.headers ?? {}).map(([key, value]) => [key.toLowerCase(), value]));
@@ -48,6 +56,12 @@ function runCors(config: ConfigValue, options: { method?: string; headers?: Head
     return { responseHeaders, statusCode, ended, nextCalled };
 }
 
+function assertNoCorsHeaders(responseHeaders: Map<string, string>) {
+    for (const header of accessControlHeaders) {
+        assert.equal(responseHeaders.has(header), false, `${header} should not be set`);
+    }
+}
+
 describe("CORS middleware", () => {
     test("uses permissive defaults matching the historical reflected-origin behavior", () => {
         const config = new ConfigValue();
@@ -69,6 +83,20 @@ describe("CORS middleware", () => {
         assert.equal(result.ended, false);
     });
 
+    test("falls back to wildcard defaults when no CORS request headers are present", () => {
+        const config = new ConfigValue();
+
+        const result = runCors(config);
+
+        assert.equal(result.responseHeaders.get("Access-Control-Allow-Credentials"), "true");
+        assert.equal(result.responseHeaders.get("Access-Control-Allow-Origin"), "*");
+        assert.equal(result.responseHeaders.get("Access-Control-Allow-Headers"), "*");
+        assert.equal(result.responseHeaders.get("Access-Control-Allow-Methods"), "*");
+        assert.equal(result.responseHeaders.get("Access-Control-Max-Age"), "60");
+        assert.equal(result.nextCalled, true);
+        assert.equal(result.ended, false);
+    });
+
     test("does not emit CORS headers when an explicit allow-list rejects the origin", () => {
         const config = new ConfigValue();
         config.cors.allowedOrigins = ["https://allowed.example"];
@@ -81,12 +109,26 @@ describe("CORS middleware", () => {
             },
         });
 
-        assert.equal(result.responseHeaders.has("Access-Control-Allow-Credentials"), false);
-        assert.equal(result.responseHeaders.has("Access-Control-Allow-Origin"), false);
-        assert.equal(result.responseHeaders.has("Access-Control-Allow-Headers"), false);
-        assert.equal(result.responseHeaders.has("Access-Control-Allow-Methods"), false);
-        assert.equal(result.responseHeaders.has("Access-Control-Max-Age"), false);
+        assertNoCorsHeaders(result.responseHeaders);
         assert.equal(result.nextCalled, true);
+    });
+
+    test("does not emit CORS headers when CORS is disabled", () => {
+        const config = new ConfigValue();
+        config.cors.enabled = false;
+
+        const result = runCors(config, {
+            headers: {
+                Origin: "https://client.example",
+                "Access-Control-Request-Headers": "authorization",
+                "Access-Control-Request-Method": "POST",
+            },
+        });
+
+        assertNoCorsHeaders(result.responseHeaders);
+        assert.equal(result.responseHeaders.has("Content-security-policy"), true);
+        assert.equal(result.nextCalled, true);
+        assert.equal(result.ended, false);
     });
 
     test("uses configured CORS headers for allow-listed origins", () => {
@@ -122,6 +164,25 @@ describe("CORS middleware", () => {
             },
         });
 
+        assert.equal(result.statusCode, 204);
+        assert.equal(result.ended, true);
+        assert.equal(result.nextCalled, false);
+    });
+
+    test("terminates rejected preflight requests without emitting CORS headers", () => {
+        const config = new ConfigValue();
+        config.cors.allowedOrigins = ["https://allowed.example"];
+
+        const result = runCors(config, {
+            method: "OPTIONS",
+            headers: {
+                Origin: "https://blocked.example",
+                "Access-Control-Request-Headers": "authorization",
+                "Access-Control-Request-Method": "POST",
+            },
+        });
+
+        assertNoCorsHeaders(result.responseHeaders);
         assert.equal(result.statusCode, 204);
         assert.equal(result.ended, true);
         assert.equal(result.nextCalled, false);

@@ -3,8 +3,10 @@
     "include": [
         "test/**/*.ts",
         "src/api/ServerConfigure.test.ts",
+        "src/api/middlewares/CORS.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
+        "src/util/util/Config.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],

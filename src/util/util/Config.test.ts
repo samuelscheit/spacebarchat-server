@@ -25,6 +25,15 @@ async function writeConfigFile() {
     return configPath;
 }
 
+async function writeLegacyConfigFileWithoutCors() {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "spacebar-config-test-"));
+    const configPath = path.join(tempDir, "config.json");
+    const config = validConfig() as Partial<ConfigValue>;
+    delete config.cors;
+    await fs.writeFile(configPath, JSON.stringify(config, null, 4));
+    return configPath;
+}
+
 afterEach(async () => {
     delete process.env.CONFIG_PATH;
     delete process.env.CONFIG_READONLY;
@@ -54,6 +63,23 @@ test("Config.set merges partial config updates into memory and persists the full
     assert.equal(persisted.api.endpointPublic, "http://localhost:3001/api/v9");
     assert.equal(persisted.cdn.endpointPrivate, "http://localhost:3001");
     assert.equal(persisted.gateway.endpointPublic, "ws://localhost:3001");
+});
+
+test("Config.init persists default CORS settings for existing JSON configs", async () => {
+    const configPath = await writeLegacyConfigFileWithoutCors();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+
+    assert.deepEqual(Config.get().cors.allowedOrigins, ["*"]);
+    assert.deepEqual(Config.get().cors.allowedMethods, ["*"]);
+    assert.deepEqual(Config.get().cors.allowedHeaders, ["*"]);
+    assert.equal(Config.get().cors.enabled, true);
+    assert.equal(Config.get().cors.allowCredentials, true);
+    assert.equal(Config.get().cors.maxAgeSeconds, 60);
+
+    const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
+    assert.deepEqual(persisted.cors, { ...Config.get().cors });
 });
 
 test("Config.set writes to the current CONFIG_PATH even when the module was imported first", async () => {
