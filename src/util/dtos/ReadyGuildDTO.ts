@@ -17,12 +17,9 @@
 */
 
 import type { Channel, Emoji, Guild, Role, StageInstance, Sticker, ThreadMember } from "../entities";
-import type { ChannelOverride, ChannelType, PublicChannel, PublicMember, PublicUser, PublicVoiceState, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
+import type { ChannelType, PublicChannel, PublicMember, PublicUser, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
 
-// TODO: this is not the best place for this type
-export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
-    channel_overrides: (ChannelOverride & { channel_id: string })[];
-};
+export type { ReadyUserGuildSettingsEntries } from "../interfaces/ReadyUserGuildSettingsEntries";
 
 export function getReadyUserGuildSettingsVersion(entries: ReadonlyArray<{ readonly version?: number | null }>): number {
     return entries.reduce((version, entry) => {

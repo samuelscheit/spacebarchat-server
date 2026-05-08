@@ -29,7 +29,6 @@ import {
     Presence,
     UserSettings,
     IReadyGuildDTO,
-    ReadyUserGuildSettingsEntries,
     ReadyPrivateChannel,
     GuildOrUnavailable,
     Snowflake,
@@ -52,6 +51,7 @@ import {
     UserPrivate,
 } from "@spacebar/schemas";
 import type { VoiceStateMember } from "../entities/MemberPublic";
+import type { ReadyUserGuildSettingsEntries } from "./ReadyUserGuildSettingsEntries";
 
 export interface Event {
     guild_id?: string;
