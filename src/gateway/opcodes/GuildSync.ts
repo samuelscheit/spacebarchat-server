@@ -21,7 +21,6 @@ import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from
 import { PublicMember } from "@spacebar/schemas";
 import { In } from "typeorm";
 
-// TODO: only show roles/members that have access to this channel
 // TODO: config: to list all members (even those who are offline) sorted by role, or just those who are online
 // TODO: rewrite typeorm
 
