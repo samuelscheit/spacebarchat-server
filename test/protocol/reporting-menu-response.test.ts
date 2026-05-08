@@ -2,8 +2,8 @@ import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { ReportButtonType, ReportMenuTypeNames } from "../api/reports/ReportMenu";
-import { ReportingMenuResponse } from "./ReportingMenuResponse";
+import { ReportButtonType, ReportMenuTypeNames } from "../../src/schemas/api/reports/ReportMenu";
+import { ReportingMenuResponse } from "../../src/schemas/responses/ReportingMenuResponse";
 
 const menuDirectory = path.join(process.cwd(), "assets", "temp_report_menu_responses");
 
