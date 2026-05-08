@@ -57,6 +57,7 @@ import {
     PRIVATE_ARCHIVED_THREAD_PERMISSIONS,
     serializePrivateArchivedThreadMember,
 } from "../../../util/utility/PrivateArchivedThreads";
+import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../../../util/ChannelAppliedTagsValidation";
 
 const router = Router({ mergeParams: true });
 
@@ -79,6 +80,9 @@ router.post(
         permission: "CREATE_PUBLIC_THREADS",
         responses: {
             200: {},
+            400: {
+                body: "APIErrorResponse",
+            },
             403: {},
         },
     }),
@@ -91,15 +95,10 @@ router.post(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
-        if (!body.applied_tags?.length) {
-            const required = channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG);
-            //TODO better error
-            if (required) throw new Error("Tag is required for this API");
-        } else if (channel.available_tags) {
+        assertRequiredAppliedTagsPresent(body.applied_tags, Boolean(channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)));
+        if (body.applied_tags?.length && channel.available_tags) {
             const realTags = new Map(channel.available_tags.map((tag) => [tag.id, tag]));
-            const bad = body.applied_tags.find((tag) => !realTags.has(tag));
-            //TODO better error
-            if (bad) throw new Error("Invalid tag " + bad);
+            assertAppliedTagsExist(body.applied_tags, realTags.keys());
             const permsNeeded = body.applied_tags.find((_) => realTags.get(_)?.moderated);
             if (permsNeeded) {
                 req.permission?.hasThrow("MANAGE_THREADS");
