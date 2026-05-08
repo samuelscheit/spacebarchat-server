@@ -5468,7 +5468,7 @@
             "path": "/channels/:channel_id/purge/",
             "samplePath": "/channels/100000000000000002/purge/",
             "sourceFile": "src/api/routes/channels/#channel_id/purge.ts",
-            "line": 33,
+            "line": 30,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
