@@ -46,6 +46,7 @@ type QueryParameters = Record<string, unknown>;
 export interface ThreadMemberListQueryBuilder<TBuilder> {
     innerJoin(relation: string, alias: string): TBuilder;
     leftJoinAndSelect(relation: string, alias: string): TBuilder;
+    addSelect(selection: string): TBuilder;
     where(condition: string, parameters?: QueryParameters): TBuilder;
     andWhere(condition: string, parameters?: QueryParameters): TBuilder;
     orderBy(sort: string, order?: "ASC" | "DESC"): TBuilder;
@@ -65,12 +66,12 @@ export function applyThreadMemberListQuery<TBuilder extends ThreadMemberListQuer
     query: TBuilder,
     { afterUserId, alias = "thread_member", limit, memberAlias = "member", threadId, withMember }: ThreadMemberListQueryOptions,
 ) {
-    let builder = query.where(`"${alias}"."id" = :threadId`, { threadId });
+    let builder = query.where(`${alias}.id = :threadId`, { threadId });
 
     if (withMember) builder = builder.leftJoinAndSelect(`${alias}.member`, memberAlias);
-    else builder = builder.innerJoin(`${alias}.member`, memberAlias);
+    else builder = builder.innerJoin(`${alias}.member`, memberAlias).addSelect(`${memberAlias}.id`);
 
-    if (afterUserId) builder = builder.andWhere(`"${memberAlias}"."id" > :afterUserId`, { afterUserId });
+    if (afterUserId) builder = builder.andWhere(`${memberAlias}.id > :afterUserId`, { afterUserId });
 
-    return builder.orderBy(`"${memberAlias}"."id"`, "ASC").take(limit);
+    return builder.orderBy(`${memberAlias}.id`, "ASC").take(limit);
 }
