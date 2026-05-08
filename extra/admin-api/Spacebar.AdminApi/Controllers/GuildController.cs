@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Spacebar.Interop.Replication.Abstractions;
 using Spacebar.AdminApi.Extensions;
+using Spacebar.AdminApi.Services;
 using Spacebar.Models.AdminApi;
 using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Models.Db.Contexts;
@@ -125,7 +126,7 @@ public class GuildController(
             var adminRole = roles.FirstOrDefault(r => r.Permissions == "8" || r.Permissions == "9"); // Administrator
             if (adminRole == null) {
                 adminRole = new Role {
-                    Id = Random.Shared.NextInt64(), // TODO: snowflakes
+                    Id = SnowflakeGenerator.Generate(),
                     GuildId = id,
                     Name = "Instance administrator",
                     Color = 0,
