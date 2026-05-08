@@ -54,6 +54,15 @@ export class Intents extends BitField {
 
     static PRIVILEGED_FLAGS: BitField = new Intents(Intents.FLAGS.GUILD_PRESENCES | Intents.FLAGS.GUILD_MEMBERS | Intents.FLAGS.GUILD_MESSAGES_CONTENT);
 
+    /**
+     * Default intents used for clients that omit the identify intent mask.
+     *
+     * This preserves Spacebar's legacy gateway behavior: subscribe to every
+     * Discord-defined intent bit in the contiguous 0..34 range, but do not
+     * implicitly enable Spacebar's bit-32 LIVE_MESSAGE_COMPOSITION extension.
+     */
+    static DEFAULT_GATEWAY_IDENTIFY_INTENTS: bigint = ((BigInt(1) << BigInt(35)) - BigInt(1)) & ~Intents.ERKINALP_FLAGS.LIVE_MESSAGE_COMPOSITION;
+
     static INTENT_TO_EVENTS_MAP = {
         // MESSAGE_CONTENT
         15: [],
