@@ -3437,7 +3437,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 243,
+            "line": 236,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3498,7 +3498,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 516,
+            "line": 509,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -14057,7 +14057,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 95,
+            "line": 86,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14105,7 +14105,7 @@
             "method": "GET",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 9,
+            "line": 8,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14152,7 +14152,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 133,
+            "line": 124,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14203,7 +14203,7 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 57,
+            "line": 48,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14307,7 +14307,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 108,
+            "line": 100,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14355,7 +14355,7 @@
             "method": "GET",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 40,
+            "line": 32,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14402,7 +14402,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 67,
+            "line": 59,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

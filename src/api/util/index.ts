@@ -49,6 +49,7 @@ export * from "./utility/CrosspostMessage";
 export * from "./utility/RoleMembers";
 export * from "./utility/GuildDiscoveryMetadata";
 export * from "./utility/MessagePayloadPermissions";
+export * from "./utility/MessageUpload";
 export * from "./utility/MessageNotifications";
 export * from "./utility/MessageHistoryPagination";
 export * from "./utility/EmbedPayload";
