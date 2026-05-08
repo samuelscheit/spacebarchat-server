@@ -138,8 +138,14 @@ const genericImageHandler = async (url: URL): Promise<Embed | null> => {
         const result = await probe(url.href);
         image = makeEmbedImage(url.href, result.width, result.height);
     } else if (type.headers.get("content-type")?.indexOf("video") !== -1) {
-        // TODO
-        return null;
+        return {
+            url: url.href,
+            type: EmbedType.video,
+            video: {
+                url: url.href,
+                proxy_url: url.href,
+            },
+        };
     } else {
         // have to download the page, unfortunately
         const response = await doFetch(url);
@@ -166,7 +172,7 @@ export const EmbedHandlers: {
             ...getDefaultFetchOptions(),
             method: "HEAD",
         });
-        if (type.headers.get("content-type")?.indexOf("image") !== -1) return await genericImageHandler(url);
+        if (type.headers.get("content-type")?.indexOf("image") !== -1 || type.headers.get("content-type")?.indexOf("video") !== -1) return await genericImageHandler(url);
 
         const response = await doFetch(url);
         if (!response) return null;

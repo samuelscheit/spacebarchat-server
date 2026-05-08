@@ -11,6 +11,7 @@ delete process.env.EVENT_TRANSMISSION;
 
 const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
+const videoEmbedType = "video" as Embed["type"];
 
 async function loadEmbedModules() {
     const util = await import("../../../util/index.js");
@@ -20,6 +21,7 @@ async function loadEmbedModules() {
         util,
         Config: util.Config,
         EmbedCache: util.EmbedCache,
+        EmbedHandlers: handlers.EmbedHandlers,
         Message: util.Message,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
     };
@@ -119,6 +121,35 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("EmbedHandlers.default", () => {
+    test("creates a video embed for direct video content", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        const requestedMethods: (string | undefined)[] = [];
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            requestedMethods.push(init?.method);
+            return new Response(null, {
+                headers: {
+                    "content-type": "video/mp4",
+                },
+            });
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.com/video.mp4"));
+
+        assert.deepEqual(embed, {
+            url: "https://example.com/video.mp4",
+            type: videoEmbedType,
+            video: {
+                url: "https://example.com/video.mp4",
+                proxy_url: "https://example.com/video.mp4",
+            },
+        });
+        assert.deepEqual(requestedMethods, ["HEAD", "HEAD"]);
     });
 });
 
