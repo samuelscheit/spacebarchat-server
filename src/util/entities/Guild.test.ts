@@ -6,9 +6,22 @@ const ROLE_PERMISSION_OVERWRITE_TYPE = 0;
 const MEMBER_PERMISSION_OVERWRITE_TYPE = 1;
 const GUILD_TEXT_CHANNEL_TYPE = 0;
 const GUILD_CATEGORY_CHANNEL_TYPE = 4;
+const GUILD_NEWS_THREAD_TYPE = 10;
+const GUILD_PUBLIC_THREAD_TYPE = 11;
+const GUILD_PRIVATE_THREAD_TYPE = 12;
 
 type EntityPayload = Record<string, unknown>;
 type SaveableEntity = EntityPayload & { save: () => Promise<EntityPayload> };
+
+function createThreadMetadata(archived: boolean) {
+    return {
+        archived,
+        archive_timestamp: new Date("2026-05-08T00:00:00.000Z").toISOString(),
+        create_timestamp: new Date("2026-05-08T00:00:00.000Z").toISOString(),
+        locked: false,
+        auto_archive_duration: 60,
+    };
+}
 
 function createSaveableEntity(payload: EntityPayload): SaveableEntity {
     const entity = {
@@ -325,7 +338,19 @@ describe("Guild entity metadata", () => {
     });
 });
 
-test("addToGuild sends active public threads separately from ordered guild channels without leaking private threads", async (t) => {
+test("ready guild thread predicate includes only active public and news threads for the requested guild", async () => {
+    const { ReadyGuildThreadTypes, isReadyGuildThreadChannel } = await import("./Guild.js");
+
+    assert.deepEqual([...ReadyGuildThreadTypes], [GUILD_NEWS_THREAD_TYPE, GUILD_PUBLIC_THREAD_TYPE]);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_NEWS_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), true);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_PUBLIC_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), true);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_PUBLIC_THREAD_TYPE, thread_metadata: createThreadMetadata(true) }, "guild"), false);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_PRIVATE_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), false);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "guild", type: GUILD_TEXT_CHANNEL_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), false);
+    assert.equal(isReadyGuildThreadChannel({ guild_id: "other", type: GUILD_PUBLIC_THREAD_TYPE, thread_metadata: createThreadMetadata(false) }, "guild"), false);
+});
+
+test("addToGuild sends active public and news threads separately from ordered guild channels without leaking private threads", async (t) => {
     process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
     process.env.APPLY_DB_MIGRATIONS ??= "false";
 
@@ -348,50 +373,40 @@ test("addToGuild sends active public threads separately from ordered guild chann
         name: "Thread Guild",
         channels: [
             Object.assign(new Channel(), {
+                id: "active-news-thread",
+                guild_id: "guild",
+                parent_id: "text",
+                type: GUILD_NEWS_THREAD_TYPE,
+                name: "active news thread",
+                thread_metadata: createThreadMetadata(false),
+            }),
+            Object.assign(new Channel(), {
                 id: "active-thread",
                 guild_id: "guild",
                 parent_id: "text",
-                type: 11,
+                type: GUILD_PUBLIC_THREAD_TYPE,
                 name: "active thread",
-                thread_metadata: {
-                    archived: false,
-                    archive_timestamp: new Date().toISOString(),
-                    create_timestamp: new Date().toISOString(),
-                    locked: false,
-                    auto_archive_duration: 60,
-                },
+                thread_metadata: createThreadMetadata(false),
             }),
             Object.assign(new Channel(), { id: "text", guild_id: "guild", type: 0, name: "text" }),
             Object.assign(new Channel(), {
                 id: "archived-thread",
                 guild_id: "guild",
                 parent_id: "text",
-                type: 11,
+                type: GUILD_PUBLIC_THREAD_TYPE,
                 name: "archived thread",
-                thread_metadata: {
-                    archived: true,
-                    archive_timestamp: new Date().toISOString(),
-                    create_timestamp: new Date().toISOString(),
-                    locked: false,
-                    auto_archive_duration: 60,
-                },
+                thread_metadata: createThreadMetadata(true),
             }),
             Object.assign(new Channel(), {
                 id: "private-thread",
                 guild_id: "guild",
                 parent_id: "text",
-                type: 12,
+                type: GUILD_PRIVATE_THREAD_TYPE,
                 name: "private thread",
-                thread_metadata: {
-                    archived: false,
-                    archive_timestamp: new Date().toISOString(),
-                    create_timestamp: new Date().toISOString(),
-                    locked: false,
-                    auto_archive_duration: 60,
-                },
+                thread_metadata: createThreadMetadata(false),
             }),
         ],
-        channel_ordering: ["text"],
+        channel_ordering: ["active-news-thread", "active-thread", "text"],
         roles: [],
         emojis: [],
         stickers: [],
@@ -455,6 +470,6 @@ test("addToGuild sends active public threads separately from ordered guild chann
     );
     assert.deepEqual(
         data.threads.map((thread) => thread.id),
-        ["active-thread"],
+        ["active-news-thread", "active-thread"],
     );
 });

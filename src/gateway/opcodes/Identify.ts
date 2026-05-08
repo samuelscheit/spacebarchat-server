@@ -32,6 +32,7 @@ import {
     getDatabase,
     Guild,
     GuildOrUnavailable,
+    isReadyGuildThreadChannel,
     ReadyGuildThreadTypes,
     Intents,
     Member,
@@ -426,7 +427,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     const guildIds = memberGuilds.map((g) => g.id);
 
-    const allThreads = allThreadsRaw.filter(({ thread_metadata }) => thread_metadata?.archived === false);
+    const allThreads = allThreadsRaw.filter((thread) => typeof thread.guild_id === "string" && isReadyGuildThreadChannel(thread, thread.guild_id));
     const threadMemberMap = new Map(threadMembers.map((member) => [member.id, member] as const));
 
     const { result: channelsByGuild, elapsed: groupChannelsTime } = timeFunction(() => arrayGroupBy(memberGuildChannels, (c) => c.guild_id!));
