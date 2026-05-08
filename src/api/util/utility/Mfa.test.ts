@@ -104,12 +104,14 @@ describe("modern MFA utilities", () => {
     test("rejects invalid login MFA tickets", () => {
         const now = 1_700_000_000_000;
         const ticket = signMfaTicket({ userId: "user-1", action: MFA_ACTION_LOGIN, sessionId: undefined }, "secret", now);
+        const sessionBoundTicket = signMfaTicket({ userId: "user-1", action: MFA_ACTION_LOGIN, sessionId: "" }, "secret", now);
 
         assert.equal(verifyLoginMfaTicket(ticket, "user-2", "secret", now + 299_000), undefined);
         assert.equal(verifyLoginMfaTicket(ticket, "user-1", "wrong-secret", now + 299_000), undefined);
         assert.equal(verifyLoginMfaTicket(ticket, "user-1", "secret", now + 301_000), undefined);
         assert.equal(verifyLoginMfaTicket("not-a-ticket", "user-1", "secret", now + 299_000), undefined);
         assert.equal(verifyLoginMfaTicket(undefined, "user-1", "secret", now + 299_000), undefined);
+        assert.equal(verifyLoginMfaTicket(sessionBoundTicket, "user-1", "secret", now + 299_000), undefined);
     });
 
     test("keeps login MFA tickets separate from session-bound MFA tickets and recent MFA tokens", () => {

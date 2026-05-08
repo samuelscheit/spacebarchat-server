@@ -123,7 +123,7 @@ export function verifyMfaTicket(token: string | undefined, secret: string, now =
 
 export function verifyLoginMfaTicket(token: string | undefined, userId: string, secret: string, now = Date.now()): MfaTicketPayload | undefined {
     const payload = verifyMfaPayload(token, "mfa_ticket", secret, now);
-    if (!payload || payload.action !== MFA_ACTION_LOGIN || payload.user_id !== userId || payload.session_id) return undefined;
+    if (!payload || payload.action !== MFA_ACTION_LOGIN || payload.user_id !== userId || payload.session_id !== undefined) return undefined;
     return payload;
 }
 
