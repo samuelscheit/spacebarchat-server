@@ -21,7 +21,7 @@ import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, V
 import { check } from "./instanceOf";
 import { Region, VoiceStateUpdateSchema } from "@spacebar/schemas";
 import { assertGatewayChannelAccess, assertGatewayVoiceChannel } from "../util/Authorization";
-// TODO: check if a voice server is setup
+import { selectConfiguredRegion } from "../util/StreamRegion";
 
 // Notice: Bot users respect the voice channel's user limit, if set.
 // When the voice channel is full, you will not receive the Voice State Update or Voice Server Update events in response to your own Voice State Update.
@@ -31,6 +31,8 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     const startTime = Date.now();
     check.call(this, VoiceStateUpdateSchema, data.d);
     const body = data.d as VoiceStateUpdateSchema;
+
+    let guildRegion: Region | undefined;
 
     if (body.channel_id != null) {
         const { channel } = await assertGatewayChannelAccess({
@@ -43,6 +45,12 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
 
         body.channel_id = channel.id;
         body.guild_id = channel.guild_id;
+
+        const regions = Config.get().regions;
+        const guild = await Guild.findOne({
+            where: { id: body.guild_id },
+        });
+        guildRegion = selectConfiguredRegion(regions, guild?.region);
     }
 
     const isNew = body.channel_id === null && body.guild_id === null;
@@ -142,25 +150,12 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
 
     //If it's null it means that we are leaving the channel and this event is not needed
     if ((isNew || isChanged) && voiceState.channel_id !== null) {
-        const guild = await Guild.findOne({
-            where: { id: voiceState.guild_id },
-        });
-        const regions = Config.get().regions;
-        let guildRegion: Region | undefined;
-
-        const defaultRegion = regions.available.find((r) => r.id === regions.default);
-
-        if (guild && guild.region) {
-            // in case the configured guild region does not exist (which can
-            // happen when server regions config is updated after guild creation),
-            // fallback to default region
-            guildRegion = regions.available.find((r) => r.id === guild.region) ?? defaultRegion;
-        } else {
-            guildRegion = defaultRegion;
-        }
-
         if (!guildRegion) {
-            throw new Error("Unable to find suitable region due to misconfiguration of regions");
+            const regions = Config.get().regions;
+            const guild = await Guild.findOne({
+                where: { id: voiceState.guild_id },
+            });
+            guildRegion = selectConfiguredRegion(regions, guild?.region);
         }
 
         await emitEvent({
