@@ -26,7 +26,6 @@ import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";
 import { applyEnvConfigOverrides } from "./EnvConfig";
 import { readJsonConfigFile } from "./JsonConfigFile";
 
-// TODO: yaml instead of json
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
