@@ -8355,7 +8355,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/widget.json/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.json.ts",
-            "line": 37,
+            "line": 38,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
