@@ -152,7 +152,7 @@ router.get(
             mutual_friends_count: with_mutual_friends_count == "true" ? mutual_friends_count : undefined,
             user: user.toPublicUser(),
             premium_type: user.premium_type,
-            profile_themes_experiment_bucket: 4, // TODO: This doesn't make it available, for some reason?
+            profile_themes_experiment_bucket: 4,
             user_profile: userProfile,
             guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
             guild_member_profile: guildMemberProfile,
