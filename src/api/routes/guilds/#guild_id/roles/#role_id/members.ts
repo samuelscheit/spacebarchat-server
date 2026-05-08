@@ -70,11 +70,7 @@ async function updateRoleMembers(req: Request, res: Response, mode: RoleMemberUp
     const addMemberIds = getRoleMemberIdsToAdd(memberSnapshots, member_ids, role_id);
     const removeMemberIds = mode === "replace" ? getRoleMemberIdsToRemove(memberSnapshots, member_ids, role_id) : [];
 
-    // TODO (erkin): have a bulk add/remove function that adds the roles in a single txn
-    await Promise.all([
-        ...addMemberIds.map((member_id) => Member.addRole(member_id, guild_id, role_id)),
-        ...removeMemberIds.map((member_id) => Member.removeRole(member_id, guild_id, role_id)),
-    ]);
+    await Member.updateRoleMembers(guild_id, role_id, { addMemberIds, removeMemberIds });
 
     res.sendStatus(204);
 }
