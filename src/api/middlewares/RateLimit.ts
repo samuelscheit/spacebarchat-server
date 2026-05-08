@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, getRights, listenEvent, RabbitMQ } from "@spacebar/util";
+import { Config, listenEvent, RabbitMQ } from "@spacebar/util";
 import { NextFunction, Request, Response, Router } from "express";
 import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
 
@@ -25,8 +25,6 @@ import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
 /*
 ? bucket limit? Max actions/sec per bucket?
 (ANSWER: a small spacebar instance might not need a complex rate limiting system)
-TODO: delay database requests to include multiple queries
-TODO: different for methods (GET/POST)
 > IP addresses that make too many invalid HTTP requests are automatically and temporarily restricted from accessing the Discord API. Currently, this limit is 10,000 per 10 minutes. An invalid request is one that results in 401, 403, or 429 statuses.
 > All bots can make up to 50 requests per second to our API. This is independent of any individual rate limit on a route. If your bot gets big enough, based on its functionality, it may be impossible to stay below 50 requests per second during normal operations.
 */
@@ -58,8 +56,7 @@ export default function rateLimit(opts: {
     return async (req: Request, res: Response, next: NextFunction) => {
         // exempt user? if so, immediately short circuit
         if (req.user_id) {
-            const rights = await getRights(req.user_id);
-            if (rights.has("BYPASS_RATE_LIMITS")) return next();
+            if (req.rights?.has("BYPASS_RATE_LIMITS")) return next();
         }
 
         const bucket_id = opts.bucket || req.originalUrl.replace(API_PREFIX_TRAILING_SLASH, "");
