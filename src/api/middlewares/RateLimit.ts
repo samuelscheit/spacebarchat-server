@@ -174,7 +174,7 @@ export async function initRateLimits(app: Router) {
     // 	Cache.set(limit.executor_id, limit);
     // });
 
-    setInterval(() => {
+    const cleanupInterval = setInterval(() => {
         Cache.forEach((x, key) => {
             if (new Date() > x.expires_at) {
                 Cache.delete(key);
@@ -182,6 +182,7 @@ export async function initRateLimits(app: Router) {
             }
         });
     }, 1000 * 60);
+    cleanupInterval.unref?.();
 
     app.use(
         rateLimit({
