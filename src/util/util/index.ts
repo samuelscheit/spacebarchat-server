@@ -71,6 +71,7 @@ export * from "./Stopwatch";
 export * from "./String";
 export * from "./Startup";
 export * from "./Timespan";
+export * from "./ThreadMemberFlags";
 export * from "./Token";
 export * from "./Totp";
 export * from "./TraverseDirectory";

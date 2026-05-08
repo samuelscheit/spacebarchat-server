@@ -18,7 +18,7 @@
 
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import { ThreadMembersUpdateEvent } from "../interfaces";
-import { emitEvent } from "../util";
+import { emitEvent, ThreadMemberFlags } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
 import { HTTPError } from "lambert-server";
@@ -30,14 +30,7 @@ interface ThreadMemberMuteConfig {
     selected_time_window?: number;
 }
 
-// TODO: move
-export enum ThreadMemberFlags {
-    NONE = 0,
-    HAS_INTERACTED = 1 << 0,
-    ALL_MESSAGES = 1 << 1,
-    ONLY_MENTIONS = 1 << 2,
-    NO_MESSAGES = 1 << 3,
-}
+export { ThreadMemberFlags } from "../util/ThreadMemberFlags";
 
 @Entity("thread_members")
 @Index(["id", "member_idx"], { unique: true })
