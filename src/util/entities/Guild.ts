@@ -63,8 +63,9 @@ export const PublicGuildRelations = [
     "stickers",
     "stage_instances",
     "voice_states",
-    // "members",		// TODO: These are public, but all members should not be fetched.
-    // "members.user",
+    // Members are public only when explicitly requested through a bounded member query.
+    // Do not add "members" here: this relation set is used for guild payloads and
+    // must not eagerly fetch every member in a guild.
 ];
 
 @Entity({

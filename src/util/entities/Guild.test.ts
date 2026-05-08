@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, test } from "node:test";
 import { getMetadataArgsStorage } from "typeorm";
+import { PublicGuildRelations } from "./Guild";
 
 const ROLE_PERMISSION_OVERWRITE_TYPE = 0;
 const MEMBER_PERMISSION_OVERWRITE_TYPE = 1;
@@ -20,6 +21,11 @@ function createSaveableEntity(payload: EntityPayload): SaveableEntity {
 
     return entity;
 }
+
+test("PublicGuildRelations does not eagerly load guild members", () => {
+    assert.equal(PublicGuildRelations.includes("members"), false);
+    assert.equal(PublicGuildRelations.includes("members.user"), false);
+});
 
 describe("Guild.createGuild", () => {
     test("rejects custom role payloads without CREATE_ROLES before creating guild records", async (t) => {
