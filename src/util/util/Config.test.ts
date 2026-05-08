@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, test } from "node:test";
 import { ConfigValue } from "../config";
+import { ConfigEntity } from "../entities";
 import { Config } from "./Config";
 
 let tempDir: string | undefined;
@@ -70,4 +71,38 @@ test("Config.set writes to the current CONFIG_PATH even when the module was impo
 
     const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
     assert.equal(persisted.updates.lastNotifiedCommit, "current-path");
+});
+
+test("Config.set persists nested array values as typed database config pairs", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    delete process.env.CONFIG_PATH;
+
+    const savedPairs: Pick<ConfigEntity, "key" | "value">[] = [];
+    const originalSave = ConfigEntity.prototype.save;
+    ConfigEntity.prototype.save = async function (this: ConfigEntity) {
+        savedPairs.push({ key: this.key, value: this.value });
+        return this;
+    };
+
+    try {
+        await Config.set({
+            guild: {
+                ...Config.get().guild,
+                defaultFeatures: ["COMMUNITY", "NEWS"],
+            },
+        });
+    } finally {
+        ConfigEntity.prototype.save = originalSave;
+    }
+
+    assert.deepEqual(
+        savedPairs.filter((pair) => pair.key.startsWith("guild_defaultFeatures")).sort((left, right) => left.key.localeCompare(right.key)),
+        [
+            { key: "guild_defaultFeatures_0", value: "COMMUNITY" },
+            { key: "guild_defaultFeatures_1", value: "NEWS" },
+        ],
+    );
 });

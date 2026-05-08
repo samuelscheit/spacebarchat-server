@@ -110,16 +110,16 @@ export class Config {
     }
 }
 
-// TODO: better types
-const generatePairs = (obj: object | null, key = ""): ConfigEntity[] => {
+type ConfigEntityValue = ConfigEntity["value"];
+
+const isConfigEntityValue = (value: unknown): value is ConfigEntityValue => value == null || ["boolean", "number", "string"].includes(typeof value);
+
+const generatePairs = (obj: unknown, key = ""): ConfigEntity[] => {
     if (typeof obj == "object" && obj != null) {
-        return Object.keys(obj)
-            .map((k) =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                generatePairs((obj as any)[k], key ? `${key}_${k}` : k),
-            )
-            .flat();
+        return Object.entries(obj).flatMap(([childKey, value]) => generatePairs(value, key ? `${key}_${childKey}` : childKey));
     }
+
+    if (!isConfigEntityValue(obj)) throw new TypeError(`Config value '${key}' cannot be persisted as a database config entry`);
 
     const ret = new ConfigEntity();
     ret.key = key;
