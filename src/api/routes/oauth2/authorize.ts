@@ -43,6 +43,14 @@ export function toOAuthAuthorizeUserPreview(user: OAuthAuthorizeUserPreview) {
     };
 }
 
+export function toOAuthAuthorizeBotPreview(user: OAuthAuthorizeUserPreview) {
+    return {
+        ...toOAuthAuthorizeUserPreview(user),
+        bot: true,
+        approximated_guild_count: 0, // TODO
+    };
+}
+
 router.get(
     "/",
     route({
@@ -150,16 +158,7 @@ router.get(
                 verify_key: app.verify_key,
                 flags: app.flags,
             },
-            bot: {
-                id: bot.id,
-                username: bot.username,
-                avatar: bot.avatar,
-                avatar_decoration: null, // TODO
-                discriminator: bot.discriminator,
-                public_flags: bot.public_flags,
-                bot: true,
-                approximated_guild_count: 0, // TODO
-            },
+            bot: toOAuthAuthorizeBotPreview(bot),
             authorized: false,
         });
     },
