@@ -42,12 +42,11 @@ public class IdentifyController(ILogger<IdentifyController> logger, SpacebarAuth
         };
     }
 
-    // TODO: type? also, implement this in gateway lol
-    private ReplicationMessage<object?> Close(CloseCode closeCode) => new() {
+    private ReplicationMessage<GatewayCloseResponse> Close(CloseCode closeCode) => new() {
         Origin = "IdentifyController",
         Event = "SB_GW_CLOSE",
-        Payload = new {
-            code = closeCode,
+        Payload = new GatewayCloseResponse {
+            Code = closeCode,
         }
     };
 }

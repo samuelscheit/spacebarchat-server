@@ -1,6 +1,6 @@
 import { Event, Session, sleep, TimeSpan, VoiceState } from "@spacebar/util";
 import { WebSocket } from "./WebSocket";
-import { OPCODES } from "./Constants";
+import { CLOSECODES, OPCODES } from "./Constants";
 import { Send } from "./Send";
 
 export function parseStreamKey(streamKey: string): {
@@ -101,6 +101,16 @@ export async function handleOffloadedGatewayRequest(socket: WebSocket, url: stri
     while (data.length > 0) {
         const event = data.pop()!;
         if (process.env.WS_VERBOSE) console.log(`[Gateway] Received offloaded event: ${JSON.stringify(event)}`);
+
+        if (event.event === "SB_GW_CLOSE") {
+            const closeData = event.data as { code?: unknown; reason?: unknown } | undefined;
+            const code = typeof closeData?.code === "number" ? closeData.code : CLOSECODES.Unknown_error;
+            const reason = typeof closeData?.reason === "string" ? closeData.reason : undefined;
+
+            socket.close(code, reason);
+            return;
+        }
+
         await Send(socket, {
             op: OPCODES.Dispatch,
             s: socket.sequence++,
