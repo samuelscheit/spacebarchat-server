@@ -28,7 +28,6 @@ import { assertAnimatedAvatarUploadAllowed } from "../util/AvatarUploadPolicy";
 
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
-// TODO: delete old icons
 
 const ANIMATED_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
 const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];

@@ -5,6 +5,7 @@
         "src/api/ServerConfigure.test.ts",
         "src/api/routes/guilds/GuildImageField.test.ts",
         "src/api/util/StickerUpload.test.ts",
+        "src/api/util/utility/RecentAvatars.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/cdn/routes/banners.test.ts",
         "src/cdn/routes/role-icons.test.ts",

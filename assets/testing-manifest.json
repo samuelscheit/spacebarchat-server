@@ -14846,7 +14846,7 @@
             "method": "GET",
             "path": "/avatars/:user_id/:hash",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 99,
+            "line": 98,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14877,7 +14877,7 @@
             "method": "DELETE",
             "path": "/avatars/:user_id/:id",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 101,
+            "line": 100,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14908,7 +14908,7 @@
             "method": "GET",
             "path": "/avatars/:user_id",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 70,
+            "line": 69,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14939,7 +14939,7 @@
             "method": "POST",
             "path": "/avatars/:user_id",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 39,
+            "line": 38,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
