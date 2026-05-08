@@ -34,8 +34,12 @@ export const SPACEBAR_EVENT_ROUTE = "spacebar";
 let unixSocketListener: UnixSocketListener | null = null;
 let unixSocketWriter: UnixSocketWriter | null = null;
 
+export function getEventBusRouteId(payload: Pick<Event, "spacebar_event_id" | "guild_id" | "channel_id" | "user_id" | "session_id">) {
+    return (payload.spacebar_event_id || payload.guild_id || payload.channel_id || payload.user_id || payload.session_id) as string | undefined;
+}
+
 export async function emitEvent(payload: Omit<Event, "created_at">) {
-    const id = (payload.spacebar_event_id || payload.guild_id || payload.channel_id || payload.user_id || payload.session_id) as string;
+    const id = getEventBusRouteId(payload);
     if (!id) return console.error("event doesn't contain any id", payload);
 
     if (RabbitMQ.connection) {
@@ -145,7 +149,7 @@ export async function listenEvent(event: string, callback: (event: EventOpts) =>
         return await unixSocketListener.listen(event, callback);
     } else if (process.env.EVENT_TRANSMISSION === "process") {
         const cancel = async () => {
-            process.removeListener("message", listener);
+            process.removeListener("message", processListener);
             process.setMaxListeners(process.getMaxListeners() - 1);
         };
 
@@ -153,9 +157,10 @@ export async function listenEvent(event: string, callback: (event: EventOpts) =>
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             msg.type === "event" && msg.id === event && callback({ ...msg.event, cancel });
         };
+        const processListener = (msg: unknown) => listener(msg as ProcessEvent);
 
         // TODO: assert the type is correct?
-        process.addListener("message", (msg) => listener(msg as ProcessEvent));
+        process.addListener("message", processListener);
         process.setMaxListeners(process.getMaxListeners() + 1);
 
         return cancel;
@@ -485,7 +490,7 @@ class UnixSocketWriter {
         await this.broadcastLock;
         return await (this.broadcastLock = new Promise((res) => {
             const tsw = Stopwatch.startNew();
-            const payloadBuf = Buffer.from(JSON.stringify({ id: (event.guild_id || event.channel_id || event.user_id || event.session_id) as string, event }));
+            const payloadBuf = Buffer.from(JSON.stringify({ id: getEventBusRouteId(event), event }));
             const lenBuf = Buffer.alloc(4);
             lenBuf.writeUInt32BE(payloadBuf.length, 0);
             const framed = Buffer.concat([lenBuf, payloadBuf]);

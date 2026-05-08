@@ -6,6 +6,8 @@
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
+        "src/admin/config.test.ts",
+        "src/util/util/Event.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
