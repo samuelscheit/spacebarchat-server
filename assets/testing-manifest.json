@@ -1055,7 +1055,7 @@
             "method": "GET",
             "path": "/applications/@me/",
             "sourceFile": "src/api/routes/applications/@me.ts",
-            "line": 38,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -1095,7 +1095,7 @@
             "method": "PATCH",
             "path": "/applications/@me/",
             "sourceFile": "src/api/routes/applications/@me.ts",
-            "line": 57,
+            "line": 59,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

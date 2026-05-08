@@ -24,7 +24,9 @@ import { ApplicationModifySchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-export async function getCurrentBotApplication(userId: string) {
+export async function getCurrentBotApplication(userId: string, userIsBot: boolean) {
+    if (!userIsBot) throw DiscordApiErrors.BOT_ONLY_ENDPOINT;
+
     const app = await Application.findOneOrFail({
         where: { id: userId },
         relations: { owner: true, bot: true },
@@ -48,7 +50,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        const app = await getCurrentBotApplication(req.user_id);
+        const app = await getCurrentBotApplication(req.user_id, req.user_bot);
 
         return res.json(app);
     },
@@ -71,7 +73,7 @@ router.patch(
     async (req: Request, res: Response) => {
         const body = req.body as ApplicationModifySchema;
 
-        const app = await getCurrentBotApplication(req.user_id);
+        const app = await getCurrentBotApplication(req.user_id, req.user_bot);
 
         if (body.icon) {
             body.icon = await handleFile(`/app-icons/${app.id}`, body.icon as string);
