@@ -54,7 +54,6 @@ router.get(
     },
 );
 
-// TODO: use Image Data Type for avatar instead of String
 router.post(
     "/",
     route({
