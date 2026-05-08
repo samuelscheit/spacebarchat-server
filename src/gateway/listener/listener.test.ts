@@ -1,7 +1,17 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
+import type { WebSocket } from "@spacebar/gateway";
 import { Intents } from "@spacebar/util";
-import { canDispatchEventForIntents, canDispatchGuildMemberEvent, canDispatchGuildPresenceUpdate, getIntentGuildIdForEvent, getRequiredIntentForEvent } from "./listener";
+import { CLOSECODES } from "../util";
+import {
+    canDispatchEventForIntents,
+    canDispatchGuildMemberEvent,
+    canDispatchGuildPresenceUpdate,
+    consumeListenerEvent,
+    getIntentGuildIdForEvent,
+    getRequiredIntentForEvent,
+    handleListenerControlEvent,
+} from "./listener";
 import { trackGuildMemberEventId } from "./subscriptions";
 
 describe("canDispatchGuildMemberEvent", () => {
@@ -45,6 +55,70 @@ describe("canDispatchGuildPresenceUpdate", () => {
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", "visible-member"), true);
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", "hidden-member"), false);
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", undefined), false);
+    });
+});
+
+describe("handleListenerControlEvent", () => {
+    test("closes the websocket when the current token is invalidated", async () => {
+        const closes: Array<{ code?: number; reason?: string }> = [];
+        const socket = {
+            sequence: 0,
+            close: (code?: number, reason?: string) => {
+                closes.push({ code, reason });
+            },
+        };
+
+        const handled = await handleListenerControlEvent.call(socket, {
+            event: "INVALIDATED",
+            data: {},
+            cancel: () => undefined,
+        });
+
+        assert.equal(handled, true);
+        assert.deepEqual(closes, [{ code: CLOSECODES.Authentication_failed, reason: "Invalidated Token" }]);
+        assert.equal(socket.sequence, 0);
+    });
+
+    test("leaves ordinary dispatch events to the gateway consumer", async () => {
+        const socket = {
+            sequence: 0,
+            close: () => {
+                throw new Error("ordinary events must not be closed by control handling");
+            },
+        };
+
+        const handled = await handleListenerControlEvent.call(socket, {
+            event: "MESSAGE_CREATE",
+            data: { id: "message", channel_id: "channel" },
+            cancel: () => undefined,
+        });
+
+        assert.equal(handled, false);
+    });
+
+    test("acknowledges and closes invalidated events before reading dispatch data", async () => {
+        const operations: string[] = [];
+        const socket = {
+            sequence: 7,
+            close: (code?: number, reason?: string) => {
+                operations.push(`close:${code}:${reason}`);
+            },
+        };
+        const event = {
+            event: "INVALIDATED" as const,
+            acknowledge: () => {
+                operations.push("acknowledge");
+            },
+            cancel: () => undefined,
+            get data(): never {
+                throw new Error("control events must not read dispatch data");
+            },
+        };
+
+        await consumeListenerEvent.call(socket as WebSocket, event);
+
+        assert.deepEqual(operations, [`acknowledge`, `close:${CLOSECODES.Authentication_failed}:Invalidated Token`]);
+        assert.equal(socket.sequence, 7);
     });
 });
 
