@@ -52,8 +52,9 @@ public class Op12Controller(ILogger<Op12Controller> logger, SpacebarAspNetAuthen
 
         var members = await _db.Members.AsNoTracking().Where(x => x.GuildId == guildId)
             .Include(x => x.IdNavigation)
-            .ThenInclude(x => x.Sessions.Where(s =>
-                !s.IsAdminSession && !SessionPresenceProjection.NonPublicStatuses.Contains(s.Status) && (!isLargeGuild || s.LastSeen >= offlineTreshold)))
+            .ThenInclude(x => x.Sessions.AsQueryable()
+                .Where(SessionPresenceProjection.IsPubliclyOnlineExpression)
+                .Where(s => !s.IsAdminSession && (!isLargeGuild || s.LastSeen >= offlineTreshold)))
             .Where(x => x.IdNavigation.Sessions.Count > 0) // ignore members without sessions
             .ToListAsync();
 

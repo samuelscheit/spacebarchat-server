@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Spacebar.GatewayOffload.Extensions.Gateway;
+using Spacebar.Models.Db.Contexts;
 using Spacebar.Models.Db.Models;
 
 namespace Spacebar.Offload.Tests;
@@ -15,6 +17,7 @@ public class SessionPresenceProjectionTests {
         var session = new Session { Status = status };
 
         Assert.Equal(expected, SessionPresenceProjection.IsPubliclyOnline(session));
+        Assert.Equal(expected, SessionPresenceProjection.IsPubliclyOnlineStatus(status));
     }
 
     [Fact]
@@ -33,5 +36,33 @@ public class SessionPresenceProjectionTests {
 
         Assert.Equal(["online", "idle"], expressionResults);
         Assert.Equal(expressionResults, inMemoryResults);
+    }
+
+    [Fact]
+    public void IsPubliclyOnlineExpressionTranslatesInsideFilteredInclude() {
+        using var db = CreateDbContext();
+        var offlineThreshold = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        var sql = db.Members
+            .Include(member => member.IdNavigation)
+            .ThenInclude(user => user.Sessions.AsQueryable()
+                .Where(SessionPresenceProjection.IsPubliclyOnlineExpression)
+                .Where(session => !session.IsAdminSession && session.LastSeen >= offlineThreshold))
+            .ToQueryString();
+
+        Assert.Contains("sessions", sql);
+        Assert.Contains("is_admin_session", sql);
+        Assert.Contains("status", sql);
+        Assert.Contains("offline", sql);
+        Assert.Contains("invisible", sql);
+        Assert.Contains("unknown", sql);
+    }
+
+    private static SpacebarDbContext CreateDbContext() {
+        var options = new DbContextOptionsBuilder<SpacebarDbContext>()
+            .UseNpgsql("Host=localhost;Database=spacebar;Username=spacebar;Password=spacebar")
+            .Options;
+
+        return new SpacebarDbContext(options);
     }
 }
