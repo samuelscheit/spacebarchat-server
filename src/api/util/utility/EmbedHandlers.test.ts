@@ -21,8 +21,54 @@ async function loadEmbedModules() {
         Config: util.Config,
         EmbedCache: util.EmbedCache,
         Message: util.Message,
+        EmbedHandlers: handlers.EmbedHandlers,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
+        getTwitterStatusId: handlers.getTwitterStatusId,
     };
+}
+
+function mockTwitterConfig(t: TestContext, Config: UtilModule["Config"]) {
+    const config = Config.get();
+    config.external.twitter = "twitter-token";
+    config.cdn.endpointPublic = "https://cdn.example.com";
+    config.cdn.imagorServerUrl = null;
+
+    t.mock.method(Config, "get", () => config);
+}
+
+function mockTwitterApiFetch(t: TestContext) {
+    const requestedUrls: string[] = [];
+    t.mock.method(globalThis, "fetch", async (input: string | URL | Request) => {
+        requestedUrls.push(input.toString());
+        return {
+            json: async () => ({
+                includes: {
+                    users: [
+                        {
+                            profile_image_url: "https://pbs.twimg.com/profile_images/example.jpg",
+                            username: "spacebar",
+                            name: "Spacebar",
+                        },
+                    ],
+                    media: [
+                        {
+                            type: "photo",
+                            width: 1024,
+                            height: 512,
+                            url: "https://pbs.twimg.com/media/example.jpg",
+                        },
+                    ],
+                },
+                data: {
+                    text: "hello from twitter",
+                    created_at: "2026-05-08T10:00:00.000Z",
+                    public_metrics: { like_count: 12, retweet_count: 3 },
+                },
+            }),
+        } as Response;
+    });
+
+    return requestedUrls;
 }
 
 function createMessage(content: string, embeds: Embed[]) {
@@ -119,6 +165,50 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("Twitter embed handler", () => {
+    test("extracts status ids from supported Twitter and X URL shapes", async () => {
+        const { getTwitterStatusId } = await loadEmbedModules();
+
+        assert.equal(getTwitterStatusId(new URL("https://twitter.com/spacebar/status/1234567890")), "1234567890");
+        assert.equal(getTwitterStatusId(new URL("https://mobile.twitter.com/spacebar/statuses/1234567890?s=20")), "1234567890");
+        assert.equal(getTwitterStatusId(new URL("https://x.com/spacebar/status/1234567890/photo/1")), "1234567890");
+        assert.equal(getTwitterStatusId(new URL("https://twitter.com/i/web/status/1234567890")), "1234567890");
+    });
+
+    test("rejects non-status and malformed Twitter URLs before fetching", async (t) => {
+        const { Config, EmbedHandlers, getTwitterStatusId } = await loadEmbedModules();
+        mockTwitterConfig(t, Config);
+        t.mock.method(globalThis, "fetch", async () => {
+            throw new Error("fetch should not be called for non-status Twitter URLs");
+        });
+
+        assert.equal(getTwitterStatusId(new URL("https://twitter.com/spacebar")), undefined);
+        assert.equal(getTwitterStatusId(new URL("https://twitter.com/spacebar/status/not-a-number")), undefined);
+        assert.equal(getTwitterStatusId(new URL("https://twitter.com/spacebar/status/123abc")), undefined);
+        assert.equal(getTwitterStatusId(new URL("https://twitter.com/spacebar/status/")), undefined);
+        assert.equal(getTwitterStatusId(new URL("https://twitter.com/spacebar/other/1234567890?next=/status/999")), undefined);
+
+        assert.equal(await EmbedHandlers["www.twitter.com"](new URL("https://twitter.com/spacebar")), null);
+        assert.equal(await EmbedHandlers["www.twitter.com"](new URL("https://twitter.com/spacebar/status/not-a-number")), null);
+    });
+
+    test("uses parsed status id when fetching Twitter API embeds", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockTwitterConfig(t, Config);
+        const requestedUrls = mockTwitterApiFetch(t);
+
+        const embed = await EmbedHandlers["x.com"](new URL("https://x.com/spacebar/status/1234567890/photo/1?lang=en"));
+        assert.ok(embed && !Array.isArray(embed));
+
+        assert.equal(requestedUrls.length, 1);
+        assert.match(requestedUrls[0], /^https:\/\/api\.twitter\.com\/2\/tweets\/1234567890\?/);
+        assert.equal(embed?.url, "https://x.com/spacebar/status/1234567890/photo/1");
+        assert.equal(embed?.description, "hello from twitter");
+        assert.equal(embed?.author?.name, "Spacebar (@spacebar)");
+        assert.equal(embed?.image?.url, "https://pbs.twimg.com/media/example.jpg");
     });
 });
 

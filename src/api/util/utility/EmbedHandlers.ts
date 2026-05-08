@@ -89,6 +89,23 @@ const tryParseInt = (str: string | undefined) => {
     }
 };
 
+export const getTwitterStatusId = (url: URL): string | undefined => {
+    const segments = url.pathname.split("/").filter(Boolean);
+    let statusIndex = -1;
+
+    if (segments[0] === "i" && segments[1] === "web" && segments[2] === "status") {
+        statusIndex = 2;
+    } else if (segments[1] === "status" || segments[1] === "statuses") {
+        statusIndex = 1;
+    }
+
+    if (statusIndex < 0) return undefined;
+
+    const id = segments[statusIndex + 1];
+    if (!id || !/^\d+$/.test(id)) return undefined;
+    return id;
+};
+
 export const getMetaDescriptions = (text: string) => {
     const $ = cheerio.load(text);
 
@@ -233,14 +250,16 @@ export const EmbedHandlers: {
         };
     },
 
+    "mobile.twitter.com": (url) => EmbedHandlers["www.twitter.com"](url),
+    "x.com": (url) => EmbedHandlers["www.twitter.com"](url),
+    "www.x.com": (url) => EmbedHandlers["www.twitter.com"](url),
     "twitter.com": (url) => EmbedHandlers["www.twitter.com"](url),
     "www.twitter.com": async (url: URL) => {
         const token = Config.get().external.twitter;
         if (!token) return null;
 
-        if (!url.href.includes("/status/")) return null; // TODO;
-        const id = url.pathname.split("/")[3]; // super bad lol
-        if (!parseInt(id)) return null;
+        const id = getTwitterStatusId(url);
+        if (!id) return null;
         const endpointUrl =
             `https://api.twitter.com/2/tweets/${id}` +
             `?expansions=author_id,attachments.media_keys` +
