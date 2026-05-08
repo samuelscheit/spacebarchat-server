@@ -31,6 +31,7 @@ type GeneratedHttpContractMatrix = {
         runtimeAuthBoundaryContracts: number;
         runtimeMalformedAuthContracts: number;
         runtimeRevokedSessionAuthContracts: number;
+        runtimeStaleTokenAuthContracts: number;
         runtimePublicAuthBoundaryContracts: number;
         runtimePublicInvalidBodyContracts: number;
         runtimeProtectedInvalidBodyContracts: number;
@@ -346,6 +347,49 @@ test(
                     const body = (await response.json()) as Record<string, unknown>;
                     assert.equal(body.code, 401, `${contract.manifestId} should return the invalid session error code`);
                     assert.equal(body.message, "Error: Invalid Session", `${contract.manifestId} should return the invalid session error message`);
+                    assert.equal(body.request, `${contract.method} /api/v9${contract.samplePath}`, `${contract.manifestId} should include the request route`);
+                }
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);
+
+test(
+    "generated HTTP auth contracts reject bearer tokens issued before valid_tokens_since through the real API stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(protectedApiContracts.length, matrix.summary.runtimeStaleTokenAuthContracts);
+        assert.ok(protectedApiContracts.length > 0, "expected protected API routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_stale_token", async ({ api, token, user }) => {
+                user.data = {
+                    ...user.data,
+                    valid_tokens_since: new Date(Date.now() + 120_000),
+                };
+                await user.save();
+
+                for (const contract of protectedApiContracts) {
+                    const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: `Bearer ${token}`,
+                        },
+                    });
+
+                    assert.equal(response.status, 401, `${contract.manifestId} should reject bearer tokens issued before valid_tokens_since`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON auth error`);
+
+                    const body = (await response.json()) as Record<string, unknown>;
+                    assert.equal(body.code, 401, `${contract.manifestId} should return the stale token error code`);
+                    assert.equal(body.message, "Error: Invalid Token", `${contract.manifestId} should return the stale token error message`);
                     assert.equal(body.request, `${contract.method} /api/v9${contract.samplePath}`, `${contract.manifestId} should include the request route`);
                 }
             });
