@@ -7332,7 +7332,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 82,
+            "line": 78,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7375,7 +7375,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 96,
+            "line": 92,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
