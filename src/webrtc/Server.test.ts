@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 import ws, { type ServerOptions } from "ws";
 
 type ServerWithInitializer = {
-    initializeWebSocketServer: () => void;
+    configureWebSocketServer: () => void;
 };
 
 class CapturingWebSocketServer {
@@ -41,8 +41,8 @@ describe("WebRTC Server", () => {
             CapturingWebSocketServer.options = [];
 
             const server = new Server({ port: 0 }) as unknown as ServerWithInitializer;
-            server.initializeWebSocketServer();
-            server.initializeWebSocketServer();
+            server.configureWebSocketServer();
+            server.configureWebSocketServer();
 
             assert.equal(CapturingWebSocketServer.options.length, 1);
             assert.equal(CapturingWebSocketServer.options[0]?.maxPayload, 4096);
