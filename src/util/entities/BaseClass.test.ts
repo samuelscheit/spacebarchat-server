@@ -4,6 +4,11 @@ import type { EntityMetadata } from "typeorm";
 import * as Database from "../util/Database";
 import { BaseClassWithoutId } from "./BaseClass";
 
+type IsAny<T> = 0 extends 1 & T ? true : false;
+type AssertFalse<T extends false> = T;
+type ToJsonReturnIsNotAny = AssertFalse<IsAny<ReturnType<BaseClassWithoutId["toJSON"]>>>;
+const toJsonReturnIsNotAny: ToJsonReturnIsNotAny = false;
+
 const originalGetDatabase = Database.getDatabase;
 
 afterEach(() => {
@@ -11,6 +16,10 @@ afterEach(() => {
         configurable: true,
         value: originalGetDatabase,
     });
+});
+
+test("BaseClassWithoutId.toJSON exposes a non-any return type", () => {
+    assert.equal(toJsonReturnIsNotAny, false);
 });
 
 test("BaseClassWithoutId.toJSON serializes TypeORM column and relation metadata without lint suppressions", () => {

@@ -26,6 +26,8 @@ function getDatabaseLazy() {
     return getDatabase();
 }
 
+export type EntityJson = object;
+
 export class BaseClassWithoutId extends BaseEntity {
     private get construct() {
         return this.constructor;
@@ -80,7 +82,7 @@ export class BaseClassWithoutId extends BaseEntity {
         return this;
     }
 
-    toJSON(): ReturnType<typeof JSON.parse> {
+    toJSON(): EntityJson {
         this.clean_data();
 
         const metadata = this.metadata!;
