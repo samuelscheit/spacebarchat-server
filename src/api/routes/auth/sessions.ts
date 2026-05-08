@@ -68,9 +68,10 @@ router.post(
         }
 
         for (const session of sessions) {
+            const sessionId = session.session_id;
             await session.remove();
             await emitEvent({
-                session_id: session.session_id,
+                session_id: sessionId,
                 event: "SB_SESSION_REMOVE",
                 origin: "Sessions logout",
             });
