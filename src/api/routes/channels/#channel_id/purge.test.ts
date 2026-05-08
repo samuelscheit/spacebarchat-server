@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { deleteMessagesInBatches } from "./purgeMessages";
+import { deleteMessagesInBatches } from "../../../util/handlers/PurgeMessages";
 
 describe("deleteMessagesInBatches", () => {
     test("fetches and deletes messages in bounded batches while preserving deleted id order", async () => {

@@ -22,7 +22,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { Between, FindManyOptions, FindOperator, Not } from "typeorm";
 import { isTextChannel, PurgeSchema } from "@spacebar/schemas";
-import { deleteMessagesInBatches } from "./purgeMessages";
+import { deleteMessagesInBatches } from "../../../util/handlers/PurgeMessages";
 
 const router: Router = Router({ mergeParams: true });
 
