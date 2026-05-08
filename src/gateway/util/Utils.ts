@@ -39,10 +39,12 @@ export function generateStreamKey(type: "guild" | "call", guildId: string | unde
 }
 
 export async function cleanupOnStartup(): Promise<void> {
-    console.log("[Gateway] Starting async presence expiry...");
-    expireOldPresenceStates()
+    console.log("[Gateway] Starting presence expiry...");
+    const expirePresences = expireOldPresenceStates()
         .then(() => console.log("[Gateway] Successfully cleaned expired presence states"))
         .catch((e) => console.error("[Gateway] Error cleaning expired presence states on startup:", e));
+
+    await expirePresences;
 }
 
 async function expireOldPresenceStates() {

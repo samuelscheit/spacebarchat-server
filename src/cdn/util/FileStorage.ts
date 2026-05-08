@@ -52,14 +52,12 @@ export class FileStorage implements Storage {
         try {
             return await fsp.readFile(path);
         } catch (error) {
-            try {
-                console.warn("[CDN] Warning: falling back to first file in dir for path", path);
-                const files = fs.readdirSync(path);
-                if (!files.length) return null;
-                return await fsp.readFile(join(path, files[0]));
-            } catch (error) {
-                return null;
-            }
+            if (!(await isDirectory(path))) return null;
+
+            console.warn("[CDN] Warning: falling back to first file in dir for path", path);
+            const files = await fsp.readdir(path);
+            if (!files.length) return null;
+            return await fsp.readFile(join(path, files[0]));
         }
     }
 
@@ -115,5 +113,13 @@ export class FileStorage implements Storage {
 
             current = dirname(current);
         }
+    }
+}
+
+async function isDirectory(path: string) {
+    try {
+        return (await fsp.stat(path)).isDirectory();
+    } catch (error) {
+        return false;
     }
 }
