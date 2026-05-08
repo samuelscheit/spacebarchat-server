@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Guild } from "@spacebar/util";
+import { GuildFeature, Config, Guild } from "@spacebar/util";
 
 import { route, toRecommendedGuild } from "@spacebar/api";
 import { Request, Response, Router } from "express";
@@ -45,7 +45,7 @@ router.get(
         const guilds = showAllGuilds
             ? await Guild.find({ take: Math.abs(Number(limit || 24)) })
             : await Guild.find({
-                  where: { features: ArrayContains(["DISCOVERABLE"]) },
+                  where: { features: ArrayContains([GuildFeature.Discoverable]) },
                   take: Math.abs(Number(limit || 24)),
               });
         const response = {

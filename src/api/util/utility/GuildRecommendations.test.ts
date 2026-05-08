@@ -17,6 +17,7 @@
 */
 
 import assert from "node:assert/strict";
+import { GuildFeature } from "../../../util/util/GuildFeatures";
 import test from "node:test";
 import { ajv } from "../../../schemas/Validator";
 import { toRecommendedGuild } from "./GuildRecommendations";
@@ -32,7 +33,7 @@ test("toRecommendedGuild serializes a Guild entity into the recommendation respo
         banner: "banner_hash",
         splash: undefined,
         description: undefined,
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         preferred_locale: "en-US",
         premium_subscription_count: 7,
         member_count: 42,
@@ -103,7 +104,7 @@ test("toRecommendedGuild preserves an unavailable guild marker when it is true",
     const guild = {
         id: "100",
         name: "Unavailable guild",
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         widget_enabled: true,
         welcome_screen: {
             enabled: false,

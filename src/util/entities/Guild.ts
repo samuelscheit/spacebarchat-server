@@ -46,7 +46,7 @@ import { Webhook } from "./Webhook";
 import type { GuildCreateResponse } from "@spacebar/schemas";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
-import { setVanityUrlFeature } from "../util/GuildFeatures";
+import { GuildFeature, setVanityUrlFeature } from "../util/GuildFeatures";
 import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
@@ -121,8 +121,8 @@ export class Guild extends BaseClass {
     explicit_content_filter?: number;
 
     @Column({ type: "varchar", array: true })
-    features: string[] = []; //TODO use enum
-    //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
+    features: GuildFeature[] = [];
+    // See https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
     @Column({ nullable: true, type: "int8" })
     primary_category_id?: string | null; // TODO: this was number?
@@ -324,7 +324,7 @@ export class Guild extends BaseClass {
     discovery_excluded: boolean = false;
 
     async ToGuildSource() {
-        if (!this.features.includes("DISCOVERABLE")) {
+        if (!this.features.includes(GuildFeature.Discoverable)) {
             return null;
         }
         return {

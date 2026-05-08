@@ -1,9 +1,10 @@
+import { GuildFeature } from "../../../util/util/GuildFeatures";
 import { GuildDiscoveryMetadataResponse, GuildDiscoveryMetadataUpdateSchema } from "@spacebar/schemas";
 
 export interface DiscoveryMetadataGuild {
     id: string;
     primary_category_id?: string | null;
-    features?: string[];
+    features?: GuildFeature[];
     description?: string | null;
 }
 
@@ -20,7 +21,7 @@ export function toGuildDiscoveryMetadata(guild: DiscoveryMetadataGuild): GuildDi
         emoji_discoverability_enabled: true,
         partner_actioned_timestamp: null,
         partner_application_timestamp: null,
-        is_published: guild.features?.includes("DISCOVERABLE") ?? false,
+        is_published: guild.features?.includes(GuildFeature.Discoverable) ?? false,
         reasons_to_join: [],
         social_links: [],
         about: guild.description ?? null,
@@ -41,10 +42,10 @@ export function getGuildDiscoveryMetadataUpdate(guild: DiscoveryMetadataGuild, b
     if (body.is_published !== undefined) {
         const features = guild.features ?? [];
         update.features = body.is_published
-            ? features.includes("DISCOVERABLE")
+            ? features.includes(GuildFeature.Discoverable)
                 ? features
-                : [...features, "DISCOVERABLE"]
-            : features.filter((feature) => feature !== "DISCOVERABLE");
+                : [...features, GuildFeature.Discoverable]
+            : features.filter((feature) => feature !== GuildFeature.Discoverable);
     }
 
     return update;

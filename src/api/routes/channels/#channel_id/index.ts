@@ -26,6 +26,7 @@ import {
     ErrorList,
     FieldError,
     Guild,
+    GuildFeature,
     Recipient,
     emitEvent,
     getChannelOrderInsertPoint,
@@ -240,7 +241,7 @@ router.patch(
                 where: { id: channel.guild_id },
                 select: { features: true },
             });
-            allowUnnamedChannels = guild.features.includes("ALLOW_UNNAMED_CHANNELS");
+            allowUnnamedChannels = guild.features.includes(GuildFeature.AllowUnnamedChannels);
             payload.name = normalizeChannelName(payload.name, payload.type ?? channel.type, guild.features);
             assertChannelNamePresent(payload.name, guild.features);
         }

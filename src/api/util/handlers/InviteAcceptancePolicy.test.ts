@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { GuildFeature } from "../../../util/util/GuildFeatures";
 import { describe, test } from "node:test";
 import { getInviteAcceptanceDenial, InviteAcceptanceUserFlags } from "./InviteAcceptancePolicy";
 
@@ -7,7 +8,7 @@ describe("getInviteAcceptanceDenial", () => {
         assert.equal(
             getInviteAcceptanceDenial({
                 banned: true,
-                features: ["INVITES_DISABLED"],
+                features: [GuildFeature.InvitesDisabled],
                 publicFlags: InviteAcceptanceUserFlags.DISCORD_EMPLOYEE,
             }),
             "USER_BANNED",
@@ -27,17 +28,17 @@ describe("getInviteAcceptanceDenial", () => {
     test("denies non-staff users from internal employee guilds", () => {
         assert.equal(
             getInviteAcceptanceDenial({
-                features: ["INTERNAL_EMPLOYEE_ONLY"],
+                features: [GuildFeature.InternalEmployeeOnly],
                 publicFlags: 0,
             }),
-            "INTERNAL_EMPLOYEE_ONLY",
+            GuildFeature.InternalEmployeeOnly,
         );
     });
 
     test("allows staff users into internal employee guilds", () => {
         assert.equal(
             getInviteAcceptanceDenial({
-                features: ["INTERNAL_EMPLOYEE_ONLY"],
+                features: [GuildFeature.InternalEmployeeOnly],
                 publicFlags: InviteAcceptanceUserFlags.DISCORD_EMPLOYEE,
             }),
             undefined,
@@ -47,10 +48,10 @@ describe("getInviteAcceptanceDenial", () => {
     test("denies guilds with invite joins disabled", () => {
         assert.equal(
             getInviteAcceptanceDenial({
-                features: ["INVITES_DISABLED"],
+                features: [GuildFeature.InvitesDisabled],
                 publicFlags: 0,
             }),
-            "INVITES_DISABLED",
+            GuildFeature.InvitesDisabled,
         );
     });
 });

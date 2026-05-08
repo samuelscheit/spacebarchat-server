@@ -17,7 +17,7 @@
 */
 
 import { getVoiceRegions, route } from "@spacebar/api";
-import { Guild } from "@spacebar/util";
+import { Guild, GuildFeature } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
@@ -38,7 +38,7 @@ router.get(
         const { guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
         //TODO we should use an enum for guild's features and not hardcoded strings
-        return res.json(await getVoiceRegions(req.ip!, guild.features.includes("VIP_REGIONS")));
+        return res.json(await getVoiceRegions(req.ip!, guild.features.includes(GuildFeature.VipRegions)));
     },
 );
 
