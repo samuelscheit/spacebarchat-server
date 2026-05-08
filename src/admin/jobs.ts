@@ -60,6 +60,7 @@ export interface AdminJobListOptions extends Page {
 const memoryJobs = new Map<string, MemoryAdminJobRecord<any, any>>();
 const memoryIdempotencyIndex = new Map<string, string>();
 const runnerFactories = new Map<string, AdminJobRunnerFactory>();
+const activeJobExecutions = new Set<Promise<void>>();
 const workerId = `${process.pid}:${randomUUID()}`;
 const DEFAULT_CLAIM_TIMEOUT_MS = 5 * 60 * 1000;
 
@@ -161,6 +162,27 @@ export function registerAdminJobRunner<TInput, TResult>(type: string, factory: A
     runnerFactories.set(type, factory as AdminJobRunnerFactory);
 }
 
+function scheduleAdminJobExecution(run: () => Promise<void>) {
+    const execution = new Promise<void>((resolve) => {
+        setImmediate(() => {
+            void run()
+                .catch((error) => {
+                    console.error("[AdminJobs] Background job execution failed", error);
+                })
+                .finally(resolve);
+        });
+    });
+
+    activeJobExecutions.add(execution);
+    void execution.finally(() => activeJobExecutions.delete(execution));
+}
+
+export async function drainAdminJobExecutions() {
+    while (activeJobExecutions.size) {
+        await Promise.allSettled([...activeJobExecutions]);
+    }
+}
+
 async function runMemoryJob<TInput, TResult>(job: MemoryAdminJobRecord<TInput, TResult>) {
     if (job.cancelRequested) {
         job.status = "cancelled";
@@ -237,7 +259,7 @@ function createMemoryJob<TInput, TResult>(options: CreateAdminJobOptions<TInput,
     memoryJobs.set(job.id, job);
     if (idempotencyKey) memoryIdempotencyIndex.set(idempotencyIndexKey(options.type, idempotencyKey), job.id);
 
-    setImmediate(() => void runMemoryJob(job));
+    scheduleAdminJobExecution(() => runMemoryJob(job));
 
     return snapshotFromMemory(job);
 }
@@ -423,7 +445,7 @@ export async function recoverAdminJobs() {
         order: { createdAt: "ASC" },
     });
 
-    for (const job of queued) setImmediate(() => void runPersistedJob(job.id));
+    for (const job of queued) scheduleAdminJobExecution(() => runPersistedJob(job.id));
 }
 
 export async function createAdminJob<TInput, TResult>(options: CreateAdminJobOptions<TInput, TResult>): Promise<AdminJobSnapshot<TInput, TResult>> {
@@ -469,7 +491,7 @@ export async function createAdminJob<TInput, TResult>(options: CreateAdminJobOpt
         throw error;
     }
 
-    setImmediate(() => void runPersistedJob(job.id, options.runner as AdminJobRunner<unknown>));
+    scheduleAdminJobExecution(() => runPersistedJob(job.id, options.runner as AdminJobRunner<unknown>));
 
     return snapshotFromEntity(job);
 }
@@ -564,6 +586,7 @@ export async function requestAdminJobCancellation(id: string): Promise<AdminJobS
 }
 
 export async function clearAdminJobsForTests() {
+    await drainAdminJobExecutions();
     const repo = repository();
     if (repo) await repo.clear();
     memoryJobs.clear();
