@@ -44,7 +44,7 @@ function assertElementData(value: unknown, field: string) {
 
 function assertReportingMenuResponse(menu: ReportingMenuResponse, expectedName: string) {
     assert.equal(menu.name, expectedName);
-    assert.equal(typeof menu.variant, "string");
+    assert.equal(menu.variant, "1");
     assert.equal(typeof menu.version, "string");
     assert.equal(typeof menu.postback_url, "string");
     assert.equal(typeof menu.root_node_id, "number");

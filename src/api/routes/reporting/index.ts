@@ -58,8 +58,6 @@ for (const type of Object.values(ReportMenuTypeNames)) {
             spacebarOnly: false, // Maps to /reporting/menu/:id
         }),
         (req: Request, res: Response) => {
-            // TODO: implement
-            // res.send([] as ReportingMenuResponseSchema);
             res.sendFile(path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`));
         },
     );
