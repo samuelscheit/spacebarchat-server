@@ -17,7 +17,7 @@
 */
 
 import { Router, Response, Request } from "express";
-import { assertCdnFileSizeLimit, Config } from "@spacebar/util";
+import { assertCdnAnimatedImageAllowed, assertCdnFileSizeLimit, Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
@@ -25,7 +25,6 @@ import crypto from "node:crypto";
 import { multer } from "../util/multer";
 import { cache, cacheNotFound } from "../util/cache";
 
-// TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
 // TODO: delete old icons
@@ -48,7 +47,9 @@ router.post("/:guild_id", multer.single("file"), async (req: Request, res: Respo
 
     const type = await fileTypeFromBuffer(buffer);
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-    if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
+    const isAnimated = ANIMATED_MIME_TYPES.includes(type.mime);
+    assertCdnAnimatedImageAllowed(`/banners/${guild_id}`, isAnimated, Config.get().cdn);
+    if (isAnimated) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = `${pathPrefix}/${guild_id}/${hash}`;
     const endpoint = Config.get().cdn.endpointPublic;

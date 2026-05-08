@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { CdnConfiguration } from "../config/types/CdnConfiguration";
-import { assertCdnFileSizeLimit, getCdnFileSizeLimit, getConfiguredCdnMultipartFileLimit, getConfiguredImageUploadBodyLimit } from "./CdnFileLimits";
+import {
+    assertCdnAnimatedImageAllowed,
+    assertCdnFileSizeLimit,
+    getCdnFileSizeLimit,
+    getConfiguredCdnMultipartFileLimit,
+    getConfiguredImageUploadBodyLimit,
+    isCdnAnimatedImageAllowed,
+} from "./CdnFileLimits";
 
 function createCdnConfig() {
     const cdn = new CdnConfiguration();
@@ -34,6 +41,34 @@ describe("CDN file size limits", () => {
         const cdn = createCdnConfig();
 
         assert.doesNotThrow(() => assertCdnFileSizeLimit("/emojis/emoji-id", Number.MAX_SAFE_INTEGER, cdn));
+    });
+
+    test("resolves configured animated image policy from upload paths", () => {
+        const cdn = createCdnConfig();
+
+        cdn.limits.banner.allowAnimated = "never";
+        assert.equal(isCdnAnimatedImageAllowed("/banners/guild-id", cdn), false);
+        assert.equal(isCdnAnimatedImageAllowed("/guilds/guild-id/users/user-id/banners", cdn), false);
+
+        cdn.limits.banner.allowAnimated = "premium";
+        assert.equal(isCdnAnimatedImageAllowed("/banners/guild-id", cdn), false);
+        assert.equal(isCdnAnimatedImageAllowed("/banners/guild-id", cdn, true), true);
+
+        cdn.limits.banner.allowAnimated = "always";
+        assert.equal(isCdnAnimatedImageAllowed("/banners/guild-id", cdn), true);
+
+        assert.equal(isCdnAnimatedImageAllowed("/emojis/emoji-id", cdn), true);
+    });
+
+    test("rejects animated uploads when the configured image policy disallows them", () => {
+        const cdn = createCdnConfig();
+        cdn.limits.banner.allowAnimated = "never";
+
+        assert.throws(() => assertCdnAnimatedImageAllowed("/banners/guild-id", true, cdn), {
+            code: 50035,
+            message: "Invalid form body (returned for both application/json and multipart/form-data bodies), or invalid Content-Type provided",
+        });
+        assert.doesNotThrow(() => assertCdnAnimatedImageAllowed("/banners/guild-id", false, cdn));
     });
 
     test("accounts for base64 expansion when setting JSON upload body limit", () => {
