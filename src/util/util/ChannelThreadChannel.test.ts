@@ -106,6 +106,7 @@ const originals = {
     channelFindOneOrFail: Channel.findOneOrFail,
     channelSave: Channel.prototype.save,
     guildFindOneOrFail: Guild.findOneOrFail,
+    guildInsertChannelInOrder: Guild.insertChannelInOrder,
     snowflakeGenerate: Snowflake.generate,
     threadMemberCreateForUser: ThreadMember.createForUser,
 };
@@ -120,6 +121,7 @@ afterEach(() => {
     });
     Object.assign(Guild, {
         findOneOrFail: originals.guildFindOneOrFail,
+        insertChannelInOrder: originals.guildInsertChannelInOrder,
     });
     Object.assign(Snowflake, {
         generate: originals.snowflakeGenerate,
@@ -225,12 +227,20 @@ describe("Channel.createThreadChannel", () => {
         Object.assign(Snowflake, {
             generate: () => "generated-thread-id",
         });
+        let orderInsertCalls = 0;
+        Object.assign(Guild, {
+            insertChannelInOrder: async () => {
+                orderInsertCalls += 1;
+                return 1;
+            },
+        });
 
         const thread = await Channel.createThreadChannel(
             {
                 parent_id: "parent",
                 guild_id: "guild",
                 name: "unordered-thread",
+                position: 42,
                 type: GUILD_PUBLIC_THREAD,
             },
             {},
@@ -239,5 +249,6 @@ describe("Channel.createThreadChannel", () => {
         );
 
         assert.equal(thread.position, 0);
+        assert.equal(orderInsertCalls, 0);
     });
 });
