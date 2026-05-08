@@ -56,15 +56,17 @@ export async function cleanupOnStartup(): Promise<void> {
     //	},
     //);
 
-    console.log("[Gateway] Starting async voice state wipe...");
-    VoiceState.clear()
+    console.log("[Gateway] Starting voice state wipe...");
+    const clearVoiceStates = VoiceState.clear()
         .then(() => console.log("[Gateway] Successfully cleaned voice states"))
         .catch((e) => console.error("[Gateway] Error cleaning voice states on startup:", e));
 
-    console.log("[Gateway] Starting async presence expiry...");
-    expireOldPresenceStates()
+    console.log("[Gateway] Starting presence expiry...");
+    const expirePresences = expireOldPresenceStates()
         .then(() => console.log("[Gateway] Successfully cleaned expired presence states"))
-        .catch((e) => console.error("[Gateway] Error cleaning expired presence states on startup:", e));
+        .catch((e) => console.error("[Gateway] Error cleaning expired presence states:", e));
+
+    await Promise.all([clearVoiceStates, expirePresences]);
 }
 
 async function expireOldPresenceStates() {
