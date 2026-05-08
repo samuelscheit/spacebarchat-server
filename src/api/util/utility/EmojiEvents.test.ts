@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { WSEvents } from "../../../util/util/Constants";
+import { Events, WSEvents } from "../../../util/util/Constants";
 import { Intents } from "../../../util/util/Intents";
 import { buildGuildEmojiPatchEvents, buildGuildEmojiUpdateEventData } from "./EmojiEvents";
 
@@ -52,6 +52,7 @@ describe("emoji event helpers", () => {
     });
 
     test("exposes reaction add-many through websocket constants and reaction intents", () => {
+        assert.equal(Events.MESSAGE_REACTION_ADD_MANY, "messageReactionAddMany");
         assert.equal(WSEvents.MESSAGE_REACTION_ADD_MANY, "MESSAGE_REACTION_ADD_MANY");
         assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[10].includes("MESSAGE_REACTION_ADD_MANY"));
         assert.ok(Intents.DM_INTENT_TO_EVENTS_MAP[13].includes("MESSAGE_REACTION_ADD_MANY"));
