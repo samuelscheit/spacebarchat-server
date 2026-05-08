@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { CdnConfiguration } from "../config/types/CdnConfiguration";
-import { assertCdnFileSizeLimit, getCdnFileSizeLimit, getConfiguredCdnMultipartFileLimit, getConfiguredImageUploadBodyLimit } from "./CdnFileLimits";
+import {
+    assertCdnAnimatedImagePolicy,
+    assertCdnFileSizeLimit,
+    getCdnFileSizeLimit,
+    getCdnImageLimits,
+    getConfiguredCdnMultipartFileLimit,
+    getConfiguredImageUploadBodyLimit,
+} from "./CdnFileLimits";
 
 function createCdnConfig() {
     const cdn = new CdnConfiguration();
@@ -21,6 +28,14 @@ describe("CDN file size limits", () => {
         assert.equal(getCdnFileSizeLimit("/guilds/guild-id/users/user-id/banners", cdn), 2048);
     });
 
+    test("resolves sticker image limits from CDN sticker upload paths", () => {
+        const cdn = createCdnConfig();
+        cdn.limits.sticker.maxSize = 512;
+
+        assert.equal(getCdnImageLimits("/stickers/sticker-id", cdn), cdn.limits.sticker);
+        assert.equal(getCdnFileSizeLimit("/stickers/sticker-id", cdn), 512);
+    });
+
     test("rejects configured avatar uploads that exceed the limit", () => {
         const cdn = createCdnConfig();
 
@@ -34,6 +49,25 @@ describe("CDN file size limits", () => {
         const cdn = createCdnConfig();
 
         assert.doesNotThrow(() => assertCdnFileSizeLimit("/emojis/emoji-id", Number.MAX_SAFE_INTEGER, cdn));
+    });
+
+    test("rejects animated sticker uploads when sticker animation is disabled", () => {
+        const cdn = createCdnConfig();
+        cdn.limits.sticker.allowAnimated = "never";
+
+        assert.throws(() => assertCdnAnimatedImagePolicy("/stickers/sticker-id", "image/gif", cdn), {
+            code: 50046,
+            message: "Invalid file uploaded",
+        });
+    });
+
+    test("allows static stickers and defers premium-only animation checks to API policy", () => {
+        const cdn = createCdnConfig();
+        cdn.limits.sticker.allowAnimated = "never";
+        assert.doesNotThrow(() => assertCdnAnimatedImagePolicy("/stickers/sticker-id", "image/png", cdn));
+
+        cdn.limits.sticker.allowAnimated = "premium";
+        assert.doesNotThrow(() => assertCdnAnimatedImagePolicy("/stickers/sticker-id", "image/gif", cdn));
     });
 
     test("accounts for base64 expansion when setting JSON upload body limit", () => {
