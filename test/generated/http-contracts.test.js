@@ -55,4 +55,13 @@ describe("generated HTTP contract matrix", () => {
             );
         }
     });
+
+    test("routes with declared or emitted events get event-emission cases", () => {
+        for (const contract of matrix.contracts.filter((entry) => entry.routeMetadata.event || entry.routeMetadata.emittedEvents?.length)) {
+            assert.ok(
+                contract.cases.some((contractCase) => contractCase.id === "event-emission" && contractCase.checks.includes("events")),
+                `${contract.manifestId} is missing event-emission case`,
+            );
+        }
+    });
 });

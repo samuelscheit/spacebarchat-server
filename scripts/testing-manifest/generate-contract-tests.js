@@ -68,6 +68,16 @@ function hasRouteMetadata(entry, field) {
     return entry.routeMetadata && entry.routeMetadata[field] !== undefined;
 }
 
+function routeMetadataValues(value) {
+    if (Array.isArray(value)) return value.map(String);
+    if (value === undefined || value === null) return [];
+    return [String(value)];
+}
+
+function eventValues(entry) {
+    return [...new Set([...routeMetadataValues(entry.routeMetadata?.event), ...routeMetadataValues(entry.routeMetadata?.emittedEvents)])].sort();
+}
+
 function contractCases(entry) {
     const checks = new Set(entry.coverage?.contractChecks || []);
     const cases = [
@@ -112,11 +122,12 @@ function contractCases(entry) {
         });
     }
 
-    if (entry.routeMetadata?.event) {
+    const events = eventValues(entry);
+    if (events.length) {
         cases.push({
             id: "event-emission",
             checks: ["events"],
-            event: entry.routeMetadata.event,
+            events,
         });
     }
 
@@ -167,6 +178,7 @@ function contractForEntry(entry) {
             permission: entry.routeMetadata?.permission,
             right: entry.routeMetadata?.right,
             event: entry.routeMetadata?.event,
+            emittedEvents: entry.routeMetadata?.emittedEvents,
         },
         cases: contractCases(entry),
     };
@@ -230,12 +242,6 @@ function buildContractMatrix(manifest) {
         },
         contracts,
     };
-}
-
-function routeMetadataValues(value) {
-    if (Array.isArray(value)) return value.map(String);
-    if (value === undefined || value === null) return [];
-    return [String(value)];
 }
 
 function hasExpandedRouteMetadataValue(value) {
@@ -420,6 +426,15 @@ describe("generated HTTP contract matrix", () => {
             );
         }
     });
+
+    test("routes with declared or emitted events get event-emission cases", () => {
+        for (const contract of matrix.contracts.filter((entry) => entry.routeMetadata.event || entry.routeMetadata.emittedEvents?.length)) {
+            assert.ok(
+                contract.cases.some((contractCase) => contractCase.id === "event-emission" && contractCase.checks.includes("events")),
+                \`\${contract.manifestId} is missing event-emission case\`,
+            );
+        }
+    });
 });
 `;
 }
@@ -455,6 +470,8 @@ type GeneratedHttpContract = {
         responseStatuses: number[];
         permission?: unknown;
         right?: unknown;
+        event?: unknown;
+        emittedEvents?: string[];
     };
 };
 
@@ -566,11 +583,7 @@ const authenticatedResponseSchemaContracts = matrix.contracts.filter(
 );
 const rightOnlyDenialContracts = matrix.contracts.filter(
     (contract) =>
-        contract.service === "api" &&
-        contract.authMode === "bearer" &&
-        contract.method !== "OPTIONS" &&
-        contract.routeMetadata.right &&
-        !contract.routeMetadata.permission,
+        contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS" && contract.routeMetadata.right && !contract.routeMetadata.permission,
 );
 const permissionOnlyDenialContracts = matrix.contracts.filter(
     (contract) =>
@@ -807,10 +820,7 @@ async function withGeneratedCdn<T>(fn: (context: { cdn: Awaited<ReturnType<typeo
     }
 }
 
-async function withGeneratedCdnDatabase<T>(
-    prefix: string,
-    fn: (context: { cdn: Awaited<ReturnType<typeof startCdn>>; storage: GeneratedCdnStorage }) => Promise<T>,
-): Promise<T> {
+async function withGeneratedCdnDatabase<T>(prefix: string, fn: (context: { cdn: Awaited<ReturnType<typeof startCdn>>; storage: GeneratedCdnStorage }) => Promise<T>): Promise<T> {
     const previous = snapshotProcessState();
     const database = await createDisposablePostgresDatabase({ prefix });
     let databaseInitialized = false;
@@ -1017,11 +1027,7 @@ async function seedCdnObjectForContract(storage: GeneratedCdnStorage, contract: 
 
 async function assertCdnValidObjectResponse(contract: GeneratedHttpContract, response: Response) {
     assert.equal(response.status, 200, \`\${contract.manifestId} should download seeded CDN objects\`);
-    assert.equal(
-        response.headers.get("cache-control"),
-        "public, max-age=21600, s-maxage=21600, immutable",
-        \`\${contract.manifestId} should include successful CDN cache headers\`,
-    );
+    assert.equal(response.headers.get("cache-control"), "public, max-age=21600, s-maxage=21600, immutable", \`\${contract.manifestId} should include successful CDN cache headers\`);
     assert.equal(response.headers.get("content-type"), "image/png", \`\${contract.manifestId} should return PNG content\`);
 
     const body = Buffer.from(await response.arrayBuffer());

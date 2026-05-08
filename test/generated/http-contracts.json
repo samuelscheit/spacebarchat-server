@@ -2995,6 +2995,9 @@
                 "responses": [],
                 "responseStatuses": [
                     204
+                ],
+                "emittedEvents": [
+                    "SB_SESSION_REMOVE"
                 ]
             },
             "cases": [
@@ -3024,6 +3027,15 @@
                     "checks": [
                         "invalid-auth",
                         "error-shape"
+                    ]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "SB_SESSION_REMOVE"
                     ]
                 },
                 {
@@ -3432,6 +3444,9 @@
                 "responses": [],
                 "responseStatuses": [
                     204
+                ],
+                "emittedEvents": [
+                    "SB_SESSION_REMOVE"
                 ]
             },
             "cases": [
@@ -3470,6 +3485,15 @@
                         "error-shape"
                     ],
                     "requestBody": "SessionsLogoutSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "SB_SESSION_REMOVE"
+                    ]
                 },
                 {
                     "id": "policy-public-auth-boundary",
@@ -3909,7 +3933,12 @@
                     200,
                     404
                 ],
-                "permission": "MANAGE_CHANNELS"
+                "permission": "MANAGE_CHANNELS",
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_UPDATE",
+                    "THREAD_DELETE"
+                ]
             },
             "cases": [
                 {
@@ -3949,6 +3978,17 @@
                     "permission": "MANAGE_CHANNELS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_DELETE",
+                        "CHANNEL_UPDATE",
+                        "THREAD_DELETE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -3958,12 +3998,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -4096,7 +4130,10 @@
                     400,
                     404
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -4144,15 +4181,18 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -4551,7 +4591,10 @@
                     400,
                     404
                 ],
-                "permission": "SEND_MESSAGES"
+                "permission": "SEND_MESSAGES",
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -4599,15 +4642,18 @@
                     "permission": "SEND_MESSAGES"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_CREATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -4837,6 +4883,9 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "MESSAGE_DELETE"
                 ]
             },
             "cases": [
@@ -4869,6 +4918,15 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_DELETE"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -4884,12 +4942,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -5027,7 +5079,10 @@
                     404
                 ],
                 "permission": "SEND_MESSAGES",
-                "right": "SEND_MESSAGES"
+                "right": "SEND_MESSAGES",
+                "emittedEvents": [
+                    "MESSAGE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -5076,15 +5131,18 @@
                     "right": "SEND_MESSAGES"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -5127,7 +5185,10 @@
                     404
                 ],
                 "permission": "SEND_MESSAGES",
-                "right": "SEND_BACKDATED_EVENTS"
+                "right": "SEND_BACKDATED_EVENTS",
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -5176,15 +5237,18 @@
                     "right": "SEND_BACKDATED_EVENTS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_CREATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -5220,6 +5284,9 @@
                 "responseStatuses": [
                     200,
                     403
+                ],
+                "emittedEvents": [
+                    "MESSAGE_ACK"
                 ]
             },
             "cases": [
@@ -5260,6 +5327,15 @@
                     "requestBody": "MessageAcknowledgeSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_ACK"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -5269,12 +5345,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -5685,7 +5755,10 @@
                     404
                 ],
                 "permission": "READ_MESSAGE_HISTORY",
-                "right": "SELF_ADD_REACTIONS"
+                "right": "SELF_ADD_REACTIONS",
+                "emittedEvents": [
+                    "MESSAGE_REACTION_ADD"
+                ]
             },
             "cases": [
                 {
@@ -5726,6 +5799,15 @@
                     "right": "SELF_ADD_REACTIONS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_REACTION_ADD"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -5735,12 +5817,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -5780,7 +5856,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_MESSAGES"
+                "permission": "MANAGE_MESSAGES",
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE_EMOJI"
+                ]
             },
             "cases": [
                 {
@@ -5820,6 +5899,15 @@
                     "permission": "MANAGE_MESSAGES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_REACTION_REMOVE_EMOJI"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -5829,12 +5917,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -5969,7 +6051,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_MESSAGES"
+                "permission": "MANAGE_MESSAGES",
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE_ALL"
+                ]
             },
             "cases": [
                 {
@@ -6009,6 +6094,15 @@
                     "permission": "MANAGE_MESSAGES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_REACTION_REMOVE_ALL"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -6018,12 +6112,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -6060,7 +6148,11 @@
                     200,
                     403
                 ],
-                "permission": "CREATE_PUBLIC_THREADS"
+                "permission": "CREATE_PUBLIC_THREADS",
+                "emittedEvents": [
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -6108,15 +6200,19 @@
                     "permission": "CREATE_PUBLIC_THREADS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_UPDATE",
+                        "THREAD_CREATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -6251,7 +6347,14 @@
                     404
                 ],
                 "permission": "VIEW_CHANNEL",
-                "right": "SEND_MESSAGES"
+                "right": "SEND_MESSAGES",
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_UPDATE",
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -6300,15 +6403,22 @@
                     "right": "SEND_MESSAGES"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_CREATE",
+                        "CHANNEL_UPDATE",
+                        "MESSAGE_CREATE",
+                        "THREAD_CREATE",
+                        "THREAD_MEMBERS_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -6437,6 +6547,9 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK"
                 ]
             },
             "cases": [
@@ -6477,6 +6590,15 @@
                     "requestBody": "BulkDeleteSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_DELETE_BULK"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -6486,12 +6608,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -6531,7 +6647,11 @@
                     403,
                     404
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -6571,6 +6691,16 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_PINS_UPDATE",
+                        "MESSAGE_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -6580,12 +6710,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -6625,7 +6749,12 @@
                     403,
                     404
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -6665,6 +6794,17 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_PINS_UPDATE",
+                        "MESSAGE_CREATE",
+                        "MESSAGE_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -6674,12 +6814,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -6903,7 +7037,10 @@
                     204,
                     404
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -6943,6 +7080,15 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -6952,12 +7098,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -6998,7 +7138,10 @@
                     404,
                     501
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -7046,15 +7189,18 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -7094,7 +7240,11 @@
                     403,
                     404
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -7134,6 +7284,16 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_PINS_UPDATE",
+                        "MESSAGE_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -7143,12 +7303,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -7188,7 +7342,12 @@
                     403,
                     404
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -7228,6 +7387,17 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_PINS_UPDATE",
+                        "MESSAGE_CREATE",
+                        "MESSAGE_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -7237,12 +7407,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -7472,6 +7636,9 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK"
                 ]
             },
             "cases": [
@@ -7504,6 +7671,15 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_DELETE_BULK"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -7519,12 +7695,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -7646,6 +7816,10 @@
                 "responseStatuses": [
                     201,
                     404
+                ],
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_RECIPIENT_ADD"
                 ]
             },
             "cases": [
@@ -7678,6 +7852,16 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_CREATE",
+                        "CHANNEL_RECIPIENT_ADD"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -7693,12 +7877,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -7736,7 +7914,10 @@
                     200,
                     404
                 ],
-                "permission": "MANAGE_CHANNELS"
+                "permission": "MANAGE_CHANNELS",
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -7776,6 +7957,15 @@
                     "permission": "MANAGE_CHANNELS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -7785,12 +7975,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -7829,7 +8013,10 @@
                     200,
                     404
                 ],
-                "permission": "MANAGE_CHANNELS"
+                "permission": "MANAGE_CHANNELS",
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -7877,15 +8064,18 @@
                     "permission": "MANAGE_CHANNELS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -7924,7 +8114,10 @@
                     200,
                     404
                 ],
-                "permission": "MANAGE_CHANNELS"
+                "permission": "MANAGE_CHANNELS",
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -7972,15 +8165,18 @@
                     "permission": "MANAGE_CHANNELS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -8016,7 +8212,11 @@
                     200,
                     403
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "THREAD_DELETE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -8056,6 +8256,16 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "THREAD_DELETE",
+                        "THREAD_MEMBERS_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -8065,12 +8275,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -8377,7 +8581,10 @@
                     200,
                     403
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "THREAD_MEMBER_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -8417,6 +8624,15 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "THREAD_MEMBER_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -8426,12 +8642,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -8558,7 +8768,11 @@
                     200,
                     403
                 ],
-                "permission": "CREATE_PUBLIC_THREADS"
+                "permission": "CREATE_PUBLIC_THREADS",
+                "emittedEvents": [
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -8606,15 +8820,19 @@
                     "permission": "CREATE_PUBLIC_THREADS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_CREATE",
+                        "THREAD_CREATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -8945,7 +9163,10 @@
                     403,
                     404
                 ],
-                "permission": "SEND_MESSAGES"
+                "permission": "SEND_MESSAGES",
+                "emittedEvents": [
+                    "TYPING_START"
+                ]
             },
             "cases": [
                 {
@@ -8985,6 +9206,15 @@
                     "permission": "SEND_MESSAGES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "TYPING_START"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -8994,12 +9224,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -9696,7 +9920,10 @@
             "routeMetadata": {
                 "requestBody": "ConnectionCallbackSchema",
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "emittedEvents": [
+                    "USER_CONNECTIONS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -9726,6 +9953,15 @@
                         "error-shape"
                     ],
                     "requestBody": "ConnectionCallbackSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_CONNECTIONS_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-auth-boundary",
@@ -10764,7 +11000,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_GUILD"
+                "permission": "MANAGE_GUILD",
+                "emittedEvents": [
+                    "GUILD_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -10812,15 +11051,18 @@
                     "permission": "MANAGE_GUILD"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -11423,7 +11665,10 @@
                     403,
                     404
                 ],
-                "permission": "BAN_MEMBERS"
+                "permission": "BAN_MEMBERS",
+                "emittedEvents": [
+                    "GUILD_BAN_REMOVE"
+                ]
             },
             "cases": [
                 {
@@ -11463,6 +11708,15 @@
                     "permission": "BAN_MEMBERS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_BAN_REMOVE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -11472,12 +11726,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -11611,7 +11859,10 @@
                     400,
                     403
                 ],
-                "permission": "BAN_MEMBERS"
+                "permission": "BAN_MEMBERS",
+                "emittedEvents": [
+                    "GUILD_BAN_ADD"
+                ]
             },
             "cases": [
                 {
@@ -11659,15 +11910,18 @@
                     "permission": "BAN_MEMBERS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_BAN_ADD"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -11897,6 +12151,9 @@
                 "permission": [
                     "BAN_MEMBERS",
                     "MANAGE_GUILD"
+                ],
+                "emittedEvents": [
+                    "GUILD_BAN_ADD"
                 ]
             },
             "cases": [
@@ -11948,15 +12205,18 @@
                     ]
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_BAN_ADD"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -12084,7 +12344,10 @@
                     400,
                     403
                 ],
-                "permission": "MANAGE_CHANNELS"
+                "permission": "MANAGE_CHANNELS",
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -12132,15 +12395,18 @@
                     "permission": "MANAGE_CHANNELS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -12275,6 +12541,9 @@
                     204,
                     401,
                     404
+                ],
+                "emittedEvents": [
+                    "GUILD_DELETE"
                 ]
             },
             "cases": [
@@ -12307,6 +12576,15 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_DELETE"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -12322,12 +12600,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -12453,7 +12725,10 @@
                     204,
                     403
                 ],
-                "permission": "MANAGE_EMOJIS_AND_STICKERS"
+                "permission": "MANAGE_EMOJIS_AND_STICKERS",
+                "emittedEvents": [
+                    "GUILD_EMOJIS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -12493,6 +12768,15 @@
                     "permission": "MANAGE_EMOJIS_AND_STICKERS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_EMOJIS_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -12502,12 +12786,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -12825,7 +13103,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_EMOJIS_AND_STICKERS"
+                "permission": "MANAGE_EMOJIS_AND_STICKERS",
+                "emittedEvents": [
+                    "GUILD_EMOJIS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -12873,15 +13154,18 @@
                     "permission": "MANAGE_EMOJIS_AND_STICKERS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_EMOJIS_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -13365,6 +13649,9 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
                 ]
             },
             "cases": [
@@ -13405,6 +13692,15 @@
                     "requestBody": "MemberChangeSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_MEMBER_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -13414,12 +13710,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -14091,6 +14381,9 @@
                     200,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
                 ]
             },
             "cases": [
@@ -14131,6 +14424,15 @@
                     "requestBody": "MemberChangeProfileSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_MEMBER_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -14140,12 +14442,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -14542,7 +14838,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "GUILD_ROLE_DELETE"
+                ]
             },
             "cases": [
                 {
@@ -14582,6 +14881,15 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_ROLE_DELETE"
+                    ]
+                },
+                {
                     "id": "policy-schema-validation",
                     "checks": [
                         "schema-validation"
@@ -14591,12 +14899,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -14729,7 +15031,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "GUILD_ROLE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -14777,15 +15082,18 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_ROLE_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -15081,7 +15389,10 @@
                     400,
                     403
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "GUILD_ROLE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -15129,15 +15440,18 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_ROLE_UPDATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -15178,7 +15492,10 @@
                     400,
                     403
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "GUILD_ROLE_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -15226,15 +15543,18 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_ROLE_CREATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -16570,6 +16890,9 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "VOICE_STATE_UPDATE"
                 ]
             },
             "cases": [
@@ -16610,6 +16933,15 @@
                     "requestBody": "VoiceStateUpdateSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "VOICE_STATE_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -16619,12 +16951,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -17945,7 +18271,12 @@
             "routeMetadata": {
                 "requestBody": "InteractionCallbacksSchema",
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "emittedEvents": [
+                    "INTERACTION_FAILURE",
+                    "INTERACTION_SUCCESS",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -17977,6 +18308,17 @@
                     "requestBody": "InteractionCallbacksSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "INTERACTION_FAILURE",
+                        "INTERACTION_SUCCESS",
+                        "MESSAGE_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-token-auth-boundary",
                     "checks": [
                         "token-auth-boundary"
@@ -18006,7 +18348,11 @@
             ],
             "routeMetadata": {
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "emittedEvents": [
+                    "INTERACTION_CREATE",
+                    "INTERACTION_FAILURE"
+                ]
             },
             "cases": [
                 {
@@ -18035,6 +18381,16 @@
                     "checks": [
                         "invalid-auth",
                         "error-shape"
+                    ]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "INTERACTION_CREATE",
+                        "INTERACTION_FAILURE"
                     ]
                 },
                 {
@@ -18078,6 +18434,9 @@
                 "responseStatuses": [
                     401,
                     404
+                ],
+                "emittedEvents": [
+                    "INVITE_DELETE"
                 ]
             },
             "cases": [
@@ -18107,6 +18466,15 @@
                     "checks": [
                         "invalid-auth",
                         "error-shape"
+                    ]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "INVITE_DELETE"
                     ]
                 },
                 {
@@ -20581,7 +20949,12 @@
                     403,
                     404
                 ],
-                "right": "MANAGE_USERS"
+                "right": "MANAGE_USERS",
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
+                    "USER_DELETE"
+                ]
             },
             "cases": [
                 {
@@ -20627,6 +21000,17 @@
                         "error-shape"
                     ],
                     "right": "MANAGE_USERS"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_DELETE",
+                        "CHANNEL_RECIPIENT_REMOVE",
+                        "USER_DELETE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -20830,7 +21214,10 @@
             "routeMetadata": {
                 "requestBody": "UserProfileModifySchema",
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "emittedEvents": [
+                    "USER_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -20868,6 +21255,15 @@
                         "error-shape"
                     ],
                     "requestBody": "UserProfileModifySchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -21078,6 +21474,9 @@
                     200,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "USER_UPDATE"
                 ]
             },
             "cases": [
@@ -21116,6 +21515,15 @@
                         "error-shape"
                     ],
                     "requestBody": "UserModifySchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -22421,7 +22829,10 @@
             ],
             "routeMetadata": {
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "emittedEvents": [
+                    "USER_CONNECTIONS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -22450,6 +22861,15 @@
                     "checks": [
                         "invalid-auth",
                         "error-shape"
+                    ]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_CONNECTIONS_UPDATE"
                     ]
                 },
                 {
@@ -24268,6 +24688,9 @@
                 "responseStatuses": [
                     204,
                     404
+                ],
+                "emittedEvents": [
+                    "USER_NOTE_UPDATE"
                 ]
             },
             "cases": [
@@ -24306,6 +24729,15 @@
                         "error-shape"
                     ],
                     "requestBody": "UserNoteUpdateSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_NOTE_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -24352,6 +24784,9 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "RELATIONSHIP_REMOVE"
                 ]
             },
             "cases": [
@@ -24381,6 +24816,15 @@
                     "checks": [
                         "invalid-auth",
                         "error-shape"
+                    ]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "RELATIONSHIP_REMOVE"
                     ]
                 },
                 {
@@ -24435,6 +24879,9 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "RELATIONSHIP_UPDATE"
                 ]
             },
             "cases": [
@@ -24473,6 +24920,15 @@
                         "error-shape"
                     ],
                     "requestBody": "RelationshipPatchSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "RELATIONSHIP_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -25507,6 +25963,9 @@
                     200,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "PRESENCE_UPDATE"
                 ]
             },
             "cases": [
@@ -25545,6 +26004,15 @@
                         "error-shape"
                     ],
                     "requestBody": "UserSettingsUpdateSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "PRESENCE_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -25788,6 +26256,9 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "WEBHOOKS_UPDATE"
                 ]
             },
             "cases": [
@@ -25812,6 +26283,15 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "WEBHOOKS_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-token-auth-boundary",
                     "checks": [
                         "token-auth-boundary"
@@ -25827,12 +26307,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -25952,6 +26426,9 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "WEBHOOKS_UPDATE"
                 ]
             },
             "cases": [
@@ -25984,6 +26461,15 @@
                     "requestBody": "WebhookUpdateSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "WEBHOOKS_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-token-auth-boundary",
                     "checks": [
                         "token-auth-boundary"
@@ -25993,12 +26479,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -26203,6 +26683,10 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK",
+                    "WEBHOOKS_UPDATE"
                 ]
             },
             "cases": [
@@ -26235,6 +26719,16 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_DELETE_BULK",
+                        "WEBHOOKS_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-token-auth-boundary",
                     "checks": [
                         "token-auth-boundary"
@@ -26250,12 +26744,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -26383,6 +26871,9 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "WEBHOOKS_UPDATE"
                 ]
             },
             "cases": [
@@ -26423,6 +26914,15 @@
                     "requestBody": "WebhookUpdateSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "WEBHOOKS_UPDATE"
+                    ]
+                },
+                {
                     "id": "policy-token-auth-boundary",
                     "checks": [
                         "token-auth-boundary"
@@ -26432,12 +26932,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]

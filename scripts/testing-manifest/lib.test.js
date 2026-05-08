@@ -50,6 +50,31 @@ describe("testing manifest route helpers", () => {
         assert.deepEqual(options.event, ["EVENT.MESSAGE_CREATE", "EVENT.MESSAGE_UPDATE"]);
     });
 
+    test("extracts direct emitted events from route handlers", () => {
+        const source = `
+            router.put(
+                "/:user_id",
+                route({ responses: { 204: {} } }),
+                async (_req, res) => {
+                    await emitEvent({
+                        event: "CHANNEL_CREATE",
+                        data: {},
+                    });
+                    emitEvent({
+                        event: WSEvents.CHANNEL_RECIPIENT_ADD,
+                        data: {},
+                    });
+                    await emitEvent(event);
+                    return res.sendStatus(204);
+                },
+            );
+        `;
+
+        const calls = scanRouterCalls(source);
+
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["CHANNEL_CREATE", "CHANNEL_RECIPIENT_ADD"]);
+    });
+
     test("expands known spread constants in route metadata arrays", () => {
         const options = parseRouteOptions(`route({ permission: [...PRIVATE_ARCHIVED_THREAD_PERMISSIONS] })`);
 

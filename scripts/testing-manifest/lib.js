@@ -246,6 +246,39 @@ function parseLiteralList(raw) {
         .filter(Boolean);
 }
 
+function normalizeEventValue(value) {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    const stringValue = parseStringLiteral(trimmed);
+    if (stringValue !== undefined) return stringValue;
+    const memberMatch = /^(?:EVENT|WSEvents)\.([A-Z0-9_]+)$/.exec(trimmed);
+    if (memberMatch) return memberMatch[1];
+    if (/^[A-Z][A-Z0-9_]*$/.test(trimmed)) return trimmed;
+    return undefined;
+}
+
+function extractEmittedEvents(source) {
+    const events = [];
+
+    for (const match of source.matchAll(/\bemitEvent\s*\(/g)) {
+        const open = source.indexOf("(", match.index);
+        const close = findMatching(source, open);
+        if (open === -1 || close === -1) continue;
+
+        const [payload] = splitTopLevelArguments(source.slice(open + 1, close));
+        if (!payload || !payload.trim().startsWith("{")) continue;
+
+        const parsed = parseLiteralList(extractPropertyValue(payload, "event"));
+        const values = Array.isArray(parsed) ? parsed : [parsed];
+        for (const value of values) {
+            const event = normalizeEventValue(value);
+            if (event) events.push(event);
+        }
+    }
+
+    return [...new Set(events)].sort();
+}
+
 function parseRouteOptions(routeCallText) {
     const call = routeCallText.trim();
     const open = call.indexOf("(");
@@ -291,12 +324,24 @@ function extractRouteVariableMap(source) {
 }
 
 function routeMetadataFromArguments(args, routeVariables) {
+    let routeMetadata = { present: false };
+
     for (const arg of args.slice(1)) {
         const trimmed = arg.trim();
-        if (trimmed.startsWith("route")) return parseRouteOptions(trimmed);
-        if (routeVariables.has(trimmed)) return parseRouteOptions(routeVariables.get(trimmed));
+        if (trimmed.startsWith("route")) {
+            routeMetadata = parseRouteOptions(trimmed) || { present: false };
+            break;
+        }
+        if (routeVariables.has(trimmed)) {
+            routeMetadata = parseRouteOptions(routeVariables.get(trimmed)) || { present: false };
+            break;
+        }
     }
-    return { present: false };
+
+    const emittedEvents = extractEmittedEvents(args.slice(1).join(","));
+    if (emittedEvents.length) routeMetadata.emittedEvents = emittedEvents;
+
+    return routeMetadata;
 }
 
 function scanRouterCalls(source) {

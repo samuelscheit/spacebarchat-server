@@ -1515,7 +1515,10 @@
                 "responseStatuses": [
                     204
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "SB_SESSION_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1748,7 +1751,10 @@
                 "responseStatuses": [
                     204
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "SB_SESSION_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1976,7 +1982,12 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_UPDATE",
+                    "THREAD_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2063,7 +2074,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2272,7 +2286,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2403,7 +2420,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2495,7 +2515,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2542,7 +2565,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2582,7 +2608,10 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_ACK"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2799,7 +2828,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_ADD"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2843,7 +2875,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE_EMOJI"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2932,7 +2967,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE_ALL"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2973,7 +3011,11 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3064,7 +3106,14 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_UPDATE",
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3147,7 +3196,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3191,7 +3243,11 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3235,7 +3291,12 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3363,7 +3424,10 @@
                     204,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3408,7 +3472,10 @@
                     404,
                     501
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3452,7 +3519,11 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3496,7 +3567,12 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3626,7 +3702,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3704,7 +3783,11 @@
                     201,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_RECIPIENT_ADD"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3746,7 +3829,10 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3789,7 +3875,10 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3832,7 +3921,10 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3872,7 +3964,11 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_DELETE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4033,7 +4129,10 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_MEMBER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4114,7 +4213,11 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4294,7 +4397,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "TYPING_START"
+                ]
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4639,7 +4745,10 @@
                 "requestBody": "ConnectionCallbackSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_CONNECTIONS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-connections",
@@ -5168,7 +5277,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5467,7 +5579,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_BAN_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5555,7 +5670,10 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_BAN_ADD"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5689,7 +5807,10 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_BAN_ADD"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5773,7 +5894,10 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5860,7 +5984,10 @@
                     401,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5942,7 +6069,10 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_EMOJIS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6116,7 +6246,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_EMOJIS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6362,7 +6495,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6696,7 +6832,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6902,7 +7041,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6991,7 +7133,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7145,7 +7290,10 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7190,7 +7338,10 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7832,7 +7983,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "VOICE_STATE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8477,7 +8631,12 @@
                 "requestBody": "InteractionCallbacksSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INTERACTION_FAILURE",
+                    "INTERACTION_SUCCESS",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-interactions",
@@ -8508,7 +8667,11 @@
                 "present": true,
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INTERACTION_CREATE",
+                    "INTERACTION_FAILURE"
+                ]
             },
             "coverage": {
                 "policyId": "api-interactions",
@@ -8545,7 +8708,10 @@
                     401,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INVITE_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-public-contract",
@@ -9770,7 +9936,12 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
+                    "USER_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -9883,7 +10054,10 @@
                 "requestBody": "UserProfileModifySchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -10003,7 +10177,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -10628,7 +10805,10 @@
                 "present": true,
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_CONNECTIONS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11495,7 +11675,10 @@
                     204,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_NOTE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11535,7 +11718,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11576,7 +11762,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12088,7 +12277,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "PRESENCE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12223,7 +12415,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "WEBHOOKS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -12307,7 +12502,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "WEBHOOKS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -12432,7 +12630,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK",
+                    "WEBHOOKS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -12516,7 +12718,10 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "WEBHOOKS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-webhooks",

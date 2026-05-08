@@ -28,6 +28,8 @@ type GeneratedHttpContract = {
         responseStatuses: number[];
         permission?: unknown;
         right?: unknown;
+        event?: unknown;
+        emittedEvents?: string[];
     };
 };
 
