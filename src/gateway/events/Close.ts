@@ -25,6 +25,7 @@ import {
     Session,
     SessionsReplace,
     User,
+    UserSettings,
     VoiceState,
     VoiceStateUpdateEvent,
     distributePresenceUpdate,
@@ -71,10 +72,11 @@ const closeSessionCleanupDependencies: CloseSessionCleanupDependencies = {
     },
     findPublicUser: async (userId) => User.getPublicUser(userId).catch(() => undefined),
     emitSessionsReplace: async (userId, sessions) => {
+        const settings = await UserSettings.getOrDefault(userId);
         await emitEvent({
             event: "SESSIONS_REPLACE",
             user_id: userId,
-            data: serializePrivateGatewaySessions(sessions),
+            data: serializePrivateGatewaySessions(sessions, settings.show_current_game),
         } as SessionsReplace);
     },
     distributePresenceUpdate,

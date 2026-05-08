@@ -6,12 +6,12 @@ import { isRealGatewaySessionId, serializePrivateGatewaySessions } from "./Gatew
 function session(session_id: string, status: Status = "online") {
     return {
         session_id,
-        toPrivateGatewayDeviceInfo(): GatewaySession {
+        toPrivateGatewayDeviceInfo(showCurrentGame = true): GatewaySession {
             return {
                 session_id,
                 status,
                 activities: [],
-                hidden_activities: [],
+                hidden_activities: showCurrentGame ? [] : [{ name: "hidden", type: 0, flags: "0", session_id }],
                 client_info: {
                     client: "desktop",
                     os: "linux",
@@ -50,6 +50,12 @@ describe("gateway session serialization", () => {
                     version: 0,
                 },
             },
+        ]);
+    });
+
+    test("passes the show_current_game preference to session serializers", () => {
+        assert.deepEqual(serializePrivateGatewaySessions([session("real")], false)[0]?.hidden_activities, [
+            { name: "hidden", type: 0, flags: "0", session_id: "real" },
         ]);
     });
 });
