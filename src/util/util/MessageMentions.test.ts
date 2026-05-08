@@ -106,6 +106,38 @@ describe("Message mention serialization", () => {
         assert.equal((snapshot.message.mentions[0] as Record<string, unknown>).bio, undefined);
     });
 
+    test("Message.toJSON exposes channel mentions as partial channels", () => {
+        const message = makeMessage();
+        message.mention_channels = [
+            {
+                id: "channel_id",
+                guild_id: "guild_id",
+                type: 0,
+                name: "general",
+                topic: "must not leak into message channel mentions",
+                permission_overwrites: [{ id: "role_id", type: 0, allow: "0", deny: "0" }],
+                last_message_id: "message_id",
+                toJSON() {
+                    throw new Error("message channel mention serialization must not use full Channel.toJSON");
+                },
+            },
+        ] as never;
+
+        const json = message.toJSON();
+
+        assert.deepEqual(json.mention_channels, [
+            {
+                id: "channel_id",
+                guild_id: "guild_id",
+                type: 0,
+                name: "general",
+            },
+        ]);
+        assert.equal((json.mention_channels?.[0] as Record<string, unknown>).topic, undefined);
+        assert.equal((json.mention_channels?.[0] as Record<string, unknown>).permission_overwrites, undefined);
+        assert.equal((json.mention_channels?.[0] as Record<string, unknown>).last_message_id, undefined);
+    });
+
     test("search hits reuse public message mention serialization", () => {
         const hit = makeMessage().toSearchResult();
 
@@ -175,7 +207,9 @@ describe("Message mention serialization", () => {
 
         assert.equal(schemas.Message.properties.mentions.items.$ref, "#/definitions/PartialUser");
         assert.equal(schemas.GuildMessagesSearchMessage.properties.mentions.items.$ref, "#/definitions/PartialUser");
+        assert.equal(schemas.Message.properties.mention_channels.items.$ref, "#/definitions/PartialPublicChannel");
         assert.equal(openapi.components.schemas.Message.properties.mentions.items.$ref, "#/components/schemas/PartialUser");
         assert.equal(openapi.components.schemas.GuildMessagesSearchMessage.properties.mentions.items.$ref, "#/components/schemas/PartialUser");
+        assert.equal(openapi.components.schemas.Message.properties.mention_channels.items.$ref, "#/components/schemas/PartialPublicChannel");
     });
 });

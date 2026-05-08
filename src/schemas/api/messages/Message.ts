@@ -18,7 +18,7 @@
 
 // TODO: remove entity import
 import type { Sticker } from "@spacebar/util";
-import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import { Embed, MessageActivity, MessageComponent, PartialPublicChannel, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
 
@@ -197,7 +197,7 @@ export interface PublicMessage {
     mention_everyone: boolean;
     mentions: PartialUser[];
     mention_roles: Snowflake[];
-    mention_channels?: PublicChannel[]; // TODO: PartialPublicChannel
+    mention_channels?: PartialPublicChannel[];
     attachments: PublicAttachment[];
     embeds: Embed[];
     reactions?: Reaction[];

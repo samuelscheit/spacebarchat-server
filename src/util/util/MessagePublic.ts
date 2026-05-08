@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PartialUser, PublicMessage, StoredReaction } from "@spacebar/schemas";
+import type { PartialPublicChannel, PartialUser, PublicMessage, StoredReaction } from "@spacebar/schemas";
 import { serializePublicMember, type PublicMemberLike } from "./MemberRoles";
 import { serializeMessageMentions } from "./MessageMentions";
 import { serializeMessageRoleMentions, type SerializableRoleMention } from "./MessageRoleMentions";
@@ -26,6 +26,13 @@ interface PublicUserSource {
     avatar?: string | null;
     toPublicUser?: () => unknown;
     username?: string | null;
+}
+
+interface PublicMentionChannelSource {
+    id: string;
+    guild_id?: string | null;
+    type: PartialPublicChannel["type"];
+    name?: string | null;
 }
 
 interface PublicMessageSource {
@@ -43,7 +50,7 @@ interface PublicMessageSource {
     flags: number;
     id: string;
     member?: PublicMemberLike | null;
-    mention_channels?: { toJSON: () => unknown }[];
+    mention_channels?: PublicMentionChannelSource[];
     mention_everyone?: boolean | null;
     mention_roles?: SerializableRoleMention[];
     mentions?: object[] | null;
@@ -60,6 +67,15 @@ interface PublicMessageSource {
     type: number;
     username?: string | null;
     webhook_id?: string | null;
+}
+
+function toPartialPublicChannel(channel: PublicMentionChannelSource): PartialPublicChannel {
+    return {
+        id: channel.id,
+        guild_id: channel.guild_id ?? undefined,
+        type: channel.type,
+        name: channel.name ?? undefined,
+    };
 }
 
 export function messageToPublicMessage(message: PublicMessageSource, shallow = false): PublicMessage {
@@ -83,7 +99,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         mentions: serializeMessageMentions(message.mentions) as PartialUser[],
 
         mention_roles: serializeMessageRoleMentions(message.mention_roles),
-        mention_channels: (message.mention_channels?.map((ch) => ch.toJSON()) ?? []) as NonNullable<PublicMessage["mention_channels"]>,
+        mention_channels: message.mention_channels?.map(toPartialPublicChannel) ?? [],
         attachments: (message.attachments?.map((att) => att.toJSON()) ?? []) as PublicMessage["attachments"],
 
         nonce: message.nonce ?? undefined,

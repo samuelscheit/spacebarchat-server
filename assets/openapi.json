@@ -3942,7 +3942,7 @@
                     "mention_channels": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PublicChannel"
+                            "$ref": "#/components/schemas/PartialPublicChannel"
                         }
                     },
                     "attachments": {
@@ -12580,7 +12580,7 @@
                     "mention_channels": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PublicChannel"
+                            "$ref": "#/components/schemas/PartialPublicChannel"
                         }
                     },
                     "attachments": {
@@ -15725,7 +15725,7 @@
                     "mention_channels": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PublicChannel"
+                            "$ref": "#/components/schemas/PartialPublicChannel"
                         }
                     },
                     "attachments": {
@@ -17251,7 +17251,7 @@
                     "mention_channels": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PublicChannel"
+                            "$ref": "#/components/schemas/PartialPublicChannel"
                         }
                     },
                     "attachments": {
@@ -21852,6 +21852,33 @@
                     1,
                     2,
                     3
+                ]
+            },
+            "PartialPublicChannel": {
+                "description": "Channel object embedded in message channel mentions.\n\nDiscord only exposes the channel identity needed to render the mention, not\nthe full channel resource payload.",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChannelType"
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "type"
                 ]
             }
         }

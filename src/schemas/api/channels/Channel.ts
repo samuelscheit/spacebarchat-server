@@ -94,6 +94,19 @@ export function isTextChannel(type: ChannelType): boolean {
     }
 }
 
+/**
+ * Channel object embedded in message channel mentions.
+ *
+ * Discord only exposes the channel identity needed to render the mention, not
+ * the full channel resource payload.
+ */
+export interface PartialPublicChannel {
+    id: Snowflake;
+    guild_id?: Snowflake;
+    type: ChannelType;
+    name?: string | null;
+}
+
 // TODO: split up by channel type?
 export interface PublicChannel {
     id: Snowflake;
