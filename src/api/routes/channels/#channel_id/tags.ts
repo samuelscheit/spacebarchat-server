@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Channel, ChannelUpdateEvent, DiscordApiErrors, emitEvent, Tag } from "@spacebar/util";
+import { requireAvailableTag, route } from "@spacebar/api";
+import { Channel, ChannelUpdateEvent, emitEvent, Tag } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { TagCreateSchema } from "@spacebar/schemas";
 
@@ -91,8 +91,7 @@ router.put(
 
         if (!channel.isForum()) throw new Error("is not thread only channel");
 
-        const tag = channel.available_tags?.find((tag) => tag.id == tag_id);
-        if (!tag) throw DiscordApiErrors.UNKNOWN_TAG;
+        const tag = requireAvailableTag(channel, tag_id);
         tag.assign(body);
 
         await Promise.all([
@@ -129,10 +128,8 @@ router.delete(
 
         if (!channel.isForum()) throw new Error("is not thread only channel");
 
-        const tag = await Tag.findOneByOrFail({
-            id: tag_id,
-        });
-        channel.available_tags = channel.available_tags?.filter((t) => t.id !== tag.id);
+        const tag = requireAvailableTag(channel, tag_id);
+        channel.available_tags = channel.available_tags?.filter((t) => t.id !== tag_id);
 
         await Promise.all([
             tag.remove(),

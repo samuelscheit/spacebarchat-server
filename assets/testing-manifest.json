@@ -4282,7 +4282,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/tags/:tag_id",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 111,
+            "line": 110,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
