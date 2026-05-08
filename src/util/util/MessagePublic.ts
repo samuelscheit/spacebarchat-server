@@ -79,7 +79,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         edited_timestamp: message.edited_timestamp ? message.edited_timestamp.toISOString() : null,
 
         webhook_id: message.webhook_id ?? undefined,
-        application_id: undefined,
+        application_id: message.application_id ?? undefined,
         member: serializePublicMember(message.member) as PublicMessage["member"],
         mentions: serializeMessageMentions(message.mentions) as PartialUser[],
 
