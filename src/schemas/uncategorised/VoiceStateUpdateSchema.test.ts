@@ -34,13 +34,14 @@ describe("VoiceStateUpdateSchema", () => {
 
         assert.equal(
             validate({
-                channel_id: "stage-channel-id",
                 request_to_speak_timestamp: "2026-05-08T12:34:56.000Z",
                 suppress: false,
             }),
             true,
             JSON.stringify(validate.errors),
         );
+        assert.equal(validate({ channel_id: "stage-channel-id" }), true, JSON.stringify(validate.errors));
+        assert.equal(validate({}), true, JSON.stringify(validate.errors));
 
         assert.equal(
             validate({
@@ -61,7 +62,7 @@ describe("VoiceStateUpdateSchema", () => {
             required?: string[];
         };
 
-        assert.deepEqual(schema.required, ["channel_id"]);
+        assert.equal(schema.required, undefined);
         assert.deepEqual(Object.keys(schema.properties ?? {}).toSorted(), ["channel_id", "request_to_speak_timestamp", "suppress"]);
         assert.equal(ajv.validate("VoiceStateModifySchema", { channel_id: "stage-channel-id" }), true, JSON.stringify(ajv.errors));
         assert.equal(ajv.validate("VoiceStateModifySchema", { self_mute: false, self_deaf: false }), false);

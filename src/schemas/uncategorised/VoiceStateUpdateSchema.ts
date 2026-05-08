@@ -41,7 +41,7 @@ export const VoiceStateUpdateSchema = {
 };
 
 export interface VoiceStateModifySchema {
-    channel_id: string;
+    channel_id?: string;
     request_to_speak_timestamp?: Date | null;
     suppress?: boolean;
 }

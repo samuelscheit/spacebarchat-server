@@ -6,10 +6,13 @@ import { ajv, validateSchema } from "./Validator";
 
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
-const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<
-    string,
-    { properties?: Record<string, { format?: string }> }
->;
+type JsonShape = {
+    type?: string | string[];
+    items?: JsonShape;
+    properties?: Record<string, JsonShape & { format?: string }>;
+};
+
+const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
 
 const ImageDataUriFields = [
     ["ApplicationModifySchema", "icon"],
@@ -131,5 +134,12 @@ describe("schema validator custom formats", () => {
             assert.notEqual(Schemas.APIGuildWithJoinedAt.properties?.[field]?.format, "image-data-uri", `APIGuildWithJoinedAt.${field}`);
             assert.equal(Schemas.GuildUpdateSchema.properties?.[field]?.format, "image-data-uri-or-asset-hash", `GuildUpdateSchema.${field}`);
         }
+    });
+});
+
+describe("generated JSON schemas", () => {
+    test("normalizes TypeScript bigint fields to JSON number schemas", () => {
+        assert.equal(Schemas.IdentifySchema.properties?.intents?.type, "number");
+        assert.equal(Schemas.IdentifySchema.properties?.shard?.items?.type, "number");
     });
 });
