@@ -21,3 +21,31 @@ test("User.premium_since keeps nullable Date column metadata", () => {
 
     assert.match(source, /@Column\(\{\s*nullable:\s*true,\s*type:\s*Date\s*\}\)\s+premium_since\?: Date \| null;/);
 });
+
+test("User.normalizeDiscriminator pads valid numeric discriminators", async () => {
+    process.env.DATABASE ??= "postgres://localhost/spacebar";
+
+    const { User } = await import("./User.js");
+
+    assert.equal(User.normalizeDiscriminator("1"), "0001");
+    assert.equal(User.normalizeDiscriminator("42"), "0042");
+    assert.equal(User.normalizeDiscriminator("9999"), "9999");
+});
+
+test("User.normalizeDiscriminator rejects invalid discriminators", async () => {
+    process.env.DATABASE ??= "postgres://localhost/spacebar";
+
+    const { User } = await import("./User.js");
+
+    for (const discriminator of ["0", "0000", "10000", "1.5", "abcd", ""]) {
+        assert.throws(
+            () => User.normalizeDiscriminator(discriminator),
+            (error: unknown) => {
+                assert.equal((error as { code?: number }).code, 50035);
+                assert.equal((error as { errors?: { discriminator?: { _errors?: { code?: string }[] } } }).errors?.discriminator?._errors?.[0]?.code, "DISCRIMINATOR_INVALID");
+                return true;
+            },
+            `expected ${JSON.stringify(discriminator)} to be rejected`,
+        );
+    }
+});

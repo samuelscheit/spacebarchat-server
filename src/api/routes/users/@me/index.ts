@@ -246,8 +246,9 @@ router.patch(
             }
         }
 
+        if (body.discriminator) body.discriminator = User.normalizeDiscriminator(body.discriminator);
+
         user.assign(body);
-        user.validate();
         try {
             await user.save();
         } catch (error) {
