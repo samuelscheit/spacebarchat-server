@@ -52,7 +52,7 @@ router.get(
         const { guild_id } = req.params as { [key: string]: string };
         const limit = Number(req.query.limit) || 1;
         if (limit > 1000 || limit < 1) throw new HTTPError("Limit must be between 1 and 1000");
-        const after = `${req.query.after}`;
+        const after = typeof req.query.after === "string" ? req.query.after : undefined;
         const query = after ? { id: MoreThan(after) } : {};
 
         await Member.IsInGuildOrFail(req.user_id, guild_id);
