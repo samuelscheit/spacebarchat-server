@@ -6306,7 +6306,7 @@
                     "answers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PollAnswer"
+                            "$ref": "#/components/schemas/PollCreationAnswer"
                         }
                     },
                     "duration": {
@@ -16816,6 +16816,9 @@
                     "allow_multiselect": {
                         "type": "boolean"
                     },
+                    "layout_type": {
+                        "type": "integer"
+                    },
                     "results": {
                         "$ref": "#/components/schemas/PollResult"
                     }
@@ -16824,6 +16827,7 @@
                     "allow_multiselect",
                     "answers",
                     "expiry",
+                    "layout_type",
                     "question"
                 ]
             },
@@ -16879,13 +16883,14 @@
                 "type": "object",
                 "properties": {
                     "answer_id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "poll_media": {
                         "$ref": "#/components/schemas/PollMedia"
                     }
                 },
                 "required": [
+                    "answer_id",
                     "poll_media"
                 ]
             },
@@ -16911,7 +16916,7 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "count": {
                         "type": "integer"
@@ -21852,6 +21857,17 @@
                     1,
                     2,
                     3
+                ]
+            },
+            "PollCreationAnswer": {
+                "type": "object",
+                "properties": {
+                    "poll_media": {
+                        "$ref": "#/components/schemas/PollMedia"
+                    }
+                },
+                "required": [
+                    "poll_media"
                 ]
             }
         }

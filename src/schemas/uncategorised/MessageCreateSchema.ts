@@ -17,7 +17,7 @@
 */
 
 import { Snowflake } from "../Identifiers";
-import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollAnswer, PollMedia, PublicUser } from "@spacebar/schemas";
+import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollMedia, PublicUser } from "@spacebar/schemas";
 
 export type MessageCreateAttachment = {
     id: string;
@@ -66,13 +66,16 @@ export interface MessageCreateSchema {
     interaction_metadata?: MessageInteractionSchema;
 }
 
-// TypeScript complains once this is used above
 export interface PollCreationSchema {
     question: PollMedia;
-    answers: PollAnswer[];
+    answers: PollCreationAnswer[];
     duration?: number;
     allow_multiselect?: boolean;
     layout_type?: number;
+}
+
+export interface PollCreationAnswer {
+    poll_media: PollMedia;
 }
 
 interface MessageInteractionSchema {

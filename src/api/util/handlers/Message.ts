@@ -288,19 +288,29 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
     };
 }
 
+const DEFAULT_POLL_DURATION_HOURS = 24;
+const DEFAULT_POLL_LAYOUT_TYPE = 1;
+
 export function createPollFromMessageOptions(poll: PollCreationSchema | Poll | null | undefined, now = new Date()): Poll | undefined {
     if (!poll) return undefined;
 
     if ("expiry" in poll) {
-        return poll;
+        return {
+            ...poll,
+            layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
+        };
     }
 
-    const durationHours = poll.duration ?? 24;
+    const durationHours = poll.duration ?? DEFAULT_POLL_DURATION_HOURS;
     return {
         question: poll.question,
-        answers: poll.answers,
+        answers: poll.answers.map((answer, index) => ({
+            answer_id: index + 1,
+            poll_media: answer.poll_media,
+        })),
         expiry: new Date(now.getTime() + durationHours * 60 * 60 * 1000),
         allow_multiselect: poll.allow_multiselect ?? false,
+        layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
     };
 }
 

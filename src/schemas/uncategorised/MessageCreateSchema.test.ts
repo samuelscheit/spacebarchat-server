@@ -15,6 +15,16 @@ describe("MessageCreateSchema", () => {
         assert.equal("embeds" in properties, true);
         assert.deepEqual(properties.poll, { $ref: "#/definitions/PollCreationSchema" });
     });
+
+    test("uses creation-only poll answers", () => {
+        const pollCreationSchema = schemas.PollCreationSchema;
+        const pollCreationAnswerSchema = schemas.PollCreationAnswer;
+        const pollSchema = schemas.Poll;
+
+        assert.deepEqual(pollCreationSchema.properties.answers.items, { $ref: "#/definitions/PollCreationAnswer" });
+        assert.equal("answer_id" in pollCreationAnswerSchema.properties, false);
+        assert.deepEqual(pollSchema.properties.layout_type, { type: "integer" });
+    });
 });
 
 describe("MessageEditSchema", () => {

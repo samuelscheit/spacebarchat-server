@@ -6604,7 +6604,7 @@
             "answers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/PollAnswer"
+                    "$ref": "#/definitions/PollCreationAnswer"
                 }
             },
             "duration": {
@@ -17553,6 +17553,9 @@
             "allow_multiselect": {
                 "type": "boolean"
             },
+            "layout_type": {
+                "type": "integer"
+            },
             "results": {
                 "$ref": "#/definitions/PollResult"
             }
@@ -17562,6 +17565,7 @@
             "allow_multiselect",
             "answers",
             "expiry",
+            "layout_type",
             "question"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -17620,7 +17624,7 @@
         "type": "object",
         "properties": {
             "answer_id": {
-                "type": "string"
+                "type": "integer"
             },
             "poll_media": {
                 "$ref": "#/definitions/PollMedia"
@@ -17628,6 +17632,7 @@
         },
         "additionalProperties": false,
         "required": [
+            "answer_id",
             "poll_media"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -17656,7 +17661,7 @@
         "type": "object",
         "properties": {
             "id": {
-                "type": "string"
+                "type": "integer"
             },
             "count": {
                 "type": "integer"
@@ -21150,6 +21155,19 @@
             "description",
             "icon",
             "id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PollCreationAnswer": {
+        "type": "object",
+        "properties": {
+            "poll_media": {
+                "$ref": "#/definitions/PollMedia"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "poll_media"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
