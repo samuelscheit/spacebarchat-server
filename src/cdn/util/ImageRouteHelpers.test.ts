@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { getCdnImagePath, hashImageBuffer, isAllowedImageMimeType, stripFileExtension } from "./ImageRouteHelpers";
+import { STATIC_IMAGE_MIME_TYPES, getCdnImageHashPaths, getCdnImagePath, hashImageBuffer, isAllowedImageMimeType, stripFileExtension } from "./ImageRouteHelpers";
 
 describe("CDN image route helpers", () => {
     test("strips requested file extensions from route params", () => {
@@ -11,6 +11,15 @@ describe("CDN image route helpers", () => {
     test("builds CDN storage paths for resource roots and hashes", () => {
         assert.equal(getCdnImagePath("icons", "guild-id.png"), "icons/guild-id");
         assert.equal(getCdnImagePath("icons", "guild-id", "hash.webp"), "icons/guild-id/hash");
+    });
+
+    test("builds extensionless CDN hash paths with optional legacy extension fallbacks", () => {
+        assert.deepEqual(getCdnImageHashPaths("role-icons", "role-id", "hash.webp"), ["role-icons/role-id/hash"]);
+        assert.deepEqual(getCdnImageHashPaths("role-icons", "role-id", "hash", [".png", "webp", "png"]), [
+            "role-icons/role-id/hash",
+            "role-icons/role-id/hash.png",
+            "role-icons/role-id/hash.webp",
+        ]);
     });
 
     test("prefixes animated image hashes", () => {
@@ -25,5 +34,12 @@ describe("CDN image route helpers", () => {
         assert.equal(isAllowedImageMimeType("image/gif"), true);
         assert.equal(isAllowedImageMimeType("text/plain"), false);
         assert.equal(isAllowedImageMimeType(undefined), false);
+    });
+
+    test("supports static-only image policies for role icons", () => {
+        assert.equal(isAllowedImageMimeType("image/png", STATIC_IMAGE_MIME_TYPES), true);
+        assert.equal(isAllowedImageMimeType("image/jpeg", STATIC_IMAGE_MIME_TYPES), true);
+        assert.equal(isAllowedImageMimeType("image/webp", STATIC_IMAGE_MIME_TYPES), true);
+        assert.equal(isAllowedImageMimeType("image/gif", STATIC_IMAGE_MIME_TYPES), false);
     });
 });
