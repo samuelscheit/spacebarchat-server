@@ -53,7 +53,7 @@ export interface IReadyGuildDTO {
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
-    guild_scheduled_events: unknown[]; // TODO
+    guild_scheduled_events: never[];
     id: string;
     large: boolean | undefined;
     lazy: boolean;
@@ -110,7 +110,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
-    guild_scheduled_events: unknown[];
+    guild_scheduled_events: never[];
     id: string;
     large: boolean | undefined;
     lazy: boolean;

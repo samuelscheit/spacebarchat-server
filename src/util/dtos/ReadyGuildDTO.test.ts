@@ -81,3 +81,9 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
 });
+
+test("ReadyGuildDTO exposes scheduled events as an empty list until scheduled events are implemented", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.deepEqual(dto.guild_scheduled_events, []);
+});
