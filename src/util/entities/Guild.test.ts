@@ -331,6 +331,7 @@ describe("Guild entity metadata", () => {
             public_updates_channel_id: null,
             rules_channel_id: null,
             system_channel_id: null,
+            widget_channel_id: null,
             template_id: "template",
         });
 
@@ -345,6 +346,7 @@ describe("Guild entity metadata", () => {
             public_updates_channel_id: null,
             rules_channel_id: null,
             system_channel_id: null,
+            widget_channel_id: null,
             template_id: "template",
         }));
 
@@ -355,6 +357,7 @@ describe("Guild entity metadata", () => {
         assert.equal(data.public_updates_channel_id, null);
         assert.equal(data.rules_channel_id, null);
         assert.equal(data.system_channel_id, null);
+        assert.equal(data.widget_channel_id, null);
         assert.equal(Object.hasOwn(data, "template_id"), false);
     });
 

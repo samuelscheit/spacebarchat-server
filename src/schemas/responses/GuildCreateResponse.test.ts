@@ -80,7 +80,14 @@ test("GuildCreateResponse keeps nullable guild channel and description fields", 
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
     const response = schemas.GuildCreateResponse;
 
-    for (const field of ["afk_channel_id", "description", "public_updates_channel_id", "rules_channel_id", "system_channel_id"] as const) {
+    for (const field of [
+        "afk_channel_id",
+        "description",
+        "public_updates_channel_id",
+        "rules_channel_id",
+        "system_channel_id",
+        "widget_channel_id",
+    ] as const) {
         assert.deepEqual(response.properties?.[field]?.type, ["null", "string"], `GuildCreateResponse.${field}`);
     }
 
@@ -96,6 +103,7 @@ test("GuildCreateResponse keeps nullable guild channel and description fields", 
             public_updates_channel_id: null,
             rules_channel_id: null,
             system_channel_id: null,
+            widget_channel_id: null,
         }),
         true,
         ajv.errorsText(),
