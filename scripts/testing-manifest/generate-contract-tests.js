@@ -15,6 +15,8 @@ const RUNTIME_EVENT_EMISSION_MANIFEST_IDS = [
     "api:http:POST:/auth/logout/",
     "api:http:POST:/auth/sessions/logout",
     "api:http:PATCH:/users/@me/",
+    "api:http:PUT:/users/@me/notes/:user_id",
+    "api:http:PUT:/users/@me/relationships/:user_id",
     "api:http:PATCH:/users/@me/settings/",
 ];
 const AUTHENTICATED_RESPONSE_SCHEMA_MANIFEST_IDS = new Set([
@@ -938,6 +940,10 @@ async function assertGeneratedEventEmissionContract(contract: GeneratedHttpContr
             return await assertSessionRemoveEvent(contract, context, { session_ids: [context.session.session_id] }, "Sessions logout");
         case "api:http:PATCH:/users/@me/":
             return await assertUserUpdateEvent(contract, context);
+        case "api:http:PUT:/users/@me/notes/:user_id":
+            return await assertUserNoteUpdateEvent(contract, context);
+        case "api:http:PUT:/users/@me/relationships/:user_id":
+            return await assertRelationshipAddEvent(contract, context);
         case "api:http:PATCH:/users/@me/settings/":
             return await assertPresenceUpdateEvent(contract, context);
         default:
@@ -976,6 +982,49 @@ async function assertUserUpdateEvent(contract: GeneratedHttpContract, { api, tok
     }
 }
 
+async function assertUserNoteUpdateEvent(contract: GeneratedHttpContract, { api, token, user }: AuthenticatedApiContext) {
+    const target = await createGeneratedEventTargetUser("note");
+    const note = "generated note event contract";
+    const capture = await captureEvents(user.id);
+    try {
+        const response = await fetch(\`\${api.apiBaseUrl}\${contract.path.replace(":user_id", target.id)}\`, jsonRequest(contract.method, token, { note }));
+
+        assert.equal(response.status, 204, \`\${contract.manifestId} should upsert a note for the target user\`);
+        const event = await capture.waitFor("USER_NOTE_UPDATE", 1000);
+        const noteUpdate = event as { user_id?: unknown; data?: { id?: unknown; note?: unknown } };
+        assert.equal(noteUpdate.user_id, user.id, \`\${contract.manifestId} should emit on the note owner id\`);
+        assert.equal(noteUpdate.data?.id, target.id, \`\${contract.manifestId} should include the target user id\`);
+        assert.equal(noteUpdate.data?.note, note, \`\${contract.manifestId} should include the note content\`);
+    } finally {
+        await capture.stop();
+    }
+}
+
+async function assertRelationshipAddEvent(contract: GeneratedHttpContract, { api, token, user }: AuthenticatedApiContext) {
+    const target = await createGeneratedEventTargetUser("friend");
+    const capture = await captureEvents([user.id, target.id]);
+    try {
+        const response = await fetch(\`\${api.apiBaseUrl}\${contract.path.replace(":user_id", target.id)}\`, jsonRequest(contract.method, token, {}));
+
+        assert.equal(response.status, 204, \`\${contract.manifestId} should create a relationship request\`);
+        const requesterEvent = await capture.waitFor(
+            (event) => event.event === "RELATIONSHIP_ADD" && event.user_id === user.id && (event as { data?: { id?: unknown } }).data?.id === target.id,
+            1000,
+        );
+        const targetEvent = await capture.waitFor(
+            (event) => event.event === "RELATIONSHIP_ADD" && event.user_id === target.id && (event as { data?: { id?: unknown } }).data?.id === user.id,
+            1000,
+        );
+        const requesterAdd = requesterEvent as { data?: { user?: { id?: unknown } } };
+        const targetAdd = targetEvent as { data?: { should_notify?: unknown; user?: { id?: unknown } } };
+        assert.equal(requesterAdd.data?.user?.id, target.id, \`\${contract.manifestId} should include the target public user\`);
+        assert.equal(targetAdd.data?.user?.id, user.id, \`\${contract.manifestId} should include the requester public user\`);
+        assert.equal(targetAdd.data?.should_notify, true, \`\${contract.manifestId} should notify the relationship target\`);
+    } finally {
+        await capture.stop();
+    }
+}
+
 async function assertPresenceUpdateEvent(contract: GeneratedHttpContract, { api, token, user }: AuthenticatedApiContext) {
     const status = "idle";
     const capture = await captureEvents(user.id);
@@ -991,6 +1040,15 @@ async function assertPresenceUpdateEvent(contract: GeneratedHttpContract, { api,
     } finally {
         await capture.stop();
     }
+}
+
+async function createGeneratedEventTargetUser(prefix: string) {
+    const suffix = \`\${process.pid}\${Date.now()}\${Math.random().toString(36).slice(2, 8)}\`;
+    return await User.register({
+        username: \`\${prefix}\${suffix.slice(-8)}\`,
+        email: \`\${prefix}-\${suffix}@example.com\`,
+        password: "contract-password",
+    });
 }
 
 function jsonRequest(method: string, token: string, body: unknown): RequestInit {

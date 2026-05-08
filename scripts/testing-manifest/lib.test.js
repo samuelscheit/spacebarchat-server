@@ -84,6 +84,34 @@ describe("testing manifest route helpers", () => {
         assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["CHANNEL_CREATE", "CHANNEL_RECIPIENT_ADD"]);
     });
 
+    test("extracts emitted events from same-file route helpers", () => {
+        const source = `
+            router.put(
+                "/:user_id",
+                route({ responses: { 204: {} } }),
+                async (req, res) => updateRelationship(req, res),
+            );
+
+            async function updateRelationship(_req, res) {
+                await Promise.all([
+                    emitEvent({
+                        event: "RELATIONSHIP_ADD",
+                        data: {},
+                    }),
+                    emitEvent({
+                        event: "RELATIONSHIP_REMOVE",
+                        data: {},
+                    }),
+                ]);
+                return res.sendStatus(204);
+            }
+        `;
+
+        const calls = scanRouterCalls(source);
+
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]);
+    });
+
     test("extracts API route rate-limit groups from middleware mounts", () => {
         const source = `
             app.use(rateLimit({ bucket: "global", ...global }));

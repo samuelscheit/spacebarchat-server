@@ -279,6 +279,39 @@ function extractEmittedEvents(source) {
     return [...new Set(events)].sort();
 }
 
+function extractFunctionEventMap(source) {
+    const eventsByFunction = new Map();
+    const regex = /\b(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g;
+
+    for (const match of source.matchAll(regex)) {
+        const paramsOpen = source.indexOf("(", match.index);
+        const paramsClose = findMatching(source, paramsOpen);
+        if (paramsOpen === -1 || paramsClose === -1) continue;
+
+        const bodyOpen = source.indexOf("{", paramsClose);
+        if (bodyOpen === -1) continue;
+
+        const bodyClose = findMatching(source, bodyOpen, "{", "}");
+        if (bodyClose === -1) continue;
+
+        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
+        if (events.length) eventsByFunction.set(match[1], events);
+    }
+
+    return eventsByFunction;
+}
+
+function extractCalledHelperEvents(source, eventsByFunction) {
+    const events = [];
+
+    for (const match of source.matchAll(/\b([A-Za-z_$][\w$]*)\s*\(/g)) {
+        const helperEvents = eventsByFunction.get(match[1]);
+        if (helperEvents) events.push(...helperEvents);
+    }
+
+    return [...new Set(events)].sort();
+}
+
 function parseRouteOptions(routeCallText) {
     const call = routeCallText.trim();
     const open = call.indexOf("(");
@@ -323,7 +356,7 @@ function extractRouteVariableMap(source) {
     return vars;
 }
 
-function routeMetadataFromArguments(args, routeVariables) {
+function routeMetadataFromArguments(args, routeVariables, eventsByFunction = new Map()) {
     let routeMetadata = { present: false };
 
     for (const arg of args.slice(1)) {
@@ -338,7 +371,8 @@ function routeMetadataFromArguments(args, routeVariables) {
         }
     }
 
-    const emittedEvents = extractEmittedEvents(args.slice(1).join(","));
+    const handlerText = args.slice(1).join(",");
+    const emittedEvents = [...new Set([...extractEmittedEvents(handlerText), ...extractCalledHelperEvents(handlerText, eventsByFunction)])].sort();
     if (emittedEvents.length) routeMetadata.emittedEvents = emittedEvents;
 
     return routeMetadata;
@@ -347,6 +381,7 @@ function routeMetadataFromArguments(args, routeVariables) {
 function scanRouterCalls(source) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
+    const eventsByFunction = extractFunctionEventMap(source);
     const regex = /\brouter\.(get|post|put|delete|patch|head|options|all)\s*\(/g;
 
     for (const match of source.matchAll(regex)) {
@@ -363,7 +398,7 @@ function scanRouterCalls(source) {
             method: method.toUpperCase(),
             localPath,
             line: lineOf(source, match.index),
-            routeMetadata: routeMetadataFromArguments(args, routeVariables),
+            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction),
         });
     }
 
@@ -373,6 +408,7 @@ function scanRouterCalls(source) {
 function scanAppCalls(source, appVariable = "app") {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
+    const eventsByFunction = extractFunctionEventMap(source);
     const regex = new RegExp(`\\b${appVariable}\\.(get|post|put|delete|patch|use)\\s*\\(`, "g");
 
     for (const match of source.matchAll(regex)) {
@@ -391,7 +427,7 @@ function scanAppCalls(source, appVariable = "app") {
             method: method.toUpperCase(),
             path: routePath,
             line: lineOf(source, match.index),
-            routeMetadata: routeMetadataFromArguments(args, routeVariables),
+            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction),
         });
     }
 

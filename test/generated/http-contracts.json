@@ -21,7 +21,7 @@
         "runtimePermissionOnlyDenialContracts": 74,
         "runtimePermissionAndRightPermissionDenialContracts": 6,
         "runtimePermissionAndRightRightDenialContracts": 6,
-        "runtimeEventEmissionContracts": 4,
+        "runtimeEventEmissionContracts": 6,
         "runtimeRateLimitHeaderContracts": 140,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
@@ -5846,7 +5846,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_MESSAGES"
+                "permission": "MANAGE_MESSAGES",
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE"
+                ]
             },
             "cases": [
                 {
@@ -5886,6 +5889,15 @@
                     "permission": "MANAGE_MESSAGES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_REACTION_REMOVE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -5908,12 +5920,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -5960,7 +5966,10 @@
                     403,
                     404
                 ],
-                "permission": "MANAGE_MESSAGES"
+                "permission": "MANAGE_MESSAGES",
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE"
+                ]
             },
             "cases": [
                 {
@@ -6000,6 +6009,15 @@
                     "permission": "MANAGE_MESSAGES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_REACTION_REMOVE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -6022,12 +6040,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -6073,6 +6085,9 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE"
                 ]
             },
             "cases": [
@@ -6105,6 +6120,15 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_REACTION_REMOVE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -6133,12 +6157,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -18014,7 +18032,10 @@
                     204,
                     403
                 ],
-                "permission": "MANAGE_EMOJIS_AND_STICKERS"
+                "permission": "MANAGE_EMOJIS_AND_STICKERS",
+                "emittedEvents": [
+                    "GUILD_STICKERS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -18054,6 +18075,15 @@
                     "permission": "MANAGE_EMOJIS_AND_STICKERS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_STICKERS_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -18076,12 +18106,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -18239,7 +18263,10 @@
                     400,
                     403
                 ],
-                "permission": "MANAGE_EMOJIS_AND_STICKERS"
+                "permission": "MANAGE_EMOJIS_AND_STICKERS",
+                "emittedEvents": [
+                    "GUILD_STICKERS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -18287,6 +18314,15 @@
                     "permission": "MANAGE_EMOJIS_AND_STICKERS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_STICKERS_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -18303,12 +18339,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -18466,7 +18496,10 @@
                     400,
                     403
                 ],
-                "permission": "MANAGE_EMOJIS_AND_STICKERS"
+                "permission": "MANAGE_EMOJIS_AND_STICKERS",
+                "emittedEvents": [
+                    "GUILD_STICKERS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -18514,6 +18547,15 @@
                     "permission": "MANAGE_EMOJIS_AND_STICKERS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_STICKERS_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -18530,12 +18572,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -27620,6 +27656,10 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
                 ]
             },
             "cases": [
@@ -27658,6 +27698,16 @@
                         "error-shape"
                     ],
                     "requestBody": "RelationshipPutSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "RELATIONSHIP_ADD",
+                        "RELATIONSHIP_REMOVE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -27787,6 +27837,10 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
                 ]
             },
             "cases": [
@@ -27825,6 +27879,16 @@
                         "error-shape"
                     ],
                     "requestBody": "RelationshipPostSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "RELATIONSHIP_ADD",
+                        "RELATIONSHIP_REMOVE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -27950,6 +28014,9 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
                 ]
             },
             "cases": [
@@ -27988,6 +28055,15 @@
                         "error-shape"
                     ],
                     "requestBody": "SettingsProtoUpdateSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_SETTINGS_PROTO_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -28113,6 +28189,9 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
                 ]
             },
             "cases": [
@@ -28151,6 +28230,15 @@
                         "error-shape"
                     ],
                     "requestBody": "SettingsProtoUpdateJsonSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_SETTINGS_PROTO_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -28276,6 +28364,9 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
                 ]
             },
             "cases": [
@@ -28314,6 +28405,15 @@
                         "error-shape"
                     ],
                     "requestBody": "SettingsProtoUpdateSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_SETTINGS_PROTO_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -28439,6 +28539,9 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
                 ]
             },
             "cases": [
@@ -28477,6 +28580,15 @@
                         "error-shape"
                     ],
                     "requestBody": "SettingsProtoUpdateJsonSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "USER_SETTINGS_PROTO_UPDATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
