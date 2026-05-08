@@ -17,12 +17,7 @@
 */
 
 import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
-import type { ChannelOverride, ChannelType, PublicMember, PublicUser, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
-
-// TODO: this is not the best place for this type
-export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
-    channel_overrides: (ChannelOverride & { channel_id: string })[];
-};
+import type { ChannelType, PublicMember, PublicUser, StageInstanceResponse } from "@spacebar/schemas";
 
 // TODO: probably should move somewhere else
 export interface ReadyPrivateChannel {
