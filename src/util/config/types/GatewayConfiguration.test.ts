@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, GATEWAY_HEARTBEAT_INTERVAL, GatewayConfiguration, isValidGatewayHeartbeatTimeout } from "./GatewayConfiguration";
+import {
+    DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS,
+    DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT,
+    GATEWAY_HEARTBEAT_INTERVAL,
+    GatewayConfiguration,
+    isValidGatewayDisconnectedSessionCleanupDelay,
+    isValidGatewayHeartbeatTimeout,
+} from "./GatewayConfiguration";
 
 describe("GatewayConfiguration", () => {
     it("keeps endpoint settings and adds heartbeat timeout defaults", () => {
@@ -11,8 +18,10 @@ describe("GatewayConfiguration", () => {
         assert.equal(config.endpointPublic, null);
         assert.equal(config.heartbeatTimeout, DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT);
         assert.equal(config.lazyMemberListIncludeOffline, true);
+        assert.equal(config.disconnectedSessionCleanupDelayMs, DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS);
         assert.equal(DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, 45_000);
         assert.equal(GATEWAY_HEARTBEAT_INTERVAL, 30_000);
+        assert.equal(DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS, 10_000);
     });
 
     it("documents the lazy member list offline default in the example config", () => {
@@ -34,5 +43,15 @@ describe("GatewayConfiguration", () => {
         assert.equal(isValidGatewayHeartbeatTimeout(Number.NaN), false);
         assert.equal(isValidGatewayHeartbeatTimeout(Number.POSITIVE_INFINITY), false);
         assert.equal(isValidGatewayHeartbeatTimeout("45000"), false);
+    });
+
+    it("allows immediate or delayed disconnected session cleanup", () => {
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(0), true);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(10_000), true);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(-1), false);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(null), false);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(Number.NaN), false);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay(Number.POSITIVE_INFINITY), false);
+        assert.equal(isValidGatewayDisconnectedSessionCleanupDelay("0"), false);
     });
 });
