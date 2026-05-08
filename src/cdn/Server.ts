@@ -22,7 +22,7 @@ import { CORS, BodyParser } from "@spacebar/api";
 import path from "node:path";
 import guildProfilesRoute from "./routes/guild-profiles";
 import morgan from "morgan";
-import { storage } from "./util";
+import { initializeStorage, storage } from "./util";
 import { attachmentStoragePath, legacyAttachmentStoragePath, moveLegacyAttachmentFile } from "./util/AttachmentStorage";
 
 export type CDNServerOptions = ServerOptions & {
@@ -42,6 +42,7 @@ export class CDNServer extends Server {
 
     async start() {
         await initStartupConfigAndDatabase();
+        initializeStorage();
 
         this.migrateAttachments().then(
             (_) => console.log("[CDN] Successfully migrated attachments"),

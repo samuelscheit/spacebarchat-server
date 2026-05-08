@@ -31,7 +31,7 @@ function isOutsideRoot(root: string, path: string): boolean {
 
 export class FileStorage implements Storage {
     private getRoot(): string {
-        // STORAGE_LOCATION has a default value in start.ts
+        // STORAGE_LOCATION is set when initializeStorage() runs during server startup
         return resolve(process.env.STORAGE_LOCATION || "../");
     }
 
