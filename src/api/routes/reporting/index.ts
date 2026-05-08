@@ -21,13 +21,37 @@ import path from "node:path";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { route } from "@spacebar/api";
-import { ReportMenuType, ReportMenuTypeNames, CreateReportSchema, CreateReportRequiredFields, ReportingMenuResponse } from "@spacebar/schemas";
+import {
+    ReportMenuType,
+    ReportMenuTypeNames,
+    CreateReportSchema,
+    CreateReportRequiredFields,
+    ReportingMenuResponse,
+    ReportingMenuElement,
+    ReportingMenuNode,
+} from "@spacebar/schemas";
 import { FieldErrors } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 if (process.env.LOG_ROUTES !== "false") console.log("[Server] Registering reporting menu routes...");
 
-const reportMenuDirectory = path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses");
+const reportMenuDirectory = findReportMenuDirectory();
+
+function findReportMenuDirectory(): string {
+    const menuDirectory = path.join("assets", "temp_report_menu_responses");
+    const candidates = [path.join(process.cwd(), menuDirectory)];
+    let currentDirectory = __dirname;
+
+    while (true) {
+        candidates.push(path.join(currentDirectory, menuDirectory));
+
+        const parentDirectory = path.dirname(currentDirectory);
+        if (parentDirectory === currentDirectory) break;
+        currentDirectory = parentDirectory;
+    }
+
+    return candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0];
+}
 
 function getReportMenuType(type: string): ReportMenuType {
     const reportType = Number(Object.entries(ReportMenuTypeNames).find((x) => x[1] === type)?.[0]) as ReportMenuType;
@@ -57,21 +81,72 @@ function assertRequiredFields(obj: CreateReportSchema, fields: (keyof CreateRepo
         );
 }
 
-function validateBreadcrumbs(menuData: ReportingMenuResponse, breadcrumbs: number[]): boolean {
+function getReportMenuNode(menuData: ReportingMenuResponse, nodeId: number): ReportingMenuNode | undefined {
+    return menuData.nodes[nodeId];
+}
+
+function isReportMenuTransitionAllowed(node: ReportingMenuNode, nextNodeId: number): boolean {
+    if (node.children.some((child) => child[1] === nextNodeId)) return true;
+    return node.button?.target === nextNodeId;
+}
+
+function getReportBreadcrumbNodes(menuData: ReportingMenuResponse, breadcrumbs: number[]): ReportingMenuNode[] | undefined {
+    if (breadcrumbs.length === 0 || breadcrumbs[0] !== menuData.root_node_id) return undefined;
+
     let node = menuData.nodes[menuData.root_node_id];
-    if (!node || breadcrumbs[0] !== menuData.root_node_id) return false;
+    if (!node) return undefined;
+    const nodes = [node];
 
     for (let i = 1; i < breadcrumbs.length; i++) {
         const crumb = breadcrumbs[i];
-        const nextNode = node.children.find((child) => child[1] === crumb);
-        if (!nextNode) return false;
+        if (!isReportMenuTransitionAllowed(node, crumb)) return undefined;
 
-        const nextNodeData = menuData.nodes[crumb];
-        if (!nextNodeData) return false;
+        const nextNodeData = getReportMenuNode(menuData, crumb);
+        if (!nextNodeData) return undefined;
         node = nextNodeData;
+        nodes.push(node);
     }
 
-    return true;
+    return nodes;
+}
+
+function isReportTerminalNode(node: ReportingMenuNode): boolean {
+    return node.button?.type === "submit" || node.is_auto_submit === true;
+}
+
+function getElementValues(element: ReportingMenuElement): Set<string> | undefined {
+    if (!Array.isArray(element.data)) return undefined;
+    return new Set(element.data.map((option) => option[0]));
+}
+
+function validateRequiredElements(body: CreateReportSchema, nodes: ReportingMenuNode[]) {
+    const errors: Record<string, { message: string; code: string }> = {};
+
+    for (const node of nodes) {
+        for (const element of node.elements) {
+            if (!element.should_submit_data) continue;
+
+            const field = `elements.${element.name}`;
+            const submittedValues = body.elements?.[element.name];
+            if (!Array.isArray(submittedValues) || submittedValues.length === 0) {
+                errors[field] = {
+                    message: `Missing required report element ${element.name}.`,
+                    code: "MISSING_REQUIRED_REPORT_ELEMENT",
+                };
+                continue;
+            }
+
+            const allowedValues = getElementValues(element);
+            const invalidValue = allowedValues ? submittedValues.find((value) => !allowedValues.has(value)) : submittedValues.find((value) => typeof value !== "string");
+            if (invalidValue !== undefined)
+                errors[field] = {
+                    message: `Invalid value ${invalidValue} for report element ${element.name}.`,
+                    code: "INVALID_REPORT_ELEMENT_VALUE",
+                };
+        }
+    }
+
+    if (Object.keys(errors).length > 0) throw FieldErrors(errors);
 }
 
 export function validateCreateReport(type: string, body: CreateReportSchema) {
@@ -111,7 +186,8 @@ export function validateCreateReport(type: string, body: CreateReportSchema) {
         });
     }
 
-    if (!validateBreadcrumbs(menuData, body.breadcrumbs))
+    const breadcrumbNodes = getReportBreadcrumbNodes(menuData, body.breadcrumbs);
+    if (!breadcrumbNodes)
         throw FieldErrors({
             breadcrumbs: {
                 message: `Invalid report menu breadcrumbs path.`,
@@ -119,6 +195,16 @@ export function validateCreateReport(type: string, body: CreateReportSchema) {
             },
         });
 
+    const terminalNode = breadcrumbNodes.at(-1);
+    if (!terminalNode || !isReportTerminalNode(terminalNode))
+        throw FieldErrors({
+            breadcrumbs: {
+                message: `Report menu breadcrumbs must end at a submittable node.`,
+                code: "INVALID_REPORT_MENU_BREADCRUMBS_TERMINAL",
+            },
+        });
+
+    validateRequiredElements(body, breadcrumbNodes);
     assertRequiredFields(body, CreateReportRequiredFields[getReportMenuType(type)]);
 }
 
@@ -163,12 +249,9 @@ for (const type of Object.values(ReportMenuTypeNames)) {
     router.post(
         `/${type}`,
         route({
-            description: `Get reporting menu options for ${type} reports.`,
+            description: `Submit a ${type} report.`,
             requestBody: "CreateReportSchema",
             responses: {
-                200: {
-                    body: "ReportingMenuResponse",
-                },
                 204: {},
             },
             spacebarOnly: false, // Maps to /reporting/:id

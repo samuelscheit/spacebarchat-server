@@ -14671,7 +14671,7 @@
             "path": "/reporting/",
             "samplePath": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 29,
+            "line": 211,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
