@@ -16,29 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: dedicated schemas?
 import { User_DisplayNameEffect, User_DisplayNameFont } from "discord-protos";
 
-export interface UserModifySchema {
+export interface UserAccountModifySchema {
     /**
      * @minLength 2
      */
     username?: string;
-    /**
-     * @TJS-format image-data-uri
-     */
-    avatar?: string | null;
-    /**
-     * @maxLength 1024
-     */
-    avatar_description?: string | null;
-    avatar_id?: string;
-    bio?: string;
-    accent_color?: number;
-    /**
-     * @TJS-format image-data-uri
-     */
-    banner?: string | null;
     /**
      * @minLength 1
      * @maxLength 72
@@ -64,8 +48,31 @@ export interface UserModifySchema {
      * @pattern ^(?!0{1,4}$)\d{1,4}$
      */
     discriminator?: string;
+}
+
+export interface UserAvatarModifySchema {
+    /**
+     * @TJS-format image-data-uri
+     */
+    avatar?: string | null;
+    /**
+     * @maxLength 1024
+     */
+    avatar_description?: string | null;
+    avatar_id?: string;
+}
+
+export interface UserProfileStyleModifySchema {
+    bio?: string;
+    accent_color?: number;
+    /**
+     * @TJS-format image-data-uri
+     */
+    banner?: string | null;
 
     display_name_colors?: number[];
     display_name_effect_id?: User_DisplayNameEffect;
     display_name_font_id?: User_DisplayNameFont;
 }
+
+export interface UserModifySchema extends UserAccountModifySchema, UserAvatarModifySchema, UserProfileStyleModifySchema {}

@@ -7572,11 +7572,158 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserAccountModifySchema": {
+        "type": "object",
+        "properties": {
+            "username": {
+                "minLength": 2,
+                "type": "string"
+            },
+            "password": {
+                "minLength": 1,
+                "maxLength": 72,
+                "type": "string"
+            },
+            "new_password": {
+                "minLength": 1,
+                "maxLength": 72,
+                "type": "string"
+            },
+            "code": {
+                "minLength": 6,
+                "maxLength": 6,
+                "type": "string"
+            },
+            "email": {
+                "format": "email",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "discriminator": {
+                "minLength": 1,
+                "maxLength": 4,
+                "pattern": "^(?!0{1,4}$)\\d{1,4}$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserAvatarModifySchema": {
+        "type": "object",
+        "properties": {
+            "avatar": {
+                "format": "image-data-uri",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "avatar_description": {
+                "maxLength": 1024,
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "avatar_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserProfileStyleModifySchema": {
+        "type": "object",
+        "properties": {
+            "bio": {
+                "type": "string"
+            },
+            "accent_color": {
+                "type": "integer"
+            },
+            "banner": {
+                "format": "image-data-uri",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "display_name_colors": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "display_name_effect_id": {
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6
+                ],
+                "type": "number"
+            },
+            "display_name_font_id": {
+                "enum": [
+                    0,
+                    1,
+                    10,
+                    11,
+                    12,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                ],
+                "type": "number"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserModifySchema": {
         "type": "object",
         "properties": {
             "username": {
                 "minLength": 2,
+                "type": "string"
+            },
+            "password": {
+                "minLength": 1,
+                "maxLength": 72,
+                "type": "string"
+            },
+            "new_password": {
+                "minLength": 1,
+                "maxLength": 72,
+                "type": "string"
+            },
+            "code": {
+                "minLength": 6,
+                "maxLength": 6,
+                "type": "string"
+            },
+            "email": {
+                "format": "email",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "discriminator": {
+                "minLength": 1,
+                "maxLength": 4,
+                "pattern": "^(?!0{1,4}$)\\d{1,4}$",
                 "type": "string"
             },
             "avatar": {
@@ -7608,34 +7755,6 @@
                     "null",
                     "string"
                 ]
-            },
-            "password": {
-                "minLength": 1,
-                "maxLength": 72,
-                "type": "string"
-            },
-            "new_password": {
-                "minLength": 1,
-                "maxLength": 72,
-                "type": "string"
-            },
-            "code": {
-                "minLength": 6,
-                "maxLength": 6,
-                "type": "string"
-            },
-            "email": {
-                "format": "email",
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "discriminator": {
-                "minLength": 1,
-                "maxLength": 4,
-                "pattern": "^(?!0{1,4}$)\\d{1,4}$",
-                "type": "string"
             },
             "display_name_colors": {
                 "type": "array",

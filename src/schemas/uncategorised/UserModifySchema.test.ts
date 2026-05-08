@@ -25,18 +25,24 @@ ajv.addFormat(ImageDataUriOrAssetHashFormat, {
     validate: isImageDataUriOrAssetHash,
 });
 
+function validate(schemaName: string, payload: unknown) {
+    const schema = ajv.getSchema(schemaName);
+    assert.ok(schema, `${schemaName} should be registered`);
+    return ajv.validate(schemaName, payload);
+}
+
 describe("UserModifySchema", () => {
-    const validate = ajv.getSchema("UserModifySchema");
+    const validateUserModify = ajv.getSchema("UserModifySchema");
 
     test("allows null email so optional email can be cleared", () => {
-        assert.ok(validate);
-        assert.equal(validate!({ email: null, password: "hunter2" }), true);
+        assert.ok(validateUserModify);
+        assert.equal(validateUserModify!({ email: null, password: "hunter2" }), true);
     });
 
     test("still validates non-null email format", () => {
-        assert.ok(validate);
-        assert.equal(validate!({ email: "user@example.com", password: "hunter2" }), true);
-        assert.equal(validate!({ email: "not an email", password: "hunter2" }), false);
+        assert.ok(validateUserModify);
+        assert.equal(validateUserModify!({ email: "user@example.com", password: "hunter2" }), true);
+        assert.equal(validateUserModify!({ email: "not an email", password: "hunter2" }), false);
     });
 
     test("accepts recent-avatar upload metadata from modern clients", () => {
@@ -129,5 +135,61 @@ describe("UserModifySchema", () => {
                 `expected ${JSON.stringify(discriminator)} to be rejected`,
             );
         }
+    });
+
+    test("keeps the composite schema compatible with account, avatar, and profile-style fields", () => {
+        assert.equal(
+            validate("UserModifySchema", {
+                username: "spacebar",
+                password: "hunter2",
+                avatar: validPngDataUri,
+                avatar_description: "avatar.png, added May 6, 2026 at 11:04 AM",
+                bio: "hello",
+                banner: validPngDataUri,
+                display_name_colors: [0x5865f2, 0xffffff],
+                display_name_effect_id: 1,
+                display_name_font_id: 1,
+            }),
+            true,
+        );
+    });
+});
+
+describe("dedicated user modification schemas", () => {
+    test("UserAccountModifySchema validates only account and credential fields", () => {
+        assert.equal(validate("UserAccountModifySchema", { username: "spacebar", email: "user@example.com", password: "hunter2" }), true);
+        assert.equal(validate("UserAccountModifySchema", { avatar_id: "1386423687284265200" }), false);
+        assert.equal(
+            ajv.errors?.some((error) => error.keyword === "additionalProperties" && error.params.additionalProperty === "avatar_id"),
+            true,
+        );
+    });
+
+    test("UserAvatarModifySchema validates only avatar upload and recent-avatar fields", () => {
+        assert.equal(validate("UserAvatarModifySchema", { avatar: validPngDataUri, avatar_description: null, avatar_id: "1386423687284265200" }), true);
+        assert.equal(validate("UserAvatarModifySchema", { email: "user@example.com" }), false);
+        assert.equal(
+            ajv.errors?.some((error) => error.keyword === "additionalProperties" && error.params.additionalProperty === "email"),
+            true,
+        );
+    });
+
+    test("UserProfileStyleModifySchema validates only profile and display-style fields owned by the self-user route", () => {
+        assert.equal(
+            validate("UserProfileStyleModifySchema", {
+                bio: "hello",
+                accent_color: 0x5865f2,
+                banner: validPngDataUri,
+                display_name_colors: [0x5865f2, 0xffffff],
+                display_name_effect_id: 1,
+                display_name_font_id: 1,
+            }),
+            true,
+        );
+        assert.equal(validate("UserProfileStyleModifySchema", { password: "hunter2" }), false);
+        assert.equal(
+            ajv.errors?.some((error) => error.keyword === "additionalProperties" && error.params.additionalProperty === "password"),
+            true,
+        );
     });
 });
