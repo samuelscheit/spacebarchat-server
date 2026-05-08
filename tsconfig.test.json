@@ -5,6 +5,11 @@
         "src/api/ServerConfigure.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
+        "src/schemas/uncategorised/GuildCreateSchema.test.ts",
+        "src/util/dtos/ReadyGuildDTO.test.ts",
+        "src/util/entities/Guild.test.ts",
+        "src/util/util/GuildCreate.test.ts",
+        "src/util/util/GuildSafetyAlertsChannel.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],
@@ -12,6 +17,7 @@
     "compilerOptions": {
         "rootDir": ".",
         "noEmit": true,
+        "types": ["node", "multer", "i18next-http-middleware"],
         "tsBuildInfoFile": "./dist/test.tsbuildinfo"
     }
 }
