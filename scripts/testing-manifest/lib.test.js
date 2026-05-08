@@ -3,7 +3,16 @@
 const { describe, test } = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
-const { combineRoutePaths, parseRegexLiteral, parseRouteOptions, routePathFromFile, scanRouterCalls, splitTopLevelArguments, stripComments } = require("./lib");
+const {
+    combineRoutePaths,
+    extractApiRateLimitRulesFromSource,
+    parseRegexLiteral,
+    parseRouteOptions,
+    routePathFromFile,
+    scanRouterCalls,
+    splitTopLevelArguments,
+    stripComments,
+} = require("./lib");
 
 describe("testing manifest route helpers", () => {
     test("derives mounted paths with Spacebar route filename conventions", () => {
@@ -73,6 +82,31 @@ describe("testing manifest route helpers", () => {
         const calls = scanRouterCalls(source);
 
         assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["CHANNEL_CREATE", "CHANNEL_RECIPIENT_ADD"]);
+    });
+
+    test("extracts API route rate-limit groups from middleware mounts", () => {
+        const source = `
+            app.use(rateLimit({ bucket: "global", ...global }));
+            app.use("/guilds/:guild_id", rateLimit(routes.guild));
+            app.use("/auth/register", rateLimit({ onlyIp: true, success: true, ...routes.auth.register }));
+        `;
+
+        assert.deepEqual(extractApiRateLimitRulesFromSource(source), [
+            {
+                group: "guild",
+                configPath: "limits.rate.routes.guild",
+                pathPrefix: "/guilds/:guild_id",
+                sourceFile: "src/api/middlewares/RateLimit.ts",
+                line: 3,
+            },
+            {
+                group: "auth.register",
+                configPath: "limits.rate.routes.auth.register",
+                pathPrefix: "/auth/register",
+                sourceFile: "src/api/middlewares/RateLimit.ts",
+                line: 4,
+            },
+        ]);
     });
 
     test("expands known spread constants in route metadata arrays", () => {

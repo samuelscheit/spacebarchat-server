@@ -22,6 +22,11 @@ type GeneratedHttpContract = {
     samplePath: string;
     authMode: string;
     fixtureRequirements: string[];
+    rateLimit?: {
+        group: string;
+        configPath: string;
+        pathPrefix: string;
+    };
     routeMetadata: {
         requestBody?: string;
         responses: string[];
@@ -48,6 +53,7 @@ type GeneratedHttpContractMatrix = {
         runtimePermissionOnlyDenialContracts: number;
         runtimePermissionAndRightPermissionDenialContracts: number;
         runtimePermissionAndRightRightDenialContracts: number;
+        runtimeRateLimitHeaderContracts: number;
         runtimeCdnMissingObjectContracts: number;
         runtimeCdnHeadMissingObjectContracts: number;
         runtimeCdnValidObjectContracts: number;
@@ -162,6 +168,7 @@ const permissionAndRightDenialContracts = matrix.contracts.filter(
         !metadataValues(contract.routeMetadata.permission).some((value) => value.startsWith("...")) &&
         !metadataValues(contract.routeMetadata.right).some((value) => value.startsWith("...")),
 );
+const rateLimitHeaderContracts = matrix.contracts.filter((contract) => contract.service === "api" && contract.method !== "OPTIONS" && contract.rateLimit);
 const cdnMissingObjectContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/");
 const cdnValidObjectContracts = cdnMissingObjectContracts;
 const cdnSignatureRequiredContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && ["POST", "DELETE"].includes(contract.method));
@@ -186,6 +193,13 @@ const cdnInternalAttachmentManifestIds = [
 const cdnInternalAttachmentContracts = matrix.contracts.filter((contract) => cdnInternalAttachmentManifestIds.includes(contract.manifestId));
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
 const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
+const generatedRateLimitCounts: Record<string, number> = {
+    "auth.login": 404,
+    "auth.register": 405,
+    channel: 403,
+    guild: 401,
+    webhook: 402,
+};
 
 function silenceConsole() {
     const previous = {
@@ -217,6 +231,25 @@ function configurePublicResponseSchemaRuntime() {
         config.api.endpointPublic = previous.apiEndpointPublic;
         config.cdn.endpointPublic = previous.cdnEndpointPublic;
         config.gateway.endpointPublic = previous.gatewayEndpointPublic;
+    };
+}
+
+function configureGeneratedRateLimits() {
+    const config = Config.get();
+    const previous = JSON.parse(JSON.stringify(config.limits.rate));
+
+    config.limits.rate.enabled = true;
+    config.limits.rate.ip = { count: 997, window: 60 };
+    config.limits.rate.global = { count: 999, window: 60 };
+    config.limits.rate.error = { count: 998, window: 60 };
+    config.limits.rate.routes.guild = { count: generatedRateLimitCounts.guild, window: 60 };
+    config.limits.rate.routes.webhook = { count: generatedRateLimitCounts.webhook, window: 60 };
+    config.limits.rate.routes.channel = { count: generatedRateLimitCounts.channel, window: 60 };
+    config.limits.rate.routes.auth.login = { count: generatedRateLimitCounts["auth.login"], window: 60 };
+    config.limits.rate.routes.auth.register = { count: generatedRateLimitCounts["auth.register"], window: 60 };
+
+    return () => {
+        config.limits.rate = previous;
     };
 }
 
@@ -272,6 +305,7 @@ function restoreEnv(name: string, value: string | undefined) {
 async function withAuthenticatedApi<T>(
     prefix: string,
     fn: (context: { api: Awaited<ReturnType<typeof startApi>>; token: string; user: User; session: Session }) => Promise<T>,
+    options: { beforeStart?: () => Promise<void> | void; afterStop?: () => Promise<void> | void } = {},
 ): Promise<T> {
     const previous = snapshotProcessState();
     let api: Awaited<ReturnType<typeof startApi>> | undefined;
@@ -291,6 +325,7 @@ async function withAuthenticatedApi<T>(
 
         await initDatabase();
         databaseInitialized = true;
+        await options.beforeStart?.();
         api = await startApi();
 
         const suffix = `${process.pid}${Date.now()}`;
@@ -336,6 +371,7 @@ async function withAuthenticatedApi<T>(
         return await fn({ api, token, user, session });
     } finally {
         if (api) await api.stop();
+        await options.afterStop?.();
         if (databaseInitialized) await closeDatabase();
         if (database) await database.close();
         restoreProcessState(previous);
@@ -532,6 +568,41 @@ function samplePathForPermissionDenialContract(contract: GeneratedHttpContract, 
 
 function samplePathForAuthenticatedResponseContract(contract: GeneratedHttpContract, userId: string) {
     return contract.path.replace(/:user_id/g, userId).replace(/:payment_source_id/g, "fixture-payment-source");
+}
+
+function rateLimitRequestInit(contract: GeneratedHttpContract, token: string): RequestInit {
+    const headers: Record<string, string> = {
+        accept: "application/json",
+        authorization: `Bearer ${token}`,
+    };
+    const init: RequestInit = {
+        method: contract.method,
+        headers,
+    };
+
+    if (["POST", "PUT", "PATCH"].includes(contract.method)) {
+        headers["content-type"] = "application/json";
+        init.body = "{}";
+    }
+
+    return init;
+}
+
+function assertRateLimitHeaders(contract: GeneratedHttpContract, response: Response) {
+    assert.ok(contract.rateLimit, `${contract.manifestId} should declare rate-limit metadata`);
+    assert.equal(
+        response.headers.get("x-ratelimit-limit"),
+        String(generatedRateLimitCounts[contract.rateLimit.group]),
+        `${contract.manifestId} should expose its route-group rate limit`,
+    );
+    assert.equal(
+        response.headers.get("x-ratelimit-bucket"),
+        contract.samplePath.replace(/^\//, ""),
+        `${contract.manifestId} should use the request path as route-specific rate-limit bucket`,
+    );
+    assert.match(response.headers.get("x-ratelimit-remaining") ?? "", /^\d+$/, `${contract.manifestId} should expose remaining rate-limit capacity`);
+    assert.match(response.headers.get("x-ratelimit-reset") ?? "", /^\d+$/, `${contract.manifestId} should expose rate-limit reset timestamp`);
+    assert.match(response.headers.get("x-ratelimit-reset-after") ?? "", /^\d+$/, `${contract.manifestId} should expose rate-limit reset window`);
 }
 
 function cdnHeadersForContract(contract: GeneratedHttpContract) {
@@ -1193,6 +1264,55 @@ test("generated HTTP public request-body contracts reject schema-invalid bodies 
         if (api) await api.stop();
     }
 });
+
+test(
+    "generated HTTP rate-limited route groups expose rate-limit headers through the real API stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(rateLimitHeaderContracts.length, matrix.summary.runtimeRateLimitHeaderContracts);
+        assert.ok(rateLimitHeaderContracts.length > 0, "expected rate-limited API route groups to be covered");
+
+        const restoreConsole = silenceConsole();
+        let restoreRateLimits: () => void = () => undefined;
+        try {
+            await withAuthenticatedApi(
+                "spacebar_contracts_rate_limits",
+                async ({ api, token }) => {
+                    for (const contract of rateLimitHeaderContracts) {
+                        const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, rateLimitRequestInit(contract, token));
+                        assertRateLimitHeaders(contract, response);
+                    }
+                },
+                {
+                    beforeStart: async () => {
+                        const configPath = path.join(process.cwd(), "rate-limit-config.json");
+                        process.env.CONFIG_PATH = configPath;
+                        process.env.CONFIG_READONLY = "true";
+                        await writeFile(
+                            configPath,
+                            JSON.stringify({
+                                general: { serverName: "localhost" },
+                                api: { endpointPublic: "http://localhost:3001/api/v9" },
+                                cdn: { endpointPublic: "http://localhost:3003", endpointPrivate: "http://127.0.0.1:3003" },
+                                gateway: { endpointPublic: "ws://localhost:3002" },
+                            }),
+                        );
+                        await Config.init(true);
+                        restoreRateLimits = configureGeneratedRateLimits();
+                    },
+                    afterStop: () => {
+                        restoreRateLimits();
+                    },
+                },
+            );
+        } finally {
+            restoreConsole();
+        }
+    },
+);
 
 test("generated CDN missing-object contracts reject absent GET objects through the real CDN stack", { timeout: 60_000 }, async () => {
     assert.equal(cdnMissingObjectContracts.length, matrix.summary.runtimeCdnMissingObjectContracts);

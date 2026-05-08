@@ -64,4 +64,13 @@ describe("generated HTTP contract matrix", () => {
             );
         }
     });
+
+    test("rate-limited route groups get rate-limit header cases", () => {
+        for (const contract of matrix.contracts.filter((entry) => entry.rateLimit)) {
+            assert.ok(
+                contract.cases.some((contractCase) => contractCase.id === "rate-limit-headers" && contractCase.checks.includes("rate-limit-headers")),
+                `${contract.manifestId} is missing rate-limit header case`,
+            );
+        }
+    });
 });

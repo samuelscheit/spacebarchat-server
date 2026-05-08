@@ -535,6 +535,65 @@ function authModeForHttpRoute(entry, noAuthRules) {
     return "unknown";
 }
 
+function rateLimitConfigRef(callArg) {
+    const direct = /^routes\.([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)$/.exec(callArg.trim());
+    const spread = /\.\.\.\s*routes\.([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)/.exec(callArg);
+    const match = direct || spread;
+    if (!match) return undefined;
+
+    const name = match[1];
+    return {
+        group: name,
+        configPath: `limits.rate.routes.${name}`,
+    };
+}
+
+function extractApiRateLimitRulesFromSource(source) {
+    const rules = [];
+    const regex = /\bapp\.use\s*\(\s*(["'`][^"'`]+["'`])\s*,\s*rateLimit\s*\(/g;
+
+    for (const match of source.matchAll(regex)) {
+        const pathPrefix = parseStringLiteral(match[1]);
+        const rateLimitOpen = source.indexOf("(", match.index + match[0].lastIndexOf("rateLimit"));
+        const rateLimitClose = findMatching(source, rateLimitOpen);
+        if (!pathPrefix || rateLimitOpen === -1 || rateLimitClose === -1) continue;
+
+        const [callArg] = splitTopLevelArguments(source.slice(rateLimitOpen + 1, rateLimitClose));
+        const ref = rateLimitConfigRef(callArg || "");
+        if (!ref) continue;
+
+        rules.push({
+            ...ref,
+            pathPrefix,
+            sourceFile: "src/api/middlewares/RateLimit.ts",
+            line: lineOf(source, match.index),
+        });
+    }
+
+    return rules;
+}
+
+function collectApiRateLimitRules(repoRoot) {
+    return extractApiRateLimitRulesFromSource(readText(path.join(repoRoot, "src", "api", "middlewares", "RateLimit.ts")));
+}
+
+function pathMatchesPrefix(pathValue, pathPrefix) {
+    return pathValue === pathPrefix || pathValue.startsWith(pathPrefix.endsWith("/") ? pathPrefix : `${pathPrefix}/`);
+}
+
+function applyRateLimitMetadata(entries, rules) {
+    return entries.map((entry) => {
+        if (entry.service !== "api" || entry.type !== "http-route" || entry.method === "OPTIONS") return entry;
+        const rule = rules.find((candidate) => pathMatchesPrefix(entry.path, candidate.pathPrefix));
+        if (!rule) return entry;
+
+        return {
+            ...entry,
+            rateLimit: rule,
+        };
+    });
+}
+
 function makeHttpEntry({ service, method, routePath, sourceFile, line, routeMetadata, noAuthRules, mountedVia }) {
     return {
         id: `${service}:http:${method}:${routePath}`,
@@ -792,18 +851,22 @@ function sortEntries(entries) {
 function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POLICY_PATH)) {
     const policy = readJson(policyPath);
     const noAuthRules = extractNoAuthorizationRules(repoRoot);
+    const rateLimitRules = collectApiRateLimitRules(repoRoot);
     const apiRoutes = collectFilesystemHttpRoutes(repoRoot, "api", noAuthRules);
     const cdnRoutes = collectFilesystemHttpRoutes(repoRoot, "cdn", noAuthRules);
     const entries = sortEntries(
         applyPolicy(
-            [
-                ...apiRoutes,
-                ...collectApiAppRoutes(repoRoot, noAuthRules),
-                ...cdnRoutes,
-                ...collectCdnManualMounts(repoRoot, cdnRoutes, noAuthRules),
-                ...collectGatewayOpcodes(repoRoot),
-                ...collectWebRtcOpcodes(repoRoot),
-            ],
+            applyRateLimitMetadata(
+                [
+                    ...apiRoutes,
+                    ...collectApiAppRoutes(repoRoot, noAuthRules),
+                    ...cdnRoutes,
+                    ...collectCdnManualMounts(repoRoot, cdnRoutes, noAuthRules),
+                    ...collectGatewayOpcodes(repoRoot),
+                    ...collectWebRtcOpcodes(repoRoot),
+                ],
+                rateLimitRules,
+            ),
             policy,
         ).concat(manualFeatureEntries(policy)),
     );
@@ -815,6 +878,7 @@ function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POL
         sources: [
             "src/api/routes",
             "src/api/Server.ts",
+            "src/api/middlewares/RateLimit.ts",
             "src/cdn/routes",
             "src/cdn/Server.ts",
             "src/gateway/opcodes/index.ts",
@@ -857,6 +921,7 @@ module.exports = {
     DEFAULT_POLICY_PATH,
     applyPolicy,
     combineRoutePaths,
+    extractApiRateLimitRulesFromSource,
     generateManifest,
     parseRouteOptions,
     routePathFromFile,
