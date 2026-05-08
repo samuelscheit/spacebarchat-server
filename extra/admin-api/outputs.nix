@@ -143,7 +143,7 @@ nixpkgs.lib.recursiveUpdate (
         Spacebar-Cdn-Shared = buildSpacebarDotnetModule {
           name = "Spacebar.Cdn.Shared";
           projectFile = "Spacebar.Cdn.Shared.csproj";
-          srcRoot = Spacebar.Cdn.Shared;
+          srcRoot = ./Spacebar.Cdn.Shared;
         };
 
         # Main projects
