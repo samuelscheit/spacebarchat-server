@@ -33,8 +33,9 @@ router.get(
             },
         },
         responses: {
-            // TODO: I really didn't feel like typing all of it out
-            200: {},
+            200: {
+                body: "OAuthAuthorizeInfoResponse",
+            },
             400: {
                 body: "APIErrorResponse",
             },

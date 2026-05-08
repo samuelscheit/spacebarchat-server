@@ -3873,6 +3873,38 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "OAuthAuthorizeInfoResponse": {
+        "type": "object",
+        "properties": {
+            "guilds": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/OAuthAuthorizeInfoGuild"
+                }
+            },
+            "user": {
+                "$ref": "#/definitions/OAuthAuthorizeInfoUser"
+            },
+            "application": {
+                "$ref": "#/definitions/OAuthAuthorizeInfoApplication"
+            },
+            "bot": {
+                "$ref": "#/definitions/OAuthAuthorizeInfoBot"
+            },
+            "authorized": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application",
+            "authorized",
+            "bot",
+            "guilds",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "OAuthAuthorizeResponse": {
         "type": "object",
         "properties": {
@@ -20475,6 +20507,195 @@
             "updates",
             "user",
             "webhook"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuthAuthorizeInfoGuild": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "mfa_level": {
+                "type": "integer"
+            },
+            "permissions": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "icon",
+            "id",
+            "mfa_level",
+            "name",
+            "permissions"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuthAuthorizeInfoUser": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "username": {
+                "type": "string"
+            },
+            "avatar": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "avatar_decoration": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "discriminator": {
+                "type": "string"
+            },
+            "public_flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "avatar",
+            "avatar_decoration",
+            "discriminator",
+            "id",
+            "public_flags",
+            "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuthAuthorizeInfoApplication": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description": {
+                "type": "string"
+            },
+            "summary": {
+                "type": "string"
+            },
+            "type": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "hook": {
+                "type": "boolean"
+            },
+            "guild_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "bot_public": {
+                "type": "boolean"
+            },
+            "bot_require_code_grant": {
+                "type": "boolean"
+            },
+            "verify_key": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "bot_public",
+            "bot_require_code_grant",
+            "description",
+            "flags",
+            "guild_id",
+            "hook",
+            "icon",
+            "id",
+            "name",
+            "summary",
+            "verify_key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuthAuthorizeInfoBot": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "username": {
+                "type": "string"
+            },
+            "avatar": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "avatar_decoration": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "discriminator": {
+                "type": "string"
+            },
+            "public_flags": {
+                "type": "integer"
+            },
+            "bot": {
+                "type": "boolean"
+            },
+            "approximated_guild_count": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "approximated_guild_count",
+            "avatar",
+            "avatar_decoration",
+            "bot",
+            "discriminator",
+            "id",
+            "public_flags",
+            "username"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
