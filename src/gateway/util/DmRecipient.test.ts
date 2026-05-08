@@ -28,4 +28,5 @@ test("hasLoadedDmChannel rejects non-DM channels and unloaded DM recipients", ()
     assert.equal(hasLoadedDmChannel(recipientWithChannel(ChannelType.GUILD_TEXT, [])), false);
     assert.equal(hasLoadedDmChannel(recipientWithChannel(ChannelType.GROUP_DM)), false);
     assert.equal(hasLoadedDmChannel(recipientWithChannel(ChannelType.DM, [new Recipient()])), false);
+    assert.equal(hasLoadedDmChannel(recipientWithChannel(ChannelType.DM, [Object.assign(new Recipient(), { user: null as unknown as Recipient["user"] })])), false);
 });

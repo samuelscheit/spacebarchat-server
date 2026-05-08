@@ -9,5 +9,5 @@ export type RecipientWithLoadedDmChannel = Recipient & {
 };
 
 export function hasLoadedDmChannel(recipient: Recipient): recipient is RecipientWithLoadedDmChannel {
-    return recipient.channel?.isDm() === true && Array.isArray(recipient.channel.recipients) && recipient.channel.recipients.every((recipient) => recipient.user !== undefined);
+    return recipient.channel?.isDm() === true && Array.isArray(recipient.channel.recipients) && recipient.channel.recipients.every((recipient) => recipient.user != null);
 }
