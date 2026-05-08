@@ -4181,7 +4181,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 79,
+            "line": 88,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4232,7 +4232,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 26,
+            "line": 77,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
