@@ -73,6 +73,18 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
     return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
 }
 
+export function canDispatchGuildUserUpdate(guildMemberEventIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
+    if (!updatedUserId) return false;
+
+    return Object.values(guildMemberEventIds).some((userIds) => userIds.has(updatedUserId));
+}
+
+export function canDispatchUserUpdate(events: Record<string, unknown>, guildMemberEventIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
+    if (!updatedUserId) return false;
+
+    return Boolean(events[updatedUserId]) || canDispatchGuildUserUpdate(guildMemberEventIds, updatedUserId);
+}
+
 // TODO: close connection on Invalidated Token
 // TODO: check intent
 // TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
@@ -86,6 +98,15 @@ export function handlePresenceUpdate(this: WebSocket, opts: EventOpts) {
     if (!isEventRouteSubscribed(this.events, opts) && !isEventRouteSubscribed(this.member_events, opts)) return;
 
     if (event === EVENTEnum.PresenceUpdate) {
+        return Send(this, {
+            op: OPCODES.Dispatch,
+            t: event,
+            d: data,
+            s: this.sequence++,
+        });
+    }
+
+    if (event === EVENTEnum.UserUpdate && canDispatchUserUpdate(this.events, this.guild_member_event_ids, data.id)) {
         return Send(this, {
             op: OPCODES.Dispatch,
             t: event,

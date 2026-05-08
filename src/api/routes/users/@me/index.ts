@@ -262,7 +262,6 @@ router.patch(
         //@ts-ignore
         delete user.data;
 
-        // TODO: send update member list event in gateway
         await emitEvent({
             event: "USER_UPDATE",
             user_id: req.user_id,
