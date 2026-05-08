@@ -36,13 +36,14 @@ function readAssetJson<T>(name: string): T {
     return JSON.parse(fs.readFileSync(path.join(assetsPath, name), "utf8")) as T;
 }
 
-test("WebAuthnPostSchema uses purpose-specific registration challenge schema name", () => {
+test("WebAuthnPostSchema uses purpose-specific registration schema names", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
 
     assert.equal(schemas.GenerateWebAuthnCredentialsSchema, undefined);
+    assert.equal(schemas.CreateWebAuthnCredentialSchema, undefined);
     assert.deepEqual(schemas.WebAuthnPostSchema.anyOf, [
         { $ref: "#/definitions/WebAuthnCredentialRegistrationChallengeSchema" },
-        { $ref: "#/definitions/CreateWebAuthnCredentialSchema" },
+        { $ref: "#/definitions/WebAuthnCredentialRegistrationCompletionSchema" },
     ]);
     assert.deepEqual(schemas.WebAuthnCredentialRegistrationChallengeSchema, {
         type: "object",
@@ -55,14 +56,32 @@ test("WebAuthnPostSchema uses purpose-specific registration challenge schema nam
         required: ["password"],
         $schema: "http://json-schema.org/draft-07/schema#",
     });
+    assert.deepEqual(schemas.WebAuthnCredentialRegistrationCompletionSchema, {
+        type: "object",
+        properties: {
+            credential: {
+                type: "string",
+            },
+            name: {
+                type: "string",
+            },
+            ticket: {
+                type: "string",
+            },
+        },
+        additionalProperties: false,
+        required: ["credential", "name", "ticket"],
+        $schema: "http://json-schema.org/draft-07/schema#",
+    });
 });
 
-test("WebAuthnPostSchema OpenAPI references purpose-specific registration challenge schema name", () => {
+test("WebAuthnPostSchema OpenAPI references purpose-specific registration schema names", () => {
     const openapi = readAssetJson<{ components: { schemas: Record<string, JsonShape> } }>("openapi.json");
 
     assert.equal(openapi.components.schemas.GenerateWebAuthnCredentialsSchema, undefined);
+    assert.equal(openapi.components.schemas.CreateWebAuthnCredentialSchema, undefined);
     assert.deepEqual(openapi.components.schemas.WebAuthnPostSchema.anyOf, [
         { $ref: "#/components/schemas/WebAuthnCredentialRegistrationChallengeSchema" },
-        { $ref: "#/components/schemas/CreateWebAuthnCredentialSchema" },
+        { $ref: "#/components/schemas/WebAuthnCredentialRegistrationCompletionSchema" },
     ]);
 });
