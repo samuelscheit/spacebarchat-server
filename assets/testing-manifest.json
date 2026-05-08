@@ -8397,7 +8397,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/widget.png/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.png.ts",
-            "line": 35,
+            "line": 29,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
