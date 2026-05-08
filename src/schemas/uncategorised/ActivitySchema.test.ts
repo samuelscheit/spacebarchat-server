@@ -1,7 +1,19 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import { describe, test } from "node:test";
 import { instanceOf } from "lambert-server";
 import { ActivitySchema } from "./ActivitySchema";
+
+const Source = fs.readFileSync(path.join(process.cwd(), "src", "schemas", "uncategorised", "ActivitySchema.ts"), { encoding: "utf8" });
+const Schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), { encoding: "utf8" })) as Record<
+    string,
+    {
+        properties?: Record<string, unknown>;
+        required?: string[];
+        enum?: unknown[];
+    }
+>;
 
 function activityPayload(activity: object) {
     return {
@@ -51,5 +63,23 @@ describe("ActivitySchema", () => {
 
     test("rejects party size with null entries", () => {
         assert.throws(() => instanceOf(ActivitySchema, activityPayload({ type: 0, party: { size: [1, null] } })), /is required/);
+    });
+
+    test("keeps ActivitySchema types owned by schemas instead of util entities", () => {
+        assert.equal(Source.includes('from "@spacebar/util"'), false);
+        assert.equal(Source.includes("from '@spacebar/util'"), false);
+    });
+
+    test("keeps generated ActivitySchema references local Activity and Status definitions", () => {
+        assert.deepEqual(Schemas.ActivitySchema.properties?.status, { $ref: "#/definitions/Status" });
+        assert.deepEqual(Schemas.ActivitySchema.properties?.activities, {
+            type: "array",
+            items: {
+                $ref: "#/definitions/Activity",
+            },
+        });
+        assert.deepEqual(Schemas.Status.enum?.toSorted(), ["dnd", "idle", "invisible", "offline", "online", "unknown"]);
+        assert.deepEqual(Schemas.ActivityType.enum, [0, 1, 2, 3, 4, 5]);
+        assert.deepEqual(Schemas.Activity.required?.toSorted(), ["flags", "name", "session_id", "type"]);
     });
 });
