@@ -4079,7 +4079,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/post-data/",
             "sourceFile": "src/api/routes/channels/#channel_id/post-data.ts",
-            "line": 32,
+            "line": 38,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
