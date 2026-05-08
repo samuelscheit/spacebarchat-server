@@ -13,6 +13,12 @@ function indexOf(source: string, fragment: string): number {
     return index;
 }
 
+function lastIndexOf(source: string, fragment: string): number {
+    const index = source.lastIndexOf(fragment);
+    assert.notEqual(index, -1, `Expected source to contain: ${fragment}`);
+    return index;
+}
+
 function assertBefore(source: string, first: string, second: string): void {
     assert.ok(indexOf(source, first) < indexOf(source, second), `Expected ${first} to appear before ${second}`);
 }
@@ -73,10 +79,17 @@ describe("message media permission route integration", () => {
     test("interaction PONG callback only uses shared acknowledgement cleanup", () => {
         const source = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
 
-        assert.notEqual(indexOf(source, "case InteractionCallbackType.PONG:"), -1);
-        assert.notEqual(indexOf(source, "PONG acknowledges ping interactions without creating or updating messages."), -1);
-        assertBefore(source, "case InteractionCallbackType.PONG:", "pendingInteractions.delete(interactionId);");
-        assertBefore(source, "case InteractionCallbackType.PONG:", "res.sendStatus(204);");
+        const pongCase = indexOf(source, "case InteractionCallbackType.PONG:");
+        const nextCase = indexOf(source, "case InteractionCallbackType.ACKNOWLEDGE:");
+        const defaultCase = indexOf(source, "default:");
+        const pongBody = source.slice(pongCase, nextCase);
+        assert.match(pongBody, /^\s*case InteractionCallbackType\.PONG:\s*\/\/ PONG acknowledges ping interactions without creating or updating messages\.\s*break;\s*$/);
+
+        const sharedCleanup = lastIndexOf(source, "pendingInteractions.delete(interactionId);");
+        const sharedNoContentResponse = lastIndexOf(source, "res.sendStatus(204);");
+        assert.ok(pongCase < sharedCleanup, "Expected PONG to reach the shared pending interaction cleanup");
+        assert.ok(defaultCase < sharedCleanup, "Expected shared cleanup to live after the callback-type switch");
+        assert.ok(sharedCleanup < sharedNoContentResponse, "Expected shared cleanup to run before the shared 204 response");
     });
 
     test("component media extraction is shared between permission gates and message handling", () => {
