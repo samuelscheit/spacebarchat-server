@@ -54,6 +54,8 @@ describe("listenEvent process transmission", () => {
             emitProcessMessage({});
             emitProcessMessage({ type: "event", id: "guild-1" });
             emitProcessMessage({ type: "event", id: "guild-1", event: { data: {} } });
+            emitProcessMessage({ type: "event", id: "guild-1", event: { event: "NOT_A_SPACEBAR_EVENT", guild_id: "guild-1" } });
+            emitProcessMessage({ type: "event", id: "guild-1", event: [{ event: "SB_RELOAD_CONFIG" }] });
             emitProcessMessage({ type: "spacebar:startupFailure", serviceName: "API server" });
             emitProcessMessage({ type: "event", id: "guild-2", event: { event: "SB_RELOAD_CONFIG", guild_id: "guild-2" } });
 
@@ -66,12 +68,25 @@ describe("listenEvent process transmission", () => {
     test("cancel removes the registered process message listener", async () => {
         process.env.EVENT_TRANSMISSION = "process";
         const initialListenerCount = process.listenerCount("message");
-        const cancel = await listenEvent("guild-1", () => undefined);
+        const received: EventOpts[] = [];
+        const cancel = await listenEvent("guild-1", (event) => received.push(event));
 
         assert.equal(process.listenerCount("message"), initialListenerCount + 1);
 
         await cancel();
 
         assert.equal(process.listenerCount("message"), initialListenerCount);
+
+        emitProcessMessage({
+            type: "event",
+            id: "guild-1",
+            event: {
+                event: "SB_RELOAD_CONFIG",
+                guild_id: "guild-1",
+                data: { reload: true },
+            },
+        });
+
+        assert.deepEqual(received, []);
     });
 });

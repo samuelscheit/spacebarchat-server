@@ -20,7 +20,7 @@ import { Channel } from "amqplib";
 import { RabbitMQ } from "./RabbitMQ";
 import { decodeRabbitMqPayload, encodeRabbitMqPayload } from "./RabbitMqPayloadCodec";
 import EventEmitter from "node:events";
-import { EVENT, Event } from "../interfaces";
+import { isEventName, type EVENT, type Event } from "../interfaces/Event";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import net, { Socket } from "node:net";
@@ -133,7 +133,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isEventPayload(value: unknown): value is Event {
-    return isRecord(value) && typeof value.event === "string";
+    return isRecord(value) && isEventName(value.event);
 }
 
 function isProcessEvent(value: unknown): value is ProcessEvent {
