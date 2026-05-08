@@ -117,8 +117,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const userQueryTime = taskSw.getElapsedAndReset();
 
     // Check intents
-    if (!identify.intents) identify.intents = Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS;
-    this.intents = new Intents(identify.intents);
+    this.intents = new Intents(Intents.resolveGatewayIdentifyIntents(identify.intents));
 
     // TODO: actually do intent things.
 

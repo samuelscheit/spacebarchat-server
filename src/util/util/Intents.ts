@@ -63,6 +63,10 @@ export class Intents extends BitField {
      */
     static DEFAULT_GATEWAY_IDENTIFY_INTENTS: bigint = ((BigInt(1) << BigInt(35)) - BigInt(1)) & ~Intents.ERKINALP_FLAGS.LIVE_MESSAGE_COMPOSITION;
 
+    static resolveGatewayIdentifyIntents(intents?: bigint | null): bigint {
+        return intents ?? Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS;
+    }
+
     static INTENT_TO_EVENTS_MAP = {
         // MESSAGE_CONTENT
         15: [],
