@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { checkToken, Rights, Session, User, UserTokenData } from "@spacebar/util";
+import { checkToken, Rights, Session, User, type Permissions, UserTokenData } from "@spacebar/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { isNoAuthorizationRoute } from "./NoAuthorizationRoutes";
@@ -33,6 +33,7 @@ declare global {
             token: UserTokenData["decoded"];
             user: User;
             session?: Session;
+            permission?: Permissions;
             rights: Rights;
             fingerprint?: string;
         }

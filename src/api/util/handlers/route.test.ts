@@ -3,6 +3,7 @@ import http from "node:http";
 import { describe, test } from "node:test";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { BigNumber } from "bignumber.js";
+import { type Permissions } from "@spacebar/util";
 import { BodyParser, ErrorHandler } from "../../middlewares";
 import { bigNumberToString, route } from "./route";
 
@@ -191,6 +192,13 @@ describe("bigNumberToString", () => {
 });
 
 describe("route body coercion", () => {
+    test("uses the shared Express request permission type", () => {
+        const req = {} as Request;
+        const permission: Permissions | undefined = req.permission;
+
+        assert.equal(permission, undefined);
+    });
+
     test("rejects numeric install param permissions without mutating them", async () => {
         const middleware = await getApplicationModifyRoute();
         const req = {
