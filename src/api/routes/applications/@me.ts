@@ -17,14 +17,24 @@
 */
 
 import { route } from "@spacebar/api";
-import { Application, Guild, applyApplicationModifySchema, handleFile } from "@spacebar/util";
+import { Application, DiscordApiErrors, Guild, applyApplicationModifySchema, handleFile } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ApplicationModifySchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-// TODO: actually make this be correct - this is just a copy paste of /applications/:id/index.ts minus delete
+export async function getCurrentBotApplication(userId: string) {
+    const app = await Application.findOneOrFail({
+        where: { id: userId },
+        relations: { owner: true, bot: true },
+    });
+
+    if (!app.bot || app.bot.id !== userId) throw DiscordApiErrors.BOT_ONLY_ENDPOINT;
+
+    return app;
+}
+
 router.get(
     "/",
     route({
@@ -38,10 +48,7 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        const app = await Application.findOneOrFail({
-            where: { id: req.user_id },
-            relations: { owner: true, bot: true },
-        });
+        const app = await getCurrentBotApplication(req.user_id);
 
         return res.json(app);
     },
@@ -64,10 +71,7 @@ router.patch(
     async (req: Request, res: Response) => {
         const body = req.body as ApplicationModifySchema;
 
-        const app = await Application.findOneOrFail({
-            where: { id: req.user_id },
-            relations: { owner: true, bot: true },
-        });
+        const app = await getCurrentBotApplication(req.user_id);
 
         if (body.icon) {
             body.icon = await handleFile(`/app-icons/${app.id}`, body.icon as string);
@@ -81,7 +85,7 @@ router.patch(
                 where: { id: body.guild_id },
                 select: { owner_id: true },
             });
-            if (guild.owner_id != req.user_id) throw new HTTPError("You must be the owner of the guild to link it to an application", 400);
+            if (guild.owner_id != app.owner.id) throw new HTTPError("You must be the owner of the guild to link it to an application", 400);
         }
 
         if (app.bot) {
