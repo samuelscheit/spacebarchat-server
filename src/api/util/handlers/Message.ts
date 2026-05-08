@@ -684,8 +684,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     }
     message.attachments = message.attachments?.filter((_, index) => !attachmentsToRemove.has(index));
 
-    // TODO: check and put it all in the body
-
     return message;
 }
 
