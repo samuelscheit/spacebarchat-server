@@ -3184,7 +3184,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 244,
+            "line": 247,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3231,7 +3231,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 517,
+            "line": 520,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
