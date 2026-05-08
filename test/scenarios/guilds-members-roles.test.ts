@@ -123,6 +123,11 @@ test(
             assert.equal(joinEvent.data.guild_id, guildId);
             const readyEvent = await events.waitFor((event) => event.event === "GUILD_CREATE" && event.user_id === member.id && event.data.id === guildId);
             assert.equal(readyEvent.data.member_count, 2);
+            const readyMembers = readyEvent.data.members as Array<{ id: string; roles: string[]; user?: { id?: string } }>;
+            const readyMember = readyMembers.find((readyMember) => readyMember.id === member.id);
+            assert.ok(readyMember, "GUILD_CREATE should include the joining member in data.members");
+            assert.equal(readyMember.user?.id, member.id);
+            assert.deepEqual(readyMember.roles, [guildId]);
             assert.notEqual(await Member.findOneBy({ guild_id: guildId, id: member.id }), null);
             assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
 
