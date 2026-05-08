@@ -6,6 +6,7 @@
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/gateway/listener/listener.test.ts",
+        "src/gateway/opcodes/IdentifyPrivilegedIntents.test.ts",
         "src/gateway/opcodes/GuildSync.test.ts",
         "src/gateway/opcodes/GatewayOpcodeAuthorization.test.ts",
         "src/gateway/opcodes/LazyRequest.test.ts",

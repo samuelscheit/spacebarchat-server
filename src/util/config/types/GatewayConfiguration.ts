@@ -6,6 +6,8 @@ export const DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS = 10_000;
 export const GUILD_SYNC_MEMBER_MODES = ["all", "online"] as const;
 export type GuildSyncMemberMode = (typeof GUILD_SYNC_MEMBER_MODES)[number];
 
+export type PrivilegedIntentsConfiguration = number | string | null;
+
 export function isValidGatewayHeartbeatTimeout(timeout: unknown): timeout is number {
     return typeof timeout === "number" && Number.isFinite(timeout) && timeout > GATEWAY_HEARTBEAT_INTERVAL;
 }
@@ -23,4 +25,13 @@ export class GatewayConfiguration extends EndpointConfiguration {
     lazyMemberListIncludeOffline: boolean = true;
     disconnectedSessionCleanupDelayMs: number = DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS;
     guildSyncMemberMode: GuildSyncMemberMode = "all";
+    /**
+     * Bitmask of privileged gateway intents that should require bot application approval.
+     *
+     * Leave unset/null to preserve the historical Spacebar behavior of not enforcing
+     * privileged intent approval during IDENTIFY. JSON configuration may use either
+     * a number or a decimal/hex string for masks that exceed JavaScript's safe integer
+     * range.
+     */
+    privilegedIntents: PrivilegedIntentsConfiguration = null;
 }

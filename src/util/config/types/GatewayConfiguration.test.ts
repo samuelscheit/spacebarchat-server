@@ -21,6 +21,7 @@ describe("GatewayConfiguration", () => {
         assert.equal(config.lazyMemberListIncludeOffline, true);
         assert.equal(config.disconnectedSessionCleanupDelayMs, DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS);
         assert.equal(config.guildSyncMemberMode, "all");
+        assert.equal(config.privilegedIntents, null);
         assert.equal(DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, 45_000);
         assert.equal(GATEWAY_HEARTBEAT_INTERVAL, 30_000);
         assert.equal(DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS, 10_000);
