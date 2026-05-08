@@ -44,6 +44,7 @@ test("toRecommendedGuild serializes a Guild entity into the recommendation respo
         max_members: 500000,
         max_presences: 1000,
         max_video_channel_users: 25,
+        max_stage_video_channel_users: 50,
         owner_id: "10",
         premium_tier: 2,
         region: "deprecated",

@@ -57,6 +57,7 @@ function makeReadyGuild(stage_instances: unknown[]): GuildOrUnavailable {
         rules_channel_id: null,
         public_updates_channel_id: null,
         max_video_channel_users: 25,
+        max_stage_video_channel_users: 73,
         max_members: 250000,
         nsfw_level: 0,
         nsfw: false,
@@ -80,4 +81,10 @@ test("ReadyGuildDTO serializes stage instance entities for guild create payloads
     ).toJSON();
 
     assert.deepEqual(dto.stage_instances, [stageInstance]);
+});
+
+test("ReadyGuildDTO serializes configured stage video channel user limits", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.equal(dto.properties.max_stage_video_channel_users, 73);
 });

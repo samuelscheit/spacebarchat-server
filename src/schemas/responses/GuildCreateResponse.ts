@@ -25,6 +25,7 @@ export interface GuildCreateResponse {
     max_members?: number;
     max_presences?: number;
     max_video_channel_users?: number;
+    max_stage_video_channel_users?: number;
     member_count?: number;
     presence_count?: number;
     mfa_level?: number;

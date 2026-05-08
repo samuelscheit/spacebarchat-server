@@ -143,6 +143,9 @@ export class Guild extends BaseClass {
     max_video_channel_users?: number;
 
     @Column({ nullable: true })
+    max_stage_video_channel_users?: number;
+
+    @Column({ nullable: true })
     member_count?: number;
 
     @Column({ nullable: true })
@@ -433,6 +436,7 @@ export class Guild extends BaseClass {
             max_members: Config.get().limits.guild.maxMembers,
             max_presences: Config.get().defaults.guild.maxPresences,
             max_video_channel_users: Config.get().defaults.guild.maxVideoChannelUsers,
+            max_stage_video_channel_users: Config.get().defaults.guild.maxStageVideoChannelUsers,
             region: body.region ?? Config.get().regions.default,
         }).save();
 

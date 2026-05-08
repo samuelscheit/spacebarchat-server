@@ -196,6 +196,7 @@ export class initial0 implements MigrationInterface {
 			max_members integer,
 			max_presences integer,
 			max_video_channel_users integer,
+			max_stage_video_channel_users integer,
 			member_count integer,
 			presence_count integer,
 			template_id character varying,
