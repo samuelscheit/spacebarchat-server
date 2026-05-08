@@ -12795,7 +12795,7 @@
             "path": "/guilds/:guild_id/voice-states/:user_id/",
             "samplePath": "/guilds/100000000000000001/voice-states/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/voice-states/#user_id/index.ts",
-            "line": 27,
+            "line": 26,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -12812,7 +12812,7 @@
                 "requestBody": "VoiceStateUpdateSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 400, 403, 404],
-                "emittedEvents": ["VOICE_STATE_UPDATE"]
+                "event": "VOICE_STATE_UPDATE"
             },
             "cases": [
                 {

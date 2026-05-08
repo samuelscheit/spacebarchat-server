@@ -9326,6 +9326,7 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "VoiceStateUpdateSchema",
+                "event": "VOICE_STATE_UPDATE",
                 "responseBodies": [
                     "APIErrorResponse"
                 ],
@@ -9335,10 +9336,7 @@
                     403,
                     404
                 ],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "VOICE_STATE_UPDATE"
-                ]
+                "hasQuery": false
             },
             "rateLimit": {
                 "group": "guild",

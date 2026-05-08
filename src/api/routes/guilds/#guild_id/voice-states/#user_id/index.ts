@@ -27,6 +27,7 @@ router.patch(
     "/",
     route({
         requestBody: "VoiceStateUpdateSchema",
+        event: "VOICE_STATE_UPDATE",
         responses: {
             204: {},
             400: {
