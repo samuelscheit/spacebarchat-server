@@ -19,6 +19,7 @@
 import { In, type FindOptionsWhere } from "typeorm";
 import { ChannelType } from "@spacebar/schemas/api/channels/Channel";
 import type { Channel, Member, ThreadMember } from "@spacebar/util";
+import { ACTIVE_GUILD_THREAD_TYPES } from "./ActiveThreads";
 
 export type PostDataThread = Pick<Channel, "id" | "parent_id" | "guild_id" | "owner_id" | "type">;
 export type PostDataOwnerMember = Pick<Member, "id" | "guild_id">;
@@ -39,6 +40,7 @@ export function createPostDataThreadWhere(parentChannelId: string, threadIds: re
     return {
         id: In(uniqueThreadIds) as FindOptionsWhere<Channel>["id"],
         parent_id: parentChannelId,
+        type: In(ACTIVE_GUILD_THREAD_TYPES) as FindOptionsWhere<Channel>["type"],
     };
 }
 
