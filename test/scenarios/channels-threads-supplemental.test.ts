@@ -3,7 +3,23 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
+import {
+    Channel,
+    closeDatabase,
+    Config,
+    generateToken,
+    Guild,
+    initDatabase,
+    Member,
+    Message,
+    Permissions,
+    Role,
+    Snowflake,
+    Tag,
+    ThreadMember,
+    ThreadMemberFlags,
+    User,
+} from "@spacebar/util";
 import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -115,7 +131,7 @@ test(
             const forumChannelId = await createForumChannel(api.apiBaseUrl, guildId, ownerToken);
             events = await captureEvents([guildId, textChannelId, forumChannelId, owner.id, member.id]);
 
-            await coverPermissionOverwriteRoutes(api.apiBaseUrl, textChannelId, guildId, ownerToken, events);
+            await coverPermissionOverwriteRoutes(api.apiBaseUrl, textChannelId, guildId, member.id, ownerToken, memberToken, events);
             const tagId = await coverTagCreateAndUpdate(api.apiBaseUrl, forumChannelId, ownerToken, events);
             await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, events);
             await coverTagDelete(api.apiBaseUrl, forumChannelId, tagId, ownerToken, events);
@@ -130,10 +146,22 @@ test(
     },
 );
 
-async function coverPermissionOverwriteRoutes(apiBaseUrl: string, channelId: string, guildId: string, token: string, events: EventCapture) {
+async function coverPermissionOverwriteRoutes(
+    apiBaseUrl: string,
+    channelId: string,
+    guildId: string,
+    memberId: string,
+    ownerToken: string,
+    memberToken: string,
+    events: EventCapture,
+) {
     const beforePut = markCapturedEvents(events);
     await assertStatus(
-        await putJson(`${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`, { id: guildId, type: ChannelPermissionOverwriteType.role, allow: "1024", deny: "2048" }, token),
+        await putJson(
+            `${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`,
+            { id: guildId, type: ChannelPermissionOverwriteType.role, allow: "1024", deny: "2048" },
+            ownerToken,
+        ),
         204,
     );
     await waitForEventAfter(
@@ -145,7 +173,7 @@ async function coverPermissionOverwriteRoutes(apiBaseUrl: string, channelId: str
     assert.ok(channel.permission_overwrites?.some((overwrite) => overwrite.id === guildId));
 
     const beforeDelete = markCapturedEvents(events);
-    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`, token), 204);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`, ownerToken), 204);
     await waitForEventAfter(
         events,
         beforeDelete,
@@ -156,6 +184,62 @@ async function coverPermissionOverwriteRoutes(apiBaseUrl: string, channelId: str
         channel.permission_overwrites?.some((overwrite) => overwrite.id === guildId),
         false,
     );
+
+    await coverPermissionOverwriteDeleteWithoutHierarchy(apiBaseUrl, channelId, guildId, memberId, memberToken, events);
+}
+
+async function coverPermissionOverwriteDeleteWithoutHierarchy(apiBaseUrl: string, channelId: string, guildId: string, memberId: string, token: string, events: EventCapture) {
+    const manageRoles = String(Permissions.FLAGS.VIEW_CHANNEL | Permissions.FLAGS.MANAGE_ROLES);
+    const lowerManagerRole = await createScenarioRole(guildId, "lower-manage-roles", manageRoles, 1);
+    const higherTargetRole = await createScenarioRole(guildId, "higher-overwrite-target", "0", 10);
+    assert.ok(higherTargetRole.position > lowerManagerRole.position);
+
+    await Member.addRole(memberId, guildId, lowerManagerRole.id);
+    const actor = await Member.findOneOrFail({ where: { id: memberId, guild_id: guildId }, relations: { roles: true } });
+    assert.ok(actor.roles.some((role) => role.id === lowerManagerRole.id));
+    assert.equal(actor.id === (await Guild.findOneByOrFail({ id: guildId })).owner_id, false);
+
+    const channel = await Channel.findOneByOrFail({ id: channelId });
+    channel.permission_overwrites = [
+        ...(channel.permission_overwrites ?? []),
+        {
+            id: higherTargetRole.id,
+            type: ChannelPermissionOverwriteType.role,
+            allow: "0",
+            deny: "1024",
+        },
+    ];
+    await channel.save();
+
+    const beforeDelete = markCapturedEvents(events);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${channelId}/permissions/${higherTargetRole.id}`, token), 204);
+    await waitForEventAfter(
+        events,
+        beforeDelete,
+        (event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId && !hasOverwrite(event.data.permission_overwrites, higherTargetRole.id),
+    );
+    const updatedChannel = await Channel.findOneByOrFail({ id: channelId });
+    assert.equal(
+        updatedChannel.permission_overwrites?.some((overwrite) => overwrite.id === higherTargetRole.id),
+        false,
+    );
+}
+
+async function createScenarioRole(guildId: string, name: string, permissions: string, position: number) {
+    return await Role.create({
+        id: Snowflake.generate(),
+        guild_id: guildId,
+        name,
+        permissions,
+        position,
+        color: 0,
+        hoist: false,
+        managed: false,
+        mentionable: false,
+        colors: {
+            primary_color: 0,
+        },
+    }).save();
 }
 
 async function coverTagCreateAndUpdate(apiBaseUrl: string, forumChannelId: string, token: string, events: EventCapture) {

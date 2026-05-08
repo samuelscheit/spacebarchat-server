@@ -5024,7 +5024,7 @@
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "samplePath": "/channels/100000000000000002/permissions/value",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 84,
+            "line": 83,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
