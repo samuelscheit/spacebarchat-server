@@ -4,10 +4,12 @@
     "policyFile": "testing/coverage-policy.json",
     "sources": [
         "src/api/routes",
+        "src/api/util/handlers",
         "src/api/Server.ts",
         "src/api/middlewares/RateLimit.ts",
         "src/cdn/routes",
         "src/cdn/Server.ts",
+        "src/util/entities",
         "src/gateway/opcodes/index.ts",
         "src/webrtc/opcodes/index.ts",
         "testing/coverage-policy.json"
@@ -2000,6 +2002,7 @@
                 "hasQuery": false,
                 "emittedEvents": [
                     "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
                     "CHANNEL_UPDATE",
                     "THREAD_DELETE"
                 ]
@@ -2456,7 +2459,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INVITE_CREATE"
+                ]
             },
             "rateLimit": {
                 "group": "channel",
@@ -3198,6 +3204,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "MESSAGE_CREATE",
                     "MESSAGE_UPDATE",
                     "THREAD_CREATE"
                 ]
@@ -4041,7 +4048,12 @@
                     204,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
+                    "CHANNEL_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "channel",
@@ -4395,7 +4407,11 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "channel",
@@ -4442,7 +4458,11 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "channel",
@@ -5716,6 +5736,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "CHANNEL_CREATE",
                     "GUILD_UPDATE"
                 ]
             },
@@ -6172,7 +6193,9 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
-                    "GUILD_BAN_ADD"
+                    "GUILD_BAN_ADD",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
                 ]
             },
             "rateLimit": {
@@ -6330,7 +6353,9 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
-                    "GUILD_BAN_ADD"
+                    "GUILD_BAN_ADD",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
                 ]
             },
             "rateLimit": {
@@ -6485,7 +6510,10 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -7027,7 +7055,11 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -7182,7 +7214,12 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "MESSAGE_CREATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -7233,7 +7270,10 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -7282,7 +7322,10 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -7329,7 +7372,10 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -7666,7 +7712,11 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -7962,7 +8012,10 @@
                 "permission": "MANAGE_ROLES",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
@@ -9274,7 +9327,12 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "MESSAGE_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9440,7 +9498,12 @@
                 "requestBody": "GuildTemplateCreateSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "MESSAGE_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9579,6 +9642,7 @@
                 "emittedEvents": [
                     "INTERACTION_FAILURE",
                     "INTERACTION_SUCCESS",
+                    "MESSAGE_CREATE",
                     "MESSAGE_UPDATE"
                 ]
             },
@@ -9842,7 +9906,13 @@
                     403,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "GUILD_MEMBER_UPDATE",
+                    "MESSAGE_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-oauth-connections",
@@ -10884,6 +10954,8 @@
                 "emittedEvents": [
                     "CHANNEL_DELETE",
                     "CHANNEL_RECIPIENT_REMOVE",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE",
                     "USER_DELETE"
                 ]
             },
@@ -11631,7 +11703,10 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11895,7 +11970,11 @@
                     401,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12155,7 +12234,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -13532,7 +13615,10 @@
                     400,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
             },
             "rateLimit": {
                 "group": "webhook",
@@ -13581,7 +13667,10 @@
                     400,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
             },
             "rateLimit": {
                 "group": "webhook",

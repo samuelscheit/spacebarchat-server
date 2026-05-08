@@ -3987,6 +3987,7 @@
                 "permission": "MANAGE_CHANNELS",
                 "emittedEvents": [
                     "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
                     "CHANNEL_UPDATE",
                     "THREAD_DELETE"
                 ]
@@ -4035,6 +4036,7 @@
                     ],
                     "events": [
                         "CHANNEL_DELETE",
+                        "CHANNEL_RECIPIENT_REMOVE",
                         "CHANNEL_UPDATE",
                         "THREAD_DELETE"
                     ]
@@ -5019,7 +5021,10 @@
                     404
                 ],
                 "permission": "CREATE_INSTANT_INVITE",
-                "right": "CREATE_INVITES"
+                "right": "CREATE_INVITES",
+                "emittedEvents": [
+                    "INVITE_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -5068,6 +5073,15 @@
                     "right": "CREATE_INVITES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "INVITE_CREATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -5084,12 +5098,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -6679,6 +6687,7 @@
                 ],
                 "permission": "CREATE_PUBLIC_THREADS",
                 "emittedEvents": [
+                    "MESSAGE_CREATE",
                     "MESSAGE_UPDATE",
                     "THREAD_CREATE"
                 ]
@@ -6734,6 +6743,7 @@
                         "events"
                     ],
                     "events": [
+                        "MESSAGE_CREATE",
                         "MESSAGE_UPDATE",
                         "THREAD_CREATE"
                     ]
@@ -8578,6 +8588,11 @@
                 "responseStatuses": [
                     204,
                     404
+                ],
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
+                    "CHANNEL_UPDATE"
                 ]
             },
             "cases": [
@@ -8610,6 +8625,17 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_DELETE",
+                        "CHANNEL_RECIPIENT_REMOVE",
+                        "CHANNEL_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -8638,12 +8664,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -9390,7 +9410,11 @@
                     200,
                     403
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -9430,6 +9454,16 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "THREAD_CREATE",
+                        "THREAD_MEMBERS_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -9452,12 +9486,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -9500,7 +9528,11 @@
                     200,
                     403
                 ],
-                "permission": "VIEW_CHANNEL"
+                "permission": "VIEW_CHANNEL",
+                "emittedEvents": [
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -9540,6 +9572,16 @@
                     "permission": "VIEW_CHANNEL"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "THREAD_CREATE",
+                        "THREAD_MEMBERS_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -9562,12 +9604,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -12251,6 +12287,7 @@
                 ],
                 "permission": "MANAGE_GUILD",
                 "emittedEvents": [
+                    "CHANNEL_CREATE",
                     "GUILD_UPDATE"
                 ]
             },
@@ -12305,6 +12342,7 @@
                         "events"
                     ],
                     "events": [
+                        "CHANNEL_CREATE",
                         "GUILD_UPDATE"
                     ]
                 },
@@ -13290,7 +13328,9 @@
                 ],
                 "permission": "BAN_MEMBERS",
                 "emittedEvents": [
-                    "GUILD_BAN_ADD"
+                    "GUILD_BAN_ADD",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
                 ]
             },
             "cases": [
@@ -13344,7 +13384,9 @@
                         "events"
                     ],
                     "events": [
-                        "GUILD_BAN_ADD"
+                        "GUILD_BAN_ADD",
+                        "GUILD_DELETE",
+                        "GUILD_MEMBER_REMOVE"
                     ]
                 },
                 {
@@ -13642,7 +13684,9 @@
                     "MANAGE_GUILD"
                 ],
                 "emittedEvents": [
-                    "GUILD_BAN_ADD"
+                    "GUILD_BAN_ADD",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
                 ]
             },
             "cases": [
@@ -13699,7 +13743,9 @@
                         "events"
                     ],
                     "events": [
-                        "GUILD_BAN_ADD"
+                        "GUILD_BAN_ADD",
+                        "GUILD_DELETE",
+                        "GUILD_MEMBER_REMOVE"
                     ]
                 },
                 {
@@ -13997,7 +14043,10 @@
                     403
                 ],
                 "permission": "MANAGE_CHANNELS",
-                "event": "CHANNEL_CREATE"
+                "event": "CHANNEL_CREATE",
+                "emittedEvents": [
+                    "CHANNEL_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -15238,6 +15287,10 @@
                 "responseStatuses": [
                     204,
                     403
+                ],
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
                 ]
             },
             "cases": [
@@ -15270,6 +15323,16 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_DELETE",
+                        "GUILD_MEMBER_REMOVE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -15298,12 +15361,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -15581,6 +15638,11 @@
                     200,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "MESSAGE_CREATE"
                 ]
             },
             "cases": [
@@ -15613,6 +15675,17 @@
                     ]
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_CREATE",
+                        "GUILD_MEMBER_ADD",
+                        "MESSAGE_CREATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -15641,12 +15714,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -15693,6 +15760,9 @@
                     200,
                     400,
                     403
+                ],
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
                 ]
             },
             "cases": [
@@ -15733,6 +15803,15 @@
                     "requestBody": "MemberNickChangeSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_MEMBER_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -15755,12 +15834,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -15805,7 +15878,10 @@
                     204,
                     403
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -15845,6 +15921,15 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_MEMBER_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -15867,12 +15952,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -15915,7 +15994,10 @@
                     204,
                     403
                 ],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -15955,6 +16037,15 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_MEMBER_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -15977,12 +16068,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -16686,7 +16771,11 @@
                     403
                 ],
                 "permission": "KICK_MEMBERS",
-                "right": "KICK_BAN_MEMBERS"
+                "right": "KICK_BAN_MEMBERS",
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
             },
             "cases": [
                 {
@@ -16727,6 +16816,16 @@
                     "right": "KICK_BAN_MEMBERS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_DELETE",
+                        "GUILD_MEMBER_REMOVE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -16749,12 +16848,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -17363,7 +17456,10 @@
             "routeMetadata": {
                 "responses": [],
                 "responseStatuses": [],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "cases": [
                 {
@@ -17403,6 +17499,15 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_MEMBER_UPDATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -17425,12 +17530,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -20316,7 +20415,12 @@
                     400,
                     403
                 ],
-                "right": "CREATE_GUILDS"
+                "right": "CREATE_GUILDS",
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "MESSAGE_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -20364,15 +20468,20 @@
                     "right": "CREATE_GUILDS"
                 },
                 {
-                    "id": "policy-db-state",
+                    "id": "event-emission",
                     "checks": [
-                        "db-state"
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_CREATE",
+                        "GUILD_MEMBER_ADD",
+                        "MESSAGE_CREATE"
                     ]
                 },
                 {
-                    "id": "policy-events",
+                    "id": "policy-db-state",
                     "checks": [
-                        "events"
+                        "db-state"
                     ]
                 }
             ]
@@ -20682,7 +20791,12 @@
             "routeMetadata": {
                 "requestBody": "GuildTemplateCreateSchema",
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [],
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "MESSAGE_CREATE"
+                ]
             },
             "cases": [
                 {
@@ -20722,6 +20836,17 @@
                     "requestBody": "GuildTemplateCreateSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_CREATE",
+                        "GUILD_MEMBER_ADD",
+                        "MESSAGE_CREATE"
+                    ]
+                },
+                {
                     "id": "policy-permission-denied",
                     "checks": [
                         "permission-denied"
@@ -20731,12 +20856,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -20959,6 +21078,7 @@
                 "emittedEvents": [
                     "INTERACTION_FAILURE",
                     "INTERACTION_SUCCESS",
+                    "MESSAGE_CREATE",
                     "MESSAGE_UPDATE"
                 ]
             },
@@ -20999,6 +21119,7 @@
                     "events": [
                         "INTERACTION_FAILURE",
                         "INTERACTION_SUCCESS",
+                        "MESSAGE_CREATE",
                         "MESSAGE_UPDATE"
                     ]
                 },
@@ -21524,6 +21645,12 @@
                     400,
                     403,
                     404
+                ],
+                "emittedEvents": [
+                    "GUILD_CREATE",
+                    "GUILD_MEMBER_ADD",
+                    "GUILD_MEMBER_UPDATE",
+                    "MESSAGE_CREATE"
                 ]
             },
             "cases": [
@@ -21562,6 +21689,18 @@
                         "error-shape"
                     ],
                     "requestBody": "ApplicationAuthorizeSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_CREATE",
+                        "GUILD_MEMBER_ADD",
+                        "GUILD_MEMBER_UPDATE",
+                        "MESSAGE_CREATE"
+                    ]
                 },
                 {
                     "id": "policy-auth-boundary",
@@ -23637,6 +23776,8 @@
                 "emittedEvents": [
                     "CHANNEL_DELETE",
                     "CHANNEL_RECIPIENT_REMOVE",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE",
                     "USER_DELETE"
                 ]
             },
@@ -23693,6 +23834,8 @@
                     "events": [
                         "CHANNEL_DELETE",
                         "CHANNEL_RECIPIENT_REMOVE",
+                        "GUILD_DELETE",
+                        "GUILD_MEMBER_REMOVE",
                         "USER_DELETE"
                     ]
                 },
@@ -25267,6 +25410,9 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "emittedEvents": [
+                    "CHANNEL_CREATE"
                 ]
             },
             "cases": [
@@ -25305,6 +25451,15 @@
                         "error-shape"
                     ],
                     "requestBody": "DmChannelCreateSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_CREATE"
+                    ]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -25838,6 +25993,10 @@
                     204,
                     401,
                     404
+                ],
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
                 ]
             },
             "cases": [
@@ -25867,6 +26026,16 @@
                     "checks": [
                         "invalid-auth",
                         "error-shape"
+                    ]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_DELETE",
+                        "GUILD_MEMBER_REMOVE"
                     ]
                 },
                 {
@@ -26394,6 +26563,10 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
                 ]
             },
             "cases": [
@@ -26423,6 +26596,16 @@
                     "checks": [
                         "invalid-auth",
                         "error-shape"
+                    ]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "GUILD_DELETE",
+                        "GUILD_MEMBER_REMOVE"
                     ]
                 },
                 {
@@ -29343,6 +29526,9 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
                 ]
             },
             "cases": [
@@ -29375,6 +29561,15 @@
                     "requestBody": "WebhookExecuteSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_CREATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -29397,12 +29592,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
@@ -29447,6 +29636,9 @@
                     204,
                     400,
                     404
+                ],
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
                 ]
             },
             "cases": [
@@ -29479,6 +29671,15 @@
                     "requestBody": "WebhookExecuteSchema"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "MESSAGE_CREATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -29501,12 +29702,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]

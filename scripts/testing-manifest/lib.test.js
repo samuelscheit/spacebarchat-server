@@ -6,6 +6,7 @@ const path = require("node:path");
 const {
     combineRoutePaths,
     extractApiRateLimitRulesFromSource,
+    extractSourceHelperEventMap,
     parseRegexLiteral,
     parseRouteOptions,
     routePathFromFile,
@@ -110,6 +111,63 @@ describe("testing manifest route helpers", () => {
         const calls = scanRouterCalls(source);
 
         assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["RELATIONSHIP_ADD", "RELATIONSHIP_REMOVE"]);
+    });
+
+    test("extracts emitted events from imported entity and handler helpers", () => {
+        const helpers = `
+            export class Member {
+                static async addRole() {
+                    await emitEvent({ event: "GUILD_MEMBER_UPDATE", data: {} });
+                }
+            }
+
+            export const executeWebhookWithOptions = async () => {
+                await emitEvent({ event: "MESSAGE_CREATE", data: {} });
+            };
+
+            export const executeWebhook = executeWebhookWithOptions;
+        `;
+        const source = `
+            router.put(
+                "/roles/:role_id",
+                route({ responses: { 204: {} } }),
+                async (_req, res) => {
+                    await Member.addRole("1", "2", "3");
+                    return res.sendStatus(204);
+                },
+                executeWebhook,
+            );
+        `;
+
+        const calls = scanRouterCalls(source, extractSourceHelperEventMap(helpers));
+
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["GUILD_MEMBER_UPDATE", "MESSAGE_CREATE"]);
+    });
+
+    test("skips imported helper events when route call disables helper event emission", () => {
+        const helpers = `
+            export class Channel {
+                static async createThreadChannel() {
+                    await emitEvent({ event: "THREAD_CREATE", data: {} });
+                    await emitEvent({ event: "THREAD_MEMBERS_UPDATE", data: {} });
+                }
+            }
+        `;
+        const source = `
+            router.post(
+                "/threads",
+                route({ responses: { 200: {} } }),
+                async (_req, res) => {
+                    await Channel.createThreadChannel({}, {}, "1", { skipEventEmit: true });
+                    await emitEvent({ event: "MESSAGE_CREATE", data: {} });
+                    return res.json({});
+                },
+            );
+        `;
+
+        const calls = scanRouterCalls(source, extractSourceHelperEventMap(helpers));
+
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["MESSAGE_CREATE"]);
     });
 
     test("extracts API route rate-limit groups from middleware mounts", () => {

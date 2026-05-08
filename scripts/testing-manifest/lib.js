@@ -298,14 +298,122 @@ function extractFunctionEventMap(source) {
         if (events.length) eventsByFunction.set(match[1], events);
     }
 
+    const arrowRegex = /\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>/g;
+    for (const match of source.matchAll(arrowRegex)) {
+        let bodyOpen = match.index + match[0].length;
+        while (/\s/.test(source[bodyOpen])) bodyOpen += 1;
+        if (source[bodyOpen] !== "{") continue;
+
+        const bodyClose = findMatching(source, bodyOpen, "{", "}");
+        if (bodyClose === -1) continue;
+
+        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
+        if (events.length) eventsByFunction.set(match[1], events);
+    }
+
     return eventsByFunction;
 }
 
-function extractCalledHelperEvents(source, eventsByFunction) {
+function extractClassMethodEventMap(source) {
+    const eventsByCall = new Map();
+    const classRegex = /\b(?:export\s+)?(?:abstract\s+)?class\s+([A-Za-z_$][\w$]*)\b/g;
+
+    for (const classMatch of source.matchAll(classRegex)) {
+        const className = classMatch[1];
+        const classBodyOpen = source.indexOf("{", classMatch.index);
+        if (classBodyOpen === -1) continue;
+
+        const classBodyClose = findMatching(source, classBodyOpen, "{", "}");
+        if (classBodyClose === -1) continue;
+
+        const classBody = source.slice(classBodyOpen + 1, classBodyClose);
+        const methodRegex = /\bstatic\s+(?:async\s+)?([A-Za-z_$][\w$]*)\s*\(/g;
+        for (const methodMatch of classBody.matchAll(methodRegex)) {
+            const methodName = methodMatch[1];
+            const paramsOpen = classBody.indexOf("(", methodMatch.index);
+            const paramsClose = findMatching(classBody, paramsOpen);
+            if (paramsOpen === -1 || paramsClose === -1) continue;
+
+            const bodyOpen = classBody.indexOf("{", paramsClose);
+            if (bodyOpen === -1) continue;
+
+            const bodyClose = findMatching(classBody, bodyOpen, "{", "}");
+            if (bodyClose === -1) continue;
+
+            const events = extractEmittedEvents(classBody.slice(bodyOpen + 1, bodyClose));
+            if (events.length) eventsByCall.set(`${className}.${methodName}`, events);
+        }
+    }
+
+    return eventsByCall;
+}
+
+function mergeEventMaps(...maps) {
+    const merged = new Map();
+
+    for (const map of maps) {
+        for (const [key, events] of map) {
+            merged.set(key, [...new Set([...(merged.get(key) || []), ...events])].sort());
+        }
+    }
+
+    return merged;
+}
+
+function extractSourceHelperEventMap(source) {
+    const directEvents = mergeEventMaps(extractFunctionEventMap(source), extractClassMethodEventMap(source));
+    const resolvedEvents = new Map();
+
+    for (const match of source.matchAll(/\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)\b/g)) {
+        const targetEvents = directEvents.get(match[2]);
+        if (targetEvents) resolvedEvents.set(match[1], targetEvents);
+    }
+
+    for (const match of source.matchAll(/\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>\s*([A-Za-z_$][\w$]*)\s*\(/g)) {
+        const targetEvents = directEvents.get(match[2]);
+        if (targetEvents) resolvedEvents.set(match[1], targetEvents);
+    }
+
+    return mergeEventMaps(directEvents, resolvedEvents);
+}
+
+function helperCallDisablesEventEmit(callText) {
+    return /\bskipEventEmit\s*:\s*true\b/.test(callText);
+}
+
+function extractReferencedHelperEvents(args, eventsByFunction, externalEventsByCall = new Map()) {
+    const eventsByCall = mergeEventMaps(eventsByFunction, externalEventsByCall);
     const events = [];
 
+    for (const arg of args) {
+        const trimmed = arg.trim();
+        if (!/^[A-Za-z_$][\w$]*$/.test(trimmed)) continue;
+
+        const helperEvents = eventsByCall.get(trimmed);
+        if (helperEvents) events.push(...helperEvents);
+    }
+
+    return [...new Set(events)].sort();
+}
+
+function extractCalledHelperEvents(source, eventsByFunction, externalEventsByCall = new Map()) {
+    const events = [];
+    const eventsByCall = mergeEventMaps(eventsByFunction, externalEventsByCall);
+
+    for (const match of source.matchAll(/\b([A-Za-z_$][\w$]*)\.([A-Za-z_$][\w$]*)\s*\(/g)) {
+        const helperEvents = eventsByCall.get(`${match[1]}.${match[2]}`);
+        if (!helperEvents) continue;
+
+        const open = source.indexOf("(", match.index);
+        const close = findMatching(source, open);
+        const callText = open === -1 || close === -1 ? "" : source.slice(match.index, close + 1);
+        if (helperCallDisablesEventEmit(callText)) continue;
+
+        events.push(...helperEvents);
+    }
+
     for (const match of source.matchAll(/\b([A-Za-z_$][\w$]*)\s*\(/g)) {
-        const helperEvents = eventsByFunction.get(match[1]);
+        const helperEvents = eventsByCall.get(match[1]);
         if (helperEvents) events.push(...helperEvents);
     }
 
@@ -356,7 +464,7 @@ function extractRouteVariableMap(source) {
     return vars;
 }
 
-function routeMetadataFromArguments(args, routeVariables, eventsByFunction = new Map()) {
+function routeMetadataFromArguments(args, routeVariables, eventsByFunction = new Map(), externalEventsByCall = new Map()) {
     let routeMetadata = { present: false };
 
     for (const arg of args.slice(1)) {
@@ -372,13 +480,19 @@ function routeMetadataFromArguments(args, routeVariables, eventsByFunction = new
     }
 
     const handlerText = args.slice(1).join(",");
-    const emittedEvents = [...new Set([...extractEmittedEvents(handlerText), ...extractCalledHelperEvents(handlerText, eventsByFunction)])].sort();
+    const emittedEvents = [
+        ...new Set([
+            ...extractEmittedEvents(handlerText),
+            ...extractCalledHelperEvents(handlerText, eventsByFunction, externalEventsByCall),
+            ...extractReferencedHelperEvents(args.slice(1), eventsByFunction, externalEventsByCall),
+        ]),
+    ].sort();
     if (emittedEvents.length) routeMetadata.emittedEvents = emittedEvents;
 
     return routeMetadata;
 }
 
-function scanRouterCalls(source) {
+function scanRouterCalls(source, externalEventsByCall = new Map()) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
     const eventsByFunction = extractFunctionEventMap(source);
@@ -398,14 +512,14 @@ function scanRouterCalls(source) {
             method: method.toUpperCase(),
             localPath,
             line: lineOf(source, match.index),
-            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction),
+            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction, externalEventsByCall),
         });
     }
 
     return calls;
 }
 
-function scanAppCalls(source, appVariable = "app") {
+function scanAppCalls(source, appVariable = "app", externalEventsByCall = new Map()) {
     const calls = [];
     const routeVariables = extractRouteVariableMap(source);
     const eventsByFunction = extractFunctionEventMap(source);
@@ -427,7 +541,7 @@ function scanAppCalls(source, appVariable = "app") {
             method: method.toUpperCase(),
             path: routePath,
             line: lineOf(source, match.index),
-            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction),
+            routeMetadata: routeMetadataFromArguments(args, routeVariables, eventsByFunction, externalEventsByCall),
         });
     }
 
@@ -645,7 +759,21 @@ function makeHttpEntry({ service, method, routePath, sourceFile, line, routeMeta
     };
 }
 
-function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules) {
+function collectExternalHelperEventMap(repoRoot) {
+    const sourceDirs = [path.join(repoRoot, "src", "util", "entities"), path.join(repoRoot, "src", "api", "util", "handlers")];
+    const maps = [];
+
+    for (const dir of sourceDirs) {
+        if (!fs.existsSync(dir)) continue;
+        for (const file of walkFiles(dir, (value) => value.endsWith(".ts") && !value.endsWith(".test.ts")).sort()) {
+            maps.push(extractSourceHelperEventMap(readText(file)));
+        }
+    }
+
+    return mergeEventMaps(...maps);
+}
+
+function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules, externalEventsByCall = new Map()) {
     const routeRoot = path.join(repoRoot, "src", service, "routes");
     const entries = [];
 
@@ -654,7 +782,7 @@ function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules) {
         const routePrefix = routePathFromFile(routeRoot, file);
         const sourceFile = toPosix(path.relative(repoRoot, file));
 
-        for (const call of scanRouterCalls(source)) {
+        for (const call of scanRouterCalls(source, externalEventsByCall)) {
             entries.push(
                 makeHttpEntry({
                     service,
@@ -672,10 +800,10 @@ function collectFilesystemHttpRoutes(repoRoot, service, noAuthRules) {
     return entries;
 }
 
-function collectApiAppRoutes(repoRoot, noAuthRules) {
+function collectApiAppRoutes(repoRoot, noAuthRules, externalEventsByCall = new Map()) {
     const file = path.join(repoRoot, "src", "api", "Server.ts");
     const source = readText(file);
-    return scanAppCalls(source, "app").map((call) =>
+    return scanAppCalls(source, "app", externalEventsByCall).map((call) =>
         makeHttpEntry({
             service: "api",
             method: call.method,
@@ -888,14 +1016,15 @@ function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POL
     const policy = readJson(policyPath);
     const noAuthRules = extractNoAuthorizationRules(repoRoot);
     const rateLimitRules = collectApiRateLimitRules(repoRoot);
-    const apiRoutes = collectFilesystemHttpRoutes(repoRoot, "api", noAuthRules);
-    const cdnRoutes = collectFilesystemHttpRoutes(repoRoot, "cdn", noAuthRules);
+    const externalEventsByCall = collectExternalHelperEventMap(repoRoot);
+    const apiRoutes = collectFilesystemHttpRoutes(repoRoot, "api", noAuthRules, externalEventsByCall);
+    const cdnRoutes = collectFilesystemHttpRoutes(repoRoot, "cdn", noAuthRules, externalEventsByCall);
     const entries = sortEntries(
         applyPolicy(
             applyRateLimitMetadata(
                 [
                     ...apiRoutes,
-                    ...collectApiAppRoutes(repoRoot, noAuthRules),
+                    ...collectApiAppRoutes(repoRoot, noAuthRules, externalEventsByCall),
                     ...cdnRoutes,
                     ...collectCdnManualMounts(repoRoot, cdnRoutes, noAuthRules),
                     ...collectGatewayOpcodes(repoRoot),
@@ -913,10 +1042,12 @@ function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POL
         policyFile: toPosix(path.relative(repoRoot, policyPath)),
         sources: [
             "src/api/routes",
+            "src/api/util/handlers",
             "src/api/Server.ts",
             "src/api/middlewares/RateLimit.ts",
             "src/cdn/routes",
             "src/cdn/Server.ts",
+            "src/util/entities",
             "src/gateway/opcodes/index.ts",
             "src/webrtc/opcodes/index.ts",
             "testing/coverage-policy.json",
@@ -958,6 +1089,7 @@ module.exports = {
     applyPolicy,
     combineRoutePaths,
     extractApiRateLimitRulesFromSource,
+    extractSourceHelperEventMap,
     generateManifest,
     parseRouteOptions,
     routePathFromFile,
