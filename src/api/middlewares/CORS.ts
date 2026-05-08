@@ -17,8 +17,91 @@
 */
 
 import { NextFunction, Request, Response } from "express";
+import { Config, type ConfigValue } from "@spacebar/util";
 
 // TODO: config settings
+
+const CSP_DISABLED = "off";
+
+const STATIC_ASSET_SOURCES = ["https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://raw.githubusercontent.com", "https://rawcdn.githack.com"];
+
+const CAPTCHA_SOURCES = ["https://hcaptcha.com", "https://*.hcaptcha.com", "https://www.google.com", "https://www.gstatic.com"];
+
+function endpointOrigin(endpoint: string | null | undefined) {
+    if (!endpoint) return undefined;
+
+    try {
+        return new URL(endpoint).origin;
+    } catch {
+        return undefined;
+    }
+}
+
+function dedupe(values: (string | undefined)[]) {
+    return [...new Set(values.filter((value): value is string => !!value))];
+}
+
+type ContentSecurityPolicyOptions = {
+    allowEmbedding?: boolean;
+};
+
+function directive(name: string, values: string[]) {
+    return `${name} ${values.join(" ")}`;
+}
+
+function allowsExternalEmbedding(req: Request) {
+    return req.path === "/widget" || req.path === "/widget/";
+}
+
+export function buildDefaultContentSecurityPolicy(config: ConfigValue = Config.get(), options: ContentSecurityPolicyOptions = {}) {
+    const httpEndpointSources = dedupe([
+        "'self'",
+        endpointOrigin(config.admin.endpointPublic),
+        endpointOrigin(config.api.endpointPublic),
+        endpointOrigin(config.cdn.endpointPublic),
+        ...STATIC_ASSET_SOURCES,
+    ]);
+    const connectSources = dedupe([
+        "'self'",
+        endpointOrigin(config.admin.endpointPublic),
+        endpointOrigin(config.api.endpointPublic),
+        endpointOrigin(config.cdn.endpointPublic),
+        endpointOrigin(config.gateway.endpointPublic),
+        config.gateway.endpointPublic ?? undefined,
+        ...CAPTCHA_SOURCES,
+    ]);
+    const frameSources = dedupe(["'self'", ...CAPTCHA_SOURCES]);
+
+    return [
+        directive("default-src", ["'self'"]),
+        directive("base-uri", ["'self'"]),
+        directive("object-src", ["'none'"]),
+        options.allowEmbedding ? undefined : directive("frame-ancestors", ["'self'"]),
+        directive("form-action", ["'self'"]),
+        directive("script-src", dedupe(["'self'", "'unsafe-inline'", ...CAPTCHA_SOURCES])),
+        directive("style-src", dedupe(["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", ...CAPTCHA_SOURCES])),
+        directive("font-src", dedupe(["'self'", "data:", "https://fonts.gstatic.com"])),
+        directive("img-src", dedupe([...httpEndpointSources, ...CAPTCHA_SOURCES, "data:", "blob:"])),
+        directive("connect-src", connectSources),
+        directive("frame-src", frameSources),
+        directive("worker-src", ["'self'", "blob:"]),
+        directive("media-src", dedupe(["'self'", endpointOrigin(config.cdn.endpointPublic), "blob:"])),
+        directive("manifest-src", ["'self'"]),
+    ]
+        .filter((value): value is string => !!value)
+        .join("; ");
+}
+
+export function getConfiguredContentSecurityPolicy(config: ConfigValue = Config.get(), options: ContentSecurityPolicyOptions = {}) {
+    const configuredPolicy = config.security.contentSecurityPolicy;
+    if (typeof configuredPolicy === "string") {
+        const trimmedPolicy = configuredPolicy.trim();
+        if (trimmedPolicy.toLowerCase() === CSP_DISABLED) return undefined;
+        if (trimmedPolicy) return trimmedPolicy;
+    }
+
+    return buildDefaultContentSecurityPolicy(config, options);
+}
 
 export function CORS(req: Request, res: Response, next: NextFunction) {
     res.set("Access-Control-Allow-Credentials", "true");
@@ -26,11 +109,9 @@ export function CORS(req: Request, res: Response, next: NextFunction) {
     res.set("Access-Control-Allow-Methods", req.header("Access-Control-Request-Method") || "*");
     res.set("Access-Control-Allow-Origin", req.header("Origin") ?? "*");
     res.set("Access-Control-Max-Age", "60"); // dont make it too long so we can change it dynamically
-    // TODO: use better CSP
-    res.set(
-        "Content-security-policy",
-        "default-src *  data: blob: filesystem: about: ws: wss: 'unsafe-inline' 'unsafe-eval'; script-src * data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src * data: blob: 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src * data: blob: ; style-src * data: blob: 'unsafe-inline'; font-src * data: blob: 'unsafe-inline';",
-    );
+
+    const contentSecurityPolicy = getConfiguredContentSecurityPolicy(Config.get(), { allowEmbedding: allowsExternalEmbedding(req) });
+    if (contentSecurityPolicy) res.set("Content-Security-Policy", contentSecurityPolicy);
 
     if (req.method === "OPTIONS") {
         res.status(204).end();
