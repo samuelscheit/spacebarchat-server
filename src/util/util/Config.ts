@@ -18,7 +18,14 @@
 
 import fs from "node:fs/promises";
 import { OrmUtils } from "..";
-import { DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT, GATEWAY_HEARTBEAT_INTERVAL, ConfigValue, isValidGatewayHeartbeatTimeout } from "../config";
+import {
+    DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS,
+    DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT,
+    GATEWAY_HEARTBEAT_INTERVAL,
+    ConfigValue,
+    isValidGatewayDisconnectedSessionCleanupDelay,
+    isValidGatewayHeartbeatTimeout,
+} from "../config";
 import { ConfigEntity } from "../entities";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
@@ -231,6 +238,11 @@ function validateFinalConfig(config: ConfigValue) {
         "gateway_heartbeatTimeout",
         isValidGatewayHeartbeatTimeout,
         `${DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT} (must be greater than the advertised heartbeat interval of ${GATEWAY_HEARTBEAT_INTERVAL}ms)`,
+    );
+    assertConfig(
+        "gateway_disconnectedSessionCleanupDelayMs",
+        isValidGatewayDisconnectedSessionCleanupDelay,
+        `${DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS} (must be a non-negative millisecond delay)`,
     );
 
     if (hasErrors) {
