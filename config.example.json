@@ -11,6 +11,7 @@
     },
     "gateway": {
         "endpointPublic": "ws://localhost:3001",
-        "lazyMemberListIncludeOffline": true
+        "lazyMemberListIncludeOffline": true,
+        "guildSyncMemberMode": "all"
     }
 }

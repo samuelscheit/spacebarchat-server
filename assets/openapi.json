@@ -17748,6 +17748,10 @@
                     "heartbeatTimeout": {
                         "type": "integer"
                     },
+                    "guildSyncMemberMode": {
+                        "$ref": "#/components/schemas/GuildSyncMemberMode",
+                        "default": "all"
+                    },
                     "endpointPrivate": {
                         "type": [
                             "null",
@@ -17766,6 +17770,7 @@
                 "required": [
                     "endpointPrivate",
                     "endpointPublic",
+                    "guildSyncMemberMode",
                     "heartbeatTimeout"
                 ]
             },
@@ -21853,6 +21858,13 @@
                     2,
                     3
                 ]
+            },
+            "GuildSyncMemberMode": {
+                "enum": [
+                    "all",
+                    "online"
+                ],
+                "type": "string"
             }
         }
     },

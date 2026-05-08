@@ -18538,6 +18538,10 @@
             "disconnectedSessionCleanupDelayMs": {
                 "type": "integer"
             },
+            "guildSyncMemberMode": {
+                "$ref": "#/definitions/GuildSyncMemberMode",
+                "default": "all"
+            },
             "endpointPrivate": {
                 "type": [
                     "null",
@@ -18558,8 +18562,17 @@
             "disconnectedSessionCleanupDelayMs",
             "endpointPrivate",
             "endpointPublic",
+            "guildSyncMemberMode",
             "heartbeatTimeout"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildSyncMemberMode": {
+        "enum": [
+            "all",
+            "online"
+        ],
+        "type": "string",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "CdnConfiguration": {

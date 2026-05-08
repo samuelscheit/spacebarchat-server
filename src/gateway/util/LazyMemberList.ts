@@ -1,5 +1,5 @@
-import { getMostRelevantSession } from "@spacebar/util/util/SessionRelevance";
 import type { Member, Presence, Role, Session } from "@spacebar/util";
+import { compareMembersByRole, getFallbackRole, getMemberRoles, getOrderedRoles, getPublicSession, isPublicOnlineSession } from "./GuildMemberOrdering";
 
 export interface LazyMemberListMember {
     user: {
@@ -39,55 +39,6 @@ interface LazyMemberListSnapshot {
     items: LazyMemberListItem[];
     groups: { count: number; id: string }[];
     online_count: number;
-}
-
-function getPublicSession(member: Member): Session | undefined {
-    const session = getMostRelevantSession([...(member.user.sessions ?? [])]);
-    if (!session) return undefined;
-
-    return {
-        ...session,
-        status: session.status === "unknown" ? member.user.settings?.status || "online" : session.status,
-    } as Session;
-}
-
-function isOnline(session?: Session) {
-    return !!session && session.status !== "invisible" && session.status !== "offline";
-}
-
-function getRolePosition(role: Role) {
-    return role.id === role.guild_id ? Number.NEGATIVE_INFINITY : role.position;
-}
-
-function compareRoles(left: Role, right: Role) {
-    return getRolePosition(right) - getRolePosition(left) || left.id.localeCompare(right.id);
-}
-
-function getFallbackRole(guildId: string) {
-    return { id: guildId, guild_id: guildId, position: Number.NEGATIVE_INFINITY } as Role;
-}
-
-function getMemberRoles(member: Member) {
-    return member.roles ?? [];
-}
-
-function getHighestMemberRole(member: Member) {
-    return getMemberRoles(member).reduce((highest, role) => (compareRoles(role, highest) < 0 ? role : highest), getFallbackRole(member.guild_id));
-}
-
-function compareMembers(left: Member, right: Member) {
-    return compareRoles(getHighestMemberRole(left), getHighestMemberRole(right)) || left.user.username.localeCompare(right.user.username) || left.id.localeCompare(right.id);
-}
-
-function getOrderedRoles(members: Member[]) {
-    return [
-        ...new Map(
-            members
-                .flatMap((member) => getMemberRoles(member))
-                .filter((role) => role.id)
-                .map((role) => [role.id, role] as [string, Role]),
-        ).values(),
-    ].sort(compareRoles);
 }
 
 function getOrderedDisplayRoles(members: Member[], guildId: string) {
@@ -139,13 +90,13 @@ function buildLazyMemberListSnapshot(members: Member[], guildId: string): LazyMe
             session: getPublicSession(member),
         }))
         .sort((left, right) => {
-            const statusOrder = Number(isOnline(right.session)) - Number(isOnline(left.session));
+            const statusOrder = Number(isPublicOnlineSession(right.session)) - Number(isPublicOnlineSession(left.session));
             if (statusOrder !== 0) return statusOrder;
-            return compareMembers(left.member, right.member);
+            return compareMembersByRole(left.member, right.member);
         });
 
-    const onlineMembers = membersWithSessions.filter(({ session }) => isOnline(session));
-    const offlineMembers = membersWithSessions.filter(({ session }) => !isOnline(session));
+    const onlineMembers = membersWithSessions.filter(({ session }) => isPublicOnlineSession(session));
+    const offlineMembers = membersWithSessions.filter(({ session }) => !isPublicOnlineSession(session));
     const groups: { count: number; id: string }[] = [];
     const items: LazyMemberListItem[] = [];
 
