@@ -13,18 +13,18 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 401,
+        "totalEntries": 437,
         "byService": {
             "api": 340,
             "benchmarks": 1,
-            "cdn": 37,
+            "cdn": 73,
             "gateway": 15,
             "server": 2,
             "webrtc": 6
         },
         "byType": {
             "feature": 4,
-            "http-route": 376,
+            "http-route": 412,
             "opcode": 21
         },
         "byTestTier": {
@@ -32,7 +32,7 @@
             "app-smoke": 14,
             "contract": 53,
             "stateful-domain": 245,
-            "cdn-integration": 38,
+            "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
             "tooling-contract": 1,
@@ -45,7 +45,7 @@
             "route-class": 297,
             "hot-path": 28,
             "none": 1,
-            "cdn-hot-path": 37,
+            "cdn-hot-path": 73,
             "protocol-load": 21
         }
     },
@@ -13506,6 +13506,254 @@
             }
         },
         {
+            "id": "cdn:http:GET:/app-assets/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/app-assets/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-assets/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/app-assets/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/app-assets/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-assets/:guild_id",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/app-icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/app-icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/app-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/app-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
             "id": "cdn:http:GET:/attachments/:channel_id/:message_id/:filename",
             "type": "http-route",
             "service": "cdn",
@@ -13823,6 +14071,378 @@
             "path": "/banners/:guild_id",
             "sourceFile": "src/cdn/routes/banners.ts",
             "line": 40,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/channel-icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/channel-icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/channel-icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/channel-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/channel-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/channel-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discover-splashes/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/discover-splashes/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discover-splashes/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discover-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/discover-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discover-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discovery-splashes/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/discovery-splashes/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discovery-splashes/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discovery-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/discovery-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discovery-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14382,6 +15002,130 @@
             }
         },
         {
+            "id": "cdn:http:GET:/icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/icons/:guild_id",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
             "id": "cdn:http:GET:/ping/",
             "type": "http-route",
             "service": "cdn",
@@ -14390,6 +15134,254 @@
             "sourceFile": "src/cdn/routes/ping.ts",
             "line": 23,
             "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/role-icons/:role_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/role-icons/:role_id/:hash",
+            "sourceFile": "src/cdn/routes/role-icons.ts",
+            "line": 7,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/role-icons/:role_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/role-icons/:role_id/:id",
+            "sourceFile": "src/cdn/routes/role-icons.ts",
+            "line": 7,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/role-icons/:role_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/role-icons/:role_id",
+            "sourceFile": "src/cdn/routes/role-icons.ts",
+            "line": 7,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/role-icons/:role_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/role-icons/:role_id",
+            "sourceFile": "src/cdn/routes/role-icons.ts",
+            "line": 7,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/splashes/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/splashes/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/splashes/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
             },
@@ -14482,6 +15474,130 @@
             "path": "/stickers/:sticker_id",
             "sourceFile": "src/cdn/routes/stickers.ts",
             "line": 40,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/team-icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/team-icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/team-icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/team-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/team-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/team-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false

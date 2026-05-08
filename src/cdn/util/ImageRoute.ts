@@ -19,6 +19,13 @@ function getRouteParam(req: Request, name: string) {
     return Array.isArray(value) ? value[0] : value;
 }
 
+function isMissingStorageObjectError(error: unknown) {
+    if (!error || typeof error !== "object") return false;
+    if ("code" in error && String(error.code) === "ENOENT") return true;
+    if ("name" in error && ["NoSuchKey", "NotFound"].includes(String(error.name))) return true;
+    return false;
+}
+
 export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTypes = DEFAULT_IMAGE_MIME_TYPES, legacyHashExtensions = [] }: ImageRouteOptions) {
     const router = Router({ mergeParams: true });
 
@@ -87,6 +94,7 @@ export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTy
                 await storage.delete(path);
                 deleted = true;
             } catch (error) {
+                if (!isMissingStorageObjectError(error)) throw error;
                 firstError ??= error;
             }
         }

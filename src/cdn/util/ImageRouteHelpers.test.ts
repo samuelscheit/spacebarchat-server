@@ -15,6 +15,11 @@ describe("CDN image route helpers", () => {
 
     test("builds extensionless CDN hash paths with optional legacy extension fallbacks", () => {
         assert.deepEqual(getCdnImageHashPaths("role-icons", "role-id", "hash.webp"), ["role-icons/role-id/hash"]);
+        assert.deepEqual(getCdnImageHashPaths("role-icons", "role-id", "hash.webp", ["png", "webp"]), [
+            "role-icons/role-id/hash",
+            "role-icons/role-id/hash.webp",
+            "role-icons/role-id/hash.png",
+        ]);
         assert.deepEqual(getCdnImageHashPaths("role-icons", "role-id", "hash", [".png", "webp", "png"]), [
             "role-icons/role-id/hash",
             "role-icons/role-id/hash.png",

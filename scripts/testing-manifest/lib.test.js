@@ -3,7 +3,7 @@
 const { describe, test } = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("node:path");
-const { combineRoutePaths, parseRouteOptions, routePathFromFile, scanRouterCalls } = require("./lib");
+const { combineRoutePaths, parseRouteOptions, routePathFromFile, scanHashImageRouterCalls, scanRouterCalls } = require("./lib");
 
 describe("testing manifest route helpers", () => {
     test("derives mounted paths with Spacebar route filename conventions", () => {
@@ -48,5 +48,31 @@ describe("testing manifest route helpers", () => {
 
         assert.deepEqual(options.permission, ["VIEW_CHANNEL", "SEND_MESSAGES"]);
         assert.deepEqual(options.event, ["EVENT.MESSAGE_CREATE", "EVENT.MESSAGE_UPDATE"]);
+    });
+
+    test("expands shared CDN image routers without executing route modules", () => {
+        const source = `
+            export default createHashImageRouter({
+                pathPrefix: "role-icons",
+                resourceParam: "role_id",
+                allowedMimeTypes: STATIC_IMAGE_MIME_TYPES,
+            });
+        `;
+
+        const calls = scanHashImageRouterCalls(source);
+
+        assert.deepEqual(
+            calls.map((call) => [call.method, call.localPath]),
+            [
+                ["POST", "/:role_id"],
+                ["GET", "/:role_id"],
+                ["GET", "/:role_id/:hash"],
+                ["DELETE", "/:role_id/:id"],
+            ],
+        );
+        assert.deepEqual(
+            calls.map((call) => call.routeMetadata),
+            [{ present: false }, { present: false }, { present: false }, { present: false }],
+        );
     });
 });
