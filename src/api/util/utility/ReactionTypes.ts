@@ -4,6 +4,53 @@ import type { PartialEmoji, StoredReaction } from "@spacebar/schemas";
 
 export { normalizeStoredReaction, toPublicReaction, toPublicReactions };
 
+const rgiEmojiPattern = createUnicodeEmojiPattern("^\\p{RGI_Emoji}$", "v");
+const emojiPresentationPattern = createUnicodeEmojiPattern("^\\p{Emoji_Presentation}$", "u");
+const emojiComponentPattern = createUnicodeEmojiPattern("^[\\p{Emoji_Presentation}\\p{Emoji_Modifier}\\uFE0F\\u200D]+$", "u");
+const customEmojiNamePattern = /^[A-Za-z0-9_]{2,32}$/;
+const customEmojiIdPattern = /^\d+$/;
+
+function createUnicodeEmojiPattern(pattern: string, flags: string): RegExp | undefined {
+    try {
+        return new RegExp(pattern, flags);
+    } catch {
+        return undefined;
+    }
+}
+
+export function isUnicodeReactionEmoji(value: string): boolean {
+    if (rgiEmojiPattern) return rgiEmojiPattern.test(value);
+
+    if (emojiPresentationPattern?.test(value)) return true;
+    return Boolean(emojiComponentPattern?.test(value) && value.includes("‍"));
+}
+
+export function parseReactionEmojiParam(value: string): PartialEmoji | null {
+    let emoji: string;
+    try {
+        emoji = decodeURIComponent(value);
+    } catch {
+        return null;
+    }
+
+    if (!emoji) return null;
+
+    const parts = emoji.split(":");
+    if (parts.length === 2) {
+        const [name, id] = parts;
+        if (!customEmojiNamePattern.test(name) || !customEmojiIdPattern.test(id)) return null;
+        return { name, id };
+    }
+
+    if (parts.length > 1) return null;
+    if (!isUnicodeReactionEmoji(emoji)) return null;
+
+    return {
+        id: undefined,
+        name: emoji,
+    };
+}
+
 export function parseReactionTypeParam(value: unknown): ReactionType | null {
     if (value === String(ReactionType.normal)) return ReactionType.normal;
     if (value === String(ReactionType.burst)) return ReactionType.burst;

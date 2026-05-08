@@ -8,8 +8,10 @@ import {
     addReactionUser,
     getReactionUserIds,
     hasReactionUsers,
+    isUnicodeReactionEmoji,
     normalizeStoredReaction,
     parseOptionalReactionTypeParam,
+    parseReactionEmojiParam,
     parseReactionTypeParam,
     reactionEventTypeData,
     reactionRemoveEventUserData,
@@ -34,6 +36,34 @@ describe("parseReactionTypeParam", () => {
         assert.equal(parseOptionalReactionTypeParam(undefined), ReactionType.normal);
         assert.equal(parseOptionalReactionTypeParam("1"), ReactionType.burst);
         assert.equal(parseOptionalReactionTypeParam(["1"]), null);
+    });
+
+    it("parses valid Unicode and custom reaction emoji route params", () => {
+        assert.deepEqual(parseReactionEmojiParam("%F0%9F%98%80"), { id: undefined, name: "😀" });
+        assert.deepEqual(parseReactionEmojiParam(encodeURIComponent("👍🏽")), { id: undefined, name: "👍🏽" });
+        assert.deepEqual(parseReactionEmojiParam(encodeURIComponent("👨‍👩‍👧‍👦")), { id: undefined, name: "👨‍👩‍👧‍👦" });
+        assert.deepEqual(parseReactionEmojiParam(encodeURIComponent("🇩🇪")), { id: undefined, name: "🇩🇪" });
+        assert.deepEqual(parseReactionEmojiParam("party_blob:123456789012345678"), {
+            name: "party_blob",
+            id: "123456789012345678",
+        });
+    });
+
+    it("rejects malformed or non-emoji reaction route params", () => {
+        assert.equal(parseReactionEmojiParam("%E0%A4%A"), null);
+        assert.equal(parseReactionEmojiParam("plain-text"), null);
+        assert.equal(parseReactionEmojiParam(""), null);
+        assert.equal(parseReactionEmojiParam("party_blob:"), null);
+        assert.equal(parseReactionEmojiParam(":123456789012345678"), null);
+        assert.equal(parseReactionEmojiParam("party_blob:not-a-snowflake"), null);
+        assert.equal(parseReactionEmojiParam("a:party_blob:123456789012345678"), null);
+    });
+
+    it("identifies complete Unicode emoji sequences", () => {
+        assert.equal(isUnicodeReactionEmoji("🔥"), true);
+        assert.equal(isUnicodeReactionEmoji("1️⃣"), true);
+        assert.equal(isUnicodeReactionEmoji("👩‍🚀"), true);
+        assert.equal(isUnicodeReactionEmoji("not-an-emoji"), false);
     });
 
     it("tracks normal and burst reaction users independently for the same emoji", () => {
