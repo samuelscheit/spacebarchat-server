@@ -13,9 +13,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 405,
+        "totalEntries": 406,
         "byService": {
-            "api": 340,
+            "api": 341,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,14 +24,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 380,
+            "http-route": 381,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 14,
             "contract": 53,
-            "stateful-domain": 245,
+            "stateful-domain": 246,
             "cdn-integration": 42,
             "auth-scenario": 16,
             "integration": 11,
@@ -42,7 +42,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 15,
-            "route-class": 297,
+            "route-class": 298,
             "hot-path": 28,
             "none": 1,
             "cdn-hot-path": 41,
@@ -3184,7 +3184,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 244,
+            "line": 519,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3231,7 +3231,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 517,
+            "line": 521,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10322,7 +10322,7 @@
             "method": "GET",
             "path": "/users/:user_id/messages/",
             "sourceFile": "src/api/routes/users/#user_id/messages.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10333,6 +10333,48 @@
                 "responseStatuses": [
                     200,
                     400
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/users/:user_id/messages/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/:user_id/messages/",
+            "sourceFile": "src/api/routes/users/#user_id/messages.ts",
+            "line": 56,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    403,
+                    404
                 ],
                 "hasQuery": false
             },
