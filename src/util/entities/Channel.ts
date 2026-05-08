@@ -46,7 +46,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PartialUser, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
@@ -770,12 +770,28 @@ export class Channel extends BaseClass {
         }
     }
 
+    private toPublicRecipients(): PublicChannel["recipients"] {
+        if (!this.isDm()) return undefined;
+        if (!this.recipients?.length) return undefined;
+        if (this.recipients.some((recipient) => !recipient.user)) return undefined;
+
+        return this.recipients.map((recipient): PartialUser => {
+            const user = recipient.user.toPublicUser();
+            return {
+                id: user.id,
+                username: user.username,
+                discriminator: user.discriminator,
+                avatar: user.avatar ?? null,
+            };
+        });
+    }
+
     toJSON(): PublicChannel {
         return {
             ...this,
             last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
             guild_id: this.guild_id ?? undefined,
-            recipients: undefined, //this.recipients?.map(x=>x.user.toPublicUser()), // TODO: fix me
+            recipients: this.toPublicRecipients(),
             owner: undefined, // TODO: fix me - this is thread owner
 
             // these fields are not returned depending on the type of channel
