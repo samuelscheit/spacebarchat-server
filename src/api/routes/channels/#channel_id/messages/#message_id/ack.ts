@@ -23,6 +23,8 @@ import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
 
+const MESSAGE_ACK_VERSION = 3763; // what is this number?
+
 // TODO: public read receipts & privacy scoping
 // TODO: advance-only notification cursor
 
@@ -56,7 +58,7 @@ router.post(
             data: {
                 channel_id,
                 message_id,
-                version: 3763, // what is this number?
+                version: MESSAGE_ACK_VERSION,
             },
         } satisfies MessageAckEvent);
 

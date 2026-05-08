@@ -604,6 +604,8 @@ export interface InteractionFailureEvent extends Event {
 
 export interface MessageAckEvent extends Event {
     event: "MESSAGE_ACK";
+    channel_id: string;
+    user_id?: never;
     data: {
         channel_id: string;
         message_id: string;

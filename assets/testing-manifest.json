@@ -2699,7 +2699,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/ack/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/ack.ts",
-            "line": 29,
+            "line": 31,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
