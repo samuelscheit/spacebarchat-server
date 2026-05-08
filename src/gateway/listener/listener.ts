@@ -341,7 +341,7 @@ export async function setupListener(this: WebSocket) {
 }
 
 // TODO: only subscribe for events that are in the connection intents
-async function consume(this: WebSocket, opts: EventOpts) {
+export async function consume(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
     opts.acknowledge?.();
     if (await handleListenerControlEvent.call(this, opts)) return;

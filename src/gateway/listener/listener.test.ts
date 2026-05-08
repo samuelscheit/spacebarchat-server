@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
+import type { WebSocket } from "@spacebar/gateway";
 import { CLOSECODES } from "../util";
-import { canDispatchGuildPresenceUpdate, handleListenerControlEvent } from "./listener";
+import { canDispatchGuildPresenceUpdate, consume, handleListenerControlEvent } from "./listener";
 import { trackGuildMemberEventId } from "./subscriptions";
 
 describe("canDispatchGuildPresenceUpdate", () => {
@@ -56,5 +57,26 @@ describe("handleListenerControlEvent", () => {
         });
 
         assert.equal(handled, false);
+    });
+
+    test("acknowledges and closes invalidated events before reading dispatch data", async () => {
+        const operations: string[] = [];
+        const socket = {
+            sequence: 7,
+            close: (code?: number, reason?: string) => {
+                operations.push(`close:${code}:${reason}`);
+            },
+        };
+
+        await consume.call(socket as WebSocket, {
+            event: "INVALIDATED",
+            acknowledge: () => {
+                operations.push("acknowledge");
+            },
+            cancel: () => undefined,
+        });
+
+        assert.deepEqual(operations, [`acknowledge`, `close:${CLOSECODES.Authentication_failed}:Invalidated Token`]);
+        assert.equal(socket.sequence, 7);
     });
 });
