@@ -1,8 +1,104 @@
 import assert from "node:assert/strict";
+import { createRequire } from "node:module";
 import test from "node:test";
-import { Channel, getChannelAttachmentDeletePath, getChannelAttachmentDeletePaths } from "./Channel.js";
-import { Config } from "../util/Config.js";
-import { Invite } from "./Invite.js";
+
+type ChannelModule = typeof import("./Channel");
+type InviteModule = typeof import("./Invite");
+
+const localRequire = createRequire(__filename);
+const fallbackSchemaValue = new Proxy(Object.create(null), {
+    get: (_target, property) => {
+        if (property === Symbol.toPrimitive) return () => 0;
+        if (property === "then") return undefined;
+        if (property === "toString") return () => "0";
+        if (property === "valueOf") return () => 0;
+        return fallbackSchemaValue;
+    },
+});
+const schemasMock = new Proxy(
+    {
+        ApplicationCommandType: { CHAT_INPUT: 1 },
+        ChannelType: {
+            DM: 1,
+            GROUP_DM: 3,
+            GUILD_CATEGORY: 4,
+            GUILD_NEWS_THREAD: 10,
+            GUILD_PUBLIC_THREAD: 11,
+            GUILD_PRIVATE_THREAD: 12,
+            GUILD_FORUM: 15,
+            GUILD_MEDIA: 16,
+        },
+        PublicMemberProjection: {},
+        PublicUserProjection: {},
+        PublicVoiceStateProjection: {},
+        ReadStateFlags: {
+            IS_GUILD_CHANNEL: 1,
+            IS_THREAD: 2,
+            IS_MENTION_LOW_IMPORTANCE: 4,
+        },
+        ReadStateType: { CHANNEL: 0 },
+    },
+    {
+        get: (target, property) => {
+            if (property in target) return target[property as keyof typeof target];
+            return fallbackSchemaValue;
+        },
+    },
+);
+
+(localRequire.cache as Record<string, { exports: unknown } | undefined>)[localRequire.resolve("@spacebar/schemas")] = { exports: schemasMock };
+
+let activeDeleteOrderCalls: string[] | undefined;
+const cdnDeleteCalls: string[] = [];
+const utilMock = new Proxy(
+    {
+        Config: {
+            get: () => ({
+                guild: { publicThreadsInvitable: false },
+            }),
+        },
+        DiscordApiErrors: {
+            THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE: new Error("THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE"),
+        },
+        FieldErrors: class FieldErrors extends Error {},
+        InvisibleCharacters: [],
+        Permissions: {
+            ALL: {},
+            DEFAULT_DM_PERMISSIONS: {},
+            NONE: {},
+            finalPermission: () => ({ has: () => false, hasThrow: () => undefined }),
+        },
+        Snowflake: { generate: () => "snowflake" },
+        assertChannelNamePresent: () => undefined,
+        canCreateServerDm: () => false,
+        deleteFile: async (path: string) => {
+            cdnDeleteCalls.push(path);
+            activeDeleteOrderCalls?.push("deleteFile");
+        },
+        emitEvent: async () => undefined,
+        getAttachmentMutationPath: (uploadFilename: string) => `/attachments/${uploadFilename}`,
+        getDatabase: () => null,
+        getPermission: async () => ({ hasThrow: () => undefined }),
+        handleFile: async () => undefined,
+        normalizeChannelName: (value?: string) => value,
+        normalizeThreadName: (value?: string) => value,
+        shouldCheckServerDmPrivacy: () => false,
+        trimSpecial: (value?: string) => value,
+    },
+    {
+        get: (target, property) => {
+            if (property in target) return target[property as keyof typeof target];
+            return fallbackSchemaValue;
+        },
+    },
+);
+
+for (const path of [localRequire.resolve("../util"), localRequire.resolve("..")]) {
+    (localRequire.cache as Record<string, { exports: unknown } | undefined>)[path] = { exports: utilMock };
+}
+
+const { Channel, getChannelAttachmentDeletePath, getChannelAttachmentDeletePaths } = localRequire("./Channel") as ChannelModule;
+const { Invite } = localRequire("./Invite") as InviteModule;
 
 type RawAttachmentRow = { id?: string; channel_id?: string | null; message_id?: string | null; filename?: string | null };
 type RawCloudAttachmentRow = { uploadFilename?: string | null };
@@ -34,10 +130,6 @@ type FakeDatabaseOptions = {
     cloudAttachmentRows?: RawCloudAttachmentRow[];
     throwInTransaction?: boolean;
 };
-
-function createJsonResponse(status = 200) {
-    return new Response(JSON.stringify({ success: status === 200 }), { status });
-}
 
 function createQueryBuilder(calls: string[], alias: string, rows: unknown[]): QueryBuilder {
     const record = (method: string, args: unknown[]) => calls.push(`${alias}.${method}:${JSON.stringify(args)}`);
@@ -153,24 +245,13 @@ test("getChannelAttachmentDeletePaths snapshots message, legacy, thread-fallback
 
 test("Channel.deleteChannel snapshots CDN attachment paths inside the delete transaction and deletes them after commit", async () => {
     const calls: string[] = [];
-    const fetchCalls: { url: string; init?: RequestInit }[] = [];
     const database = createFakeDatabase(calls);
 
-    const originalGet = Config.get;
-    const originalFetch = globalThis.fetch;
     const originalEmitGuildUpdate = Invite.emitGuildUpdate;
 
     try {
-        Config.get = () =>
-            ({
-                cdn: { endpointPrivate: "https://cdn.example" },
-                security: { requestSignature: "signature" },
-            }) as ReturnType<typeof Config.get>;
-        globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
-            fetchCalls.push({ url: String(url), init });
-            calls.push("deleteFile");
-            return createJsonResponse();
-        }) as typeof fetch;
+        cdnDeleteCalls.length = 0;
+        activeDeleteOrderCalls = calls;
         Invite.emitGuildUpdate = (async () => {
             calls.push("emitGuildUpdate");
         }) as typeof Invite.emitGuildUpdate;
@@ -178,20 +259,11 @@ test("Channel.deleteChannel snapshots CDN attachment paths inside the delete tra
         const channel = Object.assign(new Channel(), { id: "channel", guild_id: "guild" });
         await Channel.deleteChannel(channel, database as unknown as NonNullable<Parameters<typeof Channel.deleteChannel>[1]>);
     } finally {
-        Config.get = originalGet;
-        globalThis.fetch = originalFetch;
+        activeDeleteOrderCalls = undefined;
         Invite.emitGuildUpdate = originalEmitGuildUpdate;
     }
 
-    assert.deepEqual(fetchCalls, [
-        {
-            url: "https://cdn.example/_spacebar/cdn/attachments/channel/message/file.png",
-            init: {
-                headers: { signature: "signature" },
-                method: "DELETE",
-            },
-        },
-    ]);
+    assert.deepEqual(cdnDeleteCalls, ["/attachments/channel/message/file.png"]);
     assert.ok(calls.indexOf("transaction:start") < calls.indexOf("snapshot:Attachment:attachment"));
     assert.ok(calls.indexOf("transaction:start") < calls.indexOf("snapshot:CloudAttachment:cloudAttachment"));
     assert.ok(calls.indexOf("snapshot:Attachment:attachment") < calls.findIndex((call) => call.startsWith("delete:")));
@@ -200,30 +272,18 @@ test("Channel.deleteChannel snapshots CDN attachment paths inside the delete tra
 
 test("Channel.deleteChannel does not delete CDN files when the database transaction rolls back", async () => {
     const calls: string[] = [];
-    const fetchCalls: string[] = [];
     const database = createFakeDatabase(calls, { throwInTransaction: true });
 
-    const originalGet = Config.get;
-    const originalFetch = globalThis.fetch;
-
     try {
-        Config.get = () =>
-            ({
-                cdn: { endpointPrivate: "https://cdn.example" },
-                security: { requestSignature: "signature" },
-            }) as ReturnType<typeof Config.get>;
-        globalThis.fetch = (async (url: string | URL | Request) => {
-            fetchCalls.push(String(url));
-            return createJsonResponse();
-        }) as typeof fetch;
+        cdnDeleteCalls.length = 0;
+        activeDeleteOrderCalls = calls;
 
         const channel = Object.assign(new Channel(), { id: "channel", guild_id: "guild" });
         await assert.rejects(() => Channel.deleteChannel(channel, database as unknown as NonNullable<Parameters<typeof Channel.deleteChannel>[1]>), /rollback/);
     } finally {
-        Config.get = originalGet;
-        globalThis.fetch = originalFetch;
+        activeDeleteOrderCalls = undefined;
     }
 
     assert.equal(calls.includes("transaction:commit"), false);
-    assert.deepEqual(fetchCalls, []);
+    assert.deepEqual(cdnDeleteCalls, []);
 });
