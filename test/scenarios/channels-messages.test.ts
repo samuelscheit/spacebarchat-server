@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Invite, Message, ReadState, User } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
@@ -186,6 +186,16 @@ test(
             const persistedChannel = await Channel.findOneByOrFail({ id: channelId });
             assert.equal(persistedChannel.name, "scenario-renamed");
             assert.equal(persistedChannel.topic, "updated topic");
+            assert.equal(persistedChannel.applied_tags, null);
+
+            const invalidAppliedTags = await patchJson(`${api.apiBaseUrl}/channels/${channelId}`, { applied_tags: ["tag-for-threads-only"] }, token);
+            const invalidAppliedTagsBody = await assertJsonError(invalidAppliedTags, 400);
+            const invalidAppliedTagsErrors = invalidAppliedTagsBody.errors as {
+                applied_tags?: { _errors?: Array<{ code: string; message: string }> };
+            };
+            assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.code, "BASE_TYPE_BAD_VALUE");
+            assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.message, "Applied tags can only be set on threads");
+            assert.equal((await Channel.findOneByOrFail({ id: channelId })).applied_tags, null);
 
             const createInvite = await postJson(`${api.apiBaseUrl}/channels/${channelId}/invites`, { max_age: 3600, max_uses: 1, temporary: false, unique: true }, token);
             assert.ok(createInvite.status === 200 || createInvite.status === 201);

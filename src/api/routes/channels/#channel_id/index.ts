@@ -36,6 +36,7 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import { addInvalidAppliedTagsError } from "../../../util/ChannelModifyAppliedTags";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
 import { assertAppliedTagsExist } from "../../../util/ChannelAppliedTagsValidation";
 
@@ -193,17 +194,9 @@ router.patch(
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
         }
 
-        if (payload.available_tags) {
-            if (channel.isForum() && channel.available_tags) {
-                //TODO maybe error if this fails, and maybe handle creating tags?
-                const filter = new Set(payload.available_tags.map(({ id }) => id));
-                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
-                tags.forEach((_) => _.remove());
-                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
-            }
-        }
+        const errors: ErrorList = {};
 
-        if (payload.applied_tags) {
+        if (payload.applied_tags !== undefined) {
             if (channel.isThread()) {
                 const parent = await Channel.findOneOrFail({
                     where: {
@@ -221,16 +214,12 @@ router.patch(
                 }
                 channel.applied_tags = payload.applied_tags;
             } else {
-                //TODO maybe error instead?
-                payload.applied_tags = undefined;
+                addInvalidAppliedTagsError(payload, isThread, errors);
             }
         }
 
-        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
-
         const channelLimits = Config.get().limits.channel;
 
-        const errors: ErrorList = {};
         let allowUnnamedChannels = false;
         if (payload.name !== undefined && channel.guild_id) {
             const guild = await Guild.findOneOrFail({
@@ -268,6 +257,18 @@ router.patch(
         if (Object.keys(errors).length) {
             throw new FieldError(400, "Invalid form body", errors);
         }
+
+        if (payload.available_tags) {
+            if (channel.isForum() && channel.available_tags) {
+                //TODO maybe error if this fails, and maybe handle creating tags?
+                const filter = new Set(payload.available_tags.map(({ id }) => id));
+                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
+                tags.forEach((_) => _.remove());
+                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
+            }
+        }
+
+        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
 
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);

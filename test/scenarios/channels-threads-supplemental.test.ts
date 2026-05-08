@@ -120,6 +120,7 @@ test(
             await coverPermissionOverwriteRoutes(api.apiBaseUrl, textChannelId, guildId, ownerToken, events);
             const tagId = await coverTagCreateAndUpdate(api.apiBaseUrl, forumChannelId, ownerToken, events);
             await coverTagMissingErrors(api.apiBaseUrl, forumChannelId, otherForumChannelId, ownerToken, events);
+            await coverInvalidForumAppliedTags(api.apiBaseUrl, forumChannelId, tagId, ownerToken);
             await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, events);
             await coverTagDelete(api.apiBaseUrl, forumChannelId, tagId, ownerToken, events);
         } finally {
@@ -216,6 +217,17 @@ async function coverTagMissingErrors(apiBaseUrl: string, forumChannelId: string,
     assert.equal((await Tag.findOneByOrFail({ id: otherTagId })).name, "other-forum-tag");
 }
 
+async function coverInvalidForumAppliedTags(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string) {
+    const invalidAppliedTags = await patchJson(`${apiBaseUrl}/channels/${forumChannelId}`, { applied_tags: [], available_tags: [] }, token);
+    const invalidAppliedTagsBody = await assertJsonError(invalidAppliedTags, 400);
+    const invalidAppliedTagsErrors = invalidAppliedTagsBody.errors as {
+        applied_tags?: { _errors?: Array<{ code: string; message: string }> };
+    };
+    assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.code, "BASE_TYPE_BAD_VALUE");
+    assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.message, "Applied tags can only be set on threads");
+    assert.notEqual(await Tag.findOneBy({ id: tagId }), null);
+}
+
 async function coverThreadRoutes(
     apiBaseUrl: string,
     guildId: string,
@@ -233,6 +245,7 @@ async function coverThreadRoutes(
     const publicThreadId = await createForumThread(apiBaseUrl, forumChannelId, tagId, token, events);
     await assertThreadMember(publicThreadId, ownerMember.index);
     await coverThreadSearch(apiBaseUrl, forumChannelId, publicThreadId, tagId, token);
+    await coverThreadAppliedTagsPatch(apiBaseUrl, publicThreadId, token);
     const publicThreadEvents = await captureEvents([publicThreadId, ownerId]);
     try {
         await coverThreadMemberRoutes(apiBaseUrl, publicThreadId, ownerMember.index, joinedMember.index, memberId, token, publicThreadEvents);
@@ -273,6 +286,14 @@ async function coverThreadRoutes(
     const message = await Message.findOneOrFail({ where: { id: messageId }, relations: { thread: true } });
     assert.ok(message.thread);
     assert.equal(message.thread.id, messageId);
+}
+
+async function coverThreadAppliedTagsPatch(apiBaseUrl: string, threadId: string, token: string) {
+    const updateThread = await patchJson(`${apiBaseUrl}/channels/${threadId}`, { applied_tags: [] }, token);
+    await assertStatus(updateThread, 200);
+    const updateThreadBody = await assertJsonObject(updateThread);
+    assert.deepEqual(updateThreadBody.applied_tags, []);
+    assert.deepEqual((await Channel.findOneByOrFail({ id: threadId })).applied_tags, []);
 }
 
 async function createForumThread(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string, events: EventCapture) {
