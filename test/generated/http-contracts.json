@@ -1810,7 +1810,7 @@
             "path": "/auth/login/",
             "samplePath": "/auth/login/",
             "sourceFile": "src/api/routes/auth/login.ts",
-            "line": 29,
+            "line": 28,
             "authMode": "public",
             "testTier": "auth-scenario",
             "benchmarkClass": "hot-path",
