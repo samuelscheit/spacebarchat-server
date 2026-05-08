@@ -21,15 +21,16 @@ import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
 
+// Discord clients send analytics here. Spacebar accepts and discards them.
 router.post(
     "/",
     route({
         responses: {
             204: {},
         },
+        spacebarOnly: false, // Not part of the public OpenAPI schema
     }),
     (req: Request, res: Response) => {
-        // TODO:
         res.sendStatus(204);
     },
 );

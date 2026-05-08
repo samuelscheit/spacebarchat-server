@@ -37,6 +37,13 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/ping/"), true);
     });
 
+    test("allows client analytics telemetry sinks without authentication", () => {
+        assert.equal(isNoAuthorizationRoute("POST", "/science"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/science/?events=1"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v10/track?source=client"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/science"), false);
+    });
+
     test("does not allow unrelated MFA finish subpaths without bearer auth", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/mfa/finish/extra"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/mfa/finish/"), false);
