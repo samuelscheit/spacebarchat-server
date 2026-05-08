@@ -28,11 +28,35 @@ const router = Router({ mergeParams: true });
 if (process.env.LOG_ROUTES !== "false") console.log("[Server] Registering reporting menu routes...");
 
 function getReportMenuPath(type: string) {
-    return path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`);
+    const assetPath = path.join("assets", "temp_report_menu_responses", `${type}.json`);
+    const roots = [__dirname, process.cwd()];
+
+    for (const root of roots) {
+        let current = root;
+        while (true) {
+            const candidate = path.join(current, assetPath);
+            if (fs.existsSync(candidate)) return candidate;
+
+            const parent = path.dirname(current);
+            if (parent === current) break;
+            current = parent;
+        }
+    }
+
+    return path.join(process.cwd(), assetPath);
 }
 
 function readReportMenu(type: string) {
     return JSON.parse(fs.readFileSync(getReportMenuPath(type), "utf-8"));
+}
+
+function invalidBreadcrumbsPath() {
+    return FieldErrors({
+        breadcrumbs: {
+            message: `Invalid report menu breadcrumbs path.`,
+            code: "INVALID_REPORT_MENU_BREADCRUMBS_PATH",
+        },
+    });
 }
 
 router.get(
@@ -143,13 +167,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
                 return true;
             };
 
-            if (!validateBreadcrumbs(menuData.nodes[menuData.root_node_id], body.breadcrumbs))
-                throw FieldErrors({
-                    breadcrumbs: {
-                        message: `Invalid report menu breadcrumbs path.`,
-                        code: "INVALID_REPORT_MENU_BREADCRUMBS_PATH",
-                    },
-                });
+            if (body.breadcrumbs[0] !== menuData.root_node_id || !validateBreadcrumbs(menuData.nodes[menuData.root_node_id], body.breadcrumbs)) throw invalidBreadcrumbsPath();
 
             const requireFields = (obj: CreateReportSchema, fields: string[]) => {
                 const missingFields: string[] = [];

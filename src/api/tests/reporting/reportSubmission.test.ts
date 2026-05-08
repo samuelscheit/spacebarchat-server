@@ -133,4 +133,13 @@ describe("report submissions", () => {
         assert.equal(body.code, 50035);
         assert.equal(body.errors.breadcrumbs._errors[0].code, "INVALID_REPORT_MENU_BREADCRUMBS_PATH");
     });
+
+    test("rejects breadcrumbs that do not start at the report menu root", async () => {
+        const response = await postJson(`${baseUrl}/reporting/message`, createMessageReportBody({ breadcrumbs: [17] }));
+        const body = response.body as ErrorResponse;
+
+        assert.equal(response.statusCode, 400);
+        assert.equal(body.code, 50035);
+        assert.equal(body.errors.breadcrumbs._errors[0].code, "INVALID_REPORT_MENU_BREADCRUMBS_PATH");
+    });
 });

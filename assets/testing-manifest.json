@@ -10742,7 +10742,7 @@
             "method": "GET",
             "path": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 38,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
