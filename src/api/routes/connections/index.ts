@@ -31,12 +31,14 @@ router.get(
         },
     }),
     (req: Request, res: Response) => {
-        const config = ConnectionConfig.get();
-
-        Object.keys(config).forEach((key) => {
-            delete config[key].clientId;
-            delete config[key].clientSecret;
-        });
+        const config = Object.fromEntries(
+            Object.entries(ConnectionConfig.get()).map(([key, value]) => {
+                const publicConfig = { ...(value as Record<string, unknown>) };
+                delete publicConfig.clientId;
+                delete publicConfig.clientSecret;
+                return [key, publicConfig];
+            }),
+        );
 
         res.json(config);
     },
