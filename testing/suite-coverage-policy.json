@@ -21,7 +21,8 @@
                 "api:http:GET:/policies/instance/domains/",
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
-                "api:http:GET:/scheduled-maintenances/upcoming.json/"
+                "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "suites": [
                 {
@@ -176,6 +177,16 @@
                     ],
                     "fixtures": ["config", "users", "guilds", "categories", "gif-provider"],
                     "checks": ["auth-boundary", "response-shape", "db-state", "provider-stub"]
+                },
+                {
+                    "id": "store-published-listings",
+                    "title": "Store published listings compatibility responses",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/store-published-listings.test.ts"],
+                    "manifestIds": ["api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"],
+                    "fixtures": ["config"],
+                    "checks": ["response-shape", "no-fabricated-store-data"]
                 },
                 {
                     "id": "cdn",

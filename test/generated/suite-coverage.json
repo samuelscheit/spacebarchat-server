@@ -5,14 +5,14 @@
     "policySource": "testing/suite-coverage-policy.json",
     "summary": {
         "totalGroups": 3,
-        "totalSuites": 13,
-        "totalCoveredManifestEntries": 353,
+        "totalSuites": 14,
+        "totalCoveredManifestEntries": 354,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 331,
-                "totalCoveredManifestEntries": 331,
-                "totalCoveredRequiredManifestEntries": 331,
-                "totalSuites": 10
+                "totalRequiredManifestEntries": 332,
+                "totalCoveredManifestEntries": 332,
+                "totalCoveredRequiredManifestEntries": 332,
+                "totalSuites": 11
             },
             "protocol": {
                 "totalRequiredManifestEntries": 21,
@@ -29,7 +29,7 @@
         },
         "byCoveredTestTier": {
             "stateful-domain": 245,
-            "contract": 16,
+            "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
             "cdn-integration": 42,
@@ -59,13 +59,14 @@
                 "api:http:GET:/policies/instance/domains/",
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
-                "api:http:GET:/scheduled-maintenances/upcoming.json/"
+                "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 331,
-                "totalCoveredManifestEntries": 331,
-                "totalCoveredRequiredManifestEntries": 331,
-                "totalSuites": 10
+                "totalRequiredManifestEntries": 332,
+                "totalCoveredManifestEntries": 332,
+                "totalCoveredRequiredManifestEntries": 332,
+                "totalSuites": 11
             },
             "requiredManifestIds": [
                 "api:http:DELETE:/applications/:application_id/commands/:command_id/",
@@ -193,6 +194,7 @@
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
                 "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/",
                 "api:http:GET:/users/:user_id/",
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
@@ -526,6 +528,7 @@
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
                 "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/",
                 "api:http:GET:/users/:user_id/",
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
@@ -1158,6 +1161,16 @@
                         "api:http:GET:/policies/stats/",
                         "api:http:GET:/scheduled-maintenances/upcoming.json/"
                     ]
+                },
+                {
+                    "id": "store-published-listings",
+                    "title": "Store published listings compatibility responses",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/store-published-listings.test.ts"],
+                    "fixtures": ["config"],
+                    "checks": ["response-shape", "no-fabricated-store-data"],
+                    "manifestIds": ["api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"]
                 },
                 {
                     "id": "cdn",
