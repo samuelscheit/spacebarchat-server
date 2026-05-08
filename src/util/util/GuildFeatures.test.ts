@@ -1,11 +1,20 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { getVanityUrlFeatureState, GuildFeature, setVanityUrlFeature, VIP_REGIONS_FEATURE } from "./GuildFeatures";
+import { getVanityUrlFeatureState, GuildFeature, hasGuildFeature, setVanityUrlFeature, VANITY_URL_FEATURE, VIP_REGIONS_FEATURE } from "./GuildFeatures";
 
 describe("Guild feature helpers", () => {
-    test("exports VIP_REGIONS as a named guild feature enum value", () => {
+    test("exports named guild feature enum values with compatibility aliases", () => {
+        assert.equal(GuildFeature.VanityUrl, "VANITY_URL");
         assert.equal(GuildFeature.VipRegions, "VIP_REGIONS");
-        assert.equal(VIP_REGIONS_FEATURE, "VIP_REGIONS");
+        assert.equal(VANITY_URL_FEATURE, GuildFeature.VanityUrl);
+        assert.equal(VIP_REGIONS_FEATURE, GuildFeature.VipRegions);
+    });
+
+    test("detects enum-backed guild feature membership", () => {
+        assert.equal(hasGuildFeature(["COMMUNITY", GuildFeature.VipRegions], GuildFeature.VipRegions), true);
+        assert.equal(hasGuildFeature(["COMMUNITY", "VIP_REGIONS_DISABLED"], GuildFeature.VipRegions), false);
+        assert.equal(hasGuildFeature(undefined, GuildFeature.VipRegions), false);
+        assert.equal(hasGuildFeature(null, GuildFeature.VipRegions), false);
     });
 
     test("removes VANITY_URL when a guild has no vanity URL", () => {

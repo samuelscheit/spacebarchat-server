@@ -6,6 +6,10 @@ export enum GuildFeature {
 export const VANITY_URL_FEATURE = GuildFeature.VanityUrl;
 export const VIP_REGIONS_FEATURE = GuildFeature.VipRegions;
 
+export function hasGuildFeature(features: readonly string[] | null | undefined, feature: GuildFeature) {
+    return features?.includes(feature) ?? false;
+}
+
 export function setVanityUrlFeature(features: string[] | null | undefined, hasVanityUrl: boolean) {
     const filteredFeatures = (features ?? []).filter((feature) => feature !== VANITY_URL_FEATURE);
 

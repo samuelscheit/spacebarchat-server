@@ -17,7 +17,7 @@
 */
 
 import { getVoiceRegions, route } from "@spacebar/api";
-import { Guild, GuildFeature } from "@spacebar/util";
+import { Guild, GuildFeature, hasGuildFeature } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
@@ -37,7 +37,7 @@ router.get(
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({ where: { id: guild_id } });
-        return res.json(await getVoiceRegions(req.ip!, guild.features.includes(GuildFeature.VipRegions)));
+        return res.json(await getVoiceRegions(req.ip!, hasGuildFeature(guild.features, GuildFeature.VipRegions)));
     },
 );
 
