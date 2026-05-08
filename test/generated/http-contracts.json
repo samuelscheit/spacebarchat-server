@@ -13479,7 +13479,7 @@
             "path": "/guilds/automations/email-domain-lookup/verify-code",
             "samplePath": "/guilds/automations/email-domain-lookup/verify-code",
             "sourceFile": "src/api/routes/guilds/automations/email-domain-lookup.ts",
-            "line": 63,
+            "line": 62,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
