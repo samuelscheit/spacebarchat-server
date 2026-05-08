@@ -18,7 +18,7 @@
 
 // TODO: Need a way to allow camalCase and pascal_case without just duplicating the schema
 
-import { ActivitySchema } from "@spacebar/schemas";
+import { ActivitySchema } from "../uncategorised/ActivitySchema";
 
 // TODO: can we get rid of this somehow?
 export const IdentifySchema = {

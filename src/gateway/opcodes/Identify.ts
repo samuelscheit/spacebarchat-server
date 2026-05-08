@@ -183,7 +183,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     this.session.client_info.platform = identify.properties?.$device ?? identify.properties?.$device;
     this.session.client_info.os = identify.properties?.os || identify.properties?.$os;
     this.session.client_status = {};
-    this.session.activities = identify.presence?.activities ?? []; // TODO: validation
+    this.session.activities = identify.presence?.activities ?? [];
 
     if (this.ipAddress && this.ipAddress !== this.session.last_seen_ip) {
         this.session.last_seen_ip = this.ipAddress;
