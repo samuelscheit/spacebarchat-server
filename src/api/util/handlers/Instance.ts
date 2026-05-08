@@ -16,8 +16,48 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Session, TimeSpan } from "@spacebar/util";
+import { isRealGatewaySessionId, Session, TimeSpan } from "@spacebar/util";
 import { setInterval } from "node:timers";
+
+export const UNUSED_LEGACY_SESSION_LAST_SEEN = "1970/01/01";
+export const UNUSED_LEGACY_SESSION_QUERY = "last_seen = :lastSeen";
+export const UNUSED_LEGACY_SESSION_ID_QUERY = "(session_id = :allSessionId OR session_id LIKE :temporarySessionPattern)";
+export const UNUSED_LEGACY_SESSION_MAX_AGE_MS = 1000 * 60 * 60;
+export const UNUSED_LEGACY_SESSION_CLEANUP_INTERVAL_MS = 1000 * 60 * 5;
+export const UNUSED_LEGACY_SESSION_QUERY_PARAMETERS = {
+    lastSeen: UNUSED_LEGACY_SESSION_LAST_SEEN,
+    allSessionId: "all",
+    temporarySessionPattern: "TEMP_%",
+};
+
+type UnusedLegacySessionRow = {
+    session_created_at: Date;
+    session_session_id: string;
+};
+
+function canExpireUnusedLegacySession(session: UnusedLegacySessionRow, now: Date) {
+    return (
+        !isRealGatewaySessionId(session.session_session_id) &&
+        TimeSpan.fromDates(session.session_created_at.getTime(), now.getTime()).totalMillis > UNUSED_LEGACY_SESSION_MAX_AGE_MS
+    );
+}
+
+export async function expireUnusedLegacySessions(now = new Date()) {
+    for await (const session of (await Session.createQueryBuilder("session")
+        .where(UNUSED_LEGACY_SESSION_QUERY, { lastSeen: UNUSED_LEGACY_SESSION_QUERY_PARAMETERS.lastSeen })
+        .andWhere(UNUSED_LEGACY_SESSION_ID_QUERY, {
+            allSessionId: UNUSED_LEGACY_SESSION_QUERY_PARAMETERS.allSessionId,
+            temporarySessionPattern: UNUSED_LEGACY_SESSION_QUERY_PARAMETERS.temporarySessionPattern,
+        })
+        .select()
+        .stream()) as AsyncIterable<UnusedLegacySessionRow>) {
+        // session object has all fields prefixed with `session_`... thanks typeorm
+        if (canExpireUnusedLegacySession(session, now)) {
+            console.log(`[API/Instance.ts] Deleting unused session ${session.session_session_id} created at ${session.session_created_at}`);
+            await Session.delete({ session_id: session.session_session_id });
+        }
+    }
+}
 
 export async function initInstance() {
     // TODO: clean up database and delete tombstone data
@@ -35,16 +75,5 @@ export async function initInstance() {
     // }
 
     // Expire unused sessions left behind by legacy tokens without clearing current auth sessions.
-    setInterval(
-        async () => {
-            for await (const session of await Session.createQueryBuilder("session").where("last_seen = '1970/01/01'").select().stream()) {
-                // session object has all fields prefixed with `session_`... thanks typeorm
-                if (TimeSpan.fromDates((session.session_created_at as Date).getTime(), new Date().getTime()).totalHours > 1) {
-                    console.log(`[API/Instance.ts] Deleting unused session ${session.session_session_id} created at ${session.session_created_at}`);
-                    await Session.delete({ session_id: session.session_session_id });
-                }
-            }
-        },
-        1000 * 60 * 5,
-    );
+    setInterval(() => void expireUnusedLegacySessions(), UNUSED_LEGACY_SESSION_CLEANUP_INTERVAL_MS);
 }
