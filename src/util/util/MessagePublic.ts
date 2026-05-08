@@ -69,12 +69,17 @@ interface PublicMessageSource {
     webhook_id?: string | null;
 }
 
+function requireChannelMentionField(value: string | null | undefined, field: "guild_id" | "name", channelId: string): string {
+    if (!value) throw new Error(`Cannot serialize message channel mention ${channelId} without ${field}`);
+    return value;
+}
+
 function toPartialPublicChannel(channel: PublicMentionChannelSource): PartialPublicChannel {
     return {
         id: channel.id,
-        guild_id: channel.guild_id ?? undefined,
+        guild_id: requireChannelMentionField(channel.guild_id, "guild_id", channel.id),
         type: channel.type,
-        name: channel.name ?? undefined,
+        name: requireChannelMentionField(channel.name, "name", channel.id),
     };
 }
 

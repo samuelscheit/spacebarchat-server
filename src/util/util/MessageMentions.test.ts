@@ -32,6 +32,26 @@ const serializedMention = {
     public_flags: 64,
 };
 
+const rawChannelMention = {
+    id: "channel_id",
+    guild_id: "guild_id",
+    type: 0,
+    name: "general",
+    topic: "must not leak into message channel mentions",
+    permission_overwrites: [{ id: "role_id", type: 0, allow: "0", deny: "0" }],
+    last_message_id: "message_id",
+    toJSON() {
+        throw new Error("message channel mention serialization must not use full Channel.toJSON");
+    },
+};
+
+const serializedChannelMention = {
+    id: "channel_id",
+    guild_id: "guild_id",
+    type: 0,
+    name: "general",
+};
+
 function makeMessage(mentions: object[] = [rawMention]): MessageEntity {
     return Object.assign(Object.create(Message.prototype), {
         id: "message_id",
@@ -108,42 +128,34 @@ describe("Message mention serialization", () => {
 
     test("Message.toJSON exposes channel mentions as partial channels", () => {
         const message = makeMessage();
-        message.mention_channels = [
-            {
-                id: "channel_id",
-                guild_id: "guild_id",
-                type: 0,
-                name: "general",
-                topic: "must not leak into message channel mentions",
-                permission_overwrites: [{ id: "role_id", type: 0, allow: "0", deny: "0" }],
-                last_message_id: "message_id",
-                toJSON() {
-                    throw new Error("message channel mention serialization must not use full Channel.toJSON");
-                },
-            },
-        ] as never;
+        message.mention_channels = [rawChannelMention] as never;
 
         const json = message.toJSON();
 
-        assert.deepEqual(json.mention_channels, [
-            {
-                id: "channel_id",
-                guild_id: "guild_id",
-                type: 0,
-                name: "general",
-            },
-        ]);
+        assert.deepEqual(json.mention_channels, [serializedChannelMention]);
         assert.equal((json.mention_channels?.[0] as Record<string, unknown>).topic, undefined);
         assert.equal((json.mention_channels?.[0] as Record<string, unknown>).permission_overwrites, undefined);
         assert.equal((json.mention_channels?.[0] as Record<string, unknown>).last_message_id, undefined);
     });
 
+    test("Message.toJSON rejects channel mentions that cannot satisfy the public contract", () => {
+        const message = makeMessage();
+        message.mention_channels = [{ id: "channel_id", type: 0, name: "general" }] as never;
+
+        assert.throws(() => message.toJSON(), /Cannot serialize message channel mention channel_id without guild_id/);
+    });
+
     test("search hits reuse public message mention serialization", () => {
-        const hit = makeMessage().toSearchResult();
+        const message = makeMessage();
+        message.mention_channels = [rawChannelMention] as never;
+
+        const hit = message.toSearchResult();
 
         assert.equal(hit.hit, true);
         assert.deepEqual(hit.mentions, [serializedMention]);
+        assert.deepEqual(hit.mention_channels, [serializedChannelMention]);
         assert.equal((hit.mentions[0] as Record<string, unknown>).bio, undefined);
+        assert.equal((hit.mention_channels?.[0] as Record<string, unknown>).topic, undefined);
     });
 
     test("signed public message responses preserve serialized mentions", () => {
@@ -201,15 +213,19 @@ describe("Message mention serialization", () => {
         assert.doesNotMatch(signedMediaUrl, /undefined/);
     });
 
-    test("generated schemas document message mentions as partial users", () => {
+    test("generated schemas document message mention projections", () => {
         const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8"));
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8"));
 
         assert.equal(schemas.Message.properties.mentions.items.$ref, "#/definitions/PartialUser");
         assert.equal(schemas.GuildMessagesSearchMessage.properties.mentions.items.$ref, "#/definitions/PartialUser");
         assert.equal(schemas.Message.properties.mention_channels.items.$ref, "#/definitions/PartialPublicChannel");
+        assert.deepEqual([...schemas.PartialPublicChannel.required].sort(), ["guild_id", "id", "name", "type"]);
+        assert.equal(schemas.PartialPublicChannel.properties.name.type, "string");
         assert.equal(openapi.components.schemas.Message.properties.mentions.items.$ref, "#/components/schemas/PartialUser");
         assert.equal(openapi.components.schemas.GuildMessagesSearchMessage.properties.mentions.items.$ref, "#/components/schemas/PartialUser");
         assert.equal(openapi.components.schemas.Message.properties.mention_channels.items.$ref, "#/components/schemas/PartialPublicChannel");
+        assert.deepEqual([...openapi.components.schemas.PartialPublicChannel.required].sort(), ["guild_id", "id", "name", "type"]);
+        assert.equal(openapi.components.schemas.PartialPublicChannel.properties.name.type, "string");
     });
 });

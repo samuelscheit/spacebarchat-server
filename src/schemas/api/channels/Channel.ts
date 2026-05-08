@@ -102,9 +102,9 @@ export function isTextChannel(type: ChannelType): boolean {
  */
 export interface PartialPublicChannel {
     id: Snowflake;
-    guild_id?: Snowflake;
+    guild_id: Snowflake;
     type: ChannelType;
-    name?: string | null;
+    name: string;
 }
 
 // TODO: split up by channel type?
