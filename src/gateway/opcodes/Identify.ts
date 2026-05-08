@@ -39,7 +39,7 @@ import {
     PresenceUpdateEvent,
     ReadState,
     applyReadyChannelOrdering,
-    ChannelFlags,
+    hasChannelSpamFlag,
     ReadyEventData,
     ReadyGuildDTO,
     ReadyUserGuildSettingsEntries,
@@ -74,12 +74,6 @@ import { randomString } from "@spacebar/api";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
-
-const READY_PRIVATE_CHANNEL_SPAM_FLAG = Number(ChannelFlags.FLAGS.IS_SPAM);
-
-export function isReadyPrivateChannelSpam(flags: number | null | undefined): boolean {
-    return ((flags ?? 0) & READY_PRIVATE_CHANNEL_SPAM_FLAG) !== 0;
-}
 
 export async function onIdentify(this: WebSocket, data: Payload) {
     const totalSw = Stopwatch.startNew();
@@ -316,7 +310,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                     channel: {
                         id: true,
                         flags: true,
-                        // is_spam: true,	// TODO
                         last_message_id: true,
                         last_pin_timestamp: true,
                         type: true,
@@ -600,7 +593,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
                 recipients: channelUsers || [],
                 icon: channel.icon,
                 name: channel.name,
-                is_spam: isReadyPrivateChannelSpam(channel.flags),
+                is_spam: hasChannelSpamFlag(channel.flags),
                 owner_id: channel.owner_id || undefined,
             };
         });

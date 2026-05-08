@@ -2,7 +2,7 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah, 2022 Erkin Alp Güney
 // @fc-license-skip
 
-import { BitField } from "./BitField";
+import { BitField, type BitFieldResolvable } from "./BitField";
 
 export class ChannelFlags extends BitField {
     static FLAGS = {
@@ -26,4 +26,8 @@ export class ChannelFlags extends BitField {
         //Missing 18
         IS_MODERATOR_REPORT_CHANNEL: BigInt(1) << BigInt(19),
     };
+}
+
+export function hasChannelSpamFlag(flags: BitFieldResolvable | null | undefined): boolean {
+    return new ChannelFlags(flags ?? 0).has(ChannelFlags.FLAGS.IS_SPAM);
 }
