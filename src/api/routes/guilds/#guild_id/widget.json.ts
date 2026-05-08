@@ -20,8 +20,11 @@ import { randomString, route } from "@spacebar/api";
 import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions, normalizeInviteCreateOptions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, GuildWidgetJsonResponse } from "@spacebar/schemas";
+import { In } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
+const widgetMemberSampleLimit = 100;
+const onlineSessionWindowMs = 1000 * 60 * 5;
 
 // Undocumented API notes:
 // An invite is created for the widget_channel_id on request (only if an existing one created by the widget doesn't already exist)
@@ -111,25 +114,8 @@ async function getWidgetJsonData(guild_id: string) {
         }
     });
 
-    // Fetch members
-    // TODO: Understand how Discord's max 100 random member sample works, and apply to here (see top of this file)
-    const members = await Member.find({ where: { guild_id: guild_id }, relations: { user: { sessions: true } } });
-    const minLastSeen = Date.now() - 1000 * 60 * 5;
-    const onlineMembers = members.filter((m) => m.user.sessions.filter((s) => (s.last_seen?.getTime() ?? 0) > minLastSeen).length > 0);
-    const memberData: GuildWidgetJsonResponse["members"] = onlineMembers
-        .map((x) => ({
-            id: x.id,
-            username: x.user.username,
-            discriminator: x.user.discriminator,
-            avatar: null,
-            status: "online" as const, // TODO
-            avatar_url: x.avatar
-                ? `${Config.get().cdn.endpointPublic}/guilds/${guild_id}/users/${x.id}/avatars/${x.avatar}.png`
-                : x.user.avatar
-                  ? `${Config.get().cdn.endpointPublic}/avatars/${x.id}/${x.user.avatar}.png`
-                  : `${Config.get().cdn.endpointPublic}/embed/avatars/${BigInt(x.id) % 6n}.png`,
-        }))
-        .sort((a, b) => Number(BigInt(a.id) - BigInt(b.id)));
+    const onlineMembers = await getWidgetMemberSample(guild_id);
+    const memberData: GuildWidgetJsonResponse["members"] = onlineMembers.map((x) => toWidgetMember(guild_id, x)).sort((a, b) => Number(BigInt(a.id) - BigInt(b.id)));
 
     // Construct object to respond with
     return {
@@ -140,6 +126,49 @@ async function getWidgetJsonData(guild_id: string) {
         members: memberData,
         presence_count: guild.presence_count || onlineMembers.length,
     } satisfies GuildWidgetJsonResponse;
+}
+
+export async function getWidgetMemberSample(guild_id: string, now = Date.now()) {
+    const minLastSeen = new Date(now - onlineSessionWindowMs);
+    const sampledMemberIds = await Member.createQueryBuilder("member")
+        .select("member.id", "id")
+        .innerJoin("member.user", "user")
+        .innerJoin("user.sessions", "session", "session.last_seen > :minLastSeen", { minLastSeen })
+        .where({ guild_id })
+        .andWhere("session.status NOT IN (:...hiddenStatuses)", { hiddenStatuses: ["invisible", "offline"] })
+        .groupBy("member.id")
+        .orderBy("RANDOM()")
+        .take(widgetMemberSampleLimit)
+        .getRawMany<{ id: string }>();
+
+    const memberIds = sampledMemberIds.map((member) => member.id);
+    if (memberIds.length === 0) return [];
+
+    const sampledMembers = await Member.find({
+        where: { guild_id, id: In(memberIds) },
+        relations: { user: { sessions: true } },
+    });
+    const membersById = new Map(sampledMembers.map((member) => [member.id, member]));
+
+    return memberIds
+        .map((id) => membersById.get(id))
+        .filter((member): member is Member => member !== undefined)
+        .slice(0, widgetMemberSampleLimit);
+}
+
+export function toWidgetMember(guild_id: string, member: Member): GuildWidgetJsonResponse["members"][number] {
+    return {
+        id: member.id,
+        username: member.user.username,
+        discriminator: member.user.discriminator,
+        avatar: null,
+        status: "online" as const, // TODO
+        avatar_url: member.avatar
+            ? `${Config.get().cdn.endpointPublic}/guilds/${guild_id}/users/${member.id}/avatars/${member.avatar}.png`
+            : member.user.avatar
+              ? `${Config.get().cdn.endpointPublic}/avatars/${member.id}/${member.user.avatar}.png`
+              : `${Config.get().cdn.endpointPublic}/embed/avatars/${BigInt(member.id) % 6n}.png`,
+    };
 }
 
 export default router;
