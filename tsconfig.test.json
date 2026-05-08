@@ -5,6 +5,7 @@
         "src/api/ServerConfigure.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
+        "src/schemas/responses/UserProfileResponse.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/util/TraverseDirectory.test.ts"
     ],

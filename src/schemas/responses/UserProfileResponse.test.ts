@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { ajv } from "../Validator";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 const assetsPath = path.join(process.cwd(), "assets");
 
@@ -17,6 +18,18 @@ interface JsonShape {
 function readAssetJson<T>(name: string): T {
     return JSON.parse(fs.readFileSync(path.join(assetsPath, name), "utf8")) as T;
 }
+
+const validationSchemas = JSON.parse(fs.readFileSync(path.join(assetsPath, "schemas.json"), "utf8").replaceAll("#/definitions/", "")) as Record<string, JsonShape>;
+const ajv = new Ajv({
+    allErrors: true,
+    schemas: validationSchemas,
+    coerceTypes: true,
+    messages: true,
+    strict: true,
+    strictRequired: true,
+    allowUnionTypes: true,
+});
+addFormats(ajv);
 
 test("UserProfileResponse schema matches route-owned profile fields", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
