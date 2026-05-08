@@ -20,8 +20,24 @@ import { route } from "@spacebar/api";
 import { Channel, Member, OrmUtils } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { UserGuildSettingsSchema } from "@spacebar/schemas";
+import { EntityNotFoundError, In } from "typeorm";
 
 const router = Router({ mergeParams: true });
+
+export async function assertChannelOverridesExist(channel_overrides: NonNullable<UserGuildSettingsSchema["channel_overrides"]>) {
+    const channelIds = Object.keys(channel_overrides);
+    if (!channelIds.length) return;
+
+    const channels = await Channel.find({
+        where: { id: In(channelIds) },
+        select: { id: true },
+    });
+    if (channels.length === channelIds.length) return;
+
+    const foundChannelIds = new Set(channels.map((channel) => channel.id));
+    const missingChannelId = channelIds.find((channelId) => !foundChannelIds.has(channelId));
+    throw new EntityNotFoundError(Channel, { id: missingChannelId });
+}
 
 // GET doesn't exist on discord.com
 router.get(
@@ -59,10 +75,7 @@ router.patch(
         const body = req.body as UserGuildSettingsSchema;
 
         if (body.channel_overrides) {
-            // TODO: rewrite to a single query?
-            for (const channel in body.channel_overrides) {
-                await Channel.findOneOrFail({ where: { id: channel } });
-            }
+            await assertChannelOverridesExist(body.channel_overrides);
         }
 
         const user = await Member.findOneOrFail({
