@@ -23,6 +23,9 @@ export class DiscoveryCategoryIntegerIds1778245000000 implements MigrationInterf
 
         await queryRunner.query(`ALTER TABLE categories ALTER COLUMN id TYPE ${to} USING id::${to};`);
         await queryRunner.query(`ALTER TABLE guilds ALTER COLUMN primary_category_id TYPE ${to} USING primary_category_id::${to};`);
+        await queryRunner.query(
+            `UPDATE guilds SET primary_category_id = NULL WHERE primary_category_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM categories WHERE categories.id = guilds.primary_category_id);`,
+        );
         await queryRunner.query(`ALTER TABLE guilds ADD CONSTRAINT guilds_categories_fk FOREIGN KEY (primary_category_id) REFERENCES categories(id) ON DELETE SET NULL;`);
     }
 }
