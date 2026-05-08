@@ -31,3 +31,4 @@ export * from "./ChannelInfo";
 export * from "./Reconnect";
 export * from "./ReconnectPayload";
 export * from "./Authorization";
+export * from "./RequestGuildMembers";
