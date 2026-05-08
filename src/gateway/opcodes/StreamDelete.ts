@@ -1,5 +1,5 @@
 import { parseStreamKey, Payload, WebSocket } from "@spacebar/gateway";
-import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { emitEvent, Member, memberToVoiceStateMember, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamDeleteSchema } from "@spacebar/schemas";
 
@@ -64,7 +64,7 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
             event: "VOICE_STATE_UPDATE",
             data: {
                 ...voiceState.toPublicVoiceState(),
-                member: voiceState.member.toPublicMember(),
+                member: memberToVoiceStateMember(voiceState.member),
             },
             guild_id: guildId,
             channel_id: channelId,

@@ -17,7 +17,7 @@
 */
 
 import { Payload, WebSocket, genVoiceToken } from "@spacebar/gateway";
-import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, memberToVoiceStateMember, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { Region, VoiceStateUpdateSchema } from "@spacebar/schemas";
 import { assertGatewayChannelAccess, assertGatewayVoiceChannel } from "../util/Authorization";
@@ -106,9 +106,6 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
         });
     }
 
-    //TODO the member should only have these properties: hoisted_role, deaf, joined_at, mute, roles, user
-    //TODO the member.user should only have these properties: avatar, discriminator, id, username
-    //TODO this may fail
     if (body.guild_id) {
         const member = await Member.findOne({
             where: { id: voiceState.user_id, guild_id: voiceState.guild_id },
@@ -132,7 +129,7 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
             event: "VOICE_STATE_UPDATE",
             data: {
                 ...voiceState.toPublicVoiceState(),
-                member: member?.toPublicMember(),
+                member: member ? memberToVoiceStateMember(member) : undefined,
             },
             guild_id: voiceState.guild_id,
             channel_id: voiceState.channel_id,

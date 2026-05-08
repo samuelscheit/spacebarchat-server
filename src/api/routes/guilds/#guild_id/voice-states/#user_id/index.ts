@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { Channel, DiscordApiErrors, emitEvent, getPermission, Member, VoiceState, memberToVoiceStateMember, VoiceStateUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, VoiceStateUpdateSchema } from "@spacebar/schemas";
 
@@ -89,7 +89,7 @@ router.patch(
                 event: "VOICE_STATE_UPDATE",
                 data: {
                     ...voiceState.toPublicVoiceState(),
-                    member: voiceState.member.toPublicMember(),
+                    member: memberToVoiceStateMember(voiceState.member),
                 },
                 guild_id,
             } satisfies VoiceStateUpdateEvent),

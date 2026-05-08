@@ -1,5 +1,17 @@
 import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "@spacebar/gateway";
-import { Config, emitEvent, Member, Snowflake, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import {
+    Config,
+    emitEvent,
+    Member,
+    Snowflake,
+    Stream,
+    memberToVoiceStateMember,
+    StreamCreateEvent,
+    StreamServerUpdateEvent,
+    StreamSession,
+    VoiceState,
+    VoiceStateUpdateEvent,
+} from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamCreateSchema } from "@spacebar/schemas";
 import { selectStreamRegion } from "../util/StreamRegion";
@@ -106,7 +118,7 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
         event: "VOICE_STATE_UPDATE",
         data: {
             ...voiceState.toPublicVoiceState(),
-            member: voiceState.member.toPublicMember(),
+            member: memberToVoiceStateMember(voiceState.member),
         },
         guild_id: voiceState.guild_id,
         channel_id: voiceState.channel_id,

@@ -87,6 +87,30 @@ describe("message member serialization", () => {
         assert.deepEqual(member.toPublicMember().roles, ["role-a", "role-b"]);
     });
 
+    test("memberToVoiceStateMember narrows nested users to the voice state user projection", async () => {
+        const { memberToVoiceStateMember } = await import("./MemberPublic.js");
+        const member = createMemberWithRoles([{ id: "role-a" }]);
+        member.user = {
+            ...createAuthor(),
+            public_flags: 64,
+            bot: true,
+            banner: "banner-hash",
+            accent_color: 123,
+            bio: "extra profile field",
+        } as unknown as User;
+
+        const voiceStateMember = memberToVoiceStateMember(member);
+
+        assert.deepEqual(Object.keys(voiceStateMember.user ?? {}).sort(), ["avatar", "discriminator", "id", "username"]);
+        assert.deepEqual(voiceStateMember.user, {
+            avatar: null,
+            discriminator: "0001",
+            id: "user-a",
+            username: "alice",
+        });
+        assert.deepEqual(voiceStateMember.roles, ["role-a"]);
+    });
+
     test("Message.toJSON returns a public member instead of the raw member entity", () => {
         const member = createMemberWithRoles([{ id: "role-a" }, { id: "role-b" }]);
         const message = createMessageWithMember(member);

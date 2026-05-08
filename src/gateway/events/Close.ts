@@ -21,6 +21,7 @@ import {
     emitEvent,
     getMostRelevantSession,
     Member,
+    memberToVoiceStateMember,
     PresenceUpdateEvent,
     Session,
     SessionsReplace,
@@ -174,7 +175,7 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                     data: {
                         ...voiceState.toPublicVoiceState(),
                         guild_id: prevGuildId, // have to send the previous guild_id because that's what client expects for disconnect messages
-                        member: voiceState.member.toPublicMember(),
+                        member: memberToVoiceStateMember(voiceState.member),
                     },
                     guild_id: prevGuildId,
                     channel_id: prevChannelId,

@@ -491,7 +491,7 @@ export interface UserConnectionsUpdateEvent extends Event {
 export interface VoiceStateUpdateEvent extends Event {
     event: "VOICE_STATE_UPDATE";
     data: PublicVoiceState & {
-        member: PublicMember;
+        member?: Omit<PublicMember, "user"> & { user?: Pick<PublicUser, "avatar" | "discriminator" | "id" | "username"> };
     };
 }
 
