@@ -622,7 +622,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const appendRelationshipsTime = taskSw.getElapsedAndReset();
 
     // Send SESSIONS_REPLACE and PRESENCE_UPDATE
-    const allSessions = serializePrivateGatewaySessions(sessions.concat(this.session!));
+    const allSessions = serializePrivateGatewaySessions(sessions.concat(this.session!), settings.show_current_game);
     const findAndGenerateSessionReplaceTime = taskSw.getElapsedAndReset();
 
     const [{ elapsed: emitSessionsReplaceTime }, { elapsed: emitPresenceUpdateTime }] = await Promise.all([

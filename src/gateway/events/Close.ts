@@ -27,6 +27,7 @@ import {
     Session,
     SessionsReplace,
     User,
+    UserSettings,
     VoiceState,
     VoiceStateUpdateEvent,
     Config,
@@ -43,7 +44,7 @@ export interface CloseSessionRecord {
     client_status: PresenceUpdateEvent["data"]["client_status"];
     status: PresenceUpdateEvent["data"]["status"];
     getPublicStatus(): PresenceUpdateEvent["data"]["status"];
-    toPrivateGatewayDeviceInfo(): SessionsReplace["data"][number];
+    toPrivateGatewayDeviceInfo(showCurrentGame?: boolean | null): SessionsReplace["data"][number];
 }
 
 export interface CloseSessionCleanupDependencies {
@@ -74,10 +75,11 @@ const closeSessionCleanupDependencies: CloseSessionCleanupDependencies = {
     },
     findPublicUser: async (userId) => User.getPublicUser(userId).catch(() => undefined),
     emitSessionsReplace: async (userId, sessions) => {
+        const settings = await UserSettings.getOrDefault(userId);
         await emitEvent({
             event: "SESSIONS_REPLACE",
             user_id: userId,
-            data: serializePrivateGatewaySessions(sessions),
+            data: serializePrivateGatewaySessions(sessions, settings.show_current_game),
         } as SessionsReplace);
     },
     distributePresenceUpdate,

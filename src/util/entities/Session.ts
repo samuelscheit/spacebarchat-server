@@ -21,7 +21,7 @@ import { User } from "./User";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn, RelationId } from "typeorm";
 import { Activity, ClientStatus, GatewaySession, GatewaySessionClientInfo, Status } from "../interfaces";
-import { DateBuilder, IpDataClient, TimeSpan } from "../util";
+import { DateBuilder, getPrivateGatewayActivities, IpDataClient, TimeSpan } from "../util";
 import { randomUpperString } from "../util/Random";
 
 @Entity({
@@ -119,9 +119,8 @@ export class Session extends BaseClassWithoutId {
         };
     }
 
-    toPrivateGatewayDeviceInfo(): GatewaySession {
-        // TODO: ... or has `show_current_game` privacy setting enabled - except spotify (always visible)
-        const hasPrivateActivities = this.status == "offline" || this.status == "invisible";
+    toPrivateGatewayDeviceInfo(showCurrentGame?: boolean | null): GatewaySession {
+        const { activities, hidden_activities } = getPrivateGatewayActivities(this.status, this.activities, showCurrentGame);
         const inactiveTreshold = new DateBuilder(new Date(0)).addMinutes(5).buildTimestamp();
 
         return {
@@ -132,8 +131,8 @@ export class Session extends BaseClassWithoutId {
                 version: this.client_info?.version ?? 0,
             } as GatewaySessionClientInfo,
             status: this.status,
-            activities: hasPrivateActivities ? [] : this.activities,
-            hidden_activities: hasPrivateActivities ? this.activities : [],
+            activities,
+            hidden_activities,
             active: TimeSpan.fromDates(this.last_seen?.getTime() ?? 0, new Date().getTime()).totalMillis < inactiveTreshold,
         };
     }

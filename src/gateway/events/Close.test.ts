@@ -22,13 +22,14 @@ function createSession(lastSeen: Date, overrides: Partial<CloseSessionRecord> = 
         getPublicStatus() {
             return this.status;
         },
-        toPrivateGatewayDeviceInfo() {
+        toPrivateGatewayDeviceInfo(showCurrentGame?: boolean | null) {
+            const shouldShowCurrentGame = showCurrentGame ?? true;
             return {
                 session_id: "session",
                 client_info: { client: "web", os: "browser", version: 1 },
                 status: this.status,
-                activities: this.activities,
-                hidden_activities: [],
+                activities: shouldShowCurrentGame ? this.activities : [],
+                hidden_activities: shouldShowCurrentGame ? [] : this.activities,
                 active: this.status !== "offline",
             };
         },
