@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertCanApplyGuildDiscoveryFeatures, route } from "@spacebar/api";
 import {
     Channel,
     DiscordApiErrors,
@@ -131,6 +131,8 @@ router.patch(
 
                 throw SpacebarApiErrors.FEATURE_IS_IMMUTABLE.withParams(feature);
             }
+
+            assertCanApplyGuildDiscoveryFeatures(guild, body.features, rights);
 
             // for some reason, they don't update in the assign.
             guild.features = body.features;
