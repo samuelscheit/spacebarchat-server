@@ -17,8 +17,30 @@
 */
 
 import type { PartialConnectedAccountResponse, UserProfileResponse } from "@spacebar/schemas";
+import { profilePronouns } from "@spacebar/util";
 
 type ProfileBadgeResponse = UserProfileResponse["badges"][number];
+
+type UserProfileResponseProfile = UserProfileResponse["user_profile"];
+type GuildMemberProfileResponse = NonNullable<UserProfileResponse["guild_member_profile"]>;
+
+export interface UserProfileSource {
+    bio: string | null;
+    accent_color?: number | null;
+    banner?: string | null;
+    pronouns?: string | null;
+    theme_colors?: (number | string)[] | null;
+}
+
+export interface UserProfileResponseOptions {
+    hideBio?: boolean;
+}
+
+export interface GuildMemberProfileSource {
+    banner?: string | null;
+    bio?: string | null;
+    guild_id: string;
+}
 
 export interface VisibleConnectedAccountSource {
     id: string;
@@ -34,6 +56,27 @@ export interface ProfileBadgeSource {
     description: string;
     icon: string;
     link?: string | null;
+}
+
+export function toUserProfileResponse(source: UserProfileSource, options: UserProfileResponseOptions = {}): UserProfileResponseProfile {
+    const response: UserProfileResponseProfile = {
+        bio: options.hideBio ? null : source.bio,
+        accent_color: source.accent_color,
+        banner: source.banner,
+        pronouns: profilePronouns(source.pronouns),
+        theme_colors: source.theme_colors?.map((themeColor) => Number(themeColor)),
+    };
+
+    return response;
+}
+
+export function toGuildMemberProfileResponse(source: GuildMemberProfileSource): GuildMemberProfileResponse {
+    return {
+        accent_color: null,
+        banner: source.banner || null,
+        bio: source.bio || "",
+        guild_id: source.guild_id,
+    };
 }
 
 export function toPartialConnectedAccountResponse(source: VisibleConnectedAccountSource): PartialConnectedAccountResponse {

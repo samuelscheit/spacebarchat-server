@@ -30,7 +30,7 @@ import {
     UserProfileModifySchema,
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
-import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
+import { toGuildMemberProfileResponse, toPartialConnectedAccountResponse, toProfileBadgeResponse, toUserProfileResponse } from "../../../util/userProfileResponse";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -103,24 +103,9 @@ router.get(
 
         const guild_member = await getProfileGuildMember(req.user_id, user_id, guildId);
 
-        // TODO: make proper DTO's in util?
+        const userProfile = toUserProfileResponse(user, { hideBio: req.user_bot });
 
-        const userProfile = {
-            bio: req.user_bot ? null : user.bio,
-            accent_color: user.accent_color,
-            banner: user.banner,
-            pronouns: profilePronouns(user.pronouns),
-            theme_colors: user.theme_colors?.map((t) => Number(t)), // these are strings for some reason, they should be numbers
-        };
-
-        const guildMemberProfile: UserProfileResponse["guild_member_profile"] | undefined = guild_member
-            ? {
-                  accent_color: null,
-                  banner: guild_member.banner || null,
-                  bio: guild_member.bio || "",
-                  guild_id: guild_member.guild_id,
-              }
-            : undefined;
+        const guildMemberProfile: UserProfileResponse["guild_member_profile"] | undefined = guild_member ? toGuildMemberProfileResponse(guild_member) : undefined;
 
         const badges = user.badge_ids?.length ? await Badge.find({ where: { id: In(user.badge_ids) } }) : [];
 
