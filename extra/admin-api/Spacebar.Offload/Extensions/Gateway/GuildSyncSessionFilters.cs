@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Spacebar.Models.Db.Models;
 
@@ -12,18 +13,25 @@ public static class GuildSyncSessionFilters
     public static bool IsOnline(Session session) => IsOnlineStatus(session.Status);
 
     public static bool IsGuildSyncVisible(Session session, bool isLargeGuild, DateTime offlineThreshold) =>
-        !session.IsAdminSession && IsOnline(session) && (!isLargeGuild || session.LastSeen >= offlineThreshold);
+        IsGuildSyncVisibleExpression(isLargeGuild, offlineThreshold).Compile()(session);
+
+    public static Expression<Func<Session, bool>> IsGuildSyncVisibleExpression(bool isLargeGuild, DateTime offlineThreshold) =>
+        session =>
+            !session.IsAdminSession
+            && !OfflineStatuses.Contains(session.Status)
+            && (!isLargeGuild || session.LastSeen >= offlineThreshold);
 
     public static IQueryable<Member> ForGuildSync(
         this IQueryable<Member> members,
         long guildId,
         bool isLargeGuild,
-        DateTime offlineThreshold) =>
-        members.Where(x => x.GuildId == guildId)
+        DateTime offlineThreshold)
+    {
+        var isGuildSyncVisible = IsGuildSyncVisibleExpression(isLargeGuild, offlineThreshold);
+
+        return members.Where(x => x.GuildId == guildId)
             .Include(x => x.IdNavigation)
-            .ThenInclude(x => x.Sessions.Where(s =>
-                !s.IsAdminSession
-                && !OfflineStatuses.Contains(s.Status)
-                && (!isLargeGuild || s.LastSeen >= offlineThreshold)))
-            .Where(x => x.IdNavigation.Sessions.Count > 0);
+            .ThenInclude(x => x.Sessions.AsQueryable().Where(isGuildSyncVisible))
+            .Where(x => x.IdNavigation.Sessions.AsQueryable().Any(isGuildSyncVisible));
+    }
 }
