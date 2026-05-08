@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
+import { Config, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
 import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
@@ -24,33 +24,27 @@ import { LazyRequestSchema } from "@spacebar/schemas";
 import { assertGatewayChannelAccess } from "../util/Authorization";
 import { unsubscribeGuildMemberEventIds } from "../listener/subscriptions";
 
-// TODO: rewrite typeorm
-
 const OFFLINE_LAZY_MEMBER_LIST_STATUSES = ["offline", "invisible"] as const;
-const ONLINE_LAZY_MEMBER_LIST_FILTER = "session.status IS NOT NULL AND session.status NOT IN (:...offlineStatuses)";
+
+function hasOnlineLazyMemberSession(member: Member) {
+    return Boolean(member.user?.sessions?.some((session) => session.status != null && !(OFFLINE_LAZY_MEMBER_LIST_STATUSES as readonly string[]).includes(session.status)));
+}
 
 async function getMembers(guild_id: string) {
     let members: Member[] = [];
     try {
         const includeOffline = Config.get().gateway.lazyMemberListIncludeOffline !== false;
-        const query = getDatabase()
-            ?.getRepository(Member)
-            .createQueryBuilder("member")
-            .where("member.guild_id = :guild_id", { guild_id })
-            .leftJoinAndSelect("member.roles", "role")
-            .leftJoinAndSelect("member.user", "user")
-            .leftJoinAndSelect("user.sessions", "session")
-            .addSelect("user.settings")
-            .addSelect("CASE WHEN session.status IS NULL OR session.status = 'offline' OR session.status = 'invisible' THEN 0 ELSE 1 END", "_status")
-            .orderBy("_status", "DESC")
-            .addOrderBy("role.position", "DESC")
-            .addOrderBy("user.username", "ASC");
-
-        if (!includeOffline) {
-            query?.andWhere(ONLINE_LAZY_MEMBER_LIST_FILTER, { offlineStatuses: [...OFFLINE_LAZY_MEMBER_LIST_STATUSES] });
-        }
-
-        members = (await query?.getMany()) ?? [];
+        members = await Member.find({
+            where: { guild_id },
+            relations: {
+                roles: true,
+                user: {
+                    sessions: true,
+                    settings: true,
+                },
+            },
+        });
+        if (!includeOffline) members = members.filter(hasOnlineLazyMemberSession);
     } catch (e) {
         console.error(`LazyRequest`, e);
     }

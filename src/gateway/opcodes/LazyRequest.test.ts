@@ -54,10 +54,9 @@ const originalLoad = moduleLoader._load;
 const state: {
     buildCalls: { guildId: string; members: unknown[]; ranges: Range[] }[];
     channelOverwrites: { allow: string; deny: string; id: string }[] | undefined;
-    getManyCalls: number;
+    findCalls: unknown[];
     guildOwnerLookups: number;
     includeOfflineLazyMembers: boolean | undefined;
-    queryAndWhereCalls: { condition: string; params: unknown }[];
     guildMembers: unknown[];
     memberCount: number;
     memberListResult: MockMemberListResult;
@@ -70,10 +69,9 @@ const state: {
 } = {
     buildCalls: [],
     channelOverwrites: undefined,
-    getManyCalls: 0,
+    findCalls: [],
     guildOwnerLookups: 0,
     includeOfflineLazyMembers: true,
-    queryAndWhereCalls: [],
     guildMembers: [],
     memberCount: 0,
     memberListResult: { groups: [], online_count: 0, ops: [] },
@@ -83,38 +81,6 @@ const state: {
     sentPayloads: [],
     subscriptions: [],
     unsubscriptions: [],
-};
-
-const queryBuilder = {
-    andWhere(condition: string, params: unknown) {
-        state.queryAndWhereCalls.push({ condition, params });
-        return queryBuilder;
-    },
-    addOrderBy() {
-        return queryBuilder;
-    },
-    addSelect() {
-        return queryBuilder;
-    },
-    async getMany() {
-        state.getManyCalls++;
-        if (state.queryAndWhereCalls.some(({ condition }) => condition === "session.status IS NOT NULL AND session.status NOT IN (:...offlineStatuses)")) {
-            return state.guildMembers.filter((member) =>
-                ((member as { user?: { sessions?: MockSession[] } }).user?.sessions ?? []).some((session) => !["offline", "invisible"].includes(session.status)),
-            );
-        }
-
-        return state.guildMembers;
-    },
-    leftJoinAndSelect() {
-        return queryBuilder;
-    },
-    orderBy() {
-        return queryBuilder;
-    },
-    where() {
-        return queryBuilder;
-    },
 };
 
 const mockUtil = {
@@ -137,6 +103,10 @@ const mockUtil = {
     Member: {
         async count() {
             return state.memberCount;
+        },
+        async find(options: unknown) {
+            state.findCalls.push(options);
+            return state.guildMembers;
         },
         async findOne({ where }: { where: { guild_id: string; id: string } }) {
             return state.guildMembers.some((member) => (member as { id?: string }).id === where.id) ? { id: where.id } : null;
@@ -184,17 +154,6 @@ const mockUtil = {
         async getPublicUser(id: string) {
             return { id };
         },
-    },
-    getDatabase() {
-        return {
-            getRepository() {
-                return {
-                    createQueryBuilder() {
-                        return queryBuilder;
-                    },
-                };
-            },
-        };
     },
     getMostRelevantSession() {
         return undefined;
@@ -288,10 +247,9 @@ function viewableMember(id: string, roles = [memberRole("guild", mockUtil.Permis
 beforeEach(() => {
     state.buildCalls = [];
     state.channelOverwrites = undefined;
-    state.getManyCalls = 0;
+    state.findCalls = [];
     state.guildOwnerLookups = 0;
     state.includeOfflineLazyMembers = true;
-    state.queryAndWhereCalls = [];
     state.guildMembers = [viewableMember("online-user"), viewableMember("offline-user")];
     state.memberCount = 3;
     state.memberListResult = { groups: [], online_count: 0, ops: [] };
@@ -347,7 +305,18 @@ describe("lazy request member list loading", () => {
 
         await onLazyRequest.call(socket(), { d: { channels: { channel: ranges }, guild_id: "guild" } });
 
-        assert.equal(state.getManyCalls, 1);
+        assert.deepEqual(state.findCalls, [
+            {
+                where: { guild_id: "guild" },
+                relations: {
+                    roles: true,
+                    user: {
+                        sessions: true,
+                        settings: true,
+                    },
+                },
+            },
+        ]);
         assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: state.guildMembers, ranges }]);
         assert.deepEqual(state.permissionChecks, ["VIEW_CHANNEL"]);
 
@@ -364,34 +333,29 @@ describe("lazy request member list loading", () => {
         assert.equal(payload.d.member_count, 2);
         assert.deepEqual(payload.d.groups, [{ count: 1, id: "online" }]);
         assert.deepEqual(state.subscriptions, ["online-user"]);
-        assert.deepEqual(state.queryAndWhereCalls, []);
     });
 
-    test("adds an online-only member query filter when lazy member lists exclude offline members", async () => {
-        state.includeOfflineLazyMembers = false;
+    test("keeps the default lazy member load configured to include offline members", async () => {
+        state.guildMembers = [viewableMember("online-user", undefined, [session("online")]), viewableMember("offline-user", undefined, [session("offline")])];
 
         await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
 
-        assert.deepEqual(state.queryAndWhereCalls, [
-            {
-                condition: "session.status IS NOT NULL AND session.status NOT IN (:...offlineStatuses)",
-                params: { offlineStatuses: ["offline", "invisible"] },
-            },
-        ]);
-    });
-
-    test("keeps the default lazy member query configured to include offline members", async () => {
-        await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
-
-        assert.deepEqual(state.queryAndWhereCalls, []);
+        assert.deepEqual(
+            state.buildCalls[0].members.map((member) => (member as { id: string }).id),
+            ["online-user", "offline-user"],
+        );
     });
 
     test("keeps backward-compatible include-offline behavior when older configs omit the lazy member flag", async () => {
         state.includeOfflineLazyMembers = undefined;
+        state.guildMembers = [viewableMember("online-user", undefined, [session("online")]), viewableMember("offline-user", undefined, [session("offline")])];
 
         await onLazyRequest.call(socket(), { d: { channels: { channel: [[0, 0]] }, guild_id: "guild" } });
 
-        assert.deepEqual(state.queryAndWhereCalls, []);
+        assert.deepEqual(
+            state.buildCalls[0].members.map((member) => (member as { id: string }).id),
+            ["online-user", "offline-user"],
+        );
     });
 
     test("passes only members with non-offline sessions to the member list builder when offline lazy members are disabled", async () => {
@@ -426,7 +390,7 @@ describe("lazy request member list loading", () => {
 
         await onLazyRequest.call(socket(), { d: { channels: { channel: [] }, guild_id: "guild" } });
 
-        assert.equal(state.getManyCalls, 1);
+        assert.equal(state.findCalls.length, 1);
         assert.deepEqual(state.buildCalls, [{ guildId: "guild", members: state.guildMembers, ranges: [] }]);
 
         const payload = sentUpdate();
@@ -456,7 +420,7 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(state.permissionChecks, ["VIEW_CHANNEL"]);
         assert.deepEqual(state.subscriptions, []);
         assert.deepEqual(state.sentPayloads, []);
-        assert.equal(state.getManyCalls, 0);
+        assert.equal(state.findCalls.length, 0);
     });
 
     test("does not subscribe to requested presences for users outside the authorized guild", async () => {
@@ -582,6 +546,6 @@ describe("lazy request member list loading", () => {
         assert.deepEqual(state.permissionChecks, []);
         assert.deepEqual(state.subscriptions, []);
         assert.deepEqual(state.sentPayloads, []);
-        assert.equal(state.getManyCalls, 0);
+        assert.equal(state.findCalls.length, 0);
     });
 });
