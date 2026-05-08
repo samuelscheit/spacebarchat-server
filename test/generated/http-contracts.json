@@ -6350,7 +6350,7 @@
             "path": "/channels/:channel_id/threads/",
             "samplePath": "/channels/100000000000000002/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 67,
+            "line": 70,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6367,7 +6367,7 @@
                 "requestBody": "ThreadCreationSchema",
                 "responses": [],
                 "responseStatuses": [200, 403],
-                "permission": "CREATE_PUBLIC_THREADS",
+                "permission": "VIEW_CHANNEL",
                 "emittedEvents": ["MESSAGE_CREATE", "THREAD_CREATE"]
             },
             "cases": [
@@ -6395,7 +6395,7 @@
                 {
                     "id": "authorization-denied",
                     "checks": ["permission-denied", "error-shape"],
-                    "permission": "CREATE_PUBLIC_THREADS"
+                    "permission": "VIEW_CHANNEL"
                 },
                 {
                     "id": "event-emission",
@@ -6426,7 +6426,7 @@
             "path": "/channels/:channel_id/threads/active",
             "samplePath": "/channels/100000000000000002/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 238,
+            "line": 243,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6498,7 +6498,7 @@
             "path": "/channels/:channel_id/threads/archived/private",
             "samplePath": "/channels/100000000000000002/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 297,
+            "line": 302,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6642,7 +6642,7 @@
             "path": "/channels/:channel_id/threads/search",
             "samplePath": "/channels/100000000000000002/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 364,
+            "line": 369,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
