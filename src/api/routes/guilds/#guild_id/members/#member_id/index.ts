@@ -17,7 +17,8 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, Emoji, getPermission, getRights, Guild, GuildMemberUpdateEvent, handleFile, Member, Role, Sticker } from "@spacebar/util";
+import { joinGuildMember } from "../../../../../util/handlers/GuildMemberJoin";
+import { emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
 
@@ -159,6 +160,7 @@ router.put(
             200: {
                 body: "MemberJoinGuildResponse",
             },
+            204: {},
             403: {
                 body: "APIErrorResponse",
             },
@@ -168,44 +170,17 @@ router.put(
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: Lurker mode
-
-        const rights = await getRights(req.user_id);
-
-        const { guild_id } = req.params as { [key: string]: string };
-        let { member_id } = req.params as { [key: string]: string };
-        if (member_id === "@me") {
-            member_id = req.user_id;
-            rights.hasThrow("JOIN_GUILDS");
-            if (req.user_bot && !Config.get().user.botsCanUseInvites) throw DiscordApiErrors.BOT_PROHIBITED_ENDPOINT;
-        } else {
-            // TODO: check oauth2 scope
-
-            throw DiscordApiErrors.MISSING_REQUIRED_OAUTH2_SCOPE;
-        }
-
-        const guild = await Guild.findOneOrFail({
-            where: { id: guild_id },
+        const { guild_id, member_id } = req.params as { [key: string]: string };
+        const result = await joinGuildMember({
+            guild_id,
+            member_id,
+            user_id: req.user_id,
+            user_bot: req.user_bot,
+            query: req.query,
         });
 
-        if (!guild.features.includes("DISCOVERABLE")) {
-            throw DiscordApiErrors.UNKNOWN_GUILD;
-        }
-
-        const emoji = await Emoji.find({
-            where: { guild_id: guild_id },
-        });
-
-        const roles = await Role.find({
-            where: { guild_id: guild_id },
-        });
-
-        const stickers = await Sticker.find({
-            where: { guild_id: guild_id },
-        });
-
-        await Member.addToGuild(member_id, guild_id);
-        res.send({ ...guild, emojis: emoji, roles: roles, stickers: stickers });
+        if (result.status === 204) return res.sendStatus(204);
+        return res.status(result.status).send(result.data);
     },
 );
 
