@@ -6836,7 +6836,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/index.ts",
-            "line": 31,
+            "line": 30,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
