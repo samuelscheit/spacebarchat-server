@@ -100,21 +100,48 @@ describe("WebhookExecuteSchema", () => {
 
 describe("schema validator custom formats", () => {
     test("normalizes generated gateway bigint schemas for Ajv validation", () => {
-        const identify = validateSchema("IdentifySchema", {
-            token: "gateway-token",
-            properties: {},
-            intents: "513",
-            shard: ["0", "1"],
-        });
+        assert.deepEqual(
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: 513,
+                shard: [0, 1],
+            }),
+            {
+                token: "gateway-token",
+                properties: {},
+                intents: 513,
+                shard: [0, 1],
+            },
+        );
 
-        assert.equal(identify.intents, 513);
-        assert.deepEqual(identify.shard, [0, 1]);
+        assert.deepEqual(
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "9007199254740993",
+                shard: ["0", "1"],
+            }),
+            {
+                token: "gateway-token",
+                properties: {},
+                intents: "9007199254740993",
+                shard: ["0", "1"],
+            },
+        );
 
         assert.throws(() =>
             validateSchema("IdentifySchema", {
                 token: "gateway-token",
                 properties: {},
                 intents: "not-an-integer",
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "1.5",
             }),
         );
     });

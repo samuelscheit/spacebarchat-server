@@ -78,8 +78,8 @@ function normalizeAjvSchemaTypes(schema: unknown) {
 
     const schemaRecord = schema as Record<string, unknown>;
     if (schemaRecord.type === "bigint") {
-        delete schemaRecord.type;
-        schemaRecord.anyOf = [{ type: "integer" }, { type: "string", pattern: "^-?[0-9]+$" }];
+        schemaRecord.type = ["integer", "string"];
+        schemaRecord.pattern = "^-?[0-9]+$";
     }
 
     for (const value of Object.values(schemaRecord)) {
