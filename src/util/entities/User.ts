@@ -27,7 +27,9 @@ import {
     getDefaultUserRights,
     isNormalizedEmailUniqueViolation,
     chooseAvailableDiscriminator,
-    isUserTagUniqueViolation,
+    chooseIncrementingDiscriminator,
+    retryOnUserTagUniqueViolation,
+    USER_TAG_REGISTRATION_ATTEMPTS,
     normalizeOptionalEmail,
     Snowflake,
     trimSpecial,
@@ -268,18 +270,17 @@ export class User extends BaseClass {
             // discriminator will be incrementally generated
 
             // First we need to figure out the currently highest discrimnator for the given username and then increment it
-            const users = await userRepository.find({
-                where: { username },
-                select: { discriminator: true },
-            });
-            const highestDiscriminator = Math.max(0, ...users.map((u) => Number(u.discriminator)));
+            const takenDiscriminators = (
+                await userRepository.find({
+                    where: { username },
+                    select: { discriminator: true },
+                })
+            ).map((x) => x.discriminator);
 
-            const discriminator = highestDiscriminator + 1;
-            if (discriminator >= 10000) {
-                return undefined;
-            }
-
-            return discriminator.toString().padStart(4, "0");
+            // Preserve the normal incrementing sequence, but scan the namespace once
+            // after the current maximum so a high-water mark at 9999 cannot falsely
+            // fail while earlier discriminator gaps are still available.
+            return chooseIncrementingDiscriminator(takenDiscriminators);
         } else {
             // discriminator will be randomly generated
 
@@ -327,18 +328,20 @@ export class User extends BaseClass {
         const settingsRepository = manager?.getRepository(UserSettings) ?? UserSettings.getRepository();
 
         const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
-        const registrationAttempts = 5;
+        const throwTooManyUsers = (): never => {
+            throw FieldErrors({
+                username: {
+                    code: "USERNAME_TOO_MANY_USERS",
+                    message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
+                },
+            });
+        };
 
-        for (let attempt = 0; attempt < registrationAttempts; attempt++) {
+        const user = await retryOnUserTagUniqueViolation(async () => {
             const discriminator = await User.generateDiscriminator(username, manager);
             if (!discriminator) {
                 // We've failed to generate a valid and unused discriminator
-                throw FieldErrors({
-                    username: {
-                        code: "USERNAME_TOO_MANY_USERS",
-                        message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
-                    },
-                });
+                throwTooManyUsers();
             }
 
             // TODO: save date_of_birth
@@ -380,19 +383,11 @@ export class User extends BaseClass {
                 if (isNormalizedEmailUniqueViolation(error)) {
                     throw emailAlreadyRegisteredFieldError(req?.t("auth:register.EMAIL_ALREADY_REGISTERED"));
                 }
-                if (isUserTagUniqueViolation(error) && attempt < registrationAttempts - 1) {
-                    continue;
-                }
                 throw error;
             }
-        }
+        }, USER_TAG_REGISTRATION_ATTEMPTS);
 
-        throw FieldErrors({
-            username: {
-                code: "USERNAME_TOO_MANY_USERS",
-                message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
-            },
-        });
+        return user ?? throwTooManyUsers();
     }
 
     static async runRegistrationSideEffects(user: User, options: { email?: string; bot?: boolean }) {
