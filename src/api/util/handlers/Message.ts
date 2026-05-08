@@ -58,6 +58,7 @@ import { In, Or, Equal, IsNull } from "typeorm";
 import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
 import {
     ActionRowComponent,
+    AllowedMentions,
     ButtonStyle,
     ChannelType,
     Embed,
@@ -293,6 +294,19 @@ export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id
     return !!opts.author_id && !opts.webhook_id;
 }
 
+function allowsMention(allowedMentions: AllowedMentions | null | undefined, parseType: "users" | "roles" | "everyone", id?: string): boolean {
+    if (!allowedMentions) return true;
+    if (allowedMentions.parse?.includes(parseType)) return true;
+    if (parseType === "users") return id !== undefined && !!allowedMentions.users?.includes(id);
+    if (parseType === "roles") return id !== undefined && !!allowedMentions.roles?.includes(id);
+    return false;
+}
+
+function allowsReplyMention(allowedMentions: AllowedMentions | null | undefined): boolean {
+    if (!allowedMentions) return true;
+    return allowedMentions.replied_user === true;
+}
+
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     const conf = Config.get();
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
@@ -498,7 +512,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     let mention_everyone = false;
 
     if (content) {
-        // TODO: explicit-only mentions
         // TODO: make mentions lazy
         message.content = content.trim();
         content = content.replace(/ *`[^)]*` */g, ""); // remove codeblocks
@@ -509,11 +522,12 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 		}*/
 
         for (const [, mention] of content.matchAll(USER_MENTION)) {
-            if (!mention_user_ids.includes(mention)) mention_user_ids.push(mention);
+            if (allowsMention(opts.allowed_mentions, "users", mention) && !mention_user_ids.includes(mention)) mention_user_ids.push(mention);
         }
 
         await Promise.all(
             Array.from(content.matchAll(ROLE_MENTION)).map(async ([, mention]) => {
+                if (!allowsMention(opts.allowed_mentions, "roles", mention)) return;
                 const role = await Role.findOneOrFail({
                     where: { id: mention, guild_id: channel.guild_id },
                 });
@@ -523,7 +537,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             }),
         );
 
-        if (opts.webhook_id || permission?.has("MENTION_EVERYONE")) {
+        if (allowsMention(opts.allowed_mentions, "everyone") && (opts.webhook_id || permission?.has("MENTION_EVERYONE"))) {
             mention_everyone = !!content.match(EVERYONE_MENTION) || !!content.match(HERE_MENTION);
         }
     }
@@ -539,7 +553,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
                 mention_roles: true,
             },
         });
-        if (referencedMessage && referencedMessage.author_id !== message.author_id) {
+        if (referencedMessage && referencedMessage.author_id !== message.author_id && allowsReplyMention(opts.allowed_mentions)) {
             message.mentions.push(
                 // @ts-expect-error it does not like the .toPublicUser() lol
                 (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
@@ -593,7 +607,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             }
         }
     } else if (incrementMentionCount) {
-        if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+        if ((!!message.content?.match(EVERYONE_MENTION) && mention_everyone) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
             if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
                 if (channel.recipients) {
                     await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
@@ -615,7 +629,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
                 ).map((member) => member.id),
                 ...message.mentions.map((user) => user.id),
             ]);
-            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
+            if (!!message.content?.match(HERE_MENTION) && mention_everyone) {
                 const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
                 (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
             }
