@@ -6,6 +6,7 @@ import type { Channel, Guild, Member, Role } from "../entities";
 import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
+import { PublicMemberProjection } from "../../schemas/api/users/Member";
 import { FindOneOptions, FindOptionsSelect } from "typeorm";
 
 export type PermissionResolvable = bigint | number | Permissions | PermissionResolvable[] | PermissionString;
@@ -257,6 +258,8 @@ type GetPermissionOptions = {
     member_relations?: string[];
 };
 
+export const PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT = [...PublicMemberProjection] as (keyof Member)[];
+
 export function getPermissionMemberQueryOptions(guild_id: string, user_id: string, opts: GetPermissionOptions = {}): FindOneOptions<Member> {
     const select: FindOptionsSelect<Member> = {
         roles: {
@@ -265,14 +268,15 @@ export function getPermissionMemberQueryOptions(guild_id: string, user_id: strin
         },
     };
     const scalarSelect = select as Record<string, unknown>;
+    const relationSelectKeys = new Set(["guild", "roles", "user"]);
     for (const key of ["index", "id", "guild_id", "communication_disabled_until", ...(opts.member_select || [])]) {
-        if (typeof key !== "string" || key === "roles") continue;
+        if (typeof key !== "string" || relationSelectKeys.has(key)) continue;
         scalarSelect[key] = true;
     }
 
     return {
         where: { guild_id, id: user_id },
-        relations: ["roles", ...(opts.member_relations || [])],
+        relations: [...new Set(["roles", ...(opts.member_relations || [])])],
         select,
     };
 }

@@ -52,6 +52,7 @@ import {
     getCloudAttachmentAccessError,
     getAttachmentMutationPath,
     getCdnMutationUrl,
+    PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
@@ -315,7 +316,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         const lastMsgTime = (await Message.findOne({ where: { channel_id: channel.id, author_id: opts.author_id }, select: { timestamp: true }, order: { timestamp: "DESC" } }))
             ?.timestamp;
         if (lastMsgTime && Date.now() - limit * 1000 < +lastMsgTime) {
-            permission = await getPermission(opts.author_id, channel.guild_id, channel);
+            permission = await getPermission(opts.author_id, channel.guild_id, channel, { member_select: PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT });
             //FIXME MANAGE_MESSAGES and MANAGE_CHANNELS will need to be removed once they're gone as checks
             if (!permission.has("MANAGE_MESSAGES") && !permission.has("MANAGE_CHANNELS") && !permission.has("BYPASS_SLOWMODE")) {
                 throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
@@ -421,7 +422,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             message.author.avatar = message.avatar;
         }
     } else {
-        permission ||= await getPermission(opts.author_id, channel.guild_id, channel);
+        permission ||= await getPermission(opts.author_id, channel.guild_id, channel, { member_select: PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT });
         if (permission === null) throw new HTTPError("permission was null after getPermission", 500);
         permission.hasThrow("SEND_MESSAGES");
         if (permission.cache.member) {

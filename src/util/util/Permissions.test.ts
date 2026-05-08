@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
-import type { Role } from "../entities";
-import { getPermissionMemberQueryOptions, Permissions } from "./Permissions";
+import { PublicMemberProjection } from "../../schemas/api/users/Member";
+import type { Member, Role } from "../entities";
+import { getPermissionMemberQueryOptions, Permissions, PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT } from "./Permissions";
 
 const CHANNEL_PERMISSION_OVERWRITE_ROLE = 0;
 const USER_FLAG_QUARANTINED = Number(1n << 44n);
@@ -137,7 +138,7 @@ describe("Permissions", () => {
     });
 
     test("member permission query selects join owner key for role hydration", () => {
-        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_relations: ["user"], member_select: ["flags", "roles"] });
+        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_relations: ["roles", "user"], member_select: ["flags", "roles", "user"] });
 
         assert.deepEqual(query.where, { guild_id: "guild_id", id: "user_id" });
         assert.deepEqual(query.relations, ["roles", "user"]);
@@ -151,6 +152,22 @@ describe("Permissions", () => {
                 id: true,
                 permissions: true,
             },
+        });
+    });
+
+    test("member permission query can hydrate public message members without selecting full member rows", () => {
+        assert.deepEqual(PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT, PublicMemberProjection);
+
+        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_select: PublicMemberProjection as (keyof Member)[] });
+        const select = query.select as Record<string, unknown>;
+
+        for (const key of PublicMemberProjection) {
+            if (key === "roles") continue;
+            assert.equal(select[key], true, `${key} should be selected`);
+        }
+        assert.deepEqual(select.roles, {
+            id: true,
+            permissions: true,
         });
     });
 });
