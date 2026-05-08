@@ -225,7 +225,6 @@ router.post(
         }
         //endregion
 
-        // TODO: gift_code_sku_id?
         // TODO: check password strength
 
         const email = normalizeOptionalEmail(body.email);
