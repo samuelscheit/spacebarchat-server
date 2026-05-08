@@ -196,8 +196,15 @@ async function coverAckSearchPreloadAndStubs(
     assert.equal(preload[0].id, messageId);
     assert.equal("reactions" in preload[0], false);
 
+    const readStateBeforePostData = readStateCursorSnapshot(readState);
+    const beforePostData = markCapturedEvents(events);
     const postData = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${channelId}/post-data`, { thread_ids: [] }, token));
     assert.deepEqual(postData, { threads: {} });
+    assert.deepEqual(readStateCursorSnapshot(await ReadState.findOneByOrFail({ user_id: ownerId, channel_id: channelId })), readStateBeforePostData);
+    assert.equal(
+        events.events.some((event) => !beforePostData.has(event) && event.event === "MESSAGE_ACK" && event.user_id === ownerId && event.data.channel_id === channelId),
+        false,
+    );
 
     const beforeCrosspost = markCapturedEvents(events);
     const crosspost = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${newsChannelId}/messages/${newsMessageId}/crosspost`, {}, token));
@@ -265,6 +272,16 @@ async function createMessage(apiBaseUrl: string, channelId: string, content: str
 
 function markCapturedEvents(capture: EventCapture) {
     return new Set(capture.events);
+}
+
+function readStateCursorSnapshot(readState: ReadState) {
+    return {
+        flags: readState.flags,
+        last_message_id: readState.last_message_id,
+        last_viewed: readState.last_viewed,
+        mention_count: readState.mention_count,
+        notifications_cursor: readState.notifications_cursor,
+    };
 }
 
 async function waitForEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, predicate: (event: CapturedEvent) => boolean) {
