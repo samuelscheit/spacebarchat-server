@@ -13,6 +13,7 @@ describe("MessageCreateSchema", () => {
         assert.equal("type" in properties, false);
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
+        assert.deepEqual(properties.poll, { $ref: "#/definitions/PollCreationSchema" });
     });
 });
 
@@ -22,6 +23,7 @@ describe("MessageEditSchema", () => {
 
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
+        assert.deepEqual(properties.poll, { $ref: "#/definitions/PollCreationSchema" });
     });
 });
 

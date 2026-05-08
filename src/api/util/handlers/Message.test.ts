@@ -3,6 +3,41 @@ import assert from "node:assert/strict";
 
 const requireModule = require;
 
+describe("createPollFromMessageOptions", () => {
+    test("converts request poll creation options to stored poll shape", async () => {
+        const { createPollFromMessageOptions } = (await import("./Message.js")) as typeof import("./Message");
+        const now = new Date("2026-05-08T00:00:00.000Z");
+
+        const poll = createPollFromMessageOptions(
+            {
+                question: { text: "Deploy?" },
+                answers: [{ poll_media: { text: "Yes" } }],
+                duration: 2,
+            },
+            now,
+        );
+
+        assert.deepEqual(poll, {
+            question: { text: "Deploy?" },
+            answers: [{ poll_media: { text: "Yes" } }],
+            expiry: new Date("2026-05-08T02:00:00.000Z"),
+            allow_multiselect: false,
+        });
+    });
+
+    test("preserves stored poll objects", async () => {
+        const { createPollFromMessageOptions } = (await import("./Message.js")) as typeof import("./Message");
+        const storedPoll = {
+            question: { text: "Deploy?" },
+            answers: [{ answer_id: "1", poll_media: { text: "Yes" } }],
+            expiry: new Date("2026-05-09T00:00:00.000Z"),
+            allow_multiselect: true,
+        };
+
+        assert.equal(createPollFromMessageOptions(storedPoll), storedPoll);
+    });
+});
+
 describe("handleMessage", () => {
     test("preserves supplied reactions when reconstructing an edited message", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
