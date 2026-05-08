@@ -18,11 +18,27 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
+import { HTTPError } from "lambert-server";
 import { ajv } from "../../../schemas/Validator";
-import { toRecommendedGuild } from "./GuildRecommendations";
+import { DiscoveryConfiguration } from "../../../util/config/types/subconfigurations/guild/Discovery";
+import { assertGuildRecommendationsEnabled, toRecommendedGuild } from "./GuildRecommendations";
 
 const internalGuildFields = ["discovery_weight", "discovery_excluded", "channel_ordering", "template_id", "parent", "primary_category_id", "nsfw", "presence_count"] as const;
 type GuildShape = Parameters<typeof toRecommendedGuild>[0];
+
+test("guild recommendations are disabled by default until explicitly enabled", () => {
+    const discoveryConfig = new DiscoveryConfiguration();
+
+    assert.equal(discoveryConfig.useRecommendation, false);
+    assert.throws(
+        () => assertGuildRecommendationsEnabled(discoveryConfig.useRecommendation),
+        (error: unknown) => error instanceof HTTPError && error.code === 404 && error.message === "Guild recommendations are disabled",
+    );
+});
+
+test("guild recommendations policy allows explicitly enabled configuration", () => {
+    assert.doesNotThrow(() => assertGuildRecommendationsEnabled(true));
+});
 
 test("toRecommendedGuild serializes a Guild entity into the recommendation response contract", () => {
     const guild = {

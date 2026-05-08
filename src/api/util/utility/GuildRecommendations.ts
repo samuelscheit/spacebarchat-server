@@ -18,6 +18,11 @@
 
 import type { RecommendedGuild } from "@spacebar/schemas";
 import type { Guild } from "@spacebar/util";
+import { HTTPError } from "lambert-server";
+
+export function assertGuildRecommendationsEnabled(useRecommendation: boolean) {
+    if (!useRecommendation) throw new HTTPError("Guild recommendations are disabled", 404);
+}
 
 export function toRecommendedGuild(guild: Guild): RecommendedGuild {
     return {
