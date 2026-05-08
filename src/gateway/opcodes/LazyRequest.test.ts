@@ -361,6 +361,36 @@ describe("lazy request member list loading", () => {
         ]);
     });
 
+    test("rejects malformed member list ranges before loading guild members", async () => {
+        for (const range of [[[0]], [[0, 1, 2]], [[0, "1"]], [[1.5, 2]], [[-1, 2]], [[3, 2]]] as unknown[][]) {
+            state.getManyCalls = 0;
+            state.sentPayloads = [];
+
+            await assert.rejects(onLazyRequest.call(socket(), { d: { channels: { channel: range }, guild_id: "guild" } }), /range/);
+
+            assert.equal(state.getManyCalls, 0, `range ${JSON.stringify(range)} should not query members`);
+            assert.deepEqual(state.sentPayloads, [], `range ${JSON.stringify(range)} should not dispatch updates`);
+        }
+    });
+
+    test("rejects non-string member presence requests before authorization side effects", async () => {
+        await assert.rejects(
+            onLazyRequest.call(socket(), {
+                d: {
+                    channels: { channel: [] },
+                    guild_id: "guild",
+                    members: [123],
+                },
+            }),
+            /member id/,
+        );
+
+        assert.deepEqual(state.permissionChecks, []);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.sentPayloads, []);
+        assert.equal(state.getManyCalls, 0);
+    });
+
     test("checks channel visibility before subscribing to requested member presences", async () => {
         state.permissionError = new Error("missing VIEW_CHANNEL");
 
