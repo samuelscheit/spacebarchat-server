@@ -10,9 +10,18 @@ const interactionMessageSchemaWithDefinitions = {
     ...interactionMessageSchema,
     definitions: schemas,
 };
+const interactionCallbacksSchema = schemas.InteractionCallbacksSchema as Record<string, unknown>;
+const interactionCallbacksSchemaWithDefinitions = {
+    ...interactionCallbacksSchema,
+    definitions: schemas,
+};
 
 function compileInteractionMessageSchema() {
     return new Ajv({ strict: false, validateFormats: false }).compile(interactionMessageSchemaWithDefinitions);
+}
+
+function compileInteractionCallbacksSchema() {
+    return new Ajv({ strict: false, validateFormats: false }).compile(interactionCallbacksSchemaWithDefinitions);
 }
 
 function schemaProperty(schema: unknown, property: string) {
@@ -79,5 +88,19 @@ describe("InteractionMessage", () => {
         assert.equal(validate({ ...validInteractionMessage(), attachments: ["not-an-attachment"] }), false);
         assert.equal(validate({ ...validInteractionMessage(), attachments: [{}] }), false);
         assert.equal(validate({ ...validInteractionMessage(), attachments: [uploadReservationAttachment()] }), false);
+    });
+});
+
+describe("InteractionCallbacksSchema", () => {
+    test("rejects deprecated channel message callbacks", () => {
+        const validate = compileInteractionCallbacksSchema();
+
+        assert.equal(validate({ type: 3, data: validInteractionMessage() }), false);
+    });
+
+    test("accepts channel message with source callbacks", () => {
+        const validate = compileInteractionCallbacksSchema();
+
+        assert.equal(validate({ type: 4, data: validInteractionMessage() }), true, JSON.stringify(validate.errors));
     });
 });

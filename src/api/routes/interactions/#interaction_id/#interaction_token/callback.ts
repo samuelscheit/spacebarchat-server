@@ -80,9 +80,6 @@ router.post(
             case InteractionCallbackType.ACKNOWLEDGE:
                 // Deprected
                 break;
-            case InteractionCallbackType.CHANNEL_MESSAGE:
-                // TODO
-                break;
             case InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE: {
                 const user = await User.findOneOrFail({ where: { id: interaction.userId } });
                 /*
