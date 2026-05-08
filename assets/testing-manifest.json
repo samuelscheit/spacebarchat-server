@@ -11259,7 +11259,7 @@
             "method": "GET",
             "path": "/store/published-listings/skus/:sku_id/subscription-plans/",
             "sourceFile": "src/api/routes/store/published-listings/skus/#sku_id/subscription-plans.ts",
-            "line": 349,
+            "line": 327,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

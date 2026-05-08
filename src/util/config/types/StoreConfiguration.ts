@@ -17,12 +17,12 @@
 */
 
 export class StoreSubscriptionPlanConfiguration {
-    id: string;
-    name: string;
+    id!: string;
+    name!: string;
     interval: number = 1;
     interval_count: number = 1;
     tax_inclusive: boolean = true;
-    sku_id: string;
+    sku_id!: string;
     currency: string = "usd";
     price: number = 0;
     price_tier: number | null = null;

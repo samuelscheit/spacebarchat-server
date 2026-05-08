@@ -1,6 +1,7 @@
+import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { strict as assert } from "node:assert";
-import { flattenSubscriptionPlans, getSubscriptionPlansForSku, type SubscriptionPlan } from "./#sku_id/subscription-plans.js";
+import { ConfigValue, StoreConfiguration, StoreSubscriptionPlanConfiguration } from "@spacebar/util";
+import { getSubscriptionPlansForSku, type SubscriptionPlan } from "../../src/api/routes/store/published-listings/skus/#sku_id/subscription-plans";
 
 function createPlan(overrides: Partial<SubscriptionPlan> = {}): SubscriptionPlan {
     return {
@@ -49,18 +50,35 @@ describe("published listing SKU subscription plans", () => {
         assert.deepEqual(plans, []);
     });
 
-    it("flattens legacy nested built-in plan arrays before responding", () => {
+    it("returns no plans for unknown SKUs without matching custom configuration", () => {
+        assert.deepEqual(getSubscriptionPlansForSku("missing-sku"), []);
+    });
+
+    it("keeps legacy Premium Tier 0 built-in data as a flat plan array", () => {
         const plans = getSubscriptionPlansForSku("978380684370378762");
 
         assert.equal(plans.length, 1);
         assert.equal(plans[0].id, "978380692553465866");
         assert.equal(Array.isArray(plans[0]), false);
     });
+});
 
-    it("recursively flattens plan-like arrays", () => {
-        const firstPlan = createPlan({ id: "first" });
-        const secondPlan = createPlan({ id: "second" });
+describe("store subscription plan configuration", () => {
+    it("is available on the default ConfigValue", () => {
+        const config = new ConfigValue();
 
-        assert.deepEqual(flattenSubscriptionPlans([[firstPlan], [[secondPlan]]]), [firstPlan, secondPlan]);
+        assert.ok(config.store instanceof StoreConfiguration);
+        assert.deepEqual(config.store.customSubscriptionPlans, []);
+    });
+
+    it("documents defaults for custom subscription plans", () => {
+        const plan = new StoreSubscriptionPlanConfiguration();
+
+        assert.equal(plan.interval, 1);
+        assert.equal(plan.interval_count, 1);
+        assert.equal(plan.tax_inclusive, true);
+        assert.equal(plan.currency, "usd");
+        assert.equal(plan.price, 0);
+        assert.equal(plan.price_tier, null);
     });
 });

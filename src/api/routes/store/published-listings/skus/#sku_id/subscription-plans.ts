@@ -18,29 +18,13 @@
 
 import { Request, Response, Router } from "express";
 import { route } from "@spacebar/api";
-import { Config } from "@spacebar/util";
+import { Config, type StoreSubscriptionPlanConfiguration } from "@spacebar/util";
 
 const router: Router = Router({ mergeParams: true });
 
-export interface SubscriptionPlan {
-    id: string;
-    name: string;
-    interval: number;
-    interval_count: number;
-    tax_inclusive: boolean;
-    sku_id: string;
-    currency: string;
-    price: number;
-    price_tier: number | null;
-    discount_price?: number;
-    fallback_price?: number;
-    fallback_currency?: string;
-    prices?: object;
-}
+export type SubscriptionPlan = StoreSubscriptionPlanConfiguration;
 
-type SubscriptionPlanLike = SubscriptionPlan | SubscriptionPlanLike[];
-
-const builtinSkus = new Map<string, SubscriptionPlanLike[]>([
+const builtinSkus = new Map<string, SubscriptionPlan[]>([
     [
         "521842865731534868",
         [
@@ -176,171 +160,165 @@ const builtinSkus = new Map<string, SubscriptionPlanLike[]>([
     [
         "978380684370378762",
         [
-            [
-                {
-                    id: "978380692553465866",
-                    name: "Premium Tier 0 Monthly",
-                    interval: 1,
-                    interval_count: 1,
-                    tax_inclusive: true,
-                    sku_id: "978380684370378762",
-                    currency: "usd",
-                    price: 299,
-                    price_tier: null,
-                    prices: {
-                        "0": {
-                            country_prices: {
-                                country_code: "US",
-                                prices: [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
-                            payment_source_prices: {
-                                "775487223059316758": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "736345864146255982": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "683074999590060249": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
+            {
+                id: "978380692553465866",
+                name: "Premium Tier 0 Monthly",
+                interval: 1,
+                interval_count: 1,
+                tax_inclusive: true,
+                sku_id: "978380684370378762",
+                currency: "usd",
+                price: 299,
+                price_tier: null,
+                prices: {
+                    "0": {
+                        country_prices: {
+                            country_code: "US",
+                            prices: [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
                         },
-                        "3": {
-                            country_prices: {
-                                country_code: "US",
-                                prices: [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
-                            payment_source_prices: {
-                                "775487223059316758": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "736345864146255982": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "683074999590060249": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
+                        payment_source_prices: {
+                            "775487223059316758": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "736345864146255982": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "683074999590060249": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
                         },
-                        "4": {
-                            country_prices: {
-                                country_code: "US",
-                                prices: [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
-                            payment_source_prices: {
-                                "775487223059316758": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "736345864146255982": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "683074999590060249": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
+                    },
+                    "3": {
+                        country_prices: {
+                            country_code: "US",
+                            prices: [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
                         },
-                        "1": {
-                            country_prices: {
-                                country_code: "US",
-                                prices: [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
-                            payment_source_prices: {
-                                "775487223059316758": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "736345864146255982": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                                "683074999590060249": [
-                                    {
-                                        currency: "usd",
-                                        amount: 0,
-                                        exponent: 2,
-                                    },
-                                ],
-                            },
+                        payment_source_prices: {
+                            "775487223059316758": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "736345864146255982": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "683074999590060249": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                        },
+                    },
+                    "4": {
+                        country_prices: {
+                            country_code: "US",
+                            prices: [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                        },
+                        payment_source_prices: {
+                            "775487223059316758": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "736345864146255982": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "683074999590060249": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                        },
+                    },
+                    "1": {
+                        country_prices: {
+                            country_code: "US",
+                            prices: [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                        },
+                        payment_source_prices: {
+                            "775487223059316758": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "736345864146255982": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
+                            "683074999590060249": [
+                                {
+                                    currency: "usd",
+                                    amount: 0,
+                                    exponent: 2,
+                                },
+                            ],
                         },
                     },
                 },
-            ],
+            },
         ],
     ],
 ]);
 
-export function flattenSubscriptionPlans(plans: readonly SubscriptionPlanLike[] = []): SubscriptionPlan[] {
-    return plans.flatMap((plan) => (Array.isArray(plan) ? flattenSubscriptionPlans(plan) : [plan]));
-}
-
 export function getSubscriptionPlansForSku(skuId: string, customPlans: readonly SubscriptionPlan[] = []): SubscriptionPlan[] {
-    const builtinPlans = flattenSubscriptionPlans(builtinSkus.get(skuId));
+    const builtinPlans = builtinSkus.get(skuId) ?? [];
     const matchingCustomPlans = customPlans.filter((plan) => plan.sku_id === skuId);
 
     return [...builtinPlans, ...matchingCustomPlans];
