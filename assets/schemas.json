@@ -1136,6 +1136,16 @@
                     "string"
                 ]
             },
+            "icon_emoji": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/IconEmoji"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
             "flags": {
                 "type": "integer"
             },
@@ -1295,6 +1305,16 @@
                 "type": [
                     "null",
                     "string"
+                ]
+            },
+            "icon_emoji": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/IconEmoji"
+                    },
+                    {
+                        "type": "null"
+                    }
                 ]
             },
             "flags": {
@@ -9016,6 +9036,16 @@
                     "string"
                 ]
             },
+            "icon_emoji": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/IconEmoji"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
             "default_auto_archive_duration": {
                 "type": "integer"
             },
@@ -11218,6 +11248,29 @@
             0,
             1,
             2
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "IconEmoji": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -13658,6 +13711,16 @@
             "default_tag_setting": {
                 "type": "string"
             },
+            "icon_emoji": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/IconEmoji"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
             "is_message_request": {
                 "type": "boolean"
             },
@@ -13992,6 +14055,16 @@
                     {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "icon_emoji": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/IconEmoji"
                     },
                     {
                         "type": "null"

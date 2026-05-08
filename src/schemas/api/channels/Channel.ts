@@ -66,6 +66,11 @@ export interface ThreadMetadata {
     create_timestamp: string; //Discord docs say this is optional, but it's only for after a certain date so it's not
 }
 
+export interface IconEmoji {
+    id: Snowflake | null;
+    name: string | null;
+}
+
 export interface DMChannel extends Omit<Channel, "type" | "recipients"> {
     type: ChannelType.DM | ChannelType.GROUP_DM;
     recipients: Recipient[];
@@ -138,7 +143,7 @@ export interface PublicChannel {
     default_forum_layout?: number;
     default_sort_order?: number | null;
     default_tag_setting?: string;
-    // icon_emoji?: IconEmoji | null; // TODO
+    icon_emoji?: IconEmoji | null;
     is_message_request?: boolean;
     is_message_request_timestamp?: string | null;
     is_spam?: boolean;

@@ -46,7 +46,7 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, IconEmoji, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports";
 import { ThreadMember } from "./ThreadMember";
@@ -115,6 +115,9 @@ export class Channel extends BaseClass {
 
     @Column({ nullable: true, type: "timestamp with time zone" })
     last_pin_timestamp?: Date | null; // ISO8601
+
+    @Column({ type: "jsonb", nullable: true })
+    icon_emoji?: IconEmoji | null;
 
     @Column({ nullable: true })
     default_auto_archive_duration?: number;

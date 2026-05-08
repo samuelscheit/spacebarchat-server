@@ -1115,6 +1115,16 @@
                             "string"
                         ]
                     },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/IconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "flags": {
                         "type": "integer"
                     },
@@ -1272,6 +1282,16 @@
                         "type": [
                             "null",
                             "string"
+                        ]
+                    },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/IconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     },
                     "flags": {
@@ -8604,6 +8624,16 @@
                             "string"
                         ]
                     },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/IconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "default_auto_archive_duration": {
                         "type": "integer"
                     },
@@ -13059,6 +13089,16 @@
                     "default_tag_setting": {
                         "type": "string"
                     },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/IconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "is_message_request": {
                         "type": "boolean"
                     },
@@ -13382,6 +13422,16 @@
                             {
                                 "type": "string",
                                 "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/IconEmoji"
                             },
                             {
                                 "type": "null"
@@ -21852,6 +21902,27 @@
                     1,
                     2,
                     3
+                ]
+            },
+            "IconEmoji": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
                 ]
             }
         }
