@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { requireOAuth2BotAuthorization, route } from "@spacebar/api";
 import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
@@ -193,12 +193,7 @@ router.post(
 
         // TODO: ensure guild_id is not an empty string
         // TODO: captcha verification
-        // TODO: MFA verification
-
-        const perms = await getPermission(req.user_id, body.guild_id, undefined, { member_relations: ["user"] });
-        // getPermission cache won't exist if we're owner
-        if (Object.keys(perms.cache || {}).length > 0 && perms.cache.member?.user.bot) throw DiscordApiErrors.UNAUTHORIZED;
-        perms.hasThrow("MANAGE_GUILD");
+        await requireOAuth2BotAuthorization({ getPermission, guildId: body.guild_id, mfaCode: body.code, userId: req.user_id });
 
         const app = await Application.findOne({
             where: {

@@ -30,6 +30,7 @@ export * from "./utility/passwordStrength";
 export * from "./utility/PaymentSources";
 export * from "./utility/RandomInviteID";
 export * from "./utility/ApplicationAuthorization";
+export * from "./utility/OAuth2Authorization";
 export * from "./utility/ApplicationCommands";
 export * from "./utility/RegistrationTokens";
 export * from "./utility/Relationships";
