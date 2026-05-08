@@ -121,6 +121,7 @@ test(
                 {
                     name: updatedName,
                     description: updatedDescription,
+                    profile_tag: "sb",
                 },
                 token,
             );
@@ -129,13 +130,22 @@ test(
             assert.equal(updateBody.id, guildId);
             assert.equal(updateBody.name, updatedName);
             assert.equal(updateBody.description, updatedDescription);
+            assert.equal(updateBody.profile_tag, "SB");
             const updateEvent = await guildEvents.waitFor((event) => event.event === "GUILD_UPDATE" && event.guild_id === guildId);
             assert.equal(updateEvent.data.id, guildId);
             assert.equal(updateEvent.data.name, updatedName);
             assert.equal(updateEvent.data.description, updatedDescription);
+            assert.equal(updateEvent.data.profile_tag, "SB");
             const persistedUpdatedGuild = await Guild.findOneByOrFail({ id: guildId });
             assert.equal(persistedUpdatedGuild.name, updatedName);
             assert.equal(persistedUpdatedGuild.description, updatedDescription);
+            assert.equal(persistedUpdatedGuild.profile_tag, "SB");
+
+            const profile = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/profile`, token);
+            await assertStatus(profile, 200);
+            const profileBody = await assertJsonObject(profile);
+            assert.equal(profileBody.id, guildId);
+            assert.equal(profileBody.tag, "SB");
 
             const deleteGuild = await postJson(`${api.apiBaseUrl}/guilds/${guildId}/delete`, {}, token);
             await assertStatus(deleteGuild, 204);

@@ -13,7 +13,7 @@ test("guild profile tag updates normalize persisted custom tags", () => {
 });
 
 test("guild profile tag updates reject invalid custom tags", () => {
-    for (const tag of ["", "ABCDE", "A-B", "TAG!", "A B", " SB "]) {
+    for (const tag of ["", "ABCDE", "A-B", "TAG!", "A B", " SB ", "ß", "ı"]) {
         assert.throws(() => normalizeGuildProfileTag(tag), HTTPError, tag);
     }
 });

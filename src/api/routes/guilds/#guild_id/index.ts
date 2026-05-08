@@ -46,9 +46,8 @@ async function handleGuildImageField(path: string, value?: string | null, curren
 
 export function normalizeGuildProfileTag(profile_tag: string | null | undefined): string | null | undefined {
     if (profile_tag === undefined || profile_tag === null) return profile_tag;
-    const normalized = profile_tag.toUpperCase();
-    if (!/^[A-Z0-9]{1,4}$/.test(normalized)) throw new HTTPError("Invalid profile_tag");
-    return normalized;
+    if (!/^[A-Za-z0-9]{1,4}$/.test(profile_tag)) throw new HTTPError("Invalid profile_tag");
+    return profile_tag.toUpperCase();
 }
 
 router.get(

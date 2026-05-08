@@ -5,7 +5,7 @@ import { test } from "node:test";
 import type { QueryRunner } from "typeorm";
 import { GuildProfileTag1778216900000 } from "../migration/postgres/1778216900000-GuildProfileTag";
 
-test("guild profile tag migration adds and removes a nullable 4-character column", async () => {
+test("guild profile tag migration is idempotent with fresh initial DDL", async () => {
     const queries: string[] = [];
     const migration = new GuildProfileTag1778216900000();
     const queryRunner = {
@@ -17,8 +17,8 @@ test("guild profile tag migration adds and removes a nullable 4-character column
     await migration.up(queryRunner);
     await migration.down(queryRunner);
 
-    assert.equal(queries[0], `ALTER TABLE "guilds" ADD "profile_tag" character varying(4)`);
-    assert.equal(queries[1], `ALTER TABLE "guilds" DROP COLUMN "profile_tag"`);
+    assert.equal(queries[0], `ALTER TABLE "guilds" ADD COLUMN IF NOT EXISTS "profile_tag" character varying(4)`);
+    assert.equal(queries[1], `ALTER TABLE "guilds" DROP COLUMN IF EXISTS "profile_tag"`);
 });
 
 test("guild entity and initial postgres DDL include the custom profile tag column", () => {
