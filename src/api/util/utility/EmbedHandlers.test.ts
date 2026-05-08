@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, test, type TestContext } from "node:test";
 import type { Embed } from "@spacebar/schemas";
-import type { Message } from "../../../util/index.js";
+import type { Message } from "@spacebar/util";
 import { mergeGeneratedUrlEmbeds } from "./EmbedMerge";
 
-type UtilModule = typeof import("../../../util/index.js");
+type UtilModule = typeof import("@spacebar/util");
 
 process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
 delete process.env.EVENT_TRANSMISSION;
@@ -13,15 +13,18 @@ const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
 
 async function loadEmbedModules() {
-    const util = await import("../../../util/index.js");
+    const util = require("@spacebar/util") as UtilModule;
     const handlers = await import("./EmbedHandlers.js");
 
     return {
         util,
         Config: util.Config,
+        EmbedHandlers: handlers.EmbedHandlers,
         EmbedCache: util.EmbedCache,
         Message: util.Message,
         fillMessageUrlEmbeds: handlers.fillMessageUrlEmbeds,
+        getOrUpdateEmbedCache: handlers.getOrUpdateEmbedCache,
+        normalizeUrl: util.normalizeUrl,
     };
 }
 
@@ -68,6 +71,28 @@ function rejectUnexpectedPersistence(t: TestContext, Message: UtilModule["Messag
     });
     t.mock.method(EmbedCache, "find", async () => {
         throw new Error("EmbedCache.find should not be called");
+    });
+}
+
+function mockEmbedCacheCleanup(t: TestContext, EmbedCache: UtilModule["EmbedCache"]) {
+    t.mock.method(EmbedCache, "delete", async () => ({ affected: 0, raw: [] }));
+}
+
+function mockExampleEmbedHandler(
+    t: TestContext,
+    EmbedHandlers: Awaited<ReturnType<typeof loadEmbedModules>>["EmbedHandlers"],
+    handler: Awaited<ReturnType<typeof loadEmbedModules>>["EmbedHandlers"][string],
+) {
+    const hadExampleHandler = Object.hasOwn(EmbedHandlers, "example.com");
+    const originalExampleHandler = EmbedHandlers["example.com"];
+    EmbedHandlers["example.com"] = handler;
+
+    t.after(() => {
+        if (hadExampleHandler) {
+            EmbedHandlers["example.com"] = originalExampleHandler;
+        } else {
+            delete EmbedHandlers["example.com"];
+        }
     });
 }
 
@@ -119,6 +144,81 @@ describe("mergeGeneratedUrlEmbeds", () => {
 
         assert.equal(result.changed, false);
         assert.deepEqual(result.embeds, [existingEmbed]);
+    });
+});
+
+describe("getOrUpdateEmbedCache", () => {
+    test("reuses cached embed rows instead of regenerating the same normalized link", async (t) => {
+        const { Config, EmbedCache, EmbedHandlers, getOrUpdateEmbedCache } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+        mockEmbedCacheCleanup(t, EmbedCache);
+
+        const cachedEmbed = {
+            type: linkEmbedType,
+            url: "https://example.com/article",
+            title: "Cached title",
+        } as Embed;
+        const cachedEntry = {
+            id: "cached-entry",
+            url: "https://example.com/article",
+            embeds: [cachedEmbed],
+            createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        };
+
+        t.mock.method(EmbedCache, "find", async () => [cachedEntry]);
+        t.mock.method(EmbedCache, "create", () => {
+            throw new Error("EmbedCache.create should not be called for cached links");
+        });
+        mockExampleEmbedHandler(t, EmbedHandlers, async () => {
+            throw new Error("embed handler should not run for cached links");
+        });
+
+        const entries = await getOrUpdateEmbedCache(["https://example.com/article#ignored"]);
+
+        assert.deepEqual(entries, [cachedEntry]);
+    });
+
+    test("persists newly generated link embeds in EmbedCache using the normalized URL", async (t) => {
+        const { Config, EmbedCache, EmbedHandlers, getOrUpdateEmbedCache, normalizeUrl } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+        mockEmbedCacheCleanup(t, EmbedCache);
+
+        const generatedEmbed = {
+            type: linkEmbedType,
+            url: "https://example.com/article/?b=2&a=1#fragment",
+            title: "Generated title",
+        } as Embed;
+        const savedEntries: unknown[] = [];
+
+        t.mock.method(EmbedCache, "find", async () => []);
+        t.mock.method(EmbedCache, "create", (entry: unknown) => ({
+            ...(entry as Record<string, unknown>),
+            id: "generated-entry",
+            save: async () => {
+                savedEntries.push(entry);
+                return {
+                    ...(entry as Record<string, unknown>),
+                    id: "generated-entry",
+                };
+            },
+        }));
+        mockExampleEmbedHandler(t, EmbedHandlers, async () => generatedEmbed);
+
+        const sourceUrl = "https://example.com/article/?b=2&a=1#fragment";
+        const entries = await getOrUpdateEmbedCache([sourceUrl]);
+
+        assert.equal(savedEntries.length, 1);
+        const savedEntry = savedEntries[0] as {
+            url: string;
+            embeds: Embed[];
+            createdAt: Date;
+        };
+        assert.equal(savedEntry.url, normalizeUrl(sourceUrl));
+        assert.deepEqual(savedEntry.embeds, [generatedEmbed]);
+        assert.ok(savedEntry.createdAt instanceof Date);
+        assert.equal(entries.length, 1);
+        assert.equal(entries[0].url, savedEntry.url);
+        assert.deepEqual(entries[0].embeds, [generatedEmbed]);
     });
 });
 
