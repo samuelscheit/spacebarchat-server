@@ -1,8 +1,23 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { getVanityUrlFeatureState, setVanityUrlFeature } from "./GuildFeatures";
+import { GUILD_FEATURES, GuildFeature, VANITY_URL_FEATURE, getVanityUrlFeatureState, setVanityUrlFeature, type GuildFeatureValue } from "./GuildFeatures";
 
 describe("Guild feature helpers", () => {
+    test("exports Discord guild feature constants referenced by server behavior", () => {
+        assert.equal(GuildFeature.Community, "COMMUNITY");
+        assert.equal(GuildFeature.Discoverable, "DISCOVERABLE");
+        assert.equal(GuildFeature.InvitesDisabled, "INVITES_DISABLED");
+        assert.equal(GuildFeature.RaidAlertsDisabled, "RAID_ALERTS_DISABLED");
+        assert.equal(VANITY_URL_FEATURE, GuildFeature.VanityUrl);
+        assert.equal(GUILD_FEATURES.includes(GuildFeature.VanityUrl), true);
+        assert.equal(GUILD_FEATURES.includes(GuildFeature.EnhancedRoleColors), true);
+    });
+
+    test("keeps guild feature arrays open for unknown Discord or Spacebar-specific values", () => {
+        const features: GuildFeatureValue[] = [GuildFeature.Community, "SPACEBAR_EXPERIMENT"];
+
+        assert.deepEqual(setVanityUrlFeature(features, false), ["COMMUNITY", "SPACEBAR_EXPERIMENT"]);
+    });
     test("removes VANITY_URL when a guild has no vanity URL", () => {
         assert.deepEqual(setVanityUrlFeature(["COMMUNITY", "VANITY_URL"], false), ["COMMUNITY"]);
     });
