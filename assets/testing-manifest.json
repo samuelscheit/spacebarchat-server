@@ -11707,7 +11707,7 @@
             "method": "GET",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 41,
+            "line": 43,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11745,7 +11745,7 @@
             "method": "PATCH",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 60,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

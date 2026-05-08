@@ -102,3 +102,4 @@ export * from "./Url";
 export * from "./Version";
 export * from "./Presence";
 export * from "./UserProfile";
+export * from "./UserTag";
