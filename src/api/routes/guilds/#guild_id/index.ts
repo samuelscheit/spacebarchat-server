@@ -201,7 +201,7 @@ router.patch(
             });
         }
 
-        if (body.safety_alerts_channel_id != undefined) {
+        if (body.safety_alerts_channel_id != undefined && body.safety_alerts_channel_id !== null) {
             // ensure channel exists in this guild
             await Channel.findOneOrFail({
                 where: { guild_id, id: body.safety_alerts_channel_id },
