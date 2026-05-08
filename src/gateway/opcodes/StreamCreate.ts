@@ -1,5 +1,18 @@
 import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "@spacebar/gateway";
-import { Config, emitEvent, Member, Snowflake, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import {
+    Config,
+    emitEvent,
+    Member,
+    Snowflake,
+    Stream,
+    VoiceStateMemberRelations,
+    memberToVoiceStateMember,
+    StreamCreateEvent,
+    StreamServerUpdateEvent,
+    StreamSession,
+    VoiceState,
+    VoiceStateUpdateEvent,
+} from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamCreateSchema } from "@spacebar/schemas";
 import { selectStreamRegion } from "../util/StreamRegion";
@@ -38,12 +51,12 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
 
     if (voiceState.channel_id !== channel.id || (voiceState.guild_id ?? undefined) !== (channel.guild_id ?? undefined)) return this.close(4000, "invalid channel");
 
-    if (body.guild_id) {
-        voiceState.member = await Member.findOneOrFail({
-            where: { id: voiceState.user_id, guild_id: voiceState.guild_id },
-            relations: { user: true, roles: true },
-        });
-    }
+    const member = body.guild_id
+        ? await Member.findOne({
+              where: { id: voiceState.user_id, guild_id: voiceState.guild_id },
+              relations: VoiceStateMemberRelations,
+          })
+        : undefined;
 
     const regions = Config.get().regions;
     const guildRegion = selectStreamRegion(regions, body.preferred_region);
@@ -106,7 +119,7 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
         event: "VOICE_STATE_UPDATE",
         data: {
             ...voiceState.toPublicVoiceState(),
-            member: voiceState.member.toPublicMember(),
+            member: member ? memberToVoiceStateMember(member) : undefined,
         },
         guild_id: voiceState.guild_id,
         channel_id: voiceState.channel_id,

@@ -9321,7 +9321,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/voice-states/:user_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/voice-states/#user_id/index.ts",
-            "line": 27,
+            "line": 37,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
