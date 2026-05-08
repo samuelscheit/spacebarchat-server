@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, test, type TestContext } from "node:test";
 import type { Embed } from "@spacebar/schemas";
-import type { Message } from "../../../util/index.js";
+import type { Message } from "@spacebar/util";
+import * as util from "@spacebar/util";
 import { mergeGeneratedUrlEmbeds } from "./EmbedMerge";
 
-type UtilModule = typeof import("../../../util/index.js");
+type UtilModule = typeof util;
 
 process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
 delete process.env.EVENT_TRANSMISSION;
@@ -13,7 +14,6 @@ const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
 
 async function loadEmbedModules() {
-    const util = await import("../../../util/index.js");
     const handlers = await import("./EmbedHandlers.js");
 
     return {
