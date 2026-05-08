@@ -7454,7 +7454,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 131,
+            "line": 128,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
