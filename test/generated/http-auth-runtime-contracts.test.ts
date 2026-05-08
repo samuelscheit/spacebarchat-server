@@ -24,6 +24,7 @@ import {
 } from "@spacebar/util";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeChannel, makeGuild, makeUser } from "../fixtures/entities";
+import { captureEvents } from "../fixtures/events";
 import { withFileStorage } from "../fixtures/files";
 import { startApi } from "../server/startApi";
 import { startCdn } from "../server/startCdn";
@@ -69,6 +70,7 @@ type GeneratedHttpContractMatrix = {
         runtimePermissionOnlyDenialContracts: number;
         runtimePermissionAndRightPermissionDenialContracts: number;
         runtimePermissionAndRightRightDenialContracts: number;
+        runtimeEventEmissionContracts: number;
         runtimeRateLimitHeaderContracts: number;
         runtimeCdnMissingObjectContracts: number;
         runtimeCdnHeadMissingObjectContracts: number;
@@ -186,6 +188,7 @@ const permissionAndRightDenialContracts = matrix.contracts.filter(
         !metadataValues(contract.routeMetadata.permission).some((value) => value.startsWith("...")) &&
         !metadataValues(contract.routeMetadata.right).some((value) => value.startsWith("...")),
 );
+const eventEmissionContracts = matrix.contracts.filter((contract) => contract.manifestId === "api:http:POST:/auth/logout/");
 const rateLimitHeaderContracts = matrix.contracts.filter((contract) => contract.service === "api" && contract.method !== "OPTIONS" && contract.rateLimit);
 const cdnMissingObjectContracts = matrix.contracts.filter((contract) => contract.service === "cdn" && contract.method === "GET" && contract.path !== "/ping/");
 const cdnValidObjectContracts = cdnMissingObjectContracts;
@@ -1313,6 +1316,46 @@ test("generated HTTP public request-body contracts reject schema-invalid bodies 
         if (api) await api.stop();
     }
 });
+
+test(
+    "generated HTTP event-emission contracts emit declared events through the real API stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 60_000,
+    },
+    async () => {
+        assert.equal(eventEmissionContracts.length, matrix.summary.runtimeEventEmissionContracts);
+        assert.equal(eventEmissionContracts.length, 1, "expected auth logout event-emission route to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_events", async ({ api, token, session }) => {
+                const [contract] = eventEmissionContracts;
+                const capture = await captureEvents(session.session_id);
+                try {
+                    const response = await fetch(`${api.apiBaseUrl}${contract.samplePath}`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: `Bearer ${token}`,
+                            "content-type": "application/json",
+                        },
+                        body: "{}",
+                    });
+
+                    assert.equal(response.status, 204, `${contract.manifestId} should complete the logout request`);
+                    const event = await capture.waitFor("SB_SESSION_REMOVE", 1000);
+                    assert.equal(event.session_id, session.session_id, `${contract.manifestId} should emit to the removed session id`);
+                    assert.equal(event.origin, "Self logout", `${contract.manifestId} should include the logout origin`);
+                } finally {
+                    await capture.stop();
+                }
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);
 
 test(
     "generated HTTP rate-limited route groups expose rate-limit headers through the real API stack",
