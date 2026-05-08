@@ -52,19 +52,6 @@ import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelP
 // TODO: guild_scheduled_events
 // TODO: stage_instances
 // TODO: threads
-// TODO:
-// "keywords": [
-// 		"Genshin Impact",
-// 		"Paimon",
-// 		"Honkai Impact",
-// 		"ARPG",
-// 		"Open-World",
-// 		"Waifu",
-// 		"Anime",
-// 		"Genshin",
-// 		"miHoYo",
-// 		"Gacha"
-// 	],
 
 type GuildCreateChannelInput = Omit<Partial<Channel>, "permission_overwrites"> & TemplateChannelLike;
 
