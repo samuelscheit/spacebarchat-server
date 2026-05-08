@@ -129,7 +129,7 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
         data: {
             ...interactionData,
             member_id: req.user_id, // TODO: is this correct?
-            id: interactionId, // TODO: is this correct?
+            id: interactionId,
         },
     } satisfies InteractionCreateEvent);
 
