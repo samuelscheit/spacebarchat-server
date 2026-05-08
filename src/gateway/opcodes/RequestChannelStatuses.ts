@@ -65,6 +65,7 @@ export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) 
 
     await Send(this, {
         op: OPCODES.Dispatch,
+        s: this.sequence++,
         t: "CHANNEL_STATUSES",
         d: {
             guild_id: d.guild_id,
