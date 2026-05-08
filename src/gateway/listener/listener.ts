@@ -199,7 +199,7 @@ export async function setupListener(this: WebSocket) {
         acknowledge: true,
     };
     this.listen_options = opts;
-    const consumer = consume.bind(this);
+    const consumer = consumeListenerEvent.bind(this);
 
     const handleChannelError = (err: unknown) => {
         console.error(`[RabbitMQ] [user-${this.user_id}] Channel Error (Handled):`, err);
@@ -341,7 +341,7 @@ export async function setupListener(this: WebSocket) {
 }
 
 // TODO: only subscribe for events that are in the connection intents
-export async function consume(this: WebSocket, opts: EventOpts) {
+export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
     opts.acknowledge?.();
     if (await handleListenerControlEvent.call(this, opts)) return;
@@ -352,7 +352,7 @@ export async function consume(this: WebSocket, opts: EventOpts) {
     const permission =
         (permissionLookupId && this.permissions[permissionLookupId]) || (guildId && this.permissions[guildId]) || this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
 
-    const consumer = consume.bind(this);
+    const consumer = consumeListenerEvent.bind(this);
     const listenOpts = opts as ListenEventOpts;
     const eventRouteId = getEventRouteId(opts);
     if (eventRouteId && !this.events[eventRouteId]) return;

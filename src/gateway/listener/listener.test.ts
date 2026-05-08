@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { WebSocket } from "@spacebar/gateway";
 import { CLOSECODES } from "../util";
-import { canDispatchGuildPresenceUpdate, consume, handleListenerControlEvent } from "./listener";
+import { canDispatchGuildPresenceUpdate, consumeListenerEvent, handleListenerControlEvent } from "./listener";
 import { trackGuildMemberEventId } from "./subscriptions";
 
 describe("canDispatchGuildPresenceUpdate", () => {
@@ -68,7 +68,7 @@ describe("handleListenerControlEvent", () => {
             },
         };
 
-        await consume.call(socket as WebSocket, {
+        await consumeListenerEvent.call(socket as WebSocket, {
             event: "INVALIDATED",
             acknowledge: () => {
                 operations.push("acknowledge");
