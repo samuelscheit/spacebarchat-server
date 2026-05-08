@@ -70,6 +70,7 @@ import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
+import { parseGatewayShard } from "../util/ShardValidation";
 
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
@@ -124,14 +125,15 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Validate sharding
     if (identify.shard) {
-        this.shard_id = identify.shard[0];
-        this.shard_count = identify.shard[1];
+        const shard = parseGatewayShard(identify.shard);
 
-        if (this.shard_count == null || this.shard_id == null || this.shard_id > this.shard_count || this.shard_id < 0 || this.shard_count <= 0) {
-            // TODO: why do we even care about this right now?
+        if (!shard) {
             console.log(`[Gateway/${this.user_id}] Invalid sharding from ${user.id}: ${identify.shard}`);
             return this.close(CLOSECODES.Invalid_shard);
         }
+
+        this.shard_id = shard.shard_id;
+        this.shard_count = shard.shard_count;
     }
     const validateIntentsAndShardingTime = taskSw.getElapsedAndReset();
 
