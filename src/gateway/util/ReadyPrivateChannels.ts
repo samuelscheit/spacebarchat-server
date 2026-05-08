@@ -18,6 +18,7 @@
 
 import { ChannelType } from "../../schemas/api/channels/Channel";
 import type { PublicUser } from "../../schemas/api/users/User";
+import { excludeDmChannelRecipient } from "../../util/dtos/DmChannelRecipients";
 
 type ReadyPrivateChannelRecipient = {
     user: {
@@ -50,7 +51,10 @@ export type ReadyPrivateChannel = {
 };
 
 export function toReadyPrivateChannel(channel: ReadyPrivateChannelSource, currentUser: { id: string; toPublicUser(): PublicUser }, users: Set<PublicUser>): ReadyPrivateChannel {
-    const channelUsers = channel.recipients.filter((recipient) => recipient.user.id !== currentUser.id).map((recipient) => recipient.user.toPublicUser());
+    const channelUsers = excludeDmChannelRecipient(
+        channel.recipients.map((recipient) => recipient.user.toPublicUser()),
+        currentUser.id,
+    );
 
     if (channelUsers.length === 0 && channel.type === ChannelType.DM) {
         // One-recipient DM channels are valid for note-to-self DMs and can also exist

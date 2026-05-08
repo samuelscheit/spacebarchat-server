@@ -43,16 +43,13 @@ describe("toReadyPrivateChannel", () => {
     test("serializes a normal DM with only the other user as recipient", () => {
         const users = new Set<PublicUser>();
         const currentUser = userRef("self");
-        const readyChannel = toReadyPrivateChannel(
-            {
-                id: "dm-1",
-                flags: 0,
-                type: ChannelType.DM,
-                recipients: [recipient("self"), recipient("other")],
-            },
-            currentUser,
-            users,
-        );
+        const channel: Parameters<typeof toReadyPrivateChannel>[0] = {
+            id: "dm-1",
+            flags: 0,
+            type: ChannelType.DM,
+            recipients: [recipient("self"), recipient("other")],
+        };
+        const readyChannel = toReadyPrivateChannel(channel, currentUser, users);
 
         assert.deepEqual(
             readyChannel.recipients.map((user) => user.id),
@@ -62,9 +59,13 @@ describe("toReadyPrivateChannel", () => {
             Array.from(users).map((user) => user.id),
             ["other"],
         );
+        assert.deepEqual(
+            channel.recipients.map((recipient) => recipient.user.id),
+            ["self", "other"],
+        );
     });
 
-    test("keeps one-recipient DMs renderable by using the current user", () => {
+    test("keeps note-to-self and orphaned one-recipient DMs renderable by using the current user", () => {
         const users = new Set<PublicUser>();
         const currentUser = userRef("self");
         const readyChannel = toReadyPrivateChannel(
@@ -103,5 +104,39 @@ describe("toReadyPrivateChannel", () => {
 
         assert.deepEqual(readyChannel.recipients, []);
         assert.equal(users.size, 0);
+    });
+
+    test("serializes group DMs with all other recipients and metadata", () => {
+        const users = new Set<PublicUser>();
+        const readyChannel = toReadyPrivateChannel(
+            {
+                id: "group-2",
+                flags: 2,
+                last_message_id: "message-1",
+                type: ChannelType.GROUP_DM,
+                recipients: [recipient("self"), recipient("owner"), recipient("member")],
+                icon: "icon-hash",
+                name: "group name",
+                owner_id: "owner",
+            },
+            userRef("self"),
+            users,
+        );
+
+        assert.deepEqual(
+            readyChannel.recipients.map((user) => user.id),
+            ["owner", "member"],
+        );
+        assert.deepEqual(
+            Array.from(users).map((user) => user.id),
+            ["owner", "member"],
+        );
+        assert.equal(readyChannel.id, "group-2");
+        assert.equal(readyChannel.flags, 2);
+        assert.equal(readyChannel.last_message_id, "message-1");
+        assert.equal(readyChannel.icon, "icon-hash");
+        assert.equal(readyChannel.name, "group name");
+        assert.equal(readyChannel.owner_id, "owner");
+        assert.equal(readyChannel.is_spam, false);
     });
 });
