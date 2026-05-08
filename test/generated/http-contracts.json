@@ -6930,7 +6930,7 @@
             "path": "/channels/:channel_id/webhooks/",
             "samplePath": "/channels/100000000000000002/webhooks/",
             "sourceFile": "src/api/routes/channels/#channel_id/webhooks.ts",
-            "line": 58,
+            "line": 57,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
