@@ -22,8 +22,6 @@ import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
 
 // Docs: https://discord.com/developers/docs/topics/rate-limits
 
-// TODO: use better caching (e.g. redis) as else it creates to much pressure on the database
-
 /*
 ? bucket limit? Max actions/sec per bucket?
 (ANSWER: a small spacebar instance might not need a complex rate limiting system)
