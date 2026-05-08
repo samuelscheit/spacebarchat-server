@@ -7352,7 +7352,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 187,
+            "line": 194,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7523,7 +7523,7 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "rateLimit": {
                 "group": "guild",

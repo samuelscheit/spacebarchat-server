@@ -156,6 +156,13 @@ router.patch(
 router.put(
     "/",
     route({
+        query: {
+            lurker: {
+                type: "string",
+                description: "Return 204 for existing member lurker join probes.",
+                values: ["true", "1"],
+            },
+        },
         responses: {
             200: {
                 body: "MemberJoinGuildResponse",

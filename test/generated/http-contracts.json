@@ -9969,7 +9969,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 212,
+            "line": 194,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -10041,7 +10041,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 26,
+            "line": 27,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -10111,7 +10111,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 68,
+            "line": 69,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -10185,7 +10185,7 @@
             "path": "/guilds/:guild_id/members/:member_id/",
             "samplePath": "/guilds/100000000000000001/members/100000000000000004/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 155,
+            "line": 156,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -10200,7 +10200,7 @@
             },
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "MemberJoinGuildResponse"],
-                "responseStatuses": [200, 403, 404]
+                "responseStatuses": [200, 204, 403, 404]
             },
             "cases": [
                 {

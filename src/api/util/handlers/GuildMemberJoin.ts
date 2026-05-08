@@ -39,15 +39,23 @@ export type GuildMemberJoinResult =
           data: unknown;
       };
 
+type GuildMemberJoinRights = {
+    hasThrow: (right: "JOIN_GUILDS") => unknown;
+};
+
+type GuildMemberJoinGuild = {
+    features: string[];
+} & object;
+
 export type GuildMemberJoinDependencies = {
-    getRights: (user_id: string) => ReturnType<typeof getRights>;
-    configGet: typeof Config.get;
+    getRights: (user_id: string) => Promise<GuildMemberJoinRights>;
+    configGet: () => { user: { botsCanUseInvites: boolean } };
     memberCount: (query: unknown) => Promise<number>;
-    memberAddToGuild: typeof Member.addToGuild;
-    guildFindOneOrFail: (query: unknown) => Promise<Guild>;
-    emojiFind: (query: unknown) => Promise<Emoji[]>;
-    roleFind: (query: unknown) => Promise<Role[]>;
-    stickerFind: (query: unknown) => Promise<Sticker[]>;
+    memberAddToGuild: (member_id: string, guild_id: string) => Promise<unknown>;
+    guildFindOneOrFail: (query: unknown) => Promise<GuildMemberJoinGuild>;
+    emojiFind: (query: unknown) => Promise<unknown[]>;
+    roleFind: (query: unknown) => Promise<unknown[]>;
+    stickerFind: (query: unknown) => Promise<unknown[]>;
 };
 
 const defaultDependencies: GuildMemberJoinDependencies = {

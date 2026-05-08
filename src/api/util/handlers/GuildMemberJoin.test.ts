@@ -2,9 +2,8 @@ process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar-t
 
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-
-const util = require("@spacebar/util");
-const { joinGuildMember, isLurkerJoinRequest } = require("./GuildMemberJoin");
+import { DiscordApiErrors } from "@spacebar/util";
+import { joinGuildMember, isLurkerJoinRequest } from "./GuildMemberJoin";
 
 type Rights = { hasThrow: (right: string) => void };
 
@@ -81,7 +80,7 @@ describe("joinGuildMember", () => {
         const harness = installHarness();
         await assert.rejects(
             joinGuildMember({ guild_id: "guild-id", member_id: "other-user-id", user_id: "user-id", query: { lurker: "true" } }, harness.dependencies),
-            util.DiscordApiErrors.MISSING_REQUIRED_OAUTH2_SCOPE,
+            DiscordApiErrors.MISSING_REQUIRED_OAUTH2_SCOPE,
         );
         assert.deepEqual(harness.findCalls, []);
         assert.deepEqual(harness.addToGuildCalls, []);
