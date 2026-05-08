@@ -62,6 +62,7 @@ router.post(
     route({
         requestBody: "ChannelCreateSchema",
         permission: "MANAGE_CHANNELS",
+        event: "CHANNEL_CREATE",
         responses: {
             201: {
                 body: "Channel",
