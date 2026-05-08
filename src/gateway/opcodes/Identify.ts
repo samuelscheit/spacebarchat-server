@@ -71,6 +71,19 @@ import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { randomString } from "@spacebar/api";
 
+type ReadyThreadPayload = ReturnType<Channel["toJSON"]> & {
+    member?: ReturnType<ThreadMember["toJSON"]>;
+};
+
+type PendingGuildCreateData = {
+    id: string;
+    joined_at: Date;
+    threads: ReadyThreadPayload[];
+    guild_scheduled_events: unknown[];
+    presences: unknown[];
+    stage_instances: ReturnType<StageInstance["toPublicStageInstance"]>[];
+};
+
 // TODO: user sharding
 // TODO: check privileged intents, if defined in the config
 
@@ -499,10 +512,9 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const merged_members = toReadyMergedMembers(members, user.toPublicUser());
     const mergedMembersTime = taskSw.getElapsedAndReset();
 
-    // Populated with guilds 'unavailable' currently
-    // Just for bots
-    //TODO get this a better type
-    const pending_guilds: { id: string }[] = [];
+    // Populated with full guild payloads that are initially sent as unavailable in READY,
+    // then delivered to bot users as GUILD_CREATE dispatches.
+    const pending_guilds: PendingGuildCreateData[] = [];
 
     // Generate guilds list ( make them unavailable if user is bot )
     const guilds: GuildOrUnavailable[] = members.map((member) => {
@@ -539,7 +551,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             guild_scheduled_events: [],
             presences: [],
             stage_instances: (stageInstancesByGuild.get(member.guild_id) ?? []).map((stageInstance) => stageInstance.toPublicStageInstance()),
-        };
+        } satisfies PendingGuildCreateData;
 
         if (user.bot) {
             pending_guilds.push(guildjson);
