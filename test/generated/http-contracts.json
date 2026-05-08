@@ -17,10 +17,10 @@
         "runtimeProtectedInvalidBodyContracts": 53,
         "runtimePublicResponseSchemaContracts": 8,
         "runtimeAuthenticatedResponseSchemaContracts": 18,
-        "runtimeRightOnlyDenialContracts": 6,
+        "runtimeRightOnlyDenialContracts": 7,
         "runtimePermissionOnlyDenialContracts": 80,
-        "runtimePermissionAndRightPermissionDenialContracts": 8,
-        "runtimePermissionAndRightRightDenialContracts": 8,
+        "runtimePermissionAndRightPermissionDenialContracts": 7,
+        "runtimePermissionAndRightRightDenialContracts": 7,
         "runtimeEventEmissionContracts": 6,
         "runtimeRateLimitHeaderContracts": 152,
         "runtimeCdnMissingObjectContracts": 19,
@@ -4510,7 +4510,7 @@
             "path": "/channels/:channel_id/messages/",
             "samplePath": "/channels/100000000000000002/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 528,
+            "line": 535,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4588,7 +4588,7 @@
             "path": "/channels/:channel_id/messages/ack",
             "samplePath": "/channels/100000000000000002/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 530,
+            "line": 537,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15765,7 +15765,6 @@
                 "requestBody": "MessageCreateSchema",
                 "responses": ["APIErrorResponse", "APIPublicMessage"],
                 "responseStatuses": [200, 400, 403, 404],
-                "permission": "VIEW_CHANNEL",
                 "right": "SEND_MESSAGES",
                 "emittedEvents": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
             },
@@ -15794,7 +15793,6 @@
                 {
                     "id": "authorization-denied",
                     "checks": ["permission-denied", "error-shape"],
-                    "permission": "VIEW_CHANNEL",
                     "right": "SEND_MESSAGES"
                 },
                 {

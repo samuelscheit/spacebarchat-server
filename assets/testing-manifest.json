@@ -3402,7 +3402,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 528,
+            "line": 535,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3463,7 +3463,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 530,
+            "line": 537,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11502,7 +11502,6 @@
                     404
                 ],
                 "hasQuery": false,
-                "permission": "VIEW_CHANNEL",
                 "emittedEvents": [
                     "CHANNEL_CREATE",
                     "CHANNEL_UPDATE",

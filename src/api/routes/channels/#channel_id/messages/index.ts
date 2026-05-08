@@ -279,6 +279,12 @@ export const createMessagePermissionRoute = route({
     },
 });
 
+export const loadMessageChannelPermissions: RequestHandler = async (req, _res, next) => {
+    const { guild_id, channel_id } = req.params as { [key: string]: string };
+    req.permission = await getPermission(req.user_id, guild_id, channel_id);
+    next();
+};
+
 export const createMessageHandler: RequestHandler = async (req: Request, res: Response) => {
     const { channel_id } = req.params as { [key: string]: string };
     const body = req.body as MessageCreateSchema;
@@ -523,6 +529,7 @@ export const createMessageHandler: RequestHandler = async (req: Request, res: Re
 
 export const createMessageBodyRouteHandlers: RequestHandler[] = [createMessageUploadHandler, normalizeMessageCreateRequestBody, createMessageBodyRoute];
 export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
+export const createMessageResolvedChannelRouteHandlers: RequestHandler[] = [loadMessageChannelPermissions, createMessageHandler];
 export const createMessageRouteHandlers: RequestHandler[] = [...createMessageBodyRouteHandlers, ...createMessageChannelRouteHandlers];
 
 router.post("/", ...createMessageRouteHandlers);
