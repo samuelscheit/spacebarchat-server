@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+import { serializeOAuthAuthorizeApplication } from "../../util/utility/OAuthAuthorize";
 const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
@@ -124,20 +125,7 @@ router.get(
                 discriminator: user.discriminator,
                 public_flags: user.public_flags,
             },
-            application: {
-                id: app.id,
-                name: app.name,
-                icon: app.icon,
-                description: app.description,
-                summary: app.summary,
-                type: app.type,
-                hook: app.hook,
-                guild_id: null, // TODO support guilds
-                bot_public: app.bot_public,
-                bot_require_code_grant: app.bot_require_code_grant,
-                verify_key: app.verify_key,
-                flags: app.flags,
-            },
+            application: serializeOAuthAuthorizeApplication(app),
             bot: {
                 id: bot.id,
                 username: bot.username,
