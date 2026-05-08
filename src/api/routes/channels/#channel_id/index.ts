@@ -40,7 +40,6 @@ import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } f
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
-// TODO: Get channel
 
 function isStatusOnlyUpdate(payload: ChannelModifySchema) {
     const fields = Object.keys(payload) as (keyof ChannelModifySchema)[];
