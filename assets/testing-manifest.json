@@ -1618,7 +1618,7 @@
             "method": "POST",
             "path": "/auth/register/",
             "sourceFile": "src/api/routes/auth/register.ts",
-            "line": 56,
+            "line": 57,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
