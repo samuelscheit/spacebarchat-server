@@ -17,6 +17,7 @@
 */
 
 export * from "./api";
+export * from "./BitField";
 export * from "./gateway";
 export * from "./responses";
 export * from "./uncategorised";

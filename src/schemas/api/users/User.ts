@@ -17,8 +17,7 @@
 */
 
 import { ConnectedAccountSchema, Snowflake, UserSettingsSchema } from "@spacebar/schemas";
-// TODO: maybe move the one thing this depends on to
-import { BitField } from "@spacebar/util/util";
+import { BitField } from "../../BitField";
 // TODO: remove entity import
 import { Relationship, Session } from "@spacebar/util/entities";
 
