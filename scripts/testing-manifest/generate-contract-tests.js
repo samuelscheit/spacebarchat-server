@@ -183,6 +183,7 @@ function buildContractMatrix(manifest) {
     const runtimeProtectedInvalidBodyContracts = contracts.filter(supportsRuntimeProtectedInvalidBodyContract).length;
     const runtimePublicResponseSchemaContracts = contracts.filter(supportsRuntimePublicResponseSchemaContract).length;
     const runtimeAuthenticatedResponseSchemaContracts = contracts.filter(supportsRuntimeAuthenticatedResponseSchemaContract).length;
+    const runtimeRightOnlyDenialContracts = contracts.filter(supportsRuntimeRightOnlyDenialContract).length;
 
     return {
         schemaVersion: 1,
@@ -203,9 +204,14 @@ function buildContractMatrix(manifest) {
             runtimeProtectedInvalidBodyContracts,
             runtimePublicResponseSchemaContracts,
             runtimeAuthenticatedResponseSchemaContracts,
+            runtimeRightOnlyDenialContracts,
         },
         contracts,
     };
+}
+
+function supportsRuntimeRightOnlyDenialContract(contract) {
+    return contract.service === "api" && contract.authMode === "bearer" && contract.method !== "OPTIONS" && contract.routeMetadata.right && !contract.routeMetadata.permission;
 }
 
 function supportsRuntimePublicInvalidBodyContract(contract) {
@@ -360,6 +366,7 @@ type GeneratedHttpContractMatrix = {
         runtimeProtectedInvalidBodyContracts: number;
         runtimePublicResponseSchemaContracts: number;
         runtimeAuthenticatedResponseSchemaContracts: number;
+        runtimeRightOnlyDenialContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -443,6 +450,14 @@ const authenticatedResponseSchemaContracts = matrix.contracts.filter(
         contract.routeMetadata.responseStatuses.includes(200) &&
         contract.routeMetadata.responses.some((schema) => !["APIErrorResponse", "Object"].includes(schema) && schemas[schema]),
 );
+const rightOnlyDenialContracts = matrix.contracts.filter(
+    (contract) =>
+        contract.service === "api" &&
+        contract.authMode === "bearer" &&
+        contract.method !== "OPTIONS" &&
+        contract.routeMetadata.right &&
+        !contract.routeMetadata.permission,
+);
 
 function silenceConsole() {
     const previous = {
@@ -479,6 +494,18 @@ function configurePublicResponseSchemaRuntime() {
 
 function responseSchemaForContract(contract: GeneratedHttpContract) {
     return contract.routeMetadata.responses.find((schema) => !["APIErrorResponse", "Object"].includes(schema) && schemas[schema]);
+}
+
+function metadataValues(value: unknown): string[] {
+    if (Array.isArray(value)) return value.map(String);
+    if (value === undefined || value === null) return [];
+    return [String(value)];
+}
+
+function requiredRightForContract(contract: GeneratedHttpContract) {
+    const [right] = metadataValues(contract.routeMetadata.right);
+    assert.ok(right, \`\${contract.manifestId} should declare a required right\`);
+    return right;
 }
 
 function snapshotProcessState() {
@@ -713,6 +740,47 @@ test(
                     const body = (await response.json()) as Record<string, unknown>;
                     assert.equal(body.code, 401, \`\${contract.manifestId} should return the stale token error code\`);
                     assert.equal(body.message, "Error: Invalid Token", \`\${contract.manifestId} should return the stale token error message\`);
+                    assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
+                }
+            });
+        } finally {
+            restoreConsole();
+        }
+    },
+);
+
+test(
+    "generated HTTP right-only authorization contracts reject users without declared rights through the real API stack",
+    {
+        skip: !hasPostgresAdminUrl(),
+        timeout: 120_000,
+    },
+    async () => {
+        assert.equal(rightOnlyDenialContracts.length, matrix.summary.runtimeRightOnlyDenialContracts);
+        assert.ok(rightOnlyDenialContracts.length > 0, "expected right-only API routes to be covered");
+
+        const restoreConsole = silenceConsole();
+        try {
+            await withAuthenticatedApi("spacebar_contracts_right_denial", async ({ api, token, user }) => {
+                user.rights = "0";
+                await user.save();
+
+                for (const contract of rightOnlyDenialContracts) {
+                    const requiredRight = requiredRightForContract(contract);
+                    const response = await fetch(\`\${api.apiBaseUrl}\${contract.samplePath}\`, {
+                        method: contract.method,
+                        headers: {
+                            accept: "application/json",
+                            authorization: \`Bearer \${token}\`,
+                        },
+                    });
+
+                    assert.equal(response.status, 403, \`\${contract.manifestId} should reject users missing \${requiredRight}\`);
+                    assert.match(response.headers.get("content-type") ?? "", /application\\/json/, \`\${contract.manifestId} should return a JSON authorization error\`);
+
+                    const body = (await response.json()) as Record<string, unknown>;
+                    assert.equal(body.code, 50013, \`\${contract.manifestId} should return the missing-rights error code\`);
+                    assert.equal(body.message, \`You lack rights to perform that action (\${requiredRight})\`, \`\${contract.manifestId} should return the missing-rights message\`);
                     assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
