@@ -20,6 +20,7 @@ export * from "./utility/Base64";
 export * from "./utility/ActiveThreads";
 export * from "./utility/AjvErrorFields";
 export * from "./utility/AttachmentRefresh";
+export * from "./utility/DiscoveryCategories";
 export * from "./utility/DiscoverableGuildCategories";
 export * from "./utility/Experiments";
 export * from "./utility/Fingerprint";

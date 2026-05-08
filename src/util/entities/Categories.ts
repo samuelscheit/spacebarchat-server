@@ -25,7 +25,9 @@ const CategoryLocalizationsTransformer: ValueTransformer = {
     from: normalizeCategoryLocalizations,
 };
 
-// TODO: categories:
+// Discovery categories use Discord's stable integer category IDs instead of snowflakes.
+// Default rows are inserted by the DefaultDiscoveryCategories migration.
+// Example payload shape:
 // [{
 // 	"id": 16,
 // 	"default": "Anime & Manga",
@@ -37,7 +39,6 @@ const CategoryLocalizationsTransformer: ValueTransformer = {
 // 	},
 // 	"is_primary": false/true
 // }]
-// Also populate discord default categories
 
 @Entity({
     name: "categories",

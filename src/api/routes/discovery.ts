@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { createDiscoveryCategoryFindOptions, route } from "@spacebar/api";
 import { Categories } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -35,10 +35,7 @@ router.get(
         // TODO:
         // Get locale instead
 
-        // const { locale, primary_only } = req.query;
-        const { primary_only } = req.query;
-
-        const out = primary_only ? await Categories.find({ where: { is_primary: true } }) : await Categories.find();
+        const out = await Categories.find(createDiscoveryCategoryFindOptions(req.query.primary_only));
 
         res.send(out);
     },

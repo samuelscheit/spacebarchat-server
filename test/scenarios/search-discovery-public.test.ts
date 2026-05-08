@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Categories, closeDatabase, Config, generateToken, initDatabase, User } from "@spacebar/util";
+import { closeDatabase, Config, DEFAULT_DISCOVERY_CATEGORIES, generateToken, initDatabase, User } from "@spacebar/util";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeGuild } from "../fixtures/entities";
@@ -253,13 +253,15 @@ async function coverDiscoveryRoutes(api: StartedApi, token: string) {
     const categories = await getJsonArray(`${api.apiBaseUrl}/discovery/categories`, token);
     assert.deepEqual(
         categories.map((category) => category.id),
-        [1, 2],
+        DEFAULT_DISCOVERY_CATEGORIES.map((category) => category.id),
     );
+    assert.equal(categories.find((category) => category.id === 1)?.name, "Gaming");
+    assert.deepEqual(categories.find((category) => category.id === 1)?.localizations, { de: "Gaming", fr: "Gaming", ru: "Игры" });
 
     const primaryCategories = await getJsonArray(`${api.apiBaseUrl}/discovery/categories?primary_only=true`, token);
     assert.deepEqual(
         primaryCategories.map((category) => category.id),
-        [1],
+        DEFAULT_DISCOVERY_CATEGORIES.filter((category) => category.is_primary).map((category) => category.id),
     );
 
     await assertJsonError(await getJson(`${api.apiBaseUrl}/discoverable-guilds?categories=1&limit=5`), 401);
@@ -314,9 +316,6 @@ async function coverGifRoutes(api: StartedApi, token: string, tenorRequests: str
 }
 
 async function seedDiscoveryData(owner: User) {
-    await Categories.create({ id: 1, name: "Gaming", is_primary: true, icon: "controller", localizations: {} }).save();
-    await Categories.create({ id: 2, name: "Music", is_primary: false, icon: "music", localizations: {} }).save();
-
     await makeGuild(owner, {
         id: "100000000000002001",
         name: "Discoverable Scenario",
