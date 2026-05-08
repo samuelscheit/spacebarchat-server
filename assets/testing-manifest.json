@@ -5288,7 +5288,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 47,
+            "line": 54,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5330,7 +5330,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 75,
+            "line": 82,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
