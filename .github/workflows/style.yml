@@ -10,6 +10,22 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: spacebar
+          POSTGRES_PASSWORD: spacebar
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_DATABASE_ADMIN_URL: postgres://spacebar:spacebar@127.0.0.1:5432/postgres
 
     strategy:
       matrix:
@@ -23,8 +39,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - run: npm i --only=dev
+    - run: npm ci
     - run: npm run test:manifest
+    - run: npm run test:contracts
+    - run: npm run test:harness
+    - run: npm run test:scenarios
+    - run: npm run test:protocol
+    - run: npm run test:migrations
     - run: npm run bench:test
     - run: npx eslint .
     - run: npx prettier --check .
