@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import type { AddressInfo } from "node:net";
+import path from "node:path";
 import { describe, test, type TestContext } from "node:test";
 import express from "express";
 import {
@@ -248,8 +249,8 @@ describe("recent avatars", () => {
             };
             return undefined;
         });
-        t.mock.method(util, "deleteFile", async (path: string) => {
-            deletedFiles.push(path);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
             return { success: true };
         });
 
@@ -284,7 +285,7 @@ describe("recent avatars", () => {
             };
             return undefined;
         });
-        t.mock.method(util, "deleteFile", async () => {
+        t.mock.method(getCdnUtilModule(), "deleteFile", async () => {
             throw new Error("cdn delete failed");
         });
         t.mock.method(console, "warn", (...args: unknown[]) => {
@@ -321,8 +322,8 @@ describe("recent avatars", () => {
         t.mock.method(User, "findOne", async () => ({ avatar: "old-hash" }));
         t.mock.method(UserRecentAvatar, "find", async () => rows);
         t.mock.method(UserRecentAvatar, "delete", async () => undefined);
-        t.mock.method(util, "deleteFile", async (path: string) => {
-            deletedFiles.push(path);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
             return { success: true };
         });
 
@@ -350,8 +351,8 @@ describe("recent avatars", () => {
         });
         t.mock.method(UserRecentAvatar, "find", async () => rows);
         t.mock.method(UserRecentAvatar, "delete", async () => undefined);
-        t.mock.method(util, "deleteFile", async (path: string) => {
-            deletedFiles.push(path);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
             return { success: true };
         });
 
@@ -387,6 +388,10 @@ function mockCurrentUserLookup(t: TestContext, User: typeof import("@spacebar/ut
     t.mock.method(User, "findOneOrFail", async () => new FakeUser() as unknown as InstanceType<typeof User>);
 
     return () => assignedBody;
+}
+
+function getCdnUtilModule(): typeof import("../../../util/util/cdn") {
+    return require(path.join(path.dirname(require.resolve("@spacebar/util")), "util", "cdn"));
 }
 
 function createUserRouteApp(router: express.Router, mountPath = "/users/@me") {
