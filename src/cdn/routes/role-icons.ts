@@ -19,8 +19,6 @@
 import { STATIC_IMAGE_MIME_TYPES } from "../util/ImageRouteHelpers";
 import { createHashImageRouter } from "../util/ImageRoute";
 
-// TODO: generate different sizes of icon
-
 // WebP can be animated while still reporting image/webp, so keep role icons to
 // formats this route can classify as static from MIME detection alone.
 export const ROLE_ICON_MIME_TYPES = STATIC_IMAGE_MIME_TYPES.filter((mimeType) => mimeType !== "image/webp");
@@ -30,4 +28,5 @@ export default createHashImageRouter({
     resourceParam: "role_id",
     allowedMimeTypes: ROLE_ICON_MIME_TYPES,
     legacyHashExtensions: ["png", "jpg", "jpeg", "webp", "svg"],
+    resize: true,
 });

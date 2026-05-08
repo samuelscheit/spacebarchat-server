@@ -16435,7 +16435,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id/:hash",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 28,
+            "line": 26,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -16466,7 +16466,7 @@
             "method": "DELETE",
             "path": "/role-icons/:role_id/:id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 28,
+            "line": 26,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -16497,7 +16497,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 28,
+            "line": 26,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -16528,7 +16528,7 @@
             "method": "POST",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 28,
+            "line": 26,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false

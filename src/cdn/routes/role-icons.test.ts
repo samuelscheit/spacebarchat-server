@@ -10,6 +10,7 @@ import express, { NextFunction, Request, Response, Router } from "express";
 import { after, before, describe, mock, test } from "node:test";
 import { Config, ConfigValue } from "@spacebar/util";
 import { initializeStorage } from "@spacebar/cdn";
+import imageSize from "image-size";
 
 const PNG_IMAGE = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 const JPEG_IMAGE = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
@@ -96,6 +97,24 @@ describe("role icon CDN route", () => {
             assert.equal(download.status, 200);
             assert.equal(download.headers.get("content-type"), "image/jpeg");
             assert.ok((await download.arrayBuffer()).byteLength > 0);
+        }
+    });
+
+    test("resizes PNG role icon downloads for supported size requests", async () => {
+        const roleId = "resized-role";
+        const response = await uploadRoleIcon(roleId, PNG_IMAGE, "image/png", "icon.png");
+        const body = (await response.json()) as { id: string };
+
+        assert.equal(response.status, 200);
+
+        for (const hashPath of [roleId, `${roleId}/${body.id}.png`]) {
+            const download = await fetch(`${baseUrl}/role-icons/${hashPath}?size=16`);
+            assert.equal(download.status, 200);
+            assert.equal(download.headers.get("content-type"), "image/png");
+
+            const dimensions = imageSize(Buffer.from(await download.arrayBuffer()));
+            assert.equal(dimensions.width, 16);
+            assert.equal(dimensions.height, 16);
         }
     });
 
