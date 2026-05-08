@@ -70,6 +70,18 @@ test("ReadyGuildDTO preserves already-public stage instances from READY guild pa
     assert.deepEqual(dto.stage_instances, [stageInstance]);
 });
 
+test("ReadyGuildDTO emits an empty application command count map for available guilds", () => {
+    const dto = new ReadyGuildDTO(makeReadyGuild([])).toJSON();
+
+    assert.deepEqual(dto.application_command_counts, {});
+});
+
+test("ReadyGuildDTO omits application command counts for unavailable guild placeholders", () => {
+    const dto = new ReadyGuildDTO({ id: stageInstance.guild_id, unavailable: true }).toJSON();
+
+    assert.equal(dto.application_command_counts, undefined);
+});
+
 test("ReadyGuildDTO serializes stage instance entities for guild create payloads", () => {
     const dto = new ReadyGuildDTO(
         makeReadyGuild([
