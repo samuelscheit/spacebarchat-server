@@ -17,18 +17,13 @@
 */
 
 import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { ThreadMembersUpdateEvent } from "../interfaces";
+import type { ThreadMembersUpdateEvent } from "../interfaces";
+import type { ThreadMemberMuteConfig } from "../interfaces/ThreadMember";
 import { emitEvent } from "../util";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Channel } from "./Channel";
 import { HTTPError } from "lambert-server";
 import { Member } from "./Member";
-
-// TODO: move
-interface ThreadMemberMuteConfig {
-    end_time?: Date;
-    selected_time_window?: number;
-}
 
 // TODO: move
 export enum ThreadMemberFlags {
