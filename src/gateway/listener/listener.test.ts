@@ -85,6 +85,7 @@ describe("gateway listener intent filtering", () => {
         const guildMembers = new Intents(Intents.FLAGS.GUILD_MEMBERS);
         const guildInvites = new Intents(Intents.FLAGS.GUILD_INVITES);
         const guildMessages = new Intents(Intents.FLAGS.GUILD_MESSAGES);
+        const automodConfiguration = new Intents(Intents.FLAGS.AUTO_MODERATION_CONFIGURATION);
         const presences = new Intents(Intents.FLAGS.GUILD_PRESENCES);
 
         assert.equal(shouldSubscribeDirectMessageEvents(noIntents), false);
@@ -101,6 +102,8 @@ describe("gateway listener intent filtering", () => {
         assert.equal(shouldSubscribeGuildChannelEvents(guildInvites), false);
         assert.equal(shouldSubscribeGuildEvents(guildMessages), true);
         assert.equal(shouldSubscribeGuildChannelEvents(guildMessages), true);
+        assert.equal(shouldSubscribeGuildEvents(automodConfiguration), true);
+        assert.equal(shouldSubscribeGuildChannelEvents(automodConfiguration), false);
         assert.equal(shouldSubscribePresenceEvents(presences), true);
         assert.equal(shouldSubscribeGuildChannelEvents(presences), false);
     });

@@ -102,7 +102,7 @@ function hasAnyIntentBit(intents: Intents, intentBits: Iterable<number>) {
 }
 
 export function shouldSubscribeGuildEvents(intents: Intents) {
-    return hasAnyIntent(intents, Intents.GUILD_INTENT_TO_EVENTS_MAP);
+    return hasAnyIntent(intents, Intents.GUILD_INTENT_TO_EVENTS_MAP) || hasAnyIntent(intents, Intents.INTENT_TO_EVENTS_MAP);
 }
 
 export function shouldSubscribeGuildChannelEvents(intents: Intents) {
