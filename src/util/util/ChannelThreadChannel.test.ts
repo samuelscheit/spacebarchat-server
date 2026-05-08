@@ -34,6 +34,7 @@ const schemasMock = new Proxy(
     {
         ApplicationCommandType: { CHAT_INPUT: 1 },
         ChannelType: {
+            GUILD_TEXT: 0,
             GUILD_NEWS_THREAD: 10,
             GUILD_PUBLIC_THREAD,
             GUILD_PRIVATE_THREAD,
@@ -64,6 +65,7 @@ const schemasMock = new Proxy(
 
 const { Snowflake } = localRequire("./Snowflake") as { Snowflake: SnowflakeClass };
 
+const GUILD_TEXT = 0;
 const utilMock = {
     Config: {
         get: () => ({
@@ -165,6 +167,30 @@ function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[]) {
 }
 
 describe("Channel.createThreadChannel", () => {
+    test("rejects non-thread channel types before persistence", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+
+        await assert.rejects(
+            () =>
+                Channel.createThreadChannel(
+                    {
+                        id: "text-channel",
+                        parent_id: "parent",
+                        guild_id: "guild",
+                        name: "not-a-thread",
+                        type: GUILD_TEXT,
+                    },
+                    {},
+                    "user",
+                    { keepId: true, skipEventEmit: true, skipNameChecks: true, skipPermissionCheck: true },
+                ),
+            /createThreadChannel can only create thread channel types/,
+        );
+
+        assert.deepEqual(findOneCalls, []);
+    });
+
     test("generates an id before duplicate lookup when keepId is set without an id", async () => {
         const findOneCalls: FindOneOptionsWithId[] = [];
         stubThreadPersistence(findOneCalls);

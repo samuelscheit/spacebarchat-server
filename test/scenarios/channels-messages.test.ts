@@ -150,6 +150,19 @@ test(
             const channelsAfterCreate = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, token);
             assert.deepEqual(channelsAfterCreate.map((channel) => channel.id).sort(), [defaultChannelId, channelId].sort());
 
+            const beforeRejectedThread = markCapturedEvents(guildEvents);
+            const rejectedThread = await postJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, { name: "scenario-thread", type: ChannelType.GUILD_PUBLIC_THREAD }, token);
+            await assertStatus(rejectedThread, 400);
+            assert.equal(await Channel.findOneBy({ guild_id: guildId, name: "scenario-thread", type: ChannelType.GUILD_PUBLIC_THREAD }), null);
+            await assert.rejects(
+                waitForEventAfter(
+                    guildEvents,
+                    beforeRejectedThread,
+                    (event) => event.event === "CHANNEL_CREATE" && event.guild_id === guildId && event.data.name === "scenario-thread",
+                ),
+                /Timed out waiting for event/,
+            );
+
             const reorderChannels = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, [{ id: channelId, position: 0 }], token);
             await assertStatus(reorderChannels, 204);
             const reorderEvent = await guildEvents.waitFor((event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId, eventTimeoutMs);

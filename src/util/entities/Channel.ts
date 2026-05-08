@@ -339,6 +339,10 @@ export class Channel extends BaseClass {
             total_message_sent: 0,
         };
 
+        if (!isThreadChannelType(channel.type)) {
+            throw new HTTPError("createThreadChannel can only create thread channel types", 400);
+        }
+
         const exists = await Channel.findOne({
             where: {
                 id: channel.id,
