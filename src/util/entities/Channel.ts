@@ -267,7 +267,6 @@ export class Channel extends BaseClass {
         }
 
         if (!channel.permission_overwrites) channel.permission_overwrites = [];
-        // TODO: eagerly auto generate position of all guild channels
 
         const position = (channel.type === ChannelType.UNHANDLED ? 0 : channel.position) || 0;
         const id = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
