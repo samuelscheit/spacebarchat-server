@@ -21,6 +21,7 @@ export default defineConfig([
         ignores: [
             "**/node_modules/**",
             "**/dist/**",
+            "**/dist-test/**",
             "**/.next/**",
             "**/README.md",
             "**/COPYING",
@@ -99,6 +100,38 @@ export default defineConfig([
     {
         files: ["**/*.js", "**/*.cjs", "**/*.mjs"],
         extends: typescriptEslint.configs?.disableTypeChecked ? [typescriptEslint.configs.disableTypeChecked] : [],
+        rules: {
+            "@typescript-eslint/no-require-imports": "off",
+        },
+    },
+    {
+        files: ["scripts/**/*.js", "scripts/**/*.cjs", "scripts/**/*.mjs", "test/generated/**/*.js", "**/*.cjs"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
+    {
+        files: ["**/*.test.ts", "test/**/*.ts"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+
+            parser: tsParser,
+            parserOptions: {
+                ecmaVersion: "latest",
+                sourceType: "module",
+                projectService: false,
+                tsconfigRootDir: __dirname,
+            },
+        },
+
+        rules: {
+            "@typescript-eslint/no-deprecated": "off",
+            "@typescript-eslint/no-require-imports": "off",
+        },
     },
     {
         files: ["benchmarks/**/*.js"],

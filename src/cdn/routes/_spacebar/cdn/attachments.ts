@@ -12,6 +12,13 @@ const router = Router({ mergeParams: true });
 
 router.put("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Request, res: Response) => {
     const { channel_id, batch_id, attachment_id, filename } = req.params as { [key: string]: string };
+    const maxLength = Config.get().cdn.maxAttachmentSize;
+    const contentLength = Number(req.headers["content-length"]);
+
+    if (Number.isFinite(contentLength) && contentLength > maxLength) {
+        return res.status(413).send("File too large");
+    }
+
     const att = await CloudAttachment.findOneOrFail({
         where: {
             uploadFilename: `${channel_id}/${batch_id}/${attachment_id}/${filename}`,
@@ -21,49 +28,46 @@ router.put("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Reques
         },
     });
 
-    const maxLength = Config.get().cdn.maxAttachmentSize;
-
     console.log("[Cloud Upload] Uploading attachment", att.id, att.userFilename, `Max size: ${maxLength} bytes`);
 
     const chunks: Buffer[] = [];
     let length = 0;
 
-    req.on("data", (chunk) => {
+    for await (const rawChunk of req) {
+        const chunk = Buffer.isBuffer(rawChunk) ? rawChunk : Buffer.from(rawChunk);
         console.log(`[Cloud Upload] Received chunk of size ${chunk.length} bytes`);
-        chunks.push(chunk);
         length += chunk.length;
         if (length > maxLength) {
-            res.status(413).send("File too large");
-            req.destroy();
+            return res.status(413).send("File too large");
         }
-    });
-    req.on("end", async () => {
-        console.log(`[Cloud Upload] Finished receiving file, total size ${length} bytes`);
-        const buffer = Buffer.concat(chunks);
-        const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
+        chunks.push(chunk);
+    }
 
-        await storage.set(path, buffer);
+    console.log(`[Cloud Upload] Finished receiving file, total size ${length} bytes`);
+    const buffer = Buffer.concat(chunks);
+    const path = `attachments/${channel_id}/${batch_id}/${attachment_id}/${filename}`;
 
-        let mimeType = att.userOriginalContentType;
-        if (att.userOriginalContentType === null) {
-            const ft = await fileTypeFromBuffer(buffer);
-            mimeType = att.contentType = ft?.mime || "application/octet-stream";
+    await storage.set(path, buffer);
+
+    let mimeType = att.userOriginalContentType;
+    if (att.userOriginalContentType === null) {
+        const ft = await fileTypeFromBuffer(buffer);
+        mimeType = att.contentType = ft?.mime || "application/octet-stream";
+    }
+
+    if (mimeType?.includes("image")) {
+        const dimensions = imageSize(buffer);
+        if (dimensions) {
+            att.width = dimensions.width;
+            att.height = dimensions.height;
         }
+    }
 
-        if (mimeType?.includes("image")) {
-            const dimensions = imageSize(buffer);
-            if (dimensions) {
-                att.width = dimensions.width;
-                att.height = dimensions.height;
-            }
-        }
+    att.size = buffer.length;
+    await att.save();
 
-        att.size = buffer.length;
-        await att.save();
-
-        console.log("[Cloud Upload] Saved attachment", att.id, att.userFilename);
-        res.status(200).end();
-    });
+    console.log("[Cloud Upload] Saved attachment", att.id, att.userFilename);
+    return res.status(200).end();
 });
 
 router.post("/:channel_id/:message_id", multer.single("file"), async (req: Request, res: Response) => {
@@ -136,8 +140,8 @@ router.delete("/:channel_id/:batch_id/:attachment_id/:filename", async (req: Req
     });
 
     if (att) {
+        if (await storage.exists(path)) await storage.delete(path);
         await att.remove();
-        await storage.delete(path);
         return res.send({ success: true });
     }
     return res.status(404).send("Attachment not found");
@@ -167,6 +171,7 @@ router.post("/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:m
     });
 
     if (att) {
+        if (!(await storage.exists(path))) return res.status(404).send("Attachment file not found");
         await storage.clone(path, newPath);
         return res.send({ success: true, new_path: newPath });
     }
