@@ -16967,7 +16967,27 @@
             "content_type": {
                 "type": "string"
             },
-            "content_scan_metadata": {},
+            "content_scan_metadata": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/JsonObject"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/JsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "number",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
             "placeholder_version": {
                 "type": "integer"
             },

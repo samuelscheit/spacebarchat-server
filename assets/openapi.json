@@ -16266,7 +16266,27 @@
                     "content_type": {
                         "type": "string"
                     },
-                    "content_scan_metadata": {},
+                    "content_scan_metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonObject"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "number",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
                     "placeholder_version": {
                         "type": "integer"
                     },
