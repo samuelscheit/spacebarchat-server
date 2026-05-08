@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
 import type { Role } from "../entities";
-import { Permissions } from "./Permissions";
+import { getPermissionMemberQueryOptions, Permissions } from "./Permissions";
 
 const CHANNEL_PERMISSION_OVERWRITE_ROLE = 0;
 const USER_FLAG_QUARANTINED = Number(1n << 44n);
@@ -134,5 +134,23 @@ describe("Permissions", () => {
         assert.equal(withOverwrite.has("VIEW_CHANNEL", false), false);
         assert.equal(withOverwrite.has("READ_MESSAGE_HISTORY", false), false);
         assert.equal(withOverwrite.has("CHANGE_NICKNAME", false), false);
+    });
+
+    test("member permission query selects join owner key for role hydration", () => {
+        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_relations: ["user"], member_select: ["flags", "roles"] });
+
+        assert.deepEqual(query.where, { guild_id: "guild_id", id: "user_id" });
+        assert.deepEqual(query.relations, ["roles", "user"]);
+        assert.deepEqual(query.select, {
+            index: true,
+            id: true,
+            guild_id: true,
+            communication_disabled_until: true,
+            flags: true,
+            roles: {
+                id: true,
+                permissions: true,
+            },
+        });
     });
 });

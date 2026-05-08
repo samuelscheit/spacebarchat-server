@@ -6,7 +6,7 @@ import type { Channel, Guild, Member, Role } from "../entities";
 import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
-import { FindOneOptions } from "typeorm";
+import { FindOneOptions, FindOptionsSelect } from "typeorm";
 
 export type PermissionResolvable = bigint | number | Permissions | PermissionResolvable[] | PermissionString;
 
@@ -248,19 +248,36 @@ export type PermissionCache = {
     user_id?: string;
 };
 
-export async function getPermission(
-    user_id?: string,
-    guild_id?: string | Guild,
-    channel_id?: string | Channel,
-    opts: {
-        guild_select?: (keyof Guild)[];
-        guild_relations?: string[];
-        channel_select?: (keyof Channel)[];
-        channel_relations?: string[];
-        member_select?: (keyof Member)[];
-        member_relations?: string[];
-    } = {},
-) {
+type GetPermissionOptions = {
+    guild_select?: (keyof Guild)[];
+    guild_relations?: string[];
+    channel_select?: (keyof Channel)[];
+    channel_relations?: string[];
+    member_select?: (keyof Member)[];
+    member_relations?: string[];
+};
+
+export function getPermissionMemberQueryOptions(guild_id: string, user_id: string, opts: GetPermissionOptions = {}): FindOneOptions<Member> {
+    const select: FindOptionsSelect<Member> = {
+        roles: {
+            id: true,
+            permissions: true,
+        },
+    };
+    const scalarSelect = select as Record<string, unknown>;
+    for (const key of ["index", "id", "guild_id", "communication_disabled_until", ...(opts.member_select || [])]) {
+        if (typeof key !== "string" || key === "roles") continue;
+        scalarSelect[key] = true;
+    }
+
+    return {
+        where: { guild_id, id: user_id },
+        relations: ["roles", ...(opts.member_relations || [])],
+        select,
+    };
+}
+
+export async function getPermission(user_id?: string, guild_id?: string | Guild, channel_id?: string | Channel, opts: GetPermissionOptions = {}) {
     const [{ User }, { Channel }, { Guild }, { Member }] = await Promise.all([
         import("../entities/User.js"),
         import("../entities/Channel.js"),
@@ -313,16 +330,7 @@ export async function getPermission(
         }
         if (guild.owner_id === user_id) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
 
-        member = await Member.findOneOrFail({
-            where: { guild_id: guild.id, id: user_id },
-            relations: ["roles", ...(opts.member_relations || [])],
-            // select: [
-            // "id",		// TODO: Bug in typeorm? adding these selects breaks the query.
-            // "roles",
-            // "communication_disabled_until",
-            // ...(opts.member_select || []),
-            // ],
-        });
+        member = await Member.findOneOrFail(getPermissionMemberQueryOptions(guild.id, user_id, opts));
     }
 
     let recipient_ids = channel?.recipients?.map((x) => x.user_id);
