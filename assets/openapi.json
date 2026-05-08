@@ -13620,6 +13620,10 @@
                     },
                     "session_nickname": {
                         "type": "string"
+                    },
+                    "gateway_intents": {
+                        "type": "string",
+                        "default": "0"
                     }
                 },
                 "required": [
@@ -13627,6 +13631,7 @@
                     "client_info",
                     "client_status",
                     "created_at",
+                    "gateway_intents",
                     "is_admin_session",
                     "session_id",
                     "status",

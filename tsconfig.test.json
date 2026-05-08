@@ -40,6 +40,7 @@
         "src/gateway/util/BotGuildCreatePayload.test.ts",
         "src/gateway/util/Utils.test.ts",
         "src/gateway/util/SessionIntents.test.ts",
+        "src/schemas/responses/SettingsProtoUpdateResponse.test.ts",
         "src/schemas/uncategorised/MessageCreateSchema.test.ts",
         "src/schemas/uncategorised/MessageSchemaValidation.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
