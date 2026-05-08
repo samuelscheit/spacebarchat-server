@@ -4,6 +4,8 @@ import { describe, test } from "node:test";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 
+const staleTypedUpdateSchemas = ["SettingsProtoUpdatePreloadedUserSettingsSchema", "SettingsProtoUpdateFrecencyUserSettingsSchema"] as const;
+
 describe("SettingsProtoUpdateJsonSchema", () => {
     test("generates a JSON value schema without array prototype properties", () => {
         const schemas = JSON.parse(fs.readFileSync("assets/schemas.json", "utf8"));
@@ -14,6 +16,18 @@ describe("SettingsProtoUpdateJsonSchema", () => {
         assert.ok(!jsonValue.includes("toString"));
         assert.ok(!jsonValue.includes("push"));
         assert.ok(jsonValue.includes('"number"'));
+    });
+
+    test("does not reintroduce stale typed settings update schemas", () => {
+        const source = fs.readFileSync("src/schemas/uncategorised/SettingsProtoUpdateSchema.ts", "utf8");
+        const schemas = JSON.parse(fs.readFileSync("assets/schemas.json", "utf8"));
+
+        for (const schemaName of staleTypedUpdateSchemas) {
+            assert.equal(source.includes(schemaName), false, `${schemaName} should not be declared in the update schema source`);
+            assert.equal(Object.hasOwn(schemas, schemaName), false, `${schemaName} should not be generated`);
+        }
+
+        assert.equal(schemas.SettingsProtoUpdateJsonSchema.properties.settings.$ref, "#/definitions/JsonObject");
     });
 
     test("validates arbitrary JSON settings objects", () => {
