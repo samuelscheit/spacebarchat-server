@@ -7,8 +7,13 @@ const ChannelType = {
     GUILD_VOICE: 2,
     GUILD_CATEGORY: 4,
     GUILD_NEWS: 5,
+    DM: 1,
+    GROUP_DM: 3,
+    GUILD_NEWS_THREAD: 10,
     GUILD_PUBLIC_THREAD: 11,
+    GUILD_PRIVATE_THREAD: 12,
     GUILD_FORUM: 15,
+    GUILD_MEDIA: 16,
     UNHANDLED: 255,
 } as const;
 
@@ -49,10 +54,21 @@ describe("ChannelModifySchema", () => {
 });
 
 describe("ChannelCreateSchema", () => {
-    test("keeps full channel type creation support", () => {
+    test("keeps ordinary guild channel type creation support", () => {
         const validate = getSchema("ChannelCreateSchema");
 
         assert.equal(validate({ name: "voice", type: ChannelType.GUILD_VOICE }), true);
         assert.equal(validate({ name: "forum", type: ChannelType.GUILD_FORUM }), true);
+        assert.equal(validate({ name: "media", type: ChannelType.GUILD_MEDIA }), true);
+    });
+
+    test("rejects channel types that have dedicated creation routes", () => {
+        const validate = getSchema("ChannelCreateSchema");
+
+        assert.equal(validate({ name: "dm", type: ChannelType.DM }), false);
+        assert.equal(validate({ name: "group", type: ChannelType.GROUP_DM }), false);
+        assert.equal(validate({ name: "news-thread", type: ChannelType.GUILD_NEWS_THREAD }), false);
+        assert.equal(validate({ name: "public-thread", type: ChannelType.GUILD_PUBLIC_THREAD }), false);
+        assert.equal(validate({ name: "private-thread", type: ChannelType.GUILD_PRIVATE_THREAD }), false);
     });
 });
