@@ -26,7 +26,7 @@ import path from "node:path";
 import WS from "ws";
 import OPCodeHandlers from "../opcodes";
 import { check } from "../opcodes/instanceOf";
-import { PayloadSchema } from "@spacebar/schemas";
+import { PayloadSchema } from "./PayloadSchema";
 
 const bigIntJson = BigIntJson({ storeAsString: true });
 const PRE_AUTHENTICATION_OPCODES = new Set<number>([OPCODES.Heartbeat, OPCODES.Identify, OPCODES.Resume, OPCODES.SetQoS]);
