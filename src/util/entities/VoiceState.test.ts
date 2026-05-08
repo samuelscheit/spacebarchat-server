@@ -1,12 +1,10 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { describe, test } from "node:test";
-import { getMetadataArgsStorage } from "typeorm";
+import { DataSource, getMetadataArgsStorage } from "typeorm";
 
-type GuildClass = typeof import("./Guild").Guild;
-type MemberClass = typeof import("./Member").Member;
-type VoiceStateClass = typeof import("./VoiceState").VoiceState;
-type InverseSideProperty = string | ((object: Record<string, unknown>) => unknown);
+type EntityExports = typeof import("./index");
+type EntityClass = abstract new (...args: never[]) => unknown;
 
 const localRequire = createRequire(__filename);
 const schemasPath = localRequire.resolve("@spacebar/schemas");
@@ -51,69 +49,78 @@ const schemasMock = new Proxy(
     exports: schemasMock,
 };
 
-const { Guild } = localRequire("./Guild") as { Guild: GuildClass };
-const { Member } = localRequire("./Member") as { Member: MemberClass };
-const { VoiceState } = localRequire("./VoiceState") as { VoiceState: VoiceStateClass };
+const entities = localRequire("./index") as EntityExports;
+const { Guild, Member, VoiceState } = entities;
 
-function resolveRelationTarget(target: unknown) {
-    if (typeof target !== "function") return target;
-    if (Function.prototype.toString.call(target).startsWith("class ")) return target;
-    return (target as () => unknown)();
+function isEntityClass(value: unknown): value is EntityClass {
+    return typeof value === "function";
 }
 
-function resolveInverseSideProperty(inverseSideProperty: InverseSideProperty | undefined) {
-    if (typeof inverseSideProperty !== "function") return inverseSideProperty;
-
-    let selectedProperty: string | undefined;
-    inverseSideProperty(
-        new Proxy(Object.create(null), {
-            get: (_target, property) => {
-                selectedProperty = String(property);
-                return undefined;
-            },
-        }),
+function registeredEntityClasses() {
+    const registeredTargets = new Set(
+        getMetadataArgsStorage()
+            .tables.map((table) => table.target)
+            .filter(isEntityClass),
     );
-    return selectedProperty;
+
+    return Object.values(entities as Record<string, unknown>).filter((entity): entity is EntityClass => isEntityClass(entity) && registeredTargets.has(entity));
 }
 
 describe("VoiceState entity metadata", () => {
-    test("maps member through existing user and guild columns without replacing Guild.voice_states", () => {
-        const metadata = getMetadataArgsStorage();
-        const voiceStateRelations = metadata.relations.filter((relation) => relation.target === VoiceState);
-        const voiceStateJoinColumns = metadata.joinColumns.filter((joinColumn) => joinColumn.target === VoiceState);
+    test("maps member through existing user and guild columns without replacing Guild.voice_states", async () => {
+        const dataSource = new DataSource({
+            type: "postgres",
+            entities: registeredEntityClasses(),
+        });
+        await (dataSource as unknown as { buildMetadatas(): Promise<void> }).buildMetadatas();
 
-        const memberRelation = voiceStateRelations.find((relation) => relation.propertyName === "member");
+        const voiceStateMetadata = dataSource.getMetadata(VoiceState);
+        const guildMetadata = dataSource.getMetadata(Guild);
+
+        assert.equal(voiceStateMetadata.columns.filter((column) => column.databaseName === "user_id").length, 1);
+        assert.equal(voiceStateMetadata.columns.filter((column) => column.databaseName === "guild_id").length, 1);
+
+        const memberRelation = voiceStateMetadata.findRelationWithPropertyPath("member");
         assert.ok(memberRelation, "VoiceState.member relation should be registered");
         assert.equal(memberRelation.relationType, "many-to-one");
-        assert.equal(resolveRelationTarget(memberRelation.type), Member);
-        assert.deepEqual(memberRelation.options, {
-            createForeignKeyConstraints: false,
-        });
-
-        const memberJoinColumns = voiceStateJoinColumns.filter((joinColumn) => joinColumn.propertyName === "member");
+        assert.equal(memberRelation.inverseEntityMetadata.target, Member);
+        assert.equal(memberRelation.createForeignKeyConstraints, false);
         assert.deepEqual(
-            memberJoinColumns.map((joinColumn) => ({
-                name: joinColumn.name,
-                referencedColumnName: joinColumn.referencedColumnName,
+            memberRelation.joinColumns.map((joinColumn) => ({
+                name: joinColumn.databaseName,
+                propertyName: joinColumn.propertyName,
+                referencedColumnName: joinColumn.referencedColumn?.propertyName,
             })),
             [
-                { name: "user_id", referencedColumnName: "id" },
-                { name: "guild_id", referencedColumnName: "guild_id" },
+                { name: "user_id", propertyName: "user_id", referencedColumnName: "id" },
+                { name: "guild_id", propertyName: "guild_id", referencedColumnName: "guild_id" },
             ],
         );
+        assert.equal(
+            voiceStateMetadata.foreignKeys.some((foreignKey) => foreignKey.referencedEntityMetadata.target === Member),
+            false,
+            "VoiceState.member should not create schema-changing foreign keys",
+        );
+        const memberJoinQuery = dataSource.getRepository(VoiceState).createQueryBuilder("voice_state").leftJoinAndSelect("voice_state.member", "member").getQuery();
+        assert.match(memberJoinQuery, /"member"\."id"="voice_state"\."user_id"/);
+        assert.match(memberJoinQuery, /"member"\."guild_id"="voice_state"\."guild_id"/);
 
-        const guildRelation = voiceStateRelations.find((relation) => relation.propertyName === "guild");
+        const guildRelation = voiceStateMetadata.findRelationWithPropertyPath("guild");
         assert.ok(guildRelation, "VoiceState.guild relation should remain registered");
         assert.equal(guildRelation.relationType, "many-to-one");
-        assert.equal(resolveInverseSideProperty(guildRelation.inverseSideProperty), "voice_states");
+        assert.deepEqual(
+            guildRelation.joinColumns.map((joinColumn) => ({
+                name: joinColumn.databaseName,
+                referencedColumnName: joinColumn.referencedColumn?.propertyName,
+            })),
+            [{ name: "guild_id", referencedColumnName: "id" }],
+        );
 
-        const guildJoinColumn = voiceStateJoinColumns.find((joinColumn) => joinColumn.propertyName === "guild");
-        assert.equal(guildJoinColumn?.name, "guild_id");
-
-        const guildVoiceStatesRelation = metadata.relations.find((relation) => relation.target === Guild && relation.propertyName === "voice_states");
+        const guildVoiceStatesRelation = guildMetadata.findRelationWithPropertyPath("voice_states");
         assert.ok(guildVoiceStatesRelation, "Guild.voice_states relation should remain registered");
         assert.equal(guildVoiceStatesRelation.relationType, "one-to-many");
-        assert.equal(resolveRelationTarget(guildVoiceStatesRelation.type), VoiceState);
-        assert.equal(resolveInverseSideProperty(guildVoiceStatesRelation.inverseSideProperty), "guild");
+        assert.equal(guildVoiceStatesRelation.inverseEntityMetadata.target, VoiceState);
+        assert.equal(guildRelation.inverseRelation, guildVoiceStatesRelation);
+        assert.equal(guildVoiceStatesRelation.inverseRelation, guildRelation);
     });
 });
