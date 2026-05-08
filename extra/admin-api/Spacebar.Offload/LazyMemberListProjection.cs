@@ -138,9 +138,50 @@ public static class LazyMemberListProjection {
 
     private static bool IsOnline(DbSession? session) => session is { Status: not ("offline" or "invisible") };
 
+    public static Presence BuildPresence(DbMember member) => BuildPresence(GetPublicSession(member), member.IdNavigation.ToPartialUser());
+
+    private static Presence BuildMemberListPresence(DbMember member, DbSession? session) =>
+        BuildPresence(session, new PartialUser { Id = member.Id });
+
+    private static Presence BuildPresence(DbSession? session, PartialUser user) {
+        var status = session?.Status == "invisible" ? "offline" : session?.Status ?? "offline";
+
+        return new Presence {
+            User = user,
+            Activities = DeserializeActivities(session?.Activities),
+            ClientStatus = DeserializeClientStatus(session?.ClientStatus),
+            Status = status,
+        };
+    }
+
+    public static ReplicationMessage<Presence> ToPresenceMessage(long userId, long guildId, Presence presence) => new() {
+        Origin = OriginName,
+        UserId = userId,
+        GuildId = guildId,
+        Event = "PRESENCE_UPDATE",
+        CreatedAt = DateTime.Now,
+        Payload = presence,
+    };
+
+    public static IReadOnlyList<ReplicationMessage<Presence>> BuildRequestedPresenceMessages(
+        long userId,
+        long guildId,
+        IEnumerable<DbMember> visibleMembers,
+        IEnumerable<long>? requestedMemberIds
+    ) {
+        if (requestedMemberIds is null) return [];
+
+        var visibleMembersById = visibleMembers.ToDictionary(member => member.Id);
+        return requestedMemberIds
+            .Distinct()
+            .Where(memberId => visibleMembersById.ContainsKey(memberId))
+            .Select(memberId => ToPresenceMessage(userId, guildId, BuildPresence(visibleMembersById[memberId])))
+            .ToList();
+    }
+
     private static GuildMemberListSyncItem ToSyncItem(DbMember member, DbSession? session) {
         var publicMember = member.ToPublicMember();
-        var status = session?.Status == "invisible" ? "offline" : session?.Status ?? "offline";
+        var presence = BuildMemberListPresence(member, session);
 
         return new GuildMemberListSyncItem {
             Member = new MemberWithPresence {
@@ -153,12 +194,7 @@ public static class LazyMemberListProjection {
                 DisplayNameStyles = publicMember.DisplayNameStyles,
                 Nick = publicMember.Nick,
                 Roles = publicMember.Roles?.Where(roleId => roleId != member.GuildId).ToList(),
-                Presence = new Presence {
-                    User = new PartialUser { Id = member.Id },
-                    Activities = DeserializeActivities(session?.Activities),
-                    ClientStatus = DeserializeClientStatus(session?.ClientStatus),
-                    Status = status,
-                },
+                Presence = presence,
             },
         };
     }

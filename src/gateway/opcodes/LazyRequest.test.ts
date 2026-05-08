@@ -55,6 +55,8 @@ const state: {
     memberCount: number;
     memberListResult: MockMemberListResult;
     omitPermissionGuildCache: boolean;
+    offloadCalls: { body: unknown; socket: unknown; url: string }[];
+    offloadUrl: string | null;
     permissionError: Error | undefined;
     permissionChecks: string[];
     sentPayloads: DispatchPayload[];
@@ -69,6 +71,8 @@ const state: {
     memberCount: 0,
     memberListResult: { groups: [], online_count: 0, ops: [] },
     omitPermissionGuildCache: false,
+    offloadCalls: [],
+    offloadUrl: null,
     permissionError: undefined,
     permissionChecks: [],
     sentPayloads: [],
@@ -99,6 +103,17 @@ const queryBuilder = {
 };
 
 const mockUtil = {
+    Config: {
+        get() {
+            return {
+                offload: {
+                    gateway: {
+                        lazyRequestUrl: state.offloadUrl,
+                    },
+                },
+            };
+        },
+    },
     Channel: {
         async findOneOrFail() {
             return { permission_overwrites: state.channelOverwrites };
@@ -211,6 +226,10 @@ const mockGateway = {
         state.buildCalls.push({ guildId, members, ranges });
         return state.memberListResult;
     },
+    async handleOffloadedGatewayRequest(socket: MockSocket, url: string, body: unknown) {
+        state.offloadCalls.push({ body, socket, url });
+        return "offloaded";
+    },
     async subscribeGuildMemberEvent(this: MockSocket, guildId: string, userId: string) {
         if (this.guild_member_event_ids[guildId]?.has(userId)) return false;
 
@@ -230,13 +249,13 @@ moduleLoader._load = (request: string, parent?: NodeJS.Module | null, isMain?: b
     if (request === "@spacebar/util") return mockUtil;
     if (request === "@spacebar/gateway") return mockGateway;
     if (request === "@spacebar/schemas") return { LazyRequestSchema: {} };
-    if (request === "./instanceOf" && parent?.filename?.endsWith("/LazyRequest.js")) return { check: () => true };
+    if (request === "./instanceOf" && /\/LazyRequest\.[jt]s$/.test(parent?.filename ?? "")) return { check: () => true };
 
     return originalLoad(request, parent, isMain);
 };
 
 const { onLazyRequest } = require("./LazyRequest") as {
-    onLazyRequest(this: MockSocket, payload: { d: unknown }): Promise<void>;
+    onLazyRequest(this: MockSocket, payload: { d: unknown }): Promise<unknown>;
 };
 
 after(() => {
@@ -266,6 +285,8 @@ beforeEach(() => {
     state.memberCount = 3;
     state.memberListResult = { groups: [], online_count: 0, ops: [] };
     state.omitPermissionGuildCache = false;
+    state.offloadCalls = [];
+    state.offloadUrl = null;
     state.permissionError = undefined;
     state.permissionChecks = [];
     state.sentPayloads = [];
@@ -304,6 +325,21 @@ function sentUpdate() {
 }
 
 describe("lazy request member list loading", () => {
+    test("offloads configured lazy requests without local permission or member-list queries", async () => {
+        state.offloadUrl = "http://offload.example/lazy-request";
+        const activeSocket = socket();
+        const body = { channels: { channel: [[0, 0] as Range] }, guild_id: "guild" };
+
+        const result = await onLazyRequest.call(activeSocket, { d: body });
+
+        assert.equal(result, "offloaded");
+        assert.deepEqual(state.offloadCalls, [{ body, socket: activeSocket, url: "http://offload.example/lazy-request" }]);
+        assert.deepEqual(state.permissionChecks, []);
+        assert.equal(state.getManyCalls, 0);
+        assert.deepEqual(state.buildCalls, []);
+        assert.deepEqual(state.sentPayloads, []);
+    });
+
     test("loads guild members once and emits one sync op per requested range", async () => {
         const ranges: Range[] = [
             [0, 0],

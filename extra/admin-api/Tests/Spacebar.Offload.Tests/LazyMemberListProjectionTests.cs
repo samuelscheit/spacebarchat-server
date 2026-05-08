@@ -78,6 +78,38 @@ public class LazyMemberListProjectionTests {
     }
 
     [Fact]
+    public void BuildPresenceUsesPublicUserAndCurrentSession() {
+        var guildRole = Role(10, 10, 0, hoist: false);
+        var member = Member(1, "Ada", [guildRole], [Session("unknown", "{\"desktop\":\"online\"}")]);
+
+        var presence = LazyMemberListProjection.BuildPresence(member);
+
+        Assert.Equal(1, presence.User.Id);
+        Assert.Equal("Ada", presence.User.Username);
+        Assert.Equal("online", presence.Status);
+        Assert.Equal("online", presence.ClientStatus.Desktop);
+    }
+
+    [Fact]
+    public void BuildRequestedPresenceMessagesReturnsOnlyRequestedVisibleMembers() {
+        var guildRole = Role(10, 10, 0, hoist: false);
+        var ada = Member(1, "Ada", [guildRole], [Session("online", "{\"web\":\"online\"}")]);
+        var bea = Member(2, "Bea", [guildRole], [Session("idle", "{\"desktop\":\"idle\"}")]);
+
+        var messages = LazyMemberListProjection.BuildRequestedPresenceMessages(99, 10, [ada, bea], [2, 3]).ToArray();
+
+        var message = Assert.Single(messages);
+        Assert.Equal(LazyMemberListProjection.OriginName, message.Origin);
+        Assert.Equal("PRESENCE_UPDATE", message.Event);
+        Assert.Equal(99, message.UserId);
+        Assert.Equal(10, message.GuildId);
+        Assert.Equal(2, message.Payload.User.Id);
+        Assert.Equal("Bea", message.Payload.User.Username);
+        Assert.Equal("idle", message.Payload.Status);
+        Assert.Equal("idle", message.Payload.ClientStatus.Desktop);
+    }
+
+    [Fact]
     public void GuildMemberListJsonUsesDiscordFieldNames() {
         var guildRole = Role(10, 10, 0, hoist: false);
         var update = LazyMemberListProjection.BuildUpdate(10, "everyone", [Member(1, "Ada", [guildRole], [Session("online")])], [[0, 1]]);
@@ -91,6 +123,25 @@ public class LazyMemberListProjectionTests {
         Assert.Equal("1", root["ops"]![0]!["items"]![1]!["member"]!["user"]!["id"]!.GetValue<string>());
         Assert.Equal("1", root["ops"]![0]!["items"]![1]!["member"]!["presence"]!["user"]!["id"]!.GetValue<string>());
         Assert.False(root.AsObject().ContainsKey("GuildId"));
+    }
+
+    [Fact]
+    public void MixedOffloadMessagesSerializeDataPayloads() {
+        var guildRole = Role(10, 10, 0, hoist: false);
+        var member = Member(1, "Ada", [guildRole], [Session("online")]);
+        var update = LazyMemberListProjection.BuildUpdate(10, "everyone", [member], [[0, 1]]);
+        object[] messages = [
+            LazyMemberListProjection.ToPresenceMessage(99, 10, LazyMemberListProjection.BuildPresence(member)),
+            LazyMemberListProjection.ToMessage(99, update),
+        ];
+
+        var json = JsonSerializer.Serialize(messages, new JsonSerializerOptions { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
+        var root = JsonNode.Parse(json)!;
+
+        Assert.Equal("PRESENCE_UPDATE", root[0]!["event"]!.GetValue<string>());
+        Assert.Equal("Ada", root[0]!["data"]!["user"]!["username"]!.GetValue<string>());
+        Assert.Equal("GUILD_MEMBER_LIST_UPDATE", root[1]!["event"]!.GetValue<string>());
+        Assert.Equal("everyone", root[1]!["data"]!["id"]!.GetValue<string>());
     }
 
     private static DbMember Member(long id, string username, ICollection<Role> roles, ICollection<DbSession> sessions) {
