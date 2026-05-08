@@ -193,6 +193,7 @@ describe("Twitter embed handler", () => {
 
         assert.equal(await EmbedHandlers["www.twitter.com"](new URL("https://twitter.com/spacebar")), null);
         assert.equal(await EmbedHandlers["www.twitter.com"](new URL("https://twitter.com/spacebar/status/not-a-number")), null);
+        assert.equal(await EmbedHandlers["www.twitter.com"](new URL("https://twitter.com/spacebar/other/1234567890?next=/status/999")), null);
     });
 
     test("uses parsed status id when fetching Twitter API embeds", async (t) => {
@@ -209,6 +210,19 @@ describe("Twitter embed handler", () => {
         assert.equal(embed?.description, "hello from twitter");
         assert.equal(embed?.author?.name, "Spacebar (@spacebar)");
         assert.equal(embed?.image?.url, "https://pbs.twimg.com/media/example.jpg");
+    });
+
+    test("routes Twitter and X host aliases through status parsing", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockTwitterConfig(t, Config);
+        const requestedUrls = mockTwitterApiFetch(t);
+
+        await EmbedHandlers["mobile.twitter.com"](new URL("https://mobile.twitter.com/spacebar/statuses/1111111111"));
+        await EmbedHandlers["www.x.com"](new URL("https://www.x.com/spacebar/status/2222222222"));
+
+        assert.equal(requestedUrls.length, 2);
+        assert.match(requestedUrls[0], /^https:\/\/api\.twitter\.com\/2\/tweets\/1111111111\?/);
+        assert.match(requestedUrls[1], /^https:\/\/api\.twitter\.com\/2\/tweets\/2222222222\?/);
     });
 });
 
