@@ -3,17 +3,17 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 376,
+        "totalContracts": 377,
         "byService": {
-            "api": 335,
+            "api": 336,
             "cdn": 41
         },
         "runtimeAuthBoundaryContracts": 287,
         "runtimeMalformedAuthContracts": 287,
         "runtimeRevokedSessionAuthContracts": 287,
         "runtimeStaleTokenAuthContracts": 287,
-        "runtimePublicAuthBoundaryContracts": 40,
-        "runtimePublicInvalidBodyContracts": 13,
+        "runtimePublicAuthBoundaryContracts": 41,
+        "runtimePublicInvalidBodyContracts": 14,
         "runtimeProtectedInvalidBodyContracts": 53,
         "runtimePublicResponseSchemaContracts": 8,
         "runtimeAuthenticatedResponseSchemaContracts": 18,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 7,
         "runtimePermissionAndRightRightDenialContracts": 7,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 152,
+        "runtimeRateLimitHeaderContracts": 153,
         "runtimeCdnMissingObjectContracts": 19,
         "runtimeCdnHeadMissingObjectContracts": 19,
         "runtimeCdnValidObjectContracts": 19,
@@ -18949,7 +18949,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 95,
+            "line": 94,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
@@ -19081,7 +19081,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 133,
+            "line": 132,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
@@ -19149,7 +19149,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 57,
+            "line": 56,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
@@ -19464,6 +19464,76 @@
                     "id": "event-emission",
                     "checks": ["events"],
                     "events": ["MESSAGE_UPDATE"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "webhook",
+                        "configPath": "limits.rate.routes.webhook",
+                        "pathPrefix": "/webhooks/:webhook_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 206
+                    }
+                },
+                {
+                    "id": "policy-token-auth-boundary",
+                    "checks": ["token-auth-boundary"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/webhooks/:webhook_id/:token/slack/",
+            "service": "api",
+            "method": "POST",
+            "path": "/webhooks/:webhook_id/:token/slack/",
+            "samplePath": "/webhooks/100000000000000006/test_token/slack/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/slack.ts",
+            "line": 200,
+            "authMode": "public",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["guilds", "channels", "webhooks", "messages"],
+            "contractChecks": ["token-auth-boundary", "schema-validation", "response-shape", "db-state", "events"],
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
+            },
+            "routeMetadata": {
+                "requestBody": "WebhookExecuteSchema",
+                "responses": ["APIErrorResponse", "APIPublicMessage"],
+                "responseStatuses": [200, 204, 400, 404],
+                "emittedEvents": ["MESSAGE_CREATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "WebhookExecuteSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["MESSAGE_CREATE"]
                 },
                 {
                     "id": "rate-limit-headers",

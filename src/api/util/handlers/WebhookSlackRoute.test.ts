@@ -22,9 +22,11 @@ require("module-alias/register");
 
 const express = require("express");
 const { Server } = require("lambert-server");
+const { ErrorHandler } = require("@spacebar/api");
 
 const calls = [];
 global.__webhookExecuteHelpers = {
+    hasWebhookMessageContent: (body) => Boolean(body.content || body.embeds || body.components || body.file || body.attachments),
     executeWebhook: async (req, res) => {
         calls.push({ body: req.body, query: { ...req.query }, params: { ...req.params } });
         res.json({ ok: true, body: req.body, query: req.query });
@@ -50,6 +52,7 @@ async function main() {
     const server = new Server({ app, serverInitLogging: false });
     const routeFile = path.join(tempRoutesRoot, "webhooks", "#webhook_id", "#token", "slack.js");
     assert.ok(server.registerRoute(tempRoutesRoot, routeFile), "slack webhook route should register");
+    app.use(ErrorHandler);
 
     const listener = app.listen(0);
     await new Promise((resolve) => listener.once("listening", resolve));
@@ -141,7 +144,7 @@ async function main() {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({
-                attachments: [{ fallback: "invalid timestamp", ts: "8640000000001" }],
+                attachments: [{ fallback: "invalid timestamp", ts: "8640000000001", fields: [null, { title: "missing value" }] }],
             }),
         });
         assert.equal(response.status, 200);
@@ -155,6 +158,28 @@ async function main() {
             ],
         });
         assert.equal(calls[2].query.wait, "true");
+
+        response = await fetch(baseUrl + "/webhooks/webhook-token-id/secret-token/slack", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ __generated_contract_invalid_body__: true }),
+        });
+        assert.equal(response.status, 400);
+        result = await response.json();
+        assert.equal(result.code, 50035);
+        assert.equal(result.message, "Invalid Form Body");
+        assert.equal(typeof result.errors, "object");
+
+        response = await fetch(baseUrl + "/webhooks/webhook-token-id/secret-token/slack", {
+            method: "POST",
+            headers: { "content-type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ payload: "not valid json" }).toString(),
+        });
+        assert.equal(response.status, 400);
+        result = await response.json();
+        assert.equal(result.code, 50035);
+        assert.equal(result.message, "Invalid Form Body");
+        assert.equal(typeof result.errors, "object");
     } finally {
         await new Promise((resolve, reject) => listener.close((error) => error ? reject(error) : resolve()));
         fs.rmSync(tempRoot, { recursive: true, force: true });

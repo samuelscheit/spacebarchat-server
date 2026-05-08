@@ -58,6 +58,10 @@ type ExecuteWebhookOptions = {
     wait?: boolean;
 };
 
+export function hasWebhookMessageContent(body: Pick<WebhookExecuteSchema, "content" | "embeds" | "components" | "file" | "attachments">) {
+    return !!body.content || !!body.embeds || !!body.components || !!body.file || !!body.attachments;
+}
+
 export const executeWebhook = (req: Request, res: Response) => executeWebhookWithOptions(req, res);
 
 export const executeWebhookWithOptions = async (req: Request, res: Response, options: ExecuteWebhookOptions = {}) => {
@@ -73,7 +77,7 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     }
 
     // ensure one of content, embeds, components, or file is present
-    if (!body.content && !body.embeds && !body.components && !body.file && !body.attachments) {
+    if (!hasWebhookMessageContent(body)) {
         throw DiscordApiErrors.CANNOT_SEND_EMPTY_MESSAGE;
     }
 

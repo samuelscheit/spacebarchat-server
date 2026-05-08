@@ -1,7 +1,8 @@
 import { route } from "@spacebar/api";
 import { Embed, EmbedType, WebhookExecuteSchema } from "@spacebar/schemas";
+import { FieldErrors } from "@spacebar/util";
 import { NextFunction, Request, Response, Router, urlencoded } from "express";
-import { executeWebhook } from "../../../../util/handlers/Webhook";
+import { executeWebhook, hasWebhookMessageContent } from "../../../../util/handlers/Webhook";
 
 const router = Router({ mergeParams: true });
 
@@ -64,6 +65,35 @@ function parseSlackTimestamp(value: unknown) {
     return timestamp.toISOString();
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function invalidSlackPayload(field: string, message: string): never {
+    throw FieldErrors({
+        [field]: {
+            message,
+        },
+    });
+}
+
+function getSlackWebhookPayload(req: Request): SlackWebhookPayload {
+    let slackPayload: unknown = req.body ?? {};
+    if (isRecord(slackPayload) && typeof slackPayload.payload === "string") {
+        try {
+            slackPayload = JSON.parse(slackPayload.payload) as unknown;
+        } catch {
+            invalidSlackPayload("payload", "Expected payload to contain valid JSON.");
+        }
+    }
+
+    if (!isRecord(slackPayload)) {
+        invalidSlackPayload("payload", "Expected Slack webhook payload to be an object.");
+    }
+
+    return slackPayload as SlackWebhookPayload;
+}
+
 function slackAttachmentToEmbed(attachment: SlackAttachment): Embed | undefined {
     const title = stringValue(attachment.title);
     const text = stringValue(attachment.text) ?? stringValue(attachment.fallback);
@@ -110,6 +140,7 @@ function slackAttachmentToEmbed(attachment: SlackAttachment): Embed | undefined 
 
     if (Array.isArray(attachment.fields)) {
         const fields = attachment.fields
+            .filter((field): field is SlackField => isRecord(field))
             .map((field) => {
                 const name = stringValue(field.title);
                 const value = stringValue(field.value);
@@ -131,11 +162,7 @@ function slackAttachmentToEmbed(attachment: SlackAttachment): Embed | undefined 
 }
 
 function normalizeSlackWebhookBody(req: Request, _res: Response, next: NextFunction) {
-    if (typeof req.body?.payload === "string") {
-        req.body = JSON.parse(req.body.payload);
-    }
-
-    const slackPayload = (req.body ?? {}) as SlackWebhookPayload;
+    const slackPayload = getSlackWebhookPayload(req);
     const discordPayload: WebhookExecuteSchema = {};
 
     const content = stringValue(slackPayload.text);
@@ -148,8 +175,15 @@ function normalizeSlackWebhookBody(req: Request, _res: Response, next: NextFunct
     if (avatarUrl) discordPayload.avatar_url = avatarUrl;
 
     if (Array.isArray(slackPayload.attachments)) {
-        const embeds = slackPayload.attachments.map(slackAttachmentToEmbed).filter((embed): embed is Embed => !!embed);
+        const embeds = slackPayload.attachments
+            .filter((attachment): attachment is SlackAttachment => isRecord(attachment))
+            .map(slackAttachmentToEmbed)
+            .filter((embed): embed is Embed => !!embed);
         if (embeds.length) discordPayload.embeds = embeds;
+    }
+
+    if (!hasWebhookMessageContent(discordPayload)) {
+        invalidSlackPayload("payload", "Slack webhook payload must include non-empty text or at least one supported attachment.");
     }
 
     req.body = discordPayload;
