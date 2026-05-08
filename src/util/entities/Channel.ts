@@ -56,6 +56,12 @@ import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
 
+const THREAD_CHANNEL_TYPES = new Set<ChannelType>([ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD]);
+
+function isThreadChannelType(type: ChannelType | undefined): boolean {
+    return type !== undefined && THREAD_CHANNEL_TYPES.has(type);
+}
+
 @Entity({
     name: "channels",
 })
@@ -215,6 +221,10 @@ export class Channel extends BaseClass {
             skipOrdering?: boolean;
         },
     ): Promise<Channel> {
+        if (isThreadChannelType(channel.type)) {
+            throw new HTTPError("Thread channels must be created with createThreadChannel", 400);
+        }
+
         if (!opts?.skipPermissionCheck) {
             // Always check if user has permission first
             const permissions = await getPermission(user_id, channel.guild_id);
@@ -236,10 +246,6 @@ export class Channel extends BaseClass {
         }
 
         switch (channel.type) {
-            // TODO: should threads even be routed through this function instead of createThreadChannel?
-            case ChannelType.GUILD_PUBLIC_THREAD:
-            case ChannelType.GUILD_PRIVATE_THREAD:
-            case ChannelType.GUILD_NEWS_THREAD:
             case ChannelType.GUILD_TEXT:
             case ChannelType.GUILD_FORUM:
             case ChannelType.GUILD_MEDIA:
@@ -332,6 +338,10 @@ export class Channel extends BaseClass {
             member_count: 1,
             total_message_sent: 0,
         };
+
+        if (!isThreadChannelType(channel.type)) {
+            throw new HTTPError("createThreadChannel can only create thread channel types", 400);
+        }
 
         const exists = await Channel.findOne({
             where: {
@@ -678,7 +688,7 @@ export class Channel extends BaseClass {
     }
 
     isThread() {
-        return this.type === ChannelType.GUILD_NEWS_THREAD || this.type === ChannelType.GUILD_PUBLIC_THREAD || this.type === ChannelType.GUILD_PRIVATE_THREAD;
+        return isThreadChannelType(this.type);
     }
     isForum() {
         return this.type === ChannelType.GUILD_FORUM || this.type === ChannelType.GUILD_MEDIA;

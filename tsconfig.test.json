@@ -71,6 +71,7 @@
         "src/schemas/uncategorised/MessageCreateSchema.test.ts",
         "src/schemas/uncategorised/MessageSchemaValidation.test.ts",
         "src/schemas/uncategorised/GuildCreateSchema.test.ts",
+        "src/schemas/uncategorised/ChannelModifySchema.test.ts",
         "src/util/entities/ThreadMember.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/webrtc/util/VideoStream.test.ts",

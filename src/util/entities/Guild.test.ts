@@ -375,6 +375,33 @@ describe("Guild.createGuild", () => {
         assert.deepEqual(guild.channel_ordering, ["new-category", "new-text"]);
     });
 
+    test("Channel.createChannel rejects all thread channel types so callers use createThreadChannel", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+        const { Channel } = await import("./Channel.js");
+
+        for (const type of [10, 11, 12]) {
+            await assert.rejects(
+                () =>
+                    Channel.createChannel(
+                        {
+                            guild_id: "guild",
+                            parent_id: "parent",
+                            name: "thread",
+                            type,
+                        },
+                        "owner",
+                        {
+                            skipPermissionCheck: true,
+                            skipEventEmit: true,
+                            skipNameChecks: true,
+                        },
+                    ),
+                /Thread channels must be created with createThreadChannel/,
+            );
+        }
+    });
+
     test("Channel.createChannel inserts new guild channels into guild channel_ordering", async () => {
         process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
 
