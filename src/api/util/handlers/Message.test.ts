@@ -59,8 +59,8 @@ describe("handleMessage", () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
 
         const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
-        const permissionsModule = requireModule("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const rightsModule = requireModule("../../../util/util/Rights") as typeof import("../../../util/util/Rights");
+        const permissionsModule = requireModule("@spacebar/util/util/Permissions") as { getPermission: typeof spacebarUtil.getPermission };
+        const rightsModule = requireModule("@spacebar/util/util/Rights") as { getRights: typeof spacebarUtil.getRights };
 
         const channel = {
             id: "channel_id",

@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Application, ApplicationCommand, closeDatabase, Config, generateToken, initDatabase, Member, Message, pendingInteractions, User } from "@spacebar/util";
+import { Application, ApplicationCommand, closeDatabase, Config, DiscordApiErrors, generateToken, initDatabase, Member, Message, pendingInteractions, User } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -345,6 +345,16 @@ test(
             const interactionToken = applicationInteractionEvent.data.token as string;
             assert.ok(interactionToken);
             assert.equal(userInteractionEvent.data.id, interactionId);
+
+            const mismatchedCallback = await postPublicJson(`${api.apiBaseUrl}/interactions/${interactionId}/wrong-token/callback`, {
+                type: 4,
+                data: {
+                    content: "wrong token response",
+                },
+            });
+            await assertStatus(mismatchedCallback, 400);
+            assert.equal((await assertJsonObject(mismatchedCallback)).code, DiscordApiErrors.UNKNOWN_INTERACTION.code);
+            assert.ok(pendingInteractions.has(interactionId), "mismatched callback token must not consume the pending interaction");
 
             const callback = await postPublicJson(`${api.apiBaseUrl}/interactions/${interactionId}/${interactionToken}/callback`, {
                 type: 4,

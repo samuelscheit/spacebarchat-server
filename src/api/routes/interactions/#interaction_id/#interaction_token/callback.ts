@@ -27,6 +27,7 @@ import {
     Message,
     MessageUpdateEvent,
     pendingInteractions,
+    requirePendingInteractionForCallback,
     User,
     InteractionFailureEvent,
     messagePublicWithThreadRelations,
@@ -45,11 +46,8 @@ router.post(
         const body = req.body as InteractionCallbacksSchema;
 
         const interactionId = req.params.interaction_id as string;
-        const interaction = pendingInteractions.get(req.params.interaction_id);
-
-        if (!interaction) {
-            return;
-        }
+        const interactionToken = req.params.interaction_token as string | undefined;
+        const interaction = requirePendingInteractionForCallback(interactionId, interactionToken);
 
         if (
             body.type === InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE ||

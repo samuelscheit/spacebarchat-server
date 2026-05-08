@@ -16,11 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandType, InteractionType } from "@spacebar/schemas";
-import { Snowflake } from "@spacebar/util";
+import type { ApplicationCommandType, InteractionType } from "@spacebar/schemas";
+import { DiscordApiErrors } from "../util/Constants";
 
-interface PendingInteraction {
+export interface PendingInteraction {
     timeout: NodeJS.Timeout;
+    token: string;
     applicationId: string;
     userId: string;
     channelId?: string;
@@ -32,4 +33,20 @@ interface PendingInteraction {
     commandName?: string;
 }
 
-export const pendingInteractions = new Map<Snowflake, PendingInteraction>();
+export const pendingInteractions = new Map<string, PendingInteraction>();
+
+export function getPendingInteractionForCallback(interactionId: string, interactionToken: string | undefined): PendingInteraction | undefined {
+    if (!interactionToken) return undefined;
+
+    const interaction = pendingInteractions.get(interactionId);
+    if (interaction?.token !== interactionToken) return undefined;
+
+    return interaction;
+}
+
+export function requirePendingInteractionForCallback(interactionId: string, interactionToken: string | undefined): PendingInteraction {
+    const interaction = getPendingInteractionForCallback(interactionId, interactionToken);
+    if (!interaction) throw DiscordApiErrors.UNKNOWN_INTERACTION;
+
+    return interaction;
+}

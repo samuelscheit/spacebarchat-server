@@ -147,6 +147,7 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
 
     pendingInteractions.set(interactionId, {
         timeout: interactionTimeout,
+        token: interactionToken,
         nonce: body.nonce,
         applicationId: body.application_id,
         userId: req.user_id,
