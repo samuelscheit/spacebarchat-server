@@ -2030,13 +2030,19 @@
                 "type": "integer"
             },
             "public_updates_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "afk_timeout": {
                 "type": "integer"
             },
             "afk_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "preferred_locale": {
                 "type": "string"
