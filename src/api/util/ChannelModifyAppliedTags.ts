@@ -16,8 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { makeObjectErrorContent } from "@spacebar/util";
-import type { ErrorList } from "@spacebar/util";
+import { makeObjectErrorContent, type ErrorList } from "@spacebar/util";
 import type { ChannelModifySchema } from "@spacebar/schemas";
 
 export function addInvalidAppliedTagsError(payload: Pick<ChannelModifySchema, "applied_tags">, isThread: boolean, errors: ErrorList) {
