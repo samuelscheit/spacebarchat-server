@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelRecipientAddEvent, Config, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@spacebar/util";
+import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, assertCanAddGroupDmRecipient, emitEvent, Recipient, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 
@@ -48,11 +48,7 @@ router.put(
                 throw DiscordApiErrors.INVALID_RECIPIENT; //TODO is this the right error?
             }
 
-            const { maxRecipients } = Config.get().limits.channel;
-            const recipientCount = channel.recipients?.filter((recipient) => recipient.user_id !== channel.owner_id).length ?? 0;
-            if (recipientCount >= maxRecipients) {
-                throw DiscordApiErrors.MAXIMUM_NUMBER_OF_RECIPIENTS_REACHED.withParams(maxRecipients);
-            }
+            assertCanAddGroupDmRecipient(channel.recipients, channel.owner_id);
 
             channel.recipients?.push(Recipient.create({ channel_id: channel_id, user_id: user_id }));
             await channel.save();

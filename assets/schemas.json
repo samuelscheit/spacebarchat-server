@@ -19011,12 +19011,17 @@
             "maxName": {
                 "type": "integer",
                 "default": 32
+            },
+            "maxRecipients": {
+                "type": "integer",
+                "default": 10
             }
         },
         "additionalProperties": false,
         "required": [
             "maxName",
             "maxPins",
+            "maxRecipients",
             "maxTopic",
             "maxWebhooks"
         ],

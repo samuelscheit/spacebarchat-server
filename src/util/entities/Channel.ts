@@ -34,6 +34,7 @@ import {
     normalizeThreadName,
     assertChannelNamePresent,
     canCreateServerDm,
+    normalizeAndAssertCreateDmRecipientsForLimit,
     shouldCheckServerDmPrivacy,
 } from "../util";
 import { BaseClass } from "./BaseClass";
@@ -414,11 +415,7 @@ export class Channel extends BaseClass {
     }
 
     static async createDMChannel(recipients: string[], creator_user_id: string, name?: string) {
-        recipients = [...new Set(recipients)].filter((x) => x !== creator_user_id);
-        const { maxRecipients } = Config.get().limits.channel;
-        if (recipients.length > maxRecipients) {
-            throw DiscordApiErrors.MAXIMUM_NUMBER_OF_RECIPIENTS_REACHED.withParams(maxRecipients);
-        }
+        recipients = normalizeAndAssertCreateDmRecipientsForLimit(recipients, creator_user_id);
         /** if you want to disallow note to self channels, uncomment the conditional below
 
 		const otherRecipientsUsers = await User.find({ where: recipients.map((x) => ({ id: x })) });
