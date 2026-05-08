@@ -22,7 +22,9 @@ import {
     createBotGuildCreatePayloads,
     createGatewayShard,
     createReadyConsents,
+    getGuildCreatePermission,
     isGuildOnShard,
+    ListenerSetupData,
     OPCODES,
     Payload,
     Send,
@@ -844,8 +846,34 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         d: buildReadySupplementalData(guilds, { friendIds, sessions: relationshipSessions }),
     });
 
+    const listenerPermissions = Object.fromEntries(
+        shardMembers
+            .filter((member) => member.guild)
+            .map((member) => [
+                member.guild_id,
+                getGuildCreatePermission(this.user_id, {
+                    ...member.guild,
+                    members: [
+                        {
+                            ...member.toPublicMember(),
+                            id: member.id,
+                            user: user.toPublicUser(),
+                        },
+                    ],
+                }),
+            ]),
+    );
+
+    const listenerSetupData: ListenerSetupData = {
+        guilds: shardMembers.filter((member) => member.guild).map((member) => member.guild),
+        dm_channels: channels,
+        relationships: relationships.filter((relationship) => relationship.type === RelationshipType.friends),
+        permissions: listenerPermissions,
+    };
+
+    //TODO send GUILD_MEMBER_LIST_UPDATE
     //TODO send VOICE_STATE_UPDATE to let the client know if another device is already connected to a voice channel
-    await setupListener.call(this);
+    await setupListener.call(this, listenerSetupData);
     console.log(
         `[Gateway/${this.user_id}] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`,
         process.env.LOG_GATEWAY_TRACES ? JSON.stringify(d._trace, null, 2) : "",

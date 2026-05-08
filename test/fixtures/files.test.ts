@@ -68,3 +68,25 @@ const { initializeStorage, storage } = require("./dist/cdn");
         await fs.rm(parent, { force: true, recursive: true });
     }
 });
+
+test("CDN storage bootstrap creates nested storage directories", async () => {
+    await withFileStorage(async ({ root }) => {
+        const storageLocation = join(root, "nested", "storage");
+        const script = `
+const { initializeStorage } = require("./dist/cdn");
+initializeStorage();
+`;
+
+        await execFileAsync(process.execPath, ["-r", "dotenv/config", "-r", "module-alias/register", "--enable-source-maps", "-e", script], {
+            cwd: process.cwd(),
+            env: {
+                ...process.env,
+                STORAGE_LOCATION: storageLocation,
+                STORAGE_PROVIDER: "file",
+            },
+            timeout: 30_000,
+        });
+
+        assert.equal((await fs.stat(storageLocation)).isDirectory(), true);
+    });
+});
