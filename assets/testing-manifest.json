@@ -11586,7 +11586,7 @@
             "method": "DELETE",
             "path": "/users/@me/guilds/:guild_id",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 52,
+            "line": 50,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11626,7 +11626,7 @@
             "method": "GET",
             "path": "/users/@me/guilds/",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 26,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
