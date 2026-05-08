@@ -27,9 +27,13 @@ const fs = require("fs");
 
 const testFiles = process.argv.slice(2);
 if (testFiles.length) {
-    const test = spawn(process.execPath, ["-r", "dotenv/config", "-r", "ts-node/register/transpile-only", "-r", "module-alias/register", "--enable-source-maps", "--test", ...testFiles], {
-        stdio: "inherit",
-    });
+    const test = spawn(
+        process.execPath,
+        ["-r", "dotenv/config", "-r", "ts-node/register/transpile-only", "-r", "module-alias/register", "--enable-source-maps", "--test", ...testFiles],
+        {
+            stdio: "inherit",
+        },
+    );
 
     test.on("close", (code) => process.exit(code ?? 1));
     return;
