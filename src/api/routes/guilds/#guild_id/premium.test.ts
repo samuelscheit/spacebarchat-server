@@ -27,13 +27,13 @@ function close(server: http.Server) {
 describe("GET /guilds/:guild_id/premium/subscriptions", () => {
     test("returns an empty subscription list until premium guild subscriptions are persisted", async (t) => {
         const app = express();
-        app.use("/", premiumRouter);
+        app.use("/guilds/:guild_id/premium", premiumRouter);
 
         const server = http.createServer(app);
         t.after(() => close(server));
         const port = await listen(server);
 
-        const response = await fetch(`http://127.0.0.1:${port}/subscriptions`);
+        const response = await fetch(`http://127.0.0.1:${port}/guilds/999999999999999999/premium/subscriptions`);
 
         assert.equal(response.status, 200);
         assert.deepEqual(await response.json(), []);
