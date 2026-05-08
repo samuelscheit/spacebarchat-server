@@ -39,4 +39,35 @@ public class SnowflakeGeneratorTests {
         Assert.Equal(snowflakes.Length, snowflakes.Distinct().Count());
         Assert.True(snowflakes.Zip(snowflakes.Skip(1), (previous, current) => current > previous).All(x => x));
     }
+
+    [Fact]
+    public void Generate_ReturnsUniqueSnowflakesAcrossConcurrentCalls() {
+        var snowflakes = Enumerable.Range(0, 10_000)
+            .AsParallel()
+            .Select(_ => SnowflakeGenerator.Generate())
+            .ToArray();
+
+        Assert.Equal(snowflakes.Length, snowflakes.Distinct().Count());
+    }
+
+    [Fact]
+    public void ResolveWorkerId_UsesConfiguredWorkerId() {
+        Assert.Equal(17, SnowflakeGenerator.ResolveWorkerId("17", "ignored-host"));
+    }
+
+    [Theory]
+    [InlineData("-1")]
+    [InlineData("32")]
+    [InlineData("not-a-number")]
+    public void ResolveWorkerId_RejectsInvalidConfiguredWorkerId(string configuredWorkerId) {
+        Assert.Throws<InvalidOperationException>(() => SnowflakeGenerator.ResolveWorkerId(configuredWorkerId, "ignored-host"));
+    }
+
+    [Fact]
+    public void ResolveWorkerId_DerivesStableWorkerIdFromMachineName() {
+        var workerId = SnowflakeGenerator.ResolveWorkerId(null, "admin-api-host-a");
+
+        Assert.InRange(workerId, 0, 31);
+        Assert.Equal(workerId, SnowflakeGenerator.ResolveWorkerId(null, "admin-api-host-a"));
+    }
 }

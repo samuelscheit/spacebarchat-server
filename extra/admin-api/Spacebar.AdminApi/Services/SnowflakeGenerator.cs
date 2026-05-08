@@ -18,11 +18,13 @@ public static class SnowflakeGenerator {
     private const int TimestampShift = WorkerIdBits + ProcessIdBits + IncrementBits;
     private const int WorkerIdShift = ProcessIdBits + IncrementBits;
     private const int ProcessIdShift = IncrementBits;
+    private const string WorkerIdEnvironmentVariable = "SPACEBAR_SNOWFLAKE_WORKER_ID";
 
     private static readonly object Sync = new();
+    private static readonly int WorkerId = ResolveWorkerId(Environment.GetEnvironmentVariable(WorkerIdEnvironmentVariable), Environment.MachineName);
     private static readonly int ProcessId = Environment.ProcessId & MaxProcessId;
-    private static long lastTimestampMilliseconds = -1;
-    private static int increment = -1;
+    private static long _lastTimestampMilliseconds = -1;
+    private static int _increment = -1;
 
     /// <summary>
     /// Generates a positive signed 64-bit snowflake using the current UTC time.
@@ -30,22 +32,22 @@ public static class SnowflakeGenerator {
     public static long Generate() {
         lock (Sync) {
             var timestampMilliseconds = CurrentTimestampMilliseconds();
-            if (timestampMilliseconds < lastTimestampMilliseconds) {
-                timestampMilliseconds = lastTimestampMilliseconds;
+            if (timestampMilliseconds < _lastTimestampMilliseconds) {
+                timestampMilliseconds = _lastTimestampMilliseconds;
             }
 
-            if (timestampMilliseconds == lastTimestampMilliseconds) {
-                increment = (increment + 1) & MaxIncrement;
-                if (increment == 0) {
-                    timestampMilliseconds = WaitForNextMillisecond(lastTimestampMilliseconds);
+            if (timestampMilliseconds == _lastTimestampMilliseconds) {
+                _increment = (_increment + 1) & MaxIncrement;
+                if (_increment == 0) {
+                    timestampMilliseconds = WaitForNextMillisecond(_lastTimestampMilliseconds);
                 }
             }
             else {
-                increment = 0;
+                _increment = 0;
             }
 
-            lastTimestampMilliseconds = timestampMilliseconds;
-            return Compose(timestampMilliseconds, workerId: 0, ProcessId, increment);
+            _lastTimestampMilliseconds = timestampMilliseconds;
+            return Compose(timestampMilliseconds, WorkerId, ProcessId, _increment);
         }
     }
 
@@ -59,6 +61,18 @@ public static class SnowflakeGenerator {
 
     internal static long ComposeForTests(DateTimeOffset timestamp, int workerId, int processId, int increment) {
         return Compose(ToTimestampMilliseconds(timestamp), workerId, processId, increment);
+    }
+
+    internal static int ResolveWorkerId(string? configuredWorkerId, string machineName) {
+        if (!string.IsNullOrWhiteSpace(configuredWorkerId)) {
+            if (int.TryParse(configuredWorkerId, out var workerId) && workerId is >= 0 and <= MaxWorkerId) {
+                return workerId;
+            }
+
+            throw new InvalidOperationException($"{WorkerIdEnvironmentVariable} must be an integer between 0 and {MaxWorkerId}.");
+        }
+
+        return StableFiveBitHash(string.IsNullOrWhiteSpace(machineName) ? "spacebar-admin-api" : machineName);
     }
 
     private static long Compose(long timestampMilliseconds, int workerId, int processId, int increment) {
@@ -90,6 +104,21 @@ public static class SnowflakeGenerator {
 
     private static long ToTimestampMilliseconds(DateTimeOffset timestamp) {
         return timestamp.ToUnixTimeMilliseconds() - EpochMilliseconds;
+    }
+
+    private static int StableFiveBitHash(string value) {
+        const uint fnvOffsetBasis = 2166136261;
+        const uint fnvPrime = 16777619;
+
+        var hash = fnvOffsetBasis;
+        unchecked {
+            foreach (var character in value) {
+                hash ^= character;
+                hash *= fnvPrime;
+            }
+        }
+
+        return (int)(hash & MaxWorkerId);
     }
 
     private static long WaitForNextMillisecond(long previousTimestampMilliseconds) {
