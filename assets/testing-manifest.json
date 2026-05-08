@@ -8105,7 +8105,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 81,
+            "line": 52,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8159,7 +8159,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 56,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8209,7 +8209,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 126,
+            "line": 101,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

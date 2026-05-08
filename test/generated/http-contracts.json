@@ -11191,7 +11191,7 @@
             "path": "/guilds/:guild_id/roles/:role_id/",
             "samplePath": "/guilds/100000000000000001/roles/100000000000000005/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 94,
+            "line": 101,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

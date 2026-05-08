@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, Config, generateToken, Guild, initDatabase, Member, Role, User } from "@spacebar/util";
+import { closeDatabase, Config, generateToken, Guild, initDatabase, Member, Permissions, Role, User } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -201,6 +201,64 @@ test(
                 (event) => event.event === "GUILD_ROLE_UPDATE" && event.guild_id === guildId && event.data.role.id === roleId && event.data.role.position === 3,
             );
             assert.equal(roleMoveEvent.data.role.position, 3);
+
+            const managerRole = await postJson(
+                `${api.apiBaseUrl}/guilds/${guildId}/roles`,
+                {
+                    name: "manager-role",
+                    permissions: String(Permissions.FLAGS.MANAGE_ROLES),
+                    color: 3066993,
+                    hoist: false,
+                    mentionable: false,
+                },
+                ownerToken,
+            );
+            await assertStatus(managerRole, 200);
+            const managerRoleId = (await assertJsonObject(managerRole)).id as string;
+            const lowerRole = await postJson(
+                `${api.apiBaseUrl}/guilds/${guildId}/roles`,
+                {
+                    name: "lower-role",
+                    permissions: "0",
+                    color: 10181046,
+                    hoist: false,
+                    mentionable: false,
+                },
+                ownerToken,
+            );
+            await assertStatus(lowerRole, 200);
+            const lowerRoleId = (await assertJsonObject(lowerRole)).id as string;
+
+            await Promise.all([
+                Role.update({ guild_id: guildId, id: roleId }, { position: 5 }),
+                Role.update({ guild_id: guildId, id: managerRoleId }, { position: 3, permissions: String(Permissions.FLAGS.MANAGE_ROLES) }),
+                Role.update({ guild_id: guildId, id: lowerRoleId }, { position: 1 }),
+            ]);
+            await Member.addRole(member.id, guildId, managerRoleId);
+
+            await assertStatus(await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`, { name: "blocked-high-role" }, memberToken), 403);
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: roleId })).name, "scenario-role-updated");
+            await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`, memberToken), 403);
+            assert.notEqual(await Role.findOneBy({ guild_id: guildId, id: roleId }), null);
+            await assertStatus(await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${lowerRoleId}`, { position: 3 }, memberToken), 403);
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: lowerRoleId })).position, 1);
+            await assertStatus(await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles`, [{ id: lowerRoleId, position: 3 }], memberToken), 403);
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: lowerRoleId })).position, 1);
+            await assertStatus(
+                await patchJson(
+                    `${api.apiBaseUrl}/guilds/${guildId}/roles`,
+                    [
+                        { id: lowerRoleId, position: 3 },
+                        { id: lowerRoleId, position: 1 },
+                    ],
+                    memberToken,
+                ),
+                403,
+            );
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: lowerRoleId })).position, 1);
+            const memberCanUpdateLowerRole = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${lowerRoleId}`, { name: "member-managed-lower-role" }, memberToken);
+            await assertStatus(memberCanUpdateLowerRole, 200);
+            assert.equal((await assertJsonObject(memberCanUpdateLowerRole)).name, "member-managed-lower-role");
 
             const managedNick = "managed member";
             const patchMember = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/members/${member.id}`, { nick: managedNick, roles: [roleId] }, ownerToken);

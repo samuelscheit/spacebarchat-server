@@ -24,6 +24,7 @@ describe("role hierarchy", () => {
                 guildOwnerId: "owner",
                 actorRoles: [],
                 targetRole: { id: "admin", position: 100 },
+                requestedPosition: 100,
             }),
             true,
         );
@@ -39,6 +40,19 @@ describe("role hierarchy", () => {
                     { id: "higher", position: 3 },
                 ],
                 targetRole: { id: "target", position: 2 },
+            }),
+            true,
+        );
+    });
+
+    test("allows members to move a lower target role only below their highest role", () => {
+        assert.equal(
+            canManageRole({
+                actorId: "moderator",
+                guildOwnerId: "owner",
+                actorRoles: [{ id: "moderator", position: 3 }],
+                targetRole: { id: "target", position: 1 },
+                requestedPosition: 2,
             }),
             true,
         );
@@ -78,6 +92,21 @@ describe("role hierarchy", () => {
             }),
             false,
         );
+    });
+
+    test("denies members moving a lower role to their own position or above", () => {
+        for (const requestedPosition of [3, 4]) {
+            assert.equal(
+                canManageRole({
+                    actorId: "moderator",
+                    guildOwnerId: "owner",
+                    actorRoles: [{ id: "moderator", position: 3 }],
+                    targetRole: { id: "target", position: 1 },
+                    requestedPosition,
+                }),
+                false,
+            );
+        }
     });
 
     test("treats members with no roles as below every role", () => {

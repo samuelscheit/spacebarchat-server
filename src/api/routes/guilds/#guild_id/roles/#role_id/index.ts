@@ -16,42 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { assertCanManageRole, emitEvent, Guild, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
+import { assertCanManageGuildRole, route } from "@spacebar/api";
+import { emitEvent, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { RoleModifySchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
-
-async function assertCanManageTargetRole(actorId: string, guildId: string, targetRole: Role) {
-    const [guild, member] = await Promise.all([
-        Guild.findOneOrFail({
-            where: { id: guildId },
-            select: { id: true, owner_id: true },
-        }),
-        Member.findOneOrFail({
-            where: { id: actorId, guild_id: guildId },
-            relations: { roles: true },
-            select: {
-                index: true,
-                id: true,
-                guild_id: true,
-                roles: {
-                    id: true,
-                    position: true,
-                },
-            },
-        }),
-    ]);
-
-    assertCanManageRole({
-        actorId,
-        guildOwnerId: guild.owner_id,
-        actorRoles: member.roles,
-        targetRole,
-    });
-}
 
 router.get(
     "/",
@@ -102,7 +73,11 @@ router.delete(
         const role = await Role.findOneOrFail({
             where: { id: role_id, guild_id },
         });
-        await assertCanManageTargetRole(req.user_id, guild_id, role);
+        await assertCanManageGuildRole({
+            actorId: req.user_id,
+            guildId: guild_id,
+            targetRole: role,
+        });
 
         await Promise.all([
             Role.delete({
@@ -147,16 +122,24 @@ router.patch(
         const { role_id, guild_id } = req.params as { [key: string]: string };
         const body = req.body as RoleModifySchema;
 
-        if (body.icon && body.icon.length) body.icon = await handleFile(`/role-icons/${role_id}`, body.icon as string);
-        else body.icon = undefined;
-
         // TODO: proper field error
         if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
 
         const role = await Role.findOneOrFail({
             where: { id: role_id, guild: { id: guild_id } },
         });
-        await assertCanManageTargetRole(req.user_id, guild_id, role);
+        await assertCanManageGuildRole({
+            actorId: req.user_id,
+            guildId: guild_id,
+            targetRole: {
+                ...role,
+                requestedPosition: body.position,
+            },
+        });
+
+        if (body.icon && body.icon.length) body.icon = await handleFile(`/role-icons/${role_id}`, body.icon as string);
+        else body.icon = undefined;
+
         role.assign({
             ...body,
             permissions: String((req.permission?.bitfield || 0n) & BigInt(body.permissions || "0")),

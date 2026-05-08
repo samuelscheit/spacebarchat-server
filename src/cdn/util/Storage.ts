@@ -43,7 +43,7 @@ if (process.env.STORAGE_PROVIDER === "file" || !process.env.STORAGE_PROVIDER) {
     }
     // TODO: move this to some start func, so it doesn't run when server is imported
     //console.log(`[CDN] storage location: ${bgCyan(`${black(location)}`)}`);
-    if (!fs.existsSync(location)) fs.mkdirSync(location);
+    fs.mkdirSync(location, { recursive: true });
     process.env.STORAGE_LOCATION = location;
 
     storage = new FileStorage();

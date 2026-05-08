@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertCanManageGuildRoles, route } from "@spacebar/api";
 import {
     Config,
     DiscordApiErrors,
@@ -148,6 +148,28 @@ router.patch(
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
         const body = req.body as RolePositionUpdateSchema;
+
+        const targetRoles = await Role.find({
+            where: body.map((x) => ({ id: x.id, guild_id })),
+        });
+        const targetRolesById = new Map(targetRoles.map((role) => [role.id, role]));
+
+        await assertCanManageGuildRoles({
+            actorId: req.user_id,
+            guildId: guild_id,
+            targetRoles: body.flatMap((requestedRole) => {
+                const role = targetRolesById.get(requestedRole.id);
+                if (!role) return [];
+
+                return [
+                    {
+                        id: role.id,
+                        position: role.position,
+                        requestedPosition: requestedRole.position,
+                    },
+                ];
+            }),
+        });
 
         await Promise.all(body.map(async (x) => Role.update({ guild_id, id: x.id }, { position: x.position })));
 
