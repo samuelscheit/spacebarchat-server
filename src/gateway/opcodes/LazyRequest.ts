@@ -111,14 +111,30 @@ function getLazyMemberIds(memberList: ReturnType<typeof buildLazyMemberListOpera
     return new Set(memberList.ops.flatMap((op) => op.members.map((member) => member?.user.id).filter((userId): userId is string => Boolean(userId))));
 }
 
-function validateRequestedMembers(members?: unknown[]) {
-    if (!members) return;
+function validateRequestedMembers(members: unknown) {
+    if (members === undefined) return;
+
+    if (!Array.isArray(members)) {
+        throw new Error("members must be an array");
+    }
 
     for (const member of members) {
         if (typeof member !== "string") {
             throw new Error("member id must be a string");
         }
     }
+}
+
+function getRequestedChannelRanges(channels: LazyRequestSchema["channels"] | undefined) {
+    const [channel_id, ranges] = Object.entries(channels ?? {})[0] ?? [];
+    if (!channel_id) return { channel_id, requestedRanges: undefined };
+
+    if (!Array.isArray(ranges)) throw new Error("range list is not a valid array");
+
+    return {
+        channel_id,
+        requestedRanges: getRequestedRanges(ranges),
+    };
 }
 
 async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
@@ -137,7 +153,7 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
     const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
     validateRequestedMembers(members);
-    const channel_id = Object.keys(channels || {})[0];
+    const { channel_id, requestedRanges } = getRequestedChannelRanges(channels);
     const shouldAuthorizeChannel = Boolean(channel_id);
     const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);
     const authorized = shouldAuthorizeChannel
@@ -193,12 +209,8 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
 
     if (!channels) return;
 
-    if (!channel_id) return;
+    if (!channel_id || !requestedRanges) return;
 
-    const ranges = channels[channel_id];
-    if (!Array.isArray(ranges)) throw new Error("Not a valid Array");
-
-    const requestedRanges = getRequestedRanges(ranges);
     const guildMembers = await getMembers(guild_id);
     const visibleGuildMembers = guildMembers.filter((member) => memberCanViewChannel(member, authorized!.channel, authorized!.guildOwnerId));
     const member_count = visibleGuildMembers.length;
