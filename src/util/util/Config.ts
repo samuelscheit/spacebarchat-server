@@ -140,30 +140,54 @@ async function applyConfig(val: ConfigValue) {
     return val;
 }
 
-function pairsToConfig(pairs: ConfigEntity[]) {
-    // TODO: typings
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value: any = {};
+type ReconstructedConfigLeaf = ConfigEntity["value"];
+type ReconstructedConfigValue = ReconstructedConfigLeaf | ReconstructedConfigObject | ReconstructedConfigValue[];
+type ReconstructedConfigObject = { [key: string]: ReconstructedConfigValue };
+type ReconstructedConfigContainer = ReconstructedConfigObject | ReconstructedConfigValue[];
+
+function isArrayIndex(key: string) {
+    return !Number.isNaN(Number(key));
+}
+
+function getReconstructedConfigValue(container: ReconstructedConfigContainer, key: string) {
+    if (Array.isArray(container) && isArrayIndex(key)) return container[Number(key)];
+    return (container as ReconstructedConfigObject)[key];
+}
+
+function setReconstructedConfigValue(container: ReconstructedConfigContainer, key: string, value: ReconstructedConfigValue) {
+    if (Array.isArray(container) && isArrayIndex(key)) container[Number(key)] = value;
+    else (container as ReconstructedConfigObject)[key] = value;
+}
+
+function hasTruthyLength(value: ReconstructedConfigValue | undefined) {
+    return Boolean((value as { length?: unknown } | undefined)?.length);
+}
+
+export function pairsToConfig(pairs: ConfigEntity[]) {
+    const value: ReconstructedConfigObject = {};
 
     pairs.forEach((p) => {
         const keys = p.key.split("_");
-        let obj = value;
+        let obj: ReconstructedConfigContainer = value;
         let prev = "";
-        let prevObj = obj;
+        let prevObj: ReconstructedConfigContainer = obj;
         let i = 0;
 
         for (const key of keys) {
-            if (!isNaN(Number(key)) && !prevObj[prev]?.length) prevObj[prev] = obj = [];
-            if (i++ === keys.length - 1) obj[key] = p.value;
-            else if (!obj[key]) obj[key] = {};
+            if (isArrayIndex(key) && !hasTruthyLength(getReconstructedConfigValue(prevObj, prev))) {
+                obj = [];
+                setReconstructedConfigValue(prevObj, prev, obj);
+            }
+            if (i++ === keys.length - 1) setReconstructedConfigValue(obj, key, p.value);
+            else if (!getReconstructedConfigValue(obj, key)) setReconstructedConfigValue(obj, key, {});
 
             prev = key;
             prevObj = obj;
-            obj = obj[key];
+            obj = getReconstructedConfigValue(obj, key) as ReconstructedConfigContainer;
         }
     });
 
-    return value as ConfigValue;
+    return value as unknown as ConfigValue;
 }
 
 const validateConfig = async () => {
