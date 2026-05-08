@@ -6055,7 +6055,7 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "UserRelationshipsResponse": {
+    "UserRelationshipResponse": {
         "type": "object",
         "properties": {
             "id": {
@@ -6065,7 +6065,10 @@
                 "$ref": "#/definitions/RelationshipType"
             },
             "nickname": {
-                "type": "null"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "user": {
                 "$ref": "#/definitions/PublicUser"
@@ -6074,10 +6077,16 @@
         "additionalProperties": false,
         "required": [
             "id",
-            "nickname",
             "type",
             "user"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserRelationshipsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/UserRelationshipResponse"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "WebAuthnCreateResponse": {
@@ -8287,461 +8296,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ApplicationCommandCreateSchema": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "enum": [
-                    1,
-                    2,
-                    3,
-                    4
-                ],
-                "type": "number"
-            },
-            "name": {
-                "type": "string"
-            },
-            "name_localizations": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "string"
-                }
-            },
-            "description": {
-                "type": "string"
-            },
-            "description_localizations": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "string"
-                }
-            },
-            "options": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/ApplicationCommandOption"
-                }
-            },
-            "default_member_permissions": {
-                "type": "string"
-            },
-            "dm_permission": {
-                "type": "boolean"
-            },
-            "nsfw": {
-                "type": "boolean"
-            },
-            "integration_types": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/ApplicationIntegrationType"
-                }
-            },
-            "contexts": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/InteractionContextType"
-                }
-            },
-            "handler": {
-                "enum": [
-                    1,
-                    2,
-                    3
-                ],
-                "type": "number"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "name"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "BulkApplicationCommandCreateSchema": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/ApplicationCommandCreateSchema"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "IdentifySchema": {
-        "type": "object",
-        "properties": {
-            "token": {
-                "type": "string"
-            },
-            "properties": {
-                "type": "object",
-                "properties": {
-                    "os": {
-                        "type": "string"
-                    },
-                    "os_atch": {
-                        "type": "string"
-                    },
-                    "browser": {
-                        "type": "string"
-                    },
-                    "device": {
-                        "type": "string"
-                    },
-                    "$os": {
-                        "type": "string"
-                    },
-                    "$browser": {
-                        "type": "string"
-                    },
-                    "$device": {
-                        "type": "string"
-                    },
-                    "browser_user_agent": {
-                        "type": "string"
-                    },
-                    "browser_version": {
-                        "type": "string"
-                    },
-                    "os_version": {
-                        "type": "string"
-                    },
-                    "referrer": {
-                        "type": "string"
-                    },
-                    "referring_domain": {
-                        "type": "string"
-                    },
-                    "referrer_current": {
-                        "type": "string"
-                    },
-                    "referring_domain_current": {
-                        "type": "string"
-                    },
-                    "release_channel": {
-                        "enum": [
-                            "canary",
-                            "dev",
-                            "ptb",
-                            "stable"
-                        ],
-                        "type": "string"
-                    },
-                    "client_build_number": {
-                        "type": "integer"
-                    },
-                    "client_event_source": {
-                        "type": "string"
-                    },
-                    "client_version": {
-                        "type": "string"
-                    },
-                    "system_locale": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "intents": {
-                "type": "bigint"
-            },
-            "presence": {
-                "$ref": "#/definitions/ActivitySchema"
-            },
-            "compress": {
-                "type": "boolean"
-            },
-            "large_threshold": {
-                "type": "integer"
-            },
-            "largeThreshold": {
-                "type": "integer"
-            },
-            "shard": {
-                "minItems": 2,
-                "maxItems": 2,
-                "type": "array",
-                "items": {
-                    "type": "bigint"
-                }
-            },
-            "guild_subscriptions": {
-                "type": "boolean"
-            },
-            "capabilities": {
-                "type": "integer"
-            },
-            "client_state": {
-                "type": "object",
-                "properties": {
-                    "guild_hashes": {},
-                    "highest_last_message_id": {
-                        "type": "integer"
-                    },
-                    "read_state_version": {
-                        "type": "integer"
-                    },
-                    "user_guild_settings_version": {
-                        "type": "integer"
-                    },
-                    "user_settings_version": {
-                        "type": "integer"
-                    },
-                    "useruser_guild_settings_version": {
-                        "type": "integer"
-                    },
-                    "private_channels_version": {
-                        "type": "integer"
-                    },
-                    "guild_versions": {},
-                    "api_code_version": {
-                        "type": "integer"
-                    },
-                    "initial_guild_id": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "clientState": {
-                "type": "object",
-                "properties": {
-                    "guildHashes": {},
-                    "highestLastMessageId": {
-                        "type": "integer"
-                    },
-                    "readStateVersion": {
-                        "type": "integer"
-                    },
-                    "userGuildSettingsVersion": {
-                        "type": "integer"
-                    },
-                    "useruserGuildSettingsVersion": {
-                        "type": "integer"
-                    },
-                    "guildVersions": {},
-                    "apiCodeVersion": {
-                        "type": "integer"
-                    },
-                    "initialGuildId": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
-            },
-            "v": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "properties",
-            "token"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "StreamCreateSchema": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "enum": [
-                    "call",
-                    "guild"
-                ],
-                "type": "string"
-            },
-            "channel_id": {
-                "type": "string"
-            },
-            "guild_id": {
-                "type": "string"
-            },
-            "preferred_region": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "channel_id",
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "StreamDeleteSchema": {
-        "type": "object",
-        "properties": {
-            "stream_key": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "stream_key"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "StreamWatchSchema": {
-        "type": "object",
-        "properties": {
-            "stream_key": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "stream_key"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "VoiceIdentifySchema": {
-        "type": "object",
-        "properties": {
-            "server_id": {
-                "type": "string"
-            },
-            "user_id": {
-                "type": "string"
-            },
-            "session_id": {
-                "type": "string"
-            },
-            "channel_id": {
-                "type": "string"
-            },
-            "token": {
-                "type": "string"
-            },
-            "video": {
-                "type": "boolean"
-            },
-            "streams": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "enum": [
-                                "audio",
-                                "screen",
-                                "video"
-                            ],
-                            "type": "string"
-                        },
-                        "rid": {
-                            "type": "string"
-                        },
-                        "quality": {
-                            "type": "integer"
-                        }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "quality",
-                        "rid",
-                        "type"
-                    ]
-                }
-            },
-            "max_secure_frames_version": {
-                "type": "integer"
-            },
-            "max_dave_protocol_version": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "server_id",
-            "session_id",
-            "token",
-            "user_id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "VoiceVideoSchema": {
-        "type": "object",
-        "properties": {
-            "audio_ssrc": {
-                "type": "integer"
-            },
-            "video_ssrc": {
-                "type": "integer"
-            },
-            "rtx_ssrc": {
-                "type": "integer"
-            },
-            "user_id": {
-                "type": "string"
-            },
-            "streams": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "enum": [
-                                "audio",
-                                "screen",
-                                "video"
-                            ],
-                            "type": "string"
-                        },
-                        "rid": {
-                            "type": "string"
-                        },
-                        "ssrc": {
-                            "type": "integer"
-                        },
-                        "active": {
-                            "type": "boolean"
-                        },
-                        "quality": {
-                            "type": "integer"
-                        },
-                        "rtx_ssrc": {
-                            "type": "integer"
-                        },
-                        "max_bitrate": {
-                            "type": "integer"
-                        },
-                        "max_framerate": {
-                            "type": "integer"
-                        },
-                        "max_resolution": {
-                            "type": "object",
-                            "properties": {
-                                "type": {
-                                    "type": "string"
-                                },
-                                "width": {
-                                    "type": "integer"
-                                },
-                                "height": {
-                                    "type": "integer"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "height",
-                                "type",
-                                "width"
-                            ]
-                        }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "rid",
-                        "type"
-                    ]
-                }
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "audio_ssrc",
-            "video_ssrc"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "ThreadCreationSchema": {
         "type": "object",
         "properties": {
@@ -10530,6 +10084,461 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "IdentifySchema": {
+        "type": "object",
+        "properties": {
+            "token": {
+                "type": "string"
+            },
+            "properties": {
+                "type": "object",
+                "properties": {
+                    "os": {
+                        "type": "string"
+                    },
+                    "os_atch": {
+                        "type": "string"
+                    },
+                    "browser": {
+                        "type": "string"
+                    },
+                    "device": {
+                        "type": "string"
+                    },
+                    "$os": {
+                        "type": "string"
+                    },
+                    "$browser": {
+                        "type": "string"
+                    },
+                    "$device": {
+                        "type": "string"
+                    },
+                    "browser_user_agent": {
+                        "type": "string"
+                    },
+                    "browser_version": {
+                        "type": "string"
+                    },
+                    "os_version": {
+                        "type": "string"
+                    },
+                    "referrer": {
+                        "type": "string"
+                    },
+                    "referring_domain": {
+                        "type": "string"
+                    },
+                    "referrer_current": {
+                        "type": "string"
+                    },
+                    "referring_domain_current": {
+                        "type": "string"
+                    },
+                    "release_channel": {
+                        "enum": [
+                            "canary",
+                            "dev",
+                            "ptb",
+                            "stable"
+                        ],
+                        "type": "string"
+                    },
+                    "client_build_number": {
+                        "type": "integer"
+                    },
+                    "client_event_source": {
+                        "type": "string"
+                    },
+                    "client_version": {
+                        "type": "string"
+                    },
+                    "system_locale": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "intents": {
+                "type": "bigint"
+            },
+            "presence": {
+                "$ref": "#/definitions/ActivitySchema"
+            },
+            "compress": {
+                "type": "boolean"
+            },
+            "large_threshold": {
+                "type": "integer"
+            },
+            "largeThreshold": {
+                "type": "integer"
+            },
+            "shard": {
+                "minItems": 2,
+                "maxItems": 2,
+                "type": "array",
+                "items": {
+                    "type": "bigint"
+                }
+            },
+            "guild_subscriptions": {
+                "type": "boolean"
+            },
+            "capabilities": {
+                "type": "integer"
+            },
+            "client_state": {
+                "type": "object",
+                "properties": {
+                    "guild_hashes": {},
+                    "highest_last_message_id": {
+                        "type": "integer"
+                    },
+                    "read_state_version": {
+                        "type": "integer"
+                    },
+                    "user_guild_settings_version": {
+                        "type": "integer"
+                    },
+                    "user_settings_version": {
+                        "type": "integer"
+                    },
+                    "useruser_guild_settings_version": {
+                        "type": "integer"
+                    },
+                    "private_channels_version": {
+                        "type": "integer"
+                    },
+                    "guild_versions": {},
+                    "api_code_version": {
+                        "type": "integer"
+                    },
+                    "initial_guild_id": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "clientState": {
+                "type": "object",
+                "properties": {
+                    "guildHashes": {},
+                    "highestLastMessageId": {
+                        "type": "integer"
+                    },
+                    "readStateVersion": {
+                        "type": "integer"
+                    },
+                    "userGuildSettingsVersion": {
+                        "type": "integer"
+                    },
+                    "useruserGuildSettingsVersion": {
+                        "type": "integer"
+                    },
+                    "guildVersions": {},
+                    "apiCodeVersion": {
+                        "type": "integer"
+                    },
+                    "initialGuildId": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "v": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "properties",
+            "token"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StreamCreateSchema": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "enum": [
+                    "call",
+                    "guild"
+                ],
+                "type": "string"
+            },
+            "channel_id": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "preferred_region": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StreamDeleteSchema": {
+        "type": "object",
+        "properties": {
+            "stream_key": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "stream_key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StreamWatchSchema": {
+        "type": "object",
+        "properties": {
+            "stream_key": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "stream_key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "VoiceIdentifySchema": {
+        "type": "object",
+        "properties": {
+            "server_id": {
+                "type": "string"
+            },
+            "user_id": {
+                "type": "string"
+            },
+            "session_id": {
+                "type": "string"
+            },
+            "channel_id": {
+                "type": "string"
+            },
+            "token": {
+                "type": "string"
+            },
+            "video": {
+                "type": "boolean"
+            },
+            "streams": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "enum": [
+                                "audio",
+                                "screen",
+                                "video"
+                            ],
+                            "type": "string"
+                        },
+                        "rid": {
+                            "type": "string"
+                        },
+                        "quality": {
+                            "type": "integer"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "quality",
+                        "rid",
+                        "type"
+                    ]
+                }
+            },
+            "max_secure_frames_version": {
+                "type": "integer"
+            },
+            "max_dave_protocol_version": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "server_id",
+            "session_id",
+            "token",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "VoiceVideoSchema": {
+        "type": "object",
+        "properties": {
+            "audio_ssrc": {
+                "type": "integer"
+            },
+            "video_ssrc": {
+                "type": "integer"
+            },
+            "rtx_ssrc": {
+                "type": "integer"
+            },
+            "user_id": {
+                "type": "string"
+            },
+            "streams": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "enum": [
+                                "audio",
+                                "screen",
+                                "video"
+                            ],
+                            "type": "string"
+                        },
+                        "rid": {
+                            "type": "string"
+                        },
+                        "ssrc": {
+                            "type": "integer"
+                        },
+                        "active": {
+                            "type": "boolean"
+                        },
+                        "quality": {
+                            "type": "integer"
+                        },
+                        "rtx_ssrc": {
+                            "type": "integer"
+                        },
+                        "max_bitrate": {
+                            "type": "integer"
+                        },
+                        "max_framerate": {
+                            "type": "integer"
+                        },
+                        "max_resolution": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                },
+                                "width": {
+                                    "type": "integer"
+                                },
+                                "height": {
+                                    "type": "integer"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "height",
+                                "type",
+                                "width"
+                            ]
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "rid",
+                        "type"
+                    ]
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "audio_ssrc",
+            "video_ssrc"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandCreateSchema": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                "type": "number"
+            },
+            "name": {
+                "type": "string"
+            },
+            "name_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "description": {
+                "type": "string"
+            },
+            "description_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommandOption"
+                }
+            },
+            "default_member_permissions": {
+                "type": "string"
+            },
+            "dm_permission": {
+                "type": "boolean"
+            },
+            "nsfw": {
+                "type": "boolean"
+            },
+            "integration_types": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationIntegrationType"
+                }
+            },
+            "contexts": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InteractionContextType"
+                }
+            },
+            "handler": {
+                "enum": [
+                    1,
+                    2,
+                    3
+                ],
+                "type": "number"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "BulkApplicationCommandCreateSchema": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ApplicationCommandCreateSchema"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "SessionsLogoutSchema": {
         "type": "object",
         "properties": {
@@ -10593,17 +10602,14 @@
                                 "version": {
                                     "type": "integer"
                                 },
+                                "platform": {
+                                    "type": "string"
+                                },
                                 "location": {
                                     "type": "string"
                                 }
                             },
-                            "additionalProperties": false,
-                            "required": [
-                                "client",
-                                "location",
-                                "os",
-                                "version"
-                            ]
+                            "additionalProperties": false
                         },
                         "last_seen": {
                             "type": "string",
@@ -10618,13 +10624,9 @@
                     },
                     "additionalProperties": false,
                     "required": [
-                        "activities",
                         "approx_last_used_time",
                         "client_info",
-                        "client_status",
-                        "id",
-                        "id_hash",
-                        "status"
+                        "id_hash"
                     ]
                 }
             }
@@ -18538,6 +18540,9 @@
             "heartbeatTimeout": {
                 "type": "integer"
             },
+            "disconnectedSessionCleanupDelayMs": {
+                "type": "integer"
+            },
             "endpointPrivate": {
                 "type": [
                     "null",
@@ -18555,6 +18560,7 @@
         },
         "additionalProperties": false,
         "required": [
+            "disconnectedSessionCleanupDelayMs",
             "endpointPrivate",
             "endpointPublic",
             "heartbeatTimeout"
