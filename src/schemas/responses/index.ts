@@ -75,6 +75,7 @@ export * from "./UploadAttachmentResponseSchema";
 export * from "./UserNoteResponse";
 export * from "./UserProfileResponse";
 export * from "./UserInviteResponse";
+export * from "./UserGuildsResponse";
 export * from "./UserRelationsResponse";
 export * from "./UserRelationshipsResponse";
 export * from "./WebAuthnCreateResponse";

@@ -1,4 +1,5 @@
-import type { Member, Role } from "@spacebar/util";
+import type { UserGuildResponse } from "@spacebar/schemas";
+import { Member, type Role } from "@spacebar/util";
 import { Permissions } from "@spacebar/util/util/Permissions";
 
 type JoinedGuild = {
@@ -6,7 +7,7 @@ type JoinedGuild = {
     owner_id?: string;
     member_count?: number;
     presence_count?: number;
-    toJSON(): unknown;
+    toJSON(): Pick<UserGuildResponse, "id" | "name"> & Partial<Omit<UserGuildResponse, "permissions">> & { permissions?: string | number };
 };
 type JoinedRole = { id: string; permissions?: string };
 type JoinedMember = Pick<Member, "id"> & {
@@ -16,25 +17,37 @@ type JoinedMember = Pick<Member, "id"> & {
     user?: { flags?: number };
 };
 
-export type UserGuildResponse = Record<string, unknown> & {
-    approximate_member_count?: number;
-    approximate_presence_count?: number;
-    permissions?: string;
-};
-
 export function serializeUserGuilds(members: JoinedMember[], withCounts: boolean): Array<JoinedGuild | UserGuildResponse> {
     if (!withCounts) return members.map((member) => member.guild);
 
     return members.map((member) => {
         const guild = member.guild;
+        const { permissions: _permissions, ...serializedGuild } = guild.toJSON();
 
         return {
-            ...(guild.toJSON() as Record<string, unknown>),
+            ...serializedGuild,
             approximate_member_count: guild.member_count ?? 0,
             approximate_presence_count: guild.presence_count ?? 0,
             permissions: resolveUserGuildPermissions(member).bitfield.toString(),
         };
     });
+}
+
+export async function countUserGuildOnlinePresences(guildIds: string[]) {
+    const uniqueGuildIds = [...new Set(guildIds)];
+    if (uniqueGuildIds.length === 0) return new Map<string, number>();
+
+    const rows = await Member.createQueryBuilder("member")
+        .select("member.guild_id", "guild_id")
+        .addSelect("COUNT(DISTINCT member.id)", "presence_count")
+        .innerJoin("member.user", "user")
+        .innerJoin("user.sessions", "session")
+        .where("member.guild_id IN (:...guildIds)", { guildIds: uniqueGuildIds })
+        .andWhere("session.status = :status", { status: "online" })
+        .groupBy("member.guild_id")
+        .getRawMany<{ guild_id: string; presence_count: string | number }>();
+
+    return new Map(rows.map((row) => [row.guild_id, Number(row.presence_count)]));
 }
 
 function resolveUserGuildPermissions(member: JoinedMember) {

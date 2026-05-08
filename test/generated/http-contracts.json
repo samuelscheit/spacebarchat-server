@@ -17379,7 +17379,7 @@
             "path": "/users/@me/guilds/:guild_id",
             "samplePath": "/users/@me/guilds/100000000000000001",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 52,
+            "line": 64,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -17433,14 +17433,14 @@
             "path": "/users/@me/guilds/",
             "samplePath": "/users/@me/guilds/",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 26,
+            "line": 27,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
             "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
             "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
             "routeMetadata": {
-                "responses": ["APIGuildArray"],
+                "responses": ["UserGuildsResponse"],
                 "responseStatuses": [200]
             },
             "cases": [

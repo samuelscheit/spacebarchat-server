@@ -12823,7 +12823,7 @@
             "method": "DELETE",
             "path": "/users/@me/guilds/:guild_id",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 50,
+            "line": 64,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12872,12 +12872,12 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIGuildArray"
+                    "UserGuildsResponse"
                 ],
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-user-state",

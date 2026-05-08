@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import bcrypt from "bcrypt";
 import { FrecencyUserSettings, PreloadedUserSettings } from "discord-protos";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Recipient, User, UserSettingsProtos } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Permissions, Recipient, Session, User, UserSettingsProtos } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -149,6 +149,7 @@ test(
             const groupTarget = await registerUser(`usersuppgroup${suffix.slice(-8)}`, `users-supp-group-${suffix}@example.com`);
             const ownerToken = await generateToken(owner.id);
             assert.ok(ownerToken, "owner token generation should return a bearer token");
+            await Session.update({ user_id: owner.id }, { status: "online" });
             ownerEvents = await captureEvents(owner.id);
 
             const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `users-supp-${suffix.slice(-8)}` }, ownerToken);
@@ -192,6 +193,13 @@ test(
 
             const guilds = await getJsonArray(`${api.apiBaseUrl}/users/@me/guilds`, ownerToken);
             assert.ok(guilds.some((guild) => guild.id === guildId));
+
+            const guildsWithCounts = await getJsonArray(`${api.apiBaseUrl}/users/@me/guilds?with_counts=true`, ownerToken);
+            const guildWithCounts = guildsWithCounts.find((guild) => guild.id === guildId);
+            assert.ok(guildWithCounts, "joined guild should be returned when with_counts is true");
+            assert.equal(guildWithCounts.approximate_member_count, 2);
+            assert.equal(guildWithCounts.approximate_presence_count, 1);
+            assert.equal(guildWithCounts.permissions, Permissions.ALL.bitfield.toString());
 
             const guildSettings = await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}/settings`, ownerToken));
             assert.equal(guildSettings.guild_id, null);
