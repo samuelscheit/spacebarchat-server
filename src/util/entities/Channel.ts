@@ -284,8 +284,7 @@ export class Channel extends BaseClass {
             // total_message_sent: 0,
         };
 
-        // TODO: figure out why the generic is required here
-        const ret = Channel.create<Channel>(channel);
+        const ret = Channel.getRepository().create(channel);
 
         await Promise.all([
             ret.save(),

@@ -280,17 +280,19 @@ describe("Guild.createGuild", () => {
         const mutableGuild = Guild as unknown as Record<string, unknown>;
         const mutableChannel = Channel as unknown as Record<string, unknown>;
 
-        const originalChannelCreate = mutableChannel.create;
+        const originalChannelGetRepository = mutableChannel.getRepository;
         const originalGuildFindOneOrFail = mutableGuild.findOneOrFail;
         const originalGuildInsertChannelInOrder = mutableGuild.insertChannelInOrder;
 
         let insertCalls = 0;
 
         try {
-            mutableChannel.create = (entity: object) => ({
-                ...entity,
-                save: async () => entity,
-                toJSON: () => entity,
+            mutableChannel.getRepository = () => ({
+                create: (entity: object) => ({
+                    ...entity,
+                    save: async () => entity,
+                    toJSON: () => entity,
+                }),
             });
             mutableGuild.findOneOrFail = async () => ({ id: "guild", features: [], channel_ordering: [] });
             mutableGuild.insertChannelInOrder = async () => {
@@ -307,7 +309,7 @@ describe("Guild.createGuild", () => {
 
             assert.equal(insertCalls, 0);
         } finally {
-            mutableChannel.create = originalChannelCreate;
+            mutableChannel.getRepository = originalChannelGetRepository;
             mutableGuild.findOneOrFail = originalGuildFindOneOrFail;
             mutableGuild.insertChannelInOrder = originalGuildInsertChannelInOrder;
         }
