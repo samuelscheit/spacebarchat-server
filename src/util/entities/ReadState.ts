@@ -81,7 +81,6 @@ export class ReadState extends BaseClass {
             // these only apply to channels:
             delete res.last_pin_timestamp;
             delete res.flags;
-            // delete res.last_viewed; // TODO
         }
         return res;
     }
