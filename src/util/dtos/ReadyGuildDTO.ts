@@ -17,7 +17,7 @@
 */
 
 import type { Channel, Emoji, Guild, Role, StageInstance, Sticker, ThreadMember } from "../entities";
-import type { ChannelType, PublicChannel, PublicMember, PublicUser, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
+import type { PublicChannel, PublicMember, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
 
 export type { ReadyUserGuildSettingsEntries } from "../interfaces/ReadyUserGuildSettingsEntries";
 
@@ -26,19 +26,6 @@ export function getReadyUserGuildSettingsVersion(entries: ReadonlyArray<{ readon
         if (typeof entry.version !== "number" || !Number.isFinite(entry.version)) return version;
         return Math.max(version, entry.version);
     }, 0);
-}
-
-// TODO: probably should move somewhere else
-export interface ReadyPrivateChannel {
-    id: string;
-    flags: number;
-    icon?: string | null;
-    is_spam: boolean;
-    last_message_id?: string | null;
-    name?: string | null;
-    owner_id?: string;
-    recipients: PublicUser[];
-    type: ChannelType.DM | ChannelType.GROUP_DM;
 }
 
 type ReadyStageInstance = StageInstance | StageInstanceResponse;

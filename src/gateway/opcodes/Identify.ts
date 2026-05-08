@@ -603,11 +603,11 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     // Populated with users from private channels, relationships.
     // Uses a set to dedupe for us.
     const users: Set<PublicUser> = new Set();
+    const currentUser = user.toPublicUser();
 
     const openDmPresenceRecipientIdsByChannelId = new Map<string, Set<string>>();
 
     // Generate dm channels from recipients list. Append recipients to `users` list
-    const currentUser = user.toPublicUser();
     const loadedDmRecipients = recipients.filter(hasLoadedDmChannel);
     for (const { channel } of loadedDmRecipients) {
         openDmPresenceRecipientIdsByChannelId.set(channel.id, getOpenDmPresenceRecipientIds(channel.recipients, this.user_id));

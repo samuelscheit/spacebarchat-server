@@ -29,7 +29,6 @@ import {
     Presence,
     UserSettings,
     IReadyGuildDTO,
-    ReadyPrivateChannel,
     GuildOrUnavailable,
     Snowflake,
     ThreadMember,
@@ -49,6 +48,7 @@ import {
     RelationshipType,
     StageInstanceResponse,
     UserPrivate,
+    ChannelType,
 } from "@spacebar/schemas";
 import type { VoiceStateMember } from "../entities/MemberPublic";
 import type { ReadyUserGuildSettingsEntries } from "./ReadyUserGuildSettingsEntries";
@@ -113,6 +113,18 @@ export type ReadyReadState = ReadyChannelReadState | ReadyNonChannelReadState;
 
 export const READY_SESSION_TYPE = "normal" as const;
 export type ReadySessionType = typeof READY_SESSION_TYPE;
+
+export interface ReadyPrivateChannel {
+    id: string;
+    flags: number;
+    icon?: string | null;
+    is_spam: boolean;
+    last_message_id?: string | null;
+    name?: string | null;
+    owner_id?: string;
+    recipients: PublicUser[];
+    type: ChannelType.DM | ChannelType.GROUP_DM;
+}
 
 export interface ReadyEventData {
     v: number;

@@ -1,5 +1,5 @@
 import type { ChannelType, PublicUser } from "@spacebar/schemas";
-import type { ReadyPrivateChannel } from "./ReadyGuildDTO";
+import type { ReadyPrivateChannel } from "../interfaces/Event";
 import { hasChannelSpamFlag } from "../util/ChannelFlags";
 
 type ReadyPrivateChannelRecipient = {
