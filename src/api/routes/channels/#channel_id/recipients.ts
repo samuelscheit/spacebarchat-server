@@ -23,6 +23,12 @@ import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
+export function assertCanAddGroupDmRecipient(channel: { recipients?: Pick<Recipient, "user_id">[] }, user_id: string) {
+    if (channel.recipients?.some((recipient) => recipient.user_id === user_id)) {
+        throw DiscordApiErrors.INVALID_RECIPIENT;
+    }
+}
+
 router.put(
     "/:user_id",
     route({
@@ -44,9 +50,7 @@ router.put(
             const new_channel = await Channel.createDMChannel(recipients, req.user_id);
             return res.status(201).json(new_channel);
         } else {
-            if (channel.recipients?.map((r) => r.user_id).includes(user_id)) {
-                throw DiscordApiErrors.INVALID_RECIPIENT; //TODO is this the right error?
-            }
+            assertCanAddGroupDmRecipient(channel, user_id);
 
             channel.recipients?.push(Recipient.create({ channel_id: channel_id, user_id: user_id }));
             await channel.save();
