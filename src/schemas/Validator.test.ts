@@ -3,12 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, test } from "node:test";
 import { ajv, validateSchema } from "./Validator";
+import { ajvErrorsToFieldErrors } from "../api/util/utility/AjvErrorFields";
 
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
 const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<
     string,
-    { properties?: Record<string, { format?: string }> }
+    { properties?: Record<string, { format?: string; maxLength?: number }> }
 >;
 
 const ImageDataUriFields = [
@@ -131,5 +132,25 @@ describe("schema validator custom formats", () => {
             assert.notEqual(Schemas.APIGuildWithJoinedAt.properties?.[field]?.format, "image-data-uri", `APIGuildWithJoinedAt.${field}`);
             assert.equal(Schemas.GuildUpdateSchema.properties?.[field]?.format, "image-data-uri-or-asset-hash", `GuildUpdateSchema.${field}`);
         }
+    });
+});
+
+describe("RoleModifySchema", () => {
+    test("rejects role names longer than 255 characters as a field length error", () => {
+        const validate = ajv.getSchema("RoleModifySchema");
+        assert.ok(validate);
+
+        assert.equal(Schemas.RoleModifySchema.properties?.name?.maxLength, 255);
+        assert.equal(validate({ name: "a".repeat(256) }), false);
+        assert.deepEqual(ajvErrorsToFieldErrors(validate.errors ?? []), {
+            name: {
+                _errors: [
+                    {
+                        code: "BASE_TYPE_BAD_LENGTH",
+                        message: "must NOT have more than 255 characters",
+                    },
+                ],
+            },
+        });
     });
 });

@@ -6831,7 +6831,8 @@
                 "type": "object",
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "maxLength": 255
                     },
                     "permissions": {
                         "type": "string"

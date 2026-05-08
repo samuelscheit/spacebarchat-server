@@ -30,6 +30,25 @@ async function startRouteServer() {
     };
 }
 
+async function startRoleModifyRouteServer() {
+    const app = express();
+    app.use(BodyParser({ inflate: true, limit: "1mb" }));
+    app.post("/roles", route({ requestBody: "RoleModifySchema" }), (req, res) => res.json(req.body));
+    app.use(ErrorHandler);
+
+    const server = http.createServer(app);
+    await new Promise<void>((resolve) => {
+        server.listen(0, "127.0.0.1", resolve);
+    });
+    const address = server.address();
+    assert(address && typeof address === "object");
+
+    return {
+        server,
+        url: `http://${address.address}:${address.port}/roles`,
+    };
+}
+
 function postJson(url: string, body: string): Promise<{ statusCode: number | undefined; body: unknown }> {
     return new Promise((resolve, reject) => {
         const req = http.request(
@@ -182,6 +201,32 @@ describe("bigNumberToString", () => {
             assert.equal(body.code, 50035);
             assert.equal(body.message, "Invalid Form Body");
             assert.equal(body.errors.tts._errors[0].code, "BASE_TYPE_INVALID");
+        } finally {
+            await new Promise<void>((resolve, reject) => {
+                server.close((error) => (error ? reject(error) : resolve()));
+            });
+        }
+    });
+
+    test("surfaces overlong role names as invalid form-body field errors", async () => {
+        const { server, url } = await startRoleModifyRouteServer();
+        try {
+            const response = await postJson(url, JSON.stringify({ name: "a".repeat(256) }));
+            assert.deepEqual(response.body, {
+                code: 50035,
+                message: "Invalid Form Body",
+                errors: {
+                    name: {
+                        _errors: [
+                            {
+                                code: "BASE_TYPE_BAD_LENGTH",
+                                message: "must NOT have more than 255 characters",
+                            },
+                        ],
+                    },
+                },
+            });
+            assert.equal(response.statusCode, 400);
         } finally {
             await new Promise<void>((resolve, reject) => {
                 server.close((error) => (error ? reject(error) : resolve()));
