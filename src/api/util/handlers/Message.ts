@@ -66,6 +66,8 @@ import {
     MessageCreateAttachmentMetadata,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
+    PollCreationSchema,
+    Poll,
     MessageType,
     ReadStateType,
     StoredReaction,
@@ -285,6 +287,33 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
     };
 }
+
+const DEFAULT_POLL_DURATION_HOURS = 24;
+const DEFAULT_POLL_LAYOUT_TYPE = 1;
+
+export function createPollFromMessageOptions(poll: PollCreationSchema | Poll | null | undefined, now = new Date()): Poll | undefined {
+    if (!poll) return undefined;
+
+    if ("expiry" in poll) {
+        return {
+            ...poll,
+            layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
+        };
+    }
+
+    const durationHours = poll.duration ?? DEFAULT_POLL_DURATION_HOURS;
+    return {
+        question: poll.question,
+        answers: poll.answers.map((answer, index) => ({
+            answer_id: index + 1,
+            poll_media: answer.poll_media,
+        })),
+        expiry: new Date(now.getTime() + durationHours * 60 * 60 * 1000),
+        allow_multiselect: poll.allow_multiselect ?? false,
+        layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
+    };
+}
+
 export function isMessageEditOperation(opts: Pick<MessageOptions, "is_edit">): boolean {
     return opts.is_edit === true;
 }
@@ -328,7 +357,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     const message = Message.create({
         ...messageOptions,
         message_reference: opts.message_reference ?? undefined,
-        poll: opts.poll,
+        poll: createPollFromMessageOptions(opts.poll),
         sticker_items: stickers,
         guild_id: channel.guild_id,
         channel_id: opts.channel_id,

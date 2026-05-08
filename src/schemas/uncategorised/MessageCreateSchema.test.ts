@@ -2,9 +2,22 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { readFileSync } from "node:fs";
 import { normalizeMessageCreateSchema, type LegacyMessageCreateBody } from "./MessageCreateSchema";
-import { ajv } from "../Validator";
+import Ajv from "ajv";
 
 const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8"));
+
+function compileSchema(name: string, propertyNames: string[]) {
+    const schema = schemas[name];
+    const properties = schema.properties as Record<string, unknown>;
+    const validator = new Ajv({ strict: false, allErrors: true });
+
+    return validator.compile({
+        type: "object",
+        additionalProperties: schema.additionalProperties,
+        properties: Object.fromEntries(propertyNames.filter((property) => properties[property]).map((property) => [property, properties[property]])),
+        definitions: schemas,
+    });
+}
 
 describe("MessageCreateSchema", () => {
     test("does not expose server-inferred message type or deprecated singular embed", () => {
@@ -13,6 +26,17 @@ describe("MessageCreateSchema", () => {
         assert.equal("type" in properties, false);
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
+        assert.deepEqual(properties.poll, { $ref: "#/definitions/PollCreationSchema" });
+    });
+
+    test("uses creation-only poll answers", () => {
+        const pollCreationSchema = schemas.PollCreationSchema;
+        const pollCreationAnswerSchema = schemas.PollCreationAnswer;
+        const pollSchema = schemas.Poll;
+
+        assert.deepEqual(pollCreationSchema.properties.answers.items, { $ref: "#/definitions/PollCreationAnswer" });
+        assert.equal("answer_id" in pollCreationAnswerSchema.properties, false);
+        assert.deepEqual(pollSchema.properties.layout_type, { type: "integer" });
     });
 
     test("uses a reusable attachment metadata schema", () => {
@@ -45,6 +69,7 @@ describe("MessageEditSchema", () => {
 
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
+        assert.deepEqual(properties.poll, { $ref: "#/definitions/PollCreationSchema" });
     });
 });
 
@@ -73,14 +98,15 @@ describe("normalizeMessageCreateSchema", () => {
     test("preserves malformed embeds for schema validation when legacy embed is present", () => {
         const malformedEmbeds = {};
         const body = { embeds: malformedEmbeds, embed: { title: "legacy" } };
+        const validate = compileSchema("MessageCreateSchema", ["embeds"]);
 
         assert.doesNotThrow(() => normalizeMessageCreateSchema(body));
 
         assert.equal("embed" in body, false);
         assert.equal(body.embeds, malformedEmbeds);
-        assert.equal(ajv.validate("MessageCreateSchema", body), false);
+        assert.equal(validate(body), false);
         assert.equal(
-            ajv.errors?.some((error) => error.instancePath === "/embeds"),
+            validate.errors?.some((error) => error.instancePath === "/embeds"),
             true,
         );
     });
