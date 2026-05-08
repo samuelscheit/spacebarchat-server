@@ -4794,7 +4794,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 243,
+            "line": 242,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4846,7 +4846,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 302,
+            "line": 301,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4956,7 +4956,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 369,
+            "line": 368,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

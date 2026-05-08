@@ -64,6 +64,14 @@ describe("message media permission route integration", () => {
         assert.equal(source.includes("if (body.type !== ChannelType.GUILD_PRIVATE_THREAD"), false);
     });
 
+    test("thread routes no longer reference the superseded PR 876 implementation", () => {
+        const standaloneThreadSource = readSource("src/api/routes/channels/#channel_id/threads.ts");
+        const messageThreadSource = readSource("src/api/routes/channels/#channel_id/messages/#message_id/threads.ts");
+
+        assert.equal(standaloneThreadSource.includes("github.com/spacebarchat/server/pull/876"), false);
+        assert.equal(messageThreadSource.includes("github.com/spacebarchat/server/pull/876"), false);
+    });
+
     test("webhooks check media permissions before success responses and upload side effects", () => {
         const source = readSource("src/api/util/handlers/Webhook.ts");
 
