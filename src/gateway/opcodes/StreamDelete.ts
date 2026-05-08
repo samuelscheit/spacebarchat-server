@@ -2,6 +2,7 @@ import { parseStreamKey, Payload, WebSocket } from "@spacebar/gateway";
 import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamDeleteSchema } from "@spacebar/schemas";
+import { assertCallStreamKeyMatchesChannel, assertGatewayChannelAccess, assertGatewayVoiceChannel, assertGuildStreamKeyMatchesChannel } from "../util/Authorization";
 
 export async function onStreamDelete(this: WebSocket, data: Payload) {
     const startTime = Date.now();
@@ -21,8 +22,23 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
         return this.close(4000, "Invalid stream key");
     }
 
-    // noinspection JSUnusedLocalSymbols - TODO: what is type here?
     const { userId, channelId, guildId, type } = parsedKey;
+
+    let channel;
+    try {
+        ({ channel } = await assertGatewayChannelAccess({
+            userId: this.user_id,
+            guildId,
+            channelId,
+            permission: "CONNECT",
+        }));
+        assertGatewayVoiceChannel(channel);
+
+        if (type === "guild") assertGuildStreamKeyMatchesChannel(guildId, channel);
+        else assertCallStreamKeyMatchesChannel(channel);
+    } catch {
+        return this.close(4000, "Invalid stream key");
+    }
 
     // when a user selects to stop watching another user stream, this event gets triggered
     // just disconnect user without actually deleting stream

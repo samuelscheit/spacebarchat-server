@@ -180,6 +180,9 @@ const mockUtil = {
                 endpoint: "rtc.local",
                 id: "stream-id",
                 owner_id: "owner",
+                async remove() {
+                    state.streamDeleteCalls.push({ ...this });
+                },
             };
         },
         create(props: Record<string, unknown>) {
@@ -276,6 +279,7 @@ moduleLoader._load = (request: string, parent?: NodeJS.Module | null, isMain?: b
         return {
             ChannelType,
             StreamCreateSchema: {},
+            StreamDeleteSchema: {},
             StreamWatchSchema: {},
             VoiceStateUpdateSchema: {},
         };
@@ -293,6 +297,9 @@ const { onStreamCreate } = require("./StreamCreate") as {
 };
 const { onStreamWatch } = require("./StreamWatch") as {
     onStreamWatch(this: MockSocket, payload: { d: unknown }): Promise<void>;
+};
+const { onStreamDelete } = require("./StreamDelete") as {
+    onStreamDelete(this: MockSocket, payload: { d: unknown }): Promise<void>;
 };
 
 after(() => {
@@ -489,5 +496,74 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.streamSessionSaves.length, 0);
         assert.equal(state.generatedTokens.length, 0);
         assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE checks CONNECT before resolving and removing owner stream", async () => {
+        state.permissionError = new Error("missing CONNECT");
+        const socket = makeSocket();
+
+        await onStreamDelete.call(socket, { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(socket.closed, { code: 4000, reason: "Invalid stream key" });
+        assert.equal(state.streamFindCalls.length, 0);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE rejects mismatched stream key guild and channel before stream lookup", async () => {
+        const socket = makeSocket();
+
+        await onStreamDelete.call(socket, { d: { stream_key: "guild:other-guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "other-guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(socket.closed, { code: 4000, reason: "Invalid stream key" });
+        assert.equal(state.streamFindCalls.length, 0);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE uses call stream key type to reject guild channels before stream lookup", async () => {
+        const socket = makeSocket();
+
+        await onStreamDelete.call(socket, { d: { stream_key: "call:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: undefined, permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(socket.closed, { code: 4000, reason: "Invalid stream key" });
+        assert.equal(state.streamFindCalls.length, 0);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE removes owner stream after validating stream key type and channel", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "voice", owner_id: "viewer" } }]);
+        assert.equal(state.streamDeleteCalls.length, 1);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.deepEqual(state.memberFindOneCalls, [{ where: { id: "viewer", guild_id: "guild" } }]);
+        assert.deepEqual(state.emittedEvents, [
+            {
+                event: "VOICE_STATE_UPDATE",
+                data: {
+                    channel_id: "voice",
+                    guild_id: "guild",
+                    member: { user: { id: "viewer" } },
+                    session_id: "session",
+                    user_id: "viewer",
+                },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "guild:guild:voice:viewer" },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+        ]);
     });
 });
