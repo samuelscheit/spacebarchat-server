@@ -7848,7 +7848,7 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "GenerateWebAuthnCredentialsSchema": {
+    "WebAuthnCredentialRegistrationChallengeSchema": {
         "type": "object",
         "properties": {
             "password": {
@@ -7885,7 +7885,7 @@
     "WebAuthnPostSchema": {
         "anyOf": [
             {
-                "$ref": "#/definitions/GenerateWebAuthnCredentialsSchema"
+                "$ref": "#/definitions/WebAuthnCredentialRegistrationChallengeSchema"
             },
             {
                 "$ref": "#/definitions/CreateWebAuthnCredentialSchema"

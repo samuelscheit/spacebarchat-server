@@ -28,10 +28,10 @@ import { Config, DiscordApiErrors, FieldErrors, generateWebAuthnTicket, isWebAut
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { CreateWebAuthnCredentialSchema, GenerateWebAuthnCredentialsSchema, WebAuthnPostSchema } from "@spacebar/schemas";
+import { CreateWebAuthnCredentialSchema, WebAuthnCredentialRegistrationChallengeSchema, WebAuthnPostSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
-const isGenerateSchema = (body: WebAuthnPostSchema): body is GenerateWebAuthnCredentialsSchema => "password" in body;
+const isRegistrationChallengeSchema = (body: WebAuthnPostSchema): body is WebAuthnCredentialRegistrationChallengeSchema => "password" in body;
 const isCreateSchema = (body: WebAuthnPostSchema): body is CreateWebAuthnCredentialSchema => "credential" in body;
 
 router.get("/", route({}), async (req: Request, res: Response) => {
@@ -76,7 +76,7 @@ router.post(
             relations: { settings: true },
         });
 
-        if (isGenerateSchema(req.body)) {
+        if (isRegistrationChallengeSchema(req.body)) {
             const { password } = req.body;
             const same_password = await bcrypt.compare(password, user.data.hash || "");
             if (!same_password) {
