@@ -6415,7 +6415,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/channels/",
             "sourceFile": "src/api/routes/guilds/#guild_id/channels.ts",
-            "line": 76,
+            "line": 77,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -6475,6 +6475,7 @@
                 "present": true,
                 "permission": "MANAGE_CHANNELS",
                 "requestBody": "ChannelCreateSchema",
+                "event": "CHANNEL_CREATE",
                 "responseBodies": [
                     "APIErrorResponse",
                     "Channel"

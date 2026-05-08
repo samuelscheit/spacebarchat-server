@@ -13838,7 +13838,7 @@
             "path": "/guilds/:guild_id/channels/",
             "samplePath": "/guilds/100000000000000001/channels/",
             "sourceFile": "src/api/routes/guilds/#guild_id/channels.ts",
-            "line": 76,
+            "line": 77,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -13996,7 +13996,8 @@
                     400,
                     403
                 ],
-                "permission": "MANAGE_CHANNELS"
+                "permission": "MANAGE_CHANNELS",
+                "event": "CHANNEL_CREATE"
             },
             "cases": [
                 {
@@ -14044,6 +14045,15 @@
                     "permission": "MANAGE_CHANNELS"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": [
+                        "events"
+                    ],
+                    "events": [
+                        "CHANNEL_CREATE"
+                    ]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": [
                         "rate-limit-headers"
@@ -14060,12 +14070,6 @@
                     "id": "policy-db-state",
                     "checks": [
                         "db-state"
-                    ]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": [
-                        "events"
                     ]
                 }
             ]
