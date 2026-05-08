@@ -23,8 +23,6 @@ import { GuildCreateSchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-//TODO: create default channel
-
 router.post(
     "/",
     route({

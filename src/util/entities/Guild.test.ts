@@ -20,6 +20,114 @@ function createSaveableEntity(payload: EntityPayload): SaveableEntity {
 }
 
 describe("Guild.createGuild", () => {
+    test("creates a default text channel when no channels are provided", async (t) => {
+        process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
+        process.env.APPLY_DB_MIGRATIONS ??= "false";
+
+        const [{ Guild }, { Role }, { Channel }, { Config, Snowflake }] = await Promise.all([
+            import("./Guild.js"),
+            import("./Role.js"),
+            import("./Channel.js"),
+            import("../util/index.js"),
+        ]);
+
+        const guildClass = Guild as unknown as {
+            create: (guild: EntityPayload) => SaveableEntity;
+            update: (criteria: unknown, partial: EntityPayload) => Promise<unknown>;
+        };
+        const roleClass = Role as unknown as {
+            create: (role: EntityPayload) => SaveableEntity;
+        };
+        const channelClass = Channel as unknown as {
+            createChannel: (channel: EntityPayload, userId?: string, options?: EntityPayload) => Promise<EntityPayload>;
+        };
+        const configClass = Config as unknown as {
+            get: () => EntityPayload;
+        };
+        const snowflakeClass = Snowflake as unknown as {
+            generate: () => string;
+        };
+
+        const generatedIds = ["new-guild", "default-channel"];
+        const createdChannels: EntityPayload[] = [];
+        const guildUpdates: EntityPayload[] = [];
+
+        t.mock.method(configClass, "get", () => ({
+            defaults: {
+                guild: {
+                    afkTimeout: 300,
+                    defaultMessageNotifications: 0,
+                    explicitContentFilter: 0,
+                    maxPresences: null,
+                    maxVideoChannelUsers: 25,
+                },
+            },
+            guild: {
+                defaultFeatures: [],
+            },
+            limits: {
+                guild: {
+                    maxMembers: 250000,
+                },
+            },
+            regions: {
+                default: "deprecated",
+            },
+        }));
+        t.mock.method(snowflakeClass, "generate", () => {
+            const id = generatedIds.shift();
+            assert.ok(id);
+            return id;
+        });
+        t.mock.method(guildClass, "create", (guild: EntityPayload) => createSaveableEntity(guild));
+        t.mock.method(guildClass, "update", async (_criteria: unknown, partial: EntityPayload) => {
+            guildUpdates.push(partial);
+            return { affected: 1, generatedMaps: [], raw: [] };
+        });
+        t.mock.method(roleClass, "create", (role: EntityPayload) => createSaveableEntity(role));
+        t.mock.method(channelClass, "createChannel", async (channel: EntityPayload, userId?: string, options?: EntityPayload) => {
+            createdChannels.push({ ...channel, userId, options });
+            return channel;
+        });
+
+        const guild = await Guild.createGuild({
+            name: "No Template",
+            owner_id: "owner",
+            source_guild_id: null,
+        });
+
+        assert.equal(guild.id, "new-guild");
+        assert.equal(createdChannels.length, 1);
+        assert.deepEqual(
+            {
+                id: createdChannels[0].id,
+                guild_id: createdChannels[0].guild_id,
+                name: createdChannels[0].name,
+                nsfw: createdChannels[0].nsfw,
+                type: createdChannels[0].type,
+                userId: createdChannels[0].userId,
+                options: createdChannels[0].options,
+            },
+            {
+                id: "default-channel",
+                guild_id: "new-guild",
+                name: "general",
+                nsfw: false,
+                type: GUILD_TEXT_CHANNEL_TYPE,
+                userId: "owner",
+                options: {
+                    keepId: true,
+                    skipExistsCheck: true,
+                    skipPermissionCheck: true,
+                    skipEventEmit: true,
+                    skipOrdering: true,
+                },
+            },
+        );
+        assert.deepEqual(guild.channel_ordering, ["default-channel"]);
+        assert.deepEqual(guildUpdates.at(-1), { channel_ordering: ["default-channel"] });
+    });
+
     test("persists imported template channel ordering from serialized channel order", async () => {
         process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
 
