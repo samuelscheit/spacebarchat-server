@@ -99,38 +99,45 @@ export class ThreadMember extends BaseClassWithoutId {
         throw new HTTPError("You are not member of this thread", 403);
     }
 
-    static async removeFromThread(member_id: string, thread_id: string) {
+    static async removeFromThread(user_id: string, thread_id: string) {
         const channel = await Channel.findOneOrFail({ where: { id: thread_id } });
+        if (!channel.guild_id) throw new HTTPError("Thread guild id not set", 500);
+
+        const member = await Member.findOneOrFail({
+            where: { id: user_id, guild_id: channel.guild_id },
+            select: { index: true },
+        });
+
         if (
             !(await ThreadMember.count({
                 where: {
                     id: thread_id,
-                    member_idx: member_id,
+                    member_idx: member.index,
                 },
             }))
         )
             throw new HTTPError("You are not member of this thread", 403);
-        // // use promise all to execute all promises at the same time -> save time
-        // TODO: check for bugs
-        if (channel.member_count) channel.member_count--;
-        return Promise.all([
-            ThreadMember.delete({
-                id: thread_id,
-                member_idx: member_id,
-            }),
-            // 	//Guild.decrement({ id: guild_id }, "member_count", -1),
 
-            emitEvent({
-                event: "THREAD_MEMBERS_UPDATE",
-                data: {
-                    guild_id: channel.guild_id!, // TODO: is this the right fix?
-                    id: channel.id,
-                    member_count: channel.member_count ?? 0,
-                    removed_member_ids: [member_id],
-                },
-                channel_id: thread_id,
-            } satisfies ThreadMembersUpdateEvent),
-        ]);
+        await ThreadMember.delete({
+            id: thread_id,
+            member_idx: member.index,
+        });
+
+        if (channel.member_count !== null && channel.member_count !== undefined && channel.member_count > 0) {
+            channel.member_count--;
+            await channel.save();
+        }
+
+        return emitEvent({
+            event: "THREAD_MEMBERS_UPDATE",
+            data: {
+                guild_id: channel.guild_id!, // TODO: is this the right fix?
+                id: channel.id,
+                member_count: channel.member_count ?? 0,
+                removed_member_ids: [user_id],
+            },
+            channel_id: thread_id,
+        } satisfies ThreadMembersUpdateEvent);
     }
 
     // static async addRole(user_id: string, guild_id: string, role_id: string) {
