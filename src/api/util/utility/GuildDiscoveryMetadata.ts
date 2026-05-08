@@ -3,7 +3,7 @@ import { GuildFeature, type GuildFeatureValue } from "../../../util/util/GuildFe
 
 export interface DiscoveryMetadataGuild {
     id: string;
-    primary_category_id?: string | null;
+    primary_category_id?: number | null;
     features?: GuildFeatureValue[];
     description?: string | null;
 }
@@ -11,7 +11,7 @@ export interface DiscoveryMetadataGuild {
 export type GuildDiscoveryMetadataUpdate = Pick<DiscoveryMetadataGuild, "primary_category_id" | "features" | "description">;
 
 export function toGuildDiscoveryMetadata(guild: DiscoveryMetadataGuild): GuildDiscoveryMetadataResponse {
-    const primaryCategoryId = guild.primary_category_id ? Number(guild.primary_category_id) : null;
+    const primaryCategoryId = guild.primary_category_id ?? null;
 
     return {
         guild_id: guild.id,
@@ -32,7 +32,7 @@ export function getGuildDiscoveryMetadataUpdate(guild: DiscoveryMetadataGuild, b
     const update: GuildDiscoveryMetadataUpdate = {};
 
     if (body.primary_category_id !== undefined) {
-        update.primary_category_id = body.primary_category_id === null ? null : body.primary_category_id.toString();
+        update.primary_category_id = body.primary_category_id;
     }
 
     if (body.about !== undefined) {

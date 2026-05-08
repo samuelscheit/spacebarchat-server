@@ -75,7 +75,7 @@ test("toRecommendedGuild serializes a Guild entity into the recommendation respo
         channel_ordering: ["40"],
         template_id: "50",
         parent: "60",
-        primary_category_id: "70",
+        primary_category_id: 70,
         nsfw: false,
         presence_count: 3,
     } as unknown as GuildShape;

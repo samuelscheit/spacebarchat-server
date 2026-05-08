@@ -118,8 +118,8 @@ export class Guild extends BaseClass {
     @Column({ type: "varchar", array: true })
     features: GuildFeatureValue[] = [];
 
-    @Column({ nullable: true, type: "int8" })
-    primary_category_id?: string | null; // TODO: this was number?
+    @Column({ nullable: true, type: "int" })
+    primary_category_id?: number | null;
 
     @Column({ nullable: true })
     icon?: string;

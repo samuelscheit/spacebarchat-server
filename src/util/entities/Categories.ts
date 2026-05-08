@@ -45,7 +45,7 @@ const CategoryLocalizationsTransformer: ValueTransformer = {
 export class Categories extends BaseClassWithoutId {
     // Not using snowflake
 
-    @PrimaryColumn()
+    @PrimaryColumn({ type: "int" })
     id: number;
 
     @Column({ nullable: true })

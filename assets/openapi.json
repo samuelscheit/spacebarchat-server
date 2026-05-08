@@ -4658,7 +4658,7 @@
                     "primary_category_id": {
                         "type": [
                             "null",
-                            "string"
+                            "integer"
                         ]
                     },
                     "large": {
@@ -14172,7 +14172,7 @@
                     "primary_category_id": {
                         "type": [
                             "null",
-                            "string"
+                            "integer"
                         ]
                     },
                     "icon": {

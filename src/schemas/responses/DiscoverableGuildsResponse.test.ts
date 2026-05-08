@@ -89,7 +89,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         discovery_excluded: false,
         discovery_splash: "internal-splash",
         channel_ordering: ["300"],
-        primary_category_id: "gaming",
+        primary_category_id: 1,
         nsfw: false,
         presence_count: 5,
     } as unknown as Parameters<typeof toDiscoverableGuild>[0] & Record<string, unknown>;
