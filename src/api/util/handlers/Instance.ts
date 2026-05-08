@@ -34,9 +34,7 @@ export async function initInstance() {
     // 	}
     // }
 
-    // TODO: do no clear sessions for instance cluster
-    // await Session.clear(); // This is now used as part of authentication...
-    // ... but we can still expire temporary sessions for legacy tokens
+    // Expire unused sessions left behind by legacy tokens without clearing current auth sessions.
     setInterval(
         async () => {
             for await (const session of await Session.createQueryBuilder("session").where("last_seen = '1970/01/01'").select().stream()) {
@@ -49,5 +47,4 @@ export async function initInstance() {
         },
         1000 * 60 * 5,
     );
-    // await Session.delete({ session_id: Like("TEMP_%") });
 }
