@@ -1,0 +1,3047 @@
+[
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/-/healthz",
+		"route_name": "GET___HEALTHZ",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/-/readyz",
+		"route_name": "GET___READYZ",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ApexExperimentsResponse"
+		],
+		"route": "/apex/experiments",
+		"route_name": "GET_APEX_EXPERIMENTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIApplicationArray"
+		],
+		"route": "/applications",
+		"route_name": "GET_APPLICATIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ApplicationCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/Application"
+		],
+		"route": "/applications",
+		"route_name": "POST_APPLICATIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Application"
+		],
+		"route": "/applications/{application_id}",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ApplicationOwnerModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Application"
+		],
+		"route": "/applications/{application_id}",
+		"route_name": "PATCH_APPLICATIONS_APPLICATION_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/BotModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Application"
+		],
+		"route": "/applications/{application_id}/bot",
+		"route_name": "PATCH_APPLICATIONS_APPLICATION_ID_BOT",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/TokenOnlyResponse"
+		],
+		"route": "/applications/{application_id}/bot",
+		"route_name": "POST_APPLICATIONS_APPLICATION_ID_BOT",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/MfaCodeSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/TokenResponse"
+		],
+		"route": "/applications/{application_id}/bot/reset",
+		"route_name": "POST_APPLICATIONS_APPLICATION_ID_BOT_RESET",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/commands",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_COMMANDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ApplicationCommandCreateSchema",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/commands",
+		"route_name": "POST_APPLICATIONS_APPLICATION_ID_COMMANDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/BulkApplicationCommandCreateSchema",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/commands",
+		"route_name": "PUT_APPLICATIONS_APPLICATION_ID_COMMANDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/commands/{command_id}",
+		"route_name": "DELETE_APPLICATIONS_APPLICATION_ID_COMMANDS_COMMAND_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/commands/{command_id}",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_COMMANDS_COMMAND_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ApplicationCommandCreateSchema",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/commands/{command_id}",
+		"route_name": "PATCH_APPLICATIONS_APPLICATION_ID_COMMANDS_COMMAND_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/MfaCodeSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/delete",
+		"route_name": "POST_APPLICATIONS_APPLICATION_ID_DELETE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ApplicationEntitlementsResponse"
+		],
+		"route": "/applications/{application_id}/entitlements",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_ENTITLEMENTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ApplicationCommandCreateSchema",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands",
+		"route_name": "POST_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/BulkApplicationCommandCreateSchema",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands",
+		"route_name": "PUT_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+		"route_name": "DELETE_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS_COMMAND_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS_COMMAND_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ApplicationCommandCreateSchema",
+		"response_schema_refs": [],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+		"route_name": "PATCH_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS_COMMAND_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ApplicationSkusResponse"
+		],
+		"route": "/applications/{application_id}/skus",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_SKUS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Application"
+		],
+		"route": "/applications/@me",
+		"route_name": "GET_APPLICATIONS__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ApplicationModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Application"
+		],
+		"route": "/applications/@me",
+		"route_name": "PATCH_APPLICATIONS__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ApplicationDetectableResponse"
+		],
+		"route": "/applications/detectable",
+		"route_name": "GET_APPLICATIONS_DETECTABLE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/RefreshUrlsRequestSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/RefreshUrlsResponse"
+		],
+		"route": "/attachments/refresh-urls",
+		"route_name": "POST_ATTACHMENTS_REFRESH_URLS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/CreateFingerprintResponse"
+		],
+		"route": "/auth/fingerprint",
+		"route_name": "POST_AUTH_FINGERPRINT",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ForgotPasswordSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorOrCaptchaResponse"
+		],
+		"route": "/auth/forgot",
+		"route_name": "POST_AUTH_FORGOT",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GenerateRegistrationTokensResponse"
+		],
+		"route": "/auth/generate-registration-tokens",
+		"route_name": "GET_AUTH_GENERATE_REGISTRATION_TOKENS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/LocationMetadataResponse"
+		],
+		"route": "/auth/location-metadata",
+		"route_name": "GET_AUTH_LOCATION_METADATA",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/LoginSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorOrCaptchaResponse",
+			"#/components/schemas/LoginResponse"
+		],
+		"route": "/auth/login",
+		"route_name": "POST_AUTH_LOGIN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/auth/logout",
+		"route_name": "POST_AUTH_LOGOUT",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/TotpSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/TokenResponse"
+		],
+		"route": "/auth/mfa/totp",
+		"route_name": "POST_AUTH_MFA_TOTP",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/WebAuthnTotpSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/TokenResponse"
+		],
+		"route": "/auth/mfa/webauthn",
+		"route_name": "POST_AUTH_MFA_WEBAUTHN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/RegisterSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorOrCaptchaResponse",
+			"#/components/schemas/TokenOnlyResponse"
+		],
+		"route": "/auth/register",
+		"route_name": "POST_AUTH_REGISTER",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/PasswordResetSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorOrCaptchaResponse",
+			"#/components/schemas/TokenOnlyResponse"
+		],
+		"route": "/auth/reset",
+		"route_name": "POST_AUTH_RESET",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GetSessionsResponse"
+		],
+		"route": "/auth/sessions",
+		"route_name": "GET_AUTH_SESSIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/SessionsLogoutSchema",
+		"response_schema_refs": [],
+		"route": "/auth/sessions/logout",
+		"route_name": "POST_AUTH_SESSIONS_LOGOUT",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/VerifyEmailSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorOrCaptchaResponse",
+			"#/components/schemas/TokenResponse"
+		],
+		"route": "/auth/verify",
+		"route_name": "POST_AUTH_VERIFY",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/auth/verify/resend",
+		"route_name": "POST_AUTH_VERIFY_RESEND",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/BackupCodesChallengeSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/BackupCodesChallengeResponse"
+		],
+		"route": "/auth/verify/view-backup-codes-challenge",
+		"route_name": "POST_AUTH_VERIFY_VIEW_BACKUP_CODES_CHALLENGE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/WhoAmIResponse"
+		],
+		"route": "/auth/whoami",
+		"route_name": "GET_AUTH_WHOAMI",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/beaker",
+		"route_name": "POST_BEAKER",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/Channel"
+		],
+		"route": "/channels/{channel_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/Channel"
+		],
+		"route": "/channels/{channel_id}",
+		"route_name": "GET_CHANNELS_CHANNEL_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ChannelModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Channel"
+		],
+		"route": "/channels/{channel_id}",
+		"route_name": "PATCH_CHANNELS_CHANNEL_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/UploadAttachmentRequestSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UploadAttachmentResponseSchema"
+		],
+		"route": "/channels/{channel_id}/attachments",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_ATTACHMENTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/attachments/{cloud_attachment_url}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_ATTACHMENTS_CLOUD_ATTACHMENT_URL",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/HubDirectoryEntriesResponse"
+		],
+		"route": "/channels/{channel_id}/directory-entries",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Follows an announcement channel and creates a follower webhook in the target channel.",
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/followers",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_FOLLOWERS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/GreetRequestSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Message"
+		],
+		"route": "/channels/{channel_id}/greet",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_GREET",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIInviteArray"
+		],
+		"route": "/channels/{channel_id}/invites",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_INVITES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/InviteCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Invite"
+		],
+		"route": "/channels/{channel_id}/invites",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_INVITES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Message"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/MessageEditSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Message"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}",
+		"route_name": "PATCH_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/MessageCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Message"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/MessageAcknowledgeSchema",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/messages/{message_id}/ack",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_ACK",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/Message"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/crosspost",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_CROSSPOST",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/PublicUser"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{burst}/{user_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_BURST_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/MessageThreadCreationSchema",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/messages/{message_id}/threads",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_THREADS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/BulkDeleteSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/bulk-delete",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES_BULK_DELETE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIMessageArray"
+		],
+		"route": "/channels/{channel_id}/messages/pins",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_PINS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/pins/{message_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_PINS_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/pins/{message_id}",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_MESSAGES_PINS_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildMessagesSearchResponse"
+		],
+		"route": "/channels/{channel_id}/messages/search",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_SEARCH",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/permissions/{overwrite_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_PERMISSIONS_OVERWRITE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/ChannelPermissionOverwriteSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/permissions/{overwrite_id}",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_PERMISSIONS_OVERWRITE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIMessageArray"
+		],
+		"route": "/channels/{channel_id}/pins",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_PINS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/pins/{message_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_PINS_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/pins/{message_id}",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_PINS_MESSAGE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/PostDataSchema",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/post-data",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_POST_DATA",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/purge",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_PURGE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/recipients/{user_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_RECIPIENTS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/recipients/{user_id}",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_RECIPIENTS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/TagCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/Channel"
+		],
+		"route": "/channels/{channel_id}/tags",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_TAGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/Channel"
+		],
+		"route": "/channels/{channel_id}/tags/{tag_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_TAGS_TAG_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/TagCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/Channel"
+		],
+		"route": "/channels/{channel_id}/tags/{tag_id}",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_TAGS_TAG_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_THREAD_MEMBERS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members/{user_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_THREAD_MEMBERS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members/{user_id}",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_THREAD_MEMBERS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members/{user_id}",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_THREAD_MEMBERS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members/{user_id}",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_THREAD_MEMBERS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members/@me/settings",
+		"route_name": "PATCH_CHANNELS_CHANNEL_ID_THREAD_MEMBERS__ME_SETTINGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIMessageArray"
+		],
+		"route": "/channels/{channel_id}/threads",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_THREADS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ThreadCreationSchema",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/threads",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_THREADS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"request_schema_ref": "#/components/schemas/AcknowledgeDeleteSchema",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/threads/ack",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_THREADS_ACK",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/threads/archived/private",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_THREADS_ARCHIVED_PRIVATE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/ArchivedThreadsResponse"
+		],
+		"route": "/channels/{channel_id}/threads/archived/public",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_THREADS_ARCHIVED_PUBLIC",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildMessagesSearchResponse"
+		],
+		"route": "/channels/{channel_id}/threads/search",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_THREADS_SEARCH",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/typing",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_TYPING",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/users/@me/threads/archived/private",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_USERS__ME_THREADS_ARCHIVED_PRIVATE",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Returns a list of channel webhook objects. Requires the MANAGE_WEBHOOKS permission.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIWebhookArray"
+		],
+		"route": "/channels/{channel_id}/webhooks",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_WEBHOOKS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/WebhookCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/WebhookCreateResponse"
+		],
+		"route": "/channels/{channel_id}/webhooks",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_WEBHOOKS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/PreloadMessagesRequestSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/PreloadMessagesResponse"
+		],
+		"route": "/channels/preload-messages",
+		"route_name": "POST_CHANNELS_PRELOAD_MESSAGES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/CollectiblesCategoriesResponse"
+		],
+		"route": "/collectibles-categories",
+		"route_name": "GET_COLLECTIBLES_CATEGORIES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/CollectiblesShopResponse"
+		],
+		"route": "/collectibles-shop",
+		"route_name": "GET_COLLECTIBLES_SHOP",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIConnectionsConfiguration"
+		],
+		"route": "/connections",
+		"route_name": "GET_CONNECTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/connections/{connection_name}/{connection_id}/refresh",
+		"route_name": "POST_CONNECTIONS_CONNECTION_NAME_CONNECTION_ID_REFRESH",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/connections/{connection_name}/authorize",
+		"route_name": "GET_CONNECTIONS_CONNECTION_NAME_AUTHORIZE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ConnectionCallbackSchema",
+		"response_schema_refs": [],
+		"route": "/connections/{connection_name}/callback",
+		"route_name": "POST_CONNECTIONS_CONNECTION_NAME_CALLBACK",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/DiscoverableGuildsResponse"
+		],
+		"route": "/discoverable-guilds",
+		"route_name": "GET_DISCOVERABLE_GUILDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIDiscoveryCategoryArray"
+		],
+		"route": "/discovery/categories",
+		"route_name": "GET_DISCOVERY_CATEGORIES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/download",
+		"route_name": "GET_DOWNLOAD",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/EmojiSourceResponse"
+		],
+		"route": "/emojis/{emoji_id}/source",
+		"route_name": "GET_EMOJIS_EMOJI_ID_SOURCE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ExperimentsResponse"
+		],
+		"route": "/experiments",
+		"route_name": "GET_EXPERIMENTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ApplicationDetectableResponse"
+		],
+		"route": "/games/detectable",
+		"route_name": "GET_GAMES_DETECTABLE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GatewayResponse"
+		],
+		"route": "/gateway",
+		"route_name": "GET_GATEWAY",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GatewayBotResponse"
+		],
+		"route": "/gateway/bot",
+		"route_name": "GET_GATEWAY_BOT",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/TenorGifsResponse"
+		],
+		"route": "/gifs/search",
+		"route_name": "GET_GIFS_SEARCH",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/TenorTrendingResponse"
+		],
+		"route": "/gifs/trending",
+		"route_name": "GET_GIFS_TRENDING",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/TenorGifsResponse"
+		],
+		"route": "/gifs/trending-gifs",
+		"route_name": "GET_GIFS_TRENDING_GIFS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GuildRecommendationsResponse"
+		],
+		"route": "/guild-recommendations",
+		"route_name": "GET_GUILD_RECOMMENDATIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/GuildCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildCreateResponse"
+		],
+		"route": "/guilds",
+		"route_name": "POST_GUILDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIGuildWithJoinedAt"
+		],
+		"route": "/guilds/{guild_id}",
+		"route_name": "GET_GUILDS_GUILD_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/GuildUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildCreateResponse"
+		],
+		"route": "/guilds/{guild_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/application-command-index",
+		"route_name": "GET_GUILDS_GUILD_ID_APPLICATION_COMMAND_INDEX",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/audit-logs",
+		"route_name": "GET_GUILDS_GUILD_ID_AUDIT_LOGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/AutomodRulesResponse"
+		],
+		"route": "/guilds/{guild_id}/auto-moderation/rules",
+		"route_name": "GET_GUILDS_GUILD_ID_AUTO_MODERATION_RULES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/AutomodRuleSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/AutomodRuleResponse"
+		],
+		"route": "/guilds/{guild_id}/auto-moderation/rules",
+		"route_name": "POST_GUILDS_GUILD_ID_AUTO_MODERATION_RULES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/auto-moderation/rules/{rule_id}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_AUTO_MODERATION_RULES_RULE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/AutomodRuleModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/AutomodRuleResponse"
+		],
+		"route": "/guilds/{guild_id}/auto-moderation/rules/{rule_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_AUTO_MODERATION_RULES_RULE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildBansResponse"
+		],
+		"route": "/guilds/{guild_id}/bans",
+		"route_name": "GET_GUILDS_GUILD_ID_BANS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/bans/{user_id}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_BANS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildBanResponse"
+		],
+		"route": "/guilds/{guild_id}/bans/{user_id}",
+		"route_name": "GET_GUILDS_GUILD_ID_BANS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/BanCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/bans/{user_id}",
+		"route_name": "PUT_GUILDS_GUILD_ID_BANS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildBansResponse"
+		],
+		"route": "/guilds/{guild_id}/bans/search",
+		"route_name": "GET_GUILDS_GUILD_ID_BANS_SEARCH",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/BulkBanSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Ban"
+		],
+		"route": "/guilds/{guild_id}/bulk-ban",
+		"route_name": "POST_GUILDS_GUILD_ID_BULK_BAN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIChannelArray"
+		],
+		"route": "/guilds/{guild_id}/channels",
+		"route_name": "GET_GUILDS_GUILD_ID_CHANNELS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ChannelReorderSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/channels",
+		"route_name": "PATCH_GUILDS_GUILD_ID_CHANNELS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ChannelCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Channel"
+		],
+		"route": "/guilds/{guild_id}/channels",
+		"route_name": "POST_GUILDS_GUILD_ID_CHANNELS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/delete",
+		"route_name": "POST_GUILDS_GUILD_ID_DELETE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GuildDiscoveryRequirementsResponse"
+		],
+		"route": "/guilds/{guild_id}/discovery-requirements",
+		"route_name": "GET_GUILDS_GUILD_ID_DISCOVERY_REQUIREMENTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/EmojisResponse"
+		],
+		"route": "/guilds/{guild_id}/emojis",
+		"route_name": "GET_GUILDS_GUILD_ID_EMOJIS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/EmojiCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Emoji"
+		],
+		"route": "/guilds/{guild_id}/emojis",
+		"route_name": "POST_GUILDS_GUILD_ID_EMOJIS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/emojis/{emoji_id}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_EMOJIS_EMOJI_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Emoji"
+		],
+		"route": "/guilds/{guild_id}/emojis/{emoji_id}",
+		"route_name": "GET_GUILDS_GUILD_ID_EMOJIS_EMOJI_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/EmojiModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Emoji"
+		],
+		"route": "/guilds/{guild_id}/emojis/{emoji_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_EMOJIS_EMOJI_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/integrations",
+		"route_name": "GET_GUILDS_GUILD_ID_INTEGRATIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIInviteArray"
+		],
+		"route": "/guilds/{guild_id}/invites",
+		"route_name": "GET_GUILDS_GUILD_ID_INVITES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/member-verification",
+		"route_name": "GET_GUILDS_GUILD_ID_MEMBER_VERIFICATION",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIMemberArray"
+		],
+		"route": "/guilds/{guild_id}/members",
+		"route_name": "GET_GUILDS_GUILD_ID_MEMBERS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/members/{member_id}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_MEMBERS_MEMBER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIPublicMember"
+		],
+		"route": "/guilds/{guild_id}/members/{member_id}",
+		"route_name": "GET_GUILDS_GUILD_ID_MEMBERS_MEMBER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/MemberChangeSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Member"
+		],
+		"route": "/guilds/{guild_id}/members/{member_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_MEMBERS_MEMBER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/MemberJoinGuildResponse"
+		],
+		"route": "/guilds/{guild_id}/members/{member_id}",
+		"route_name": "PUT_GUILDS_GUILD_ID_MEMBERS_MEMBER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/MemberNickChangeSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIPublicMember"
+		],
+		"route": "/guilds/{guild_id}/members/{member_id}/nick",
+		"route_name": "PATCH_GUILDS_GUILD_ID_MEMBERS_MEMBER_ID_NICK",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/members/{member_id}/roles/{role_id}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_MEMBERS_MEMBER_ID_ROLES_ROLE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/members/{member_id}/roles/{role_id}",
+		"route_name": "PUT_GUILDS_GUILD_ID_MEMBERS_MEMBER_ID_ROLES_ROLE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildMessagesSearchResponse"
+		],
+		"route": "/guilds/{guild_id}/messages/search",
+		"route_name": "GET_GUILDS_GUILD_ID_MESSAGES_SEARCH",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/premium/subscriptions",
+		"route_name": "GET_GUILDS_GUILD_ID_PREMIUM_SUBSCRIPTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GuildProfileResponse"
+		],
+		"route": "/guilds/{guild_id}/profile",
+		"route_name": "GET_GUILDS_GUILD_ID_PROFILE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/MemberChangeProfileSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Member"
+		],
+		"route": "/guilds/{guild_id}/profile/{member_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_PROFILE_MEMBER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/GuildPruneResponse"
+		],
+		"route": "/guilds/{guild_id}/prune",
+		"route_name": "GET_GUILDS_GUILD_ID_PRUNE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildPurgeResponse"
+		],
+		"route": "/guilds/{guild_id}/prune",
+		"route_name": "POST_GUILDS_GUILD_ID_PRUNE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIGuildVoiceRegion"
+		],
+		"route": "/guilds/{guild_id}/regions",
+		"route_name": "GET_GUILDS_GUILD_ID_REGIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/roles",
+		"route_name": "GET_GUILDS_GUILD_ID_ROLES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/RolePositionUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/APIRoleArray"
+		],
+		"route": "/guilds/{guild_id}/roles",
+		"route_name": "PATCH_GUILDS_GUILD_ID_ROLES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/RoleModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Role"
+		],
+		"route": "/guilds/{guild_id}/roles",
+		"route_name": "POST_GUILDS_GUILD_ID_ROLES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/roles/{role_id}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_ROLES_ROLE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Role"
+		],
+		"route": "/guilds/{guild_id}/roles/{role_id}",
+		"route_name": "GET_GUILDS_GUILD_ID_ROLES_ROLE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/RoleModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Role"
+		],
+		"route": "/guilds/{guild_id}/roles/{role_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_ROLES_ROLE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/roles/{role_id}/member-ids",
+		"route_name": "GET_GUILDS_GUILD_ID_ROLES_ROLE_ID_MEMBER_IDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/roles/{role_id}/members",
+		"route_name": "PATCH_GUILDS_GUILD_ID_ROLES_ROLE_ID_MEMBERS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/guilds/{guild_id}/roles/member-counts",
+		"route_name": "GET_GUILDS_GUILD_ID_ROLES_MEMBER_COUNTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/shield.svg",
+		"route_name": "GET_GUILDS_GUILD_ID_SHIELD_SVG",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/StickersResponse"
+		],
+		"route": "/guilds/{guild_id}/stickers",
+		"route_name": "GET_GUILDS_GUILD_ID_STICKERS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ModifyGuildStickerSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Sticker"
+		],
+		"route": "/guilds/{guild_id}/stickers",
+		"route_name": "POST_GUILDS_GUILD_ID_STICKERS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/stickers/{sticker_id}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_STICKERS_STICKER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Sticker"
+		],
+		"route": "/guilds/{guild_id}/stickers/{sticker_id}",
+		"route_name": "GET_GUILDS_GUILD_ID_STICKERS_STICKER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ModifyGuildStickerSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Sticker"
+		],
+		"route": "/guilds/{guild_id}/stickers/{sticker_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_STICKERS_STICKER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APITemplateArray"
+		],
+		"route": "/guilds/{guild_id}/templates",
+		"route_name": "GET_GUILDS_GUILD_ID_TEMPLATES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/TemplateCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Template"
+		],
+		"route": "/guilds/{guild_id}/templates",
+		"route_name": "POST_GUILDS_GUILD_ID_TEMPLATES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Template"
+		],
+		"route": "/guilds/{guild_id}/templates/{code}",
+		"route_name": "DELETE_GUILDS_GUILD_ID_TEMPLATES_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/TemplateModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Template"
+		],
+		"route": "/guilds/{guild_id}/templates/{code}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_TEMPLATES_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Template"
+		],
+		"route": "/guilds/{guild_id}/templates/{code}",
+		"route_name": "PUT_GUILDS_GUILD_ID_TEMPLATES_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildVanityUrlResponse"
+		],
+		"route": "/guilds/{guild_id}/vanity-url",
+		"route_name": "GET_GUILDS_GUILD_ID_VANITY_URL",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/VanityUrlSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildVanityUrlCreateResponse"
+		],
+		"route": "/guilds/{guild_id}/vanity-url",
+		"route_name": "PATCH_GUILDS_GUILD_ID_VANITY_URL",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/VoiceStateUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/voice-states/{user_id}",
+		"route_name": "PATCH_GUILDS_GUILD_ID_VOICE_STATES_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Returns a list of guild webhook objects. Requires the MANAGE_WEBHOOKS permission.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIWebhookArray"
+		],
+		"route": "/guilds/{guild_id}/webhooks",
+		"route_name": "GET_GUILDS_GUILD_ID_WEBHOOKS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildWelcomeScreen"
+		],
+		"route": "/guilds/{guild_id}/welcome-screen",
+		"route_name": "GET_GUILDS_GUILD_ID_WELCOME_SCREEN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/GuildUpdateWelcomeScreenSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/welcome-screen",
+		"route_name": "PATCH_GUILDS_GUILD_ID_WELCOME_SCREEN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildWidgetSettingsResponse"
+		],
+		"route": "/guilds/{guild_id}/widget",
+		"route_name": "GET_GUILDS_GUILD_ID_WIDGET",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/WidgetModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/WidgetModifySchema"
+		],
+		"route": "/guilds/{guild_id}/widget",
+		"route_name": "PATCH_GUILDS_GUILD_ID_WIDGET",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/GuildWidgetJsonResponse"
+		],
+		"route": "/guilds/{guild_id}/widget.json",
+		"route_name": "GET_GUILDS_GUILD_ID_WIDGET_JSON",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/widget.png",
+		"route_name": "GET_GUILDS_GUILD_ID_WIDGET_PNG",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/EmailDomainLookupSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/EmailDomainLookupResponse"
+		],
+		"route": "/guilds/automations/email-domain-lookup",
+		"route_name": "POST_GUILDS_AUTOMATIONS_EMAIL_DOMAIN_LOOKUP",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/EmailDomainLookupVerifyCodeSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/guilds/automations/email-domain-lookup/verify-code",
+		"route_name": "POST_GUILDS_AUTOMATIONS_EMAIL_DOMAIN_LOOKUP_VERIFY_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Template"
+		],
+		"route": "/guilds/templates/{template_code}",
+		"route_name": "GET_GUILDS_TEMPLATES_TEMPLATE_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/GuildTemplateCreateSchema",
+		"response_schema_refs": [],
+		"route": "/guilds/templates/{template_code}",
+		"route_name": "POST_GUILDS_TEMPLATES_TEMPLATE_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/HubWaitlistSignupSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/HubWaitlistSignupResponse"
+		],
+		"route": "/hub-waitlist/signup",
+		"route_name": "POST_HUB_WAITLIST_SIGNUP",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/interactions",
+		"route_name": "POST_INTERACTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/InteractionCallbacksSchema",
+		"response_schema_refs": [],
+		"route": "/interactions/{interaction_id}/{interaction_token}/callback",
+		"route_name": "POST_INTERACTIONS_INTERACTION_ID_INTERACTION_TOKEN_CALLBACK",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Invite"
+		],
+		"route": "/invites/{invite_code}",
+		"route_name": "DELETE_INVITES_INVITE_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Invite"
+		],
+		"route": "/invites/{invite_code}",
+		"route_name": "GET_INVITES_INVITE_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/Invite"
+		],
+		"route": "/invites/{invite_code}",
+		"route_name": "POST_INVITES_INVITE_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/Application"
+		],
+		"route": "/oauth2/applications/@me",
+		"route_name": "GET_OAUTH2_APPLICATIONS__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/oauth2/authorize",
+		"route_name": "GET_OAUTH2_AUTHORIZE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/ApplicationAuthorizeSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/OAuthAuthorizeResponse"
+		],
+		"route": "/oauth2/authorize",
+		"route_name": "POST_OAUTH2_AUTHORIZE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/oauth2/tokens",
+		"route_name": "GET_OAUTH2_TOKENS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/outbound-promotions",
+		"route_name": "GET_OUTBOUND_PROMOTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/partners/{guild_id}/requirements",
+		"route_name": "GET_PARTNERS_GUILD_ID_REQUIREMENTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/InstancePingResponse"
+		],
+		"route": "/ping",
+		"route_name": "GET_PING",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIGeneralConfiguration"
+		],
+		"route": "/policies/instance",
+		"route_name": "GET_POLICIES_INSTANCE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/Object"
+		],
+		"route": "/policies/instance/config",
+		"route_name": "GET_POLICIES_INSTANCE_CONFIG",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/InstanceDomainsResponse"
+		],
+		"route": "/policies/instance/domains",
+		"route_name": "GET_POLICIES_INSTANCE_DOMAINS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APILimitsConfiguration"
+		],
+		"route": "/policies/instance/limits",
+		"route_name": "GET_POLICIES_INSTANCE_LIMITS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/InstanceStatsResponse"
+		],
+		"route": "/policies/stats",
+		"route_name": "GET_POLICIES_STATS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/AckBulkSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/read-states/ack-bulk",
+		"route_name": "POST_READ_STATES_ACK_BULK",
+		"source": "openapi.json"
+	},
+	{
+		"description": "[EXT] Get available reporting menu types.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuTypesResponse"
+		],
+		"route": "/reporting",
+		"route_name": "GET_REPORTING",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for application reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/application",
+		"route_name": "POST_REPORTING_APPLICATION",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for first_dm reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/first_dm",
+		"route_name": "POST_REPORTING_FIRST_DM",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/guild",
+		"route_name": "POST_REPORTING_GUILD",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild_directory_entry reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/guild_directory_entry",
+		"route_name": "POST_REPORTING_GUILD_DIRECTORY_ENTRY",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild_discovery reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/guild_discovery",
+		"route_name": "POST_REPORTING_GUILD_DISCOVERY",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild_scheduled_event reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/guild_scheduled_event",
+		"route_name": "POST_REPORTING_GUILD_SCHEDULED_EVENT",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for application reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/application",
+		"route_name": "GET_REPORTING_MENU_APPLICATION",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for first_dm reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/first_dm",
+		"route_name": "GET_REPORTING_MENU_FIRST_DM",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/guild",
+		"route_name": "GET_REPORTING_MENU_GUILD",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild_directory_entry reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/guild_directory_entry",
+		"route_name": "GET_REPORTING_MENU_GUILD_DIRECTORY_ENTRY",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild_discovery reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/guild_discovery",
+		"route_name": "GET_REPORTING_MENU_GUILD_DISCOVERY",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for guild_scheduled_event reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/guild_scheduled_event",
+		"route_name": "GET_REPORTING_MENU_GUILD_SCHEDULED_EVENT",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for message reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/message",
+		"route_name": "GET_REPORTING_MENU_MESSAGE",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for stage_channel reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/stage_channel",
+		"route_name": "GET_REPORTING_MENU_STAGE_CHANNEL",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for user reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/user",
+		"route_name": "GET_REPORTING_MENU_USER",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for widget reports.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/widget",
+		"route_name": "GET_REPORTING_MENU_WIDGET",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for message reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/message",
+		"route_name": "POST_REPORTING_MESSAGE",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for stage_channel reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/stage_channel",
+		"route_name": "POST_REPORTING_STAGE_CHANNEL",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for user reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/user",
+		"route_name": "POST_REPORTING_USER",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Get reporting menu options for widget reports.",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CreateReportSchema",
+		"response_schema_refs": [
+			"#/components/schemas/ReportingMenuResponse"
+		],
+		"route": "/reporting/widget",
+		"route_name": "POST_REPORTING_WIDGET",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/AccountStandingResponse"
+		],
+		"route": "/safety-hub/@me",
+		"route_name": "GET_SAFETY_HUB__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/AccountStandingResponse"
+		],
+		"route": "/safety-hub/suspended/@me",
+		"route_name": "GET_SAFETY_HUB_SUSPENDED__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/scheduled-maintenances/upcoming.json",
+		"route_name": "GET_SCHEDULED_MAINTENANCES_UPCOMING_JSON",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/science",
+		"route_name": "POST_SCIENCE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/stage-instances",
+		"route_name": "GET_STAGE_INSTANCES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/StickersResponse"
+		],
+		"route": "/sticker-packs",
+		"route_name": "GET_STICKER_PACKS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/Sticker"
+		],
+		"route": "/stickers/{sticker_id}",
+		"route_name": "GET_STICKERS_STICKER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/Sticker"
+		],
+		"route": "/stickers/{sticker_id}/guild",
+		"route_name": "GET_STICKERS_STICKER_ID_GUILD",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/stop",
+		"route_name": "POST_STOP",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/store/published-listings/applications/{application_id}",
+		"route_name": "GET_STORE_PUBLISHED_LISTINGS_APPLICATIONS_APPLICATION_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/store/published-listings/applications/{application_id}/subscription-plans",
+		"route_name": "GET_STORE_PUBLISHED_LISTINGS_APPLICATIONS_APPLICATION_ID_SUBSCRIPTION_PLANS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/store/published-listings/skus/{sku_id}",
+		"route_name": "GET_STORE_PUBLISHED_LISTINGS_SKUS_SKU_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/store/published-listings/skus/{sku_id}/subscription-plans",
+		"route_name": "GET_STORE_PUBLISHED_LISTINGS_SKUS_SKU_ID_SUBSCRIPTION_PLANS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/TeamListResponse"
+		],
+		"route": "/teams",
+		"route_name": "GET_TEAMS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/TeamCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/Team"
+		],
+		"route": "/teams",
+		"route_name": "POST_TEAMS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/track",
+		"route_name": "POST_TRACK",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UpdatesResponse"
+		],
+		"route": "/updates",
+		"route_name": "GET_UPDATES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIPublicUser"
+		],
+		"route": "/users/{user_id}",
+		"route_name": "GET_USERS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/InstanceUserDeleteSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/{user_id}/delete",
+		"route_name": "POST_USERS_USER_ID_DELETE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/DmMessagesResponseSchema"
+		],
+		"route": "/users/{user_id}/messages",
+		"route_name": "GET_USERS_USER_ID_MESSAGES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/UserProfileResponse"
+		],
+		"route": "/users/{user_id}/profile",
+		"route_name": "GET_USERS_USER_ID_PROFILE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/UserProfileModifySchema",
+		"response_schema_refs": [],
+		"route": "/users/{user_id}/profile",
+		"route_name": "PATCH_USERS_USER_ID_PROFILE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UserRelationsResponse"
+		],
+		"route": "/users/{user_id}/relationships",
+		"route_name": "GET_USERS_USER_ID_RELATIONSHIPS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIPrivateUser"
+		],
+		"route": "/users/@me",
+		"route_name": "GET_USERS__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/UserModifySchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UserUpdateResponse"
+		],
+		"route": "/users/@me",
+		"route_name": "PATCH_USERS__ME",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/activities/statistics/applications",
+		"route_name": "GET_USERS__ME_ACTIVITIES_STATISTICS_APPLICATIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/affinities/guilds",
+		"route_name": "GET_USERS__ME_AFFINITIES_GUILDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/affinities/users",
+		"route_name": "GET_USERS__ME_AFFINITIES_USERS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/applications/{application_id}/entitlements",
+		"route_name": "GET_USERS__ME_APPLICATIONS_APPLICATION_ID_ENTITLEMENTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/billing/country-code",
+		"route_name": "GET_USERS__ME_BILLING_COUNTRY_CODE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/BillingLocationInfoResponse"
+		],
+		"route": "/users/@me/billing/location-info",
+		"route_name": "GET_USERS__ME_BILLING_LOCATION_INFO",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/PaymentSourcesResponse"
+		],
+		"route": "/users/@me/billing/payment-sources",
+		"route_name": "GET_USERS__ME_BILLING_PAYMENT_SOURCES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/PaymentSourceResponse"
+		],
+		"route": "/users/@me/billing/payment-sources",
+		"route_name": "POST_USERS__ME_BILLING_PAYMENT_SOURCES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/users/@me/billing/payment-sources/{payment_source_id}",
+		"route_name": "DELETE_USERS__ME_BILLING_PAYMENT_SOURCES_PAYMENT_SOURCE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/PaymentSourceResponse"
+		],
+		"route": "/users/@me/billing/payment-sources/{payment_source_id}",
+		"route_name": "GET_USERS__ME_BILLING_PAYMENT_SOURCES_PAYMENT_SOURCE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"response_schema_refs": [
+			"#/components/schemas/PaymentSourceResponse"
+		],
+		"route": "/users/@me/billing/payment-sources/{payment_source_id}",
+		"route_name": "PATCH_USERS__ME_BILLING_PAYMENT_SOURCES_PAYMENT_SOURCE_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/billing/subscriptions",
+		"route_name": "GET_USERS__ME_BILLING_SUBSCRIPTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIDMChannelArray"
+		],
+		"route": "/users/@me/channels",
+		"route_name": "GET_USERS__ME_CHANNELS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/DmChannelCreateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/DmChannelDTO"
+		],
+		"route": "/users/@me/channels",
+		"route_name": "POST_USERS__ME_CHANNELS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/CollectiblesMarketingResponse"
+		],
+		"route": "/users/@me/collectibles-marketing",
+		"route_name": "GET_USERS__ME_COLLECTIBLES_MARKETING",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/collectibles-purchases",
+		"route_name": "GET_USERS__ME_COLLECTIBLES_PURCHASES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/connections",
+		"route_name": "GET_USERS__ME_CONNECTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/users/@me/connections/{connection_name}/{connection_id}",
+		"route_name": "DELETE_USERS__ME_CONNECTIONS_CONNECTION_NAME_CONNECTION_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/ConnectionUpdateSchema",
+		"response_schema_refs": [],
+		"route": "/users/@me/connections/{connection_name}/{connection_id}",
+		"route_name": "PATCH_USERS__ME_CONNECTIONS_CONNECTION_NAME_CONNECTION_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/connections/{connection_name}/{connection_id}/access-token",
+		"route_name": "GET_USERS__ME_CONNECTIONS_CONNECTION_NAME_CONNECTION_ID_ACCESS_TOKEN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/delete",
+		"route_name": "POST_USERS__ME_DELETE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/users/@me/devices",
+		"route_name": "POST_USERS__ME_DEVICES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/disable",
+		"route_name": "POST_USERS__ME_DISABLE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/email-settings",
+		"route_name": "GET_USERS__ME_EMAIL_SETTINGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/entitlements/gifts",
+		"route_name": "GET_USERS__ME_ENTITLEMENTS_GIFTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIGuildArray"
+		],
+		"route": "/users/@me/guilds",
+		"route_name": "GET_USERS__ME_GUILDS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/guilds/{guild_id}",
+		"route_name": "DELETE_USERS__ME_GUILDS_GUILD_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/guilds/{guild_id}/settings",
+		"route_name": "GET_USERS__ME_GUILDS_GUILD_ID_SETTINGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/UserGuildSettingsSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/guilds/{guild_id}/settings",
+		"route_name": "PATCH_USERS__ME_GUILDS_GUILD_ID_SETTINGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/guilds/premium/subscription-slots",
+		"route_name": "GET_USERS__ME_GUILDS_PREMIUM_SUBSCRIPTION_SLOTS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/library",
+		"route_name": "GET_USERS__ME_LIBRARY",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/MessageListResponse"
+		],
+		"route": "/users/@me/mentions",
+		"route_name": "GET_USERS__ME_MENTIONS",
+		"source": "openapi.json"
+	},
+	{
+		"description": "This route is replaced with users/@me/mfa/codes-verification in newer clients",
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/MfaCodesSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIBackupCodeArray",
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/mfa/codes",
+		"route_name": "POST_USERS__ME_MFA_CODES",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/CodesVerificationSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIBackupCodeArray",
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/mfa/codes-verification",
+		"route_name": "POST_USERS__ME_MFA_CODES_VERIFICATION",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/TotpDisableSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/TokenOnlyResponse"
+		],
+		"route": "/users/@me/mfa/totp/disable",
+		"route_name": "POST_USERS__ME_MFA_TOTP_DISABLE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/TotpEnableSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/TokenWithBackupCodesResponse"
+		],
+		"route": "/users/@me/mfa/totp/enable",
+		"route_name": "POST_USERS__ME_MFA_TOTP_ENABLE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/mfa/webauthn/credentials",
+		"route_name": "GET_USERS__ME_MFA_WEBAUTHN_CREDENTIALS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/WebAuthnPostSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/WebAuthnCreateResponse"
+		],
+		"route": "/users/@me/mfa/webauthn/credentials",
+		"route_name": "POST_USERS__ME_MFA_WEBAUTHN_CREDENTIALS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/users/@me/mfa/webauthn/credentials/{key_id}",
+		"route_name": "DELETE_USERS__ME_MFA_WEBAUTHN_CREDENTIALS_KEY_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UserNoteResponse"
+		],
+		"route": "/users/@me/notes/{user_id}",
+		"route_name": "GET_USERS__ME_NOTES_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/UserNoteUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/notes/{user_id}",
+		"route_name": "PUT_USERS__ME_NOTES_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UserRelationshipsResponse"
+		],
+		"route": "/users/@me/relationships",
+		"route_name": "GET_USERS__ME_RELATIONSHIPS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/RelationshipPostSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/relationships",
+		"route_name": "POST_USERS__ME_RELATIONSHIPS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/relationships/{user_id}",
+		"route_name": "DELETE_USERS__ME_RELATIONSHIPS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/RelationshipPatchSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/relationships/{user_id}",
+		"route_name": "PATCH_USERS__ME_RELATIONSHIPS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "#/components/schemas/RelationshipPutSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/users/@me/relationships/{user_id}",
+		"route_name": "PUT_USERS__ME_RELATIONSHIPS_USER_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UserSettings"
+		],
+		"route": "/users/@me/settings",
+		"route_name": "GET_USERS__ME_SETTINGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/UserSettingsUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/UserSettings"
+		],
+		"route": "/users/@me/settings",
+		"route_name": "PATCH_USERS__ME_SETTINGS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoResponse"
+		],
+		"route": "/users/@me/settings-proto/1",
+		"route_name": "GET_USERS__ME_SETTINGS_PROTO_1",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/SettingsProtoUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoUpdateResponse"
+		],
+		"route": "/users/@me/settings-proto/1",
+		"route_name": "PATCH_USERS__ME_SETTINGS_PROTO_1",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoJsonResponse"
+		],
+		"route": "/users/@me/settings-proto/1/json",
+		"route_name": "GET_USERS__ME_SETTINGS_PROTO_1_JSON",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/SettingsProtoUpdateJsonSchema",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoUpdateJsonResponse"
+		],
+		"route": "/users/@me/settings-proto/1/json",
+		"route_name": "PATCH_USERS__ME_SETTINGS_PROTO_1_JSON",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoResponse"
+		],
+		"route": "/users/@me/settings-proto/2",
+		"route_name": "GET_USERS__ME_SETTINGS_PROTO_2",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/SettingsProtoUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoUpdateResponse"
+		],
+		"route": "/users/@me/settings-proto/2",
+		"route_name": "PATCH_USERS__ME_SETTINGS_PROTO_2",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoJsonResponse"
+		],
+		"route": "/users/@me/settings-proto/2/json",
+		"route_name": "GET_USERS__ME_SETTINGS_PROTO_2_JSON",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/SettingsProtoUpdateJsonSchema",
+		"response_schema_refs": [
+			"#/components/schemas/SettingsProtoUpdateJsonResponse"
+		],
+		"route": "/users/@me/settings-proto/2/json",
+		"route_name": "PATCH_USERS__ME_SETTINGS_PROTO_2_JSON",
+		"source": "openapi.json"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/APIGuildVoiceRegion"
+		],
+		"route": "/voice/regions",
+		"route_name": "GET_VOICE_REGIONS",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/warp/license",
+		"route_name": "POST_WARP_LICENSE",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/webhooks/{webhook_id}",
+		"route_name": "DELETE_WEBHOOKS_WEBHOOK_ID",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Returns a webhook object for the given id. Requires the MANAGE_WEBHOOKS permission or to be the owner of the webhook.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/WebhookCreateResponse"
+		],
+		"route": "/webhooks/{webhook_id}",
+		"route_name": "GET_WEBHOOKS_WEBHOOK_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/WebhookUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/WebhookCreateResponse"
+		],
+		"route": "/webhooks/{webhook_id}",
+		"route_name": "PATCH_WEBHOOKS_WEBHOOK_ID",
+		"source": "openapi.json"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/webhooks/{webhook_id}/{token}",
+		"route_name": "DELETE_WEBHOOKS_WEBHOOK_ID_TOKEN",
+		"source": "openapi.json"
+	},
+	{
+		"description": "Returns a webhook object for the given id and token.",
+		"method": "GET",
+		"response_schema_refs": [
+			"#/components/schemas/WebhookCreateResponse"
+		],
+		"route": "/webhooks/{webhook_id}/{token}",
+		"route_name": "GET_WEBHOOKS_WEBHOOK_ID_TOKEN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "#/components/schemas/WebhookUpdateSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse",
+			"#/components/schemas/WebhookCreateResponse"
+		],
+		"route": "/webhooks/{webhook_id}/{token}",
+		"route_name": "PATCH_WEBHOOKS_WEBHOOK_ID_TOKEN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/WebhookExecuteSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/webhooks/{webhook_id}/{token}",
+		"route_name": "POST_WEBHOOKS_WEBHOOK_ID_TOKEN",
+		"source": "openapi.json"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "#/components/schemas/WebhookExecuteSchema",
+		"response_schema_refs": [
+			"#/components/schemas/APIErrorResponse"
+		],
+		"route": "/webhooks/{webhook_id}/{token}/github",
+		"route_name": "POST_WEBHOOKS_WEBHOOK_ID_TOKEN_GITHUB",
+		"source": "openapi.json"
+	}
+]

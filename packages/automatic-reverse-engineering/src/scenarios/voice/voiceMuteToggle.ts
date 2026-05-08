@@ -1,0 +1,26 @@
+import { clickRole } from "../actions.js";
+import { defineFeature } from "../feature.js";
+
+const scenarioId = "voice.mute_toggle";
+
+export const voiceMuteToggle = defineFeature({
+    id: scenarioId,
+    title: "Toggle voice mute",
+    requiredFixtures: ["guild", "channels.voice"],
+    tags: ["voice", "gateway"],
+    expected: {
+        gateway: [{ direction: "sent", opcode: 4, step_id: "toggle-mute" }],
+    },
+    async run(ctx) {
+        await ctx.step("join-voice", "Join voice channel", async () => {
+            await ctx.gotoChannel("voice");
+            await clickRole(ctx, scenarioId, "button", { name: /join voice/i });
+            await ctx.expectGateway({ direction: "sent", opcode: 4 });
+        });
+
+        await ctx.step("toggle-mute", "Toggle mute", async () => {
+            await clickRole(ctx, scenarioId, "button", { name: /mute/i });
+            await ctx.expectGateway({ direction: "sent", opcode: 4 });
+        });
+    },
+});

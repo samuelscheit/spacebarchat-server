@@ -1,0 +1,3603 @@
+{
+	"added_asset_hashes": [
+		"sha256:ef4330a397d4592ca233209c255d297eb8ac9fb0eaf8dffebb9bf9d913469b93",
+		"sha256:fcc9a7f0304fc7e6f22e0ce0547e119c388fd9970509dcb70b9d19be1ce9c3f9"
+	],
+	"base_build_id": "62340613904021af99e815460d34bee516355b2a",
+	"base_run_id": "2026-05-07T16-20-38Z-canary-local",
+	"confidence": "high",
+	"feature_diffs": [
+		{
+			"added": [],
+			"changed": [
+				{
+					"base": {
+						"attribution": "probable",
+						"initiator_frames": [
+							{
+								"column_number": 9565,
+								"file_name": "sentry.bb8d00ae0c03cc26.js",
+								"line_number": 14,
+								"url": "https://canary.discord.com/assets/sentry.bb8d00ae0c03cc26.js"
+							},
+							{
+								"column_number": 2733,
+								"file_name": "sentry.bb8d00ae0c03cc26.js",
+								"function_name": "apply",
+								"line_number": 14,
+								"url": "https://canary.discord.com/assets/sentry.bb8d00ae0c03cc26.js"
+							},
+							{
+								"column_number": 1337538,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "S._end",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1335818,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "S.end",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1340878,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1340604,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "l.then",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 22805,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "p",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 25182,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 24697,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "A",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 222159,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "p",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 221781,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "h",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 785136,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "s",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							}
+						],
+						"initiator_stack_hash": "sha256:07e866504cdae9eb30f403346506e53ac7cd3bd3d2ff04e8e5b76218f9d6c889",
+						"method": "POST",
+						"request_sample_redacted": {
+							"events": [
+								{
+									"properties": {
+										"accessibility_features": 524416,
+										"bypass_fatigue": false,
+										"client_app_state": "focused",
+										"client_heartbeat_session_id": "{redacted}",
+										"client_performance_memory": 0,
+										"client_rtc_state": "DISCONNECTED",
+										"client_send_timestamp": "{timestamp}",
+										"client_track_timestamp": "{timestamp}",
+										"client_uuid": "FhCA6HzRHBGmlP7Rm/CsBJ4BAAAVAAAA",
+										"client_viewport_height": 720,
+										"client_viewport_width": 1280,
+										"content_count": 0,
+										"event_sequence_number": 27,
+										"fatigable_content_count": 0,
+										"group_name": "{redacted_string}",
+										"guild_id": "{guild_id}",
+										"launch_signature": "{uuid}",
+										"rendered_locale": "en-US",
+										"type": "CHANNEL_NOTICE_INVITE",
+										"uptime_app": 0
+									},
+									"type": "dismissible_content_shown"
+								}
+							],
+							"token": "{redacted}"
+						},
+						"request_shape": "sha256:ba8670b045a5e9fa7ff7923f29e51dc43f7b567b83248728596c36d34a131788",
+						"route": "POST /science",
+						"step_id": "open-channel",
+						"type": "http"
+					},
+					"changes": [
+						"request_shape"
+					],
+					"head": {
+						"attribution": "probable",
+						"initiator_frames": [
+							{
+								"column_number": 9565,
+								"file_name": "sentry.36796a94df4938db.js",
+								"line_number": 14,
+								"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+							},
+							{
+								"column_number": 2733,
+								"file_name": "sentry.36796a94df4938db.js",
+								"function_name": "apply",
+								"line_number": 14,
+								"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+							},
+							{
+								"column_number": 1229632,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "S._end",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1227912,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "S.end",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1232972,
+								"file_name": "web.e037908bf41a587c.js",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1232698,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "l.then",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 22805,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "p",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 25182,
+								"file_name": "web.e037908bf41a587c.js",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 24697,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "A",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 222025,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "p",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 221647,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "h",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 783350,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "s",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							}
+						],
+						"initiator_stack_hash": "sha256:b4adbf2e8e5a67531a0313d06b42a04a2263455fa4b0f0a72946daefcdc8319a",
+						"method": "POST",
+						"request_sample_redacted": {
+							"events": [
+								{
+									"properties": {
+										"accessibility_features": 524416,
+										"channel_hidden": false,
+										"channel_id": "{channel_id}",
+										"channel_member_perms": "{snowflake}",
+										"channel_size_total": 0,
+										"channel_type": 0,
+										"client_app_state": "focused",
+										"client_heartbeat_session_id": "{redacted}",
+										"client_performance_memory": 0,
+										"client_rtc_state": "DISCONNECTED",
+										"client_send_timestamp": "{timestamp}",
+										"client_track_timestamp": "{timestamp}",
+										"client_uuid": "FhCA6HzRHBF9N0tavaixBJ4BAAAWAAAA",
+										"client_viewport_height": 720,
+										"client_viewport_width": 1280,
+										"event_sequence_number": 28,
+										"guild_id": "{guild_id}",
+										"guild_is_vip": false,
+										"guild_member_num_roles": 0,
+										"guild_member_perms": "{snowflake}",
+										"guild_num_channels": 3,
+										"guild_num_roles": 2,
+										"guild_num_text_channels": 2,
+										"guild_num_voice_channels": 1,
+										"guild_size_total": 2,
+										"is_member": true,
+										"launch_signature": "{uuid}",
+										"notice_type": "INVITE",
+										"num_voice_channels_active": 0,
+										"rendered_locale": "en-US",
+										"uptime_app": 2
+									},
+									"type": "channel_notice_viewed"
+								}
+							],
+							"token": "{redacted}"
+						},
+						"request_shape": "sha256:c07e1317891ff2c40e7f4d79110a9a31e945feb3c47d7757ee4c974bd535a59f",
+						"route": "POST /science",
+						"static_candidates": [
+							{
+								"chunk": "sentry.36796a94df4938db.js",
+								"column_number": 9565,
+								"confidence": "high",
+								"generated_offset": 67657,
+								"line_number": 14,
+								"module_id": "apply",
+								"stack_hash": "sha256:b4adbf2e8e5a67531a0313d06b42a04a2263455fa4b0f0a72946daefcdc8319a"
+							}
+						],
+						"step_id": "open-channel",
+						"type": "http"
+					},
+					"key": "http:open-channel:POST /science"
+				}
+			],
+			"feature_id": "bootstrap.idle.session",
+			"removed": []
+		},
+		{
+			"added": [
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 252762,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "u",
+							"line_number": 111,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 255461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "L",
+							"line_number": 111,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 255285,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 111,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:383e77f3d036de5946c9f03e93cd800db19aa1166df8cbe7f1d8c258e198fd4e",
+					"method": "GET",
+					"route": "GET /content-inventory/users/@me",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:383e77f3d036de5946c9f03e93cd800db19aa1166df8cbe7f1d8c258e198fd4e"
+						}
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2017785,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "getDetectableBlocklist",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 275036,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "handlePostConnectionOpen",
+							"line_number": 143,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 274906,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "POST_CONNECTION_OPEN",
+							"line_number": 143,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3369,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3358,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789836,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "i",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3331,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:ec001c03a2456b6b021d3e2bf4b04311597f0491d8110432943fdd2e790f8565",
+					"method": "GET",
+					"response_sample_redacted": {
+						"executables": [
+							"brocrashreporter.exe",
+							"config.exe",
+							"crashreportclient.exe",
+							"crosshairx.exe",
+							"dxsetup.exe",
+							"eaanticheat.gameservicelauncher.exe",
+							"eaanticheat.installer.exe",
+							"easyanticheat_setup.exe",
+							"gamerangeroemsetup.exe",
+							"install.exe",
+							"launcher.exe",
+							"launcherpatcher.exe",
+							"modlauncher.exe",
+							"pbsetup.exe",
+							"proxyinstallshield.exe",
+							"radiant_modtools.exe",
+							"rockstar-games-launcher.exe",
+							"sharex.exe",
+							"start_protected_game.exe",
+							"ue4prereqsetup_x64.exe",
+							"ueprereqsetup_x64.exe",
+							"ui32.exe",
+							"unitycrashhandler64.exe",
+							"vrmonitor.exe",
+							"wallpaper64.exe"
+						],
+						"patterns": [
+							"vcredist.*\\.exe$"
+						]
+					},
+					"response_shape": "sha256:038f30c12c43492c20a3f1758a65e95ca82971fc46f99725af85b2176cdf8610",
+					"route": "GET /games/detectable/exclusions",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:ec001c03a2456b6b021d3e2bf4b04311597f0491d8110432943fdd2e790f8565"
+						}
+					],
+					"status_codes": [
+						200
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3896,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "g",
+							"line_number": 148,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 5964,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "onPostConnectionOpen",
+							"line_number": 148,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3369,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3358,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789836,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "i",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3331,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:290b32819bad5b20f35c73ed0d90b19b77c2e81689d93180af3ded2f8f6cae88",
+					"method": "GET",
+					"response_sample_redacted": {
+						"announcement_modal_config": {
+							"application_id": "{snowflake}",
+							"version": 3
+						},
+						"promotion_end_datetime": "{phone}T18:00:00+00:00",
+						"promotional_sku_ids": [
+							"{snowflake}",
+							"{snowflake}",
+							"{snowflake}",
+							"{snowflake}"
+						],
+						"storefronts": [
+							{
+								"application_id": "{snowflake}",
+								"collectibles_shop_navigation_enabled": true,
+								"excluded_platforms": [
+									"playstation"
+								],
+								"game_id": "{snowflake}",
+								"guild_id": "{snowflake}"
+							},
+							{
+								"application_id": "{snowflake}",
+								"collectibles_shop_navigation_enabled": true,
+								"excluded_platforms": [
+									"playstation",
+									"xbox"
+								],
+								"game_id": "{snowflake}",
+								"guild_id": "{snowflake}"
+							}
+						]
+					},
+					"response_shape": "sha256:b07133b0287c9006dfebd738f0ded9ed1cf90d5c1aa26f7dba1a89612700725f",
+					"route": "GET /partner-sdk/storefront-config",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:290b32819bad5b20f35c73ed0d90b19b77c2e81689d93180af3ded2f8f6cae88"
+						}
+					],
+					"status_codes": [
+						200
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 5502,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "I",
+							"line_number": 148,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 17878,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_handleStorefrontConfigFetchSuccess",
+							"line_number": 148,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 17139,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "SOCIAL_LAYER_STOREFRONT_CONFIG_FETCH_SUCCESS",
+							"line_number": 148,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3369,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3358,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789836,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "i",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3331,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_SOCIAL_LAYER_STOREFRONT_CONFIG_FETCH_SUCCESS",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4089,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "g",
+							"line_number": 148,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:0aff5d2efa238c7a3211c3c8fb3e1201ef606a448ffeabc8fd81fe5df27a3fe4",
+					"method": "GET",
+					"route": "GET /partner-sdk/storefront-eligibility",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:0aff5d2efa238c7a3211c3c8fb3e1201ef606a448ffeabc8fd81fe5df27a3fe4"
+						}
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 996733,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "E",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 996630,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1000671,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "onPostConnectionOpen",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3369,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3358,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789836,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "i",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3331,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:79492a4e9a93866dc9840cf63c8442cdbd2824153539de27b9487d786efacc69",
+					"method": "GET",
+					"response_sample_redacted": [],
+					"response_shape": "sha256:41d649c2d6e734ec1707b6dbaa42abcf48d685261d9d52cbfc769224914e8e67",
+					"route": "GET /promotions",
+					"static_candidates": [
+						{
+							"chunk": "fast-connect.38fb8ec2baeaa13d.js",
+							"confidence": "high",
+							"generated_offset": 95522,
+							"module_id": "BILLING_PROMOTION_REDEMPTION"
+						},
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:79492a4e9a93866dc9840cf63c8442cdbd2824153539de27b9487d786efacc69"
+						}
+					],
+					"status_codes": [
+						200
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 89341,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "m",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:cb6def884bf8b3f96b6ffd629615607992ff067050c9ab3df259767bc565be66",
+					"method": "GET",
+					"route": "GET /store/published-listings/skus",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:cb6def884bf8b3f96b6ffd629615607992ff067050c9ab3df259767bc565be66"
+						}
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2005635,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "o",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 996940,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "E",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:afd7266173510e9413c7cd2de9ec953c8281d508bb0068ee0c5e57caa9257dcb",
+					"method": "GET",
+					"route": "GET /users/@me/applications/{application_id}/entitlements",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:afd7266173510e9413c7cd2de9ec953c8281d508bb0068ee0c5e57caa9257dcb"
+						}
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1086539,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "m",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1088526,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_maybeFetchCheckoutRecovery",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3369,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3358,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789836,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "i",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3331,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:1be48a997264a09336e1a64eda32bb32bda7a27a390aaf254559f0112deb0af2",
+					"method": "GET",
+					"response_sample_redacted": {
+						"is_eligible": false
+					},
+					"response_shape": "sha256:343e5e3408bea653f4a7124bb7e27ae0fa3b7a55a3ac6a12a575b23028888b41",
+					"route": "GET /users/@me/billing/checkout-recovery",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:1be48a997264a09336e1a64eda32bb32bda7a27a390aaf254559f0112deb0af2"
+						}
+					],
+					"status_codes": [
+						200
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 550330,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "ea",
+							"line_number": 79,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 88546,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "m",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 961038,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "E",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 962626,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "handleSelectedGuildChange",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 172544,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 76,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 172505,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "initialize",
+							"line_number": 76,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 355188,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "o",
+							"line_number": 79,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3112,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:bd0fe92e1dd12eda191f794d99947b026bd331a364d2abac0afb46306ffe5974",
+					"method": "GET",
+					"route": "GET /users/@me/billing/payment-sources",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:bd0fe92e1dd12eda191f794d99947b026bd331a364d2abac0afb46306ffe5974"
+						}
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 552320,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "ed",
+							"line_number": 79,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 88779,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 88601,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "m",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 961038,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "E",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 962626,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "handleSelectedGuildChange",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 172544,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 76,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 172505,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "initialize",
+							"line_number": 76,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 355188,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "o",
+							"line_number": 79,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3112,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:9d1f7589f3d1c4695ea54b25ef34dd1d25e1ca33f5f7a44ecb6d98180524422f",
+					"method": "GET",
+					"route": "GET /users/@me/billing/subscriptions",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:9d1f7589f3d1c4695ea54b25ef34dd1d25e1ca33f5f7a44ecb6d98180524422f"
+						}
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 117621,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "eg",
+							"line_number": 111,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 525562,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "handlePostConnectionOpen",
+							"line_number": 30,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3369,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3358,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789836,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "i",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3331,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:b663f8c93da96ee27a90108b283790886f75a2b99e5f4e62954ca484312e80ae",
+					"method": "GET",
+					"response_sample_redacted": {
+						"marketings": {
+							"0": {
+								"asset": "https://cdn.discordapp.com/media/v1/collectibles-shop/584e47dbf5584e1cd297c010c4d75793f9a6c33f1b5bb8ec719c1965aea1e869",
+								"body": "Fruity friends and kawaii cats are waiting to be picked in the Shop.",
+								"dismissible_content": 422,
+								"ref_target_background": null,
+								"title": "Got a Sweet Tooth?",
+								"type": 4,
+								"version": 71
+							},
+							"2": {
+								"asset": "https://cdn.discordapp.com/media/v1/collectibles-shop/c7e0b8b2830f23ed4f8dd{phone}b3f7d13e1c5b683940c10b11644c39dd",
+								"body": "Check out the latest avatar decorations, profile effects, and nameplates and collect your favorite styles.",
+								"popout_asset": "https://cdn.discordapp.com/media/v1/collectibles-shop/c420476d0acc4fedbc33cd891bdff8ff8efc80ef667f2f3a688b922aa0f19904",
+								"revert_text_color": true,
+								"title": "Give your profile a fresh look",
+								"type": 2,
+								"version": 71
+							}
+						}
+					},
+					"response_shape": "sha256:9713ac6dba59eed9eeae7beffb5c51d37553ac247d8af1aa05fc165825498086",
+					"route": "GET /users/@me/collectibles-marketing",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:b663f8c93da96ee27a90108b283790886f75a2b99e5f4e62954ca484312e80ae"
+						}
+					],
+					"status_codes": [
+						200
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 426822,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "c",
+							"line_number": 162,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 430312,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "handlePossibleCredentialFetch",
+							"line_number": 162,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 172544,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 76,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 172505,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "initialize",
+							"line_number": 76,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 355188,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "o",
+							"line_number": 79,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3112,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:48ae5af87c82fcc6519274e1ce3d12de449296a460ceccfc90858b5896aa823b",
+					"method": "GET",
+					"response_sample_redacted": [],
+					"response_shape": "sha256:41d649c2d6e734ec1707b6dbaa42abcf48d685261d9d52cbfc769224914e8e67",
+					"route": "GET /users/@me/mfa/webauthn/credentials",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:48ae5af87c82fcc6519274e1ce3d12de449296a460ceccfc90858b5896aa823b"
+						}
+					],
+					"status_codes": [
+						200
+					],
+					"step_id": "send-message",
+					"type": "http"
+				},
+				{
+					"attribution": "probable",
+					"initiator_frames": [
+						{
+							"column_number": 9565,
+							"file_name": "sentry.36796a94df4938db.js",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 2733,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "apply",
+							"line_number": 14,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						},
+						{
+							"column_number": 1229632,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S._end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1227912,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "S.end",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232972,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1232698,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "l.then",
+							"line_number": 11,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 22805,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "p",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 25182,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 24697,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "A",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 849896,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1088305,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_maybeFetchPremiumOffer",
+							"line_number": 146,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3369,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3358,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789836,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "i",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 3331,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2895,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 789971,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "log",
+							"line_number": 167,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2837,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithLogging",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2444,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "_dispatchWithDevtools",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1581,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch_POST_CONNECTION_OPEN",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1682,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 2340,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "flushWaitQueue",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1712,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 1461,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "dispatch",
+							"line_number": 178,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 49849,
+							"file_name": "web.e037908bf41a587c.js",
+							"function_name": "nA",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 54116,
+							"file_name": "web.e037908bf41a587c.js",
+							"line_number": 144,
+							"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+						},
+						{
+							"column_number": 4105,
+							"file_name": "sentry.36796a94df4938db.js",
+							"function_name": "n",
+							"line_number": 11,
+							"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+						}
+					],
+					"initiator_stack_hash": "sha256:4be372a82e47bfe0a631ff31aa0403448910e4d39c823d77ac8d9bb15a4c5837",
+					"method": "POST",
+					"request_sample_redacted": {},
+					"request_shape": "sha256:224ba2de93fabd5dd383fc762f8e714485fae9e856a9ace460f2cd6677257a36",
+					"route": "POST /users/@me/billing/user-offer",
+					"static_candidates": [
+						{
+							"chunk": "sentry.36796a94df4938db.js",
+							"column_number": 9565,
+							"confidence": "high",
+							"generated_offset": 67657,
+							"line_number": 14,
+							"module_id": "apply",
+							"stack_hash": "sha256:4be372a82e47bfe0a631ff31aa0403448910e4d39c823d77ac8d9bb15a4c5837"
+						}
+					],
+					"step_id": "send-message",
+					"type": "http"
+				}
+			],
+			"changed": [
+				{
+					"base": {
+						"attribution": "probable",
+						"initiator_frames": [
+							{
+								"column_number": 9565,
+								"file_name": "sentry.bb8d00ae0c03cc26.js",
+								"line_number": 14,
+								"url": "https://canary.discord.com/assets/sentry.bb8d00ae0c03cc26.js"
+							},
+							{
+								"column_number": 2733,
+								"file_name": "sentry.bb8d00ae0c03cc26.js",
+								"function_name": "apply",
+								"line_number": 14,
+								"url": "https://canary.discord.com/assets/sentry.bb8d00ae0c03cc26.js"
+							},
+							{
+								"column_number": 1337538,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "S._end",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1335818,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "S.end",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1340878,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1340604,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "l.then",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 22805,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "p",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 25182,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 24697,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "A",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 222159,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "p",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 221781,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "h",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 785136,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "s",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							}
+						],
+						"initiator_stack_hash": "sha256:07e866504cdae9eb30f403346506e53ac7cd3bd3d2ff04e8e5b76218f9d6c889",
+						"method": "POST",
+						"request_sample_redacted": {
+							"events": [
+								{
+									"properties": {
+										"accessibility_features": 524416,
+										"bypass_fatigue": false,
+										"client_app_state": "focused",
+										"client_heartbeat_session_id": "{redacted}",
+										"client_performance_memory": 0,
+										"client_rtc_state": "DISCONNECTED",
+										"client_send_timestamp": "{timestamp}",
+										"client_track_timestamp": "{timestamp}",
+										"client_uuid": "FhCA6HzRHBFFKTRikQ2tBJ4BAAAVAAAA",
+										"client_viewport_height": 720,
+										"client_viewport_width": 1280,
+										"content_count": 0,
+										"event_sequence_number": 27,
+										"fatigable_content_count": 0,
+										"group_name": "{redacted_string}",
+										"guild_id": "{guild_id}",
+										"launch_signature": "{uuid}",
+										"rendered_locale": "en-US",
+										"type": "NAGBAR_NOTICE_DOWNLOAD",
+										"uptime_app": 1
+									},
+									"type": "dismissible_content_shown"
+								}
+							],
+							"token": "{redacted}"
+						},
+						"request_shape": "sha256:ba8670b045a5e9fa7ff7923f29e51dc43f7b567b83248728596c36d34a131788",
+						"route": "POST /science",
+						"status_codes": [
+							204
+						],
+						"step_id": "open-channel",
+						"type": "http"
+					},
+					"changes": [
+						"request_shape"
+					],
+					"head": {
+						"attribution": "probable",
+						"initiator_frames": [
+							{
+								"column_number": 9565,
+								"file_name": "sentry.36796a94df4938db.js",
+								"line_number": 14,
+								"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+							},
+							{
+								"column_number": 2733,
+								"file_name": "sentry.36796a94df4938db.js",
+								"function_name": "apply",
+								"line_number": 14,
+								"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+							},
+							{
+								"column_number": 1229632,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "S._end",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1227912,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "S.end",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1232972,
+								"file_name": "web.e037908bf41a587c.js",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1232698,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "l.then",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 22805,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "p",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 25182,
+								"file_name": "web.e037908bf41a587c.js",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 24697,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "A",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 222025,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "p",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 221647,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "h",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 783350,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "s",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							}
+						],
+						"initiator_stack_hash": "sha256:b4adbf2e8e5a67531a0313d06b42a04a2263455fa4b0f0a72946daefcdc8319a",
+						"method": "POST",
+						"request_sample_redacted": {
+							"events": [
+								{
+									"properties": {
+										"accessibility_features": 524416,
+										"channel_hidden": false,
+										"channel_id": "{channel_id}",
+										"channel_member_perms": "{snowflake}",
+										"channel_size_total": 0,
+										"channel_type": 0,
+										"client_app_state": "focused",
+										"client_heartbeat_session_id": "{redacted}",
+										"client_performance_memory": 0,
+										"client_rtc_state": "DISCONNECTED",
+										"client_send_timestamp": "{timestamp}",
+										"client_track_timestamp": "{timestamp}",
+										"client_uuid": "FhCA6HzRHBGd9BpoWL+xBJ4BAAAWAAAA",
+										"client_viewport_height": 720,
+										"client_viewport_width": 1280,
+										"event_sequence_number": 28,
+										"guild_id": "{guild_id}",
+										"guild_is_vip": false,
+										"guild_member_num_roles": 0,
+										"guild_member_perms": "{snowflake}",
+										"guild_num_channels": 3,
+										"guild_num_roles": 2,
+										"guild_num_text_channels": 2,
+										"guild_num_voice_channels": 1,
+										"guild_size_total": 2,
+										"is_member": true,
+										"launch_signature": "{uuid}",
+										"notice_type": "INVITE",
+										"num_voice_channels_active": 0,
+										"rendered_locale": "en-US",
+										"uptime_app": 2
+									},
+									"type": "channel_notice_viewed"
+								}
+							],
+							"token": "{redacted}"
+						},
+						"request_shape": "sha256:c07e1317891ff2c40e7f4d79110a9a31e945feb3c47d7757ee4c974bd535a59f",
+						"route": "POST /science",
+						"static_candidates": [
+							{
+								"chunk": "sentry.36796a94df4938db.js",
+								"column_number": 9565,
+								"confidence": "high",
+								"generated_offset": 67657,
+								"line_number": 14,
+								"module_id": "apply",
+								"stack_hash": "sha256:b4adbf2e8e5a67531a0313d06b42a04a2263455fa4b0f0a72946daefcdc8319a"
+							}
+						],
+						"status_codes": [
+							204
+						],
+						"step_id": "open-channel",
+						"type": "http"
+					},
+					"key": "http:open-channel:POST /science"
+				},
+				{
+					"base": {
+						"attribution": "probable",
+						"initiator_frames": [
+							{
+								"column_number": 9565,
+								"file_name": "sentry.bb8d00ae0c03cc26.js",
+								"line_number": 14,
+								"url": "https://canary.discord.com/assets/sentry.bb8d00ae0c03cc26.js"
+							},
+							{
+								"column_number": 2733,
+								"file_name": "sentry.bb8d00ae0c03cc26.js",
+								"function_name": "apply",
+								"line_number": 14,
+								"url": "https://canary.discord.com/assets/sentry.bb8d00ae0c03cc26.js"
+							},
+							{
+								"column_number": 1337538,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "S._end",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1335818,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "S.end",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1340878,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 1340604,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "l.then",
+								"line_number": 11,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 22805,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "p",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 25182,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 24697,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "A",
+								"line_number": 178,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 222159,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "p",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 221781,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "h",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							},
+							{
+								"column_number": 785136,
+								"file_name": "web.cb310018d0bb70f6.js",
+								"function_name": "s",
+								"line_number": 167,
+								"url": "https://canary.discord.com/assets/web.cb310018d0bb70f6.js"
+							}
+						],
+						"initiator_stack_hash": "sha256:07e866504cdae9eb30f403346506e53ac7cd3bd3d2ff04e8e5b76218f9d6c889",
+						"method": "POST",
+						"request_sample_redacted": {
+							"events": [
+								{
+									"properties": {
+										"accessibility_features": 524416,
+										"app_hardware_acceleration_enabled": true,
+										"client_app_state": "focused",
+										"client_heartbeat_session_id": "{redacted}",
+										"client_performance_memory": 0,
+										"client_rtc_state": "DISCONNECTED",
+										"client_send_timestamp": "{timestamp}",
+										"client_track_timestamp": "{timestamp}",
+										"client_uuid": "FhCA6HzRHBFFKTRikQ2tBJ4BAAAYAAAA",
+										"client_viewport_height": 720,
+										"client_viewport_width": 1280,
+										"css_compressed_byte_size": 489998,
+										"css_transfer_byte_size": 0,
+										"css_uncompressed_byte_size": 3319642,
+										"duration_ms_since_app_opened": 3779,
+										"event_sequence_number": 30,
+										"js_compressed_byte_size": 517524,
+										"js_transfer_byte_size": 0,
+										"js_uncompressed_byte_size": 2101790,
+										"launch_signature": "{uuid}",
+										"load_id": "{uuid}",
+										"rendered_locale": "en-US",
+										"screen_name": "{redacted_string}",
+										"total_compressed_byte_size": 6543590,
+										"total_transfer_byte_size": 0,
+										"total_uncompressed_byte_size": 29576122,
+										"uptime_app": 2
+									},
+									"type": "app_ui_viewed"
+								}
+							],
+							"token": "{redacted}"
+						},
+						"request_shape": "sha256:07327848d6f8c081cf17050e2ac224b8de88c5e51da24dc31e9607dc58333e67",
+						"route": "POST /science",
+						"step_id": "send-message",
+						"type": "http"
+					},
+					"changes": [
+						"request_shape"
+					],
+					"head": {
+						"attribution": "probable",
+						"initiator_frames": [
+							{
+								"column_number": 9565,
+								"file_name": "sentry.36796a94df4938db.js",
+								"line_number": 14,
+								"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+							},
+							{
+								"column_number": 2733,
+								"file_name": "sentry.36796a94df4938db.js",
+								"function_name": "apply",
+								"line_number": 14,
+								"url": "https://discord.com/assets/sentry.36796a94df4938db.js"
+							},
+							{
+								"column_number": 1229632,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "S._end",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1227912,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "S.end",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1232972,
+								"file_name": "web.e037908bf41a587c.js",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 1232698,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "l.then",
+								"line_number": 11,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 22805,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "p",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 25182,
+								"file_name": "web.e037908bf41a587c.js",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 24697,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "A",
+								"line_number": 178,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 222025,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "p",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 221647,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "h",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							},
+							{
+								"column_number": 783350,
+								"file_name": "web.e037908bf41a587c.js",
+								"function_name": "s",
+								"line_number": 167,
+								"url": "https://discord.com/assets/web.e037908bf41a587c.js"
+							}
+						],
+						"initiator_stack_hash": "sha256:b4adbf2e8e5a67531a0313d06b42a04a2263455fa4b0f0a72946daefcdc8319a",
+						"method": "POST",
+						"request_sample_redacted": {
+							"events": [
+								{
+									"properties": {
+										"accessibility_features": 524416,
+										"client_app_state": "focused",
+										"client_heartbeat_session_id": "{redacted}",
+										"client_performance_memory": 0,
+										"client_rtc_state": "DISCONNECTED",
+										"client_send_timestamp": "{timestamp}",
+										"client_track_timestamp": "{timestamp}",
+										"client_uuid": "FhCA6HzRHBGd9BpoWL+xBJ4BAAAhAAAA",
+										"client_viewport_height": 720,
+										"client_viewport_width": 1280,
+										"event_sequence_number": 39,
+										"launch_signature": "{uuid}",
+										"received_etag": "W/\"bcae1ab45b7930ef2b4ade6388e5352d\"",
+										"rendered_locale": "en-US",
+										"request_method": "get",
+										"sent_etag": "",
+										"status_code": 200,
+										"uptime_app": 3,
+										"url": "{redacted_string}"
+									},
+									"type": "network_action_detectable_non_games_fetch"
+								}
+							],
+							"token": "{redacted}"
+						},
+						"request_shape": "sha256:4a54b4032616d3d384ef0cb2cd1787ec5ec92541c9364fd14fbbf1fc7cf2dad7",
+						"route": "POST /science",
+						"static_candidates": [
+							{
+								"chunk": "sentry.36796a94df4938db.js",
+								"column_number": 9565,
+								"confidence": "high",
+								"generated_offset": 67657,
+								"line_number": 14,
+								"module_id": "apply",
+								"stack_hash": "sha256:b4adbf2e8e5a67531a0313d06b42a04a2263455fa4b0f0a72946daefcdc8319a"
+							}
+						],
+						"step_id": "send-message",
+						"type": "http"
+					},
+					"key": "http:send-message:POST /science"
+				}
+			],
+			"feature_id": "message.send.basic",
+			"removed": []
+		}
+	],
+	"generated_at": "2026-05-07T23:07:29.382Z",
+	"head_build_id": "98b5be2c2533f17f926b290d360986344ddddc9c",
+	"head_run_id": "2026-05-07T23-06-28Z-stable-local",
+	"removed_asset_hashes": [
+		"sha256:4ba90937df02021e02cc52bc9fb3273ff3bd3be9f510c9ebee34d397a4d94a6f",
+		"sha256:e5c9cdf604921a3e12fc88fb539a73488bde1ee7af5b12e4b19dc732203a7be1"
+	],
+	"review_queue": [
+		{
+			"detail": "Changed fields: request_shape",
+			"feature_id": "bootstrap.idle.session",
+			"reason": "changed_signature",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "http:open-channel:POST /science"
+		},
+		{
+			"feature_id": "bootstrap.idle.session",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "GET /scheduled-maintenances/upcoming.json"
+		},
+		{
+			"feature_id": "bootstrap.idle.session",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "GET /users/@me/unclaimed-games"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "bootstrap.idle.session",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "GET /guilds/{guild_id}/entitlements"
+		},
+		{
+			"detail": "Changed fields: request_shape",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "http:open-channel:POST /science"
+		},
+		{
+			"detail": "Changed fields: request_shape",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "http:send-message:POST /science"
+		},
+		{
+			"feature_id": "message.send.basic",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /content-inventory/users/@me"
+		},
+		{
+			"feature_id": "message.send.basic",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /games/detectable/exclusions"
+		},
+		{
+			"feature_id": "message.send.basic",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /partner-sdk/storefront-config"
+		},
+		{
+			"feature_id": "message.send.basic",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /partner-sdk/storefront-eligibility"
+		},
+		{
+			"feature_id": "message.send.basic",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /promotions"
+		},
+		{
+			"feature_id": "message.send.basic",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "GET /scheduled-maintenances/upcoming.json"
+		},
+		{
+			"feature_id": "message.send.basic",
+			"reason": "new_route",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "GET /users/@me/unclaimed-games"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "message.send.basic",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "open-channel",
+			"subject": "GET /guilds/{guild_id}/entitlements"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "message.send.basic",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/applications/{application_id}/entitlements"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "message.send.basic",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/billing/checkout-recovery"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "message.send.basic",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/billing/payment-sources"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "message.send.basic",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/billing/subscriptions"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "message.send.basic",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/mfa/webauthn/credentials"
+		},
+		{
+			"detail": "Observed non-background traffic to a sensitive route family.",
+			"feature_id": "message.send.basic",
+			"reason": "sensitive_route",
+			"severity": "high",
+			"step_id": "send-message",
+			"subject": "POST /users/@me/billing/user-offer"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /content-inventory/users/@me"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /games/detectable/exclusions"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /partner-sdk/storefront-config"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /partner-sdk/storefront-eligibility"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /promotions"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /store/published-listings/skus"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/applications/{application_id}/entitlements"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/billing/checkout-recovery"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/billing/payment-sources"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/billing/subscriptions"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/collectibles-marketing"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "GET /users/@me/mfa/webauthn/credentials"
+		},
+		{
+			"detail": "Traffic item added in head run.",
+			"feature_id": "message.send.basic",
+			"reason": "changed_signature",
+			"severity": "medium",
+			"step_id": "send-message",
+			"subject": "POST /users/@me/billing/user-offer"
+		}
+	],
+	"runtime_feature_signature_changed": true,
+	"source_ref_changes": [],
+	"static_build_changed": true,
+	"static_changes": [
+		"channel",
+		"base_url",
+		"x_build_id",
+		"build_number",
+		"version_hash"
+	],
+	"summary": {
+		"changed_shape_hashes": [
+			"sha256:07327848d6f8c081cf17050e2ac224b8de88c5e51da24dc31e9607dc58333e67",
+			"sha256:4a54b4032616d3d384ef0cb2cd1787ec5ec92541c9364fd14fbbf1fc7cf2dad7",
+			"sha256:ba8670b045a5e9fa7ff7923f29e51dc43f7b567b83248728596c36d34a131788",
+			"sha256:c07e1317891ff2c40e7f4d79110a9a31e945feb3c47d7757ee4c974bd535a59f"
+		],
+		"features_changed": 2,
+		"gateway_added": 0,
+		"gateway_changed": 0,
+		"gateway_removed": 0,
+		"http_added": 13,
+		"http_changed": 3,
+		"http_removed": 0
+	}
+}

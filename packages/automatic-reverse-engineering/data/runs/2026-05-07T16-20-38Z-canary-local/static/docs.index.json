@@ -1,0 +1,3154 @@
+[
+	{
+		"key": "APPLICATION_COMMAND_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "APPLICATION_COMMAND_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "APPLICATION_COMMAND_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "CHANNEL_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "CHANNEL_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "CHANNEL_PINS_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "CHANNEL_RECIPIENT_ADD",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "CHANNEL_RECIPIENT_REMOVE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "CHANNEL_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_BAN_ADD",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_BAN_REMOVE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_EMOJI_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_INTEGRATIONS_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_MEMBER_ADD",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_MEMBER_LIST_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_MEMBER_REMOVE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_MEMBER_SPEAKING",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_MEMBER_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_MEMBERS_CHUNK",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_ROLE_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_ROLE_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_ROLE_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "GUILD_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "INTERACTION_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "INTERACTION_FAILURE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "INTERACTION_SUCCESS",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "INVITE_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "INVITE_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_DELETE_BULK",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_REACTION_ADD",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_REACTION_REMOVE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_REACTION_REMOVE_ALL",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_REACTION_REMOVE_EMOJI",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "MESSAGE_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "PRESENCE_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "READY",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "READY_SUPPLEMENTAL",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "SESSIONS_REPLACE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "THREAD_CREATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "THREAD_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "THREAD_LIST_SYNC",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "THREAD_MEMBER_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "THREAD_MEMBERS_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "THREAD_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "TYPING_START",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "USER_CONNECTIONS_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "USER_DELETE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "USER_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "VOICE_SERVER_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "VOICE_STATE_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "WEBHOOKS_UPDATE",
+		"kind": "gateway_event",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "0 Dispatch",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "1 Heartbeat",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "10 Hello",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "11 Heartbeat_ACK",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "12 Guild_Sync",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "13 DM_Update",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "14 Lazy_Request",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "15 Lobby_Connect",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "16 Lobby_Disconnect",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "17 Lobby_Voice_States_Update",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "18 Stream_Create",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "19 Stream_Delete",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "2 Identify",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "20 Stream_Watch",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "21 Stream_Ping",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "22 Stream_Set_Paused",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "24 Request_Application_Commands",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "3 Presence_Update",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "36 Request_Channel_Statuses",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "37 Guild_Subscriptions_Bulk",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "4 Voice_State_Update",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "40 SetQoS",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "41 ClientInitSession",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "5 Voice_Server_Ping",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "6 Resume",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "7 Reconnect",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "8 Request_Guild_Members",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "9 Invalid_Session",
+		"kind": "gateway_opcode",
+		"refs": {
+			"official_gateway_reference": "https://docs.discord.com/developers/events/gateway",
+			"userdoccers_gateway_events": "https://docs.discord.food/gateway/gateway-events"
+		}
+	},
+	{
+		"key": "DELETE /applications/{application_id}/commands/{command_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/attachments/{cloud_attachment_url}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/{message_id}/reactions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{burst}/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/ack",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/messages/pins/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/permissions/{overwrite_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/pins/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/recipients/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/tags/{tag_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /channels/{channel_id}/thread-members/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/bans/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/emojis/{emoji_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/members/{member_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/members/{member_id}/roles/{role_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/roles/{role_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/stickers/{sticker_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /guilds/{guild_id}/templates/{code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /invites/{invite_code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /users/@me/billing/payment-sources/{payment_source_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /users/@me/connections/{connection_name}/{connection_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /users/@me/guilds/{guild_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /users/@me/mfa/webauthn/credentials/{key_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /users/@me/relationships/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /webhooks/{webhook_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "DELETE /webhooks/{webhook_id}/{token}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /-/healthz",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /-/readyz",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /apex/experiments",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/{application_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/{application_id}/commands",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/{application_id}/commands/{command_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/{application_id}/entitlements",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/{application_id}/guilds/{guild_id}/commands",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/{application_id}/skus",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /applications/detectable",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /auth/generate-registration-tokens",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /auth/location-metadata",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /auth/sessions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /auth/whoami",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/directory-entries",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/invites",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/messages",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/messages/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/messages/pins",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/messages/search",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/pins",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/thread-members",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/thread-members/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/threads/archived/private",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/threads/archived/public",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/threads/search",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/users/@me/threads/archived/private",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /channels/{channel_id}/webhooks",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /collectibles-categories",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /collectibles-shop",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /connections",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /connections/{connection_name}/authorize",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /discoverable-guilds",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /discovery/categories",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /download",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /emojis/{emoji_id}/source",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /experiments",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /games/detectable",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /gateway",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /gateway/bot",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /gifs/search",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /gifs/trending",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /gifs/trending-gifs",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guild-recommendations",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/application-command-index",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/audit-logs",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/auto-moderation/rules",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/bans",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/bans/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/bans/search",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/channels",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/discovery-requirements",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/emojis",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/emojis/{emoji_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/integrations",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/invites",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/member-verification",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/members",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/members/{member_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/messages/search",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/premium/subscriptions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/profile",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/prune",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/regions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/roles",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/roles/{role_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/roles/{role_id}/member-ids",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/roles/member-counts",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/shield.svg",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/stickers",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/stickers/{sticker_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/templates",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/vanity-url",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/webhooks",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/welcome-screen",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/widget",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/widget.json",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/{guild_id}/widget.png",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /guilds/templates/{template_code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /invites/{invite_code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /oauth2/applications/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /oauth2/authorize",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /oauth2/tokens",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /outbound-promotions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /partners/{guild_id}/requirements",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /ping",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /policies/instance",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /policies/instance/config",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /policies/instance/domains",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /policies/instance/limits",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /policies/stats",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /reporting",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /safety-hub/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /safety-hub/suspended/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /scheduled-maintenances/upcoming.json",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /stage-instances",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /sticker-packs",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /stickers/{sticker_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /stickers/{sticker_id}/guild",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /store/published-listings/applications/{application_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /store/published-listings/applications/{application_id}/subscription-plans",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /store/published-listings/skus/{sku_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /store/published-listings/skus/{sku_id}/subscription-plans",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /teams",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /updates",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/{user_id}/messages",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/{user_id}/profile",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/{user_id}/relationships",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/activities/statistics/applications",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/affinities/guilds",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/affinities/users",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/applications/{application_id}/entitlements",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/billing/country-code",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/billing/location-info",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/billing/payment-sources",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/billing/payment-sources/{payment_source_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/billing/subscriptions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/channels",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/collectibles-marketing",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/collectibles-purchases",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/connections",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/connections/{connection_name}/{connection_id}/access-token",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/email-settings",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/entitlements/gifts",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/guilds",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/guilds/{guild_id}/settings",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/guilds/premium/subscription-slots",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/library",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/mentions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/mfa/webauthn/credentials",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/notes/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/relationships",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/settings",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/settings-proto/1",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/settings-proto/1/json",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/settings-proto/2",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /users/@me/settings-proto/2/json",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /voice/regions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /webhooks/{webhook_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "GET /webhooks/{webhook_id}/{token}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /applications/{application_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /applications/{application_id}/bot",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /applications/{application_id}/commands/{command_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /applications/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /channels/{channel_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /channels/{channel_id}/messages/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /channels/{channel_id}/thread-members/@me/settings",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/channels",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/emojis/{emoji_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/members/{member_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/members/{member_id}/nick",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/profile/{member_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/roles",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/roles/{role_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/roles/{role_id}/members",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/stickers/{sticker_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/templates/{code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/vanity-url",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/voice-states/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/welcome-screen",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /guilds/{guild_id}/widget",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/{user_id}/profile",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/billing/payment-sources/{payment_source_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/connections/{connection_name}/{connection_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/guilds/{guild_id}/settings",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/relationships/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/settings",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/settings-proto/1",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/settings-proto/1/json",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/settings-proto/2",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /users/@me/settings-proto/2/json",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /webhooks/{webhook_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PATCH /webhooks/{webhook_id}/{token}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /applications",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /applications/{application_id}/bot",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /applications/{application_id}/bot/reset",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /applications/{application_id}/commands",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /applications/{application_id}/delete",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /applications/{application_id}/guilds/{guild_id}/commands",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /attachments/refresh-urls",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/fingerprint",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/forgot",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/login",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/logout",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/mfa/totp",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/mfa/webauthn",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/register",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/reset",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/sessions/logout",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/verify",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/verify/resend",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /auth/verify/view-backup-codes-challenge",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /beaker",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/attachments",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/followers",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/greet",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/invites",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/messages",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/messages/{message_id}/ack",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/messages/{message_id}/crosspost",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/messages/{message_id}/threads",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/messages/bulk-delete",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/post-data",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/purge",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/tags",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/thread-members/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/threads",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/typing",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/{channel_id}/webhooks",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /channels/preload-messages",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /connections/{connection_name}/{connection_id}/refresh",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /connections/{connection_name}/callback",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/auto-moderation/rules",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/bulk-ban",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/channels",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/delete",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/emojis",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/prune",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/roles",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/stickers",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/{guild_id}/templates",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/automations/email-domain-lookup",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/automations/email-domain-lookup/verify-code",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /guilds/templates/{template_code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /hub-waitlist/signup",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /interactions",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /interactions/{interaction_id}/{interaction_token}/callback",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /invites/{invite_code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /oauth2/authorize",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /read-states/ack-bulk",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /science",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /stop",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /teams",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /track",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/{user_id}/delete",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/billing/payment-sources",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/channels",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/delete",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/devices",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/disable",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/mfa/codes",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/mfa/codes-verification",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/mfa/totp/disable",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/mfa/totp/enable",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/mfa/webauthn/credentials",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /users/@me/relationships",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /warp/license",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /webhooks/{webhook_id}/{token}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "POST /webhooks/{webhook_id}/{token}/github",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /applications/{application_id}/commands",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /applications/{application_id}/guilds/{guild_id}/commands",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/messages/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/messages/pins/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/permissions/{overwrite_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/pins/{message_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/recipients/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/tags/{tag_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /channels/{channel_id}/thread-members/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /guilds/{guild_id}/bans/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /guilds/{guild_id}/members/{member_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /guilds/{guild_id}/members/{member_id}/roles/{role_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /guilds/{guild_id}/templates/{code}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /users/@me/notes/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	},
+	{
+		"key": "PUT /users/@me/relationships/{user_id}",
+		"kind": "route",
+		"refs": {
+			"official_api_reference": "https://docs.discord.com/developers/reference",
+			"userdoccers_reference": "https://docs.discord.food/reference"
+		}
+	}
+]

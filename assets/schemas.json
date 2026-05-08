@@ -125,6 +125,31 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CreateDMChannelResponse": {
+        "type": "object",
+        "properties": {
+            "recipients": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "id"
+                    ]
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "recipients"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "MessageAcknowledgeSchema": {
         "type": "object",
         "properties": {

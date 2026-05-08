@@ -1,0 +1,275 @@
+name: Discord Datamining Static Context
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Discord Web channel to collect"
+        required: false
+        default: "canary"
+        type: choice
+        options:
+          - canary
+          - ptb
+          - stable
+      max_assets:
+        description: "Maximum static assets/chunks to download"
+        required: false
+        default: "150"
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+    - cron: "12 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  static-context:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        channel:
+          - canary
+          - ptb
+          - stable
+    env:
+      CHANNEL: ${{ matrix.channel }}
+      SELECTED_CHANNEL: ${{ github.event.inputs.channel || 'canary' }}
+      MAX_ASSETS: ${{ github.event.inputs.max_assets || '150' }}
+
+    steps:
+      - name: Select channel for trigger
+        run: |
+          set -euo pipefail
+          should_run=false
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "$CHANNEL" = "$SELECTED_CHANNEL" ]; then
+              should_run=true
+            fi
+          elif [ "${{ github.event.schedule }}" = "7,22,37,52 * * * *" ]; then
+            if [ "$CHANNEL" = "canary" ]; then
+              should_run=true
+            fi
+          elif [ "${{ github.event.schedule }}" = "12 * * * *" ]; then
+            if [ "$CHANNEL" = "ptb" ] || [ "$CHANNEL" = "stable" ]; then
+              should_run=true
+            fi
+          fi
+          echo "SHOULD_RUN=${should_run}" >> "$GITHUB_ENV"
+          echo "Static datamining channel ${CHANNEL}: ${should_run}"
+
+      - uses: actions/checkout@v6
+        if: env.SHOULD_RUN == 'true'
+
+      - name: Use Node.js
+        if: env.SHOULD_RUN == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Install dependencies
+        if: env.SHOULD_RUN == 'true'
+        run: npm ci
+
+      - name: Build datamining package
+        if: env.SHOULD_RUN == 'true'
+        run: npm run build --workspace @spacebar/automatic-reverse-engineering
+
+      - name: Prepare run id
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          RUN_ID="$(date -u +'%Y-%m-%dT%H-%M-%SZ')-${CHANNEL}"
+          echo "RUN_ID=${RUN_ID}" >> "$GITHUB_ENV"
+          echo "RUN_DIR=packages/automatic-reverse-engineering/data/runs/${RUN_ID}" >> "$GITHUB_ENV"
+
+      - name: Resolve source refs
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          node packages/automatic-reverse-engineering/dist/cli.js resolve-source-refs \
+            --out packages/automatic-reverse-engineering/data/catalogs/source-refs.json
+
+      - name: Fetch third-party static inputs
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          set -euo pipefail
+          XHYROM_SHA="$(node --input-type=module -e "import { readFileSync } from 'node:fs'; const refs = JSON.parse(readFileSync('packages/automatic-reverse-engineering/data/catalogs/source-refs.json', 'utf8')); console.log(refs.xhyrom_routes_commit)")"
+          USERDOCCERS_SHA="$(node --input-type=module -e "import { readFileSync } from 'node:fs'; const refs = JSON.parse(readFileSync('packages/automatic-reverse-engineering/data/catalogs/source-refs.json', 'utf8')); console.log(refs.userdoccers_commit)")"
+          clone_sparse_ref() {
+            local repo="$1"
+            local sha="$2"
+            local target="$3"
+            shift 3
+            git init "$target"
+            git -C "$target" remote add origin "https://github.com/${repo}.git"
+            git -C "$target" sparse-checkout init --cone
+            git -C "$target" sparse-checkout set "$@"
+            git -C "$target" fetch --depth 1 origin "$sha"
+            git -C "$target" checkout --detach FETCH_HEAD
+          }
+          rm -rf /tmp/discord-third-party
+          mkdir -p /tmp/discord-third-party
+          clone_sparse_ref xHyroM/discord-datamining "$XHYROM_SHA" /tmp/discord-third-party/xhyrom data/client
+          clone_sparse_ref discord-userdoccers/discord-userdoccers "$USERDOCCERS_SHA" /tmp/discord-third-party/userdoccers pages
+
+      - name: Collect Discord static snapshot
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          node packages/automatic-reverse-engineering/dist/cli.js collect-static \
+            --run-id "$RUN_ID" \
+            --channel "$CHANNEL" \
+            --out "$RUN_DIR" \
+            --download-assets \
+            --max-assets "$MAX_ASSETS" \
+            --source-refs-file packages/automatic-reverse-engineering/data/catalogs/source-refs.json
+
+      - name: Build local catalogs
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          node packages/automatic-reverse-engineering/dist/cli.js import-openapi \
+            --input assets/openapi.json \
+            --out packages/automatic-reverse-engineering/data/catalogs/routes.catalog.json
+          node packages/automatic-reverse-engineering/dist/cli.js import-source-routes \
+            --root src/api/routes \
+            --out packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json
+          node packages/automatic-reverse-engineering/dist/cli.js import-gateway-source \
+            --constants src/gateway/util/Constants.ts \
+            --handlers src/gateway/opcodes/index.ts \
+            --events src/util/interfaces/Event.ts \
+            --schemas src/schemas/gateway/index.ts \
+            --out packages/automatic-reverse-engineering/data/catalogs/gateway.catalog.json
+          node packages/automatic-reverse-engineering/dist/cli.js build-docs-index \
+            --routes packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json \
+            --gateway packages/automatic-reverse-engineering/data/catalogs/gateway.catalog.json \
+            --out packages/automatic-reverse-engineering/data/catalogs/docs.index.json
+          node packages/automatic-reverse-engineering/dist/cli.js import-xhyrom-routes \
+            --input /tmp/discord-third-party/xhyrom/data/client/routes.json \
+            --out packages/automatic-reverse-engineering/data/catalogs/routes.xhyrom.catalog.json
+          node packages/automatic-reverse-engineering/dist/cli.js import-xhyrom-experiments \
+            --input /tmp/discord-third-party/xhyrom/data/client/experiments/experiments.json \
+            --out packages/automatic-reverse-engineering/data/catalogs/experiments.xhyrom.catalog.json
+          node packages/automatic-reverse-engineering/dist/cli.js import-userdoccers-routes \
+            --root /tmp/discord-third-party/userdoccers/pages \
+            --out packages/automatic-reverse-engineering/data/catalogs/routes.userdoccers.catalog.json
+          node packages/automatic-reverse-engineering/dist/cli.js import-userdoccers-gateway \
+            --events /tmp/discord-third-party/userdoccers/pages/gateway/gateway-events.mdx \
+            --opcodes /tmp/discord-third-party/userdoccers/pages/gateway/opcodes-and-close-codes.mdx \
+            --out packages/automatic-reverse-engineering/data/catalogs/gateway.userdoccers.catalog.json
+
+      - name: Extract experiments and bundle static context
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          node packages/automatic-reverse-engineering/dist/cli.js extract-experiments \
+            --assets "$RUN_DIR/static/assets.json" \
+            --static-dir "$RUN_DIR/static" \
+            --out "$RUN_DIR/static/experiments.catalog.json"
+          node packages/automatic-reverse-engineering/dist/cli.js bundle-static-context \
+            --run-dir "$RUN_DIR" \
+            --routes packages/automatic-reverse-engineering/data/catalogs/routes.catalog.json \
+            --source-routes packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json \
+            --gateway packages/automatic-reverse-engineering/data/catalogs/gateway.catalog.json \
+            --experiments "$RUN_DIR/static/experiments.catalog.json" \
+            --docs packages/automatic-reverse-engineering/data/catalogs/docs.index.json \
+            --xhyrom-routes packages/automatic-reverse-engineering/data/catalogs/routes.xhyrom.catalog.json \
+            --xhyrom-experiments packages/automatic-reverse-engineering/data/catalogs/experiments.xhyrom.catalog.json \
+            --userdoccers-routes packages/automatic-reverse-engineering/data/catalogs/routes.userdoccers.catalog.json \
+            --userdoccers-gateway packages/automatic-reverse-engineering/data/catalogs/gateway.userdoccers.catalog.json \
+            --source-refs-file packages/automatic-reverse-engineering/data/catalogs/source-refs.json
+
+      - name: Validate redaction
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          node packages/automatic-reverse-engineering/dist/cli.js validate-redaction \
+            --input "$RUN_DIR" \
+            --out "$RUN_DIR/redaction-audit.json"
+
+      - name: Audit static run
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          node packages/automatic-reverse-engineering/dist/cli.js audit-run \
+            --run-dir "$RUN_DIR" \
+            --require-runtime false \
+            --redaction-audit "$RUN_DIR/redaction-audit.json" \
+            --out "$RUN_DIR/static-audit.json"
+
+      - name: Stage redacted static upload
+        if: env.SHOULD_RUN == 'true'
+        run: |
+          set -euo pipefail
+          UPLOAD_DIR="$RUNNER_TEMP/discord-datamining-static-upload"
+          rm -rf "$UPLOAD_DIR"
+          mkdir -p "$UPLOAD_DIR/static"
+          for file in build.json assets.json context.manifest.json routes.catalog.json routes.source.catalog.json gateway.catalog.json experiments.catalog.json docs.index.json routes.xhyrom.catalog.json experiments.xhyrom.catalog.json routes.userdoccers.catalog.json gateway.userdoccers.catalog.json; do
+            cp "$RUN_DIR/static/$file" "$UPLOAD_DIR/static/$file"
+          done
+          cp "$RUN_DIR/redaction-audit.json" "$UPLOAD_DIR/redaction-audit.json"
+          cp "$RUN_DIR/static-audit.json" "$UPLOAD_DIR/static-audit.json"
+          UPLOAD_DIR="$UPLOAD_DIR" RUN_ID="$RUN_ID" CHANNEL="$CHANNEL" node <<'NODE'
+          const fs = require("node:fs");
+          const path = require("node:path");
+          const root = process.env.UPLOAD_DIR;
+          function walk(dir) {
+            return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+              const filePath = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                return walk(filePath);
+              }
+              if (!entry.isFile()) {
+                return [];
+              }
+              return path.relative(root, filePath).split(path.sep).join("/");
+            });
+          }
+          const exactAllowed = new Set([
+            "redaction-audit.json",
+            "static-audit.json",
+            "upload-manifest.json",
+            "static/assets.json",
+            "static/build.json",
+            "static/context.manifest.json",
+            "static/docs.index.json",
+            "static/experiments.catalog.json",
+            "static/experiments.xhyrom.catalog.json",
+            "static/gateway.catalog.json",
+            "static/gateway.userdoccers.catalog.json",
+            "static/routes.catalog.json",
+            "static/routes.source.catalog.json",
+            "static/routes.userdoccers.catalog.json",
+            "static/routes.xhyrom.catalog.json",
+          ]);
+          const manifest = {
+            run_id: process.env.RUN_ID,
+            channel: process.env.CHANNEL,
+            generated_at: new Date().toISOString(),
+            gates: ["validate-redaction", "audit-run --require-runtime false", "staged-upload-validate-redaction"],
+            audit_scope: {
+              redaction_audit: "runner-local run directory before upload staging",
+              static_audit: "runner-local run directory before upload staging",
+              staged_upload_redaction: "final allowlisted upload directory",
+            },
+            uploaded_files: [],
+            omitted_artifacts: ["static/assets/", "static/login.html"],
+          };
+          fs.writeFileSync(path.join(root, "upload-manifest.json"), `${JSON.stringify(manifest, null, "\t")}\n`);
+          const files = walk(root).sort();
+          const unexpected = files.filter((file) => !exactAllowed.has(file));
+          if (unexpected.length > 0) {
+            throw new Error(`Unexpected static upload files: ${unexpected.join(", ")}`);
+          }
+          manifest.uploaded_files = files;
+          fs.writeFileSync(path.join(root, "upload-manifest.json"), `${JSON.stringify(manifest, null, "\t")}\n`);
+          NODE
+          node packages/automatic-reverse-engineering/dist/cli.js validate-redaction \
+            --input "$UPLOAD_DIR" \
+            --out "$UPLOAD_DIR/redaction-audit.json"
+          echo "UPLOAD_DIR=$UPLOAD_DIR" >> "$GITHUB_ENV"
+
+      - name: Upload static datamining run
+        if: env.SHOULD_RUN == 'true'
+        uses: actions/upload-artifact@v5
+        with:
+          name: discord-datamining-static-${{ env.RUN_ID }}
+          path: ${{ env.UPLOAD_DIR }}
+          if-no-files-found: error
