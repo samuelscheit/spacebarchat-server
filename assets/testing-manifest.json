@@ -4282,7 +4282,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/tags/:tag_id",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 113,
+            "line": 110,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4334,7 +4334,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/tags/:tag_id",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 72,
+            "line": 71,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4387,7 +4387,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/tags/",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 27,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

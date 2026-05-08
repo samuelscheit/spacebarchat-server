@@ -23,6 +23,7 @@ export * from "./utility/AttachmentRefresh";
 export * from "./utility/DiscoverableGuildCategories";
 export * from "./utility/Experiments";
 export * from "./utility/Fingerprint";
+export * from "./utility/ForumTags";
 export * from "./utility/ipAddress";
 export * from "./handlers/Message";
 export * from "./handlers/ThreadSearch";

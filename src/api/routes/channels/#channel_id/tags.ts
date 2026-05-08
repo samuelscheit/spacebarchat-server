@@ -16,11 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { requireAvailableTag, route } from "@spacebar/api";
 import { Channel, ChannelUpdateEvent, emitEvent, Tag } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { TagCreateSchema } from "@spacebar/schemas";
-import { HTTPError } from "#util/util/lambert-server";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -92,9 +91,7 @@ router.put(
 
         if (!channel.isForum()) throw new Error("is not thread only channel");
 
-        const tag = channel.available_tags?.find((tag) => tag.id == tag_id);
-        //TODO better error
-        if (!tag) throw new HTTPError("Tag not found");
+        const tag = requireAvailableTag(channel, tag_id);
         tag.assign(body);
 
         await Promise.all([
@@ -131,10 +128,8 @@ router.delete(
 
         if (!channel.isForum()) throw new Error("is not thread only channel");
 
-        const tag = await Tag.findOneByOrFail({
-            id: tag_id,
-        });
-        channel.available_tags = channel.available_tags?.filter((t) => t.id !== tag.id);
+        const tag = requireAvailableTag(channel, tag_id);
+        channel.available_tags = channel.available_tags?.filter((t) => t.id !== tag_id);
 
         await Promise.all([
             tag.remove(),

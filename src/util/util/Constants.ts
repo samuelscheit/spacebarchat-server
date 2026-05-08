@@ -416,6 +416,7 @@ export const VerificationLevels = ["NONE", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"]
  * * UNKNOWN_GUILD_WELCOME_SCREEN
  * * UNKNOWN_GUILD_SCHEDULED_EVENT
  * * UNKNOWN_GUILD_SCHEDULED_EVENT_USER
+ * * UNKNOWN_TAG
  * * BOT_PROHIBITED_ENDPOINT
  * * BOT_ONLY_ENDPOINT
  * * EXPLICIT_CONTENT_CANNOT_BE_SENT_TO_RECIPIENT
@@ -560,6 +561,7 @@ export const DiscordApiErrors = {
     UNKNOWN_GUILD_WELCOME_SCREEN: new ApiError("Unknown Guild Welcome Screen", 10069),
     UNKNOWN_GUILD_SCHEDULED_EVENT: new ApiError("Unknown Guild Scheduled Event", 10070),
     UNKNOWN_GUILD_SCHEDULED_EVENT_USER: new ApiError("Unknown Guild Scheduled Event User", 10071),
+    UNKNOWN_TAG: new ApiError("Unknown tag", 10087, 404),
     BOT_PROHIBITED_ENDPOINT: new ApiError("Bots cannot use this endpoint", 20001),
     BOT_ONLY_ENDPOINT: new ApiError("Only bots can use this endpoint", 20002),
     EXPLICIT_CONTENT_CANNOT_BE_SENT_TO_RECIPIENT: new ApiError("Explicit content cannot be sent to the desired recipient(s)", 20009),
