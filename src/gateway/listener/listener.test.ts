@@ -98,6 +98,14 @@ describe("gateway intent dispatch filtering", () => {
     test("treats unmapped gateway events as passthrough", () => {
         assert.equal(canDispatchEventForIntents(new Intents(0), "USER_UPDATE", undefined), true);
         assert.equal(canDispatchEventForIntents(new Intents(0), "APPLICATION_COMMAND_CREATE", "guild"), true);
+        assert.equal(canDispatchEventForIntents(undefined, "APPLICATION_COMMAND_UPDATE", "guild"), true);
+    });
+
+    test("denies mapped gateway events when intents are missing", () => {
+        assert.equal(canDispatchEventForIntents(undefined, "GUILD_CREATE", "guild"), false);
+        assert.equal(canDispatchEventForIntents(undefined, "MESSAGE_CREATE", "guild"), false);
+        assert.equal(canDispatchEventForIntents(undefined, "MESSAGE_CREATE", undefined), false);
+        assert.equal(canDispatchEventForIntents(undefined, "AUTO_MODERATION_RULE_CREATE", "guild"), false);
     });
 
     test("maps common auto moderation events to their intents", () => {

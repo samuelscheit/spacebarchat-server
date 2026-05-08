@@ -122,7 +122,7 @@ export function canDispatchEventForIntents(intents: Intents | undefined, event: 
     if (requiredIntent === undefined) return true;
     if (requiredIntent === Intents.FLAGS.GUILD_MEMBERS && isCurrentUserGuildMemberUpdate(event, userId, data)) return true;
 
-    return intents?.has(requiredIntent) ?? true;
+    return intents?.has(requiredIntent) ?? false;
 }
 
 // TODO: close connection on Invalidated Token
