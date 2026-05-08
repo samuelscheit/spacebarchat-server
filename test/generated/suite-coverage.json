@@ -860,6 +860,7 @@
                     "status": "partial-existing-tests",
                     "testFiles": [
                         "test/scenarios/guilds-crud.test.ts",
+                        "test/scenarios/guild-profile-assets.test.ts",
                         "test/scenarios/guilds-members-roles.test.ts",
                         "test/scenarios/guilds-supplemental.test.ts",
                         "test/scenarios/guilds-admin-supplemental.test.ts",
