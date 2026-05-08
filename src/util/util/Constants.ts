@@ -520,7 +520,7 @@ export const DiscordApiErrors = {
     //https://discord.com/developers/docs/topics/opcodes-and-status-codes#json-json-error-codes
     GENERAL_ERROR: new ApiError("General error (such as a malformed request body, amongst other things)", 0),
     UNKNOWN_ACCOUNT: new ApiError("Unknown account", 10001),
-    UNKNOWN_APPLICATION: new ApiError("Unknown application", 10002),
+    UNKNOWN_APPLICATION: new ApiError("Unknown application", 10002, 404),
     UNKNOWN_CHANNEL: new ApiError("Unknown channel", 10003),
     UNKNOWN_GUILD: new ApiError("Unknown guild", 10004),
     UNKNOWN_INTEGRATION: new ApiError("Unknown integration", 10005),

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
+import { Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
@@ -207,10 +207,9 @@ router.post(
             relations: { bot: true },
         });
 
-        // TODO: use DiscordApiErrors
         // findOneOrFail throws code 404
-        if (!app) throw new ApiError("Unknown Application", 10002, 404);
-        if (!app.bot) throw new ApiError("OAuth2 application does not have a bot", 50010, 400);
+        if (!app) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+        if (!app.bot) throw DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT;
 
         await Member.addToGuild(app.id, body.guild_id);
         if (body.permissions) {
