@@ -40,8 +40,11 @@ if (process.argv[1]?.endsWith("scripts/openapi.js")) isHeadlessProcess = true;
 
 export { getDatabaseType, getDatabaseUrl };
 
-const applyMigrations = process.env.APPLY_DB_MIGRATIONS !== "false";
+const shouldApplyMigrations = () => process.env.APPLY_DB_MIGRATIONS !== "false";
+const RUNTIME_MODULE_GLOB = "!(*.test|*.spec).js";
 export let DatabaseType = isHeadlessProcess || !process.env.DATABASE ? "postgres" : getDatabaseType(process.env.DATABASE);
+
+export const runtimeModuleGlob = (...segments: string[]) => path.join(...segments, RUNTIME_MODULE_GLOB);
 
 const createDataSourceOptions = () => {
     DatabaseType = isHeadlessProcess ? "postgres" : getDatabaseType();
@@ -52,13 +55,13 @@ const createDataSourceOptions = () => {
         type: DatabaseType,
         charset: "utf8mb4",
         url: process.env.DATABASE,
-        entities: [path.join(__dirname, "..", "entities", "*.js")],
+        entities: [runtimeModuleGlob(__dirname, "..", "entities")],
         synchronize: !!process.env.DB_SYNC,
         logging: !!process.env.DB_LOGGING,
         bigNumberStrings: false,
         supportBigNumbers: true,
         name: "default",
-        migrations: applyMigrations ? [path.join(__dirname, "..", "migration", DatabaseType, "*.js")] : [],
+        migrations: shouldApplyMigrations() ? [runtimeModuleGlob(__dirname, "..", "migration", DatabaseType)] : [],
     });
 };
 
@@ -107,7 +110,7 @@ export async function initDatabase(): Promise<DataSource> {
             return false;
         }
     };
-    if (applyMigrations) {
+    if (shouldApplyMigrations()) {
         if (!(await dbExists())) {
             console.log("[Database] This appears to be a fresh database. Running initial DDL.");
             const qr = dbConnection.createQueryRunner();
@@ -135,5 +138,8 @@ export async function initDatabase(): Promise<DataSource> {
 }
 
 export async function closeDatabase() {
-    await dbConnection?.destroy();
+    const connection = dbConnection;
+    dbConnection = undefined;
+    DataSourceOptions = undefined as unknown as DataSource;
+    if (connection?.isInitialized) await connection.destroy();
 }
