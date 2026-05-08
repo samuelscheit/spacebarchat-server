@@ -51,9 +51,6 @@ describe("instanceOf object property aliases", () => {
     test("rejects payloads that provide more than one nested alias for the same property", () => {
         const schema = { "$[client_state|clientState]": { "$[guild_hashes|guildHashes]": Object } };
 
-        assert.throws(
-            () => instanceOf(schema, { clientState: { guild_hashes: {}, guildHashes: {} } }),
-            /.clientState.guild_hashes must only use one of guild_hashes, guildHashes/,
-        );
+        assert.throws(() => instanceOf(schema, { clientState: { guild_hashes: {}, guildHashes: {} } }), /.clientState.guild_hashes must only use one of guild_hashes, guildHashes/);
     });
 });
