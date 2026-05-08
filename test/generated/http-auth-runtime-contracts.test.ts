@@ -50,6 +50,7 @@ type GeneratedHttpContractMatrix = {
         runtimeCdnValidObjectContracts: number;
         runtimeCdnSignatureRequiredContracts: number;
         runtimeCdnDeleteContracts: number;
+        runtimeCdnUploadContracts: number;
     };
     contracts: GeneratedHttpContract[];
 };
@@ -164,6 +165,12 @@ const cdnDeleteContracts = matrix.contracts.filter(
         contract.service === "cdn" &&
         contract.method === "DELETE" &&
         contract.manifestId !== "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
+);
+const cdnUploadContracts = matrix.contracts.filter(
+    (contract) =>
+        contract.service === "cdn" &&
+        contract.method === "POST" &&
+        contract.manifestId !== "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
 );
 const cdnRuntimeRequestSignature = "generated-cdn-contract-signature";
 const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
@@ -573,6 +580,45 @@ async function assertCdnDeleteResponse(contract: GeneratedHttpContract, response
 
     const body = (await response.json()) as Record<string, unknown>;
     assert.deepEqual(body, { success: true }, `${contract.manifestId} should return the CDN delete success body`);
+}
+
+async function postGeneratedCdnMultipart(url: string) {
+    const form = new FormData();
+    const bytes = new Uint8Array(cdnRuntimePng.length);
+    bytes.set(cdnRuntimePng);
+    form.set("file", new Blob([bytes], { type: "image/png" }), "generated.png");
+
+    return await fetch(url, {
+        method: "POST",
+        headers: {
+            accept: "application/json",
+            signature: cdnRuntimeRequestSignature,
+        },
+        body: form,
+    });
+}
+
+function cdnUploadStoragePathForContract(contract: GeneratedHttpContract, body: Record<string, unknown>) {
+    if (typeof body.path === "string") return body.path.replace(/^\/+/, "");
+
+    const samplePath = contract.samplePath.slice(1).replace(/\/$/, "");
+    if (contract.manifestId === "cdn:http:POST:/emojis/:emoji_id" || contract.manifestId === "cdn:http:POST:/stickers/:sticker_id") return samplePath;
+
+    assert.equal(typeof body.id, "string", `${contract.manifestId} should return an uploaded CDN object id`);
+    const id = body.id as string;
+    if (contract.manifestId === "cdn:http:POST:/role-icons/:role_id") return `${samplePath}/${id}.png`;
+    return `${samplePath}/${id}`;
+}
+
+async function assertCdnUploadResponse(contract: GeneratedHttpContract, response: Response) {
+    assert.equal(response.status, 200, `${contract.manifestId} should upload CDN objects`);
+    assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON upload response`);
+
+    const body = (await response.json()) as Record<string, unknown>;
+    assert.equal(body.content_type, "image/png", `${contract.manifestId} should report uploaded PNG content`);
+    assert.equal(body.size, cdnRuntimePng.length, `${contract.manifestId} should report uploaded byte size`);
+    assert.equal(typeof body.url, "string", `${contract.manifestId} should return a CDN URL`);
+    return body;
 }
 
 test("generated HTTP auth contracts reject missing bearer tokens through the real API stack", { timeout: 120_000 }, async () => {
@@ -1175,6 +1221,27 @@ test("generated CDN delete contracts remove seeded objects through the real CDN 
                 assert.equal(await storage.exists(storagePath), false, `${contract.manifestId} should remove the seeded CDN object`);
             }
         });
+    } finally {
+        restoreConsole();
+    }
+});
+
+test("generated CDN upload contracts persist multipart PNG objects through the real CDN stack", { timeout: 60_000 }, async () => {
+    assert.equal(cdnUploadContracts.length, matrix.summary.runtimeCdnUploadContracts);
+    assert.ok(cdnUploadContracts.length > 0, "expected CDN upload routes to be covered");
+
+    const restoreConsole = silenceConsole();
+    try {
+        for (const contract of cdnUploadContracts) {
+            await withGeneratedCdn(async ({ cdn, storage }) => {
+                const response = await postGeneratedCdnMultipart(`${cdn.baseUrl}${contract.samplePath}`);
+                const body = await assertCdnUploadResponse(contract, response);
+                const storagePath = cdnUploadStoragePathForContract(contract, body);
+
+                assert.equal(await storage.exists(storagePath), true, `${contract.manifestId} should persist the uploaded CDN object`);
+                assert.deepEqual(await storage.get(storagePath), cdnRuntimePng, `${contract.manifestId} should persist the uploaded bytes`);
+            });
+        }
     } finally {
         restoreConsole();
     }
