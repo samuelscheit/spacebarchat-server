@@ -20,9 +20,11 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { ajv } from "../../Validator";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 const assetsPath = path.join(process.cwd(), "assets");
+const sessionsSchemaSourcePath = path.join(process.cwd(), "src", "schemas", "api", "users", "SessionsSchemas.ts");
 
 interface JsonShape {
     $ref?: string;
@@ -36,6 +38,20 @@ function readAssetJson<T>(name: string): T {
     return JSON.parse(fs.readFileSync(path.join(assetsPath, name), "utf8")) as T;
 }
 
+const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
+const ajv = new Ajv({
+    allErrors: true,
+    parseDate: true,
+    allowDate: true,
+    schemas: JSON.parse(JSON.stringify(schemas).replaceAll("#/definitions/", "")),
+    coerceTypes: true,
+    messages: true,
+    strict: true,
+    strictRequired: true,
+    allowUnionTypes: true,
+});
+addFormats(ajv);
+
 function getSessionClientStatusSchema(schemas: Record<string, JsonShape>) {
     const response = schemas.GetSessionsResponse;
     const deviceInfo = response.properties?.user_sessions?.items;
@@ -45,8 +61,13 @@ function getSessionClientStatusSchema(schemas: Record<string, JsonShape>) {
     return schemas.SessionClientStatus;
 }
 
+test("SessionsSchemas source stays decoupled from util entity exports", () => {
+    const source = fs.readFileSync(sessionsSchemaSourcePath, "utf8");
+
+    assert.equal(source.includes("@spacebar/util"), false);
+});
+
 test("GetSessionsResponse schema owns its session client status DTO", () => {
-    const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
     const sessionClientStatus = getSessionClientStatusSchema(schemas);
 
     assert.deepEqual(Object.keys(sessionClientStatus.properties ?? {}).toSorted(), ["desktop", "embedded", "mobile", "vr", "web"]);
