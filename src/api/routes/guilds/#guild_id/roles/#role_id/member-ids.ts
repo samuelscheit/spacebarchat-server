@@ -21,13 +21,16 @@ import { Member } from "@spacebar/util";
 import { route } from "@spacebar/api";
 
 const router = Router({ mergeParams: true });
+const MAX_ROLE_MEMBER_IDS = 100;
 
 router.get("/", route({}), async (req: Request, res: Response) => {
     const { guild_id, role_id } = req.params as { [key: string]: string };
+    await Member.IsInGuildOrFail(req.user_id, guild_id);
 
-    // TODO: Is this route really not paginated?
     const members = await Member.find({
+        order: { id: "ASC" },
         select: { id: true },
+        take: MAX_ROLE_MEMBER_IDS,
         where: {
             roles: {
                 id: role_id,
