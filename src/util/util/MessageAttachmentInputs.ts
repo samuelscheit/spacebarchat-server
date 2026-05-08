@@ -1,7 +1,7 @@
 import { MessageCreateAttachment, MessageCreateAttachmentMetadata, MessageCreateCloudAttachment, MessageCreateFile } from "@spacebar/schemas";
 
 export type MessageAttachmentUploadMetadata = MessageCreateAttachment | MessageCreateFile;
-export type MessageAttachmentMetadata = MessageAttachmentUploadMetadata | MessageCreateCloudAttachment;
+export type MessageAttachmentMetadata = MessageCreateAttachmentMetadata | MessageCreateFile;
 
 export type MessageAttachmentInput =
     | {
