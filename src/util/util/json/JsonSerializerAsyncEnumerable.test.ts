@@ -149,6 +149,40 @@ describe("JsonSerializer async enumerable streams", () => {
         ]);
     });
 
+    it("applies revivers consistently for strings and streams", async () => {
+        const json = JSON.stringify([{ value: "1" }, { value: "2" }]);
+        const expected = [{ value: 2 }, { value: 1, first: true }];
+        const reviver = (key: string, value: unknown) => {
+            if (key === "value" && typeof value === "string") return Number(value);
+            if (key === "0" && value && typeof value === "object" && !Array.isArray(value)) return { ...(value as Record<string, unknown>), first: true };
+            if (key === "" && Array.isArray(value)) return value.slice().reverse();
+            return value;
+        };
+        const root = await fs.mkdtemp(join(tmpdir(), "spacebar-json-stream-"));
+        const path = join(root, "stream.json");
+        await fs.writeFile(path, json);
+        const encoder = new TextEncoder();
+        const encoded = encoder.encode(json);
+        const stream = new ReadableStream({
+            start(controller) {
+                controller.enqueue(encoded.slice(0, 5));
+                controller.enqueue(encoded.slice(5));
+                controller.close();
+            },
+        });
+
+        try {
+            assert.deepEqual(await collect(JsonSerializer.DeserializeAsyncEnumerable<(typeof expected)[number]>(json, { reviver })), expected);
+            assert.deepEqual(
+                await collect(JsonSerializer.DeserializeAsyncEnumerable<(typeof expected)[number]>(createReadStream(path, { highWaterMark: 2 }), { reviver })),
+                expected,
+            );
+            assert.deepEqual(await collect(JsonSerializer.DeserializeAsyncEnumerable<(typeof expected)[number]>(stream, { reviver })), expected);
+        } finally {
+            await fs.rm(root, { recursive: true, force: true });
+        }
+    });
+
     it("yields no items for an empty array", async () => {
         const stringItems = await collect(JsonSerializer.DeserializeAsyncEnumerable<string>("[]"));
         const stream = new ReadableStream({

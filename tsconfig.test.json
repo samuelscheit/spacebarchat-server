@@ -6,7 +6,10 @@
         "src/cdn/ServerConfigure.test.ts",
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
-        "src/util/util/TraverseDirectory.test.ts"
+        "src/util/util/TraverseDirectory.test.ts",
+        "src/util/util/json/JsonSerializer.test.ts",
+        "src/util/util/json/JsonSerializerAsyncEnumerable.test.ts",
+        "src/util/util/json/jsonWorker.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {

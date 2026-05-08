@@ -2,6 +2,7 @@ import { JsonSerializer } from "./JsonSerializer";
 import { after, describe, it } from "node:test";
 import { strict as assert } from "node:assert";
 import fs from "node:fs/promises";
+import { createReadStream, createWriteStream } from "node:fs";
 import { Stopwatch } from "../Stopwatch";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { execFile } from "node:child_process";
@@ -91,6 +92,98 @@ describe("JsonSerializer", () => {
         });
 
         assert.deepEqual(result, { value: 42 });
+    });
+
+    it("should apply async deserializer revivers with JSON.parse semantics", async () => {
+        const value = await JsonSerializer.DeserializeAsync<number>("-0", {
+            reviver(key, parsedValue) {
+                return key === "" && Object.is(parsedValue, -0) ? -1 : parsedValue;
+            },
+        });
+
+        assert.equal(value, -1);
+    });
+
+    it("should apply async stream deserializer revivers", async () => {
+        const tempDir = await fs.mkdtemp(join(process.cwd(), "json-deserialize-stream-"));
+        const inputPath = join(tempDir, "input.json");
+        await fs.writeFile(inputPath, `{"value":"😀"}`);
+        const reviver = (key: string, value: unknown) => (key === "value" && typeof value === "string" ? `${value}!` : value);
+
+        try {
+            assert.deepEqual(await JsonSerializer.DeserializeAsync<{ value: string }>(createReadStream(inputPath, { highWaterMark: 1 }), { reviver }), {
+                value: "😀!",
+            });
+
+            const encodedJson = new TextEncoder().encode(`{"value":"😀"}`);
+
+            const stream = new ReadableStream<Uint8Array>({
+                start(controller) {
+                    for (const byte of encodedJson) {
+                        controller.enqueue(Uint8Array.of(byte));
+                    }
+                    controller.close();
+                },
+            });
+
+            assert.deepEqual(await JsonSerializer.DeserializeAsync<{ value: string }>(stream, { reviver }), { value: "😀!" });
+        } finally {
+            await fs.rm(tempDir, { recursive: true, force: true });
+        }
+    });
+
+    it("should serialize async enumerable items to strings with options", async () => {
+        async function* getItems() {
+            yield { id: 1, hidden: "omit" };
+            yield { id: 2, hidden: "omit" };
+        }
+
+        const result = await JsonSerializer.SerializeAsyncEnumerableToStringAsync(getItems(), { replacer: ["id"], space: 2 });
+
+        assert.equal(result, '[{\n  "id": 1\n},{\n  "id": 2\n}]');
+    });
+
+    it("should serialize async enumerable items to node streams with options", async () => {
+        const tempDir = await fs.mkdtemp(join(process.cwd(), "json-serialize-stream-"));
+        const outputPath = join(tempDir, "output.json");
+
+        async function* getItems() {
+            yield { id: 1, hidden: "omit" };
+            yield { id: 2, hidden: "omit" };
+        }
+
+        try {
+            await JsonSerializer.SerializeAsyncEnumerableAsync(getItems(), createWriteStream(outputPath), { replacer: ["id"], space: 2 });
+
+            assert.equal(await fs.readFile(outputPath, "utf8"), '[{\n  "id": 1\n},{\n  "id": 2\n}]');
+        } finally {
+            await fs.rm(tempDir, { recursive: true, force: true });
+        }
+    });
+
+    it("should serialize async enumerable items to web streams with function options", async () => {
+        const chunks: Uint8Array[] = [];
+        const stream = new WritableStream<Uint8Array>({
+            write(chunk) {
+                chunks.push(chunk);
+            },
+        });
+
+        async function* getItems() {
+            yield { keep: 1, omit: "hidden" };
+            yield { keep: 2, omit: "hidden" };
+        }
+
+        await JsonSerializer.SerializeAsyncEnumerableAsync(getItems(), stream, {
+            replacer(key, value) {
+                return key === "omit" ? undefined : value;
+            },
+        });
+
+        assert.equal(
+            chunks.reduce((json, chunk) => json + new TextDecoder().decode(chunk), ""),
+            '[{"keep":1},{"keep":2}]',
+        );
     });
 
     it("should keep concurrent worker responses matched to their requests", async () => {
