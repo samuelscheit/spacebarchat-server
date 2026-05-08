@@ -3,6 +3,7 @@ using System.Text.Json;
 using Spacebar.Models.Generic;
 using Spacebar.Models.Generic.Constants;
 using DbChannel = Spacebar.Models.Db.Models.Channel;
+using DbChannelType = Spacebar.Models.Db.Models.ChannelType;
 using DbMember = Spacebar.Models.Db.Models.Member;
 
 namespace Spacebar.GatewayOffload;
@@ -13,6 +14,11 @@ public static class LazyMemberListChannelAccess {
     private const string EveryoneListId = "everyone";
     private static readonly ulong ViewChannelFlag = (ulong)Permissions.ViewChannel;
     private static readonly ulong AdministratorFlag = (ulong)Permissions.Administrator;
+
+    public static DbChannel GetPermissionChannel(DbChannel requestedChannel) =>
+        IsThreadChannel(requestedChannel) && requestedChannel.Parent is not null
+            ? requestedChannel.Parent
+            : requestedChannel;
 
     public static IReadOnlyList<ChannelPermissionOverwrite> ParsePermissionOverwrites(string? permissionOverwrites) {
         if (string.IsNullOrWhiteSpace(permissionOverwrites)) return [];
@@ -101,6 +107,9 @@ public static class LazyMemberListChannelAccess {
         ulong.TryParse(permissions, NumberStyles.None, CultureInfo.InvariantCulture, out var parsed) ? parsed : 0UL;
 
     private static bool HasPermission(ulong permissions, ulong permission) => (permissions & permission) == permission;
+
+    private static bool IsThreadChannel(DbChannel channel) =>
+        channel.Type is DbChannelType.GuildNewsThread or DbChannelType.GuildPublicThread or DbChannelType.GuildPrivateThread;
 
     private static uint MurmurHash3(string key, uint seed = 0) {
         const uint c1 = 0xcc9e2d51;

@@ -3,6 +3,8 @@ import { WebSocket } from "./WebSocket";
 import { OPCODES } from "./Constants";
 import { Send } from "./Send";
 
+type OffloadedGatewayEventHandler = (event: Event) => Promise<void> | void;
+
 export function parseStreamKey(streamKey: string): {
     type: "guild" | "call";
     channelId: string;
@@ -79,7 +81,7 @@ async function expireOldPresenceStates() {
     }
 }
 
-export async function handleOffloadedGatewayRequest(socket: WebSocket, url: string, body: unknown) {
+export async function handleOffloadedGatewayRequest(socket: WebSocket, url: string, body: unknown, onEvent?: OffloadedGatewayEventHandler) {
     // TODO: async json object streaming
     const resp = await fetch(url, {
         body: JSON.stringify(body),
@@ -103,6 +105,7 @@ export async function handleOffloadedGatewayRequest(socket: WebSocket, url: stri
     while (data.length > 0) {
         const event = data.pop()!;
         if (process.env.WS_VERBOSE) console.log(`[Gateway] Received offloaded event: ${JSON.stringify(event)}`);
+        await onEvent?.(event);
         await Send(socket, {
             op: OPCODES.Dispatch,
             s: socket.sequence++,

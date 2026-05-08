@@ -89,9 +89,31 @@ public class LazyMemberListChannelAccessTests {
         Assert.Equal([2, 3], visibleMembers);
     }
 
-    private static Channel Channel(IEnumerable<ChannelPermissionOverwrite> overwrites) => new() {
+    [Fact]
+    public void ThreadChannelsUseParentForPermissionAndListIdParity() {
+        var everyone = Role(10, ViewChannel);
+        var deniedRole = Role(20, 0);
+        var parent = Channel([
+            Overwrite("20", deny: ViewChannel),
+        ]);
+        var thread = Channel([], ChannelType.GuildPublicThread);
+        thread.Parent = parent;
+
+        var permissionChannel = LazyMemberListChannelAccess.GetPermissionChannel(thread);
+        var visibleMembers = LazyMemberListChannelAccess
+            .FilterVisibleMembers([Member(1, [everyone]), Member(2, [everyone, deniedRole])], permissionChannel, guildOwnerId: 99)
+            .Select(member => member.Id)
+            .ToArray();
+
+        Assert.Same(parent, permissionChannel);
+        Assert.Equal(LazyMemberListChannelAccess.GetMemberListId(parent), LazyMemberListChannelAccess.GetMemberListId(permissionChannel));
+        Assert.Equal([1], visibleMembers);
+    }
+
+    private static Channel Channel(IEnumerable<ChannelPermissionOverwrite> overwrites, ChannelType type = ChannelType.GuildText) => new() {
         Id = 100,
         GuildId = 10,
+        Type = type,
         PermissionOverwrites = JsonSerializer.Serialize(overwrites),
     };
 

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel } from "@spacebar/util";
+import { Config, getDatabase, Member, Session, User, Presence, Permissions, getMostRelevantSession, type Channel, type Event } from "@spacebar/util";
 import { WebSocket, Payload, OPCODES, Send, subscribeGuildMemberEvent, buildLazyMemberListOperations, handleOffloadedGatewayRequest } from "@spacebar/gateway";
 import murmur from "murmurhash-js/murmurhash3_gc";
 import { check } from "./instanceOf";
@@ -98,6 +98,38 @@ function getLazyMemberIds(memberList: ReturnType<typeof buildLazyMemberListOpera
     return new Set(memberList.ops.flatMap((op) => op.members.map((member) => member?.user.id).filter((userId): userId is string => Boolean(userId))));
 }
 
+function getOffloadedLazyMemberIds(event: Event) {
+    if (event.event === "PRESENCE_UPDATE") {
+        const userId = (event.data as Presence | undefined)?.user?.id;
+        return userId ? [String(userId)] : [];
+    }
+
+    if (event.event !== "GUILD_MEMBER_LIST_UPDATE") return [];
+
+    const update = event.data as
+        | {
+              ops?: {
+                  items?: {
+                      member?: {
+                          user?: {
+                              id?: string | number | bigint | null;
+                          } | null;
+                      } | null;
+                  }[];
+              }[];
+          }
+        | undefined;
+
+    return (
+        update?.ops?.flatMap((op) =>
+            (op.items ?? [])
+                .map((item) => item.member?.user?.id)
+                .filter((userId): userId is string | number | bigint => userId !== undefined && userId !== null)
+                .map((userId) => String(userId)),
+        ) ?? []
+    );
+}
+
 async function unsubscribeStaleGuildMemberEvents(socket: WebSocket, guildId: string, subscribedUserIds: Set<string>) {
     const trackedUserIds = socket.guild_member_event_ids[guildId];
     if (!trackedUserIds?.size) return;
@@ -112,13 +144,22 @@ export async function onLazyRequest(this: WebSocket, { d }: Payload) {
     const startTime = Date.now();
     // TODO: check data
     check.call(this, LazyRequestSchema, d);
-    const lazyRequestUrl = Config.get().offload.gateway.lazyRequestUrl;
-    if (lazyRequestUrl !== null) {
-        return await handleOffloadedGatewayRequest(this, lazyRequestUrl, d);
-    }
-
     // noinspection JSUnusedLocalSymbols - TODO: implement typing/activities subscriptions
     const { guild_id, typing, channels, activities, members } = d as LazyRequestSchema;
+    const lazyRequestUrl = Config.get().offload.gateway.lazyRequestUrl;
+    if (lazyRequestUrl !== null) {
+        const subscribedUserIds = new Set<string>();
+
+        const result = await handleOffloadedGatewayRequest(this, lazyRequestUrl, d, async (event) => {
+            for (const userId of getOffloadedLazyMemberIds(event)) {
+                subscribedUserIds.add(userId);
+                await subscribeGuildMemberEvent.call(this, guild_id, userId);
+            }
+        });
+        await unsubscribeStaleGuildMemberEvents(this, guild_id, subscribedUserIds);
+        return result;
+    }
+
     const channel_id = Object.keys(channels || {})[0];
     const shouldAuthorizeChannel = Boolean(channel_id);
     const requiresAuthorizedChannel = Boolean(members?.length || shouldAuthorizeChannel);

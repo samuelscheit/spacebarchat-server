@@ -47,6 +47,7 @@ public class Op14Controller(ILogger<Op14Controller> logger, SpacebarAspNetAuthen
 
             var channel = await db.Channels.AsNoTracking()
                 .Include(c => c.Guild)
+                .Include(c => c.Parent)
                 .FirstOrDefaultAsync(c => c.Id == channelId && c.GuildId == payload.GuildId);
             if (channel is null) {
                 logger.LogWarning("User {user} requested lazy member list for guild {guildId} channel {channelId}, but the channel was not found or cannot be represented", user.Result.Id, payload.GuildId, channelId);
@@ -54,12 +55,13 @@ public class Op14Controller(ILogger<Op14Controller> logger, SpacebarAspNetAuthen
             }
 
             var guildOwnerId = channel.Guild?.OwnerId;
-            if (!LazyMemberListChannelAccess.CanViewChannel(requestingMember, channel, guildOwnerId)) {
+            var permissionChannel = LazyMemberListChannelAccess.GetPermissionChannel(channel);
+            if (!LazyMemberListChannelAccess.CanViewChannel(requestingMember, permissionChannel, guildOwnerId)) {
                 logger.LogWarning("User {user} requested lazy member list for guild {guildId} channel {channelId}, but lacks VIEW_CHANNEL", user.Result.Id, payload.GuildId, channelId);
                 continue;
             }
 
-            var visibleMembers = LazyMemberListChannelAccess.FilterVisibleMembers(members, channel, guildOwnerId);
+            var visibleMembers = LazyMemberListChannelAccess.FilterVisibleMembers(members, permissionChannel, guildOwnerId);
             if (!sentRequestedPresences && payload.Members is { Count: > 0 }) {
                 foreach (var presenceMessage in LazyMemberListProjection.BuildRequestedPresenceMessages(user.Result.Id, payload.GuildId, visibleMembers, payload.Members)) {
                     yield return presenceMessage;
@@ -68,7 +70,7 @@ public class Op14Controller(ILogger<Op14Controller> logger, SpacebarAspNetAuthen
                 sentRequestedPresences = true;
             }
 
-            var listId = LazyMemberListChannelAccess.GetMemberListId(channel);
+            var listId = LazyMemberListChannelAccess.GetMemberListId(permissionChannel);
             var update = LazyMemberListProjection.BuildUpdate(payload.GuildId, listId, visibleMembers, ranges ?? []);
             yield return LazyMemberListProjection.ToMessage(user.Result.Id, update);
         }
