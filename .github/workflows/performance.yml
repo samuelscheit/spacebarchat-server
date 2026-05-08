@@ -60,6 +60,11 @@ jobs:
         run: |
           npm ci
           npm run test:manifest
+          npm run test:contracts
+          npm run test:harness
+          npm run test:scenarios
+          npm run test:protocol
+          npm run test:migrations
 
       - name: Benchmark base
         working-directory: base
