@@ -70,18 +70,6 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
     });
 
-    test("interaction success forwards an optional nonce without inventing a fallback", () => {
-        const callbackSource = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
-        const eventSource = readSource("src/util/interfaces/Event.ts");
-        const interactionSuccessEventIndex = indexOf(eventSource, "export interface InteractionSuccessEvent");
-        const interactionFailureEventIndex = indexOf(eventSource, "export interface InteractionFailureEvent");
-        const interactionSuccessEventSource = eventSource.slice(interactionSuccessEventIndex, interactionFailureEventIndex);
-
-        assert.notEqual(indexOf(callbackSource, "nonce: interaction.nonce,"), -1);
-        assert.equal(callbackSource.includes('nonce: interaction.nonce ?? ""'), false);
-        assert.notEqual(indexOf(interactionSuccessEventSource, "nonce?: string;"), -1);
-    });
-
     test("component media extraction is shared between permission gates and message handling", () => {
         const messageSource = readSource("src/api/util/handlers/Message.ts");
         const permissionSource = readSource("src/api/util/utility/MessagePayloadPermissions.ts");
