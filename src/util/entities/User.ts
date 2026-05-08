@@ -57,6 +57,9 @@ import { JsonNumber } from "../util/Decorators";
     name: "users",
 })
 export class User extends BaseClass {
+    static readonly nsfwAllowedAge = 18;
+    private static readonly dateOfBirthPattern = /^(\d{4})-(\d{2})-(\d{2})$/;
+
     @Column()
     username: string; // username max length 32, min 2 (should be configurable)
 
@@ -105,7 +108,7 @@ export class User extends BaseClass {
     system: boolean = false; // shouldn't be used, the api sends this field type true, if the generated message comes from a system generated author
 
     @Column({ select: false })
-    nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands) // TODO: depending on age
+    nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands)
 
     @Column({ select: false })
     mfa_enabled: boolean = false; // if multi factor authentication is enabled
@@ -301,10 +304,55 @@ export class User extends BaseClass {
         return uniqueUsernames ? this.username : `${this.username}#${this.discriminator}`;
     }
 
+    private static parseDateOfBirth(dateOfBirth: Date | string) {
+        if (dateOfBirth instanceof Date) {
+            if (Number.isNaN(dateOfBirth.getTime())) return undefined;
+
+            return {
+                day: dateOfBirth.getUTCDate(),
+                month: dateOfBirth.getUTCMonth(),
+                year: dateOfBirth.getUTCFullYear(),
+            };
+        }
+
+        const match = User.dateOfBirthPattern.exec(dateOfBirth);
+        if (!match) return undefined;
+
+        const year = Number(match[1]);
+        const month = Number(match[2]) - 1;
+        const day = Number(match[3]);
+        const normalized = new Date(Date.UTC(year, month, day));
+        if (normalized.getUTCFullYear() !== year || normalized.getUTCMonth() !== month || normalized.getUTCDate() !== day) {
+            return undefined;
+        }
+
+        return { day, month, year };
+    }
+
+    static isValidDateOfBirth(dateOfBirth: Date | string) {
+        return User.parseDateOfBirth(dateOfBirth) !== undefined;
+    }
+
+    static hasReachedAge(dateOfBirth: Date | string, age: number, now = new Date()) {
+        if (!Number.isFinite(age) || age < 0 || Number.isNaN(now.getTime())) return false;
+
+        const birthday = User.parseDateOfBirth(dateOfBirth);
+        if (!birthday) return false;
+
+        const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        const requiredBirthday = Date.UTC(birthday.year + age, birthday.month, birthday.day);
+        return requiredBirthday <= today;
+    }
+
+    static isAdult(dateOfBirth: Date | string, now = new Date()) {
+        return User.hasReachedAge(dateOfBirth, User.nsfwAllowedAge, now);
+    }
+
     static async register({
         email,
         username,
         password,
+        date_of_birth,
         id,
         req,
         bot,
@@ -314,7 +362,7 @@ export class User extends BaseClass {
         username: string;
         password?: string;
         email?: string;
-        date_of_birth?: Date; // "2000-04-03"
+        date_of_birth?: Date | string | null; // "2000-04-03"
         id?: string;
         req?: Request;
         bot?: boolean;
@@ -339,10 +387,8 @@ export class User extends BaseClass {
             });
         }
 
-        // TODO: save date_of_birth
-        // apparently discord doesn't save the date of birth and just calculate if nsfw is allowed
-        // if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
         const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
+        const nsfwAllowed = date_of_birth == null ? true : User.isAdult(date_of_birth);
 
         const settings = settingsRepository.create({
             locale: language,
@@ -366,6 +412,7 @@ export class User extends BaseClass {
             verified: Config.get().defaults.user.verified ?? true,
             created_at: new Date(),
             bot: !!bot,
+            nsfw_allowed: nsfwAllowed,
         });
 
         user.validate();

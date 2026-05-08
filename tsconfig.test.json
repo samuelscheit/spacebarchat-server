@@ -62,7 +62,9 @@
         "src/util/util/lambert-server/check.test.ts",
         "src/util/util/ReplacedCdnAsset.test.ts",
         "src/util/util/RoleIconPolicy.test.ts",
-        "src/util/util/TraverseDirectory.test.ts"
+        "src/util/util/TraverseDirectory.test.ts",
+        "src/util/entities/User.test.ts",
+        "src/api/util/handlers/Registration.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {
