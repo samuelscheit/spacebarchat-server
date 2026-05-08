@@ -73,7 +73,6 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
     return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
 }
 
-// TODO: close connection on Invalidated Token
 // TODO: check intent
 // TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
 
@@ -116,6 +115,27 @@ async function subscribeEvent(this: WebSocket, eventId: string, callback: (event
 
     this.events[eventId] = unsubscribe;
     if (guildId) trackGuildEventId(this.guild_event_ids, guildId, eventId);
+}
+
+export async function handleListenerControlEvent(this: Pick<WebSocket, "close" | "sequence">, opts: EventOpts) {
+    switch (opts.event) {
+        case "INVALIDATED":
+            this.close(CLOSECODES.Authentication_failed, "Invalidated Token");
+            return true;
+        case "SB_SESSION_CLOSE":
+            await sendReconnectAndClose(this as WebSocket, opts.reconnect_delay ?? opts.data ?? 1000);
+            return true;
+        case "SB_SESSION_REMOVE":
+            // TODO: what do we even send here?
+            await Send(this as WebSocket, {
+                op: OPCODES.Invalid_Session,
+                s: this.sequence++,
+            });
+            this.close(CLOSECODES.Invalid_session); // TODO: this is deprecated?
+            return true;
+        default:
+            return false;
+    }
 }
 
 export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string, userId: string) {
@@ -323,6 +343,9 @@ export async function setupListener(this: WebSocket) {
 // TODO: only subscribe for events that are in the connection intents
 async function consume(this: WebSocket, opts: EventOpts) {
     const { data, event } = opts;
+    opts.acknowledge?.();
+    if (await handleListenerControlEvent.call(this, opts)) return;
+
     const id = data.id as string;
     const guildId = data.guild_id as string | undefined;
     const permissionLookupId = getEventPermissionLookupId(event, data);
@@ -331,7 +354,6 @@ async function consume(this: WebSocket, opts: EventOpts) {
 
     const consumer = consume.bind(this);
     const listenOpts = opts as ListenEventOpts;
-    opts.acknowledge?.();
     const eventRouteId = getEventRouteId(opts);
     if (eventRouteId && !this.events[eventRouteId]) return;
     // console.log("event", event);
@@ -341,24 +363,6 @@ async function consume(this: WebSocket, opts: EventOpts) {
         if (this.recentTransactions.includes(opts.transaction_id)) return;
         this.recentTransactions.push(opts.transaction_id);
         if (this.recentTransactions.length > 100) this.recentTransactions = this.recentTransactions.slice(1);
-    }
-
-    // special codes
-    switch (event) {
-        case "SB_SESSION_CLOSE":
-            await sendReconnectAndClose(this, opts.reconnect_delay ?? opts.data ?? 1000);
-            return;
-        case "SB_SESSION_REMOVE":
-            // TODO: what do we even send here?
-            await Send(this, {
-                op: OPCODES.Invalid_Session,
-                s: this.sequence++,
-            });
-            this.close(CLOSECODES.Invalid_session); // TODO: this is deprecated?
-            return;
-        default:
-            // no special treatment
-            break;
     }
 
     // subscription managment
