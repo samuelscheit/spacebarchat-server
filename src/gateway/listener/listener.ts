@@ -32,7 +32,7 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
+import { Capabilities, CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
@@ -71,6 +71,10 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
     if (!presenceUserId) return false;
 
     return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
+}
+
+export function canDispatchDebouncedMessageReactions(capabilities?: Capabilities) {
+    return Boolean(capabilities?.has(Capabilities.FLAGS.DEBOUNCE_MESSAGE_REACTIONS));
 }
 
 // TODO: close connection on Invalidated Token
@@ -456,6 +460,10 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "GUILD_BAN_ADD":
         case "GUILD_BAN_REMOVE":
             if (!permission.has("BAN_MEMBERS")) return;
+            break;
+        case "MESSAGE_REACTION_ADD_MANY":
+            if (!canDispatchDebouncedMessageReactions(this.capabilities)) return;
+            if (!permission.has("VIEW_CHANNEL")) return;
             break;
         case "VOICE_STATE_UPDATE":
         case "MESSAGE_CREATE":

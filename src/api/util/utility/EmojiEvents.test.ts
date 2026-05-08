@@ -51,6 +51,12 @@ describe("emoji event helpers", () => {
         assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[3].includes("GUILD_EMOJI_UPDATE"));
     });
 
+    test("exposes reaction add-many through websocket constants and reaction intents", () => {
+        assert.equal(WSEvents.MESSAGE_REACTION_ADD_MANY, "MESSAGE_REACTION_ADD_MANY");
+        assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[10].includes("MESSAGE_REACTION_ADD_MANY"));
+        assert.ok(Intents.DM_INTENT_TO_EVENTS_MAP[13].includes("MESSAGE_REACTION_ADD_MANY"));
+    });
+
     test("requires a non-null guild id at compile time", () => {
         function assertGuildIdTypes() {
             // @ts-expect-error guild_id is required for guild-routed gateway events.

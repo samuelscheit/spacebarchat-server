@@ -101,6 +101,7 @@ export const Events = {
     MESSAGE_UPDATE: "messageUpdate",
     MESSAGE_BULK_DELETE: "messageDeleteBulk",
     MESSAGE_REACTION_ADD: "messageReactionAdd",
+    MESSAGE_REACTION_ADD_MANY: "messageReactionAddMany",
     MESSAGE_REACTION_REMOVE: "messageReactionRemove",
     MESSAGE_REACTION_REMOVE_ALL: "messageReactionRemoveAll",
     MESSAGE_REACTION_REMOVE_EMOJI: "messageReactionRemoveEmoji",
@@ -177,6 +178,7 @@ export const PartialTypes = keyMirror(["USER", "CHANNEL", "GUILD_MEMBER", "MESSA
  * * MESSAGE_UPDATE
  * * MESSAGE_DELETE_BULK
  * * MESSAGE_REACTION_ADD
+ * * MESSAGE_REACTION_ADD_MANY
  * * MESSAGE_REACTION_REMOVE
  * * MESSAGE_REACTION_REMOVE_ALL
  * * MESSAGE_REACTION_REMOVE_EMOJI
@@ -217,6 +219,7 @@ export const WSEvents = keyMirror([
     "MESSAGE_UPDATE",
     "MESSAGE_DELETE_BULK",
     "MESSAGE_REACTION_ADD",
+    "MESSAGE_REACTION_ADD_MANY",
     "MESSAGE_REACTION_REMOVE",
     "MESSAGE_REACTION_REMOVE_ALL",
     "MESSAGE_REACTION_REMOVE_EMOJI",
