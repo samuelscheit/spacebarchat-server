@@ -8074,6 +8074,9 @@
                     }
                 ]
             },
+            "activity": {
+                "$ref": "#/definitions/MessageActivity"
+            },
             "components": {
                 "anyOf": [
                     {
@@ -8251,6 +8254,9 @@
             },
             "nonce": {
                 "type": "string"
+            },
+            "activity": {
+                "$ref": "#/definitions/MessageActivity"
             },
             "interaction": {
                 "$ref": "#/definitions/MessageInteractionSchema"

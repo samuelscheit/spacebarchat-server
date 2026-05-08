@@ -147,6 +147,15 @@ describe("WebhookExecuteSchema", () => {
     });
 });
 
+describe("MessageCreateSchema", () => {
+    test("accepts message activity payloads", () => {
+        assert.deepEqual(validateSchema("MessageCreateSchema", { content: "join", activity: { type: 1, party_id: "party-id", session_id: "session-id" } }), {
+            content: "join",
+            activity: { type: 1, party_id: "party-id", session_id: "session-id" },
+        });
+    });
+});
+
 describe("RegisterSchema", () => {
     test("accepts gift_code_sku_id as a registration compatibility field", () => {
         const body = {

@@ -18,6 +18,7 @@
 
 import { Snowflake } from "../Identifiers";
 import { InteractionType, AllowedMentions, MessageReference, ApplicationCommandType, BaseMessageComponents, Embed, PollMedia, PublicUser } from "@spacebar/schemas";
+import { MessageActivity } from "./MessageActivity";
 
 export interface MessageCreateAttachment {
     id: string;
@@ -57,6 +58,7 @@ export interface MessageCreateSchema {
     files?: MessageCreateFile[];
     attachments?: MessageCreateAttachmentMetadata[];
     sticker_ids?: string[] | null; // null check: fixes Discord-Go
+    activity?: MessageActivity;
     components?: BaseMessageComponents[] | null; // null check: fixes Discord-Go
     poll?: PollCreationSchema;
     enforce_nonce?: boolean; // For Discord compatibility, it's the default behavior here

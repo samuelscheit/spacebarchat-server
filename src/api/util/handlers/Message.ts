@@ -436,6 +436,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         attachments: [],
         embeds: opts.embeds || [],
         reactions: opts.reactions || [],
+        activity: opts.activity,
         type: opts.type ?? 0,
         mentions: [],
         components: opts.components ?? undefined, // Fix Discord-Go?
@@ -571,13 +572,13 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         }
     }
 
-    // TODO: activity
     if (
         !allow_empty &&
         !opts.content &&
         !opts.embeds?.length &&
         !opts.attachments?.length &&
         !opts.sticker_ids?.length &&
+        !opts.activity &&
         !opts.poll &&
         !opts.components?.length &&
         opts.message_reference?.type != 1 &&

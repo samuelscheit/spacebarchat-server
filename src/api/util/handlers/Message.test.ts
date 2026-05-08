@@ -301,6 +301,23 @@ describe("handleMessage", () => {
         assert.equal((context.createMessageMock.mock.calls[0].arguments[0] as Record<string, unknown>).reactions, reactions);
     });
 
+    test("preserves supplied message activity and allows activity-only messages", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            permissionHas: () => false,
+        });
+        const activity = { type: 1, party_id: "party_id", session_id: "session_id" };
+
+        const message = await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            activity,
+        });
+
+        assert.equal(message.activity, activity);
+        assert.equal((context.createMessageMock.mock.calls[0].arguments[0] as Record<string, unknown>).activity, activity);
+    });
+
     test("allowed_mentions controls mention-count notification targets", async (t) => {
         const context = await setupHandleMessageTest(t);
 
