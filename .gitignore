@@ -42,3 +42,4 @@ packages/automatic-reverse-engineering/data/runs/**/static/assets/
 packages/automatic-reverse-engineering/data/runs/**/static/login.html
 packages/automatic-reverse-engineering/data/runs/**/trace.zip
 packages/automatic-reverse-engineering/data/runs/**/video.webm
+.codex*
