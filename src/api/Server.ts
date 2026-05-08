@@ -52,14 +52,6 @@ const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
 export type SpacebarServerOptions = ServerOptions & {
     registerMetricsEndpoint?: boolean;
 };
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace Express {
-        interface Request {
-            server: SpacebarServer;
-        }
-    }
-}
 
 export class SpacebarServer extends Server {
     declare public options: SpacebarServerOptions;

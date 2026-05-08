@@ -16,29 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { checkToken, Rights, Session, User, type Permissions, UserTokenData } from "@spacebar/util";
+import { checkToken, Rights } from "@spacebar/util";
 import { NextFunction, Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { isNoAuthorizationRoute } from "./NoAuthorizationRoutes";
 
 export { API_PREFIX, API_PREFIX_TRAILING_SLASH, NO_AUTHORIZATION_ROUTES, isNoAuthorizationRoute } from "./NoAuthorizationRoutes";
-
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace Express {
-        interface Request {
-            user_id: string;
-            user_bot: boolean;
-            tokenData: UserTokenData;
-            token: UserTokenData["decoded"];
-            user: User;
-            session?: Session;
-            permission?: Permissions;
-            rights: Rights;
-            fingerprint?: string;
-        }
-    }
-}
 
 function toAuthenticationError(error: unknown) {
     if (error instanceof HTTPError) {
