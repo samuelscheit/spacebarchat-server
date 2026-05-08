@@ -116,7 +116,7 @@ export class Session extends BaseClassWithoutId {
         };
     }
 
-    toPrivateGatewayDeviceInfo(showCurrentGame = true): GatewaySession {
+    toPrivateGatewayDeviceInfo(showCurrentGame?: boolean | null): GatewaySession {
         const { activities, hidden_activities } = getPrivateGatewayActivities(this.status, this.activities, showCurrentGame);
         const inactiveTreshold = new DateBuilder(new Date(0)).addMinutes(5).buildTimestamp();
 

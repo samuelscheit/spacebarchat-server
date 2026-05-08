@@ -42,7 +42,7 @@ export interface CloseSessionRecord {
     client_status: PresenceUpdateEvent["data"]["client_status"];
     status: PresenceUpdateEvent["data"]["status"];
     getPublicStatus(): PresenceUpdateEvent["data"]["status"];
-    toPrivateGatewayDeviceInfo(): SessionsReplace["data"][number];
+    toPrivateGatewayDeviceInfo(showCurrentGame?: boolean | null): SessionsReplace["data"][number];
 }
 
 export interface CloseSessionCleanupDependencies {

@@ -1,20 +1,19 @@
-import { Activity, ActivityType, Status } from "../interfaces";
+import { ActivityType, type Activity } from "../interfaces/Activity";
+import type { Status } from "../interfaces/Status";
 
 export function isSpotifyActivity(activity: Activity) {
     return (
         activity.type === ActivityType.LISTENING &&
-        (activity.name.toLowerCase() === "spotify" ||
-            activity.id?.startsWith("spotify:") === true ||
-            activity.metadata?.context_uri?.startsWith("spotify:") === true)
+        (activity.name.toLowerCase() === "spotify" || activity.id?.startsWith("spotify:") === true || activity.metadata?.context_uri?.startsWith("spotify:") === true)
     );
 }
 
-export function getPrivateGatewayActivities(status: Status, activities: Activity[] = [], showCurrentGame = true) {
+export function getPrivateGatewayActivities(status: Status, activities: Activity[] = [], showCurrentGame?: boolean | null) {
     if (status === "offline" || status === "invisible") {
         return { activities: [], hidden_activities: activities };
     }
 
-    if (showCurrentGame) {
+    if (showCurrentGame ?? true) {
         return { activities, hidden_activities: [] };
     }
 

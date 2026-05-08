@@ -32,6 +32,13 @@ describe("private gateway session activity privacy", () => {
         });
     });
 
+    test("treats nullable show_current_game as visible by default", () => {
+        assert.deepEqual(getPrivateGatewayActivities("online", [game], null), {
+            activities: [game],
+            hidden_activities: [],
+        });
+    });
+
     test("hides every activity for offline and invisible sessions", () => {
         assert.deepEqual(getPrivateGatewayActivities("offline", [game, spotify]), {
             activities: [],
