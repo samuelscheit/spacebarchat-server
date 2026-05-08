@@ -15888,9 +15888,20 @@
                 "default": ""
             },
             "type": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true
+                "anyOf": [
+                    {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "hook": {
                 "type": "boolean",

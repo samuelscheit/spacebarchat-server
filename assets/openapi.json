@@ -15221,9 +15221,20 @@
                         "default": ""
                     },
                     "type": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "hook": {
                         "type": "boolean",
@@ -32309,6 +32320,16 @@
                 "responses": {
                     "200": {
                         "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     },
                     "403": {
                         "description": "No description available"

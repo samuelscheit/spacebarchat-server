@@ -17,7 +17,7 @@
 */
 
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, RelationId } from "typeorm";
-import type { ApplicationInstallParams } from "@spacebar/schemas";
+import type { ApplicationInstallParams, ApplicationType } from "@spacebar/schemas";
 import { BaseClass } from "./BaseClass";
 import { Team } from "./Team";
 import { User } from "./User";
@@ -39,8 +39,8 @@ export class Application extends BaseClass {
     @Column({ nullable: true })
     summary: string = "";
 
-    @Column({ type: "jsonb", nullable: true })
-    type?: object; // TODO: this type is bad
+    @Column({ type: "int", nullable: true })
+    type?: ApplicationType | null;
 
     @Column()
     hook: boolean = true;
