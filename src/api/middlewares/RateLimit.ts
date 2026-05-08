@@ -43,6 +43,11 @@ type RateLimit = {
 
 const Cache = new Map<string, RateLimit>();
 const EventRateLimit = "RATELIMIT";
+const RATE_LIMIT_MESSAGE = "You are being rate limited.";
+
+function getRateLimitMessage(req: Request) {
+    return req.t?.("common:ratelimit.MESSAGE") ?? RATE_LIMIT_MESSAGE;
+}
 
 export default function rateLimit(opts: {
     bucket?: string;
@@ -112,18 +117,15 @@ export default function rateLimit(opts: {
 
                 if (global) res.set("X-RateLimit-Global", "true");
 
-                return (
-                    res
-                        .status(429)
-                        .set("X-RateLimit-Remaining", "0")
-                        .set("Retry-After", `${Math.max(0, Math.ceil(resetAfterSec))}`)
-                        // TODO: error rate limit message translation
-                        .send({
-                            message: "You are being rate limited.",
-                            retry_after: resetAfterSec,
-                            global,
-                        })
-                );
+                return res
+                    .status(429)
+                    .set("X-RateLimit-Remaining", "0")
+                    .set("Retry-After", `${Math.max(0, Math.ceil(resetAfterSec))}`)
+                    .send({
+                        message: getRateLimitMessage(req),
+                        retry_after: resetAfterSec,
+                        global,
+                    });
             }
         }
 

@@ -123,8 +123,8 @@ export class SpacebarServer extends Server {
         this.app = api;
 
         api.use(Authentication);
-        await initRateLimits(api);
         await initTranslation(api);
+        await initRateLimits(api);
 
         this.routes = (await registerRoutes(this, path.join(__dirname, "routes", "/"))).filter((r) => !!r);
 

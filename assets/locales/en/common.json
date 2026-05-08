@@ -36,6 +36,9 @@
 		"FILE": "Too many files",
 		"MESSAGE": "Too many messages"
 	},
+	"ratelimit": {
+		"MESSAGE": "You are being rate limited."
+	},
 	"relationship": {
 		"ALREADY_BLOCKED": "You already blocked the user",
 		"NOT_FRIENDS": "You are not friends with the user",
