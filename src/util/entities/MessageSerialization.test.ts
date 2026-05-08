@@ -116,6 +116,61 @@ describe("message member serialization", () => {
         assert.equal(json.referenced_message?.author.username, "bob");
     });
 
+    test("Message.toPartialMessage returns only the documented partial message fields", () => {
+        const member = createMemberWithRoles([]);
+        const message = createMessageWithMember(member);
+        message.application_id = "application-a";
+        message.author = {
+            id: "user-a",
+            username: "alice",
+            discriminator: "0001",
+            avatar: "avatar-a",
+            email: "alice@example.com",
+            verified: true,
+            toPublicUser() {
+                return {
+                    id: "user-a",
+                    username: "alice",
+                    discriminator: "0001",
+                    avatar: "avatar-a",
+                    public_flags: 64,
+                    bot: false,
+                    email: "alice@example.com",
+                    verified: true,
+                };
+            },
+        } as unknown as User;
+        (message as unknown as { recipient_id: string }).recipient_id = "recipient-a";
+
+        const partial = message.toPartialMessage() as unknown as Record<string, unknown>;
+
+        assert.deepEqual(partial, {
+            id: "message-a",
+            channel_id: "channel-a",
+            type: 0,
+            content: "hello",
+            author: {
+                id: "user-a",
+                username: "alice",
+                discriminator: "0001",
+                avatar: "avatar-a",
+                bot: false,
+                public_flags: 64,
+            },
+            flags: 0,
+            application_id: "application-a",
+        });
+        assert.equal(Object.hasOwn(partial, "recipient_id"), false);
+        assert.equal(Object.hasOwn(partial.author as Record<string, unknown>, "email"), false);
+        assert.equal(Object.hasOwn(partial.author as Record<string, unknown>, "verified"), false);
+    });
+
+    test("Message.toPartialMessage requires the route to hydrate the author relation", () => {
+        const message = createMessageWithMember(createMemberWithRoles([]));
+
+        assert.throws(() => message.toPartialMessage(), /Cannot serialize partial message message-a without a hydrated author/);
+    });
+
     test("withSignedAttachments serializes member role entities on message instances", () => {
         const member = createMemberWithRoles([{ id: "role-a" }, { id: "role-b" }]);
         const message = createMessageWithMember(member);

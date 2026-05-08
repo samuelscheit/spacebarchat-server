@@ -103,7 +103,6 @@ export type PartialMessage = Pick<Message, "id">
 	& Pick<Message, "flags">
 	& Pick<Message, "application_id">
 	& { channel?: Channel }
-// & Pick<Message, "recipient_id"> // TODO: ephemeral DM channels
 	;
  */
 
@@ -116,7 +115,6 @@ export interface PartialMessage {
     flags?: number;
     application_id?: string;
     // channel?: Channel; // TODO: ephemeral DM channels
-    // recipient_id?: string; // TODO: ephemeral DM channels
 }
 
 export interface Reaction {
