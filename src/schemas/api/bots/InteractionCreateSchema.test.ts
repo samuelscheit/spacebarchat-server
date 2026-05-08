@@ -117,16 +117,8 @@ describe("InteractionCreateSchema", () => {
 
     test("uses public channel refs for every generated interaction channel schema", () => {
         for (const schemaName of interactionCreateVariantSchemaNames) {
-            assert.equal(
-                interactionCreateVariantSchema(schemaName).properties?.channel?.$ref,
-                "#/definitions/PublicChannel",
-                `assets/schemas.json ${schemaName}.channel`,
-            );
-            assert.equal(
-                openapi.components?.schemas?.[schemaName]?.properties?.channel?.$ref,
-                "#/components/schemas/PublicChannel",
-                `assets/openapi.json ${schemaName}.channel`,
-            );
+            assert.equal(interactionCreateVariantSchema(schemaName).properties?.channel?.$ref, "#/definitions/PublicChannel", `assets/schemas.json ${schemaName}.channel`);
+            assert.equal(openapi.components?.schemas?.[schemaName]?.properties?.channel?.$ref, "#/components/schemas/PublicChannel", `assets/openapi.json ${schemaName}.channel`);
         }
     });
 
