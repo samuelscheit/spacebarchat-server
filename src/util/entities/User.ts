@@ -58,6 +58,7 @@ import { JsonNumber } from "../util/Decorators";
 })
 export class User extends BaseClass {
     static readonly nsfwAllowedAge = 18;
+    private static readonly dateOfBirthPattern = /^(\d{4})-(\d{2})-(\d{2})$/;
 
     @Column()
     username: string; // username max length 32, min 2 (should be configurable)
@@ -303,13 +304,48 @@ export class User extends BaseClass {
         return uniqueUsernames ? this.username : `${this.username}#${this.discriminator}`;
     }
 
-    static isAdult(dateOfBirth: Date | string, now = new Date()) {
-        const birthday = dateOfBirth instanceof Date ? dateOfBirth : new Date(dateOfBirth);
-        if (Number.isNaN(birthday.getTime())) return false;
+    private static parseDateOfBirth(dateOfBirth: Date | string) {
+        if (dateOfBirth instanceof Date) {
+            if (Number.isNaN(dateOfBirth.getTime())) return undefined;
 
-        const adultBirthday = new Date(birthday);
-        adultBirthday.setFullYear(adultBirthday.getFullYear() + User.nsfwAllowedAge);
-        return adultBirthday <= now;
+            return {
+                day: dateOfBirth.getUTCDate(),
+                month: dateOfBirth.getUTCMonth(),
+                year: dateOfBirth.getUTCFullYear(),
+            };
+        }
+
+        const match = User.dateOfBirthPattern.exec(dateOfBirth);
+        if (!match) return undefined;
+
+        const year = Number(match[1]);
+        const month = Number(match[2]) - 1;
+        const day = Number(match[3]);
+        const normalized = new Date(Date.UTC(year, month, day));
+        if (normalized.getUTCFullYear() !== year || normalized.getUTCMonth() !== month || normalized.getUTCDate() !== day) {
+            return undefined;
+        }
+
+        return { day, month, year };
+    }
+
+    static isValidDateOfBirth(dateOfBirth: Date | string) {
+        return User.parseDateOfBirth(dateOfBirth) !== undefined;
+    }
+
+    static hasReachedAge(dateOfBirth: Date | string, age: number, now = new Date()) {
+        if (!Number.isFinite(age) || age < 0 || Number.isNaN(now.getTime())) return false;
+
+        const birthday = User.parseDateOfBirth(dateOfBirth);
+        if (!birthday) return false;
+
+        const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        const requiredBirthday = Date.UTC(birthday.year + age, birthday.month, birthday.day);
+        return requiredBirthday <= today;
+    }
+
+    static isAdult(dateOfBirth: Date | string, now = new Date()) {
+        return User.hasReachedAge(dateOfBirth, User.nsfwAllowedAge, now);
     }
 
     static async register({
@@ -326,7 +362,7 @@ export class User extends BaseClass {
         username: string;
         password?: string;
         email?: string;
-        date_of_birth?: Date | string; // "2000-04-03"
+        date_of_birth?: Date | string | null; // "2000-04-03"
         id?: string;
         req?: Request;
         bot?: boolean;
@@ -352,7 +388,7 @@ export class User extends BaseClass {
         }
 
         const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
-        const nsfwAllowed = date_of_birth ? User.isAdult(date_of_birth) : true;
+        const nsfwAllowed = date_of_birth == null ? true : User.isAdult(date_of_birth);
 
         const settings = settingsRepository.create({
             locale: language,
