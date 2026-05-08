@@ -4,8 +4,21 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import type { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";
-import { closeDatabase, Config, ConnectedAccount, ConnectionConfig, ConnectionStore, generateToken, initDatabase, Member, RefreshableConnection, Role, User } from "@spacebar/util";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import {
+    closeDatabase,
+    Config,
+    ConnectedAccount,
+    ConnectionConfig,
+    ConnectionStore,
+    DiscordApiErrors,
+    generateToken,
+    initDatabase,
+    Member,
+    RefreshableConnection,
+    Role,
+    User,
+} from "@spacebar/util";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
@@ -104,6 +117,44 @@ test(
             const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `oauth-${suffix.slice(-8)}` }, ownerToken);
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
+
+            const missingClientId = "999999999999999999";
+            await assertApiError(await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${missingClientId}`, ownerToken), 404, DiscordApiErrors.UNKNOWN_APPLICATION);
+            await assertApiError(
+                await postJson(
+                    `${api.apiBaseUrl}/oauth2/authorize?client_id=${missingClientId}`,
+                    {
+                        authorize: true,
+                        guild_id: guildId,
+                        permissions: "8",
+                    },
+                    ownerToken,
+                ),
+                404,
+                DiscordApiErrors.UNKNOWN_APPLICATION,
+            );
+
+            const createdBotlessApplication = await postJson(`${api.apiBaseUrl}/applications`, { name: "OAuth Botless Scenario App" }, ownerToken);
+            await assertStatus(createdBotlessApplication, 200);
+            const botlessApplicationId = (await assertJsonObject(createdBotlessApplication)).id as string;
+            await assertApiError(
+                await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${botlessApplicationId}`, ownerToken),
+                400,
+                DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT,
+            );
+            await assertApiError(
+                await postJson(
+                    `${api.apiBaseUrl}/oauth2/authorize?client_id=${botlessApplicationId}`,
+                    {
+                        authorize: true,
+                        guild_id: guildId,
+                        permissions: "8",
+                    },
+                    ownerToken,
+                ),
+                400,
+                DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT,
+            );
 
             const createdApplication = await postJson(`${api.apiBaseUrl}/applications`, { name: "OAuth Scenario App" }, ownerToken);
             await assertStatus(createdApplication, 200);
@@ -371,6 +422,12 @@ function installScenarioConnection(connection: ScenarioYoutubeConnection) {
             delete config[connection.id];
         }
     };
+}
+
+async function assertApiError(response: Response, expectedStatus: number, expectedError: { code: number; message: string }) {
+    const body = await assertJsonError(response, expectedStatus);
+    assert.equal(body.code, expectedError.code);
+    assert.equal(body.message, expectedError.message);
 }
 
 async function getJson(url: string, token: string) {
