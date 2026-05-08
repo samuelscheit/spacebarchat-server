@@ -66,8 +66,10 @@ function stageInstanceToResponse(stageInstance: ReadyStageInstance): StageInstan
     return stageInstance;
 }
 
+export type ReadyApplicationCommandCounts = Partial<Record<1 | 2 | 3, number>>;
+
 export interface IReadyGuildDTO {
-    application_command_counts?: { 1: number; 2: number; 3: number }; // ????????????
+    application_command_counts?: ReadyApplicationCommandCounts;
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
@@ -124,7 +126,7 @@ export interface IReadyGuildDTO {
 }
 
 export class ReadyGuildDTO implements IReadyGuildDTO {
-    application_command_counts?: { 1: number; 2: number; 3: number }; // ????????????
+    application_command_counts?: ReadyApplicationCommandCounts;
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
@@ -187,11 +189,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             return;
         }
 
-        this.application_command_counts = {
-            1: 5,
-            2: 2,
-            3: 2,
-        }; // ????? // emma: this appears to always be an empty attrset...
+        this.application_command_counts = {};
         this.channels = guild.channels;
         this.data_mode = "full";
         this.emojis = guild.emojis;

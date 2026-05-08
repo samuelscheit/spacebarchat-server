@@ -48,6 +48,7 @@
         "src/schemas/uncategorised/MessageSchemaValidation.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/webrtc/util/VideoStream.test.ts",
+        "src/util/dtos/ReadyGuildDTO.test.ts",
         "src/util/dtos/ReadyPrivateChannelDTO.test.ts",
         "src/util/entities/Guild.test.ts",
         "src/util/config/types/GatewayConfiguration.test.ts",
