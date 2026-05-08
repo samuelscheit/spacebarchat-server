@@ -18263,6 +18263,9 @@
             },
             "flags": {
                 "type": "integer"
+            },
+            "permissions": {
+                "type": "string"
             }
         },
         "additionalProperties": false,
@@ -18374,11 +18377,44 @@
             "permissions": {
                 "type": "string"
             },
+            "last_message_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "last_pin_timestamp": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "nsfw": {
+                "type": "boolean"
+            },
             "parent_id": {
                 "type": [
                     "null",
                     "string"
                 ]
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "rate_limit_per_user": {
+                "type": "integer"
+            },
+            "topic": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "position": {
+                "type": "integer"
             },
             "thread_metadata": {
                 "$ref": "#/definitions/ThreadMetadata"

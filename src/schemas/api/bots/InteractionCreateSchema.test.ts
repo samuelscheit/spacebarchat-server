@@ -84,6 +84,31 @@ describe("InteractionCreateSchema", () => {
         assert.equal(validate(applicationCommandInteractionPayload()), true, JSON.stringify(validate.errors));
     });
 
+    test("accepts partial resolved members with permissions", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = applicationCommandInteractionPayload();
+        payload.data.resolved = {
+            users: {
+                "100000000000000008": {
+                    id: "100000000000000008",
+                    username: "tester",
+                    discriminator: "0001",
+                    avatar: null,
+                },
+            },
+            members: {
+                "100000000000000008": {
+                    roles: ["100000000000000014"],
+                    joined_at: "2026-01-01T00:00:00.000Z",
+                    pending: false,
+                    permissions: "1024",
+                },
+            },
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
+    });
+
     test("accepts Discord-compatible message component interactions", () => {
         const validate = compileInteractionCreateSchema();
         const payload = {
@@ -99,6 +124,16 @@ describe("InteractionCreateSchema", () => {
                             id: "100000000000000011",
                             name: "general",
                             type: 0,
+                            permissions: "1024",
+                            last_message_id: "100000000000000012",
+                            last_pin_timestamp: null,
+                            nsfw: false,
+                            parent_id: "100000000000000013",
+                            guild_id: "100000000000000003",
+                            flags: 0,
+                            rate_limit_per_user: 2,
+                            topic: "resolved channel",
+                            position: 1,
                         },
                     },
                 },

@@ -17,7 +17,7 @@
 */
 
 import type { Snowflake } from "../../Identifiers";
-import type { ChannelType, ThreadMetadata } from "../channels/Channel";
+import type { ChannelType, PublicChannel, ThreadMetadata } from "../channels/Channel";
 import type { PublicRole } from "../guilds/Role";
 import type { PublicMember } from "../users/Member";
 import type { PartialUser } from "../users/User";
@@ -42,14 +42,23 @@ export interface ResolvedGuildMember {
     display_name_styles?: PublicMember["display_name_styles"];
     collectibles?: PublicMember["collectibles"];
     flags?: PublicMember["flags"];
+    permissions?: string;
 }
 
 export interface ResolvedChannel {
     id: Snowflake;
     type: ChannelType;
-    name?: string | null;
-    permissions?: string;
-    parent_id?: Snowflake | null;
+    name?: PublicChannel["name"];
+    permissions?: PublicChannel["permissions"];
+    last_message_id?: PublicChannel["last_message_id"];
+    last_pin_timestamp?: PublicChannel["last_pin_timestamp"];
+    nsfw?: PublicChannel["nsfw"];
+    parent_id?: PublicChannel["parent_id"];
+    guild_id?: PublicChannel["guild_id"];
+    flags?: PublicChannel["flags"];
+    rate_limit_per_user?: PublicChannel["rate_limit_per_user"];
+    topic?: PublicChannel["topic"];
+    position?: PublicChannel["position"];
     thread_metadata?: ThreadMetadata;
 }
 
