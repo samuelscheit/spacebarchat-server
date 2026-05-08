@@ -138,6 +138,17 @@ export function findStaleConfigKeys(existingKeys: string[], generatedKeys: strin
     return existingKeys.filter((existingKey) => generatedKeys.some((generatedKey) => existingKey.startsWith(`${generatedKey}_`)));
 }
 
+function hasConfigPairAncestor(key: string, keys: Set<string>) {
+    let parent = "";
+
+    for (const segment of key.split("_").slice(0, -1)) {
+        parent = parent ? `${parent}_${segment}` : segment;
+        if (keys.has(parent)) return true;
+    }
+
+    return false;
+}
+
 async function applyConfig(val: ConfigValue) {
     const configPath = process.env.CONFIG_PATH;
     if (configPath)
@@ -161,8 +172,11 @@ export function pairsToConfig(pairs: ConfigEntity[]) {
     // TODO: typings
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const value: any = {};
+    const pairKeys = new Set(pairs.map((pair) => pair.key));
 
     pairs.forEach((p) => {
+        if (hasConfigPairAncestor(p.key, pairKeys)) return;
+
         const keys = p.key.split("_");
         let obj = value;
         let prev = "";

@@ -56,6 +56,12 @@ test("database config pair loading supports JSON array rows and legacy indexed r
     assert.deepEqual(legacyIndexedConfig.register.email.domains, ["blocked.example", "mail.example"]);
 });
 
+test("database config pair loading prefers JSON parent rows over stale indexed children", () => {
+    const config = pairsToConfig([configPair("register_email_domains", ["blocked.example"]), configPair("register_email_domains_0", "stale.example")]);
+
+    assert.deepEqual(config.register.email.domains, ["blocked.example"]);
+});
+
 test("database config persistence removes stale flattened children when a parent is saved as JSON", () => {
     assert.deepEqual(
         findStaleConfigKeys(
