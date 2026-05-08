@@ -48,6 +48,8 @@ export type RouteRequestBody =
       };
 export interface RouteOptions {
     permission?: PermissionResolvable;
+    /** Allows an instance right to satisfy a route's guild/channel permission requirement before body validation. */
+    permissionOrRight?: RightResolvable;
     right?: RightResolvable;
     requestBody?: RouteRequestBody; // typescript interface name
     responses?: {
@@ -144,21 +146,30 @@ export function route(opts: RouteOptions) {
 
     return async (req: Request, res: Response, next: NextFunction) => {
         if (opts.permission) {
-            const { guild_id, channel_id } = req.params as { [key: string]: string };
-            req.permission = await getPermission(req.user_id, guild_id, channel_id);
+            let hasAlternativeRight = false;
+            if (opts.permissionOrRight) {
+                const requiredRight = new Rights(opts.permissionOrRight);
+                req.rights = req.rights ?? (await getRights(req.user_id));
+                hasAlternativeRight = req.rights.has(requiredRight);
+            }
 
-            const requiredPerms = Array.isArray(opts.permission) ? opts.permission : [opts.permission];
-            requiredPerms.forEach((perm) => {
-                // bitfield comparison: check if user lacks certain permission
-                if (!req.permission!.has(new Permissions(perm))) {
-                    throw DiscordApiErrors.MISSING_PERMISSIONS.withParams(perm as string);
-                }
-            });
+            if (!hasAlternativeRight) {
+                const { guild_id, channel_id } = req.params as { [key: string]: string };
+                req.permission = await getPermission(req.user_id, guild_id, channel_id);
+
+                const requiredPerms = Array.isArray(opts.permission) ? opts.permission : [opts.permission];
+                requiredPerms.forEach((perm) => {
+                    // bitfield comparison: check if user lacks certain permission
+                    if (!req.permission!.has(new Permissions(perm))) {
+                        throw DiscordApiErrors.MISSING_PERMISSIONS.withParams(perm as string);
+                    }
+                });
+            }
         }
 
         if (opts.right) {
             const required = new Rights(opts.right);
-            req.rights = await getRights(req.user_id);
+            req.rights = req.rights ?? (await getRights(req.user_id));
 
             if (!req.rights || !req.rights.has(required)) {
                 throw SpacebarApiErrors.MISSING_RIGHTS.withParams(opts.right as string);

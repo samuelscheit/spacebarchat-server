@@ -17,7 +17,7 @@
 */
 
 import { DISCOVERABLE_FEATURE, assertCanPublishGuildDiscovery, getGuildDiscoveryMetadataUpdate, route, toGuildDiscoveryMetadata } from "@spacebar/api";
-import { getRights, Guild } from "@spacebar/util";
+import { Guild } from "@spacebar/util";
 import { GuildDiscoveryMetadataUpdateSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 
@@ -51,6 +51,7 @@ router.patch(
     "/",
     route({
         permission: "MANAGE_GUILD",
+        permissionOrRight: "MANAGE_GUILDS",
         requestBody: "GuildDiscoveryMetadataUpdateSchema",
         responses: {
             200: {
@@ -73,7 +74,7 @@ router.patch(
         });
 
         if (body.is_published === true && !guild.features.includes(DISCOVERABLE_FEATURE)) {
-            assertCanPublishGuildDiscovery(guild, await getRights(req.user_id));
+            assertCanPublishGuildDiscovery(guild, req.rights);
         }
 
         const update = getGuildDiscoveryMetadataUpdate(guild, body);

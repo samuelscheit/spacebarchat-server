@@ -191,6 +191,23 @@ describe("bigNumberToString", () => {
 });
 
 describe("route body coercion", () => {
+    test("allows an instance right to satisfy a route permission before handler execution", async () => {
+        const middleware = route({ permission: "MANAGE_GUILD", permissionOrRight: "MANAGE_GUILDS" });
+        const req = {
+            body: {},
+            rights: {
+                has() {
+                    return true;
+                },
+            },
+        } as unknown as Request;
+        let nextCalled = false;
+
+        await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+        assert.equal(nextCalled, true);
+    });
+
     test("rejects numeric install param permissions without mutating them", async () => {
         const middleware = await getApplicationModifyRoute();
         const req = {

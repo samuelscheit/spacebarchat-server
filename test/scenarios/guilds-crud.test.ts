@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Role, User } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Rights, Role, User } from "@spacebar/util";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -136,6 +136,21 @@ test(
             const persistedUpdatedGuild = await Guild.findOneByOrFail({ id: guildId });
             assert.equal(persistedUpdatedGuild.name, updatedName);
             assert.equal(persistedUpdatedGuild.description, updatedDescription);
+
+            const instanceManager = await User.register({
+                username: `guildmanager${suffix.slice(-8)}`,
+                email: `guild-manager-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            await User.update({ id: instanceManager.id }, { rights: Rights.FLAGS.MANAGE_GUILDS.toString() });
+            const instanceManagerToken = await generateToken(instanceManager.id);
+            assert.ok(instanceManagerToken, "instance manager token generation should return a bearer token");
+
+            const managerUpdateGuild = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}`, { features: ["DISCOVERABLE"] }, instanceManagerToken);
+            await assertStatus(managerUpdateGuild, 200);
+            const managerUpdateBody = await assertJsonObject(managerUpdateGuild);
+            assert.deepEqual(managerUpdateBody.features, ["DISCOVERABLE"]);
+            assert.deepEqual((await Guild.findOneByOrFail({ id: guildId })).features, ["DISCOVERABLE"]);
 
             const deleteGuild = await postJson(`${api.apiBaseUrl}/guilds/${guildId}/delete`, {}, token);
             await assertStatus(deleteGuild, 204);
