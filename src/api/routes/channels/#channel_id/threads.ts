@@ -32,6 +32,7 @@ import {
     emitEvent,
     User,
     uploadFile,
+    applyChannelMessageReadStateUpdate,
     Attachment,
     Member,
     ReadState,
@@ -62,7 +63,6 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -214,9 +214,7 @@ router.post(
                 where: { user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL },
             });
             if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL });
-            read_state.last_message_id = message.id;
-            //It's a little more complicated than this but this'll do
-            read_state.mention_count = 0;
+            applyChannelMessageReadStateUpdate(read_state, message.id);
 
             await Promise.all([
                 read_state.save(),

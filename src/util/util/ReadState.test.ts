@@ -40,17 +40,36 @@ describe("read state helpers", () => {
             {
                 last_message_id: "old-message-id",
                 last_acked_id: "old-acked-id",
+                notifications_cursor: "100",
                 mention_count: 4,
                 badge_count: 7,
                 read_state_type: ReadStateType.CHANNEL,
             },
-            { channel_id: "channel-id", message_id: "new-message-id" },
+            { channel_id: "channel-id", message_id: "101" },
         );
-        assert.equal(channelState.last_message_id, "new-message-id");
+        assert.equal(channelState.last_message_id, "101");
         assert.equal(channelState.last_acked_id, "old-acked-id");
+        assert.equal(channelState.notifications_cursor, "101");
         assert.equal(channelState.mention_count, 0);
         assert.equal(channelState.badge_count, 7);
         assert.equal(channelState.read_state_type, ReadStateType.CHANNEL);
+    });
+
+    test("does not rewind notification cursor for older channel bulk acknowledgements", () => {
+        const channelState = applyAckBulkReadStateUpdate(
+            {
+                last_message_id: "101",
+                last_acked_id: null,
+                notifications_cursor: "101",
+                mention_count: 0,
+                badge_count: 0,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+            { channel_id: "channel-id", message_id: "100" },
+        );
+
+        assert.equal(channelState.last_message_id, "100");
+        assert.equal(channelState.notifications_cursor, "101");
     });
 
     test("writes non-channel bulk acknowledgements to non-channel read-state fields", () => {
