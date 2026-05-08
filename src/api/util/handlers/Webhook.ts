@@ -10,10 +10,12 @@ import {
     handleFile,
     Message,
     MessageCreateEvent,
+    Rights,
     Snowflake,
     toAPIWebhook,
     ValidateWebhookName,
     Webhook,
+    getRights,
 } from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
@@ -22,6 +24,14 @@ import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schema
 import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
 import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
+
+async function webhookCanBypassSendMessageRateLimit(webhook: Webhook) {
+    const userId = webhook.user_id ?? webhook.application?.bot?.id;
+    if (!userId) return false;
+
+    const rights = await getRights(userId);
+    return rights.has(Rights.FLAGS.BYPASS_RATE_LIMITS);
+}
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
@@ -60,7 +70,7 @@ export const executeWebhook = async (req: Request, res: Response) => {
 
     const { webhook_id, token } = req.params as { [key: string]: string };
 
-    const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: true });
+    const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: { bot: true } });
 
     if (body.username) {
         body.username = ValidateWebhookName(body.username);
@@ -90,9 +100,8 @@ export const executeWebhook = async (req: Request, res: Response) => {
         }
     }
 
-    // TODO: creating messages by users checks if the user can bypass rate limits, we cant do that on webhooks, but maybe we could check the application if there is one?
     const limits = Config.get().limits;
-    if (limits.absoluteRate.sendMessage.enabled) {
+    if (limits.absoluteRate.sendMessage.enabled && !(await webhookCanBypassSendMessageRateLimit(webhook))) {
         const count = await Message.count({
             where: {
                 channel_id: webhook.channel_id,
