@@ -50,6 +50,20 @@ describe("message media permission route integration", () => {
         );
     });
 
+    test("thread creation dynamically scopes public and private thread permissions before side effects", () => {
+        const source = readSource("src/api/routes/channels/#channel_id/threads.ts");
+
+        assert.equal(source.includes('permission: "CREATE_PUBLIC_THREADS"'), false);
+        assert.notEqual(indexOf(source, 'permission: "VIEW_CHANNEL"'), -1);
+        assert.notEqual(indexOf(source, "const threadType = resolveThreadCreationType(body, channel);"), -1);
+        assert.notEqual(indexOf(source, "req.permission!.hasThrow(getThreadCreationPermission(threadType));"), -1);
+        assertBefore(source, "const threadType = resolveThreadCreationType(body, channel);", "req.permission!.hasThrow(getThreadCreationPermission(threadType));");
+        assertBefore(source, "req.permission!.hasThrow(getThreadCreationPermission(threadType));", "Channel.createThreadChannel(");
+        assertBefore(source, "req.permission!.hasThrow(getThreadCreationPermission(threadType));", "uploadFile(`/attachments/");
+        assert.notEqual(indexOf(source, "if (shouldSendThreadCreatedMessage(threadType, channel))"), -1);
+        assert.equal(source.includes("if (body.type !== ChannelType.GUILD_PRIVATE_THREAD"), false);
+    });
+
     test("webhooks check media permissions before success responses and upload side effects", () => {
         const source = readSource("src/api/util/handlers/Webhook.ts");
 

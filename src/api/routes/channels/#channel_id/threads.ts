@@ -26,6 +26,9 @@ import {
     sendMessage,
     serializeActiveGuildThreads,
     serializeThreadSearchMember,
+    getThreadCreationPermission,
+    resolveThreadCreationType,
+    shouldSendThreadCreatedMessage,
 } from "@spacebar/api";
 import {
     Channel,
@@ -61,7 +64,7 @@ import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../../
 
 const router = Router({ mergeParams: true });
 
-// TODO: public read receipts & privacy scoping
+// TODO: public read receipts and shared read-state/ack policy
 // TODO: send read state event to all channel members
 // TODO: advance-only notification cursor
 
@@ -77,7 +80,7 @@ router.post(
     },
     route({
         requestBody: "ThreadCreationSchema",
-        permission: "CREATE_PUBLIC_THREADS",
+        permission: "VIEW_CHANNEL",
         responses: {
             200: {},
             400: {
@@ -95,6 +98,9 @@ router.post(
             where: { id: channel_id },
             relations: ["available_tags"],
         });
+
+        const threadType = resolveThreadCreationType(body, channel);
+        req.permission!.hasThrow(getThreadCreationPermission(threadType));
         assertRequiredAppliedTagsPresent(body.applied_tags, Boolean(channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)));
         if (body.applied_tags?.length && channel.available_tags) {
             const realTags = new Map(channel.available_tags.map((tag) => [tag.id, tag]));
@@ -121,7 +127,7 @@ router.post(
                 parent_id: channel.id,
                 guild_id: channel.guild_id,
                 rate_limit_per_user: body.rate_limit_per_user,
-                type: body.type || (channel.threadOnly() ? ChannelType.GUILD_PUBLIC_THREAD : ChannelType.GUILD_PRIVATE_THREAD),
+                type: threadType,
                 applied_tags: body.applied_tags || [],
                 recipients: [],
             },
@@ -146,7 +152,7 @@ router.post(
                 },
             }),
         ]);
-        if (body.type !== ChannelType.GUILD_PRIVATE_THREAD && !channel.isForum())
+        if (shouldSendThreadCreatedMessage(threadType, channel))
             await sendMessage({
                 channel_id: channel.id,
                 type: MessageType.THREAD_CREATED,

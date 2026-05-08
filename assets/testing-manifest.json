@@ -4739,11 +4739,11 @@
             "method": "POST",
             "path": "/channels/:channel_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 68,
+            "line": 71,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "permission": "CREATE_PUBLIC_THREADS",
+                "permission": "VIEW_CHANNEL",
                 "requestBody": "ThreadCreationSchema",
                 "responseBodies": [
                     "APIErrorResponse"
@@ -4794,7 +4794,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 237,
+            "line": 243,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4846,7 +4846,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 296,
+            "line": 302,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4956,7 +4956,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 363,
+            "line": 369,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
