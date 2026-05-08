@@ -1938,7 +1938,7 @@
             "path": "/beaker/",
             "sourceFile": "src/api/routes/beaker.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],

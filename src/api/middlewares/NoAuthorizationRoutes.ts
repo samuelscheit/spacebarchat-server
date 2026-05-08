@@ -81,7 +81,11 @@ export function isNoAuthorizationRoute(method: string, rawUrl: string): boolean 
         const exactFullRoute = method + " " + exactUrl;
 
         if (method === "HEAD") {
-            const urlPart = x.split(" ").slice(1).join(" ");
+            const [routeMethod, ...routeParts] = x.split(" ");
+            const routeHasMethod = routeParts.length > 0;
+            if (routeHasMethod && routeMethod !== "HEAD" && routeMethod !== "GET") return false;
+
+            const urlPart = routeHasMethod ? routeParts.join(" ") : x;
             if (urlPart.endsWith("/")) {
                 return url.startsWith(urlPart);
             }
