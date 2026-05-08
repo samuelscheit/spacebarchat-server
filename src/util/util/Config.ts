@@ -17,7 +17,6 @@
 */
 
 import fs from "node:fs/promises";
-import { OrmUtils } from "..";
 import {
     DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS,
     DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT,
@@ -111,66 +110,124 @@ export class Config {
     }
     public static set(val: Partial<ConfigValue>) {
         if (!config || !val) return;
-        config = OrmUtils.mergeDeep(config, val);
+        config = mergeConfig(config, val);
 
         return applyConfig(config);
     }
 }
 
-type ConfigEntityValue = ConfigEntity["value"];
+type PersistedConfigValue = Exclude<ConfigEntity["value"], undefined>;
+type ConfigRecord = Record<string, unknown>;
+type ConfigBranch = ConfigRecord | unknown[];
 
-const isConfigEntityValue = (value: unknown): value is ConfigEntityValue => value == null || ["boolean", "number", "string"].includes(typeof value);
+const isPersistedConfigValue = (value: unknown): value is PersistedConfigValue => value === null || ["boolean", "number", "string"].includes(typeof value);
+
+const isConfigObject = (value: unknown): value is ConfigRecord =>
+    typeof value === "object" && value !== null && !Array.isArray(value) && Object.prototype.toString.call(value) === "[object Object]";
+
+const cloneConfigValue = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map((item) => cloneConfigValue(item));
+    if (isConfigObject(value)) return Object.fromEntries(Object.entries(value).map(([childKey, childValue]) => [childKey, cloneConfigValue(childValue)]));
+    return value;
+};
+
+const mergeConfigRecord = (target: ConfigRecord, source: ConfigRecord) => {
+    for (const [key, value] of Object.entries(source)) {
+        const currentValue = target[key];
+
+        if (isConfigObject(value) && isConfigObject(currentValue)) {
+            mergeConfigRecord(currentValue, value);
+            continue;
+        }
+
+        target[key] = cloneConfigValue(value);
+    }
+};
+
+const mergeConfig = (target: ConfigValue, source: Partial<ConfigValue>) => {
+    mergeConfigRecord(target as unknown as ConfigRecord, source as ConfigRecord);
+    return target;
+};
 
 const generatePairs = (obj: unknown, key = ""): ConfigEntity[] => {
-    if (typeof obj == "object" && obj != null) {
+    if (obj === undefined) return [];
+
+    if (isPersistedConfigValue(obj)) {
+        const ret = new ConfigEntity();
+        ret.key = key;
+        ret.value = obj;
+        return [ret];
+    }
+
+    if (Array.isArray(obj) || isConfigObject(obj)) {
         return Object.entries(obj).flatMap(([childKey, value]) => generatePairs(value, key ? `${key}_${childKey}` : childKey));
     }
 
-    if (!isConfigEntityValue(obj)) throw new TypeError(`Config value '${key}' cannot be persisted as a database config entry`);
-
-    const ret = new ConfigEntity();
-    ret.key = key;
-    ret.value = obj;
-    return [ret];
+    throw new TypeError(`Config value '${key}' cannot be persisted as a database config entry`);
 };
 
 async function applyConfig(val: ConfigValue) {
     const configPath = process.env.CONFIG_PATH;
-    if (configPath)
+    const nextPairs = generatePairs(val);
+
+    if (configPath) {
         if (!process.env.CONFIG_READONLY) await fs.writeFile(configPath, JSON.stringify(val, null, 4));
         else console.log("[WARNING] JSON config file in use, and writing is disabled! Programmatic config changes will not be persisted, and your config will not get updated!");
-    else {
-        const pairs = generatePairs(val);
+        pairs = nextPairs;
+    } else {
+        const nextKeys = new Set(nextPairs.map((pair) => pair.key));
+        const staleKeys = pairs?.map((pair) => pair.key).filter((key) => !nextKeys.has(key)) ?? [];
         // keys are sorted to try to influence database order...
-        await Promise.all(pairs.sort((x, y) => (x.key > y.key ? 1 : -1)).map((pair) => pair.save()));
+        await Promise.all(nextPairs.sort((x, y) => (x.key > y.key ? 1 : -1)).map((pair) => pair.save()));
+        if (staleKeys.length) await ConfigEntity.delete(staleKeys);
+        pairs = nextPairs;
     }
     return val;
 }
 
 function pairsToConfig(pairs: ConfigEntity[]) {
-    // TODO: typings
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value: any = {};
+    const value: ConfigRecord = {};
+
+    const isArrayKey = (key: string) => /^\d+$/.test(key);
+
+    const getChild = (branch: ConfigBranch, key: string) => {
+        if (Array.isArray(branch)) return branch[Number(key)];
+        return branch[key];
+    };
+
+    const setChild = (branch: ConfigBranch, key: string, childValue: unknown) => {
+        if (Array.isArray(branch)) branch[Number(key)] = childValue;
+        else branch[key] = childValue;
+    };
+
+    const isBranch = (branch: unknown): branch is ConfigBranch => Array.isArray(branch) || isConfigObject(branch);
 
     pairs.forEach((p) => {
         const keys = p.key.split("_");
-        let obj = value;
-        let prev = "";
-        let prevObj = obj;
-        let i = 0;
+        let branch: ConfigBranch = value;
 
-        for (const key of keys) {
-            if (!isNaN(Number(key)) && !prevObj[prev]?.length) prevObj[prev] = obj = [];
-            if (i++ === keys.length - 1) obj[key] = p.value;
-            else if (!obj[key]) obj[key] = {};
+        if (p.value === undefined) return;
+        if (!isPersistedConfigValue(p.value)) throw new TypeError(`Config value '${p.key}' cannot be loaded from a database config entry`);
 
-            prev = key;
-            prevObj = obj;
-            obj = obj[key];
+        for (const [index, key] of keys.entries()) {
+            if (index === keys.length - 1) {
+                setChild(branch, key, p.value);
+                continue;
+            }
+
+            const nextKey = keys[index + 1];
+            const child = getChild(branch, key);
+            if (isBranch(child)) {
+                branch = child;
+            } else {
+                const nextBranch: ConfigBranch = isArrayKey(nextKey) ? [] : {};
+                setChild(branch, key, nextBranch);
+                branch = nextBranch;
+            }
         }
     });
 
-    return value as ConfigValue;
+    return value as unknown as ConfigValue;
 }
 
 const validateConfig = async () => {
