@@ -30,7 +30,6 @@ import {
     UserSettings,
     IReadyGuildDTO,
     ReadyUserGuildSettingsEntries,
-    ReadyPrivateChannel,
     GuildOrUnavailable,
     Snowflake,
     ThreadMember,
@@ -50,6 +49,7 @@ import {
     RelationshipType,
     StageInstanceResponse,
     UserPrivate,
+    ChannelType,
 } from "@spacebar/schemas";
 
 export interface Event {
@@ -99,6 +99,15 @@ export interface ReadyNonChannelReadState {
 }
 
 export type ReadyReadState = ReadyChannelReadState | ReadyNonChannelReadState;
+
+export interface ReadyPrivateChannel {
+    id: string;
+    flags: number;
+    is_spam: boolean;
+    last_message_id?: string;
+    recipients: PublicUser[];
+    type: ChannelType.DM | ChannelType.GROUP_DM;
+}
 
 export interface ReadyEventData {
     v: number;

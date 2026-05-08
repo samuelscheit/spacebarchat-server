@@ -17,22 +17,12 @@
 */
 
 import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
-import type { ChannelOverride, ChannelType, PublicMember, PublicUser, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
+import type { ChannelOverride, PublicMember, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
 
 // TODO: this is not the best place for this type
 export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
     channel_overrides: (ChannelOverride & { channel_id: string })[];
 };
-
-// TODO: probably should move somewhere else
-export interface ReadyPrivateChannel {
-    id: string;
-    flags: number;
-    is_spam: boolean;
-    last_message_id?: string;
-    recipients: PublicUser[];
-    type: ChannelType.DM | ChannelType.GROUP_DM;
-}
 
 type ReadyStageInstance = StageInstance | StageInstanceResponse;
 
