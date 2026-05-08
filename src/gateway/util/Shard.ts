@@ -21,10 +21,31 @@ export type GatewayShard = {
     count: bigint;
 };
 
-export function createGatewayShard(shard: readonly bigint[] | undefined): GatewayShard | undefined {
-    if (!shard) return undefined;
+function toShardBigInt(value: unknown): bigint | undefined {
+    if (typeof value === "bigint") return value;
 
-    const [id, count] = shard;
+    if (typeof value === "number") {
+        if (!Number.isSafeInteger(value)) return undefined;
+        return BigInt(value);
+    }
+
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+        if (!/^-?\d+$/.test(trimmed)) return undefined;
+
+        return BigInt(trimmed);
+    }
+
+    return undefined;
+}
+
+export function createGatewayShard(shard: readonly unknown[] | undefined): GatewayShard | undefined {
+    if (!shard) return undefined;
+    if (!Array.isArray(shard) || shard.length !== 2) return undefined;
+
+    const [idValue, countValue] = shard;
+    const id = toShardBigInt(idValue);
+    const count = toShardBigInt(countValue);
     if (id == null || count == null || id < 0n || count <= 0n || id >= count) return undefined;
 
     return { id, count };
