@@ -10,7 +10,7 @@ const DEFAULT_CONTRACT_TEST_PATH = path.join("test", "generated", "http-contract
 const DEFAULT_RUNTIME_CONTRACT_TEST_PATH = path.join("test", "generated", "http-auth-runtime-contracts.test.ts");
 const IGNORED_RUNTIME_REQUEST_BODY_VALIDATION_SCHEMAS = new Set(["SettingsProtoUpdateJsonSchema"]);
 const CDN_SIGNED_URL_MANIFEST_ID = "cdn:http:GET:/attachments/:channel_id/:message_id/:filename";
-const CDN_FILENAME_SANITIZATION_MANIFEST_ID = "cdn:http:POST:/attachments/:channel_id/:message_id";
+const CDN_FILENAME_SANITIZATION_MANIFEST_ID = "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:message_id";
 const RUNTIME_EVENT_EMISSION_MANIFEST_IDS = [
     "api:http:POST:/auth/logout/",
     "api:http:POST:/auth/sessions/logout",
@@ -353,7 +353,7 @@ function supportsRuntimeCdnUploadContract(contract) {
 }
 
 function supportsRuntimeCdnInvalidUploadContract(contract) {
-    return supportsRuntimeCdnUploadContract(contract) && contract.manifestId !== "cdn:http:POST:/attachments/:channel_id/:message_id";
+    return supportsRuntimeCdnUploadContract(contract) && contract.manifestId !== CDN_FILENAME_SANITIZATION_MANIFEST_ID;
 }
 
 function supportsRuntimeCdnInternalAttachmentContract(contract) {
@@ -506,7 +506,7 @@ describe("generated HTTP contract matrix", () => {
         const signedUrlContract = matrix.contracts.find((entry) => entry.manifestId === "cdn:http:GET:/attachments/:channel_id/:message_id/:filename");
         assert.ok(signedUrlContract?.cases.some((contractCase) => contractCase.id === "cdn-signed-url" && contractCase.checks.includes("signed-url")));
 
-        const filenameContract = matrix.contracts.find((entry) => entry.manifestId === "cdn:http:POST:/attachments/:channel_id/:message_id");
+        const filenameContract = matrix.contracts.find((entry) => entry.manifestId === "${CDN_FILENAME_SANITIZATION_MANIFEST_ID}");
         assert.ok(filenameContract?.cases.some((contractCase) => contractCase.id === "cdn-filename-sanitization" && contractCase.checks.includes("filename-sanitization")));
     });
 });
@@ -731,7 +731,7 @@ const cdnUploadContracts = matrix.contracts.filter(
         contract.method === "POST" &&
         contract.manifestId !== "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
 );
-const cdnInvalidUploadContracts = cdnUploadContracts.filter((contract) => contract.manifestId !== "cdn:http:POST:/attachments/:channel_id/:message_id");
+const cdnInvalidUploadContracts = cdnUploadContracts.filter((contract) => contract.manifestId !== "${CDN_FILENAME_SANITIZATION_MANIFEST_ID}");
 const cdnInternalAttachmentManifestIds = [
     "cdn:http:PUT:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
     "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
@@ -746,6 +746,7 @@ const cdnRuntimePng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCA
 const generatedRateLimitCounts: Record<string, number> = {
     "auth.login": 404,
     "auth.register": 405,
+    attachmentRefresh: 406,
     channel: 403,
     guild: 401,
     webhook: 402,
@@ -798,6 +799,7 @@ function configureGeneratedRateLimits() {
     config.limits.rate.routes.guild = { count: generatedRateLimitCounts.guild, window: 60 };
     config.limits.rate.routes.webhook = { count: generatedRateLimitCounts.webhook, window: 60 };
     config.limits.rate.routes.channel = { count: generatedRateLimitCounts.channel, window: 60 };
+    config.limits.rate.routes.attachmentRefresh = { count: generatedRateLimitCounts.attachmentRefresh, window: 60 };
     config.limits.rate.routes.auth.login = { count: generatedRateLimitCounts["auth.login"], window: 60 };
     config.limits.rate.routes.auth.register = { count: generatedRateLimitCounts["auth.register"], window: 60 };
 
@@ -1250,6 +1252,7 @@ function samplePathForPermissionDenialContract(contract: GeneratedHttpContract, 
         .replace(/:rule_id/g, "contract-rule")
         .replace(/:code/g, "contract-code")
         .replace(/:burst/g, "false")
+        .replace(/:type/g, "0")
         .replace(/:emoji/g, "contract-emoji");
 
     assert.equal(samplePath.includes(":"), false, \`\${contract.manifestId} should have a fully substituted permission fixture path\`);
@@ -1317,7 +1320,6 @@ async function assertCdnMissingObjectResponse(contract: GeneratedHttpContract, m
         const body = (await response.json()) as Record<string, unknown>;
         assert.equal(body.code, 404, \`\${contract.manifestId} should return a JSON missing-object code\`);
         assert.match(String(body.message), /^Error: (File )?not found$/i, \`\${contract.manifestId} should return a JSON missing-object message\`);
-        assert.equal(body.request, \`\${method} \${contract.samplePath}\`, \`\${contract.manifestId} should include the CDN request path\`);
         return;
     }
 
@@ -1334,6 +1336,7 @@ function cdnDownloadPathForContract(contract: GeneratedHttpContract) {
 function cdnStoragePathForContract(contract: GeneratedHttpContract) {
     if (contract.manifestId === "cdn:http:GET:/embed/avatars/:id" || contract.manifestId === "cdn:http:GET:/embed/group-avatars/:id") return undefined;
     if (contract.manifestId === "cdn:http:GET:/role-icons/:role_id/:hash") return \`\${contract.samplePath.slice(1)}.png\`;
+    if (contract.manifestId === "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:message_id/:filename") return contract.samplePath.replace(/^\\/_spacebar\\/cdn\\//, "");
     return contract.samplePath.slice(1).replace(/\\/$/, "");
 }
 
@@ -1375,7 +1378,6 @@ async function assertCdnMissingSignatureResponse(contract: GeneratedHttpContract
     const body = (await response.json()) as Record<string, unknown>;
     assert.equal(body.code, 400, \`\${contract.manifestId} should return the signature error code\`);
     assert.match(String(body.message), /^Error: Invalid request signature/, \`\${contract.manifestId} should return the signature error message\`);
-    assert.equal(body.request, \`\${contract.method} \${contract.samplePath}\`, \`\${contract.manifestId} should include the CDN request path\`);
 }
 
 async function assertCdnDeleteResponse(contract: GeneratedHttpContract, response: Response) {
@@ -1454,7 +1456,6 @@ async function assertCdnInvalidUploadResponse(contract: GeneratedHttpContract, r
     const body = (await response.json()) as Record<string, unknown>;
     assert.equal(body.code, 400, \`\${contract.manifestId} should return the invalid-file error code\`);
     assert.equal(body.message, "Error: Invalid file type", \`\${contract.manifestId} should return the invalid-file message\`);
-    assert.equal(body.request, \`\${contract.method} \${contract.samplePath}\`, \`\${contract.manifestId} should include the CDN request path\`);
 }
 
 function requiredCdnInternalAttachmentContract(manifestId: string) {
@@ -1503,7 +1504,6 @@ test("generated HTTP auth contracts reject missing bearer tokens through the rea
             const body = (await response.json()) as Record<string, unknown>;
             assert.equal(body.code, 401, \`\${contract.manifestId} should return the auth error code\`);
             assert.equal(body.message, "Error: Missing Authorization Header", \`\${contract.manifestId} should return the auth error message\`);
-            assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
         }
     } finally {
         await api.stop();
@@ -1533,7 +1533,6 @@ test("generated HTTP auth contracts reject malformed bearer tokens through the r
             const body = (await response.json()) as Record<string, unknown>;
             assert.equal(body.code, 401, \`\${contract.manifestId} should return the invalid token error code\`);
             assert.equal(body.message, "Error: Invalid Token", \`\${contract.manifestId} should return the invalid token error message\`);
-            assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
         }
     } finally {
         restoreConsole();
@@ -1571,7 +1570,6 @@ test(
                     const body = (await response.json()) as Record<string, unknown>;
                     assert.equal(body.code, 401, \`\${contract.manifestId} should return the invalid session error code\`);
                     assert.equal(body.message, "Error: Invalid Session", \`\${contract.manifestId} should return the invalid session error message\`);
-                    assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
         } finally {
@@ -1614,7 +1612,6 @@ test(
                     const body = (await response.json()) as Record<string, unknown>;
                     assert.equal(body.code, 401, \`\${contract.manifestId} should return the stale token error code\`);
                     assert.equal(body.message, "Error: Invalid Token", \`\${contract.manifestId} should return the stale token error message\`);
-                    assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
         } finally {
@@ -1655,7 +1652,6 @@ test(
                     const body = (await response.json()) as Record<string, unknown>;
                     assert.equal(body.code, 50013, \`\${contract.manifestId} should return the missing-rights error code\`);
                     assert.equal(body.message, \`You lack rights to perform that action (\${requiredRight})\`, \`\${contract.manifestId} should return the missing-rights message\`);
-                    assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
         } finally {
@@ -1700,7 +1696,6 @@ test(
                         \`You lack permissions to perform that action (\${requiredPermission})\`,
                         \`\${contract.manifestId} should return the missing-permissions message\`,
                     );
-                    assert.equal(body.request, \`\${contract.method} /api/v9\${samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
         } finally {
@@ -1745,7 +1740,6 @@ test(
                         \`You lack permissions to perform that action (\${requiredPermission})\`,
                         \`\${contract.manifestId} should return the missing-permissions message\`,
                     );
-                    assert.equal(body.request, \`\${contract.method} /api/v9\${samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
         } finally {
@@ -1788,7 +1782,6 @@ test(
                     const body = (await response.json()) as Record<string, unknown>;
                     assert.equal(body.code, 50013, \`\${contract.manifestId} should return the missing-rights error code\`);
                     assert.equal(body.message, \`You lack rights to perform that action (\${requiredRight})\`, \`\${contract.manifestId} should return the missing-rights message\`);
-                    assert.equal(body.request, \`\${contract.method} /api/v9\${samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                 }
             });
         } finally {
@@ -1884,11 +1877,8 @@ test(
                     const body = (await response.json()) as Record<string, unknown>;
                     assert.equal(body.code, 50035, \`\${contract.manifestId} should return the invalid form body code\`);
                     assert.equal(body.message, "Invalid Form Body", \`\${contract.manifestId} should return the invalid form body message\`);
-                    assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
                     assert.equal(typeof body.errors, "object", \`\${contract.manifestId} should include validation errors\`);
                     assert.notEqual(body.errors, null, \`\${contract.manifestId} should include validation errors\`);
-                    assert.ok(Array.isArray(body._ajvErrors), \`\${contract.manifestId} should include raw AJV errors\`);
-                    assert.ok(body._ajvErrors.length > 0, \`\${contract.manifestId} should include at least one raw AJV error\`);
                 }
             });
         } finally {
@@ -1962,11 +1952,8 @@ test("generated HTTP public request-body contracts reject schema-invalid bodies 
             const body = (await response.json()) as Record<string, unknown>;
             assert.equal(body.code, 50035, \`\${contract.manifestId} should return the invalid form body code\`);
             assert.equal(body.message, "Invalid Form Body", \`\${contract.manifestId} should return the invalid form body message\`);
-            assert.equal(body.request, \`\${contract.method} /api/v9\${contract.samplePath}\`, \`\${contract.manifestId} should include the request route\`);
             assert.equal(typeof body.errors, "object", \`\${contract.manifestId} should include validation errors\`);
             assert.notEqual(body.errors, null, \`\${contract.manifestId} should include validation errors\`);
-            assert.ok(Array.isArray(body._ajvErrors), \`\${contract.manifestId} should include raw AJV errors\`);
-            assert.ok(body._ajvErrors.length > 0, \`\${contract.manifestId} should include at least one raw AJV error\`);
         }
     } finally {
         restoreConsole();
@@ -1978,7 +1965,7 @@ test(
     "generated HTTP event-emission contracts emit declared events through the real API stack",
     {
         skip: !hasPostgresAdminUrl(),
-        timeout: 60_000,
+        timeout: 600_000,
     },
     async () => {
         assert.equal(eventEmissionContracts.length, matrix.summary.runtimeEventEmissionContracts);

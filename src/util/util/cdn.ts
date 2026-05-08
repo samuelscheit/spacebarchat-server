@@ -18,8 +18,12 @@
 
 import FormData from "form-data";
 import { HTTPError } from "lambert-server";
+import { ApiError } from "./ApiError";
 import { Attachment } from "../entities";
+import { assertCdnFileSizeLimit } from "./CdnFileLimits";
 import { Config } from "./Config";
+import { parseBase64DataUri } from "../../schemas/ImageData";
+import { getCdnMutationUrl } from "./InternalCdnRoutes";
 
 export async function uploadFile(
     path: string,
@@ -34,7 +38,7 @@ export async function uploadFile(
         filename: file.originalname,
     });
 
-    const response = await fetch(`${Config.get().cdn.endpointPrivate}${path}`, {
+    const response = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, path), {
         headers: {
             signature: Config.get().security.requestSignature,
             ...form.getHeaders(),
@@ -51,30 +55,41 @@ export async function uploadFile(
 export async function handleFile(path: string, body?: string): Promise<string | undefined> {
     if (!body || !body.startsWith("data:")) return undefined;
     try {
-        const mimetype = body.split(":")[1].split(";")[0];
-        const buffer = Buffer.from(body.split(",")[1], "base64");
+        const image = parseBase64DataUri(body);
+        if (!image || !image.mimetype.startsWith("image/")) throw new Error("Invalid image data URI");
+        assertCdnFileSizeLimit(path, image.buffer.length, Config.get().cdn);
 
         const { id } = await uploadFile(path, {
-            buffer,
-            mimetype,
+            buffer: image.buffer,
+            mimetype: image.mimetype,
             originalname: "banner",
         });
         return id;
     } catch (error) {
+        if (error instanceof ApiError) throw error;
         console.error(error);
         throw new HTTPError("Invalid " + path);
     }
 }
 
 export async function deleteFile(path: string) {
-    const response = await fetch(`${Config.get().cdn.endpointPrivate}${path}`, {
+    const response = await fetch(getCdnMutationUrl(Config.get().cdn.endpointPrivate!, path), {
         headers: {
             signature: Config.get().security.requestSignature,
         },
         method: "DELETE",
     });
-    const result = await response.json();
+    const body = await response.text();
+    let result: unknown;
 
-    if (response.status !== 200) throw result;
+    if (body) {
+        try {
+            result = JSON.parse(body);
+        } catch {
+            result = body;
+        }
+    }
+
+    if (!response.ok) throw result ?? new HTTPError(`CDN delete failed with status ${response.status}`, response.status);
     return result;
 }

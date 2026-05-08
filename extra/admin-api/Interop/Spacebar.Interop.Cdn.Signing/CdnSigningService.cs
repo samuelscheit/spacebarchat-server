@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using ArcaneLibs.Extensions;
+using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace Spacebar.Interop.Cdn.Signing;
@@ -29,20 +29,35 @@ public class CdnSigningService(ILogger<CdnSigningService> logger, byte[] signatu
         });
     }
 
+    public bool Verify(CdnSignatureResult data, DateTimeOffset? now = null) {
+        if (data.CreatedAt > (now ?? DateTimeOffset.UtcNow)) {
+            logger.LogDebug("Signature for {path} was issued in the future", data.Path);
+            return false;
+        }
+
+        if (data.ExpiresAt < (now ?? DateTimeOffset.UtcNow)) {
+            logger.LogDebug("Signature for {path} is expired", data.Path);
+            return false;
+        }
+
+        var expectedHash = Hash(data).Signature;
+        var expected = Encoding.UTF8.GetBytes(expectedHash);
+        var actual = Encoding.UTF8.GetBytes(data.Signature);
+
+        return expected.Length == actual.Length && CryptographicOperations.FixedTimeEquals(expected, actual);
+    }
+
     private CdnSignatureResult Hash(CdnSignatureResult data) {
         byte[] signatureData = [
-            .. data.Path.AsBytes(),
-            .. data.CreatedAt.ToUnixTimeMilliseconds().ToString("x").AsBytes(),
-            .. data.ExpiresAt.ToUnixTimeMilliseconds().ToString("x").AsBytes(),
-            .. (requireIpAddress ? data.IpAddress?.AsBytes() : []) ?? [],
-            .. (requireUserAgent ? data.UserAgent?.AsBytes() : []) ?? []
+            .. Encoding.UTF8.GetBytes(data.Path),
+            .. Encoding.UTF8.GetBytes(data.CreatedAt.ToUnixTimeMilliseconds().ToString("x")),
+            .. Encoding.UTF8.GetBytes(data.ExpiresAt.ToUnixTimeMilliseconds().ToString("x")),
+            .. (requireIpAddress ? Encoding.UTF8.GetBytes(data.IpAddress ?? string.Empty) : []),
+            .. (requireUserAgent ? Encoding.UTF8.GetBytes(data.UserAgent ?? string.Empty) : [])
         ];
-        var hash = HMACSHA256.HashData(signatureKey, signatureData).AsHexString().Replace(" ", "").ToLower();
+        var hash = Convert.ToHexStringLower(HMACSHA256.HashData(signatureKey, signatureData));
 
         logger.LogTrace("Hash: creating new hash for {path}", data.Path);
-        if (logger.IsEnabled(LogLevel.Trace)) {
-            signatureData.HexDump();
-        }
 
         var sr = new CdnSignatureResult() {
             Path = data.Path,
@@ -53,7 +68,7 @@ public class CdnSigningService(ILogger<CdnSigningService> logger, byte[] signatu
             Signature = hash,
         };
 
-        logger.LogTrace("Hash: created new hash for {path}, valid between {start} .. {end}: {json}", data.Path, data.CreatedAt, data.ExpiresAt, sr.ToJson());
+        logger.LogTrace("Hash: created new hash for {path}, valid between {start} .. {end}: {signature}", data.Path, data.CreatedAt, data.ExpiresAt, sr.Signature);
 
         return sr;
     }

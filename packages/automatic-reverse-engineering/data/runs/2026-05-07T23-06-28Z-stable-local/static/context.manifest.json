@@ -1,0 +1,73 @@
+{
+	"files": [
+		{
+			"bytes": 86279,
+			"hash": "sha256:a2c06d7ee21ccc1a9145948296d5880333187457e7aea6c02ee5d93711bb35c0",
+			"kind": "routes",
+			"path": "routes.catalog.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/routes.catalog.json"
+		},
+		{
+			"bytes": 81362,
+			"hash": "sha256:b5f704529c0ad210c623ddb4ae51ef88e5f0d875dca50a3b2436eacf6d07c551",
+			"kind": "source_routes",
+			"path": "routes.source.catalog.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json"
+		},
+		{
+			"bytes": 10783,
+			"hash": "sha256:966b37b7bcd504406a0fd35d02708c2baac44b4d514b2d371bbb4707130dad50",
+			"kind": "gateway",
+			"path": "gateway.catalog.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/gateway.catalog.json"
+		},
+		{
+			"bytes": 3,
+			"hash": "sha256:37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+			"kind": "experiments",
+			"path": "experiments.catalog.json",
+			"source_path": "experiments.catalog.json"
+		},
+		{
+			"bytes": 94083,
+			"hash": "sha256:f24073cbcb9a3d214fa147c74734541b5b64528fca5162bf64f4af2dc0478a69",
+			"kind": "docs_index",
+			"path": "docs.index.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/docs.index.json"
+		},
+		{
+			"bytes": 279189,
+			"hash": "sha256:c5be09b7b373dd6b2863cddef7609c627fad0b0e32ad7909b97f66ab0aa5a4b8",
+			"kind": "xhyrom_routes",
+			"path": "routes.xhyrom.catalog.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/routes.xhyrom.catalog.json"
+		},
+		{
+			"bytes": 227387,
+			"hash": "sha256:8b038032d8336397d342d1ae3a91a78f6a7a5caad396448bdb52e2903dd98c8f",
+			"kind": "xhyrom_experiments",
+			"path": "experiments.xhyrom.catalog.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/experiments.xhyrom.catalog.json"
+		},
+		{
+			"bytes": 210205,
+			"hash": "sha256:a943d4ea173bff9b31f820cad0bccc8b1a646758293c657d3465b23568f14cdc",
+			"kind": "userdoccers_routes",
+			"path": "routes.userdoccers.catalog.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/routes.userdoccers.catalog.json"
+		},
+		{
+			"bytes": 40436,
+			"hash": "sha256:80cfe8b22f4cad7701355293e4a1140329530c041adac3c9caf0b3c7f7217514",
+			"kind": "userdoccers_gateway",
+			"path": "gateway.userdoccers.catalog.json",
+			"source_path": "packages/automatic-reverse-engineering/data/catalogs/gateway.userdoccers.catalog.json"
+		}
+	],
+	"generated_at": "2026-05-07T23:06:40.498Z",
+	"source_refs": {
+		"userdoccers_commit": "259d8f8cf97ff357c4d1255afdf30e2e05672742",
+		"xhyrom_routes_commit": "0d792408fc6f5f67140fe1b4cad48b386ae1fd44"
+	},
+	"static_dir": "packages/automatic-reverse-engineering/data/runs/2026-05-07T23-06-28Z-stable-local/static"
+}

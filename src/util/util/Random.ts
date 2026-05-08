@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 // Inspired by dotnet: https://learn.microsoft.com/en-us/dotnet/api/system.random?view=net-9.0#methods
 export class Random {
     public static nextInt(min?: number, max?: number): number {
@@ -71,4 +73,15 @@ export class Random {
         }
         return array;
     }
+}
+
+export function randomUpperString(length: number = 10) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    let result = "";
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(crypto.randomInt(chars.length));
+    }
+
+    return result;
 }

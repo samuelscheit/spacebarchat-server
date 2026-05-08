@@ -23,6 +23,9 @@ export interface RoleModifySchema {
     hoist?: boolean; // whether the role should be displayed separately in the sidebar
     mentionable?: boolean; // whether the role should be mentionable
     position?: number;
+    /**
+     * @TJS-format image-data-uri
+     */
     icon?: string;
     unicode_emoji?: string;
     colors?:

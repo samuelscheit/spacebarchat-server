@@ -6,6 +6,7 @@ const path = require("node:path");
 const {
     combineRoutePaths,
     extractApiRateLimitRulesFromSource,
+    extractNoAuthorizationRulesFromSource,
     extractSourceHelperEventMap,
     parseRegexLiteral,
     parseRouteOptions,
@@ -193,6 +194,23 @@ describe("testing manifest route helpers", () => {
                 line: 4,
             },
         ]);
+    });
+
+    test("extracts no-authorization rules from the split middleware source", () => {
+        const source = `
+            export const NO_AUTHORIZATION_ROUTES = [
+                "POST /auth/login",
+                /^POST \\/interactions\\/\\d+\\/[A-Za-z0-9_-]+\\/callback/,
+                "GET /-/readyz",
+            ];
+        `;
+
+        const rules = extractNoAuthorizationRulesFromSource(source);
+
+        assert.deepEqual(rules[0], { type: "string", value: "POST /auth/login" });
+        assert.equal(rules[1].type, "regex");
+        assert.equal(rules[1].value.test("POST /interactions/123/token_value/callback"), true);
+        assert.deepEqual(rules[2], { type: "string", value: "GET /-/readyz" });
     });
 
     test("expands known spread constants in route metadata arrays", () => {

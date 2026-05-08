@@ -1,0 +1,1446 @@
+{
+	"events": [
+		{
+			"direction": "received",
+			"event": "ACTIVITY_INVITE_CREATE",
+			"name": "Activity Invite Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "APPLICATION_COMMAND_AUTOCOMPLETE_RESPONSE",
+			"name": "Application Command Autocomplete Response",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "APPLICATION_COMMAND_PERMISSIONS_UPDATE",
+			"name": "Application Command Permissions Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUDIO_SETTINGS_UPDATE",
+			"name": "Audio Settings Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTH_SESSION_CHANGE",
+			"name": "Auth Session Change",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTHENTICATOR_CREATE",
+			"name": "Authenticator Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTHENTICATOR_DELETE",
+			"name": "Authenticator Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTHENTICATOR_UPDATE",
+			"name": "Authenticator Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTO_MODERATION_ACTION_EXECUTION",
+			"name": "Auto Moderation Action Execution",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTO_MODERATION_MENTION_RAID_DETECTION",
+			"name": "Auto Moderation Mention Raid Detection",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTO_MODERATION_RULE_CREATE",
+			"name": "Auto Moderation Rule Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTO_MODERATION_RULE_DELETE",
+			"name": "Auto Moderation Rule Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "AUTO_MODERATION_RULE_UPDATE",
+			"name": "Auto Moderation Rule Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "BILLING_POPUP_BRIDGE_CALLBACK",
+			"name": "Billing Popup Bridge Callback",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CALL_CREATE",
+			"name": "Call Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CALL_DELETE",
+			"name": "Call Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CALL_UPDATE",
+			"name": "Call Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_CREATE",
+			"name": "Channel Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_DELETE",
+			"name": "Channel Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_INFO",
+			"name": "Channel Info",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_MEMBER_COUNT_UPDATE",
+			"name": "Channel Member Count Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_PINS_ACK",
+			"name": "Channel Pins Ack",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_PINS_UPDATE",
+			"name": "Channel Pins Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_RECIPIENT_ADD",
+			"name": "Channel Recipient Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_RECIPIENT_REMOVE",
+			"name": "Channel Recipient Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_STATUSES",
+			"name": "Channel Statuses",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_UNREAD_UPDATE",
+			"name": "Channel Unread Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_UPDATE",
+			"name": "Channel Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_UPDATE_PARTIAL",
+			"name": "Channel Update Partial",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CONSOLE_COMMAND_UPDATE",
+			"name": "Console Command Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "CONVERSATION_SUMMARY_UPDATE",
+			"name": "Conversation Summary Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "DM_SETTINGS_UPSELL_SHOW",
+			"name": "DM Settings Upsell Show",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "EMBEDDED_ACTIVITY_UPDATE_V2",
+			"name": "Embedded Activity Update V2",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "ENTITLEMENT_CREATE",
+			"name": "Entitlement Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "ENTITLEMENT_DELETE",
+			"name": "Entitlement Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "ENTITLEMENT_UPDATE",
+			"name": "Entitlement Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "EXPERIMENT_SESSION_OVERRIDE_CREATE",
+			"name": "Experiment Session Override Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "EXPERIMENT_SESSION_OVERRIDE_DELETE",
+			"name": "Experiment Session Override Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "FRIEND_SUGGESTION_CREATE",
+			"name": "Friend Suggestion Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "FRIEND_SUGGESTION_DELETE",
+			"name": "Friend Suggestion Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_INVITE_CREATE",
+			"name": "Game Invite Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_INVITE_DELETE",
+			"name": "Game Invite Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_INVITE_DELETE_MANY",
+			"name": "Game Invite Delete Many",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_RELATIONSHIP_ADD",
+			"name": "Game Relationship Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_RELATIONSHIP_REMOVE",
+			"name": "Game Relationship Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_SERVER_CREATE",
+			"name": "Game Server Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_SERVER_DELETE",
+			"name": "Game Server Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GAME_SERVER_UPDATE",
+			"name": "Game Server Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GIFT_CODE_CREATE",
+			"name": "Gift Code Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GIFT_CODE_UPDATE",
+			"name": "Gift Code Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_APPLICATION_COMMAND_INDEX_UPDATE",
+			"name": "Guild Application Command Index Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_APPLIED_BOOSTS_UPDATE",
+			"name": "Guild Applied Boosts Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_AUDIT_LOG_ENTRY_CREATE",
+			"name": "Guild Audit Log Entry Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_BAN_ADD",
+			"name": "Guild Ban Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_BAN_REMOVE",
+			"name": "Guild Ban Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_CREATE",
+			"name": "Guild Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_DELETE",
+			"name": "Guild Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_DIRECTORY_ENTRY_CREATE",
+			"name": "Guild Directory Entry Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_DIRECTORY_ENTRY_DELETE",
+			"name": "Guild Directory Entry Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_DIRECTORY_ENTRY_UPDATE",
+			"name": "Guild Directory Entry Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_EMOJIS_UPDATE",
+			"name": "Guild Emojis Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_FEATURE_ACK",
+			"name": "Guild Feature Ack",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_INTEGRATIONS_UPDATE",
+			"name": "Guild Integrations Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_JOIN_REQUEST_CREATE",
+			"name": "Guild Join Request Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_JOIN_REQUEST_DELETE",
+			"name": "Guild Join Request Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_JOIN_REQUEST_UPDATE",
+			"name": "Guild Join Request Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_ADD",
+			"name": "Guild Member Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_REMOVE",
+			"name": "Guild Member Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_UPDATE",
+			"name": "Guild Member Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBERS_CHUNK",
+			"name": "Guild Members Chunk",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_OFFICIAL_GAME_APPLICATIONS_UPDATE",
+			"name": "Guild Official Game Applications Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_POWERUP_ENTITLEMENTS_CREATE",
+			"name": "Guild Powerup Entitlements Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_POWERUP_ENTITLEMENTS_DELETE",
+			"name": "Guild Powerup Entitlements Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_ROLE_CREATE",
+			"name": "Guild Role Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_ROLE_DELETE",
+			"name": "Guild Role Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_ROLE_UPDATE",
+			"name": "Guild Role Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_CREATE",
+			"name": "Guild Scheduled Event Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_DELETE",
+			"name": "Guild Scheduled Event Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_EXCEPTION_CREATE",
+			"name": "Guild Scheduled Event Exception Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_EXCEPTION_DELETE",
+			"name": "Guild Scheduled Event Exception Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_EXCEPTION_UPDATE",
+			"name": "Guild Scheduled Event Exception Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_EXCEPTIONS_DELETE",
+			"name": "Guild Scheduled Event Exceptions Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_UPDATE",
+			"name": "Guild Scheduled Event Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_USER_ADD",
+			"name": "Guild Scheduled Event User Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SCHEDULED_EVENT_USER_REMOVE",
+			"name": "Guild Scheduled Event User Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SOUNDBOARD_SOUND_CREATE",
+			"name": "Guild Soundboard Sound Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SOUNDBOARD_SOUND_DELETE",
+			"name": "Guild Soundboard Sound Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_SOUNDBOARD_SOUND_UPDATE",
+			"name": "Guild Soundboard Sound Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_STICKERS_UPDATE",
+			"name": "Guild Stickers Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_UPDATE",
+			"name": "Guild Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTEGRATION_CREATE",
+			"name": "Integration Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTEGRATION_DELETE",
+			"name": "Integration Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTEGRATION_UPDATE",
+			"name": "Integration Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_CREATE",
+			"name": "Interaction Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_FAILURE",
+			"name": "Interaction Failure",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_IFRAME_MODAL_CREATE",
+			"name": "Interaction IFrame Modal Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_MODAL_CREATE",
+			"name": "Interaction Modal Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_SUCCESS",
+			"name": "Interaction Success",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INVITE_CREATE",
+			"name": "Invite Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "INVITE_DELETE",
+			"name": "Invite Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LAST_MESSAGES",
+			"name": "Last Messages",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_CREATE",
+			"name": "Lobby Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_DELETE",
+			"name": "Lobby Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_MEMBER_ADD",
+			"name": "Lobby Member Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_MEMBER_REMOVE",
+			"name": "Lobby Member Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_MEMBER_UPDATE",
+			"name": "Lobby Member Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_MESSAGE_CREATE",
+			"name": "Lobby Message Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_MESSAGE_DELETE",
+			"name": "Lobby Message Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_MESSAGE_UPDATE",
+			"name": "Lobby Message Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_UPDATE",
+			"name": "Lobby Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_VOICE_SERVER_UPDATE",
+			"name": "Lobby Voice Server Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "LOBBY_VOICE_STATE_UPDATE",
+			"name": "Lobby Voice State Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_ACK",
+			"name": "Message Ack",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_CREATE",
+			"name": "Message Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_DELETE",
+			"name": "Message Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_DELETE_BULK",
+			"name": "Message Delete Bulk",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_POLL_VOTE_ADD",
+			"name": "Message Poll Vote Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_POLL_VOTE_REMOVE",
+			"name": "Message Poll Vote Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_ADD",
+			"name": "Message Reaction Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_ADD_MANY",
+			"name": "Message Reaction Add Many",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_REMOVE",
+			"name": "Message Reaction Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_REMOVE_ALL",
+			"name": "Message Reaction Remove All",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_REMOVE_EMOJI",
+			"name": "Message Reaction Remove Emoji",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_UPDATE",
+			"name": "Message Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "NOTIFICATION_CENTER_ITEM_COMPLETED",
+			"name": "Notification Center Item Completed",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "NOTIFICATION_CENTER_ITEM_CREATE",
+			"name": "Notification Center Item Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "NOTIFICATION_CENTER_ITEM_DELETE",
+			"name": "Notification Center Item Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "NOTIFICATION_CENTER_ITEMS_ACK",
+			"name": "Notification Center Items Ack",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "NOTIFICATION_SETTINGS_UPDATE",
+			"name": "Notification Settings Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "OAUTH2_TOKEN_CREATE",
+			"name": "OAuth2 Token Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "OAUTH2_TOKEN_DELETE",
+			"name": "OAuth2 Token Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "OAUTH2_TOKEN_REVOKE",
+			"name": "OAuth2 Token Revoke",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "PASSIVE_UPDATE_V1",
+			"name": "Passive Update V1",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "PASSIVE_UPDATE_V2",
+			"name": "Passive Update V2",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "PAYMENT_UPDATE",
+			"name": "Payment Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "PRESENCE_UPDATE",
+			"name": "Presence Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "QUESTS_USER_COMPLETION_UPDATE",
+			"name": "Quests User Completion Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "QUESTS_USER_STATUS_UPDATE",
+			"name": "Quests User Status Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "RATE_LIMITED",
+			"name": "Rate Limited",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "READY",
+			"name": "Ready",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "READY_SUPPLEMENTAL",
+			"name": "Ready Supplemental",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "RECENT_MENTION_DELETE",
+			"name": "Recent Mention Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "RELATIONSHIP_ADD",
+			"name": "Relationship Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "RELATIONSHIP_REMOVE",
+			"name": "Relationship Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "RELATIONSHIP_UPDATE",
+			"name": "Relationship Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "REMOTE_COMMAND",
+			"name": "Remote Command",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "RESUMED",
+			"name": "Resumed",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SAVED_MESSAGE_CREATE",
+			"name": "Saved Message Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SAVED_MESSAGE_DELETE",
+			"name": "Saved Message Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SESSIONS_REPLACE",
+			"name": "Sessions Replace",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SOCIAL_LAYER_SKU_PURCHASE_ELIGIBILITY_RESPONSE",
+			"name": "Social Layer SKU Purchase Eligibility Response",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SOUNDBOARD_SOUNDS",
+			"name": "Soundboard Sounds",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SPEED_TEST_CREATE",
+			"name": "Speed Test Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SPEED_TEST_DELETE",
+			"name": "Speed Test Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SPEED_TEST_SERVER_UPDATE",
+			"name": "Speed Test Server Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "SPEED_TEST_UPDATE",
+			"name": "Speed Test Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "STAGE_INSTANCE_CREATE",
+			"name": "Stage Instance Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "STAGE_INSTANCE_DELETE",
+			"name": "Stage Instance Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "STAGE_INSTANCE_UPDATE",
+			"name": "Stage Instance Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "STREAM_CREATE",
+			"name": "Stream Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "STREAM_DELETE",
+			"name": "Stream Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "STREAM_SERVER_UPDATE",
+			"name": "Stream Server Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "STREAM_UPDATE",
+			"name": "Stream Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_CREATE",
+			"name": "Thread Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_DELETE",
+			"name": "Thread Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_LIST_SYNC",
+			"name": "Thread List Sync",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_MEMBER_UPDATE",
+			"name": "Thread Member Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_MEMBERS_UPDATE",
+			"name": "Thread Members Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_UPDATE",
+			"name": "Thread Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "TYPING_START",
+			"name": "Typing Start",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_APPLICATION_IDENTITY_REMOVE",
+			"name": "User Application Identity Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_APPLICATION_IDENTITY_UPDATE",
+			"name": "User Application Identity Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_APPLICATION_REMOVE",
+			"name": "User Application Remove",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_APPLICATION_UPDATE",
+			"name": "User Application Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_CONNECTIONS_UPDATE",
+			"name": "User Connections Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_GUILD_SETTINGS_UPDATE",
+			"name": "User Guild Settings Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_MERGE_OPERATION_COMPLETED",
+			"name": "User Merge Operation Completed",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_NON_CHANNEL_ACK",
+			"name": "User Non Channel Ack",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_NOTE_UPDATE",
+			"name": "User Note Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_PAYMENT_BROWSER_CHECKOUT_DONE",
+			"name": "User Payment Browser Checkout Done",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_PAYMENT_CLIENT_ADD",
+			"name": "User Payment Client Add",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_PAYMENT_SOURCES_UPDATE",
+			"name": "User Payment Sources Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_PREMIUM_GUILD_SUBSCRIPTION_SLOT_CREATE",
+			"name": "User Premium Guild Subscription Slot Create",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_PREMIUM_GUILD_SUBSCRIPTION_SLOT_DELETE",
+			"name": "User Premium Guild Subscription Slot Delete",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_PREMIUM_GUILD_SUBSCRIPTION_SLOT_UPDATE",
+			"name": "User Premium Guild Subscription Slot Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_REQUIRED_ACTION_UPDATE",
+			"name": "User Required Action Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_SETTINGS_UPDATE",
+			"name": "User Settings Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_SUBSCRIPTIONS_UPDATE",
+			"name": "User Subscriptions Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "USER_UPDATE",
+			"name": "User Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "VIRTUAL_CURRENCY_BALANCE_UPDATE",
+			"name": "Virtual Currency Balance Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "VOICE_CHANNEL_EFFECT_SEND",
+			"name": "Voice Channel Effect Send",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "VOICE_CHANNEL_START_TIME_UPDATE",
+			"name": "Voice Channel Start Time Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "VOICE_CHANNEL_STATUS_UPDATE",
+			"name": "Voice Channel Status Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "VOICE_SERVER_UPDATE",
+			"name": "Voice Server Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "VOICE_STATE_UPDATE",
+			"name": "Voice State Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		},
+		{
+			"direction": "received",
+			"event": "WEBHOOKS_UPDATE",
+			"name": "Webhooks Update",
+			"source": "userdoccers:pages/gateway/gateway-events.mdx"
+		}
+	],
+	"opcodes": [
+		{
+			"direction": "received",
+			"name": "Dispatch",
+			"opcode": 0,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "both",
+			"name": "Heartbeat",
+			"opcode": 1,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Identify",
+			"opcode": 2,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Presence Update",
+			"opcode": 3,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Voice State Update",
+			"opcode": 4,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Voice Server Ping",
+			"opcode": 5,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Resume",
+			"opcode": 6,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "received",
+			"name": "Reconnect",
+			"opcode": 7,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Guild Members",
+			"opcode": 8,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "received",
+			"name": "Invalid Session",
+			"opcode": 9,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "received",
+			"name": "Hello",
+			"opcode": 10,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "received",
+			"name": "Heartbeat ACK",
+			"opcode": 11,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Guild Sync",
+			"opcode": 12,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Call Connect",
+			"opcode": 13,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Guild Subscriptions",
+			"opcode": 14,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Lobby Connect",
+			"opcode": 15,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Lobby Disconnect",
+			"opcode": 16,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Lobby Voice States",
+			"opcode": 17,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Stream Create",
+			"opcode": 18,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Stream Delete",
+			"opcode": 19,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Stream Watch",
+			"opcode": 20,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Stream Ping",
+			"opcode": 21,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Stream Set Paused",
+			"opcode": 22,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "LFG Subscriptions",
+			"opcode": 23,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Guild Application Commands",
+			"opcode": 24,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Embedded Activity Create",
+			"opcode": 25,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Embedded Activity Delete",
+			"opcode": 26,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Embedded Activity Update",
+			"opcode": 27,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Forum Unreads",
+			"opcode": 28,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Remote Command",
+			"opcode": 29,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Deleted Entity IDs",
+			"opcode": 30,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Soundboard Sounds",
+			"opcode": 31,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Speed Test Create",
+			"opcode": 32,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Speed Test Delete",
+			"opcode": 33,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Last Messages",
+			"opcode": 34,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Search Recent Members",
+			"opcode": 35,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Channel Statuses",
+			"opcode": 36,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Guild Subscriptions Bulk",
+			"opcode": 37,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Guild Channels Resync",
+			"opcode": 38,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Channel Member Count",
+			"opcode": 39,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "QoS Heartbeat",
+			"opcode": 40,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Update Time Spent Session ID",
+			"opcode": 41,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Lobby Voice Server Ping",
+			"opcode": 42,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		},
+		{
+			"direction": "sent",
+			"name": "Request Channel Info",
+			"opcode": 43,
+			"source": "userdoccers:pages/gateway/opcodes-and-close-codes.mdx"
+		}
+	]
+}

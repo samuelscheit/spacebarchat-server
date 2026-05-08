@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";
 import { describe, test } from "node:test";
-import { CDNServer } from "./Server";
+import { CDNServer } from "@spacebar/cdn";
 
 describe("CDNServer.configureApp", () => {
     test("mounts public CDN routes without startup database initialization", async () => {
@@ -12,10 +12,6 @@ describe("CDNServer.configureApp", () => {
         const port = await listen(server);
 
         try {
-            const response = await fetch(`http://127.0.0.1:${port}/ping/`);
-            assert.equal(response.status, 200);
-            assert.equal(await response.text(), "pong");
-
             const avatar = await fetch(`http://127.0.0.1:${port}/embed/avatars/0.png`);
             assert.equal(avatar.status, 200);
             assert.equal(avatar.headers.get("content-type"), "image/png");

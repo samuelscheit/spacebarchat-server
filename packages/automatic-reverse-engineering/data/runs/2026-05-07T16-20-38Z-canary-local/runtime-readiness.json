@@ -1,0 +1,176 @@
+{
+	"features": [
+		"bootstrap.idle.session",
+		"channel.permission.edit",
+		"experiments.visible_context",
+		"expressions.picker.basic",
+		"guild.role.edit.basic",
+		"message.delete.basic",
+		"message.edit.basic",
+		"message.pin.basic",
+		"message.reaction.add",
+		"message.reply.basic",
+		"message.send.basic",
+		"message.upload.attachment",
+		"navigation.channel_switch",
+		"navigation.dm_switch",
+		"navigation.guild_switch",
+		"read_state.mark_unread",
+		"read_state.message_ack",
+		"read_state.recent_mentions",
+		"search.member.basic",
+		"search.message.basic",
+		"settings.guild_notifications",
+		"thread.create.basic",
+		"voice.deafen_toggle",
+		"voice.disconnect.basic",
+		"voice.join.basic",
+		"voice.mute_toggle"
+	],
+	"fixture_template": {
+		"channels": {
+			"dm": "{channel_id}",
+			"general": "{channel_id}",
+			"secondary": "{channel_id}",
+			"voice": "{channel_id}"
+		},
+		"disposable": [
+			"channels.general",
+			"guild",
+			"messages.delete_target",
+			"messages.edit_target",
+			"messages.pin_target",
+			"messages.react_target",
+			"roles.feature_test_role"
+		],
+		"files": {
+			"small_attachment": "{local_file_path}"
+		},
+		"guild": "{guild_id}",
+		"guilds": {
+			"secondary": "{guild_id}"
+		},
+		"messages": {
+			"delete_target": "{message_id}",
+			"edit_target": "{message_id}",
+			"pin_target": "{message_id}",
+			"react_target": "{message_id}",
+			"read_target": "{message_id}",
+			"reply_target": "{message_id}"
+		},
+		"roles": {
+			"feature_test_role": "{role_id}"
+		},
+		"users": {
+			"dm_peer": "{user_id}"
+		}
+	},
+	"fixtures": {
+		"disposable_validation": {
+			"missing": [
+				"channels.general",
+				"guild",
+				"messages.delete_target",
+				"messages.edit_target",
+				"messages.pin_target",
+				"messages.react_target",
+				"roles.feature_test_role"
+			],
+			"not_disposable": [],
+			"ok": false,
+			"required": [
+				"channels.general",
+				"guild",
+				"messages.delete_target",
+				"messages.edit_target",
+				"messages.pin_target",
+				"messages.react_target",
+				"roles.feature_test_role"
+			]
+		},
+		"redacted_manifest": {},
+		"validation": {
+			"missing": [
+				"channels.dm",
+				"channels.general",
+				"channels.secondary",
+				"channels.voice",
+				"files.small_attachment",
+				"guild",
+				"guilds.secondary",
+				"messages.delete_target",
+				"messages.edit_target",
+				"messages.pin_target",
+				"messages.react_target",
+				"messages.read_target",
+				"messages.reply_target",
+				"roles.feature_test_role",
+				"users.dm_peer"
+			],
+			"ok": false
+		}
+	},
+	"ok": false,
+	"required_disposable_fixtures": [
+		"channels.general",
+		"guild",
+		"messages.delete_target",
+		"messages.edit_target",
+		"messages.pin_target",
+		"messages.react_target",
+		"roles.feature_test_role"
+	],
+	"required_fixtures": [
+		"channels.dm",
+		"channels.general",
+		"channels.secondary",
+		"channels.voice",
+		"files.small_attachment",
+		"guild",
+		"guilds.secondary",
+		"messages.delete_target",
+		"messages.edit_target",
+		"messages.pin_target",
+		"messages.react_target",
+		"messages.read_target",
+		"messages.reply_target",
+		"roles.feature_test_role",
+		"users.dm_peer"
+	],
+	"storage_state": {
+		"cookie_count": 0,
+		"discord_auth_cookie_count": 0,
+		"discord_auth_storage_count": 0,
+		"discord_cookie_count": 0,
+		"discord_origin_count": 0,
+		"has_discord_session": false,
+		"origin_count": 0,
+		"parse_error": "ENOENT",
+		"path": "{storage_state_path}"
+	},
+	"violations": [
+		"storage_state_unreadable",
+		"missing_fixture:channels.dm",
+		"missing_fixture:channels.general",
+		"missing_fixture:channels.secondary",
+		"missing_fixture:channels.voice",
+		"missing_fixture:files.small_attachment",
+		"missing_fixture:guild",
+		"missing_fixture:guilds.secondary",
+		"missing_fixture:messages.delete_target",
+		"missing_fixture:messages.edit_target",
+		"missing_fixture:messages.pin_target",
+		"missing_fixture:messages.react_target",
+		"missing_fixture:messages.read_target",
+		"missing_fixture:messages.reply_target",
+		"missing_fixture:roles.feature_test_role",
+		"missing_fixture:users.dm_peer",
+		"missing_disposable_fixture:channels.general",
+		"missing_disposable_fixture:guild",
+		"missing_disposable_fixture:messages.delete_target",
+		"missing_disposable_fixture:messages.edit_target",
+		"missing_disposable_fixture:messages.pin_target",
+		"missing_disposable_fixture:messages.react_target",
+		"missing_disposable_fixture:roles.feature_test_role"
+	]
+}

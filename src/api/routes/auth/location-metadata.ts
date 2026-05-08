@@ -19,6 +19,7 @@
 import { route } from "@spacebar/api";
 import { IpDataClient } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { buildLocationMetadataResponse } from "../../util/utility/LocationMetadata";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -31,14 +32,9 @@ router.get(
         },
     }),
     async (req: Request, res: Response) => {
-        //TODO
         //Note: It's most likely related to legal. At the moment Discord hasn't finished this too
-        const country_code = (await IpDataClient.getIpInfo(req.ip!))?.country_code ?? "unknown";
-        res.json({
-            consent_required: false,
-            country_code: country_code,
-            promotional_email_opt_in: { required: true, pre_checked: false },
-        });
+        const country_code = (await IpDataClient.getIpInfo(req.ip!))?.country_code;
+        res.json(buildLocationMetadataResponse(country_code));
     },
 );
 

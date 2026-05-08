@@ -12,6 +12,7 @@ type TestSocket = WebSocket & {
 function createJsonSocket(): TestSocket {
     const socket = {
         encoding: "json",
+        OPEN: 1,
         readyState: 1,
         sent: undefined as Buffer | string | undefined,
         send(this: TestSocket, data: Buffer | string, callback: (err?: Error) => void) {

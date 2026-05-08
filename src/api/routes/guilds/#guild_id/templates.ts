@@ -17,7 +17,7 @@
 */
 
 import { generateCode, route } from "@spacebar/api";
-import { Guild, Template } from "@spacebar/util";
+import { Guild, sortChannelsByChannelOrdering, Template } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -40,6 +40,14 @@ const TemplateGuildProjection: (keyof Guild)[] = [
     "system_channel_flags",
     "icon",
 ];
+const TemplateGuildProjectionWithOrdering: (keyof Guild)[] = [...TemplateGuildProjection, "channel_ordering"];
+
+function serializeTemplateGuild(guild: Guild) {
+    if (guild.channels) guild.channels = sortChannelsByChannelOrdering(guild.channels, guild.channel_ordering);
+    delete (guild as Partial<Guild>).channel_ordering;
+
+    return guild;
+}
 
 router.get(
     "/",
@@ -85,11 +93,11 @@ router.post(
         const { guild_id } = req.params as { [key: string]: string };
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
-            select: TemplateGuildProjection,
+            select: TemplateGuildProjectionWithOrdering,
             relations: { roles: true, channels: true },
         });
         const exists = await Template.findOne({
-            where: { source_guild_id: guild_id, name: req.body.name },
+            where: { id: guild_id },
         });
         if (exists) throw new HTTPError("Template already exists", 400);
 
@@ -100,7 +108,7 @@ router.post(
             created_at: new Date(),
             updated_at: new Date(),
             source_guild_id: guild_id,
-            serialized_source_guild: guild,
+            serialized_source_guild: serializeTemplateGuild(guild),
         }).save();
 
         res.json(template);
@@ -120,12 +128,9 @@ router.delete(
         const { code, guild_id } = req.params as { [key: string]: string };
 
         const template = await Template.findOneOrFail({
-            where: {
-                code,
-                source_guild_id: guild_id,
-            },
+            where: { code, source_guild_id: guild_id },
         });
-        await Template.remove(template);
+        await template.remove();
 
         res.json(template);
     },
@@ -142,18 +147,16 @@ router.put(
     }),
     async (req: Request, res: Response) => {
         const { code, guild_id } = req.params as { [key: string]: string };
-        const [guild, template] = await Promise.all([
-            Guild.findOneOrFail({
-                where: { id: guild_id },
-                select: TemplateGuildProjection,
-                relations: { roles: true, channels: true },
-            }),
-            Template.findOneOrFail({
-                where: { code, source_guild_id: guild_id },
-            }),
-        ]);
+        const guild = await Guild.findOneOrFail({
+            where: { id: guild_id },
+            select: TemplateGuildProjectionWithOrdering,
+            relations: { roles: true, channels: true },
+        });
 
-        template.serialized_source_guild = guild;
+        const template = await Template.findOneOrFail({
+            where: { code, source_guild_id: guild_id },
+        });
+        template.serialized_source_guild = serializeTemplateGuild(guild);
         template.updated_at = new Date();
         await template.save();
 

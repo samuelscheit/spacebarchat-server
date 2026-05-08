@@ -6,7 +6,19 @@ import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
 import bcrypt from "bcrypt";
 import { generateSecret, generateToken as generateTotpToken } from "node-2fa";
-import { BackupCode, closeDatabase, generateToken, generateWebAuthnTicket, initDatabase, SecurityKey, User, ValidRegistrationToken, WebAuthn } from "@spacebar/util";
+import {
+    BackupCode,
+    closeDatabase,
+    EmailActionTokenPurpose,
+    generateEmailActionToken,
+    generateToken,
+    generateWebAuthnTicket,
+    initDatabase,
+    SecurityKey,
+    User,
+    ValidRegistrationToken,
+    WebAuthn,
+} from "@spacebar/util";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { startApi } from "../server/startApi";
@@ -97,7 +109,7 @@ test(
 
             const location = await assertJsonObject(await fetch(`${api.apiBaseUrl}/auth/location-metadata`));
             assert.equal(location.consent_required, false);
-            assert.equal(typeof location.country_code, "string");
+            assert.ok(typeof location.country_code === "string" || location.country_code === null);
             assert.deepEqual(location.promotional_email_opt_in, { required: true, pre_checked: false });
 
             const register = await postJson(
@@ -124,24 +136,25 @@ test(
             await assertStatus(await postJson(`${api.apiBaseUrl}/auth/forgot`, { login: email }, { cookie }), 204);
 
             await User.update({ id: user.id }, { verified: false });
-            const verifyToken = await generateToken(user.id);
+            const verifyToken = await generateEmailActionToken(user.id, EmailActionTokenPurpose.verifyEmail, email);
             assert.ok(verifyToken, "verification token should be generated");
             const verify = await postJson(`${api.apiBaseUrl}/auth/verify`, { token: verifyToken }, { cookie });
-            await assertStatus(verify, 200);
-            const verifyBody = await assertJsonObject(verify);
-            assert.equal(typeof verifyBody.token, "string");
+            await assertStatus(verify, 204);
             assert.equal((await loadUserSecurityState(user.id)).verified, true);
+            const verifiedBearer = await generateToken(user.id);
+            assert.ok(verifiedBearer, "verified bearer token should be generated");
 
-            const whoami = await assertJsonObject(await getJson(`${api.apiBaseUrl}/auth/whoami`, verifyBody.token as string));
+            const whoami = await assertJsonObject(await getJson(`${api.apiBaseUrl}/auth/whoami`, verifiedBearer));
             assert.equal(whoami.id, user.id);
             assert.equal(typeof whoami.device_id, "string");
             assert.equal(typeof whoami.logged_in_since, "string");
 
-            const challenge = await postJson(`${api.apiBaseUrl}/auth/verify/view-backup-codes-challenge`, { password: initialPassword }, { token: verifyBody.token as string });
+            const challenge = await postJson(`${api.apiBaseUrl}/auth/verify/view-backup-codes-challenge`, { password: initialPassword }, { token: verifiedBearer });
             await assertStatus(challenge, 200);
-            assert.deepEqual(Object.keys(await assertJsonObject(challenge)).sort(), ["nonce", "regenerate_nonce"]);
+            const challengeBody = await assertJsonObject(challenge);
+            assert.deepEqual(Object.keys(challengeBody).sort(), ["nonce", "regenerate_nonce"]);
 
-            const resetToken = await generateToken(user.id);
+            const resetToken = await generateEmailActionToken(user.id, EmailActionTokenPurpose.resetPassword, email);
             assert.ok(resetToken, "password reset token should be generated");
             const reset = await postJson(`${api.apiBaseUrl}/auth/reset`, { token: resetToken, password: resetPassword }, { cookie });
             await assertStatus(reset, 200);
@@ -222,8 +235,8 @@ test(
             const verifiedCodes = await postJson(
                 `${api.apiBaseUrl}/users/@me/mfa/codes-verification`,
                 {
-                    key: "email",
-                    nonce: "scenario-nonce",
+                    key: resetPassword,
+                    nonce: challengeBody.regenerate_nonce,
                     regenerate: true,
                 },
                 { token: mfaBearer },

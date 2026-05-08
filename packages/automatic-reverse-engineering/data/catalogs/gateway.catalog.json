@@ -1,0 +1,514 @@
+{
+	"events": [
+		{
+			"direction": "received",
+			"event": "APPLICATION_COMMAND_CREATE",
+			"name": "ApplicationCommandCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "APPLICATION_COMMAND_DELETE",
+			"name": "ApplicationCommandDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "APPLICATION_COMMAND_UPDATE",
+			"name": "ApplicationCommandUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_CREATE",
+			"name": "ChannelCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_DELETE",
+			"name": "ChannelDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_PINS_UPDATE",
+			"name": "ChannelPinsUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_RECIPIENT_ADD",
+			"name": "ChannelRecipientAdd",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_RECIPIENT_REMOVE",
+			"name": "ChannelRecipientRemove",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "CHANNEL_UPDATE",
+			"name": "ChannelUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_BAN_ADD",
+			"name": "GuildBanAdd",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_BAN_REMOVE",
+			"name": "GuildBanRemove",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_CREATE",
+			"name": "GuildCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_DELETE",
+			"name": "GuildDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_EMOJI_UPDATE",
+			"name": "GuildEmojUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_INTEGRATIONS_UPDATE",
+			"name": "GuildIntegrationsUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_ADD",
+			"name": "GuildMemberAdd",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_LIST_UPDATE",
+			"name": "GuildMemberListUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_REMOVE",
+			"name": "GuildMemberRempve",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_SPEAKING",
+			"name": "GuildMemberSpeaking",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBER_UPDATE",
+			"name": "GuildMemberUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_MEMBERS_CHUNK",
+			"name": "GuildMembersChunk",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_ROLE_CREATE",
+			"name": "GuildRoleCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_ROLE_DELETE",
+			"name": "GuildRoleDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_ROLE_UPDATE",
+			"name": "GuildRoleUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "GUILD_UPDATE",
+			"name": "GuildUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_CREATE",
+			"name": "InteractionCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_FAILURE",
+			"name": "InteractionFailure",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "INTERACTION_SUCCESS",
+			"name": "InteractionSuccess",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "INVITE_CREATE",
+			"name": "InviteCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "INVITE_DELETE",
+			"name": "InviteDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_CREATE",
+			"name": "MessageCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_DELETE",
+			"name": "MessageDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_DELETE_BULK",
+			"name": "MessageDeleteBulk",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_ADD",
+			"name": "MessageReactionAdd",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_REMOVE",
+			"name": "MessageReactionRemove",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_REMOVE_ALL",
+			"name": "MessageReactionRemoveAll",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_REACTION_REMOVE_EMOJI",
+			"name": "MessageReactionRemoveEmoji",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "MESSAGE_UPDATE",
+			"name": "MessageUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "PRESENCE_UPDATE",
+			"name": "PresenceUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "READY",
+			"name": "Ready",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "READY_SUPPLEMENTAL",
+			"name": "ReadySupplemental",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "SESSIONS_REPLACE",
+			"name": "SessionsReplace",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_CREATE",
+			"name": "ThreadCreate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_DELETE",
+			"name": "ThreadDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_LIST_SYNC",
+			"name": "ThreadListSync",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_MEMBER_UPDATE",
+			"name": "ThreadMemberUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_MEMBERS_UPDATE",
+			"name": "ThreadMembersUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "THREAD_UPDATE",
+			"name": "ThreadUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "TYPING_START",
+			"name": "TypingStart",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "USER_CONNECTIONS_UPDATE",
+			"name": "UserConnectionsUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "USER_DELETE",
+			"name": "UserDelete",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "USER_UPDATE",
+			"name": "UserUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "VOICE_SERVER_UPDATE",
+			"name": "VoiceServerUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "VOICE_STATE_UPDATE",
+			"name": "VoiceStateUpdate",
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"event": "WEBHOOKS_UPDATE",
+			"name": "WebhooksUpdate",
+			"source": "spacebar-source"
+		}
+	],
+	"opcodes": [
+		{
+			"direction": "received",
+			"name": "Dispatch",
+			"opcode": 0,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onHeartbeat",
+			"name": "Heartbeat",
+			"opcode": 1,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onIdentify",
+			"name": "Identify",
+			"opcode": 2,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onPresenceUpdate",
+			"name": "Presence_Update",
+			"opcode": 3,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onVoiceStateUpdate",
+			"name": "Voice_State_Update",
+			"opcode": 4,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Voice_Server_Ping",
+			"opcode": 5,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Resume",
+			"opcode": 6,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"name": "Reconnect",
+			"opcode": 7,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Request_Guild_Members",
+			"opcode": 8,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"name": "Invalid_Session",
+			"opcode": 9,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"name": "Hello",
+			"opcode": 10,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "received",
+			"name": "Heartbeat_ACK",
+			"opcode": 11,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Guild_Sync",
+			"opcode": 12,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "DM_Update",
+			"opcode": 13,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Lazy_Request",
+			"opcode": 14,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Lobby_Connect",
+			"opcode": 15,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Lobby_Disconnect",
+			"opcode": 16,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Lobby_Voice_States_Update",
+			"opcode": 17,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onStreamCreate",
+			"name": "Stream_Create",
+			"opcode": 18,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onStreamDelete",
+			"name": "Stream_Delete",
+			"opcode": 19,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onStreamWatch",
+			"name": "Stream_Watch",
+			"opcode": 20,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Stream_Ping",
+			"opcode": 21,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Stream_Set_Paused",
+			"opcode": 22,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "Request_Application_Commands",
+			"opcode": 24,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onRequestChannelStatuses",
+			"name": "Request_Channel_Statuses",
+			"opcode": 36,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onGuildSubscriptionsBulk",
+			"name": "Guild_Subscriptions_Bulk",
+			"opcode": 37,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "sent",
+			"handler": "onHeartbeat",
+			"name": "SetQoS",
+			"opcode": 40,
+			"source": "spacebar-source"
+		},
+		{
+			"direction": "unknown",
+			"name": "ClientInitSession",
+			"opcode": 41,
+			"source": "spacebar-source"
+		}
+	]
+}

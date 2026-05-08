@@ -16,8 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { BackupCode, DiscordApiErrors, User, generateMfaBackupCodes } from "@spacebar/util";
+import { consumeMfaBackupCodesChallengeNonce, route } from "@spacebar/api";
+import { BackupCode, FieldErrors, User, generateMfaBackupCodes } from "@spacebar/util";
+import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { CodesVerificationSchema } from "@spacebar/schemas";
 
@@ -40,14 +41,31 @@ router.post(
         },
     }),
     async (req: Request, res: Response) => {
-        // const { key, nonce, regenerate } = req.body as CodesVerificationSchema;
-        const { regenerate } = req.body as CodesVerificationSchema;
+        const { key, nonce, regenerate } = req.body as CodesVerificationSchema;
+        const action = regenerate ? "regenerate" : "view";
 
-        // TODO: We don't have email/etc etc, so can't send a verification code.
-        // Once that's done, this route can verify `key`
+        if (!(await consumeMfaBackupCodesChallengeNonce(req.user_id, action, nonce))) {
+            throw FieldErrors({
+                nonce: {
+                    message: "Invalid, expired, or already used backup-code verification nonce",
+                    code: "INVALID_BACKUP_CODE_NONCE",
+                },
+            });
+        }
 
-        // const user = req.user;
-        if ((await User.count({ where: { id: req.user_id } })) === 0) throw DiscordApiErrors.UNKNOWN_USER;
+        const user = await User.findOneOrFail({
+            where: { id: req.user_id },
+            select: { data: true },
+        });
+
+        if (!(await bcrypt.compare(key, user.data.hash || ""))) {
+            throw FieldErrors({
+                key: {
+                    message: req.t("auth:login.INVALID_PASSWORD"),
+                    code: "INVALID_PASSWORD",
+                },
+            });
+        }
 
         let codes: BackupCode[];
         if (regenerate) {

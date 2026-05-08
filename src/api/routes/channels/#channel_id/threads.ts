@@ -16,7 +16,17 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { handleMessage, postHandleMessage, route, sendMessage } from "@spacebar/api";
+import {
+    ACTIVE_GUILD_THREAD_TYPES,
+    assertMessagePayloadPermissions,
+    filterAccessibleActiveGuildThreads,
+    handleMessage,
+    postHandleMessage,
+    route,
+    sendMessage,
+    serializeActiveGuildThreads,
+    serializeThreadSearchMember,
+} from "@spacebar/api";
 import {
     Channel,
     emitEvent,
@@ -32,8 +42,9 @@ import {
     Message,
     ChannelFlags,
     Snowflake,
+    messagePublicRelations,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment } from "@spacebar/schemas";
+import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -94,20 +105,26 @@ router.post(
                 req.permission?.hasThrow("MANAGE_THREADS");
             }
         }
+        const files = (req.files as Express.Multer.File[]) ?? [];
+        const messageAttachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message?.attachments ?? [];
+        if (body.message) {
+            assertMessagePayloadPermissions(req.permission!, { ...body.message, attachments: messageAttachments, uploadedFileCount: files.length });
+        }
+
         const user = await User.findOneOrFail({ where: { id: req.user_id } });
 
         const thread = await Channel.createThreadChannel(
             {
-                parent_id: channel.id,
-                member_count: 1,
-                message_count: 0,
-                total_message_sent: 0,
+                owner: user,
+                parent: channel,
+                guild: channel.guild,
                 name: body.name,
+                parent_id: channel.id,
                 guild_id: channel.guild_id,
                 rate_limit_per_user: body.rate_limit_per_user,
                 type: body.type || (channel.threadOnly() ? ChannelType.GUILD_PUBLIC_THREAD : ChannelType.GUILD_PRIVATE_THREAD),
-                recipients: [],
                 applied_tags: body.applied_tags || [],
+                recipients: [],
             },
             {
                 archived: false,
@@ -116,7 +133,7 @@ router.post(
                 locked: false,
                 create_timestamp: new Date().toISOString(),
             },
-            user.id,
+            req.user_id,
             { skipPermissionCheck: true, skipEventEmit: true, skipNameChecks: true },
         );
 
@@ -142,8 +159,8 @@ router.post(
                 author_id: user.id,
             });
         if (body.message) {
-            const files = (req.files as Express.Multer.File[]) ?? [];
-            const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.message.attachments ?? [];
+            const attachments = messageAttachments;
+
             for (const currFile of files) {
                 try {
                     const file = await uploadFile(`/attachments/${channel.id}/${thread.id}`, currFile);
@@ -170,7 +187,10 @@ router.post(
                 author_id: req.user_id,
                 embeds,
                 channel_id: thread.id,
+                cloud_attachment_upload_channel_id: channel.id,
                 attachments,
+                attachment_user_id: req.user_id,
+                attachment_channel_ids: [channel.id, thread.id],
                 timestamp: new Date(),
             });
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -191,9 +211,9 @@ router.post(
                 message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
             }
             let read_state = await ReadState.findOne({
-                where: { user_id: req.user_id, channel_id },
+                where: { user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL },
             });
-            if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id });
+            if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL });
             read_state.last_message_id = message.id;
             //It's a little more complicated than this but this'll do
             read_state.mention_count = 0;
@@ -212,6 +232,65 @@ router.post(
         }
 
         return res.json(thread.toJSON());
+    },
+);
+
+router.get(
+    "/active",
+    route({
+        permission: "VIEW_CHANNEL",
+        responses: {
+            200: {
+                body: "ActiveThreadsResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {},
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as Record<string, string>;
+        const permissions = req.permission!;
+        const channel = permissions.cache.channel ?? (await Channel.findOneOrFail({ where: { id: channel_id } }));
+        if (!channel.guild_id) throw new HTTPError("Threads are only available in guild channels", 400);
+
+        if (!permissions.has("READ_MESSAGE_HISTORY")) {
+            return res.json({
+                threads: [],
+                members: [],
+            });
+        }
+
+        const member = permissions.cache.member ?? (await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } }));
+        const threads = await Channel.find({
+            where: {
+                parent_id: channel_id,
+                type: In(ACTIVE_GUILD_THREAD_TYPES),
+                thread_metadata: JsonContains({ archived: false }),
+            },
+        });
+        const threadMembers = threads.length
+            ? await ThreadMember.find({
+                  where: {
+                      member_idx: member.index,
+                      id: In(threads.map((thread) => thread.id)),
+                  },
+              })
+            : [];
+        const parentPermissions = new Map([[channel_id, permissions]]);
+        const visibleThreads = filterAccessibleActiveGuildThreads(
+            threads,
+            channel.guild_id,
+            new Set(threadMembers.map((threadMember) => threadMember.id)),
+            parentPermissions,
+            req.user_id,
+        );
+
+        return res.json(serializeActiveGuildThreads(visibleThreads, threadMembers, req.user_id));
     },
 );
 
@@ -287,7 +366,7 @@ router.get(
     route({
         responses: {
             200: {
-                body: "GuildMessagesSearchResponse",
+                body: "ThreadSearchResponse",
             },
             403: {
                 body: "APIErrorResponse",
@@ -335,7 +414,8 @@ router.get(
 
         const permissions = await getPermission(req.user_id, channel.guild_id, channel);
         permissions.hasThrow("VIEW_CHANNEL");
-        if (!permissions.has("READ_MESSAGE_HISTORY")) return res.json({ threads: [], total_results: 0, members: [], has_more: false, first_messages: [] });
+        if (!permissions.has("READ_MESSAGE_HISTORY"))
+            return res.json({ threads: [], total_results: 0, members: [], first_messages: [], has_more: false } satisfies ThreadSearchResponse);
         const member = await Member.findOneOrFail({ where: { guild_id: channel.guild_id, id: req.user_id } });
 
         const query: FindManyOptions<Channel> = {
@@ -347,7 +427,7 @@ router.get(
 
                 ...(archived
                     ? {
-                          thread_metadata: JsonContains({ archived: archived === "true" ? true : false }),
+                          thread_metadata: JsonContains({ archived: archived === "true" }),
                       }
                     : {}),
             },
@@ -368,16 +448,20 @@ router.get(
             where: {
                 id: In(threads.map(({ id }) => id)),
             },
+            relations: messagePublicRelations,
         });
+        const threadMembers = (await members).map((threadMember) => serializeThreadSearchMember(threadMember, req.user_id));
 
         const left = total_results - threads.length - +(offset || 0);
-        return res.json({
+        const response = {
             threads: threads.map((_) => _.toJSON()),
-            members: (await members).map((_) => _.toJSON()),
-            messages: (await messages).map((_) => _.toJSON()),
+            members: threadMembers,
+            first_messages: (await messages).map((_) => _.toJSON()),
             total_results,
             has_more: left > 0,
-        });
+        } satisfies ThreadSearchResponse;
+
+        return res.json(response);
     },
 );
 

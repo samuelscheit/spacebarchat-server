@@ -20,6 +20,7 @@ import { Payload, WebSocket, genVoiceToken } from "@spacebar/gateway";
 import { Config, emitEvent, Guild, Member, VoiceServerUpdateEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { Region, VoiceStateUpdateSchema } from "@spacebar/schemas";
+import { assertGatewayChannelAccess, assertGatewayVoiceChannel } from "../util/Authorization";
 // TODO: check if a voice server is setup
 
 // Notice: Bot users respect the voice channel's user limit, if set.
@@ -30,6 +31,20 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
     const startTime = Date.now();
     check.call(this, VoiceStateUpdateSchema, data.d);
     const body = data.d as VoiceStateUpdateSchema;
+
+    if (body.channel_id != null) {
+        const { channel } = await assertGatewayChannelAccess({
+            userId: this.user_id,
+            guildId: body.guild_id,
+            channelId: body.channel_id,
+            permission: "CONNECT",
+        });
+        assertGatewayVoiceChannel(channel);
+
+        body.channel_id = channel.id;
+        body.guild_id = channel.guild_id;
+    }
+
     const isNew = body.channel_id === null && body.guild_id === null;
     let isChanged = false;
 
@@ -40,13 +55,13 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
         voiceState = await VoiceState.findOneOrFail({
             where: { user_id: this.user_id },
         });
-        if (voiceState.session_id !== this.session_id && body.channel_id === null) {
+        if (voiceState.session_id !== this.session_id && body.channel_id == null) {
             //Should we also check guild_id === null?
             //changing deaf or mute on a client that's not the one with the same session of the voicestate in the database should be ignored
             return;
         }
 
-        if (voiceState.channel_id !== body.channel_id) isChanged = true;
+        if (body.channel_id !== undefined && voiceState.channel_id !== body.channel_id) isChanged = true;
 
         //If a user change voice channel between guild we should send a left event first
         if (voiceState.guild_id && voiceState.guild_id !== body.guild_id && voiceState.session_id === this.session_id) {
@@ -62,6 +77,11 @@ export async function onVoiceStateUpdate(this: WebSocket, data: Payload) {
         prevState = { ...voiceState };
         VoiceState.merge(voiceState, body);
     } catch (error) {
+        // A missing/null channel is a leave or self-state-only update.  Do not
+        // create a fresh voice state (and therefore a voice token) unless the
+        // caller supplied and passed authorization for a concrete channel above.
+        if (body.channel_id == null) return;
+
         voiceState = VoiceState.create({
             ...body,
             user_id: this.user_id,

@@ -323,6 +323,7 @@ test(
                         id: guildCommand.id,
                         name: "scenario-guild-updated",
                         type: 1,
+                        version: guildCommand.version,
                     },
                 },
                 ownerToken,
@@ -362,7 +363,10 @@ test(
             );
             const interactionMessageEvent = await waitForLabeledEvent(
                 eventCapture,
-                (event) => event.event === "MESSAGE_CREATE" && event.channel_id === channelId && event.data.application?.id === applicationId,
+                (event) =>
+                    event.event === "MESSAGE_CREATE" &&
+                    event.channel_id === channelId &&
+                    (event.data.application_id === applicationId || event.data.application?.id === applicationId),
                 "interaction MESSAGE_CREATE",
             );
             assert.equal(interactionMessageEvent.data.content, "interaction callback response");

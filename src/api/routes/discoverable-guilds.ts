@@ -18,15 +18,30 @@
 
 import { Config, Guild, Member } from "@spacebar/util";
 
-import { route } from "@spacebar/api";
+import { createDiscoverableGuildCategoryFilter, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ArrayContains, In, Not } from "typeorm";
+import { type DiscoverableGuildsResponse, toDiscoverableGuild } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
 router.get(
     "/",
     route({
+        query: {
+            offset: {
+                type: "number",
+                description: "The number of discoverable guilds to skip before returning results.",
+            },
+            limit: {
+                type: "number",
+                description: "The maximum number of discoverable guilds to return.",
+            },
+            categories: {
+                type: "string",
+                description: "Filter by one or more primary category IDs. May be repeated or comma-separated.",
+            },
+        },
         responses: {
             200: {
                 body: "DiscoverableGuildsResponse",
@@ -35,6 +50,7 @@ router.get(
     }),
     async (req: Request, res: Response) => {
         const { offset, limit, categories } = req.query;
+        const categoryFilter = createDiscoverableGuildCategoryFilter(categories);
         const showAllGuilds = Config.get().guild.discovery.showAllGuilds;
         const configLimit = Config.get().guild.discovery.limit;
         const hideJoinedGuilds = Config.get().guild.discovery.hideJoinedGuilds;
@@ -49,7 +65,7 @@ router.get(
             where: {
                 id: Not(In(hiddenGuildIds)),
                 discovery_excluded: false,
-                ...(categories == undefined ? {} : { primary_category_id: categories.toString() }), // TODO: isnt this an array?
+                ...(categoryFilter == undefined ? {} : { primary_category_id: categoryFilter }),
                 ...(showAllGuilds ? {} : { features: ArrayContains(["DISCOVERABLE"]) }),
             },
             order: {
@@ -60,18 +76,16 @@ router.get(
             take: Math.abs(Number(limit || configLimit)),
         });
 
-        const total = guilds ? guilds.length : undefined;
+        const total = guilds.length;
 
-        res.send({
+        const response = {
             total: total,
-            guilds: guilds.map((g) => ({
-                ...g,
-                discovery_weight: undefined,
-                discovery_splash: undefined,
-            })),
+            guilds: guilds.map(toDiscoverableGuild),
             offset: Number(offset || Config.get().guild.discovery.offset),
             limit: Number(limit || configLimit),
-        });
+        } satisfies DiscoverableGuildsResponse;
+
+        return res.send(response);
     },
 );
 

@@ -3,6 +3,7 @@
 /// 2 - Switched to ES512
 /// 3 - Add version, device id to token payload
 /// 4 - Move user id from custom id claim to standard sub claim
+export const FirstTokenFormatVersionWithDeviceId: number = 3;
 export const CurrentTokenFormatVersion: number = 4;
 
 export type TokenPayload = {

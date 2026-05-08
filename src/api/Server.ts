@@ -28,22 +28,30 @@ import {
     getDatabase,
     getRevInfoOrFail,
     initStartupConfigAndDatabase,
+    getConfiguredImageUploadBodyLimit,
+    getProcessMetricSamples,
+    type MetricSample,
+    registerPrometheusMetricsRoute,
 } from "@spacebar/util";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
+import { createAdminRouter, startAdminJobRecovery, stopAdminJobRecovery } from "../admin";
 import morgan from "morgan";
 import path from "node:path";
 import { red } from "picocolors";
 import { initInstance } from "./util/handlers/Instance";
 import { route } from "./util";
 import { mountApiRouter } from "./util/ApiPrefixes";
+import { startUpdateChecker } from "./util/UpdateChecker";
+import { registerPublicAssetRoutes } from "./util/PublicAssetRoutes";
 
 const ASSETS_FOLDER = path.join(__dirname, "..", "..", "assets");
 const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
 
-export type SpacebarServerOptions = ServerOptions;
-
+export type SpacebarServerOptions = ServerOptions & {
+    registerMetricsEndpoint?: boolean;
+};
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Express {
@@ -61,6 +69,22 @@ export class SpacebarServer extends Server {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         super(opts);
+    }
+
+    getExtraMetricSamples(): MetricSample[] {
+        return [
+            {
+                name: "spacebar_database_ready",
+                help: "Whether the API process has an initialized database connection.",
+                type: "gauge",
+                value: getDatabase() ? 1 : 0,
+                labels: { service: "api" },
+            },
+        ];
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("api", this.getExtraMetricSamples());
     }
 
     async configureApp() {
@@ -85,7 +109,7 @@ export class SpacebarServer extends Server {
         if (trustedProxies) this.app.set("trust proxy", trustedProxies);
 
         this.app.use(CORS);
-        this.app.use(BodyParser({ inflate: true, limit: "10mb" }));
+        this.app.use(BodyParser({ inflate: true, limit: getConfiguredImageUploadBodyLimit(Config.get().cdn) }));
 
         const app = this.app;
         const api = Router({ mergeParams: true });
@@ -118,22 +142,11 @@ export class SpacebarServer extends Server {
 
         mountApiRouter(app, api);
 
+        app.use("/_spacebar/admin/api", createAdminRouter());
+
         app.use("/imageproxy/:hash/:size/:url", ImageProxy);
 
-        app.get("/", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "index.html"));
-        });
-
-        app.get("/verify-email", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "verify.html"));
-        });
-
-        app.get("/widget", (req, res) => {
-            res.set("Cache-Control", "public, max-age=21600");
-            return res.sendFile(path.join(PUBLIC_ASSETS_FOLDER, "widget.html"));
-        });
+        registerPublicAssetRoutes(app, PUBLIC_ASSETS_FOLDER);
 
         app.get("/_spacebar/api/schemas.json", (req, res) => {
             res.sendFile(path.join(ASSETS_FOLDER, "schemas.json"));
@@ -149,6 +162,10 @@ export class SpacebarServer extends Server {
                 version: getRevInfoOrFail(),
             });
         });
+
+        if (this.options.registerMetricsEndpoint !== false) {
+            registerPrometheusMetricsRoute(app, () => this.getMetricSamples());
+        }
 
         // current well-known location
         app.get("/.well-known/spacebar", (req, res) => {
@@ -213,12 +230,20 @@ export class SpacebarServer extends Server {
         WebAuthn.init();
 
         await this.configureApp();
+        await startAdminJobRecovery();
 
         await ConnectionLoader.loadConnections();
 
         const logRequests = process.env["LOG_REQUESTS"] != undefined;
         if (logRequests) console.log(red(`Warning: Request logging is enabled! This will spam your console!\nTo disable this, unset the 'LOG_REQUESTS' environment variable!`));
 
-        return super.start();
+        const started = await super.start();
+        startUpdateChecker();
+        return started;
+    }
+
+    async stop() {
+        await super.stop();
+        await stopAdminJobRecovery();
     }
 }

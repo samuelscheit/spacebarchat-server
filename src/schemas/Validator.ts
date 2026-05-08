@@ -20,6 +20,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import fs from "node:fs";
 import path from "node:path";
+import { ImageDataUriFormat, ImageDataUriOrAssetHashFormat, isImageDataUri, isImageDataUriOrAssetHash } from "./ImageData";
 
 const SchemaPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
 const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", ""));
@@ -39,19 +40,34 @@ const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).rep
 // 	}
 // }
 
-export const ajv = new Ajv({
-    allErrors: true,
-    parseDate: true,
-    allowDate: true,
-    schemas: schemas,
-    coerceTypes: true,
-    messages: true,
-    strict: true,
-    strictRequired: true,
-    allowUnionTypes: true,
-});
+function createAjv(coerceTypes: boolean) {
+    const validator = new Ajv({
+        allErrors: true,
+        parseDate: true,
+        allowDate: true,
+        schemas: schemas,
+        coerceTypes,
+        messages: true,
+        strict: true,
+        strictRequired: true,
+        allowUnionTypes: true,
+    });
 
-addFormats(ajv);
+    addFormats(validator);
+    validator.addFormat(ImageDataUriFormat, {
+        type: "string",
+        validate: isImageDataUri,
+    });
+    validator.addFormat(ImageDataUriOrAssetHashFormat, {
+        type: "string",
+        validate: isImageDataUriOrAssetHash,
+    });
+
+    return validator;
+}
+
+export const ajv = createAjv(true);
+export const nonCoercingAjv = createAjv(false);
 
 export function validateSchema<G extends object>(schema: string, data: G): G {
     const valid = ajv.validate(schema, data);

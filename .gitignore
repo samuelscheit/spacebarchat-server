@@ -34,3 +34,11 @@ temp/
 *.qcow2
 
 benchmarks/results/
+
+# Local Discord datamining runtime artifacts.
+packages/automatic-reverse-engineering/data/runs/**/.video/
+packages/automatic-reverse-engineering/data/runs/**/screenshots/
+packages/automatic-reverse-engineering/data/runs/**/static/assets/
+packages/automatic-reverse-engineering/data/runs/**/static/login.html
+packages/automatic-reverse-engineering/data/runs/**/trace.zip
+packages/automatic-reverse-engineering/data/runs/**/video.webm

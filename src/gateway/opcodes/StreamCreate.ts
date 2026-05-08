@@ -1,20 +1,9 @@
 import { genVoiceToken, Payload, WebSocket, generateStreamKey } from "@spacebar/gateway";
-import {
-    Channel,
-    Config,
-    emitEvent,
-    Member,
-    Snowflake,
-    Stream,
-    StreamCreateEvent,
-    StreamServerUpdateEvent,
-    StreamSession,
-    VoiceState,
-    VoiceStateUpdateEvent,
-} from "@spacebar/util";
+import { Config, emitEvent, Member, Snowflake, Stream, StreamCreateEvent, StreamServerUpdateEvent, StreamSession, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamCreateSchema } from "@spacebar/schemas";
 import { selectStreamRegion } from "../util/StreamRegion";
+import { assertCallStreamKeyMatchesChannel, assertGatewayChannelAccess, assertGatewayVoiceChannel, assertGuildStreamKeyMatchesChannel } from "../util/Authorization";
 
 export async function onStreamCreate(this: WebSocket, data: Payload) {
     const startTime = Date.now();
@@ -28,7 +17,26 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
         where: { user_id: this.user_id },
     });
 
-    if (!voiceState || !voiceState.channel_id) return;
+    if (!voiceState || !voiceState.channel_id || voiceState.session_id !== this.session_id) return;
+
+    const { channel } = await assertGatewayChannelAccess({
+        userId: this.user_id,
+        guildId: body.guild_id,
+        channelId: body.channel_id,
+        permission: ["CONNECT", "STREAM"],
+    });
+    assertGatewayVoiceChannel(channel);
+
+    if (body.type === "guild") {
+        assertGuildStreamKeyMatchesChannel(body.guild_id, channel);
+        body.guild_id = channel.guild_id;
+    } else {
+        assertCallStreamKeyMatchesChannel(channel);
+        body.guild_id = undefined;
+    }
+    body.channel_id = channel.id;
+
+    if (voiceState.channel_id !== channel.id || (voiceState.guild_id ?? undefined) !== (channel.guild_id ?? undefined)) return this.close(4000, "invalid channel");
 
     if (body.guild_id) {
         voiceState.member = await Member.findOneOrFail({
@@ -36,14 +44,6 @@ export async function onStreamCreate(this: WebSocket, data: Payload) {
             relations: { user: true, roles: true },
         });
     }
-
-    // TODO: permissions check - if it's a guild, check if user is allowed to create stream in this guild
-
-    const channel = await Channel.findOne({
-        where: { id: body.channel_id },
-    });
-
-    if (!channel || (body.type === "guild" && channel.guild_id != body.guild_id)) return this.close(4000, "invalid channel");
 
     const regions = Config.get().regions;
     const guildRegion = selectStreamRegion(regions, body.preferred_region);

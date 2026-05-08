@@ -4,19 +4,19 @@ import {
     DiscordApiErrors,
     getPermission,
     Webhook,
-    WebhooksUpdateEvent,
     emitEvent,
     Channel,
     handleFile,
-    ValidateName,
+    ValidateWebhookName,
     Message,
     MessageDeleteBulkEvent,
     toAPIWebhook,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { WebhookUpdateSchema } from "@spacebar/schemas";
+import { isTextChannel, WebhookUpdateSchema } from "@spacebar/schemas";
 import { In } from "typeorm";
+import { buildWebhooksUpdateEvent } from "../../../util/utility/WebhookEvents";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -97,14 +97,8 @@ router.delete(
 
         await Webhook.delete({ id: webhook_id });
 
-        await emitEvent({
-            event: "WEBHOOKS_UPDATE",
-            channel_id,
-            data: {
-                channel_id,
-                guild_id: webhook.guild_id!, // TODO: is this even the right fix?
-            },
-        } satisfies WebhooksUpdateEvent);
+        const webhooksUpdateEvent = buildWebhooksUpdateEvent(webhook);
+        if (webhooksUpdateEvent) await emitEvent(webhooksUpdateEvent);
 
         res.sendStatus(204);
     },
@@ -146,31 +140,48 @@ router.patch(
 
         if (body.avatar) body.avatar = await handleFile(`/avatars/${webhook_id}`, body.avatar as string);
 
-        if (body.name) {
-            ValidateName(body.name);
+        if (body.name !== undefined) {
+            body.name = ValidateWebhookName(body.name);
         }
 
+        const previousWebhookLocation = {
+            channel_id: webhook.channel_id,
+            guild_id: webhook.guild_id ?? webhook.channel?.guild_id,
+        };
         const channel_id = body.channel_id || webhook.channel_id;
         webhook.assign(body);
 
-        if (body.channel_id)
-            webhook.assign({
-                channel: await Channel.findOneOrFail({
-                    where: { id: channel_id },
-                }),
+        let movedWebhookLocation = previousWebhookLocation;
+        if (body.channel_id && body.channel_id !== previousWebhookLocation.channel_id) {
+            const targetChannel = await Channel.findOneOrFail({
+                where: { id: channel_id },
             });
+            isTextChannel(targetChannel.type);
 
-        await Promise.all([
-            webhook.save(),
-            emitEvent({
-                event: "WEBHOOKS_UPDATE",
-                channel_id,
-                data: {
-                    channel_id,
-                    guild_id: webhook.guild_id!, //TODO: is this even the right fix?
-                },
-            } satisfies WebhooksUpdateEvent),
-        ]);
+            if (!targetChannel.guild_id || targetChannel.guild_id !== previousWebhookLocation.guild_id) {
+                throw new HTTPError("Webhooks can only be moved within the same guild", 400);
+            }
+
+            const targetPermission = await getPermission(req.user_id, undefined, targetChannel);
+            if (!targetPermission.has("MANAGE_WEBHOOKS")) throw DiscordApiErrors.UNKNOWN_WEBHOOK;
+
+            movedWebhookLocation = {
+                channel_id: targetChannel.id,
+                guild_id: targetChannel.guild_id,
+            };
+            webhook.assign({
+                channel: targetChannel,
+            });
+        }
+
+        await webhook.save();
+
+        const webhooksUpdateEvents = [
+            buildWebhooksUpdateEvent(previousWebhookLocation),
+            movedWebhookLocation.channel_id !== previousWebhookLocation.channel_id ? buildWebhooksUpdateEvent(movedWebhookLocation) : undefined,
+        ].filter((event): event is NonNullable<typeof event> => !!event);
+
+        await Promise.all(webhooksUpdateEvents.map((event) => emitEvent(event)));
 
         res.json(
             toAPIWebhook(webhook, {

@@ -78,7 +78,7 @@ describe("generated HTTP contract matrix", () => {
         const signedUrlContract = matrix.contracts.find((entry) => entry.manifestId === "cdn:http:GET:/attachments/:channel_id/:message_id/:filename");
         assert.ok(signedUrlContract?.cases.some((contractCase) => contractCase.id === "cdn-signed-url" && contractCase.checks.includes("signed-url")));
 
-        const filenameContract = matrix.contracts.find((entry) => entry.manifestId === "cdn:http:POST:/attachments/:channel_id/:message_id");
+        const filenameContract = matrix.contracts.find((entry) => entry.manifestId === "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:message_id");
         assert.ok(filenameContract?.cases.some((contractCase) => contractCase.id === "cdn-filename-sanitization" && contractCase.checks.includes("filename-sanitization")));
     });
 });

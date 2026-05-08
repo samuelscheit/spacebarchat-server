@@ -17,7 +17,7 @@
 */
 
 import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent } from "@spacebar/util";
+import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations } from "@spacebar/util";
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
@@ -44,7 +44,10 @@ router.post(
         const body = req.body as MessageThreadCreationSchema;
         const message = await Message.findOneOrFail({
             where: { id: message_id, channel_id },
-            relations: ["guild"],
+            relations: {
+                ...messagePublicRelations,
+                guild: true,
+            },
         });
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -54,11 +57,11 @@ router.post(
         const thread = await Channel.createThreadChannel(
             {
                 id: message.id,
-                parent_id: channel.id,
-                member_count: 1,
-                message_count: 0,
-                total_message_sent: 0,
+                owner: user,
+                parent: channel,
+                guild: channel.guild,
                 name: body.name,
+                parent_id: channel.id,
                 guild_id: channel.guild_id,
                 rate_limit_per_user: body.rate_limit_per_user,
                 type: channel.type === ChannelType.GUILD_NEWS ? ChannelType.GUILD_NEWS_THREAD : ChannelType.GUILD_PUBLIC_THREAD,
@@ -71,7 +74,7 @@ router.post(
                 locked: false,
                 create_timestamp: new Date().toISOString(),
             },
-            user.id,
+            req.user_id,
             { skipPermissionCheck: true, keepId: true, skipEventEmit: true, skipNameChecks: true },
         );
 

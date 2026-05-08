@@ -17,7 +17,18 @@
 */
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { closeDatabase, Config, initEvent, initStartupConfigAndDatabase, Session, TimeSpan } from "@spacebar/util";
+import {
+    closeDatabase,
+    Config,
+    getProcessMetricSamples,
+    initEvent,
+    initStartupConfigAndDatabase,
+    type MetricSample,
+    parseHttpRequestUrl,
+    Session,
+    TimeSpan,
+    writePrometheusMetricsResponse,
+} from "@spacebar/util";
 import http from "node:http";
 import ws from "ws";
 import { Connection } from "./events/Connection";
@@ -36,7 +47,13 @@ export class Server {
 
         if (server) this.server = server;
         else {
-            this.server = http.createServer(function (req, res) {
+            this.server = http.createServer((req, res) => {
+                const requestUrl = parseHttpRequestUrl(req.url);
+                if (requestUrl.pathname === "/-/metrics") {
+                    writePrometheusMetricsResponse(res, () => this.getMetricSamples());
+                    return;
+                }
+
                 res.writeHead(200).end("Online");
             });
         }
@@ -60,6 +77,22 @@ export class Server {
         });
         this.ws.on("connection", Connection);
         this.ws.on("error", console.error);
+    }
+
+    getExtraMetricSamples(): MetricSample[] {
+        return [
+            {
+                name: "spacebar_webrtc_websocket_clients",
+                help: "Number of websocket clients attached to the WebRTC server.",
+                type: "gauge",
+                value: this.ws?.clients.size ?? 0,
+                labels: { service: "webrtc" },
+            },
+        ];
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("webrtc", this.getExtraMetricSamples());
     }
 
     async start(): Promise<void> {

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createServer, type Server as HttpServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { Server as GatewayServer } from "@spacebar/gateway";
+import { Config } from "@spacebar/util";
 
 export interface StartedGatewayServer {
     url: string;
@@ -13,13 +14,15 @@ export interface StartedGatewayServer {
 export async function startGateway(): Promise<StartedGatewayServer> {
     const http = createServer();
     const server = new GatewayServer({ port: 0, server: http });
+    Config.get().gateway.disconnectedSessionCleanupDelayMs = 0;
+    server.configureWebSocketServer();
     const port = await listen(http);
 
     return {
         url: `ws://127.0.0.1:${port}`,
         server,
         http,
-        stop: () => closeGateway(server),
+        stop: () => closeGateway(server, http),
     };
 }
 
@@ -34,12 +37,13 @@ async function listen(server: HttpServer) {
     return (address as AddressInfo).port;
 }
 
-async function closeGateway(server: GatewayServer) {
-    for (const client of server.ws.clients) client.close();
-    await new Promise<void>((resolve) => {
-        server.ws.close(() => resolve());
-    });
+async function closeGateway(server: GatewayServer, http: HttpServer) {
+    await server.stop();
     await new Promise<void>((resolve, reject) => {
-        server.server.close((error) => (error ? reject(error) : resolve()));
+        if (!http.listening) {
+            resolve();
+            return;
+        }
+        http.close((error) => (error ? reject(error) : resolve()));
     });
 }

@@ -5,7 +5,6 @@ using Spacebar.AdminApi.Extensions;
 using Spacebar.Models.AdminApi;
 using Spacebar.Interop.Authentication.AspNetCore;
 using Spacebar.Models.Db.Contexts;
-using Spacebar.Models.Db.Models;
 using Spacebar.Models.Gateway;
 
 namespace Spacebar.AdminApi.Controllers;
@@ -22,12 +21,13 @@ public class ChannelController(
     [HttpDelete("{id}")]
     public async Task DeleteById(long id) {
         (await auth.GetCurrentUserAsync(Request)).GetRights().AssertHasAllRights(SpacebarRights.Rights.OPERATOR);
-        // TODO: proper type
-        await replication.SendAsync<Channel>(new() {
+        var channel = await db.Channels.SingleAsync(x => x.Id == id);
+
+        await replication.SendAsync<PublicChannel>(new() {
             Origin = "AdminApi/DeleteChannelById",
             ChannelId = id,
             Event = "CHANNEL_DELETE",
-            Payload = await db.Channels.SingleAsync(x => x.Id == id)
+            Payload = channel.ToPublicChannel()
         });
 
         await db.Channels.Where(x => x.Id == id).ExecuteDeleteAsync();

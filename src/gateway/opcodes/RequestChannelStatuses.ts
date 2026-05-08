@@ -16,25 +16,60 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest, CLOSECODES } from "@spacebar/gateway";
-import { Config } from "@spacebar/util";
+import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
+import { Channel, Config, getPermission } from "@spacebar/util";
+import { ChannelType } from "@spacebar/schemas";
+import { And, IsNull, Not } from "typeorm";
+
+export type ChannelStatus = {
+    id: string;
+    status: string;
+};
+
+export async function getChannelStatuses(guild_id: string, user_id: string): Promise<ChannelStatus[]> {
+    const permissions = await getPermission(user_id, guild_id);
+
+    const channels = await Channel.find({
+        where: {
+            guild_id,
+            type: ChannelType.GUILD_VOICE,
+            status: And(Not(IsNull()), Not("")),
+        },
+        select: {
+            id: true,
+            status: true,
+            permission_overwrites: true,
+        },
+        order: {
+            id: "ASC",
+        },
+    });
+
+    return channels
+        .filter((channel) => permissions.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL"))
+        .map((channel) => ({
+            id: channel.id,
+            status: channel.status!,
+        }));
+}
 
 export async function onRequestChannelStatuses(this: WebSocket, { d }: Payload) {
     // Schema validation can only accept either string or array, so transforming it here to support both
-    if (!d || typeof d !== "object" || !d.guild_id) return this.close(CLOSECODES.Decode_error);
+    if (!d.guild_id) throw new Error('"guild_id" is required');
 
     if (Config.get().offload.gateway.channelStatusesUrl !== null) {
         return await handleOffloadedGatewayRequest(this, Config.get().offload.gateway.channelStatusesUrl!, d);
     }
 
-    // TODO: implement
+    const channels = await getChannelStatuses(d.guild_id, this.user_id);
+
     await Send(this, {
         op: OPCODES.Dispatch,
         s: this.sequence++,
         t: "CHANNEL_STATUSES",
         d: {
             guild_id: d.guild_id,
-            channels: [],
+            channels,
         },
     });
 }

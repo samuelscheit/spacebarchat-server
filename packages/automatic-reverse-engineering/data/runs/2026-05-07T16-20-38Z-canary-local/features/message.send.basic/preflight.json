@@ -1,0 +1,41 @@
+{
+	"fixtures": {
+		"disposable_validation": {
+			"missing": [],
+			"not_disposable": [],
+			"ok": true,
+			"required": []
+		},
+		"redacted_manifest": {
+			"channels": {
+				"general": "{channel_id}",
+				"voice": "{channel_id}"
+			},
+			"guild": "{guild_id}",
+			"users": {
+				"runner": "{user_id}"
+			}
+		},
+		"validation": {
+			"missing": [],
+			"ok": true
+		}
+	},
+	"ok": true,
+	"storage_state": {
+		"cookie_count": 4,
+		"discord_auth_cookie_count": 0,
+		"discord_auth_storage_count": 2,
+		"discord_cookie_count": 4,
+		"discord_expired_auth_cookie_count": 0,
+		"discord_origin_count": 2,
+		"has_discord_session": true,
+		"max_storage_state_age_ms": 604800000,
+		"origin_count": 2,
+		"path": "{storage_state_path}",
+		"storage_state_age_ms": 1006,
+		"storage_state_age_source": "provided_created_at",
+		"storage_state_fresh": true
+	},
+	"violations": []
+}

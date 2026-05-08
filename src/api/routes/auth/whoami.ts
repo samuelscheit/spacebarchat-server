@@ -17,7 +17,7 @@
 */
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { getWhoAmIResponse } from "../../util/handlers/WhoamiResponse";
+import { getWhoAmIResponse } from "../../util/responses/WhoAmI";
 
 const router = Router({ mergeParams: true });
 router.get(

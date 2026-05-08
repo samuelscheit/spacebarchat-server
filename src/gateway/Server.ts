@@ -18,31 +18,52 @@
 
 import dotenv from "dotenv";
 dotenv.config({ quiet: true });
-import { checkToken, closeDatabase, initEvent, initStartupConfigAndDatabase, Rights } from "@spacebar/util";
+import {
+    checkToken,
+    closeDatabase,
+    Config,
+    getProcessMetricSamples,
+    initEvent,
+    initStartupConfigAndDatabase,
+    type MetricSample,
+    parseHttpRequestUrl,
+    Rights,
+    writePrometheusMetricsResponse,
+} from "@spacebar/util";
 import ws from "ws";
 import { Connection, openConnections } from "./events/Connection";
 import http from "node:http";
-import { cleanupOnStartup } from "./util";
+import { cleanupOnStartup, getGatewayTransportMaxPayload } from "./util";
 import { randomString } from "@spacebar/api";
 import { setInterval } from "node:timers";
+import { Duplex } from "node:stream";
+import { closeGatewayServer } from "./util/Shutdown";
+import { broadcastReconnect } from "./util/Reconnect";
+import type { WebSocket } from "./util/WebSocket";
 
 export class Server {
-    public ws: ws.Server;
+    public ws?: ws.Server;
     public port: number;
     public server: http.Server;
     public production: boolean;
+    private ownsHttpServer: boolean;
+    private stopping = false;
+    private stopPromise?: Promise<void>;
+    private readonly upgradeHandler: (request: http.IncomingMessage, socket: Duplex, head: Buffer) => void;
+    private readonly connectionCloseCleanups = new Set<Promise<unknown>>();
 
     constructor({ port, server, production }: { port: number; server?: http.Server; production?: boolean }) {
         this.port = port;
         this.production = production || false;
 
+        this.ownsHttpServer = !server;
         if (server) this.server = server;
         else {
             const elu = [1, 5, 15].map(() => performance.eventLoopUtilization());
             const eluP = [1, 5, 15].map(() => performance.eventLoopUtilization());
             const cpu = [1, 5, 15].map(() => process.cpuUsage());
             let sec = 0;
-            setInterval(() => {
+            const statsInterval = setInterval(() => {
                 sec += 1;
                 // for some reason this behaves differently from cpuUsage, so we need an absolute reference as "previous"
                 const eluC = performance.eventLoopUtilization();
@@ -61,12 +82,19 @@ export class Server {
                     eluP[2] = eluC;
                 }
             }, 1000);
+            statsInterval.unref();
 
             this.server = http.createServer(async (req, res) => {
+                const requestUrl = parseHttpRequestUrl(req.url);
+                if (requestUrl.pathname === "/-/metrics") {
+                    writePrometheusMetricsResponse(res, () => this.getMetricSamples());
+                    return;
+                }
+
                 if (!req.headers.cookie?.split("; ").find((x) => x.startsWith("__sb_sessid="))) {
                     res.setHeader("Set-Cookie", `__sb_sessid=${randomString(32)}; Secure; HttpOnly; SameSite=None; Path=/`);
                 }
-                const requestUrl = new URL(`http://${req.headers.host}${req.url}`);
+
                 if (requestUrl.pathname === "/_spacebar/gateway/admin/introspect") {
                     if (!req.headers.authorization) {
                         return res.writeHead(401).end("Unauthorized");
@@ -155,38 +183,154 @@ export class Server {
             });
         }
 
-        this.server.on("upgrade", (request, socket, head) => {
-            this.ws.handleUpgrade(request, socket, head, (socket) => {
-                this.ws.emit("connection", socket, request);
-            });
-        });
+        this.upgradeHandler = (request, socket, head) => {
+            if (this.stopping || !this.ws) {
+                socket.destroy();
+                return;
+            }
+
+            const wsServer = this.ws;
+            try {
+                wsServer.handleUpgrade(request, socket, head, (websocket) => {
+                    if (this.stopping) {
+                        websocket.close(1001, "Gateway shutdown");
+                        return;
+                    }
+
+                    wsServer.emit("connection", websocket, request);
+                });
+            } catch (error) {
+                if (!this.stopping) console.error("[Gateway] WebSocket upgrade failed", error);
+                socket.destroy();
+            }
+        };
+        this.server.on("upgrade", this.upgradeHandler);
+    }
+
+    private initializeWebSocketServer() {
+        if (this.ws) return;
 
         this.ws = new ws.Server({
-            maxPayload: 4096,
+            maxPayload: getGatewayTransportMaxPayload(Config.get().limits.gateway),
             noServer: true,
         });
-        this.ws.on("connection", Connection);
+        this.ws.on("connection", (socket, request) => {
+            const gatewaySocket = socket as WebSocket;
+            void Connection.call(this.ws!, gatewaySocket, request);
+            this.trackConnectionCloseCleanup(gatewaySocket);
+        });
         this.ws.on("error", console.error);
+    }
+
+    private trackConnectionCloseCleanup(socket: WebSocket) {
+        socket.once("close", () => {
+            void Promise.resolve().then(() => {
+                const closeCleanup = socket.closeCleanup;
+                if (!closeCleanup) return;
+
+                let tracked: Promise<unknown>;
+                tracked = Promise.resolve(closeCleanup)
+                    .catch((error) => {
+                        console.error("[Gateway] Connection close cleanup failed", error);
+                    })
+                    .finally(() => {
+                        this.connectionCloseCleanups.delete(tracked);
+                    });
+                this.connectionCloseCleanups.add(tracked);
+            });
+        });
+    }
+
+    private async waitForConnectionCloseCleanups() {
+        while (this.connectionCloseCleanups.size) {
+            await Promise.all(Array.from(this.connectionCloseCleanups));
+        }
+    }
+
+    configureWebSocketServer() {
+        this.initializeWebSocketServer();
+    }
+
+    getExtraMetricSamples(): MetricSample[] {
+        return [
+            {
+                name: "spacebar_gateway_open_connections",
+                help: "Number of authenticated gateway connection records.",
+                type: "gauge",
+                value: openConnections.length,
+                labels: { service: "gateway" },
+            },
+            {
+                name: "spacebar_gateway_websocket_clients",
+                help: "Number of websocket clients attached to the gateway server.",
+                type: "gauge",
+                value: this.ws?.clients.size ?? 0,
+                labels: { service: "gateway" },
+            },
+        ];
+    }
+
+    getMetricSamples(): MetricSample[] {
+        return getProcessMetricSamples("gateway", this.getExtraMetricSamples());
     }
 
     async start(): Promise<void> {
         await initStartupConfigAndDatabase();
         await initEvent();
+        this.initializeWebSocketServer();
         // temporary fix
         await cleanupOnStartup();
 
         if (!this.server.listening) {
-            this.server.listen(this.port);
+            await listenHttpServer(this.server, this.port);
+            this.ownsHttpServer = true;
             console.log(`[Gateway] online on 0.0.0.0:${this.port}`);
         }
     }
 
     async stop() {
-        this.ws.clients.forEach((x) => x.close());
-        this.ws.close(() => {
-            this.server.close(() => {
-                closeDatabase();
-            });
-        });
+        this.stopPromise ??= this.stopGateway();
+        await this.stopPromise;
     }
+
+    private async stopGateway() {
+        this.stopping = true;
+        this.server.off("upgrade", this.upgradeHandler);
+
+        if (this.ws) {
+            await broadcastReconnect(this.ws.clients as Iterable<WebSocket>);
+            await closeGatewayServer(this.ws);
+        }
+
+        await this.waitForConnectionCloseCleanups();
+
+        if (this.ownsHttpServer) {
+            if (this.server.listening) await closeHttpServer(this.server);
+            await closeDatabase();
+        }
+    }
+}
+
+function listenHttpServer(server: http.Server, port: number) {
+    return new Promise<void>((resolve, reject) => {
+        const onError = (error: Error) => {
+            server.off("error", onError);
+            reject(error);
+        };
+
+        server.once("error", onError);
+        server.listen(port, () => {
+            server.off("error", onError);
+            resolve();
+        });
+    });
+}
+
+function closeHttpServer(server: http.Server) {
+    return new Promise<void>((resolve, reject) => {
+        server.close((error) => {
+            if (error) reject(error);
+            else resolve();
+        });
+    });
 }

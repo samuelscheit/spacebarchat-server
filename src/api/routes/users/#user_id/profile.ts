@@ -20,147 +20,149 @@ import { route } from "@spacebar/api";
 import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, profilePronouns, Relationship, User, UserUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
-import { PartialConnectedAccountResponse, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType, UserProfileModifySchema } from "@spacebar/schemas";
+import {
+    PartialConnectedAccountResponse,
+    PrivateUserProjection,
+    PublicUser,
+    PublicUserProjection,
+    RelationshipType,
+    type UserProfileResponse,
+    UserProfileModifySchema,
+} from "@spacebar/schemas";
+import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
+import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({ responses: { 200: { body: "UserProfileResponse" } } }), async (req: Request, res: Response) => {
-    if (req.params.user_id === "@me") req.params.user_id = req.user_id;
-
-    const { guild_id, with_mutual_guilds, with_mutual_friends, with_mutual_friends_count } = req.query;
-    const { user_id } = req.params as { [key: string]: string };
-
-    const user = await User.findOneOrFail({
-        where: {
-            id: user_id,
+router.get(
+    "/",
+    route({
+        responses: {
+            200: { body: "UserProfileResponse" },
+            403: { body: "APIErrorResponse" },
+            404: { body: "APIErrorResponse" },
         },
-        relations: { connected_accounts: true },
-        select: {
-            // Manually select everything cause typeorm is a fuck
-            connected_accounts: {
-                id: true,
-                type: true,
-                name: true,
-                verified: true,
-                metadata_: true,
-                metadata_visibility: true,
-                visibility: true,
+    }),
+    async (req: Request, res: Response) => {
+        if (req.params.user_id === "@me") req.params.user_id = req.user_id;
+
+        const { guild_id, with_mutual_guilds, with_mutual_friends, with_mutual_friends_count } = req.query;
+        const { user_id } = req.params as { [key: string]: string };
+        const guildId = typeof guild_id == "string" ? guild_id : undefined;
+
+        const user = await User.findOneOrFail({
+            where: {
+                id: user_id,
             },
-        },
-    });
-
-    const mutual_guilds: object[] = [];
-    let premium_guild_since;
-
-    if (with_mutual_guilds == "true") {
-        const requested_member = await Member.find({
-            where: { id: user_id },
+            relations: { connected_accounts: true },
+            select: {
+                // Manually select everything cause typeorm is a fuck
+                connected_accounts: {
+                    id: true,
+                    type: true,
+                    name: true,
+                    verified: true,
+                    metadata_: true,
+                    metadata_visibility: true,
+                    visibility: true,
+                },
+            },
         });
-        const self_member = await Member.find({
-            where: { id: req.user_id },
-        });
 
-        for (const rmem of requested_member) {
-            if (rmem.premium_since) {
-                if (premium_guild_since) {
-                    if (premium_guild_since > rmem.premium_since) {
+        const mutual_guilds: NonNullable<UserProfileResponse["mutual_guilds"]> = [];
+        let premium_guild_since: UserProfileResponse["premium_guild_since"];
+
+        if (with_mutual_guilds == "true") {
+            const requested_member = await Member.find({
+                where: { id: user_id },
+            });
+            const self_member = await Member.find({
+                where: { id: req.user_id },
+            });
+
+            for (const rmem of requested_member) {
+                if (rmem.premium_since) {
+                    if (premium_guild_since) {
+                        if (premium_guild_since > rmem.premium_since) {
+                            premium_guild_since = rmem.premium_since;
+                        }
+                    } else {
                         premium_guild_since = rmem.premium_since;
                     }
-                } else {
-                    premium_guild_since = rmem.premium_since;
                 }
-            }
-            for (const smem of self_member) {
-                if (smem.guild_id === rmem.guild_id) {
-                    mutual_guilds.push({
-                        id: rmem.guild_id,
-                        nick: rmem.nick,
-                    });
+                for (const smem of self_member) {
+                    if (smem.guild_id === rmem.guild_id) {
+                        mutual_guilds.push({
+                            id: rmem.guild_id,
+                            nick: rmem.nick,
+                        });
+                    }
                 }
             }
         }
-    }
 
-    const guild_member =
-        guild_id && typeof guild_id == "string"
-            ? await Member.findOneOrFail({
-                  where: { id: user_id, guild_id: guild_id },
-                  relations: { roles: true },
-              })
+        const guild_member = await getProfileGuildMember(req.user_id, user_id, guildId);
+
+        // TODO: make proper DTO's in util?
+
+        const userProfile = {
+            bio: req.user_bot ? null : user.bio,
+            accent_color: user.accent_color,
+            banner: user.banner,
+            pronouns: profilePronouns(user.pronouns),
+            theme_colors: user.theme_colors?.map((t) => Number(t)), // these are strings for some reason, they should be numbers
+        };
+
+        const guildMemberProfile: UserProfileResponse["guild_member_profile"] | undefined = guild_member
+            ? {
+                  accent_color: null,
+                  banner: guild_member.banner || null,
+                  bio: guild_member.bio || "",
+                  guild_id: guild_member.guild_id,
+              }
             : undefined;
 
-    if (guild_member) guild_member.roles = guild_member?.roles.filter((role) => role.id != guild_id);
+        const badges = user.badge_ids?.length ? await Badge.find({ where: { id: In(user.badge_ids) } }) : [];
 
-    // TODO: make proper DTO's in util?
+        let mutual_friends: PublicUser[] = [];
+        let mutual_friends_count = 0;
 
-    const userProfile = {
-        bio: req.user_bot ? null : user.bio,
-        accent_color: user.accent_color,
-        banner: user.banner,
-        pronouns: profilePronouns(user.pronouns),
-        theme_colors: user.theme_colors?.map((t) => Number(t)), // these are strings for some reason, they should be numbers
-    };
-
-    const guildMemberProfile = {
-        accent_color: null,
-        banner: guild_member?.banner || null,
-        bio: guild_member?.bio || "",
-        guild_id,
-    };
-
-    const badges = await Badge.find();
-
-    let mutual_friends: PublicUser[] = [];
-    let mutual_friends_count = 0;
-
-    if (with_mutual_friends == "true" || with_mutual_friends_count == "true") {
-        const relationshipsSelf = await Relationship.find({ where: { from_id: req.user_id, type: RelationshipType.friends } });
-        const relationshipsUser = await Relationship.find({ where: { from_id: user_id, type: RelationshipType.friends } });
-        const relationshipsIntersection = relationshipsSelf.filter((r1) => relationshipsUser.some((r2) => r2.to_id === r1.to_id));
-        if (with_mutual_friends_count) mutual_friends_count = relationshipsIntersection.length;
-        if (with_mutual_friends) {
-            const users = await User.find({ where: { id: In(relationshipsIntersection.map((r) => r.to_id)) }, select: PublicUserProjection });
-            mutual_friends = users.map((u) => u.toPublicUser());
-        }
-    }
-
-    // Only expose public properties to response
-    const publicUserConnections: PartialConnectedAccountResponse[] = [];
-
-    user.connected_accounts
-        .filter((x) => x.visibility != 0)
-        .forEach((x) => {
-            const publicUserConnection = {
-                id: x.id,
-                type: x.type,
-                name: x.name,
-                verified: x.verified ?? false,
-            } satisfies PartialConnectedAccountResponse;
-
-            if (x.metadata_visibility != 0) {
-                // @ts-expect-error idk
-                publicUserConnection.metadata = x.metadata_;
+        if (with_mutual_friends == "true" || with_mutual_friends_count == "true") {
+            const relationshipsSelf = await Relationship.find({ where: { from_id: req.user_id, type: RelationshipType.friends } });
+            const relationshipsUser = await Relationship.find({ where: { from_id: user_id, type: RelationshipType.friends } });
+            const relationshipsIntersection = relationshipsSelf.filter((r1) => relationshipsUser.some((r2) => r2.to_id === r1.to_id));
+            if (with_mutual_friends_count == "true") mutual_friends_count = relationshipsIntersection.length;
+            if (with_mutual_friends == "true") {
+                const users = await User.find({ where: { id: In(relationshipsIntersection.map((r) => r.to_id)) }, select: PublicUserProjection });
+                mutual_friends = users.map((u) => u.toPublicUser());
             }
+        }
 
-            publicUserConnections.push(publicUserConnection);
-        });
+        // Only expose public properties to response
+        const publicUserConnections: PartialConnectedAccountResponse[] = user.connected_accounts.filter((x) => x.visibility != 0).map(toPartialConnectedAccountResponse);
+        const profileBadges: UserProfileResponse["badges"] = badges.map(toProfileBadgeResponse);
+        const guildBadges: UserProfileResponse["guild_badges"] = [];
 
-    res.json({
-        connected_accounts: publicUserConnections,
-        premium_guild_since: premium_guild_since, // TODO
-        premium_since: user.premium_since, // TODO
-        mutual_guilds: with_mutual_guilds ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
-        mutual_friends: with_mutual_friends ? mutual_friends : undefined,
-        mutual_friends_count: with_mutual_friends_count ? mutual_friends_count : undefined,
-        user: user.toPublicUser(),
-        premium_type: user.premium_type,
-        profile_themes_experiment_bucket: 4, // TODO: This doesn't make it available, for some reason?
-        user_profile: userProfile,
-        guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
-        guild_member_profile: guild_id && guildMemberProfile,
-        badges: badges.filter((x) => user.badge_ids?.includes(x.id)),
-    });
-});
+        const response = {
+            connected_accounts: publicUserConnections,
+            premium_guild_since: premium_guild_since, // TODO
+            premium_since: user.premium_since, // TODO
+            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
+            mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,
+            mutual_friends_count: with_mutual_friends_count == "true" ? mutual_friends_count : undefined,
+            user: user.toPublicUser(),
+            premium_type: user.premium_type,
+            profile_themes_experiment_bucket: 4, // TODO: This doesn't make it available, for some reason?
+            user_profile: userProfile,
+            guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
+            guild_member_profile: guildMemberProfile,
+            badges: profileBadges,
+            guild_badges: guildBadges,
+        } satisfies UserProfileResponse;
+
+        res.json(response);
+    },
+);
 
 router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req: Request, res: Response) => {
     const body = req.body as UserProfileModifySchema;

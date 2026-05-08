@@ -278,4 +278,41 @@ describe("cleanupClosedSessionPresence", () => {
             },
         ]);
     });
+
+    test("skips presence updates for deleted users after replacing sessions", async () => {
+        const { cleanupClosedSessionPresence } = await loadCloseCleanup();
+        const session = createSession(new Date(1000));
+        let sessionsReplaceCount = 0;
+        let presenceCount = 0;
+        const deps: CloseSessionCleanupDependencies = {
+            async findSessions() {
+                return [session];
+            },
+            async markSessionOffline() {
+                session.status = "offline";
+                return true;
+            },
+            async findPublicUser() {
+                return undefined;
+            },
+            async emitSessionsReplace() {
+                sessionsReplaceCount++;
+            },
+            async distributePresenceUpdate() {
+                presenceCount++;
+            },
+            getMostRelevantSession(sessions) {
+                return sessions[0];
+            },
+            createTransactionId() {
+                return "tx";
+            },
+        };
+
+        const updated = await cleanupClosedSessionPresence("user", "auth-session", 2000, deps);
+
+        assert.equal(updated, true);
+        assert.equal(sessionsReplaceCount, 1);
+        assert.equal(presenceCount, 0);
+    });
 });

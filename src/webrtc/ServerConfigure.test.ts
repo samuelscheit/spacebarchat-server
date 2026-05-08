@@ -5,9 +5,7 @@ import { describe, test } from "node:test";
 import ws from "ws";
 import { CLOSECODES } from "@spacebar/gateway";
 import { Config, ConfigValue } from "@spacebar/util";
-import { Server as WebRtcServer } from "./Server";
-import { VoiceOPCodes, type VoicePayload } from "./util/Constants";
-import type { WebRtcWebSocket } from "./util/WebRtcWebSocket";
+import { Server as WebRtcServer, VoiceOPCodes, type VoicePayload, type WebRtcWebSocket } from "@spacebar/webrtc";
 
 describe("WebRTC Server transport", () => {
     test("accepts a real websocket client and sends HELLO without startup database initialization", async () => {

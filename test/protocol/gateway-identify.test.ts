@@ -385,14 +385,14 @@ test(
             );
 
             const info = await readUntil(client, (payload) => payload.op === 0 && payload.t === "CHANNEL_INFO");
-            const infoData = info.d as { guild_id: string; channels: Array<{ id: string; status: null; voice_start_time: string }> };
+            const infoData = info.d as { guild_id: string; channels: Array<{ id: string; status: null; voice_start_time: null }> };
             assert.equal(typeof info.s, "number");
             assert.equal(info.s, (statuses.s ?? 0) + 1);
             assert.equal(infoData.guild_id, guild.id);
             assert.equal(infoData.channels.length, 1);
             assert.equal(infoData.channels[0].id, voiceChannel.id);
             assert.equal(infoData.channels[0].status, null);
-            assert.match(infoData.channels[0].voice_start_time, /^\d{4}-\d{2}-\d{2}T/);
+            assert.equal(infoData.channels[0].voice_start_time, null);
         } finally {
             if (client) {
                 await closeClient(client);
@@ -481,6 +481,9 @@ test(
 
             gateway = await startGateway();
             ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken);
+            const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
+            const ownerReadyData = ownerReady.d as { session_id: string };
+            await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
             await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
             await waitForEventListener(owner.id);
             await waitForEventListener(guild.id);

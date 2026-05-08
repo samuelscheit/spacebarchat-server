@@ -151,6 +151,14 @@ test(
             assert.ok(ownerToken, "owner token generation should return a bearer token");
             ownerEvents = await captureEvents(owner.id);
 
+            const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `users-supp-${suffix.slice(-8)}` }, ownerToken);
+            await assertStatus(createdGuild, 201);
+            const guildId = (await assertJsonObject(createdGuild)).id as string;
+            await Member.addToGuild(target.id, guildId);
+            const targetToken = await generateToken(target.id);
+            assert.ok(targetToken, "target token generation should return a bearer token");
+            guildEvents = await captureEvents(guildId);
+
             const publicUser = await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/${target.id}`, ownerToken));
             assert.equal(publicUser.id, target.id);
             assert.equal(publicUser.username, target.username);
@@ -181,14 +189,6 @@ test(
 
             const dmMessages = await getJsonArray(`${api.apiBaseUrl}/users/${target.id}/messages?limit=5`, ownerToken);
             assert.deepEqual(dmMessages, []);
-
-            const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `users-supp-${suffix.slice(-8)}` }, ownerToken);
-            await assertStatus(createdGuild, 201);
-            const guildId = (await assertJsonObject(createdGuild)).id as string;
-            await Member.addToGuild(target.id, guildId);
-            const targetToken = await generateToken(target.id);
-            assert.ok(targetToken, "target token generation should return a bearer token");
-            guildEvents = await captureEvents(guildId);
 
             const guilds = await getJsonArray(`${api.apiBaseUrl}/users/@me/guilds`, ownerToken);
             assert.ok(guilds.some((guild) => guild.id === guildId));

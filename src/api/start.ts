@@ -24,7 +24,7 @@ process.on("unhandledRejection", console.error);
 import { config } from "dotenv";
 config({ quiet: true });
 import { SpacebarServer } from "./Server";
-import { handleClusterStartupFailure, runStartupOrExit } from "@spacebar/util";
+import { getUpdateCheckerWorkerEnv, handleClusterStartupFailure, runStartupOrExit, UpdateCheckerWorkerElection } from "@spacebar/util";
 import cluster from "node:cluster";
 import os from "node:os";
 import fs from "node:fs";
@@ -37,10 +37,16 @@ try {
 
 if (cluster.isPrimary && process.env.NODE_ENV == "production") {
     console.log(`Primary PID: ${process.pid}`);
+    const updateCheckerElection = new UpdateCheckerWorkerElection();
+
+    function forkWorker(runUpdateChecker: boolean) {
+        const worker = cluster.fork(getUpdateCheckerWorkerEnv(runUpdateChecker));
+        updateCheckerElection.recordForkedWorker(worker.id, runUpdateChecker);
+    }
 
     // Fork workers.
     for (let i = 0; i < cores; i++) {
-        cluster.fork();
+        forkWorker(updateCheckerElection.shouldRunInitialWorker(i));
     }
 
     cluster.on("message", (worker, message) => {
@@ -49,7 +55,7 @@ if (cluster.isPrimary && process.env.NODE_ENV == "production") {
 
     cluster.on("exit", (worker) => {
         console.log(`Worker ${worker.process.pid} died, restarting worker`);
-        cluster.fork();
+        forkWorker(updateCheckerElection.shouldRunReplacementForExitedWorker(worker.id));
     });
 } else {
     const port = Number(process.env.PORT) || 3001;

@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { closeDatabase, Config, generateToken, initDatabase, Message, ReadState, User } from "@spacebar/util";
+import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -100,11 +101,15 @@ test(
             const guildId = (await assertJsonObject(createdGuild)).id as string;
             const channels = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, token);
             const channelId = channels[0].id as string;
-            events = await captureEvents([channelId, owner.id]);
+            const createNews = await postJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, { name: "scenario-news", type: ChannelType.GUILD_NEWS }, token);
+            await assertStatus(createNews, 201);
+            const newsChannelId = (await assertJsonObject(createNews)).id as string;
+            events = await captureEvents([channelId, newsChannelId, owner.id]);
 
             const messageId = await createMessage(api.apiBaseUrl, channelId, "channel supplemental searchable marker", token);
+            const newsMessageId = await createMessage(api.apiBaseUrl, newsChannelId, "channel supplemental crosspost marker", token);
             await coverReactionRoutes(api.apiBaseUrl, channelId, messageId, token, owner.id, events);
-            await coverAckSearchPreloadAndStubs(api.apiBaseUrl, channelId, messageId, token, owner.id, events);
+            await coverAckSearchPreloadAndStubs(api.apiBaseUrl, channelId, messageId, newsChannelId, newsMessageId, token, owner.id, events);
             await coverBulkDelete(api.apiBaseUrl, channelId, token, events);
         } finally {
             if (events) await events.stop();
@@ -154,7 +159,16 @@ async function coverReactionRoutes(apiBaseUrl: string, channelId: string, messag
     assert.deepEqual((await Message.findOneByOrFail({ id: messageId })).reactions, []);
 }
 
-async function coverAckSearchPreloadAndStubs(apiBaseUrl: string, channelId: string, messageId: string, token: string, ownerId: string, events: EventCapture) {
+async function coverAckSearchPreloadAndStubs(
+    apiBaseUrl: string,
+    channelId: string,
+    messageId: string,
+    newsChannelId: string,
+    newsMessageId: string,
+    token: string,
+    ownerId: string,
+    events: EventCapture,
+) {
     assert.deepEqual(await getJsonArray(`${apiBaseUrl}/channels/${channelId}/directory-entries`, token), []);
 
     const beforeAck = markCapturedEvents(events);
@@ -185,9 +199,15 @@ async function coverAckSearchPreloadAndStubs(apiBaseUrl: string, channelId: stri
     const postData = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${channelId}/post-data`, { thread_ids: [] }, token));
     assert.deepEqual(postData, { threads: {} });
 
-    const crosspost = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${channelId}/messages/${messageId}/crosspost`, {}, token));
-    assert.equal(crosspost.id, "");
-    assert.equal(crosspost.channel_id, "");
+    const beforeCrosspost = markCapturedEvents(events);
+    const crosspost = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${newsChannelId}/messages/${newsMessageId}/crosspost`, {}, token));
+    assert.equal(crosspost.id, newsMessageId);
+    assert.equal(crosspost.channel_id, newsChannelId);
+    await waitForEventAfter(
+        events,
+        beforeCrosspost,
+        (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === newsChannelId && event.data.id === newsMessageId,
+    );
 }
 
 async function coverBulkDelete(apiBaseUrl: string, channelId: string, token: string, events: EventCapture) {

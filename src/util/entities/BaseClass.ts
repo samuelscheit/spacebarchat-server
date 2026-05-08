@@ -17,9 +17,14 @@
 */
 
 import { BaseEntity, BeforeInsert, BeforeUpdate, Column, ColumnOptions, FindOptionsWhere, PrimaryColumn } from "typeorm";
+import { Snowflake } from "../util/Snowflake";
 import { OrmUtils } from "../imports";
 import { annotationsKey } from "../util/Decorators";
-import { Snowflake } from "../util/Snowflake";
+
+function getDatabaseLazy() {
+    const { getDatabase } = require("../util/Database") as typeof import("../util/Database");
+    return getDatabase();
+}
 
 export class BaseClassWithoutId extends BaseEntity {
     private get construct() {
@@ -67,7 +72,7 @@ export class BaseClassWithoutId extends BaseEntity {
     }
 
     private get metadata() {
-        return getActiveDatabase()?.getMetadata(this.construct);
+        return getDatabaseLazy()?.getMetadata(this.construct);
     }
 
     assign(props: object) {
@@ -107,7 +112,7 @@ export class BaseClassWithoutId extends BaseEntity {
     }
 
     public async insert(): Promise<this> {
-        await getActiveDatabase()!.getRepository(this.construct).insert(this);
+        await getDatabaseLazy()!.getRepository(this.construct).insert(this);
         return this;
     }
 }
@@ -121,9 +126,4 @@ export class BaseClass extends BaseClassWithoutId {
     _do_validate() {
         if (!this.id) this.id = Snowflake.generate();
     }
-}
-
-function getActiveDatabase() {
-    const { getDatabase } = require("../util/Database") as typeof import("../util/Database");
-    return getDatabase();
 }

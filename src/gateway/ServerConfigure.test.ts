@@ -5,13 +5,13 @@ import { describe, test } from "node:test";
 import { Decoder, Encoder } from "@toondepauw/node-zstd";
 import { Deflate, Inflate } from "fast-zlib";
 import ws from "ws";
-import { Server as GatewayServer } from "./Server";
-import { CLOSECODES, OPCODES, type Payload } from "./util/Constants";
+import { CLOSECODES, OPCODES, Server as GatewayServer, type Payload } from "@spacebar/gateway";
 
 describe("Gateway Server transport", () => {
     test("accepts a real websocket client and sends HELLO without startup database initialization", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
 
         try {
@@ -36,6 +36,7 @@ describe("Gateway Server transport", () => {
     test("responds to heartbeat over a real websocket before authentication", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
 
         try {
@@ -56,6 +57,7 @@ describe("Gateway Server transport", () => {
     test("responds to heartbeat over a zlib-stream compressed real websocket before authentication", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
         const deflate = new Deflate();
         const inflate = new Inflate();
@@ -80,6 +82,7 @@ describe("Gateway Server transport", () => {
     test("responds to heartbeat over a zstd-stream compressed real websocket before authentication", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
         const encoder = new Encoder(6);
         const decoder = new Decoder();
@@ -104,6 +107,7 @@ describe("Gateway Server transport", () => {
     test("responds to QoS heartbeat over a real websocket before authentication", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
 
         try {
@@ -136,6 +140,7 @@ describe("Gateway Server transport", () => {
     test("closes invalid JSON payloads over a real websocket", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
 
         try {
@@ -167,6 +172,7 @@ describe("Gateway Server transport", () => {
     test("closes malformed heartbeat payloads over a real websocket", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
 
         try {
@@ -185,6 +191,7 @@ describe("Gateway Server transport", () => {
     test("closes authenticated-only opcodes before identify over a real websocket", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
 
         try {
@@ -203,6 +210,7 @@ describe("Gateway Server transport", () => {
     test("closes bad opcodes over a real websocket", async () => {
         const http = createServer();
         const server = new GatewayServer({ port: 0, server: http });
+        server.configureWebSocketServer();
         const port = await listen(http);
 
         try {
@@ -222,6 +230,7 @@ describe("Gateway Server transport", () => {
 async function assertGatewayHandshakeClose(path: string, expectedCode: CLOSECODES) {
     const http = createServer();
     const server = new GatewayServer({ port: 0, server: http });
+    server.configureWebSocketServer();
     const port = await listen(http);
 
     try {
@@ -236,6 +245,7 @@ async function assertGatewayHandshakeClose(path: string, expectedCode: CLOSECODE
 async function assertGatewayCompressedPayloadClose(path: string, decode: (message: Buffer) => Buffer | Promise<Buffer>, encode: (message: Buffer) => Buffer | Promise<Buffer>) {
     const http = createServer();
     const server = new GatewayServer({ port: 0, server: http });
+    server.configureWebSocketServer();
     const port = await listen(http);
 
     try {
@@ -345,9 +355,11 @@ async function readClose(client: ws) {
 }
 
 async function closeGateway(server: GatewayServer) {
-    for (const client of server.ws.clients) client.close();
+    assert.ok(server.ws, "Gateway websocket server should be initialized before close");
+    const wsServer = server.ws;
+    for (const client of wsServer.clients) client.close();
     await new Promise<void>((resolve) => {
-        server.ws.close(() => resolve());
+        wsServer.close(() => resolve());
     });
     await new Promise<void>((resolve, reject) => {
         server.server.close((error) => (error ? reject(error) : resolve()));

@@ -1,6 +1,5 @@
 assets
 dist
-dist-test
 node_modules
 .github
 .vscode
@@ -9,7 +8,7 @@ hashes.json
 flake.lock
 extra/admin-api
 discord-response-samples
-test/generated/*.json
+packages/automatic-reverse-engineering/data
 src/util/migration/postgres-initial.ts
 temp
 scripts/schemaExclusions.json

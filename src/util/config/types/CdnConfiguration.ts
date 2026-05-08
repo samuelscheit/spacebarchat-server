@@ -25,7 +25,7 @@ export class CdnConfiguration extends EndpointConfiguration {
     proxyCacheHeaderSeconds: number = 60 * 60 * 24;
     maxAttachmentSize: number = 25 * 1024 * 1024; // 25 MB
 
-    // limits: CdnLimitsConfiguration = new CdnLimitsConfiguration();
+    limits: CdnLimitsConfiguration = new CdnLimitsConfiguration();
 }
 
 export class CdnLimitsConfiguration {

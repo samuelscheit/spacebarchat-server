@@ -14,9 +14,9 @@ const requestSignature = "cdn-scenario-signature";
 const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
 
 const coveredManifestIds = [
-    "cdn:http:POST:/attachments/:channel_id/:message_id",
+    "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:message_id",
     "cdn:http:GET:/attachments/:channel_id/:message_id/:filename",
-    "cdn:http:DELETE:/attachments/:channel_id/:message_id/:filename",
+    "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:message_id/:filename",
 ];
 
 const coveredIconManifestIds = ["cdn:http:POST:/icons/:guild_id", "cdn:http:GET:/icons/:guild_id/:hash", "cdn:http:DELETE:/icons/:guild_id/:id"];
@@ -29,9 +29,9 @@ const coveredInternalAttachmentManifestIds = [
 
 test("CDN attachment upload, signed download, delete, and missing-object behavior run over HTTP", { timeout: 30_000 }, async () => {
     assert.deepEqual(coveredManifestIds, [
-        "cdn:http:POST:/attachments/:channel_id/:message_id",
+        "cdn:http:POST:/_spacebar/cdn/attachments/:channel_id/:message_id",
         "cdn:http:GET:/attachments/:channel_id/:message_id/:filename",
-        "cdn:http:DELETE:/attachments/:channel_id/:message_id/:filename",
+        "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:message_id/:filename",
     ]);
 
     await withCdnConfig(async () => {
@@ -39,7 +39,8 @@ test("CDN attachment upload, signed download, delete, and missing-object behavio
             const cdn = await startCdn();
 
             try {
-                const upload = await postMultipart(`${cdn.baseUrl}/attachments/100000000000000001/100000000000000002`, png, "fixture image.png", "image/png");
+                const mutationUrl = `${cdn.baseUrl}/_spacebar/cdn/attachments/100000000000000001/100000000000000002`;
+                const upload = await postMultipart(mutationUrl, png, "fixture image.png", "image/png");
                 await assertStatus(upload, 200);
                 const uploadBody = await assertJsonObject(upload);
                 assert.equal(uploadBody.content_type, "image/png");
@@ -60,13 +61,14 @@ test("CDN attachment upload, signed download, delete, and missing-object behavio
                 assert.equal(download.headers.get("cache-control"), "public, max-age=21600, s-maxage=21600, immutable");
                 assert.deepEqual(Buffer.from(await download.arrayBuffer()), png);
 
-                const unsignedDelete = await fetch(downloadUrl, { method: "DELETE" });
+                const deleteUrl = `${mutationUrl}/fixture_image.png`;
+                const unsignedDelete = await fetch(deleteUrl, { method: "DELETE" });
                 await assertStatus(unsignedDelete, 400);
                 const unsignedDeleteBody = await assertJsonObject(unsignedDelete);
                 assert.equal(unsignedDeleteBody.message, "Error: Invalid request signature");
                 assert.equal(await storage.exists(uploadBody.path as string), true);
 
-                const deleted = await fetch(downloadUrl, { method: "DELETE", headers: { signature: requestSignature } });
+                const deleted = await fetch(deleteUrl, { method: "DELETE", headers: { signature: requestSignature } });
                 await assertStatus(deleted, 200);
                 assert.deepEqual(await assertJsonObject(deleted), { success: true });
                 assert.equal(await storage.exists(uploadBody.path as string), false);
@@ -151,7 +153,7 @@ test(
                     try {
                         const fixture = await createCloudAttachmentFixture({ filename: "cloud.png" });
                         const uploadUrl = `${cdn.baseUrl}/_spacebar/cdn/attachments/${fixture.uploadFilename}`;
-                        const upload = await putBytes(uploadUrl, png, "application/json");
+                        const upload = await putBytes(uploadUrl, png, "image/png");
                         await assertStatus(upload, 200);
                         assert.equal(await upload.text(), "");
 

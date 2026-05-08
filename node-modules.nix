@@ -36,6 +36,7 @@ pkgs.buildNpmPackage {
   src = filteredSrc;
   npmDeps = pkgs.importNpmLock { npmRoot = filteredSrc; };
   npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+  npmInstallFlags = [ "--workspaces=false" ];
 
   dontNpmBuild = true;
   makeCacheWritable = true;
@@ -47,28 +48,17 @@ pkgs.buildNpmPackage {
   installPhase = ''
     runHook preInstall
 
-    # npm workspaces are installed as relative symlinks that point outside
-    # node_modules. The Nix package exposes node_modules by itself, so materialize
-    # local workspace packages before the broken-link fixup phase runs.
-    while IFS= read -r -d "" link; do
-      target="$(readlink "$link")"
-      case "$target" in
-        ../../apps/*|../../packages/*)
-          resolved="$(realpath -m "$(dirname "$link")/$target")"
-          if [ ! -d "$resolved" ]; then
-            echo "Workspace link $link points to missing target $target"
-            exit 1
-          fi
-          echo "Materializing workspace package $link"
-          rm "$link"
-          cp -R "$resolved" "$link"
-          ;;
-      esac
-    done < <(find node_modules -mindepth 1 -maxdepth 2 -type l -print0)
+    # npm represents local workspaces as node_modules symlinks to apps/* and
+    # packages/*. This derivation exports node_modules as a standalone Nix
+    # output, so those links become dangling after the copy into /nix/store.
+    # Remove only lockfile-declared workspace links before copying; Nix's
+    # noBrokenSymlinks fixup still catches unrelated broken package symlinks.
+    ${pkgs.nodejs_24}/bin/node ${./scripts/nix/remove-workspace-node-module-links.js} --package-lock package-lock.json --node-modules node_modules
 
     # Copy outputs
     echo "Copying node_modules as $out"
-    cp -r node_modules $out
+    mkdir -p $out
+    cp -r node_modules/. $out/
     echo -n 'Disk usage: '
     du -sh node_modules/
 

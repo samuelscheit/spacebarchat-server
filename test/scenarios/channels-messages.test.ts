@@ -12,6 +12,7 @@ import { startApi } from "../server/startApi";
 
 type EventCapture = Awaited<ReturnType<typeof captureEvents>>;
 type CapturedEvent = EventCapture["events"][number];
+const eventTimeoutMs = 1000;
 
 const coveredManifestIds = [
     "api:http:GET:/guilds/:guild_id/channels/",
@@ -138,7 +139,10 @@ test(
             assert.equal(createChannelBody.guild_id, guildId);
             assert.equal(createChannelBody.name, "scenario-text");
             assert.equal(createChannelBody.type, ChannelType.GUILD_TEXT);
-            const channelCreateEvent = await guildEvents.waitFor((event) => event.event === "CHANNEL_CREATE" && event.guild_id === guildId && event.data.id === channelId);
+            const channelCreateEvent = await guildEvents.waitFor(
+                (event) => event.event === "CHANNEL_CREATE" && event.guild_id === guildId && event.data.id === channelId,
+                eventTimeoutMs,
+            );
             assert.equal(channelCreateEvent.data.name, "scenario-text");
             assert.equal((await Channel.findOneByOrFail({ id: channelId })).name, "scenario-text");
             channelEvents = await captureEvents(channelId);
@@ -148,7 +152,7 @@ test(
 
             const reorderChannels = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, [{ id: channelId, position: 0 }], token);
             await assertStatus(reorderChannels, 204);
-            const reorderEvent = await guildEvents.waitFor((event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId);
+            const reorderEvent = await guildEvents.waitFor((event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId, eventTimeoutMs);
             assert.equal(reorderEvent.data.id, channelId);
             const guildAfterReorder = await Guild.findOneOrFail({
                 where: { id: guildId },
@@ -176,6 +180,7 @@ test(
             assert.equal(updateChannelBody.topic, "updated topic");
             const channelUpdateEvent = await channelEvents.waitFor(
                 (event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId && event.data.name === "scenario-renamed",
+                eventTimeoutMs,
             );
             assert.equal(channelUpdateEvent.data.topic, "updated topic");
             const persistedChannel = await Channel.findOneByOrFail({ id: channelId });
@@ -195,7 +200,10 @@ test(
 
             const typing = await postJson(`${api.apiBaseUrl}/channels/${channelId}/typing`, {}, token);
             await assertStatus(typing, 204);
-            const typingEvent = await channelEvents.waitFor((event) => event.event === "TYPING_START" && event.channel_id === channelId && event.data.user_id === owner.id);
+            const typingEvent = await channelEvents.waitFor(
+                (event) => event.event === "TYPING_START" && event.channel_id === channelId && event.data.user_id === owner.id,
+                eventTimeoutMs,
+            );
             assert.equal(typingEvent.data.guild_id, guildId);
 
             const createMessage = await postJson(
@@ -211,7 +219,10 @@ test(
             const messageId = createMessageBody.id as string;
             assert.equal(createMessageBody.channel_id, channelId);
             assert.equal(createMessageBody.content, "scenario message");
-            const messageCreateEvent = await channelEvents.waitFor((event) => event.event === "MESSAGE_CREATE" && event.channel_id === channelId && event.data.id === messageId);
+            const messageCreateEvent = await channelEvents.waitFor(
+                (event) => event.event === "MESSAGE_CREATE" && event.channel_id === channelId && event.data.id === messageId,
+                eventTimeoutMs,
+            );
             assert.equal(messageCreateEvent.data.content, "scenario message");
             const persistedMessage = await Message.findOneByOrFail({ id: messageId, channel_id: channelId });
             assert.equal(persistedMessage.content, "scenario message");
@@ -234,6 +245,7 @@ test(
             assert.equal(editMessageBody.content, "scenario message edited");
             const messageUpdateEvent = await channelEvents.waitFor(
                 (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === channelId && event.data.id === messageId && event.data.content === "scenario message edited",
+                eventTimeoutMs,
             );
             assert.equal(messageUpdateEvent.data.id, messageId);
             assert.equal((await Message.findOneByOrFail({ id: messageId, channel_id: channelId })).content, "scenario message edited");
@@ -246,7 +258,7 @@ test(
             const oldPinEvent = await waitForEventAfter(
                 channelEvents,
                 beforeOldPin,
-                (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === channelId && event.data.id === messageId && event.data.pinned_at,
+                (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === channelId && event.data.id === messageId && event.data.pinned === true,
             );
             assert.equal(oldPinEvent.data.id, messageId);
             assert.notEqual((await Message.findOneByOrFail({ id: messageId })).pinned_at, null);
@@ -260,7 +272,7 @@ test(
             const oldUnpinEvent = await waitForEventAfter(
                 channelEvents,
                 beforeOldUnpin,
-                (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === channelId && event.data.id === messageId && event.data.pinned_at === null,
+                (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === channelId && event.data.id === messageId && event.data.pinned === false,
             );
             assert.equal(oldUnpinEvent.data.id, messageId);
             assert.equal((await Message.findOneByOrFail({ id: messageId })).pinned_at, null);
@@ -276,7 +288,10 @@ test(
             assert.equal((await Message.findOneByOrFail({ id: messageId })).pinned_at, null);
 
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/channels/${channelId}/messages/${messageId}`, token), 204);
-            const messageDeleteEvent = await channelEvents.waitFor((event) => event.event === "MESSAGE_DELETE" && event.channel_id === channelId && event.data.id === messageId);
+            const messageDeleteEvent = await channelEvents.waitFor(
+                (event) => event.event === "MESSAGE_DELETE" && event.channel_id === channelId && event.data.id === messageId,
+                eventTimeoutMs,
+            );
             assert.equal(messageDeleteEvent.data.guild_id, guildId);
             assert.equal(await Message.findOneBy({ id: messageId }), null);
 
@@ -284,7 +299,10 @@ test(
             await assertStatus(deleteChannel, 200);
             const deleteChannelBody = await assertJsonObject(deleteChannel);
             assert.equal(deleteChannelBody.id, channelId);
-            const channelDeleteEvent = await channelEvents.waitFor((event) => event.event === "CHANNEL_DELETE" && event.channel_id === channelId && event.data.id === channelId);
+            const channelDeleteEvent = await channelEvents.waitFor(
+                (event) => event.event === "CHANNEL_DELETE" && event.channel_id === channelId && event.data.id === channelId,
+                eventTimeoutMs,
+            );
             assert.equal(channelDeleteEvent.data.guild_id, guildId);
             assert.equal(await Channel.findOneBy({ id: channelId }), null);
         } finally {
@@ -383,7 +401,7 @@ function markCapturedEvents(capture: EventCapture) {
 }
 
 async function waitForEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, predicate: (event: CapturedEvent) => boolean) {
-    return await capture.waitFor((event) => !previousEvents.has(event) && predicate(event));
+    return await capture.waitFor((event) => !previousEvents.has(event) && predicate(event), eventTimeoutMs);
 }
 
 function snapshotProcessState() {

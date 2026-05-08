@@ -1,4 +1,3 @@
-using ArcaneLibs.Extensions;
 using RabbitMQ.Client;
 using Spacebar.Interop.Replication.Abstractions;
 
@@ -26,13 +25,16 @@ public class RabbitMqSpacebarReplication : ISpacebarReplication {
     private async Task SendAsyncInternal(ContentlessReplicationMessage message, object? body = null) {
         var exchangeId = (message.GuildId ?? message.ChannelId ?? message.UserId)?.ToString() ?? "global";
         await _mqChannel.ExchangeDeclareAsync(exchange: exchangeId, type: ExchangeType.Fanout, durable: false);
-        var props = new BasicProperties() { Type = message.Event };
+        var encodedBody = RabbitMqPayloadEncoder.Encode(body);
+        var props = new BasicProperties() {
+            Type = message.Event,
+            ContentType = encodedBody.ContentType,
+        };
         var publishSuccess = false;
-        var encodedBody = body.ToJson().AsBytes().ToArray(); // TODO: byte array payloads etc someday?
 
         do {
             try {
-                await _mqChannel.BasicPublishAsync(exchange: exchangeId, routingKey: "", mandatory: true, basicProperties: props, body: encodedBody);
+                await _mqChannel.BasicPublishAsync(exchange: exchangeId, routingKey: "", mandatory: true, basicProperties: props, body: encodedBody.Body);
                 publishSuccess = true;
             }
             catch (Exception e) {

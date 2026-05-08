@@ -1,0 +1,337 @@
+import { RequestHandler, Router } from "express";
+import { AdminAuthentication } from "./auth/AdminAuthentication";
+import { listAdminAuditEvents, recordAdminAuditEvent } from "./audit";
+import {
+    getAdminConfiguration,
+    getAdminDiscoveryGuild,
+    getAdminGuild,
+    getAdminUser,
+    listAdminDiscoveryGuilds,
+    listAdminGuilds,
+    listAdminStickers,
+    listAdminUserAttachments,
+    listAdminUsers,
+} from "./queries";
+import { reloadAdminConfiguration, updateAdminConfiguration } from "./config";
+import { drainAdminJobExecutions, getAdminJob, listAdminJobs, recoverAdminJobs, requestAdminJobCancellation } from "./jobs";
+import { deleteAdminChannel, forceJoinAdminGuild, updateAdminDiscoveryGuild } from "./mutations";
+import { parseBooleanQuery, parsePagination, parseQueryString } from "./pagination";
+import { parseUserDeletionJobInput, startUserDeletionJob } from "./userDeletion";
+import { parseCdnAttachmentJobInput, startCdnAttachmentFsckJob, startCdnAttachmentMigrationJob } from "./cdnJobs";
+import { firstHeaderValue, parseAdminActionSafety, requireAdminActionSafety, unwrapAdminActionPayload } from "./safety";
+
+export interface AdminRouterOptions {
+    authentication?: RequestHandler;
+}
+
+let adminJobRecoveryTimer: ReturnType<typeof setInterval> | undefined;
+let adminJobRecoveryInFlight: Promise<void> | undefined;
+
+function adminJobRecoveryIntervalMs() {
+    const configured = Number.parseInt(process.env.ADMIN_JOB_RECOVERY_INTERVAL_MS ?? "", 10);
+    return Number.isFinite(configured) && configured > 0 ? configured : 60_000;
+}
+
+function runAdminJobRecovery(options: { logErrors?: boolean } = {}) {
+    if (adminJobRecoveryInFlight) return adminJobRecoveryInFlight;
+
+    adminJobRecoveryInFlight = (async () => {
+        try {
+            await recoverAdminJobs();
+        } catch (error) {
+            if (!options.logErrors) throw error;
+            console.error("[AdminJobs] Failed to recover persisted jobs", error);
+        } finally {
+            adminJobRecoveryInFlight = undefined;
+        }
+    })();
+
+    return adminJobRecoveryInFlight;
+}
+
+export async function startAdminJobRecovery() {
+    if (!adminJobRecoveryTimer) {
+        adminJobRecoveryTimer = setInterval(() => void runAdminJobRecovery({ logErrors: true }), adminJobRecoveryIntervalMs());
+        adminJobRecoveryTimer.unref?.();
+    }
+
+    await runAdminJobRecovery();
+}
+
+export async function stopAdminJobRecovery() {
+    if (adminJobRecoveryTimer) {
+        clearInterval(adminJobRecoveryTimer);
+        adminJobRecoveryTimer = undefined;
+    }
+
+    if (adminJobRecoveryInFlight) await adminJobRecoveryInFlight;
+    await drainAdminJobExecutions();
+}
+
+function listOptions(req: Parameters<RequestHandler>[0]) {
+    return {
+        ...parsePagination(req.query as Record<string, unknown>),
+        q: parseQueryString(req.query.q),
+    };
+}
+
+function idempotencyKey(req: Parameters<RequestHandler>[0]) {
+    return firstHeaderValue(req.headers["idempotency-key"]);
+}
+
+export function createAdminRouter(options: AdminRouterOptions = {}) {
+    const router = Router({ mergeParams: true });
+    const authentication = options.authentication ?? AdminAuthentication;
+
+    router.use(authentication);
+
+    router.get("/ping", (req, res) => {
+        res.json({ ping: "pong!" });
+    });
+
+    router.get("/whoami", async (req, res) => {
+        res.json({
+            user: await getAdminUser(req.user_id),
+            sessionId: req.session?.session_id ?? null,
+            operator: true,
+        });
+    });
+
+    router.get("/users", async (req, res) => {
+        res.json(await listAdminUsers(listOptions(req)));
+    });
+
+    router.get("/users/:id", async (req, res) => {
+        res.json(await getAdminUser(req.params.id));
+    });
+
+    router.post("/users/:id/delete", async (req, res) => {
+        const safety = requireAdminActionSafety(req.body, {
+            expectedConfirmation: req.params.id,
+            idempotencyKey: idempotencyKey(req),
+        });
+        const job = await startUserDeletionJob({
+            input: parseUserDeletionJobInput(req.params.id, req.body, req.query as Record<string, unknown>),
+            createdBy: req.user_id,
+            idempotencyKey: safety.idempotencyKey,
+        });
+        await recordAdminAuditEvent({
+            action: "user.delete",
+            actorId: req.user_id,
+            targetType: "user",
+            targetId: req.params.id,
+            status: job.status === "queued" ? "accepted" : "succeeded",
+            severity: "danger",
+            jobId: job.id,
+            reason: job.input.reason,
+            metadata: { deleteMessages: job.input.deleteMessages, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
+        });
+
+        res.status(job.status === "queued" ? 202 : 200).json(job);
+    });
+
+    router.get("/guilds", async (req, res) => {
+        res.json(await listAdminGuilds(listOptions(req)));
+    });
+
+    router.get("/guilds/:id", async (req, res) => {
+        res.json(await getAdminGuild(req.params.id));
+    });
+
+    router.post("/guilds/:id/force-join", async (req, res) => {
+        const result = await forceJoinAdminGuild(req.params.id, req.body, req.user_id);
+        await recordAdminAuditEvent({
+            action: "guild.force_join",
+            actorId: req.user_id,
+            targetType: "guild",
+            targetId: req.params.id,
+            status: "succeeded",
+            severity: result.madeOwner || result.madeAdmin ? "warning" : "info",
+            metadata: { ...result },
+        });
+        res.json(result);
+    });
+
+    router.get("/discovery/guilds", async (req, res) => {
+        res.json(
+            await listAdminDiscoveryGuilds({
+                ...listOptions(req),
+                includeExcluded: parseBooleanQuery(req.query.include_excluded),
+            }),
+        );
+    });
+
+    router.get("/discovery/guilds/:id", async (req, res) => {
+        res.json(await getAdminDiscoveryGuild(req.params.id, parseBooleanQuery(req.query.include_excluded)));
+    });
+
+    router.patch("/discovery/guilds/:id", async (req, res) => {
+        const result = await updateAdminDiscoveryGuild(req.params.id, req.body, parseBooleanQuery(req.query.include_excluded));
+        await recordAdminAuditEvent({
+            action: "discovery.guild.update",
+            actorId: req.user_id,
+            targetType: "guild",
+            targetId: req.params.id,
+            status: "succeeded",
+            severity: "warning",
+            metadata: { discoveryWeight: result.discoveryWeight, discoveryExcluded: result.discoveryExcluded },
+        });
+        res.json(result);
+    });
+
+    router.get("/configuration", (req, res) => {
+        res.json(getAdminConfiguration());
+    });
+
+    router.put("/configuration", async (req, res) => {
+        const safety = requireAdminActionSafety(req.body, { expectedConfirmation: "SAVE CONFIGURATION" });
+        const result = await updateAdminConfiguration(unwrapAdminActionPayload(req.body));
+        await recordAdminAuditEvent({
+            action: "configuration.update",
+            actorId: req.user_id,
+            targetType: "configuration",
+            targetId: result.source,
+            status: "succeeded",
+            severity: "warning",
+            reason: safety.reason,
+            metadata: { source: result.source, readonly: result.readonly, reason: safety.reason },
+        });
+        res.json(result);
+    });
+
+    router.post("/configuration/reload", async (req, res) => {
+        const result = await reloadAdminConfiguration();
+        await recordAdminAuditEvent({
+            action: "configuration.reload",
+            actorId: req.user_id,
+            targetType: "configuration",
+            targetId: result.source,
+            status: "succeeded",
+            severity: "info",
+            metadata: { source: result.source },
+        });
+        res.json(result);
+    });
+
+    router.get("/media/stickers", async (req, res) => {
+        res.json(await listAdminStickers(listOptions(req)));
+    });
+
+    router.get("/media/users/:id/attachments", async (req, res) => {
+        res.json(await listAdminUserAttachments(req.params.id, listOptions(req)));
+    });
+
+    router.post("/media/attachments/fsck", async (req, res) => {
+        const safety = parseAdminActionSafety(req.body, idempotencyKey(req));
+        const job = await startCdnAttachmentFsckJob({
+            input: parseCdnAttachmentJobInput(req.body, req.query as Record<string, unknown>),
+            createdBy: req.user_id,
+            idempotencyKey: safety.idempotencyKey,
+        });
+        await recordAdminAuditEvent({
+            action: "cdn.attachments.fsck",
+            actorId: req.user_id,
+            targetType: "cdn",
+            targetId: "attachments",
+            status: job.status === "queued" ? "accepted" : "succeeded",
+            severity: "warning",
+            jobId: job.id,
+            reason: job.input.reason,
+            metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
+        });
+
+        res.status(job.status === "queued" ? 202 : 200).json(job);
+    });
+
+    router.post("/media/attachments/migrate", async (req, res) => {
+        const parsedInput = parseCdnAttachmentJobInput(req.body, req.query as Record<string, unknown>);
+        const safety =
+            parsedInput.dryRun && !parsedInput.force
+                ? parseAdminActionSafety(req.body, idempotencyKey(req))
+                : requireAdminActionSafety(req.body, {
+                      expectedConfirmation: "MIGRATE ATTACHMENTS",
+                      idempotencyKey: idempotencyKey(req),
+                  });
+        const job = await startCdnAttachmentMigrationJob({
+            input: parsedInput,
+            createdBy: req.user_id,
+            idempotencyKey: safety.idempotencyKey,
+        });
+        await recordAdminAuditEvent({
+            action: "cdn.attachments.migrate",
+            actorId: req.user_id,
+            targetType: "cdn",
+            targetId: "attachments",
+            status: job.status === "queued" ? "accepted" : "succeeded",
+            severity: job.input.dryRun ? "info" : "danger",
+            jobId: job.id,
+            reason: job.input.reason,
+            metadata: { dryRun: job.input.dryRun, force: job.input.force, idempotencyKey: job.idempotencyKey, reason: job.input.reason },
+        });
+
+        res.status(job.status === "queued" ? 202 : 200).json(job);
+    });
+
+    router.delete("/channels/:id", async (req, res) => {
+        const safety = requireAdminActionSafety(req.body, { expectedConfirmation: req.params.id });
+        const result = await deleteAdminChannel(req.params.id);
+        await recordAdminAuditEvent({
+            action: "channel.delete",
+            actorId: req.user_id,
+            targetType: "channel",
+            targetId: req.params.id,
+            status: "succeeded",
+            severity: "danger",
+            reason: safety.reason,
+            metadata: { ...result, reason: safety.reason },
+        });
+        res.json(result);
+    });
+
+    router.get("/activity", async (req, res) => {
+        res.json(
+            await listAdminAuditEvents({
+                ...parsePagination(req.query as Record<string, unknown>),
+                q: parseQueryString(req.query.q),
+            }),
+        );
+    });
+
+    router.get("/jobs", async (req, res) => {
+        res.json(
+            await listAdminJobs({
+                ...parsePagination(req.query as Record<string, unknown>),
+                q: parseQueryString(req.query.q),
+            }),
+        );
+    });
+
+    router.get("/jobs/:id", async (req, res) => {
+        res.json(await getAdminJob(req.params.id));
+    });
+
+    router.post("/jobs/:id/cancel", async (req, res) => {
+        const result = await requestAdminJobCancellation(req.params.id);
+        await recordAdminAuditEvent({
+            action: "job.cancel",
+            actorId: req.user_id,
+            targetType: "job",
+            targetId: req.params.id,
+            status: "cancel_requested",
+            severity: "warning",
+            jobId: req.params.id,
+            metadata: { jobStatus: result.status },
+        });
+        res.json(result);
+    });
+
+    router.use((req, res) => {
+        res.status(404).json({
+            message: "Admin endpoint not found",
+            code: 404,
+            request: `${req.method} ${req.originalUrl}`,
+        });
+    });
+
+    return router;
+}

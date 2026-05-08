@@ -13,6 +13,18 @@
             "notes": "Root, well-known, image proxy, health, and static asset routes are registered outside src/api/routes."
         },
         {
+            "id": "api-public-assets",
+            "type": "http-route",
+            "service": "api",
+            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
+            "testTier": "app-smoke",
+            "benchmarkClass": "startup-health",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["status", "headers", "body-shape"],
+            "allowMissingRouteMetadata": true,
+            "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
+        },
+        {
             "id": "api-health-kubernetes",
             "type": "http-route",
             "service": "api",

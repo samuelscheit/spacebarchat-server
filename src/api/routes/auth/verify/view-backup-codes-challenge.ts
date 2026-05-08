@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { issueMfaBackupCodesChallengeNonce, route } from "@spacebar/api";
 import { FieldErrors, User } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
@@ -49,10 +49,9 @@ router.post(
             });
         }
 
-        return res.json({
-            nonce: "NoncePlaceholder",
-            regenerate_nonce: "RegenNoncePlaceholder",
-        });
+        const [nonce, regenerate_nonce] = await Promise.all([issueMfaBackupCodesChallengeNonce(req.user_id, "view"), issueMfaBackupCodesChallengeNonce(req.user_id, "regenerate")]);
+
+        return res.json({ nonce, regenerate_nonce });
     },
 );
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer, type Server } from "node:http";
 import { describe, test } from "node:test";
-import { SpacebarServer } from "./Server";
+import { SpacebarServer } from "@spacebar/api";
 
 describe("SpacebarServer.configureApp", () => {
     test("mounts public readiness routes without startup database initialization", async () => {

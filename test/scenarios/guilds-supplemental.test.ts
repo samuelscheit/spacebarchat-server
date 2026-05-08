@@ -303,6 +303,7 @@ test(
             assert.deepEqual(Object.keys(auditLogs).sort(), [
                 "application_commands",
                 "audit_log_entries",
+                "auto_moderation_rules",
                 "guild_scheduled_events",
                 "integrations",
                 "threads",

@@ -298,7 +298,7 @@ async function coverThreadSearch(apiBaseUrl: string, forumChannelId: string, thr
     );
     assert.equal(search.total_results, 1);
     assert.equal((search.threads as Array<Record<string, unknown>>)[0].id, threadId);
-    assert.equal((search.messages as Array<Record<string, unknown>>)[0].id, threadId);
+    assert.equal((search.first_messages as Array<Record<string, unknown>>)[0].id, threadId);
 }
 
 async function coverThreadMemberRoutes(

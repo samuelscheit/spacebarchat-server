@@ -32,6 +32,10 @@ export class RouteRateLimit {
         count: 10,
         window: 5,
     };
+    attachmentRefresh: RateLimitOptions = {
+        count: 10,
+        window: 60,
+    };
     auth: AuthRateLimit = new AuthRateLimit();
     // TODO: rate limit configuration for all routes
 }

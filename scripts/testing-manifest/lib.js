@@ -618,9 +618,7 @@ function stripComments(source) {
     return result;
 }
 
-function extractNoAuthorizationRules(repoRoot) {
-    const file = path.join(repoRoot, "src", "api", "middlewares", "Authentication.ts");
-    const source = readText(file);
+function extractNoAuthorizationRulesFromSource(source) {
     const start = source.indexOf("NO_AUTHORIZATION_ROUTES");
     const open = source.indexOf("[", start);
     const close = findMatching(source, open, "[", "]");
@@ -635,6 +633,22 @@ function extractNoAuthorizationRules(repoRoot) {
             return undefined;
         })
         .filter(Boolean);
+}
+
+function extractNoAuthorizationRules(repoRoot) {
+    const files = [
+        path.join(repoRoot, "src", "api", "middlewares", "NoAuthorizationRoutes.ts"),
+        path.join(repoRoot, "src", "api", "middlewares", "Authentication.ts"),
+    ];
+
+    for (const file of files) {
+        if (!fs.existsSync(file)) continue;
+
+        const rules = extractNoAuthorizationRulesFromSource(readText(file));
+        if (rules.length) return rules;
+    }
+
+    return [];
 }
 
 function samplePathForAuth(pathValue) {
@@ -1045,6 +1059,7 @@ function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POL
             "src/api/util/handlers",
             "src/api/Server.ts",
             "src/api/middlewares/RateLimit.ts",
+            "src/api/middlewares/NoAuthorizationRoutes.ts",
             "src/cdn/routes",
             "src/cdn/Server.ts",
             "src/util/entities",
@@ -1089,6 +1104,7 @@ module.exports = {
     applyPolicy,
     combineRoutePaths,
     extractApiRateLimitRulesFromSource,
+    extractNoAuthorizationRulesFromSource,
     extractSourceHelperEventMap,
     generateManifest,
     parseRouteOptions,

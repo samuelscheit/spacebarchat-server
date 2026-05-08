@@ -18,7 +18,18 @@ const compat = new FlatCompat({
 
 export default defineConfig([
     {
-        ignores: ["**/node_modules/**", "**/dist/**", "**/dist-test/**", "**/README.md", "**/COPYING", "./scripts/", "./assets/", "./extra/", "./files/"],
+        ignores: [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/.next/**",
+            "**/README.md",
+            "**/COPYING",
+            "./scripts/",
+            "./assets/",
+            "./extra/",
+            "./files/",
+            "packages/automatic-reverse-engineering/data/**",
+        ],
     },
     ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended"),
     {
@@ -98,34 +109,6 @@ export default defineConfig([
         },
         rules: {
             "@typescript-eslint/no-require-imports": "off",
-        },
-    },
-    {
-        files: ["test/**/*.js"],
-        languageOptions: {
-            globals: {
-                ...globals.node,
-            },
-        },
-        rules: {
-            "@typescript-eslint/no-require-imports": "off",
-        },
-    },
-    {
-        files: ["test/**/*.ts"],
-        languageOptions: {
-            globals: {
-                ...globals.node,
-            },
-
-            parser: tsParser,
-            parserOptions: {
-                ecmaVersion: "latest",
-                sourceType: "module",
-                projectService: false,
-                project: "./tsconfig.test.json",
-                tsconfigRootDir: __dirname,
-            },
         },
     },
     {
