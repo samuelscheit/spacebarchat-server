@@ -2214,7 +2214,7 @@
             "path": "/auth/verify/",
             "samplePath": "/auth/verify/",
             "sourceFile": "src/api/routes/auth/verify/index.ts",
-            "line": 25,
+            "line": 24,
             "authMode": "public",
             "testTier": "auth-scenario",
             "benchmarkClass": "hot-path",
