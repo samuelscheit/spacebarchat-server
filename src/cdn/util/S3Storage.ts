@@ -27,8 +27,7 @@ interface S3Client {
     headObject(input: { Bucket: string; Key: string }): Promise<unknown>;
 }
 
-const encodeS3CopySourceSegment = (value: string) =>
-    encodeURIComponent(value).replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
+const encodeS3CopySourceSegment = (value: string) => encodeURIComponent(value).replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
 
 const encodeS3CopySourcePath = (value: string) => value.split("/").map(encodeS3CopySourceSegment).join("/");
 
