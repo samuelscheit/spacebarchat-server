@@ -5,37 +5,32 @@ namespace Spacebar.Cdn.Worker;
 
 // Keep up to date with CDN!
 public static class Mimes {
+    private static readonly Dictionary<string, MagickFormat> SafeOutputFormats = new(StringComparer.OrdinalIgnoreCase) {
+        ["png"] = MagickFormat.Png,
+        ["jpg"] = MagickFormat.Jpg,
+        ["jpeg"] = MagickFormat.Jpeg,
+        ["gif"] = MagickFormat.Gif,
+        ["bmp"] = MagickFormat.Bmp,
+        ["tif"] = MagickFormat.Tiff,
+        ["tiff"] = MagickFormat.Tiff,
+        ["webp"] = MagickFormat.WebP,
+    };
+
     private static string PrintLogged(string msg, string mime) {
         Console.WriteLine($"{msg}: {mime}");
         return mime;
     }
 
     public static MagickFormat GetFormatForExtension(string extension) {
-        extension = extension.ToLower();
-        // ban some values...
-        // TODO: look for more
-        if (extension
-            // screen capture/write
-            is "screenshot"
-            or "win"
-            or "clipboard"
-            or "x"    // read from/write to x11 server
-            or "xwd"  // x11 window dump
-            or "dds"  // MS DirectDraw surface
-            or "open" // display image on screen, OSX only
-            // printer stuff
-            or "print"
-            or "scan"
-            or "scanx"
-            // special
-            or "dmr" // MagicCache media library, let's not...
-            or "emf" // some microsoft meta format, windows only
-            or "mpr" // Magick Persistent Registry - basically a resident in-memory image
-           ) throw new AccessViolationException("Disallowed extension: " + extension);
+        if (string.IsNullOrWhiteSpace(extension)) throw new InvalidEnumArgumentException("Unknown format: " + extension);
 
-        var matchingFormat = Enum.GetNames<MagickFormat>().FirstOrDefault(f => f.ToLower() == extension);
-        if (string.IsNullOrWhiteSpace(matchingFormat)) throw new InvalidEnumArgumentException("Unknown format: " + extension);
-        return Enum.TryParse(matchingFormat, out MagickFormat fmt) ? fmt : throw new InvalidEnumArgumentException("Unknown format: " + extension);
+        extension = extension.Trim().TrimStart('.');
+        if (SafeOutputFormats.TryGetValue(extension, out var format)) return format;
+
+        if (Enum.GetNames<MagickFormat>().Any(f => string.Equals(f, extension, StringComparison.OrdinalIgnoreCase)))
+            throw new AccessViolationException("Disallowed extension: " + extension);
+
+        throw new InvalidEnumArgumentException("Unknown format: " + extension);
     }
 
     public static string GetMime(MagickFormat fmt) => fmt switch {
