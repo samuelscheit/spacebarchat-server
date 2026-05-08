@@ -14100,8 +14100,8 @@
             "fixtureRequirements": ["users", "applications", "oauth-clients"],
             "contractChecks": ["auth-boundary", "schema-validation", "redirects", "token-state"],
             "routeMetadata": {
-                "responses": ["APIErrorResponse"],
-                "responseStatuses": [400, 404]
+                "responses": ["APIErrorResponse", "OAuthAuthorizeInfoResponse"],
+                "responseStatuses": [200, 400, 404]
             },
             "cases": [
                 {
@@ -14145,7 +14145,7 @@
             "path": "/oauth2/authorize/",
             "samplePath": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 156,
+            "line": 157,
             "authMode": "bearer",
             "testTier": "integration",
             "benchmarkClass": "route-class",
