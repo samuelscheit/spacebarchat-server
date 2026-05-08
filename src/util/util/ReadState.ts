@@ -17,7 +17,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 */
 
 import { AckBulkSchema, ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
-import { advanceNotificationCursor } from "./ReadStateAck";
+import { applyChannelMessageReadStateUpdate } from "./ReadStateAck";
 
 export type AckBulkReadStateUpdate = AckBulkSchema["read_states"][number];
 
@@ -47,6 +47,7 @@ export const READY_READ_STATE_SELECT = {
     last_viewed: true,
     read_state_type: true,
     flags: true,
+    notifications_cursor: true,
 } as const;
 
 export function getReadStateType(update: AckBulkReadStateUpdate): ReadStateType {
@@ -66,9 +67,7 @@ export function applyAckBulkReadStateUpdate<T extends WritableReadState>(readSta
     readState.read_state_type = read_state_type;
 
     if (read_state_type === ReadStateType.CHANNEL) {
-        readState.last_message_id = update.message_id;
-        readState.mention_count = 0;
-        advanceNotificationCursor(readState, update.message_id);
+        applyChannelMessageReadStateUpdate(readState, update.message_id);
     } else {
         readState.last_acked_id = update.message_id;
         readState.last_message_id = null;

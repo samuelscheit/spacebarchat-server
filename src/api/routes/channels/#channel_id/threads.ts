@@ -32,10 +32,8 @@ import {
     emitEvent,
     User,
     uploadFile,
-    applyChannelMessageReadStateUpdate,
     Attachment,
     Member,
-    ReadState,
     MessageCreateEvent,
     FieldErrors,
     getPermission,
@@ -44,8 +42,9 @@ import {
     ChannelFlags,
     Snowflake,
     messagePublicRelations,
+    upsertChannelMessageReadState,
 } from "@spacebar/util";
-import { ChannelType, MessageType, ReadStateType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
+import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachment, MessageCreateCloudAttachment, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import { messageUpload } from "./messages";
@@ -210,14 +209,8 @@ router.post(
                 // @ts-ignore
                 message.member.roles = message.member.roles.filter((x) => x.id != x.guild_id).map((x) => x.id);
             }
-            let read_state = await ReadState.findOne({
-                where: { user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL },
-            });
-            if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id: thread.id, read_state_type: ReadStateType.CHANNEL });
-            applyChannelMessageReadStateUpdate(read_state, message.id);
-
             await Promise.all([
-                read_state.save(),
+                upsertChannelMessageReadState({ user_id: req.user_id, channel_id: thread.id }, message.id),
                 message.save(),
                 emitEvent({
                     event: "MESSAGE_CREATE",

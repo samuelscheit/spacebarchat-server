@@ -28,7 +28,7 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
+// This route only returns thread metadata; read-state cursors are advanced by ACK and message creation routes.
 
 router.post(
     "/",

@@ -8,18 +8,27 @@ export interface AcknowledgeableReadState {
     flags?: number | null;
 }
 
-export function advanceNotificationCursor(readState: AcknowledgeableReadState, messageId: string) {
-    if (!readState.notifications_cursor || BigInt(messageId) > BigInt(readState.notifications_cursor)) {
-        readState.notifications_cursor = messageId;
+function maxSnowflakeId(...ids: (string | null | undefined)[]) {
+    let max: string | undefined;
+
+    for (const id of ids) {
+        if (id === null || id === undefined) continue;
+        if (max === undefined || BigInt(id) > BigInt(max)) max = id;
     }
+
+    return max;
+}
+
+export function advanceNotificationCursor(readState: AcknowledgeableReadState, messageId: string) {
+    readState.notifications_cursor = maxSnowflakeId(readState.notifications_cursor, readState.last_message_id, messageId);
 
     return readState;
 }
 
 export function applyChannelMessageReadStateUpdate(readState: AcknowledgeableReadState, messageId: string) {
+    advanceNotificationCursor(readState, messageId);
     readState.last_message_id = messageId;
     readState.mention_count = 0;
-    advanceNotificationCursor(readState, messageId);
 
     return readState;
 }
