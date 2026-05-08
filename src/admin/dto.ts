@@ -151,7 +151,7 @@ export interface AdminGuild extends AdminGuildListItem {
     defaultMessageNotifications: Nullable<number>;
     discoverySplash: Nullable<string>;
     explicitContentFilter: Nullable<number>;
-    primaryCategoryId: Nullable<string>;
+    primaryCategoryId: Nullable<number>;
     large: boolean;
     maxMembers: Nullable<number>;
     maxPresences: Nullable<number>;

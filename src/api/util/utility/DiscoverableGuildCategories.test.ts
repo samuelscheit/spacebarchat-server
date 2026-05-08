@@ -6,21 +6,25 @@ import { createDiscoverableGuildCategoryFilter, parseDiscoverableGuildCategoryId
 
 test("parseDiscoverableGuildCategoryIds supports repeated and comma-separated values", () => {
     assert.deepEqual(parseDiscoverableGuildCategoryIds(undefined), []);
-    assert.deepEqual(parseDiscoverableGuildCategoryIds("1"), ["1"]);
-    assert.deepEqual(parseDiscoverableGuildCategoryIds("1,2, 3 "), ["1", "2", "3"]);
-    assert.deepEqual(parseDiscoverableGuildCategoryIds(["1", "2,3", " 2 "]), ["1", "2", "3"]);
-    assert.deepEqual(parseDiscoverableGuildCategoryIds([" 1 ", "1", "2,, "]), ["1", "2"]);
+    assert.deepEqual(parseDiscoverableGuildCategoryIds("1"), [1]);
+    assert.deepEqual(parseDiscoverableGuildCategoryIds("1,2, 3 "), [1, 2, 3]);
+    assert.deepEqual(parseDiscoverableGuildCategoryIds(["1", "2,3", " 2 "]), [1, 2, 3]);
+    assert.deepEqual(parseDiscoverableGuildCategoryIds([" 1 ", "1", "2,, "]), [1, 2]);
     assert.deepEqual(parseDiscoverableGuildCategoryIds({ category: "1" }), []);
+});
+
+test("parseDiscoverableGuildCategoryIds ignores invalid integer ids", () => {
+    assert.deepEqual(parseDiscoverableGuildCategoryIds("1,not-a-number,-2,3.5,2147483648,4"), [1, 4]);
 });
 
 test("createDiscoverableGuildCategoryFilter omits empty categories", () => {
     assert.equal(createDiscoverableGuildCategoryFilter(undefined), undefined);
     assert.equal(createDiscoverableGuildCategoryFilter(""), undefined);
-    assert.equal(createDiscoverableGuildCategoryFilter(["", "  "]), undefined);
+    assert.equal(createDiscoverableGuildCategoryFilter(["", "  ", "invalid"]), undefined);
 });
 
 test("createDiscoverableGuildCategoryFilter uses equality for one category", () => {
-    assert.equal(createDiscoverableGuildCategoryFilter("42"), "42");
+    assert.equal(createDiscoverableGuildCategoryFilter("42"), 42);
 });
 
 test("createDiscoverableGuildCategoryFilter uses IN for multiple categories", () => {
@@ -28,7 +32,7 @@ test("createDiscoverableGuildCategoryFilter uses IN for multiple categories", ()
 
     assert.ok(filter instanceof FindOperator);
     assert.equal(filter.type, "in");
-    assert.deepEqual(filter.value, ["1", "2", "3"]);
+    assert.deepEqual(filter.value, [1, 2, 3]);
     assert.equal(filter.multipleParameters, true);
 });
 

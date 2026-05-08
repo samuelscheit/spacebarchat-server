@@ -319,8 +319,18 @@ describe("Guild entity metadata", () => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
         const { Guild } = await import("./Guild.js");
         const columns = getMetadataArgsStorage().columns.filter((column) => column.target === Guild);
+        const primaryCategoryColumn = columns.find((column) => column.propertyName === "primary_category_id");
 
         assert.equal(columns.find((column) => column.propertyName === "description")?.options.type, "varchar");
-        assert.equal(columns.find((column) => column.propertyName === "primary_category_id")?.options.type, "int8");
+        assert.ok(primaryCategoryColumn);
+        assert.equal(primaryCategoryColumn.options.type, "int");
+        assert.equal(primaryCategoryColumn.options.nullable, true);
+
+        type GuildPrimaryCategoryId = InstanceType<typeof Guild>["primary_category_id"];
+        const acceptsNumericDiscoveryCategoryId = (_value: number | null | undefined) => undefined;
+        acceptsNumericDiscoveryCategoryId(undefined as GuildPrimaryCategoryId);
+        // @ts-expect-error primary_category_id is a numeric discovery category id, not a snowflake string.
+        const rejectsSnowflakeString: GuildPrimaryCategoryId = "5";
+        void rejectsSnowflakeString;
     });
 });

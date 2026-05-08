@@ -4721,7 +4721,7 @@
                     "primary_category_id": {
                         "type": [
                             "null",
-                            "string"
+                            "integer"
                         ]
                     },
                     "presence_count": {
@@ -14374,7 +14374,7 @@
                     "primary_category_id": {
                         "type": [
                             "null",
-                            "string"
+                            "integer"
                         ]
                     },
                     "icon": {

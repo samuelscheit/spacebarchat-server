@@ -124,8 +124,8 @@ export class Guild extends BaseClass {
     features: string[] = []; //TODO use enum
     //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 
-    @Column({ nullable: true, type: "int8" })
-    primary_category_id?: string | null;
+    @Column({ nullable: true, type: "int" })
+    primary_category_id?: number | null;
 
     @Column({ nullable: true })
     icon?: string;

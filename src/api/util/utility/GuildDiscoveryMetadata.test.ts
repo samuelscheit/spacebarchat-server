@@ -4,7 +4,7 @@ import { getGuildDiscoveryMetadataUpdate, toGuildDiscoveryMetadata } from "./Gui
 
 describe("guild discovery metadata response", () => {
     it("serializes stored discovery category with client-required metadata defaults", () => {
-        assert.deepEqual(toGuildDiscoveryMetadata({ id: "123", primary_category_id: "5", features: ["DISCOVERABLE"], description: "About this guild" }), {
+        assert.deepEqual(toGuildDiscoveryMetadata({ id: "123", primary_category_id: 5, features: ["DISCOVERABLE"], description: "About this guild" }), {
             guild_id: "123",
             primary_category_id: 5,
             category_ids: [5],
@@ -27,7 +27,7 @@ describe("guild discovery metadata response", () => {
     it("builds database nulls when nullable fields are cleared", () => {
         assert.deepEqual(
             getGuildDiscoveryMetadataUpdate(
-                { id: "123", primary_category_id: "5", features: ["DISCOVERABLE"], description: "About this guild" },
+                { id: "123", primary_category_id: 5, features: ["DISCOVERABLE"], description: "About this guild" },
                 { primary_category_id: null, about: null },
             ),
             {
@@ -41,7 +41,7 @@ describe("guild discovery metadata response", () => {
         assert.deepEqual(
             getGuildDiscoveryMetadataUpdate({ id: "123", features: ["COMMUNITY"], description: null }, { primary_category_id: 5, about: "About", is_published: true }),
             {
-                primary_category_id: "5",
+                primary_category_id: 5,
                 description: "About",
                 features: ["COMMUNITY", "DISCOVERABLE"],
             },
