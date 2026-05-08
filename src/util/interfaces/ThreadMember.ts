@@ -17,6 +17,6 @@
 */
 
 export interface ThreadMemberMuteConfig {
-    end_time?: Date;
+    end_time?: Date | string;
     selected_time_window?: number;
 }

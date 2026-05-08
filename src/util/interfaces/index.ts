@@ -22,4 +22,4 @@ export * from "./Event";
 export * from "./GuildWelcomeScreen";
 export * from "./Presence";
 export * from "./Status";
-export * from "./ThreadMember";
+export type { ThreadMemberMuteConfig } from "./ThreadMember";
