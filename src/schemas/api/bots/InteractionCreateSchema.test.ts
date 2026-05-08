@@ -12,7 +12,7 @@ const interactionCreateSchema = {
 };
 
 function compileInteractionCreateSchema() {
-    return new Ajv({ strict: false, validateFormats: false }).compile(interactionCreateSchema);
+    return new Ajv({ strict: false, validateFormats: false, validateSchema: false }).compile(interactionCreateSchema);
 }
 
 function baseInteractionPayload() {
@@ -155,6 +155,51 @@ describe("InteractionCreateSchema", () => {
         const validate = compileInteractionCreateSchema();
 
         assert.equal(validate({ ...baseInteractionPayload(), type: 1 }), true, JSON.stringify(validate.errors));
+    });
+
+    test("rejects obsolete top-level member_id fields", () => {
+        const validate = compileInteractionCreateSchema();
+
+        assert.equal(validate({ ...applicationCommandInteractionPayload(), member_id: "100000000000000008" }), false);
+    });
+
+    test("accepts guild interactions with a member object", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = {
+            ...applicationCommandInteractionPayload(),
+            guild_id: "100000000000000003",
+            guild: {
+                id: "100000000000000003",
+                features: [],
+                locale: "en-US",
+            },
+            guild_locale: "en-US",
+            member: {
+                user: {
+                    id: "100000000000000008",
+                    username: "tester",
+                    discriminator: "0001",
+                    avatar: "",
+                    public_flags: 0,
+                    bot: false,
+                    bio: "",
+                    premium_type: 0,
+                },
+                id: "100000000000000008",
+                guild_id: "100000000000000003",
+                roles: [],
+                joined_at: "2026-01-01T00:00:00.000Z",
+                pending: false,
+                deaf: false,
+                mute: false,
+                flags: 0,
+                banner: "",
+                bio: "",
+                communication_disabled_until: null,
+            },
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
     });
 
     test("rejects interactions outside the typed contract", () => {
