@@ -139,7 +139,7 @@ export class User extends BaseClass {
 
     @Column({ type: "bigint", transformer: bigintNumberTransformer })
     @JsonNumber
-    flags: number = 0; // UserFlags // TODO: generate
+    flags: number = 0; // Discord-compatible user flag bitfield; see UserFlags in @spacebar/schemas.
 
     @Column({ type: "bigint", transformer: bigintNumberTransformer })
     @JsonNumber
