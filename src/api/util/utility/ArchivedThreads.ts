@@ -52,6 +52,31 @@ export interface PublicArchivedThreadsQueryOptions {
     alias?: string;
 }
 
+export interface PublicArchivedThreadMemberLike {
+    id: string;
+    join_timestamp: Date | string;
+    flags: number;
+}
+
+export interface PublicArchivedThreadMember {
+    id: string;
+    user_id: string;
+    join_timestamp: string;
+    flags: number;
+}
+
+export function serializePublicArchivedThreadMember(threadMember: PublicArchivedThreadMemberLike, userId: string): PublicArchivedThreadMember {
+    const joinTimestamp = threadMember.join_timestamp instanceof Date ? threadMember.join_timestamp : new Date(threadMember.join_timestamp);
+    if (Number.isNaN(joinTimestamp.getTime())) throw new RangeError("thread member join_timestamp must be a valid timestamp");
+
+    return {
+        id: threadMember.id,
+        user_id: userId,
+        join_timestamp: joinTimestamp.toISOString(),
+        flags: threadMember.flags,
+    };
+}
+
 export function archivedThreadJsonTextExpression(key: "archived" | "archive_timestamp", alias = DEFAULT_ARCHIVED_THREAD_ALIAS) {
     return `"${alias}"."thread_metadata" ->> '${key}'`;
 }

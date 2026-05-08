@@ -35,6 +35,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const TJS = require("typescript-json-schema");
 const walk = require("./util/walk");
+const { getGeneratedSchemaSources } = require("./util/schemaSources");
 const { redBright, yellowBright, bgRedBright, yellow, greenBright, green, cyanBright, blueBright, blue, cyan, bgRed, gray } = require("picocolors");
 const schemaPath = path.join(__dirname, "..", "assets", "schemas.json");
 const exclusionList = JSON.parse(fs.readFileSync(path.join(__dirname, "schemaExclusions.json"), { encoding: "utf8" }));
@@ -145,7 +146,8 @@ async function main() {
     const stepSw = Stopwatch.startNew();
 
     process.stdout.write("Loading program... ");
-    const program = TJS.programFromConfig(path.join(__dirname, "..", "tsconfig.json"), walk(path.join(__dirname, "..", "src", "schemas")));
+    const schemaSources = getGeneratedSchemaSources(path.join(__dirname, "..", "src", "schemas"), walk);
+    const program = TJS.programFromConfig(path.join(__dirname, "..", "tsconfig.json"), schemaSources);
     const generator = TJS.buildGenerator(program, settings);
     if (!generator || !program) {
         console.log(redBright("Failed to create schema generator."));

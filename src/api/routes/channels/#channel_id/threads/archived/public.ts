@@ -17,6 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
+import type { ArchivedThreadsResponse } from "@spacebar/schemas";
 import { Channel, Member, ThreadMember } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -26,6 +27,7 @@ import {
     getPublicArchivedThreadType,
     parseArchivedThreadLimit,
     PUBLIC_ARCHIVED_THREAD_PERMISSIONS,
+    serializePublicArchivedThreadMember,
 } from "../../../../../util/utility/ArchivedThreads";
 
 const router = Router({ mergeParams: true });
@@ -95,9 +97,9 @@ router.get(
 
         return res.json({
             threads: returnedThreads.map((thread) => thread.toJSON()),
-            members: members.map((threadMember) => threadMember.toJSON()),
+            members: members.map((threadMember) => serializePublicArchivedThreadMember(threadMember, req.user_id)),
             has_more: threads.length > parsedLimit,
-        });
+        } satisfies ArchivedThreadsResponse);
     },
 );
 

@@ -2351,6 +2351,33 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ArchivedThreadsResponse": {
+        "type": "object",
+        "properties": {
+            "threads": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ActiveThreadsChannel"
+                }
+            },
+            "members": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ActiveThreadsThreadMember"
+                }
+            },
+            "has_more": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "has_more",
+            "members",
+            "threads"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "BackupCodesChallengeResponse": {
         "type": "object",
         "properties": {
@@ -10930,7 +10957,9 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": "number",
+                "properties": {},
+                "additionalProperties": false
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -10949,7 +10978,9 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "type": "number",
+                    "properties": {},
+                    "additionalProperties": false
                 }
             },
             "guild_subscriptions": {
@@ -11407,41 +11438,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "JsonSchema": {
-        "type": "object",
-        "properties": {
-            "$ref": {
-                "type": "string"
-            },
-            "items": {
-                "$ref": "#/definitions/JsonSchema"
-            },
-            "properties": {
-                "$ref": "#/definitions/Record%3Cstring%2CJsonSchema%3E"
-            },
-            "required": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "type": {
-                "anyOf": [
-                    {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "type": "string"
-                    }
-                ]
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "ApplicationCommandOption": {
         "type": "object",
         "properties": {
@@ -11519,13 +11515,20 @@
                 "type": "boolean"
             },
             "roles": {
-                "$ref": "#/definitions/Record%3Cstring%2Cboolean%3E"
+                "$ref": "#/definitions/ApplicationCommandIndexPermissionMap"
             },
             "channels": {
-                "$ref": "#/definitions/Record%3Cstring%2Cboolean%3E"
+                "$ref": "#/definitions/ApplicationCommandIndexPermissionMap"
             }
         },
         "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandIndexPermissionMap": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "boolean"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ApplicationIntegrationType": {

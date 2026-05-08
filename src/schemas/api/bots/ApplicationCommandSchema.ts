@@ -46,8 +46,12 @@ export interface ApplicationCommandSchema {
 
 export interface ApplicationCommandIndexPermissions {
     user?: boolean;
-    roles?: Record<Snowflake, boolean>;
-    channels?: Record<Snowflake, boolean>;
+    roles?: ApplicationCommandIndexPermissionMap;
+    channels?: ApplicationCommandIndexPermissionMap;
+}
+
+export interface ApplicationCommandIndexPermissionMap {
+    [target_id: Snowflake]: boolean;
 }
 
 export enum ApplicationCommandType {

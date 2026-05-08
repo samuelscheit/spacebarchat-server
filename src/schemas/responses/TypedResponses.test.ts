@@ -3,15 +3,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, test } from "node:test";
 
-interface JsonSchema {
+interface JsonShape {
     $ref?: string;
-    items?: JsonSchema;
-    properties?: Record<string, JsonSchema>;
+    items?: JsonShape;
+    properties?: Record<string, JsonShape>;
     required?: string[];
     type?: string | string[];
 }
 
-const schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
+const schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonShape>;
 
 const legacyEntityArrayRefs = {
     APIBackupCodeArray: "#/definitions/BackupCode",

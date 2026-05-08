@@ -20,6 +20,7 @@ export * from "./APIErrorOrCaptchaResponse";
 export * from "./APIErrorResponse";
 export * from "./AccountStandingResponse";
 export * from "./ActiveThreadsResponse";
+export * from "./ArchivedThreadsResponse";
 export * from "./BackupCodesChallengeResponse";
 export * from "./BillingLocationInfoResponse";
 export * from "./CaptchaRequiredResponse";
