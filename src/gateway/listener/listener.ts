@@ -33,13 +33,12 @@ import {
     Relationship,
     Role,
 } from "@spacebar/util";
-import { CLOSECODES, GatewayShard, isGuildOnShard, OPCODES, Send, sendReconnectAndClose } from "../util";
+import { GatewayShard, isGuildOnShard, OPCODES, Send } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
 import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
 import { bgRedBright } from "picocolors";
 import {
-    getEventRouteId,
     hasGuildMemberEventId,
     isEventRouteSubscribed,
     trackGuildEventId,
@@ -50,6 +49,7 @@ import {
     unsubscribeGuildMemberEventIds,
 } from "./subscriptions";
 import { getEventPermissionLookupId } from "../util/EventPermissions";
+import { handlePreDispatchGatewayEvent } from "./sessionControl";
 
 type GuildCreatePermissionData = {
     id: string;
@@ -165,31 +165,6 @@ async function subscribeEvent(this: WebSocket, eventId: string, callback: (event
 
     this.events[eventId] = unsubscribe;
     if (guildId) trackGuildEventId(this.guild_event_ids, guildId, eventId);
-}
-
-export async function handleListenerControlEvent(this: Pick<WebSocket, "close" | "sequence">, opts: EventOpts) {
-    switch (opts.event) {
-        case "INVALIDATED":
-            this.close(CLOSECODES.Authentication_failed, "Invalidated Token");
-            return true;
-        case "SB_SESSION_CLOSE":
-            await sendReconnectAndClose(this as WebSocket, opts.reconnect_delay ?? opts.data ?? 1000);
-            return true;
-        case "SB_SESSION_REMOVE":
-            // TODO: what do we even send here?
-            await Send(this as WebSocket, {
-                op: OPCODES.Invalid_Session,
-                s: this.sequence++,
-            });
-            this.close(CLOSECODES.Invalid_session); // TODO: this is deprecated?
-            return true;
-        default:
-            return false;
-    }
-}
-
-function isListenerControlEvent(event: EventOpts["event"]) {
-    return event === "INVALIDATED" || event === "SB_SESSION_CLOSE" || event === "SB_SESSION_REMOVE";
 }
 
 export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string, userId: string) {
@@ -403,13 +378,10 @@ export async function setupListener(this: WebSocket) {
 
 export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
     const { event } = opts;
-    if (isListenerControlEvent(event)) {
-        opts.acknowledge?.();
-        await handleListenerControlEvent.call(this, opts);
-        return;
-    }
+    if (await handlePreDispatchGatewayEvent(this, opts)) return;
 
     const { data } = opts;
+    if (!data || typeof data !== "object") return;
     const id = data.id as string;
     const guildId = data.guild_id as string | undefined;
     const permissionLookupId = getEventPermissionLookupId(event, data);
@@ -418,20 +390,10 @@ export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
 
     const consumer = consumeListenerEvent.bind(this);
     const listenOpts = opts as ListenEventOpts;
-    opts.acknowledge?.();
-    const eventRouteId = getEventRouteId(opts);
-    if (eventRouteId && !this.events[eventRouteId]) return;
 
     const eventGuildId = guildId ?? (event.startsWith("GUILD_") ? id : undefined);
     if (eventGuildId && !isGuildOnShard(eventGuildId, getSocketShard(this))) return;
     // console.log("event", event);
-
-    // deduplicate gateway messages
-    if (opts.transaction_id) {
-        if (this.recentTransactions.includes(opts.transaction_id)) return;
-        this.recentTransactions.push(opts.transaction_id);
-        if (this.recentTransactions.length > 100) this.recentTransactions = this.recentTransactions.slice(1);
-    }
 
     // subscription managment
     switch (event) {

@@ -30,6 +30,7 @@ export * from "./LazyMemberList";
 export * from "./ChannelInfo";
 export * from "./Reconnect";
 export * from "./ReconnectPayload";
+export * from "./InvalidSessionPayload";
 export * from "./Authorization";
 export * from "./GuildMemberOrdering";
 export * from "./ReadyConsents";
