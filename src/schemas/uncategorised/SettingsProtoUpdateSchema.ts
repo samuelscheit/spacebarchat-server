@@ -39,9 +39,3 @@ export interface SettingsProtoUpdateJsonSchema {
 // 	settings: FrecencyUserSettings;
 // 	required_data_version?: number;
 // }
-
-// TODO: what is this?
-// export interface SettingsProtoUpdateTestSettingsSchema {
-// 	settings: {};
-// 	required_data_version?: number;
-// }
