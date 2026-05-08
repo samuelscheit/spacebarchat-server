@@ -37,6 +37,7 @@ import {
 import { Request, Response, Router } from "express";
 import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
+import { getAvailableTagsModifyError, replaceForumAvailableTags } from "../../../util/utility/ForumTags";
 
 const router: Router = Router({ mergeParams: true });
 // TODO: delete channel
@@ -195,13 +196,11 @@ router.patch(
         }
 
         if (payload.available_tags) {
-            if (channel.isForum() && channel.available_tags) {
-                //TODO maybe error if this fails, and maybe handle creating tags?
-                const filter = new Set(payload.available_tags.map(({ id }) => id));
-                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
-                tags.forEach((_) => _.remove());
-                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
-            }
+            const tagErrors = getAvailableTagsModifyError(channel, payload.available_tags);
+            if (tagErrors) throw new FieldError(400, "Invalid form body", tagErrors);
+
+            await replaceForumAvailableTags(channel, payload.available_tags);
+            delete payload.available_tags;
         }
 
         if (payload.applied_tags) {

@@ -46,6 +46,21 @@ describe("ChannelModifySchema", () => {
         assert.equal(validate(payload), true, JSON.stringify(validate.errors));
         assert.equal(payload.parent_id, "123");
     });
+
+    test("allows available_tags entries with and without ids", () => {
+        const validate = getSchema("ChannelModifySchema");
+
+        assert.equal(
+            validate({
+                available_tags: [
+                    { id: "existing-tag", name: "Existing", moderated: true, emoji_name: "🔥" },
+                    { name: "New", moderated: false },
+                ],
+            }),
+            true,
+            JSON.stringify(validate.errors),
+        );
+    });
 });
 
 describe("ChannelCreateSchema", () => {
