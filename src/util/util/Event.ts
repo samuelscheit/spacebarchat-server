@@ -128,6 +128,18 @@ export interface ProcessEvent {
     id: string;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isEventPayload(value: unknown): value is Event {
+    return isRecord(value) && typeof value.event === "string";
+}
+
+function isProcessEvent(value: unknown): value is ProcessEvent {
+    return isRecord(value) && value.type === "event" && typeof value.id === "string" && isEventPayload(value.event);
+}
+
 export async function listenEvent(event: string, callback: (event: EventOpts) => unknown, opts?: ListenEventOpts): Promise<() => Promise<void>> {
     if (RabbitMQ.connection) {
         const rabbitMQChannel = await RabbitMQ.getSafeChannel();
@@ -148,13 +160,12 @@ export async function listenEvent(event: string, callback: (event: EventOpts) =>
             process.setMaxListeners(process.getMaxListeners() - 1);
         };
 
-        const listener = (msg: ProcessEvent) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            msg.type === "event" && msg.id === event && callback({ ...msg.event, cancel });
+        const listener = (msg: unknown) => {
+            if (!isProcessEvent(msg) || msg.id !== event) return;
+            callback({ ...msg.event, cancel });
         };
 
-        // TODO: assert the type is correct?
-        process.addListener("message", (msg) => listener(msg as ProcessEvent));
+        process.addListener("message", listener);
         process.setMaxListeners(process.getMaxListeners() + 1);
 
         return cancel;
