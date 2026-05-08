@@ -12,6 +12,7 @@ type TestSocket = WebSocket & {
 function createSocket(overrides: Partial<TestSocket> = {}): TestSocket {
     const socket = {
         encoding: "json",
+        user_id: "test-user",
         closeCalls: [] as number[],
         close(code?: number) {
             if (code !== undefined) this.closeCalls.push(code);
