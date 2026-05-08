@@ -82,8 +82,8 @@ router.patch(
             where: { id: req.user_id, guild_id: req.params.guild_id as string },
             select: { settings: true },
         });
-        OrmUtils.mergeDeep(user.settings || {}, body);
-        await user.save();
+        user.settings = OrmUtils.mergeDeep(user.settings || {}, body);
+        await Member.update({ id: req.user_id, guild_id: req.params.guild_id as string }, { settings: user.settings });
 
         res.json(user.settings);
     },
