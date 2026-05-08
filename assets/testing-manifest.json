@@ -4,18 +4,21 @@
     "policyFile": "testing/coverage-policy.json",
     "sources": [
         "src/api/routes",
+        "src/api/util/handlers",
         "src/api/Server.ts",
-        "src/api/util/PublicAssetRoutes.ts",
+        "src/api/middlewares/RateLimit.ts",
+        "src/api/middlewares/NoAuthorizationRoutes.ts",
         "src/cdn/routes",
         "src/cdn/Server.ts",
+        "src/util/entities",
         "src/gateway/opcodes/index.ts",
         "src/webrtc/opcodes/index.ts",
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 405,
+        "totalEntries": 401,
         "byService": {
-            "api": 340,
+            "api": 336,
             "benchmarks": 1,
             "cdn": 41,
             "gateway": 15,
@@ -24,12 +27,12 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 380,
+            "http-route": 376,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
-            "app-smoke": 14,
+            "app-smoke": 10,
             "contract": 53,
             "stateful-domain": 245,
             "cdn-integration": 42,
@@ -41,7 +44,7 @@
         },
         "byBenchmarkClass": {
             "micro": 2,
-            "startup-health": 15,
+            "startup-health": 11,
             "route-class": 297,
             "hot-path": 28,
             "none": 1,
@@ -82,7 +85,7 @@
             "method": "GET",
             "path": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 160,
+            "line": 155,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -111,7 +114,7 @@
             "method": "GET",
             "path": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 156,
+            "line": 151,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -140,7 +143,7 @@
             "method": "GET",
             "path": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 164,
+            "line": 159,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -170,7 +173,7 @@
             "path": "/-/healthz/",
             "sourceFile": "src/api/routes/-/healthz.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -199,7 +202,7 @@
             "path": "/-/readyz/",
             "sourceFile": "src/api/routes/-/readyz.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -227,7 +230,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 183,
+            "line": 178,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -256,7 +259,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 176,
+            "line": 171,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -279,35 +282,6 @@
             }
         },
         {
-            "id": "api:http:GET:/",
-            "type": "http-route",
-            "service": "api",
-            "method": "GET",
-            "path": "/",
-            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
-            "line": 9,
-            "mountedVia": "api-app",
-            "authMode": "public-app-route",
-            "routeMetadata": {
-                "present": false
-            },
-            "coverage": {
-                "policyId": "api-public-assets",
-                "testTier": "app-smoke",
-                "benchmarkClass": "startup-health",
-                "fixtureRequirements": [
-                    "config"
-                ],
-                "contractChecks": [
-                    "status",
-                    "headers",
-                    "body-shape"
-                ],
-                "allowMissingRouteMetadata": true,
-                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
-            }
-        },
-        {
             "id": "api:http:GET:/apex/experiments/",
             "type": "http-route",
             "service": "api",
@@ -315,7 +289,7 @@
             "path": "/apex/experiments/",
             "sourceFile": "src/api/routes/apex/experiments.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -723,7 +697,7 @@
             "method": "PUT",
             "path": "/applications/:application_id/commands/",
             "sourceFile": "src/api/routes/applications/#application_id/commands/index.ts",
-            "line": 72,
+            "line": 74,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -1008,7 +982,7 @@
             "method": "PUT",
             "path": "/applications/:application_id/guilds/:guild_id/commands/",
             "sourceFile": "src/api/routes/applications/#application_id/guilds/#guild_id/commands/index.ts",
-            "line": 98,
+            "line": 100,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -1296,6 +1270,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "attachmentRefresh",
+                "configPath": "limits.rate.routes.attachmentRefresh",
+                "pathPrefix": "/attachments/refresh-urls",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 208
+            },
             "coverage": {
                 "policyId": "api-attachments",
                 "testTier": "cdn-integration",
@@ -1322,7 +1303,7 @@
             "path": "/auth/fingerprint/",
             "sourceFile": "src/api/routes/auth/fingerprint.ts",
             "line": 21,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -1359,7 +1340,7 @@
             "path": "/auth/forgot/",
             "sourceFile": "src/api/routes/auth/forgot.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ForgotPasswordSchema",
@@ -1436,7 +1417,7 @@
             "path": "/auth/location-metadata/",
             "sourceFile": "src/api/routes/auth/location-metadata.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -1473,7 +1454,7 @@
             "path": "/auth/login/",
             "sourceFile": "src/api/routes/auth/login.ts",
             "line": 29,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "LoginSchema",
@@ -1486,6 +1467,13 @@
                     400
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "auth.login",
+                "configPath": "limits.rate.routes.auth.login",
+                "pathPrefix": "/auth/login",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 209
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1520,7 +1508,10 @@
                 "responseStatuses": [
                     204
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "SB_SESSION_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1548,7 +1539,7 @@
             "path": "/auth/mfa/totp/",
             "sourceFile": "src/api/routes/auth/mfa/totp.ts",
             "line": 26,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "TotpSchema",
@@ -1588,7 +1579,7 @@
             "path": "/auth/mfa/webauthn/",
             "sourceFile": "src/api/routes/auth/mfa/webauthn.ts",
             "line": 33,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebAuthnTotpSchema",
@@ -1628,7 +1619,7 @@
             "path": "/auth/register/",
             "sourceFile": "src/api/routes/auth/register.ts",
             "line": 56,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "RegisterSchema",
@@ -1641,6 +1632,13 @@
                     400
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "auth.register",
+                "configPath": "limits.rate.routes.auth.register",
+                "pathPrefix": "/auth/register",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 210
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1668,7 +1666,7 @@
             "path": "/auth/reset/",
             "sourceFile": "src/api/routes/auth/reset.ts",
             "line": 27,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "PasswordResetSchema",
@@ -1753,7 +1751,10 @@
                 "responseStatuses": [
                     204
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "SB_SESSION_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1781,7 +1782,7 @@
             "path": "/auth/verify/",
             "sourceFile": "src/api/routes/auth/verify/index.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "VerifyEmailSchema",
@@ -1980,7 +1981,20 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
+                    "CHANNEL_UPDATE",
+                    "THREAD_DELETE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2023,6 +2037,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2067,7 +2088,17 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2104,6 +2135,13 @@
                 "responseBodies": [],
                 "responseStatuses": [],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2149,6 +2187,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -2191,6 +2236,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -2232,6 +2284,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2276,7 +2335,17 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2319,6 +2388,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2365,7 +2441,17 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INVITE_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2407,7 +2493,17 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2454,6 +2550,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -2499,7 +2602,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2546,7 +2659,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2586,7 +2709,17 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_ACK"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2628,6 +2761,13 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2671,7 +2811,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2714,7 +2864,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2759,7 +2919,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_ADD"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2806,6 +2976,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -2848,7 +3025,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2891,7 +3078,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2936,7 +3133,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_ADD"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2980,7 +3187,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE_EMOJI"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3027,6 +3244,13 @@
                 ],
                 "hasQuery": true
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -3069,7 +3293,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_REACTION_REMOVE_ALL"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3110,7 +3344,19 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3155,6 +3401,13 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3201,7 +3454,21 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_UPDATE",
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3241,6 +3508,13 @@
                     204
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3284,7 +3558,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3328,7 +3612,18 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3372,7 +3667,19 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3419,6 +3726,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -3462,6 +3776,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -3500,7 +3821,17 @@
                     204,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3545,7 +3876,17 @@
                     404,
                     501
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3589,7 +3930,18 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3633,7 +3985,19 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_PINS_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3680,6 +4044,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -3720,6 +4091,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3763,7 +4141,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3802,7 +4190,19 @@
                     204,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3841,7 +4241,18 @@
                     201,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_RECIPIENT_ADD"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3883,7 +4294,17 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3926,7 +4347,17 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3969,7 +4400,17 @@
                     200,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3999,7 +4440,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 159,
+            "line": 160,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4009,7 +4450,18 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_DELETE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4039,7 +4491,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 131,
+            "line": 132,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4051,6 +4503,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4080,7 +4539,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 158,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4090,7 +4549,18 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4120,7 +4590,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 156,
+            "line": 157,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4130,7 +4600,18 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4160,7 +4641,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 219,
+            "line": 220,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4170,7 +4651,17 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "THREAD_MEMBER_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4200,7 +4691,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 100,
+            "line": 101,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4211,6 +4702,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4251,7 +4749,18 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_CREATE",
+                    "THREAD_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4298,6 +4807,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -4331,7 +4847,9 @@
             "routeMetadata": {
                 "present": true,
                 "permission": [
-                    "...PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY",
+                    "MANAGE_THREADS"
                 ],
                 "responseBodies": [
                     "APIErrorResponse"
@@ -4343,6 +4861,13 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4377,7 +4902,8 @@
             "routeMetadata": {
                 "present": true,
                 "permission": [
-                    "...PUBLIC_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY"
                 ],
                 "responseBodies": [
                     "APIErrorResponse",
@@ -4390,6 +4916,13 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4434,6 +4967,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
+            },
             "coverage": {
                 "policyId": "api-channel-state",
                 "testTier": "stateful-domain",
@@ -4473,7 +5013,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "TYPING_START"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4508,7 +5058,8 @@
             "routeMetadata": {
                 "present": true,
                 "permission": [
-                    "...JOINED_PRIVATE_ARCHIVED_THREAD_PERMISSIONS"
+                    "VIEW_CHANNEL",
+                    "READ_MESSAGE_HISTORY"
                 ],
                 "responseBodies": [
                     "APIErrorResponse"
@@ -4520,6 +5071,13 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4561,6 +5119,13 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4606,6 +5171,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 207
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4811,13 +5383,16 @@
             "path": "/connections/:connection_name/callback/",
             "sourceFile": "src/api/routes/connections/#connection_name/callback.ts",
             "line": 26,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConnectionCallbackSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_CONNECTIONS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-connections",
@@ -4946,7 +5521,7 @@
             "path": "/download/",
             "sourceFile": "src/api/routes/download.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -5017,7 +5592,7 @@
             "path": "/experiments/",
             "sourceFile": "src/api/routes/experiments.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -5085,7 +5660,7 @@
             "path": "/gateway/",
             "sourceFile": "src/api/routes/gateway/index.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -5302,6 +5877,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -5346,7 +5928,18 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "GUILD_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5383,6 +5976,13 @@
                 "responseBodies": [],
                 "responseStatuses": [],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5423,6 +6023,13 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5468,6 +6075,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5516,6 +6130,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -5560,6 +6181,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5608,6 +6236,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -5649,7 +6284,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_BAN_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5695,6 +6340,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -5737,7 +6389,19 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_BAN_ADD",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5782,6 +6446,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -5824,6 +6495,13 @@
                     403
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5871,7 +6549,19 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_BAN_ADD",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5916,6 +6606,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -5944,7 +6641,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/channels/",
             "sourceFile": "src/api/routes/guilds/#guild_id/channels.ts",
-            "line": 89,
+            "line": 90,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5958,7 +6655,17 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5994,6 +6701,7 @@
                 "present": true,
                 "permission": "MANAGE_CHANNELS",
                 "requestBody": "ChannelCreateSchema",
+                "event": "CHANNEL_CREATE",
                 "responseBodies": [
                     "APIErrorResponse",
                     "Channel"
@@ -6003,7 +6711,17 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6047,7 +6765,17 @@
                     401,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6091,6 +6819,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6137,6 +6872,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -6176,6 +6918,13 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6217,7 +6966,17 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_EMOJIS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6261,6 +7020,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6306,6 +7072,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -6347,6 +7120,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6391,7 +7171,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_EMOJIS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6434,6 +7224,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -6473,7 +7270,17 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INVITE_DELETE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6515,6 +7322,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -6554,7 +7368,18 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6599,6 +7424,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -6642,7 +7474,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6687,6 +7529,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -6729,7 +7578,17 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6771,7 +7630,17 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6811,7 +7680,17 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6854,6 +7733,13 @@
                     403
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6898,6 +7784,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -6933,6 +7826,13 @@
                 "responseBodies": [],
                 "responseStatuses": [],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6976,7 +7876,17 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7016,6 +7926,13 @@
                 "responseStatuses": [],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -7053,6 +7970,13 @@
                 ],
                 "responseStatuses": [],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7096,7 +8020,18 @@
                     200,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7140,6 +8075,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -7182,7 +8124,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_DELETE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7226,6 +8178,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7271,7 +8230,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7308,6 +8277,13 @@
                 "responseBodies": [],
                 "responseStatuses": [],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7352,6 +8328,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -7395,6 +8378,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -7430,6 +8420,13 @@
                 "responseBodies": [],
                 "responseStatuses": [],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7474,7 +8471,17 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7519,7 +8526,17 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_ROLE_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7557,6 +8574,13 @@
                 "responseStatuses": [],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -7586,7 +8610,7 @@
             "path": "/guilds/:guild_id/shield.svg/",
             "sourceFile": "src/api/routes/guilds/#guild_id/shield.svg.ts",
             "line": 43,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -7597,6 +8621,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7638,7 +8669,17 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_STICKERS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7681,6 +8722,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7725,7 +8773,17 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_STICKERS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7768,6 +8826,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7812,7 +8877,17 @@
                     400,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_STICKERS_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7857,6 +8932,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -7885,7 +8967,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/templates/:code",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 165,
+            "line": 167,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7900,6 +8982,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7944,6 +9033,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -7983,6 +9079,13 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8030,6 +9133,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -8071,6 +9181,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8114,7 +9231,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INVITE_DELETE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8159,7 +9286,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8203,7 +9340,17 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "VOICE_STATE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8245,6 +9392,13 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8288,6 +9442,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
+            },
             "coverage": {
                 "policyId": "api-guild-state",
                 "testTier": "stateful-domain",
@@ -8323,14 +9484,22 @@
                 "permission": "MANAGE_GUILD",
                 "requestBody": "GuildUpdateWelcomeScreenSchema",
                 "responseBodies": [
-                    "APIErrorResponse"
+                    "APIErrorResponse",
+                    "GuildWelcomeScreen"
                 ],
                 "responseStatuses": [
-                    204,
+                    200,
                     400,
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8361,7 +9530,7 @@
             "path": "/guilds/:guild_id/widget.json/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.json.ts",
             "line": 37,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8373,6 +9542,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8403,7 +9579,7 @@
             "path": "/guilds/:guild_id/widget.png/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.png.ts",
             "line": 35,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -8415,6 +9591,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8457,6 +9640,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8502,6 +9692,13 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8742,7 +9939,7 @@
             "method": "GET",
             "path": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 223,
+            "line": 218,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -8811,7 +10008,7 @@
             "method": "USE",
             "path": "/imageproxy/:hash/:size/:url",
             "sourceFile": "src/api/Server.ts",
-            "line": 152,
+            "line": 147,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -8841,13 +10038,19 @@
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
             "line": 38,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "InteractionCallbacksSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INTERACTION_FAILURE",
+                    "INTERACTION_SUCCESS",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-interactions",
@@ -8879,7 +10082,11 @@
                 "requestBody": "InteractionSchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INTERACTION_CREATE",
+                    "INTERACTION_FAILURE"
+                ]
             },
             "coverage": {
                 "policyId": "api-interactions",
@@ -8916,7 +10123,10 @@
                     401,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "INVITE_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-public-contract",
@@ -8941,7 +10151,7 @@
             "path": "/invites/:invite_code",
             "sourceFile": "src/api/routes/invites/index.ts",
             "line": 27,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9013,7 +10223,7 @@
             "path": "/mfa/finish/",
             "sourceFile": "src/api/routes/mfa/finish.ts",
             "line": 28,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "MfaFinishSchema",
@@ -9140,7 +10350,10 @@
                     403,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-oauth-connections",
@@ -9261,7 +10474,7 @@
             "path": "/ping/",
             "sourceFile": "src/api/routes/ping.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9295,7 +10508,7 @@
             "path": "/policies/instance/",
             "sourceFile": "src/api/routes/policies/instance/index.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9329,7 +10542,7 @@
             "path": "/policies/instance/config/",
             "sourceFile": "src/api/routes/policies/instance/config.ts",
             "line": 26,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9363,7 +10576,7 @@
             "path": "/policies/instance/domains/",
             "sourceFile": "src/api/routes/policies/instance/domains.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9397,7 +10610,7 @@
             "path": "/policies/instance/limits/",
             "sourceFile": "src/api/routes/policies/instance/limits.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9430,8 +10643,8 @@
             "method": "GET",
             "path": "/policies/stats/",
             "sourceFile": "src/api/routes/policies/stats.ts",
-            "line": 24,
-            "authMode": "bearer",
+            "line": 25,
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -9502,7 +10715,7 @@
             "method": "GET",
             "path": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 222,
+            "line": 217,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -9641,7 +10854,7 @@
             "path": "/scheduled-maintenances/upcoming.json/",
             "sourceFile": "src/api/routes/scheduled-maintenances/upcoming.json.ts",
             "line": 23,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -9671,7 +10884,7 @@
             "path": "/science/",
             "sourceFile": "src/api/routes/science.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -10181,7 +11394,7 @@
             "path": "/track/",
             "sourceFile": "src/api/routes/track.ts",
             "line": 24,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -10211,7 +11424,7 @@
             "path": "/updates/",
             "sourceFile": "src/api/routes/updates.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -10299,7 +11512,15 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_RECIPIENT_REMOVE",
+                    "CHANNEL_UPDATE",
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE",
+                    "USER_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -10415,7 +11636,10 @@
                 "requestBody": "UserProfileModifySchema",
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -10535,7 +11759,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11082,7 +12309,10 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11200,7 +12430,10 @@
                 "present": true,
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_CONNECTIONS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11343,7 +12576,11 @@
                     401,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11603,7 +12840,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_DELETE",
+                    "GUILD_MEMBER_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12110,7 +13351,10 @@
                     204,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_NOTE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12138,7 +13382,7 @@
             "method": "DELETE",
             "path": "/users/@me/relationships/:user_id",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 148,
+            "line": 151,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12150,7 +13394,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12191,7 +13438,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12300,7 +13550,7 @@
             "method": "POST",
             "path": "/users/@me/relationships/",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 117,
+            "line": 120,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12390,7 +13640,10 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12467,7 +13720,10 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12544,7 +13800,10 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12621,7 +13880,10 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "USER_SETTINGS_PROTO_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12703,7 +13965,10 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "PRESENCE_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12722,64 +13987,6 @@
                     "db-state"
                 ],
                 "allowMissingRouteMetadata": false
-            }
-        },
-        {
-            "id": "api:http:GET:/verify-email",
-            "type": "http-route",
-            "service": "api",
-            "method": "GET",
-            "path": "/verify-email",
-            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
-            "line": 14,
-            "mountedVia": "api-app",
-            "authMode": "public-app-route",
-            "routeMetadata": {
-                "present": false
-            },
-            "coverage": {
-                "policyId": "api-public-assets",
-                "testTier": "app-smoke",
-                "benchmarkClass": "startup-health",
-                "fixtureRequirements": [
-                    "config"
-                ],
-                "contractChecks": [
-                    "status",
-                    "headers",
-                    "body-shape"
-                ],
-                "allowMissingRouteMetadata": true,
-                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
-            }
-        },
-        {
-            "id": "api:http:GET:/verify-response.js",
-            "type": "http-route",
-            "service": "api",
-            "method": "GET",
-            "path": "/verify-response.js",
-            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
-            "line": 19,
-            "mountedVia": "api-app",
-            "authMode": "public-app-route",
-            "routeMetadata": {
-                "present": false
-            },
-            "coverage": {
-                "policyId": "api-public-assets",
-                "testTier": "app-smoke",
-                "benchmarkClass": "startup-health",
-                "fixtureRequirements": [
-                    "config"
-                ],
-                "contractChecks": [
-                    "status",
-                    "headers",
-                    "body-shape"
-                ],
-                "allowMissingRouteMetadata": true,
-                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
             }
         },
         {
@@ -12856,7 +14063,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 95,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -12868,6 +14075,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -12897,7 +14111,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 9,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -12908,6 +14122,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -12937,7 +14158,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 133,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookTokenUpdateSchema",
@@ -12952,6 +14173,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -12981,7 +14209,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "line": 57,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookExecuteSchema",
@@ -12993,7 +14221,17 @@
                     400,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -13022,8 +14260,8 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/github/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/github.ts",
-            "line": 393,
-            "authMode": "bearer",
+            "line": 392,
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookExecuteSchema",
@@ -13035,7 +14273,17 @@
                     400,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_CREATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -13065,7 +14313,7 @@
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
             "line": 108,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -13073,7 +14321,17 @@
                     204,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_DELETE"
+                ]
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -13103,7 +14361,7 @@
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
             "line": 40,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
@@ -13114,6 +14372,13 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -13143,7 +14408,7 @@
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
             "line": 67,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "WebhookMessageEditSchema",
@@ -13156,7 +14421,17 @@
                     400,
                     404
                 ],
-                "hasQuery": true
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -13197,7 +14472,17 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_DELETE_BULK"
+                ]
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -13238,6 +14523,13 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -13283,6 +14575,13 @@
                 ],
                 "hasQuery": false
             },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 206
+            },
             "coverage": {
                 "policyId": "api-webhooks",
                 "testTier": "stateful-domain",
@@ -13301,35 +14600,6 @@
                     "events"
                 ],
                 "allowMissingRouteMetadata": false
-            }
-        },
-        {
-            "id": "api:http:GET:/widget",
-            "type": "http-route",
-            "service": "api",
-            "method": "GET",
-            "path": "/widget",
-            "sourceFile": "src/api/util/PublicAssetRoutes.ts",
-            "line": 24,
-            "mountedVia": "api-app",
-            "authMode": "public-app-route",
-            "routeMetadata": {
-                "present": false
-            },
-            "coverage": {
-                "policyId": "api-public-assets",
-                "testTier": "app-smoke",
-                "benchmarkClass": "startup-health",
-                "fixtureRequirements": [
-                    "config"
-                ],
-                "contractChecks": [
-                    "status",
-                    "headers",
-                    "body-shape"
-                ],
-                "allowMissingRouteMetadata": true,
-                "notes": "Root, verify, widget, and helper asset routes are registered by the public asset route helper."
             }
         },
         {
@@ -13362,7 +14632,7 @@
             "method": "POST",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 146,
+            "line": 150,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -13393,7 +14663,7 @@
             "method": "DELETE",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 122,
+            "line": 126,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -13455,7 +14725,7 @@
             "method": "DELETE",
             "path": "/_spacebar/cdn/attachments/:channel_id/:message_id/:filename",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 111,
+            "line": 115,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -13486,7 +14756,7 @@
             "method": "POST",
             "path": "/_spacebar/cdn/attachments/:channel_id/:message_id",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 69,
+            "line": 73,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14013,7 +15283,7 @@
             "method": "GET",
             "path": "/guild-profiles/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 84,
+            "line": 85,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14044,7 +15314,7 @@
             "method": "DELETE",
             "path": "/guild-profiles/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 98,
+            "line": 99,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14075,7 +15345,7 @@
             "method": "GET",
             "path": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 72,
+            "line": 73,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14106,7 +15376,7 @@
             "method": "POST",
             "path": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 46,
+            "line": 48,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14137,7 +15407,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 84,
+            "line": 85,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -14169,7 +15439,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 98,
+            "line": 99,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -14201,7 +15471,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 72,
+            "line": 73,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -14233,7 +15503,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 46,
+            "line": 48,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -14265,7 +15535,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 84,
+            "line": 85,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -14297,7 +15567,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/banners/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 98,
+            "line": 99,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -14329,7 +15599,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 72,
+            "line": 73,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -14361,7 +15631,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 46,
+            "line": 48,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
