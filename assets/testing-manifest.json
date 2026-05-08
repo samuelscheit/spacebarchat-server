@@ -3490,7 +3490,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 84,
+            "line": 90,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3530,7 +3530,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 29,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

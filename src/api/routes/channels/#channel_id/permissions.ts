@@ -16,15 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Channel, ChannelUpdateEvent, emitEvent, Member, Role } from "@spacebar/util";
+import { Channel, ChannelUpdateEvent, emitEvent, Member, resolveChannelPermissionOverwritePermissions, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
 import { route } from "@spacebar/api";
 import { ChannelPermissionOverwriteSchema, ChannelPermissionOverwrite, ChannelPermissionOverwriteType } from "@spacebar/schemas";
 const router: Router = Router({ mergeParams: true });
-
-// TODO: Only permissions your bot has in the guild or channel can be allowed/denied (unless your bot has a MANAGE_ROLES overwrite in the channel)
 
 router.put(
     "/:overwrite_id",
@@ -54,7 +52,8 @@ router.put(
             if (!(await Member.count({ where: { id: overwrite_id } }))) throw new HTTPError("user not found", 404);
         } else throw new HTTPError("type not supported", 501);
 
-        let overwrite: ChannelPermissionOverwrite | undefined = channel.permission_overwrites?.find((x) => x.id === overwrite_id);
+        channel.permission_overwrites ??= [];
+        let overwrite: ChannelPermissionOverwrite | undefined = channel.permission_overwrites.find((x) => x.id === overwrite_id);
         if (!overwrite) {
             overwrite = {
                 id: overwrite_id,
@@ -62,10 +61,17 @@ router.put(
                 allow: "0",
                 deny: "0",
             };
-            channel.permission_overwrites?.push(overwrite);
+            channel.permission_overwrites.push(overwrite);
         }
-        overwrite.allow = String((req.permission?.bitfield || 0n) & (BigInt(body.allow) || BigInt("0")));
-        overwrite.deny = String((req.permission?.bitfield || 0n) & (BigInt(body.deny) || BigInt("0")));
+
+        const resolvedPermissions = resolveChannelPermissionOverwritePermissions({
+            requestedAllow: body.allow,
+            requestedDeny: body.deny,
+            actorPermissions: req.permission,
+            channelOverwrites: channel.permission_overwrites,
+        });
+        overwrite.allow = resolvedPermissions.allow;
+        overwrite.deny = resolvedPermissions.deny;
 
         await Promise.all([
             channel.save(),
