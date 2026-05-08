@@ -1,10 +1,10 @@
-import { GuildFeature } from "../../../util/util/GuildFeatures";
 import { GuildDiscoveryMetadataResponse, GuildDiscoveryMetadataUpdateSchema } from "@spacebar/schemas";
+import { GuildFeature, type GuildFeatureValue } from "../../../util/util/GuildFeatures";
 
 export interface DiscoveryMetadataGuild {
     id: string;
     primary_category_id?: string | null;
-    features?: GuildFeature[];
+    features?: GuildFeatureValue[];
     description?: string | null;
 }
 

@@ -49,7 +49,7 @@ import { Webhook } from "./Webhook";
 import { ChannelType, type GuildCreateResponse } from "@spacebar/schemas";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
-import { GuildFeature, setVanityUrlFeature } from "../util/GuildFeatures";
+import { GuildFeature, setVanityUrlFeature, type GuildFeatureValue } from "../util/GuildFeatures";
 import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
 // TODO: guild_scheduled_events
 
@@ -116,8 +116,7 @@ export class Guild extends BaseClass {
     explicit_content_filter?: number;
 
     @Column({ type: "varchar", array: true })
-    features: GuildFeature[] = [];
-    // See https://discord.com/developers/docs/resources/guild#guild-object-guild-features
+    features: GuildFeatureValue[] = [];
 
     @Column({ nullable: true, type: "int8" })
     primary_category_id?: string | null; // TODO: this was number?

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { GuildFeature, Config, Guild } from "@spacebar/util";
+import { Config, Guild, GuildFeature } from "@spacebar/util";
 
 import { route, toRecommendedGuild } from "@spacebar/api";
 import { Request, Response, Router } from "express";

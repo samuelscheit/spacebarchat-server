@@ -21,7 +21,6 @@ import {
     Channel,
     DiscordApiErrors,
     Guild,
-    GuildFeature,
     GuildUpdateEvent,
     Member,
     Permissions,
@@ -33,6 +32,8 @@ import {
     handleFile,
     Config,
     removeChannelOrderingFromGuildSave,
+    MUTABLE_GUILD_FEATURES,
+    type GuildFeatureValue,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -178,14 +179,11 @@ router.patch(
             body.discovery_splash = (await handleGuildImageField(`/discovery-splashes/${guild_id}`, body.discovery_splash, guild.discovery_splash)) as string | undefined;
 
         if (body.features) {
-            const requestedFeatures = body.features as GuildFeature[];
+            const requestedFeatures = body.features as GuildFeatureValue[];
             const diff = guild.features.filter((x) => !requestedFeatures.includes(x)).concat(requestedFeatures.filter((x) => !guild.features.includes(x)));
 
-            // TODO move these
-            const MUTABLE_FEATURES = [GuildFeature.Community, GuildFeature.InvitesDisabled, GuildFeature.Discoverable];
-
             for (const feature of diff) {
-                if (MUTABLE_FEATURES.includes(feature)) continue;
+                if (MUTABLE_GUILD_FEATURES.includes(feature)) continue;
 
                 throw SpacebarApiErrors.FEATURE_IS_IMMUTABLE.withParams(feature);
             }

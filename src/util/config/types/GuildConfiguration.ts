@@ -17,11 +17,11 @@
 */
 
 import { DiscoveryConfiguration, AutoJoinConfiguration } from ".";
-import { GuildFeature } from "../../util/GuildFeatures";
+import type { GuildFeatureValue } from "../../util/GuildFeatures";
 
 export class GuildConfiguration {
     discovery: DiscoveryConfiguration = new DiscoveryConfiguration();
     autoJoin: AutoJoinConfiguration = new AutoJoinConfiguration();
-    defaultFeatures: GuildFeature[] = [];
+    defaultFeatures: GuildFeatureValue[] = [];
     publicThreadsInvitable: boolean = false;
 }

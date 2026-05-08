@@ -2,22 +2,77 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, test } from "node:test";
-import { GuildFeature, getVanityUrlFeatureState, setVanityUrlFeature } from "./GuildFeatures";
+import { GUILD_FEATURES, GuildFeature, MUTABLE_GUILD_FEATURES, VANITY_URL_FEATURE, getVanityUrlFeatureState, setVanityUrlFeature, type GuildFeatureValue } from "./GuildFeatures";
+
+const documentedDiscordGuildFeatures = [
+    "ANIMATED_BANNER",
+    "ANIMATED_ICON",
+    "APPLICATION_COMMAND_PERMISSIONS_V2",
+    "AUTO_MODERATION",
+    "BANNER",
+    "COMMUNITY",
+    "CREATOR_MONETIZABLE_PROVISIONAL",
+    "CREATOR_STORE_PAGE",
+    "DEVELOPER_SUPPORT_SERVER",
+    "DISCOVERABLE",
+    "ENHANCED_ROLE_COLORS",
+    "FEATURABLE",
+    "GUESTS_ENABLED",
+    "GUILD_TAGS",
+    "INVITES_DISABLED",
+    "INVITE_SPLASH",
+    "MEMBER_VERIFICATION_GATE_ENABLED",
+    "MORE_SOUNDBOARD",
+    "MORE_STICKERS",
+    "NEWS",
+    "PARTNERED",
+    "PREVIEW_ENABLED",
+    "RAID_ALERTS_DISABLED",
+    "ROLE_ICONS",
+    "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE",
+    "ROLE_SUBSCRIPTIONS_ENABLED",
+    "SOUNDBOARD",
+    "TICKETED_EVENTS_ENABLED",
+    "VANITY_URL",
+    "VERIFIED",
+    "VIP_REGIONS",
+    "WELCOME_SCREEN_ENABLED",
+] as const;
 
 describe("Guild feature helpers", () => {
-    test("keeps enum values compatible with stored guild feature strings", () => {
+    test("keeps known feature values compatible with stored guild feature strings", () => {
         assert.equal(GuildFeature.Discoverable, "DISCOVERABLE");
         assert.equal(GuildFeature.VanityUrl, "VANITY_URL");
+        assert.equal(GuildFeature.AllowUnnamedChannels, "ALLOW_UNNAMED_CHANNELS");
     });
 
-    test("covers every public guild feature string in the feature manifest", () => {
+    test("exports documented and public guild feature strings without duplicates", () => {
         const publicFeatures = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "public", "features.json"), "utf8")) as string[];
-        const enumValues = new Set(Object.values(GuildFeature));
+        const featureSet = new Set<string>(GUILD_FEATURES);
 
+        assert.equal(featureSet.size, GUILD_FEATURES.length);
         assert.deepEqual(
-            publicFeatures.filter((feature) => !enumValues.has(feature as GuildFeature)),
+            documentedDiscordGuildFeatures.filter((feature) => !featureSet.has(feature)),
             [],
         );
+        assert.deepEqual(
+            publicFeatures.filter((feature) => !featureSet.has(feature)),
+            [],
+        );
+        assert.equal(VANITY_URL_FEATURE, GuildFeature.VanityUrl);
+    });
+
+    test("exports the mutable guild feature subset", () => {
+        assert.deepEqual(
+            [...MUTABLE_GUILD_FEATURES].sort(),
+            [GuildFeature.Community, GuildFeature.Discoverable, GuildFeature.InvitesDisabled, GuildFeature.RaidAlertsDisabled].sort(),
+        );
+    });
+
+    test("keeps guild feature arrays open for unknown Discord or Spacebar-specific values", () => {
+        const features: GuildFeatureValue[] = [GuildFeature.Community, "SPACEBAR_EXPERIMENT"];
+
+        assert.deepEqual(setVanityUrlFeature(features, false), ["COMMUNITY", "SPACEBAR_EXPERIMENT"]);
     });
 
     test("removes VANITY_URL when a guild has no vanity URL", () => {

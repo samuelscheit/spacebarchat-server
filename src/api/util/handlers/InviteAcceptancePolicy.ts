@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { GuildFeature } from "../../../util/util/GuildFeatures";
+import { GuildFeature, type GuildFeatureValue } from "../../../util/util/GuildFeatures";
 
-export type InviteAcceptanceDenial = "USER_BANNED" | "QUARANTINED" | GuildFeature.InternalEmployeeOnly | GuildFeature.InvitesDisabled;
+export type InviteAcceptanceDenial = "USER_BANNED" | "QUARANTINED" | typeof GuildFeature.InternalEmployeeOnly | typeof GuildFeature.InvitesDisabled;
 
 export const InviteAcceptanceUserFlags = {
     DISCORD_EMPLOYEE: 1n << 0n,
@@ -27,7 +27,7 @@ export const InviteAcceptanceUserFlags = {
 
 export interface InviteAcceptancePolicy {
     banned?: boolean;
-    features: GuildFeature[];
+    features: readonly GuildFeatureValue[];
     publicFlags?: bigint | number | string | null;
 }
 
