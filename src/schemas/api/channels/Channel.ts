@@ -112,7 +112,6 @@ export interface PublicChannel {
     recipients?: PartialUser[];
     recipient_flags?: number;
     icon?: string | null;
-    // nicks?: ChannelNick[]; // TODO
     managed?: boolean;
     blocked_user_warning_dismissed?: boolean;
     // safety_warnings?: SafetyWarning[]; // TODO
