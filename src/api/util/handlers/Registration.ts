@@ -17,7 +17,7 @@
 */
 
 import { RegisterSchema } from "../../../schemas/uncategorised/RegisterSchema";
-import { User } from "../../../util/entities/User";
+import { DateOfBirthInput, evaluateDateOfBirth } from "../../../util/util/DateOfBirth";
 
 export interface RegistrationInviteConfiguration {
     requireInvite: boolean;
@@ -45,16 +45,15 @@ export function isRegistrationInviteUsable(invite: RegistrationInvite | null | u
 
 export function validateRegistrationDateOfBirth(
     dateOfBirthConfig: RegistrationDateOfBirthConfiguration,
-    dateOfBirth: Date | string | null | undefined,
+    dateOfBirth: DateOfBirthInput | null | undefined,
     now = new Date(),
 ): RegistrationDateOfBirthValidationError | undefined {
-    if (dateOfBirth == null) return dateOfBirthConfig.required ? "required" : undefined;
+    const result = evaluateDateOfBirth(dateOfBirth, dateOfBirthConfig.minimum, now);
 
-    if (!User.isValidDateOfBirth(dateOfBirth)) return "invalid";
+    if (result.status === "missing") return dateOfBirthConfig.required ? "required" : undefined;
 
-    if (dateOfBirthConfig.minimum !== undefined && dateOfBirthConfig.minimum > 0 && !User.hasReachedAge(dateOfBirth, dateOfBirthConfig.minimum, now)) {
-        return "underage";
-    }
+    if (result.status === "invalid") return "invalid";
+    if (result.status === "underage") return "underage";
 
     return undefined;
 }

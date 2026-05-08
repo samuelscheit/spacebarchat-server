@@ -71,13 +71,17 @@ test("User.isAdult rejects invalid dates", () => {
     assert.equal(User.isAdult("not-a-date", new Date("2026-05-08T12:00:00.000Z")), false);
     assert.equal(User.isAdult("", new Date("2026-05-08T12:00:00.000Z")), false);
     assert.equal(User.isAdult("2010-02-31", new Date("2026-05-08T12:00:00.000Z")), false);
+    assert.equal(User.isAdult("2010-02-28T00:00:00.000Z", new Date("2026-05-08T12:00:00.000Z")), false);
 });
 
-function createRegistrationManager() {
+function createRegistrationManager(savedUsers: User[] = []) {
     const userRepository = {
         find: async () => [],
         create: (user: Partial<User>) => Object.assign(new User(), user),
-        save: async (user: User) => user,
+        save: async (user: User) => {
+            savedUsers.push(user);
+            return user;
+        },
     };
     const settingsRepository = {
         create: (settings: Partial<UserSettings>) => Object.assign(new UserSettings(), settings),
@@ -95,12 +99,12 @@ function createRegistrationManager() {
     return manager;
 }
 
-async function registerTestUser(date_of_birth?: Date | string) {
+async function registerTestUser(date_of_birth?: Date | string, savedUsers?: User[]) {
     return User.register({
         username: "register-test-user",
         password: "hashed-password",
         date_of_birth,
-        manager: createRegistrationManager(),
+        manager: createRegistrationManager(savedUsers),
         emitSideEffects: false,
     });
 }
@@ -121,4 +125,26 @@ test("User.register preserves the legacy nsfw_allowed default when date_of_birth
     const user = await registerTestUser();
 
     assert.equal(user.nsfw_allowed, true);
+});
+
+test("User.register derives nsfw_allowed from date_of_birth instead of storing date_of_birth", async () => {
+    const dateOfBirthColumn = getMetadataArgsStorage().columns.find((column) => column.target === User && column.propertyName === "date_of_birth");
+    const savedUsers: User[] = [];
+
+    const adult = await registerTestUser("1990-01-01", savedUsers);
+    const underage = await registerTestUser(new Date(), savedUsers);
+
+    assert.equal(adult.nsfw_allowed, true);
+    assert.equal(underage.nsfw_allowed, false);
+    assert.equal(User.calculateNsfwAllowed("invalid-date"), false);
+    assert.equal(User.calculateNsfwAllowed(), true);
+    assert.equal(dateOfBirthColumn, undefined, "date_of_birth should not be a persisted User column");
+    assert.equal(savedUsers.length, 2);
+    for (const user of savedUsers) {
+        assert.equal("date_of_birth" in user, false, "date_of_birth should not be persisted on User entities");
+    }
+
+    const serializedUser = Object.assign(new User(), adult, { date_of_birth: "1990-01-01" });
+    assert.equal("date_of_birth" in serializedUser.toPublicUser(), false, "date_of_birth should not be serialized publicly");
+    assert.equal("date_of_birth" in serializedUser.toPrivateUser(), false, "date_of_birth should not be serialized privately");
 });

@@ -55,6 +55,7 @@
         "src/util/util/ChannelFlags.test.ts",
         "src/util/util/cdn.test.ts",
         "src/util/util/Constants.test.ts",
+        "src/util/util/DateOfBirth.test.ts",
         "src/util/util/Intents.test.ts",
         "src/util/util/InternalCdnRoutes.test.ts",
         "src/util/util/json/JsonSerializerAsyncEnumerable.test.ts",

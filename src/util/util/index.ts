@@ -31,6 +31,7 @@ export * from "./CdnRoutes";
 export * from "./Database";
 export * from "./DatabaseTransformers";
 export * from "./DateBuilder";
+export * from "./DateOfBirth";
 export * from "./DefaultUserRights";
 export * from "./DmPrivacy";
 export * from "./EmailAddress";
