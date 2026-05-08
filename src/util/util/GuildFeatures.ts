@@ -40,6 +40,13 @@ export type KnownGuildFeature = (typeof GuildFeature)[keyof typeof GuildFeature]
 // while preserving forward-compatible/custom values loaded from config or storage.
 export type GuildFeatureValue = KnownGuildFeature | (string & {});
 
+export const MUTABLE_GUILD_FEATURES: readonly GuildFeatureValue[] = Object.freeze([
+    GuildFeature.Community,
+    GuildFeature.Discoverable,
+    GuildFeature.InvitesDisabled,
+    GuildFeature.RaidAlertsDisabled,
+]);
+
 export const VANITY_URL_FEATURE: KnownGuildFeature = GuildFeature.VanityUrl;
 
 export function setVanityUrlFeature(features: readonly GuildFeatureValue[] | null | undefined, hasVanityUrl: boolean): GuildFeatureValue[] {

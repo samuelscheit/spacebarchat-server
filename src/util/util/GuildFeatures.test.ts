@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { GUILD_FEATURES, GuildFeature, VANITY_URL_FEATURE, getVanityUrlFeatureState, setVanityUrlFeature, type GuildFeatureValue } from "./GuildFeatures";
+import { GUILD_FEATURES, GuildFeature, MUTABLE_GUILD_FEATURES, VANITY_URL_FEATURE, getVanityUrlFeatureState, setVanityUrlFeature, type GuildFeatureValue } from "./GuildFeatures";
 
 const documentedDiscordGuildFeatures = [
     "ANIMATED_BANNER",
@@ -42,6 +42,13 @@ describe("Guild feature helpers", () => {
         assert.deepEqual([...GUILD_FEATURES].sort(), [...documentedDiscordGuildFeatures].sort());
         assert.equal(new Set(GUILD_FEATURES).size, GUILD_FEATURES.length);
         assert.equal(VANITY_URL_FEATURE, GuildFeature.VanityUrl);
+    });
+
+    test("exports the documented mutable Discord guild feature subset", () => {
+        assert.deepEqual(
+            [...MUTABLE_GUILD_FEATURES].sort(),
+            [GuildFeature.Community, GuildFeature.Discoverable, GuildFeature.InvitesDisabled, GuildFeature.RaidAlertsDisabled].sort(),
+        );
     });
 
     test("keeps guild feature arrays open for unknown Discord or Spacebar-specific values", () => {
