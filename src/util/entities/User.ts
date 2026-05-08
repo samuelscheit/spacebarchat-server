@@ -57,6 +57,8 @@ import { JsonNumber } from "../util/Decorators";
     name: "users",
 })
 export class User extends BaseClass {
+    static readonly nsfwAllowedAge = 18;
+
     @Column()
     username: string; // username max length 32, min 2 (should be configurable)
 
@@ -105,7 +107,7 @@ export class User extends BaseClass {
     system: boolean = false; // shouldn't be used, the api sends this field type true, if the generated message comes from a system generated author
 
     @Column({ select: false })
-    nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands) // TODO: depending on age
+    nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands)
 
     @Column({ select: false })
     mfa_enabled: boolean = false; // if multi factor authentication is enabled
@@ -301,10 +303,20 @@ export class User extends BaseClass {
         return uniqueUsernames ? this.username : `${this.username}#${this.discriminator}`;
     }
 
+    static isAdult(dateOfBirth: Date | string, now = new Date()) {
+        const birthday = dateOfBirth instanceof Date ? dateOfBirth : new Date(dateOfBirth);
+        if (Number.isNaN(birthday.getTime())) return false;
+
+        const adultBirthday = new Date(birthday);
+        adultBirthday.setFullYear(adultBirthday.getFullYear() + User.nsfwAllowedAge);
+        return adultBirthday <= now;
+    }
+
     static async register({
         email,
         username,
         password,
+        date_of_birth,
         id,
         req,
         bot,
@@ -314,7 +326,7 @@ export class User extends BaseClass {
         username: string;
         password?: string;
         email?: string;
-        date_of_birth?: Date; // "2000-04-03"
+        date_of_birth?: Date | string; // "2000-04-03"
         id?: string;
         req?: Request;
         bot?: boolean;
@@ -339,10 +351,8 @@ export class User extends BaseClass {
             });
         }
 
-        // TODO: save date_of_birth
-        // apparently discord doesn't save the date of birth and just calculate if nsfw is allowed
-        // if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
         const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
+        const nsfwAllowed = date_of_birth ? User.isAdult(date_of_birth) : true;
 
         const settings = settingsRepository.create({
             locale: language,
@@ -366,6 +376,7 @@ export class User extends BaseClass {
             verified: Config.get().defaults.user.verified ?? true,
             created_at: new Date(),
             bot: !!bot,
+            nsfw_allowed: nsfwAllowed,
         });
 
         user.validate();
