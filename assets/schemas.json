@@ -19103,6 +19103,12 @@
             "bot": {
                 "type": "integer"
             },
+            "GET": {
+                "type": "integer"
+            },
+            "MODIFY": {
+                "type": "integer"
+            },
             "count": {
                 "type": "integer"
             },

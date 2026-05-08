@@ -28,7 +28,6 @@ import { API_PREFIX_TRAILING_SLASH } from "./Authentication";
 ? bucket limit? Max actions/sec per bucket?
 (ANSWER: a small spacebar instance might not need a complex rate limiting system)
 TODO: delay database requests to include multiple queries
-TODO: different for methods (GET/POST)
 > IP addresses that make too many invalid HTTP requests are automatically and temporarily restricted from accessing the Discord API. Currently, this limit is 10,000 per 10 minutes. An invalid request is one that results in 401, 403, or 429 statuses.
 > All bots can make up to 50 requests per second to our API. This is independent of any individual rate limit on a route. If your bot gets big enough, based on its functionality, it may be impossible to stay below 50 requests per second during normal operations.
 */
@@ -43,6 +42,21 @@ type RateLimit = {
 
 const Cache = new Map<string, RateLimit>();
 const EventRateLimit = "RATELIMIT";
+
+const READ_METHODS = ["GET", "OPTIONS", "HEAD"];
+const MODIFY_METHODS = ["POST", "DELETE", "PATCH", "PUT"];
+
+function getMethodRateLimit(opts: { count: number; GET?: number; MODIFY?: number }, method: string) {
+    if (opts.GET !== undefined && READ_METHODS.includes(method)) {
+        return { method_max_hits: opts.GET, bucket_suffix: "GET" };
+    }
+
+    if (opts.MODIFY !== undefined && MODIFY_METHODS.includes(method)) {
+        return { method_max_hits: opts.MODIFY, bucket_suffix: "MODIFY" };
+    }
+
+    return { method_max_hits: undefined, bucket_suffix: undefined };
+}
 
 export default function rateLimit(opts: {
     bucket?: string;
@@ -70,14 +84,16 @@ export default function rateLimit(opts: {
 
         let max_hits = opts.count;
         if (opts.bot && req.user_bot) max_hits = opts.bot;
-        if (opts.GET && ["GET", "OPTIONS", "HEAD"].includes(req.method)) max_hits = opts.GET;
-        else if (opts.MODIFY && ["POST", "DELETE", "PATCH", "PUT"].includes(req.method)) max_hits = opts.MODIFY;
+        const { method_max_hits, bucket_suffix } = getMethodRateLimit(opts, req.method);
+        if (method_max_hits !== undefined) max_hits = method_max_hits;
+        const effective_bucket_id = bucket_suffix ? `${bucket_id}:${bucket_suffix}` : bucket_id;
+        const cache_key = executor_id + effective_bucket_id;
 
-        const offender = Cache.get(executor_id + bucket_id);
+        const offender = Cache.get(cache_key);
 
         res.set("X-RateLimit-Limit", `${max_hits}`)
             .set("X-RateLimit-Remaining", `${max_hits - (offender?.hits || 0)}`)
-            .set("X-RateLimit-Bucket", `${bucket_id}`)
+            .set("X-RateLimit-Bucket", `${effective_bucket_id}`)
             // assuming we aren't blocked, a new window will start after this request
             .set("X-RateLimit-Reset", `${Date.now() + opts.window}`)
             .set("X-RateLimit-Reset-After", `${opts.window}`);
@@ -92,7 +108,7 @@ export default function rateLimit(opts: {
                 offender.expires_at = new Date(Date.now() + opts.window * 1000);
                 offender.blocked = false;
 
-                Cache.delete(executor_id + bucket_id);
+                Cache.delete(cache_key);
             }
 
             res.set("X-RateLimit-Reset", `${reset}`);
@@ -106,7 +122,7 @@ export default function rateLimit(opts: {
                 resetAfterMs = reset - Date.now();
                 resetAfterSec = Math.ceil(resetAfterMs / 1000);
 
-                console.log(`blocked bucket: ${bucket_id} ${executor_id}`, {
+                console.log(`blocked bucket: ${effective_bucket_id} ${executor_id}`, {
                     resetAfterMs,
                 });
 
@@ -129,7 +145,7 @@ export default function rateLimit(opts: {
 
         next();
         const hitRouteOpts = {
-            bucket_id,
+            bucket_id: effective_bucket_id,
             executor_id,
             max_hits,
             window: opts.window,

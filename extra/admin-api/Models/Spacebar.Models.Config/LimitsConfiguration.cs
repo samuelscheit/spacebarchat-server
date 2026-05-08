@@ -112,6 +112,12 @@ public class RateLimits {
     }
 
     public class RateLimitOptions {
+        [JsonPropertyName("GET")]
+        public int? Get { get; set; }
+
+        [JsonPropertyName("MODIFY")]
+        public int? Modify { get; set; }
+
         [JsonPropertyName("count")]
         public int Count { get; set; }
 

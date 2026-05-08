@@ -18,6 +18,8 @@
 
 export interface RateLimitOptions {
     bot?: number;
+    GET?: number;
+    MODIFY?: number;
     count: number;
     window: number;
     onyIp?: boolean;
