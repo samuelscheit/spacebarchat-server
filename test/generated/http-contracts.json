@@ -8,11 +8,11 @@
             "api": 335,
             "cdn": 41
         },
-        "runtimeAuthBoundaryContracts": 287,
-        "runtimeMalformedAuthContracts": 287,
-        "runtimeRevokedSessionAuthContracts": 287,
-        "runtimeStaleTokenAuthContracts": 287,
-        "runtimePublicAuthBoundaryContracts": 40,
+        "runtimeAuthBoundaryContracts": 286,
+        "runtimeMalformedAuthContracts": 286,
+        "runtimeRevokedSessionAuthContracts": 286,
+        "runtimeStaleTokenAuthContracts": 286,
+        "runtimePublicAuthBoundaryContracts": 41,
         "runtimePublicInvalidBodyContracts": 13,
         "runtimeProtectedInvalidBodyContracts": 53,
         "runtimePublicResponseSchemaContracts": 8,
@@ -2409,7 +2409,7 @@
             "samplePath": "/beaker/",
             "sourceFile": "src/api/routes/beaker.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": ["config"],
@@ -2421,7 +2421,7 @@
             "cases": [
                 {
                     "id": "auth-boundary",
-                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                    "checks": ["public-auth-boundary", "status"]
                 },
                 {
                     "id": "status-and-error-shape",
@@ -2430,10 +2430,6 @@
                 {
                     "id": "response-shape",
                     "checks": ["response-shape"]
-                },
-                {
-                    "id": "malformed-auth",
-                    "checks": ["invalid-auth", "error-shape"]
                 },
                 {
                     "id": "policy-auth-boundary",
