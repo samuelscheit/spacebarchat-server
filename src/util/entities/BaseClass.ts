@@ -80,25 +80,15 @@ export class BaseClassWithoutId extends BaseEntity {
         return this;
     }
 
-    // TODO: fix eslint
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    toJSON(): any {
+    toJSON(): ReturnType<typeof JSON.parse> {
         this.clean_data();
-        return Object.fromEntries(
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            this.metadata!.columns // @ts-ignore
-                .map((x) => [x.propertyName, this[x.propertyName]])
-                .concat(
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    this.metadata.relations.map((x) => [
-                        x.propertyName,
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
-                        this[x.propertyName],
-                    ]),
-                ),
-        );
+
+        const metadata = this.metadata!;
+        const entity = this as unknown as Record<string, unknown>;
+        const columns = metadata.columns.map((column) => [column.propertyName, entity[column.propertyName]] as const);
+        const relations = metadata.relations.map((relation) => [relation.propertyName, entity[relation.propertyName]] as const);
+
+        return Object.fromEntries(columns.concat(relations));
     }
 
     static increment<T extends BaseClass>(conditions: FindOptionsWhere<T>, propertyPath: string, value: number | string) {
