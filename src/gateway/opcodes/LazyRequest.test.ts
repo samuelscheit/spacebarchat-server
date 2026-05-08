@@ -26,6 +26,7 @@ interface DispatchPayload {
         member_count: number;
         online_count: number;
         ops: { items: unknown[]; op: string; range: Range }[];
+        user?: { id: string };
     };
     op: number;
     s: number;
@@ -37,17 +38,20 @@ interface MockSocket {
     events: Record<string, unknown>;
     listen_options: Record<string, unknown>;
     guild_member_event_ids: Record<string, Set<string>>;
+    intents: { has(flag: bigint): boolean };
     member_event_guild_ids: Record<string, Set<string>>;
     member_events: Record<string, () => Promise<unknown>>;
     sequence: number;
     user_id: string;
 }
 
+const GUILD_PRESENCES = 1n << 8n;
 const moduleLoader = Module as unknown as { _load: LoadFunction };
 const originalLoad = moduleLoader._load;
 
 const state: {
     buildCalls: { guildId: string; members: unknown[]; ranges: Range[] }[];
+    buildOptions: { includePresences?: boolean }[];
     channelOverwrites: { allow: string; deny: string; id: string }[] | undefined;
     getManyCalls: number;
     guildOwnerLookups: number;
@@ -62,6 +66,7 @@ const state: {
     unsubscriptions: string[];
 } = {
     buildCalls: [],
+    buildOptions: [],
     channelOverwrites: undefined,
     getManyCalls: 0,
     guildOwnerLookups: 0,
@@ -108,6 +113,11 @@ const mockUtil = {
         async findOneOrFail() {
             state.guildOwnerLookups++;
             return { id: "guild", owner_id: "owner" };
+        },
+    },
+    Intents: {
+        FLAGS: {
+            GUILD_PRESENCES,
         },
     },
     Member: {
@@ -207,8 +217,9 @@ const mockGateway = {
         state.sentPayloads.push(payload);
     },
     WebSocket: class {},
-    buildLazyMemberListOperations(members: unknown[], guildId: string, ranges: Range[]) {
+    buildLazyMemberListOperations(members: unknown[], guildId: string, ranges: Range[], options: { includePresences?: boolean }) {
         state.buildCalls.push({ guildId, members, ranges });
+        state.buildOptions.push(options);
         return state.memberListResult;
     },
     async subscribeGuildMemberEvent(this: MockSocket, guildId: string, userId: string) {
@@ -259,6 +270,7 @@ function viewableMember(id: string, roles = [memberRole("guild", mockUtil.Permis
 
 beforeEach(() => {
     state.buildCalls = [];
+    state.buildOptions = [];
     state.channelOverwrites = undefined;
     state.getManyCalls = 0;
     state.guildOwnerLookups = 0;
@@ -273,13 +285,18 @@ beforeEach(() => {
     state.unsubscriptions = [];
 });
 
-function socket(): MockSocket {
+function socket(intentBits = GUILD_PRESENCES): MockSocket {
     return {
         close() {
             throw new Error("validation should be mocked in LazyRequest tests");
         },
         events: {},
         guild_member_event_ids: {},
+        intents: {
+            has(flag: bigint) {
+                return (intentBits & flag) === flag;
+            },
+        },
         listen_options: {},
         member_event_guild_ids: {},
         member_events: {},
@@ -398,6 +415,54 @@ describe("lazy request member list loading", () => {
             state.sentPayloads.filter((payload) => payload.t === "PRESENCE_UPDATE"),
             [],
         );
+    });
+
+    test("does not send immediate presence snapshots without the guild presences intent", async () => {
+        await onLazyRequest.call(socket(0n), {
+            d: {
+                channels: { channel: [] },
+                guild_id: "guild",
+                members: ["online-user"],
+            },
+        });
+
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(
+            state.sentPayloads.filter((payload) => payload.t === "PRESENCE_UPDATE"),
+            [],
+        );
+    });
+
+    test("builds member lists without presence data or presence subscriptions when the intent is absent", async () => {
+        state.memberListResult = {
+            groups: [{ count: 2, id: "offline" }],
+            online_count: 0,
+            ops: [memberListOp([0, 1], [{ user: { id: "online-user" } }])],
+        };
+
+        await onLazyRequest.call(socket(0n), { d: { channels: { channel: [[0, 1]] }, guild_id: "guild" } });
+
+        assert.deepEqual(state.buildOptions, [{ includePresences: false }]);
+        assert.deepEqual(state.subscriptions, []);
+        assert.deepEqual(state.unsubscriptions, []);
+        const payload = sentUpdate();
+        assert.equal(payload.t, "GUILD_MEMBER_LIST_UPDATE");
+        assert.equal(payload.d.online_count, 0);
+        assert.deepEqual(payload.d.groups, [{ count: 2, id: "offline" }]);
+    });
+
+    test("sends immediate presence snapshots with the guild presences intent", async () => {
+        await onLazyRequest.call(socket(GUILD_PRESENCES), {
+            d: {
+                channels: { channel: [] },
+                guild_id: "guild",
+                members: ["online-user"],
+            },
+        });
+
+        const presenceUpdates = state.sentPayloads.filter((payload) => payload.t === "PRESENCE_UPDATE");
+        assert.equal(presenceUpdates.length, 1);
+        assert.equal(presenceUpdates[0].d.user?.id, "online-user");
     });
 
     test("filters member list entries through the authorized channel overwrites", async () => {

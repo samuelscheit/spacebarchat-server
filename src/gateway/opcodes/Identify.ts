@@ -66,6 +66,7 @@ import {
 } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { toReadyMergedMembers } from "../util/MergedMembers";
+import { resolveIdentifyIntents } from "../util/IdentifyIntents";
 import { In, Not } from "typeorm";
 import { PreloadedUserSettings } from "discord-protos";
 import { ChannelType, DefaultUserGuildSettings, DMChannel, IdentifySchema, PrivateUserProjection, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
@@ -117,8 +118,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     const userQueryTime = taskSw.getElapsedAndReset();
 
     // Check intents
-    if (!identify.intents) identify.intents = 0b11011111111111111111111111111111111n; // TODO: what is this number?
-    this.intents = new Intents(identify.intents);
+    this.intents = new Intents(resolveIdentifyIntents(identify.intents));
     // Event dispatch filtering is enforced by the gateway listener using this.intents.
 
     // Validate sharding

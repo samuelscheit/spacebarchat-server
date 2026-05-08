@@ -33,6 +33,12 @@ describe("gateway intent dispatch filtering", () => {
         assert.equal(canDispatchEventForIntents(new Intents(Intents.FLAGS.GUILDS), "GUILD_CREATE", "guild"), true);
     });
 
+    test("does not infer guild context from non-guild object identifiers", () => {
+        assert.equal(getIntentGuildIdForEvent({ event: "MESSAGE_CREATE", data: { id: "message" } }), undefined);
+        assert.equal(getIntentGuildIdForEvent({ event: "CHANNEL_CREATE", data: { id: "channel" } }), undefined);
+        assert.equal(getIntentGuildIdForEvent({ event: "MESSAGE_CREATE", data: { guild_id: "guild", id: "message" } }), "guild");
+    });
+
     test("maps direct-message events to direct-message intents", () => {
         assert.equal(getRequiredIntentForEvent("MESSAGE_CREATE", undefined), Intents.FLAGS.DIRECT_MESSAGES);
         assert.equal(getRequiredIntentForEvent("MESSAGE_REACTION_ADD", undefined), Intents.FLAGS.DIRECT_MESSAGE_REACTIONS);
@@ -46,6 +52,12 @@ describe("gateway intent dispatch filtering", () => {
         assert.equal(canDispatchEventForIntents(dmMessages, "MESSAGE_CREATE", "guild"), false);
         assert.equal(canDispatchEventForIntents(dmMessages, "MESSAGE_CREATE", undefined), true);
         assert.equal(canDispatchEventForIntents(guildMessages, "MESSAGE_CREATE", undefined), false);
+        assert.equal(canDispatchEventForIntents(dmMessages, "MESSAGE_CREATE", getIntentGuildIdForEvent({ event: "MESSAGE_CREATE", data: { id: "message" } })), true);
+    });
+
+    test("allows current-user guild member updates without the guild members intent", () => {
+        assert.equal(canDispatchEventForIntents(new Intents(0), "GUILD_MEMBER_UPDATE", "guild", "current-user", { user: { id: "current-user" } }), true);
+        assert.equal(canDispatchEventForIntents(new Intents(0), "GUILD_MEMBER_UPDATE", "guild", "current-user", { user: { id: "other-user" } }), false);
     });
 
     test("treats unmapped gateway events as passthrough", () => {
