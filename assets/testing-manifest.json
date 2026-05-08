@@ -2576,7 +2576,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/ack/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/ack.ts",
-            "line": 30,
+            "line": 29,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
