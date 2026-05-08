@@ -7,6 +7,7 @@
         "src/gateway/ServerConfigure.test.ts",
         "src/webrtc/ServerConfigure.test.ts",
         "src/util/util/TraverseDirectory.test.ts",
+        "src/schemas/Validator.test.ts",
         "src/api/routes/guilds/GuildWidgetPng.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],

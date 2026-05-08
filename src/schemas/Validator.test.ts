@@ -6,7 +6,7 @@ import { ajv, validateSchema } from "./Validator";
 
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
-const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<
+const Schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), { encoding: "utf8" })) as Record<
     string,
     { properties?: Record<string, { format?: string }> }
 >;
@@ -99,6 +99,26 @@ describe("WebhookExecuteSchema", () => {
 });
 
 describe("schema validator custom formats", () => {
+    test("normalizes generated gateway bigint schemas for Ajv validation", () => {
+        const identify = validateSchema("IdentifySchema", {
+            token: "gateway-token",
+            properties: {},
+            intents: "513",
+            shard: ["0", "1"],
+        });
+
+        assert.equal(identify.intents, 513);
+        assert.deepEqual(identify.shard, [0, 1]);
+
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "not-an-integer",
+            }),
+        );
+    });
+
     test("accepts image data URI fields with matching image bytes", () => {
         assert.deepEqual(validateSchema("WebhookCreateSchema", { name: "hook", avatar: PngDataUri }), { name: "hook", avatar: PngDataUri });
         assert.deepEqual(validateSchema("BotModifySchema", { banner: PngDataUri }), { banner: PngDataUri });

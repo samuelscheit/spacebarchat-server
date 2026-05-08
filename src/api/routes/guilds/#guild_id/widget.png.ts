@@ -20,7 +20,7 @@ import { route } from "@spacebar/api";
 import { DiscordApiErrors, Guild } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { storage } from "@spacebar/cdn";
-import { getGuildWidgetIconStoragePath, imageBufferToDataUri, parseWidgetImageStyle, renderGuildWidgetPng } from "../GuildWidgetPngRenderer";
+import { getGuildWidgetIconStoragePath, imageBufferToDataUri, parseWidgetImageStyle, renderGuildWidgetPng } from "../../../util/GuildWidgetPngRenderer";
 
 const router: Router = Router({ mergeParams: true });
 

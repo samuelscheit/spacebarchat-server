@@ -521,8 +521,8 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import Ajv, { type AnySchema } from "ajv";
-import addFormats from "ajv-formats";
+import type { AnySchema } from "ajv";
+import { ajv } from "@spacebar/schemas/Validator";
 import {
     Channel,
     closeDatabase,
@@ -658,18 +658,6 @@ const protectedInvalidBodyContracts = matrix.contracts.filter(
         !ignoredRuntimeRequestBodyValidationSchemas.has(contract.routeMetadata.requestBody),
 );
 const schemas = JSON.parse(JSON.stringify(require("../../../assets/schemas.json")).replaceAll("#/definitions/", "")) as Record<string, AnySchema>;
-const ajv = new Ajv({
-    allErrors: true,
-    parseDate: true,
-    allowDate: true,
-    schemas,
-    coerceTypes: true,
-    messages: true,
-    strict: true,
-    strictRequired: true,
-    allowUnionTypes: true,
-});
-addFormats(ajv);
 const publicResponseSchemaContracts = matrix.contracts.filter(
     (contract) =>
         contract.service === "api" &&

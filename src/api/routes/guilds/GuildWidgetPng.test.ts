@@ -29,7 +29,7 @@ import {
     renderGuildWidgetSvg,
     stripInvalidXmlCharacters,
     truncateText,
-} from "./GuildWidgetPngRenderer";
+} from "../../util/GuildWidgetPngRenderer";
 
 test("guild widget PNG accepts only documented styles", () => {
     assert.equal(parseWidgetImageStyle("shield"), "shield");

@@ -22,8 +22,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { ImageDataUriFormat, ImageDataUriOrAssetHashFormat, isImageDataUri, isImageDataUriOrAssetHash } from "./ImageData";
 
-const SchemaPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
+const SchemaPath = resolveSchemaPath();
 const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", ""));
+normalizeAjvSchemaTypes(schemas);
 
 // const schemas2 = {...schemas, definitions: {...schemas, }};
 // console.log(schemas);
@@ -64,6 +65,26 @@ function createAjv(coerceTypes: boolean) {
     });
 
     return validator;
+}
+
+function resolveSchemaPath() {
+    const builtAssetPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
+    if (fs.existsSync(builtAssetPath)) return builtAssetPath;
+    return path.join(process.cwd(), "assets", "schemas.json");
+}
+
+function normalizeAjvSchemaTypes(schema: unknown) {
+    if (!schema || typeof schema !== "object") return;
+
+    const schemaRecord = schema as Record<string, unknown>;
+    if (schemaRecord.type === "bigint") {
+        delete schemaRecord.type;
+        schemaRecord.anyOf = [{ type: "integer" }, { type: "string", pattern: "^-?[0-9]+$" }];
+    }
+
+    for (const value of Object.values(schemaRecord)) {
+        normalizeAjvSchemaTypes(value);
+    }
 }
 
 export const ajv = createAjv(true);
