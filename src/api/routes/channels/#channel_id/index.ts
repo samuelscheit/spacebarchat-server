@@ -214,8 +214,7 @@ router.patch(
                     },
                     relations: ["available_tags"],
                 });
-                if (!parent.available_tags) throw new Error("shoot, internetal error");
-                const realTags = new Map(parent.available_tags.map((tag) => [tag.id, tag]));
+                const realTags = new Map((parent.available_tags ?? []).map((tag) => [tag.id, tag]));
                 assertAppliedTagsExist(payload.applied_tags, realTags.keys());
                 const changed = new Set(channel.applied_tags || []).symmetricDifference(new Set(payload.applied_tags));
                 const permsNeeded = [...changed].find((_) => realTags.get(_)?.moderated);

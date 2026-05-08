@@ -100,8 +100,8 @@ router.post(
         const threadType = resolveThreadCreationType(body, channel);
         req.permission!.hasThrow(getThreadCreationPermission(threadType));
         assertRequiredAppliedTagsPresent(body.applied_tags, Boolean(channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)));
-        if (body.applied_tags?.length && channel.available_tags) {
-            const realTags = new Map(channel.available_tags.map((tag) => [tag.id, tag]));
+        if (body.applied_tags?.length) {
+            const realTags = new Map((channel.available_tags ?? []).map((tag) => [tag.id, tag]));
             assertAppliedTagsExist(body.applied_tags, realTags.keys());
             const permsNeeded = body.applied_tags.find((_) => realTags.get(_)?.moderated);
             if (permsNeeded) {

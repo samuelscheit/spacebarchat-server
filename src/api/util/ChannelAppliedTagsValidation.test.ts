@@ -89,6 +89,28 @@ test("assertAppliedTagsExist reports invalid applied_tags as an invalid form bod
     );
 });
 
+test("assertAppliedTagsExist reports tags as invalid when the parent forum has no available tags", () => {
+    assert.throws(
+        () => assertAppliedTagsExist(["missing-tag"], []),
+        (error) => {
+            assert.ok(error instanceof FieldError);
+            assert.equal(error.code, 50035);
+            assert.equal(error.message, "Invalid Form Body");
+            assert.deepEqual(error.errors, {
+                applied_tags: {
+                    _errors: [
+                        {
+                            code: "BASE_TYPE_CHOICES",
+                            message: "Tag missing-tag is not available for this forum channel.",
+                        },
+                    ],
+                },
+            });
+            return true;
+        },
+    );
+});
+
 test("assertAppliedTagsExist reports empty-string tags as invalid applied_tags", () => {
     assert.throws(
         () => assertAppliedTagsExist([""], ["tag-a"]),
