@@ -10328,9 +10328,11 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIErrorResponse"
+                    "APIErrorResponse",
+                    "OAuthAuthorizeInfoResponse"
                 ],
                 "responseStatuses": [
+                    200,
                     400,
                     404
                 ],
@@ -10361,7 +10363,7 @@
             "method": "POST",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 165,
+            "line": 166,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
