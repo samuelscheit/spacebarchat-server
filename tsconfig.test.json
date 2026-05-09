@@ -25,6 +25,7 @@
         "src/api/routes/guilds/GuildImageField.test.ts",
         "src/api/routes/guilds/GuildWidgetJson.test.ts",
         "src/api/routes/guilds/GuildWidgetPng.test.ts",
+        "src/api/routes/guilds/#guild_id/premium.test.ts",
         "src/api/routes/guilds/#guild_id/widget.png.test.ts",
         "src/api/routes/guilds/#guild_id/index.test.ts",
         "src/api/util/WidgetPngCache.test.ts",
