@@ -1056,6 +1056,19 @@
                             "string"
                         ]
                     },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomIconEmoji"
+                            },
+                            {
+                                "$ref": "#/components/schemas/UnicodeIconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "flags": {
                         "type": "integer"
                     },
@@ -1212,6 +1225,19 @@
                         "type": [
                             "null",
                             "string"
+                        ]
+                    },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomIconEmoji"
+                            },
+                            {
+                                "$ref": "#/components/schemas/UnicodeIconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     },
                     "flags": {
@@ -8720,6 +8746,19 @@
                             "string"
                         ]
                     },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomIconEmoji"
+                            },
+                            {
+                                "$ref": "#/components/schemas/UnicodeIconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "default_auto_archive_duration": {
                         "type": "integer"
                     },
@@ -11102,6 +11141,39 @@
                     0,
                     1,
                     2
+                ]
+            },
+            "CustomIconEmoji": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "null"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "UnicodeIconEmoji": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "null"
+                    },
+                    "name": {
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
                 ]
             },
             "ConnectedAccountTokenData": {
@@ -13937,6 +14009,19 @@
                             {
                                 "type": "string",
                                 "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomIconEmoji"
+                            },
+                            {
+                                "$ref": "#/components/schemas/UnicodeIconEmoji"
                             },
                             {
                                 "type": "null"
@@ -18430,6 +18515,19 @@
                     },
                     "default_tag_setting": {
                         "type": "string"
+                    },
+                    "icon_emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomIconEmoji"
+                            },
+                            {
+                                "$ref": "#/components/schemas/UnicodeIconEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "is_message_request": {
                         "type": "boolean"
@@ -35258,6 +35356,16 @@
                 "responses": {
                     "204": {
                         "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "No description available"
