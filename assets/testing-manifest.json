@@ -10068,7 +10068,6 @@
                 "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
-                    "INTERACTION_FAILURE",
                     "INTERACTION_SUCCESS",
                     "MESSAGE_CREATE",
                     "MESSAGE_UPDATE"

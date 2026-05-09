@@ -16,20 +16,11 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
+import { InteractionCallbacksSchema, InteractionCallbackType, MessageType } from "@spacebar/schemas";
 import { assertMessagePayloadPermissions, createApplicationCommandInteractionMessageData, handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import {
-    emitEvent,
-    getPermission,
-    InteractionSuccessEvent,
-    Message,
-    MessageUpdateEvent,
-    pendingInteractions,
-    User,
-    InteractionFailureEvent,
-    messagePublicWithThreadRelations,
-} from "@spacebar/util";
+import { acknowledgeDeferredMessageUpdateInteraction } from "../../../../util/handlers/InteractionCallbackState";
+import { emitEvent, getPermission, InteractionSuccessEvent, Message, MessageUpdateEvent, pendingInteractions, User, messagePublicWithThreadRelations } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
 import { assertMessagePayloadLimits } from "../../../../util/utility/MessagePayloadLimits";
 
@@ -61,6 +52,12 @@ router.post(
             if (!interaction.channelId) throw new HTTPError("Interaction channel not found", 400);
             const permissions = await getPermission(interaction.applicationId, interaction.guildId, interaction.channelId);
             assertMessagePayloadPermissions(permissions, body.data);
+        }
+
+        if (body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE) {
+            await acknowledgeDeferredMessageUpdateInteraction(interactionId, interaction, pendingInteractions, emitEvent);
+            res.sendStatus(204);
+            return;
         }
 
         clearTimeout(interaction.timeout);
@@ -130,22 +127,6 @@ router.post(
             case InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
                 // TODO
                 break;
-            case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-                //TODO keep track of state of this
-                interaction.timeout = setTimeout(() => {
-                    emitEvent({
-                        event: "INTERACTION_FAILURE",
-                        user_id: req.user_id,
-                        data: {
-                            id: interactionId,
-                            nonce: interaction.nonce,
-                            reason_code: InteractionFailureReason.TIMEOUT,
-                        },
-                    } as InteractionFailureEvent);
-                }, 30000);
-                pendingInteractions.delete(interactionId);
-                res.sendStatus(204);
-                return;
             case InteractionCallbackType.UPDATE_MESSAGE:
                 {
                     if (!interaction.messageId) throw new HTTPError("no. That was not a message");

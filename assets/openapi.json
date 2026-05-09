@@ -30,16 +30,81 @@
             }
         },
         "schemas": {
-            "CreateFingerprintResponse": {
+            "ApplicationCommandCreateSchema": {
                 "type": "object",
                 "properties": {
-                    "fingerprint": {
+                    "type": {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    "name": {
                         "type": "string"
+                    },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "description_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommandOption"
+                        }
+                    },
+                    "default_member_permissions": {
+                        "type": "string"
+                    },
+                    "dm_permission": {
+                        "type": "boolean"
+                    },
+                    "nsfw": {
+                        "type": "boolean"
+                    },
+                    "integration_types": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationIntegrationType"
+                        }
+                    },
+                    "contexts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InteractionContextType"
+                        }
+                    },
+                    "handler": {
+                        "enum": [
+                            1,
+                            2,
+                            3
+                        ],
+                        "type": "number"
                     }
                 },
                 "required": [
-                    "fingerprint"
+                    "name"
                 ]
+            },
+            "BulkApplicationCommandCreateSchema": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationCommandCreateSchema"
+                }
             },
             "ApplicationCommandSchema": {
                 "type": "object",
@@ -2768,9 +2833,6 @@
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": "string"
                     },
@@ -2800,6 +2862,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -7668,14 +7733,14 @@
                     "version": {
                         "type": "integer"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": [
                             "null",
                             "string"
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "message_notifications": {
                         "type": "integer"
@@ -10399,81 +10464,16 @@
                     "video_ssrc"
                 ]
             },
-            "ApplicationCommandCreateSchema": {
+            "CreateFingerprintResponse": {
                 "type": "object",
                 "properties": {
-                    "type": {
-                        "enum": [
-                            1,
-                            2,
-                            3,
-                            4
-                        ],
-                        "type": "number"
-                    },
-                    "name": {
+                    "fingerprint": {
                         "type": "string"
-                    },
-                    "name_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "description_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "options": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationCommandOption"
-                        }
-                    },
-                    "default_member_permissions": {
-                        "type": "string"
-                    },
-                    "dm_permission": {
-                        "type": "boolean"
-                    },
-                    "nsfw": {
-                        "type": "boolean"
-                    },
-                    "integration_types": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationIntegrationType"
-                        }
-                    },
-                    "contexts": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/InteractionContextType"
-                        }
-                    },
-                    "handler": {
-                        "enum": [
-                            1,
-                            2,
-                            3
-                        ],
-                        "type": "number"
                     }
                 },
                 "required": [
-                    "name"
+                    "fingerprint"
                 ]
-            },
-            "BulkApplicationCommandCreateSchema": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/ApplicationCommandCreateSchema"
-                }
             },
             "SessionsLogoutSchema": {
                 "type": "object",
@@ -10661,20 +10661,6 @@
                     "value"
                 ]
             },
-            "ApplicationCommandIndexPermissions": {
-                "type": "object",
-                "properties": {
-                    "user": {
-                        "type": "boolean"
-                    },
-                    "roles": {
-                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
-                    },
-                    "channels": {
-                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
-                    }
-                }
-            },
             "ApplicationIntegrationType": {
                 "type": "number",
                 "enum": [
@@ -10689,6 +10675,20 @@
                     1,
                     2
                 ]
+            },
+            "ApplicationCommandIndexPermissions": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "type": "boolean"
+                    },
+                    "roles": {
+                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
+                    },
+                    "channels": {
+                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
+                    }
+                }
             },
             "InstanceUserDeleteSchemaContent": {
                 "type": "object",
@@ -17481,9 +17481,6 @@
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": "string"
                     },
@@ -17519,6 +17516,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -18481,9 +18481,6 @@
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": "string"
                     },
@@ -18513,6 +18510,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
