@@ -874,7 +874,8 @@ async function assertCdnDeleteResponse(contract: GeneratedHttpContract, response
     assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON delete response`);
 
     const body = (await response.json()) as Record<string, unknown>;
-    assert.deepEqual(body, { success: true }, `${contract.manifestId} should return the CDN delete success body`);
+    const expectedBody = contract.path.startsWith("/_spacebar/cdn/attachments/") ? { success: true, deleted: true } : { success: true };
+    assert.deepEqual(body, expectedBody, `${contract.manifestId} should return the CDN delete success body`);
 }
 
 async function postGeneratedCdnMultipart(url: string, filename = "generated.png") {
@@ -923,7 +924,7 @@ function cdnUploadStoragePathForContract(contract: GeneratedHttpContract, body: 
 
     assert.equal(typeof body.id, "string", `${contract.manifestId} should return an uploaded CDN object id`);
     const id = body.id as string;
-    if (contract.manifestId === "cdn:http:POST:/role-icons/:role_id") return `${samplePath}/${id}.png`;
+    if (contract.manifestId === "cdn:http:POST:/role-icons/:role_id") return `${samplePath}/${id}`;
     return `${samplePath}/${id}`;
 }
 
