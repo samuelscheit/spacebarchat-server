@@ -458,7 +458,6 @@ export const EmbedHandlers: {
         const response = await doFetch(url, {
             headers: {
                 cookie: Config.get().embeds.youtube.cookie ?? "CONSENT=PENDING+999; hl=en",
-                // TODO: dynamically obtain current system curl's user agent, ie. via https://ifconfig.me/ua
                 ...(Config.get().embeds.youtube.useCurlUserAgent ? { "user-agent": "curl/8.18.0" } : {}),
                 ...(Config.get().embeds.youtube.userAgent != null
                     ? { "user-agent": Config.get().embeds.youtube.userAgent ?? undefined /* type check fails for some reason otherwise */ }
