@@ -28,6 +28,8 @@ import { Member } from "./Member";
 
 export { ThreadMemberFlags };
 
+export const MAX_THREAD_MEMBER_COUNT = 50;
+
 export interface ThreadMemberPayloadMuteConfig {
     end_time?: string;
     selected_time_window?: number;
@@ -171,7 +173,7 @@ export class ThreadMember extends BaseClassWithoutId {
             });
             if (!deletion.affected) throw new HTTPError("You are not member of this thread", 403);
 
-            const memberCount = await entityManager.count(ThreadMember, { where: { id: thread_id } });
+            const memberCount = Math.min(await entityManager.count(ThreadMember, { where: { id: thread_id } }), MAX_THREAD_MEMBER_COUNT);
             await entityManager.update(Channel, { id: thread_id }, { member_count: memberCount });
             channel.member_count = memberCount;
             return channel;

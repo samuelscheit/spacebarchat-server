@@ -28,4 +28,12 @@ describe("Intents", () => {
         assert.equal(Intents.resolveGatewayIdentifyIntents("0"), BigInt(0));
         assert.equal(Intents.resolveGatewayIdentifyIntents(Intents.FLAGS.GUILDS), Intents.FLAGS.GUILDS);
     });
+
+    it("classifies auto moderation events as guild intent events", () => {
+        assert.equal(Intents.INTENT_TO_EVENTS_MAP[20 as keyof typeof Intents.INTENT_TO_EVENTS_MAP], undefined);
+        assert.equal(Intents.INTENT_TO_EVENTS_MAP[21 as keyof typeof Intents.INTENT_TO_EVENTS_MAP], undefined);
+
+        assert.deepEqual(Intents.GUILD_INTENT_TO_EVENTS_MAP[20], ["AUTO_MODERATION_RULE_CREATE", "AUTO_MODERATION_RULE_UPDATE", "AUTO_MODERATION_RULE_DELETE"]);
+        assert.deepEqual(Intents.GUILD_INTENT_TO_EVENTS_MAP[21], ["AUTO_MODERATION_ACTION_EXECUTION"]);
+    });
 });

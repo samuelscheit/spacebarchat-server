@@ -35,6 +35,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const TJS = require("typescript-json-schema");
 const walk = require("./util/walk");
+const { normalizeGeneratedJsonSchemaTypes } = require("./util/jsonSchemaTypes");
 const { redBright, yellowBright, bgRedBright, yellow, greenBright, green, cyanBright, blueBright, blue, cyan, bgRed, gray } = require("picocolors");
 const schemaPath = path.join(__dirname, "..", "assets", "schemas.json");
 const exclusionList = JSON.parse(fs.readFileSync(path.join(__dirname, "schemaExclusions.json"), { encoding: "utf8" }));
@@ -304,6 +305,7 @@ async function main() {
     }
 
     deleteOneOfKindUndefinedRecursive(definitions, "$");
+    normalizeGeneratedJsonSchemaTypes(definitions);
     for (const defKey in definitions) {
         filterSchema(definitions[defKey]);
     }

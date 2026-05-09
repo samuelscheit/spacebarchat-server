@@ -20,7 +20,7 @@ import { Channel } from "amqplib";
 import { RabbitMQ } from "./RabbitMQ";
 import { decodeRabbitMqPayload, encodeRabbitMqPayload } from "./RabbitMqPayloadCodec";
 import EventEmitter from "node:events";
-import type { EVENT, Event } from "../interfaces/Event";
+import { isEventName, type EVENT, type Event } from "../interfaces/Event";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import net, { Socket } from "node:net";
@@ -30,11 +30,16 @@ import { Config } from "./Config";
 import { red } from "picocolors";
 
 export const events = new EventEmitter();
+export const SPACEBAR_EVENT_ROUTE = "spacebar";
 let unixSocketListener: UnixSocketListener | null = null;
 let unixSocketWriter: UnixSocketWriter | null = null;
 
+export function getEventBusRouteId(payload: Pick<Event, "spacebar_event_id" | "guild_id" | "channel_id" | "user_id" | "session_id">) {
+    return (payload.spacebar_event_id || payload.guild_id || payload.channel_id || payload.user_id || payload.session_id) as string | undefined;
+}
+
 export async function emitEvent(payload: Omit<Event, "created_at">) {
-    const id = (payload.guild_id || payload.channel_id || payload.user_id || payload.session_id) as string;
+    const id = getEventBusRouteId(payload);
     if (!id) return console.error("event doesn't contain any id", payload);
 
     if (RabbitMQ.connection) {
@@ -92,7 +97,7 @@ export async function initEvent() {
     // Set up the spacebar event listener (used for config reload, etc.)
     const setupSpacebarListener = async () => {
         console.log("[Event] Setting up spacebar event listener");
-        await listenEvent("spacebar", async (event) => {
+        await listenEvent(SPACEBAR_EVENT_ROUTE, async (event) => {
             console.log("[Event] Received spacebar event:", event);
             if ((event.event as string) === "SB_RELOAD_CONFIG") {
                 console.log("[Event] Reloading config due to RELOAD_CONFIG event");
@@ -128,6 +133,18 @@ export interface ProcessEvent {
     id: string;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isEventPayload(value: unknown): value is Event {
+    return isRecord(value) && isEventName(value.event);
+}
+
+function isProcessEvent(value: unknown): value is ProcessEvent {
+    return isRecord(value) && value.type === "event" && typeof value.id === "string" && isEventPayload(value.event);
+}
+
 export async function listenEvent(event: string, callback: (event: EventOpts) => unknown, opts?: ListenEventOpts): Promise<() => Promise<void>> {
     if (RabbitMQ.connection) {
         const rabbitMQChannel = await RabbitMQ.getSafeChannel();
@@ -148,13 +165,12 @@ export async function listenEvent(event: string, callback: (event: EventOpts) =>
             process.setMaxListeners(process.getMaxListeners() - 1);
         };
 
-        const listener = (msg: ProcessEvent) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            msg.type === "event" && msg.id === event && callback({ ...msg.event, cancel });
+        const listener = (msg: unknown) => {
+            if (!isProcessEvent(msg) || msg.id !== event) return;
+            callback({ ...msg.event, cancel });
         };
 
-        // TODO: assert the type is correct?
-        process.addListener("message", (msg) => listener(msg as ProcessEvent));
+        process.addListener("message", listener);
         process.setMaxListeners(process.getMaxListeners() + 1);
 
         return cancel;
@@ -484,7 +500,7 @@ class UnixSocketWriter {
         await this.broadcastLock;
         return await (this.broadcastLock = new Promise((res) => {
             const tsw = Stopwatch.startNew();
-            const payloadBuf = Buffer.from(JSON.stringify({ id: (event.guild_id || event.channel_id || event.user_id || event.session_id) as string, event }));
+            const payloadBuf = Buffer.from(JSON.stringify({ id: getEventBusRouteId(event), event }));
             const lenBuf = Buffer.alloc(4);
             lenBuf.writeUInt32BE(payloadBuf.length, 0);
             const framed = Buffer.concat([lenBuf, payloadBuf]);

@@ -9,7 +9,7 @@
 	
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 	
 	You should have received a copy of the GNU Affero General Public License
@@ -18,7 +18,10 @@
 
 import type { ActivitySchema } from "../uncategorised/ActivitySchema";
 
-export type IdentifyBitfield = bigint | number | string;
+/**
+ * @pattern ^-?[0-9]+$
+ */
+export type IdentifyBitfield = number | string;
 
 export interface IdentifySchema {
     token: string;
@@ -48,9 +51,7 @@ export interface IdentifySchema {
         window_manager?: string;
         distro?: string;
     };
-    // IDENTIFY is a JSON wire payload, so clients send bitfields as JSON numbers
-    // or strings. Gateway code normalizes the value to bigint after validation.
-    intents?: IdentifyBitfield;
+    intents?: IdentifyBitfield; // Discord uses an integer for bitfields; Spacebar also accepts strings for large bitfields.
     presence?: ActivitySchema;
     compress?: boolean;
     large_threshold?: number;
@@ -59,7 +60,7 @@ export interface IdentifySchema {
      * @minItems 2
      * @maxItems 2
      */
-    shard?: IdentifyBitfield[]; // puyo: changed from [bigint, bigint] because it breaks openapi
+    shard?: IdentifyBitfield[];
     guild_subscriptions?: boolean;
     capabilities?: number;
     client_state?: {

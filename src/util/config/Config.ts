@@ -20,6 +20,7 @@ import {
     ApiConfiguration,
     CdnConfiguration,
     ComponentConfiguration,
+    CorsConfiguration,
     DefaultsConfiguration,
     EmailConfiguration,
     EmbedConfiguration,
@@ -37,6 +38,7 @@ import {
     RegionConfiguration,
     RegisterConfiguration,
     SecurityConfiguration,
+    StoreConfiguration,
     TemplateConfiguration,
     UpdateCheckConfiguration,
     UserConfiguration,
@@ -47,10 +49,12 @@ export class ConfigValue {
     admin: EndpointConfiguration = new EndpointConfiguration();
     gateway: GatewayConfiguration = new GatewayConfiguration();
     cdn: CdnConfiguration = new CdnConfiguration();
+    cors: CorsConfiguration = new CorsConfiguration();
     api: ApiConfiguration = new ApiConfiguration();
     general: GeneralConfiguration = new GeneralConfiguration();
     limits: LimitsConfiguration = new LimitsConfiguration();
     security: SecurityConfiguration = new SecurityConfiguration();
+    store: StoreConfiguration = new StoreConfiguration();
     login: LoginConfiguration = new LoginConfiguration();
     register: RegisterConfiguration = new RegisterConfiguration();
     regions: RegionConfiguration = new RegionConfiguration();

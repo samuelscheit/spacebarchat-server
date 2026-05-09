@@ -17,13 +17,10 @@
 */
 
 import { Request, Response, Router } from "express";
-import { route } from "@spacebar/api";
+import { route, sendBillingSubscriptionsResponse } from "@spacebar/api";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    //TODO
-    res.json([]).status(200);
-});
+router.get("/", route({ responses: { 200: { body: "BillingSubscriptionsResponse" } } }), (req: Request, res: Response) => sendBillingSubscriptionsResponse(res));
 
 export default router;
