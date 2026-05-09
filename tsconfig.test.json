@@ -13,6 +13,7 @@
         "src/api/util/utility/captcha.test.ts",
         "src/api/util/utility/PostData.test.ts",
         "src/api/util/utility/MessagePayloadLimits.test.ts",
+        "src/api/util/utility/MessageSearch.test.ts",
         "src/api/util/utility/MessageUpload.test.ts",
         "src/api/util/utility/ActiveThreads.test.ts",
         "src/api/routes/channels/#channel_id/purge.test.ts",

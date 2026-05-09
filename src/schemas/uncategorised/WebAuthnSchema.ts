@@ -16,17 +16,17 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export interface StartWebAuthnCredentialRegistrationSchema {
+export interface WebAuthnCredentialRegistrationChallengeSchema {
     password: string;
 }
 
-export interface FinishWebAuthnCredentialRegistrationSchema {
+export interface WebAuthnCredentialRegistrationCompletionSchema {
     credential: string;
     name: string;
     ticket: string;
 }
 
-export type WebAuthnPostSchema = StartWebAuthnCredentialRegistrationSchema | FinishWebAuthnCredentialRegistrationSchema;
+export type WebAuthnPostSchema = WebAuthnCredentialRegistrationChallengeSchema | WebAuthnCredentialRegistrationCompletionSchema;
 
 export interface WebAuthnTotpSchema {
     code: string;
