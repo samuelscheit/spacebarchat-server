@@ -362,6 +362,7 @@ describe("recent avatars", () => {
 });
 
 function mockCurrentUserLookup(t: TestContext, User: typeof import("@spacebar/util").User) {
+    const util = require("@spacebar/util") as typeof import("@spacebar/util");
     let assignedBody: Record<string, unknown> | undefined;
 
     class FakeUser {
@@ -382,8 +383,16 @@ function mockCurrentUserLookup(t: TestContext, User: typeof import("@spacebar/ut
         toPrivateUser() {
             return { ...this, data: undefined };
         }
+
+        toPublicUser() {
+            return {
+                id: this.id,
+                username: this.username,
+            };
+        }
     }
 
+    t.mock.method(util.Member, "find", async () => []);
     t.mock.method(User, "findOneOrFail", async () => new FakeUser() as unknown as InstanceType<typeof User>);
 
     return () => assignedBody;

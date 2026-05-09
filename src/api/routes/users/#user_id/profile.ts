@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, profilePronouns, Relationship, User, UserUpdateEvent } from "@spacebar/util";
+import { Badge, Config, FieldErrors, handleFile, Member, profilePronouns, Relationship, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import {
@@ -37,6 +37,7 @@ import {
     toProfileBadgeResponse,
     toUserProfileResponse,
 } from "../../../util/userProfileResponse";
+import { emitUserUpdateEvents } from "../../../util/UserUpdateEvents";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -152,7 +153,7 @@ router.get(
     },
 );
 
-router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req: Request, res: Response) => {
+router.patch("/", route({ requestBody: "UserProfileModifySchema", event: ["USER_UPDATE", "GUILD_MEMBER_UPDATE"] }), async (req: Request, res: Response) => {
     const body = req.body as UserProfileModifySchema;
 
     if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
@@ -180,12 +181,7 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
     // @ts-ignore
     delete user.data;
 
-    // TODO: send update member list event in gateway
-    await emitEvent({
-        event: "USER_UPDATE",
-        user_id: req.user_id,
-        data: user,
-    } satisfies UserUpdateEvent);
+    await emitUserUpdateEvents(user);
 
     res.json({
         accent_color: user.accent_color,
