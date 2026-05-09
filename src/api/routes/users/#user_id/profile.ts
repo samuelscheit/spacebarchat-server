@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, profilePronouns, Relationship, User, UserUpdateEvent } from "@spacebar/util";
+import { Badge, Config, FieldErrors, handleFile, Member, profilePronouns, Relationship, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import {
@@ -30,7 +30,15 @@ import {
     UserProfileModifySchema,
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
-import { earliestPremiumGuildSince, toMutualGuildResponses, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "../../../util/userProfileResponse";
+import {
+    earliestPremiumGuildSince,
+    toGuildMemberProfileResponse,
+    toMutualGuildResponses,
+    toPartialConnectedAccountResponse,
+    toProfileBadgeResponse,
+    toUserProfileResponse,
+} from "../../../util/userProfileResponse";
+import { emitUserUpdateEvents } from "../../../util/UserUpdateEvents";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -69,12 +77,12 @@ router.get(
             },
         });
 
-        const mutual_guilds: NonNullable<UserProfileResponse["mutual_guilds"]> = [];
         const requested_member = await Member.find({
             where: { id: user_id },
             select: { guild_id: true, nick: true, premium_since: true },
         });
         const premium_guild_since = earliestPremiumGuildSince(requested_member);
+        const mutual_guilds: NonNullable<UserProfileResponse["mutual_guilds"]> = [];
 
         if (with_mutual_guilds == "true") {
             const self_member = await Member.find({
@@ -87,24 +95,9 @@ router.get(
 
         const guild_member = await getProfileGuildMember(req.user_id, user_id, guildId);
 
-        // TODO: make proper DTO's in util?
+        const userProfile = toUserProfileResponse(user, { hideBio: req.user_bot });
 
-        const userProfile = {
-            bio: req.user_bot ? null : user.bio,
-            accent_color: user.accent_color,
-            banner: user.banner,
-            pronouns: profilePronouns(user.pronouns),
-            theme_colors: user.theme_colors?.map((t) => Number(t)), // these are strings for some reason, they should be numbers
-        };
-
-        const guildMemberProfile: UserProfileResponse["guild_member_profile"] | undefined = guild_member
-            ? {
-                  accent_color: null,
-                  banner: guild_member.banner || null,
-                  bio: guild_member.bio || "",
-                  guild_id: guild_member.guild_id,
-              }
-            : undefined;
+        const guildMemberProfile: UserProfileResponse["guild_member_profile"] | undefined = guild_member ? toGuildMemberProfileResponse(guild_member) : undefined;
 
         const badges = user.badge_ids?.length ? await Badge.find({ where: { id: In(user.badge_ids) } }) : [];
 
@@ -130,13 +123,13 @@ router.get(
         const response = {
             connected_accounts: publicUserConnections,
             premium_guild_since,
-            premium_since: user.premium_since, // TODO
-            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
+            premium_since: user.premium_since,
+            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined,
             mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,
             mutual_friends_count: with_mutual_friends_count == "true" ? mutual_friends_count : undefined,
             user: user.toPublicUser(),
             premium_type: user.premium_type,
-            profile_themes_experiment_bucket: 4, // TODO: This doesn't make it available, for some reason?
+            profile_themes_experiment_bucket: 4,
             user_profile: userProfile,
             guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
             guild_member_profile: guildMemberProfile,
@@ -148,7 +141,7 @@ router.get(
     },
 );
 
-router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req: Request, res: Response) => {
+router.patch("/", route({ requestBody: "UserProfileModifySchema", event: ["USER_UPDATE", "GUILD_MEMBER_UPDATE"] }), async (req: Request, res: Response) => {
     const body = req.body as UserProfileModifySchema;
 
     if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
@@ -176,12 +169,7 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
     // @ts-ignore
     delete user.data;
 
-    // TODO: send update member list event in gateway
-    await emitEvent({
-        event: "USER_UPDATE",
-        user_id: req.user_id,
-        data: user,
-    } satisfies UserUpdateEvent);
+    await emitUserUpdateEvents(user);
 
     res.json({
         accent_color: user.accent_color,

@@ -3,27 +3,31 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { serializeReadyPrivateChannels } from "@spacebar/gateway";
 import {
     closeDatabase,
     emitEvent,
     events,
     generateToken,
     initDatabase,
+    Intents,
     Permissions,
     Snowflake,
     Stream,
     StreamSession,
+    serializePublicThreadMember,
     User,
     VoiceState,
     type UserUpdateEvent,
 } from "@spacebar/util";
-import { ChannelType, validateSchema } from "@spacebar/schemas";
+import { ChannelType, type PublicUser, validateSchema } from "@spacebar/schemas";
 import ws from "ws";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeChannel, makeGuild, makeMember, makeRole } from "../fixtures/entities";
 import { startGateway } from "../server/startGateway";
 
 const coveredManifestIds = ["gateway:opcode:2:Identify"];
+const streamGatewayIntents = Number(Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_VOICE_STATES);
 type GatewayPayload = { op: number; s?: number; t?: string; d?: Record<string, unknown> | boolean };
 type BufferedGatewayClientState = {
     messages: ws.RawData[];
@@ -32,7 +36,125 @@ type BufferedGatewayClientState = {
 
 const bufferedGatewayClients = new WeakMap<ws, BufferedGatewayClientState>();
 
-test("Gateway IDENTIFY generated schema validates and coerces wire payloads", () => {
+test("READY private channel serialization keeps DTO fields without mutating recipients", () => {
+    const self = makePublicUser("self");
+    const friend = makePublicUser("friend");
+    const other = makePublicUser("other");
+    const groupRecipients = [makeReadyRecipient(self), makeReadyRecipient(friend), makeReadyRecipient(other)];
+
+    const { channels, users } = serializeReadyPrivateChannels(
+        [
+            {
+                channel: {
+                    isDm: () => true,
+                    id: "group-channel",
+                    flags: 7,
+                    last_message_id: null,
+                    type: ChannelType.GROUP_DM,
+                    icon: "group-icon",
+                    name: "Group DM",
+                    owner_id: "self",
+                    recipients: groupRecipients,
+                },
+            },
+            {
+                channel: {
+                    isDm: () => true,
+                    id: "deleted-user-dm",
+                    flags: 0,
+                    last_message_id: "last-message",
+                    type: ChannelType.DM,
+                    icon: null,
+                    name: null,
+                    recipients: [makeReadyRecipient(self)],
+                },
+            },
+        ],
+        {
+            id: self.id,
+            toPublicUser: () => self,
+        },
+    );
+
+    assert.deepEqual(
+        channels.map((channel) => ({
+            ...channel,
+            recipients: channel.recipients.map((recipient) => recipient.id),
+        })),
+        [
+            {
+                id: "group-channel",
+                flags: 7,
+                last_message_id: null,
+                type: ChannelType.GROUP_DM,
+                recipients: ["friend", "other"],
+                icon: "group-icon",
+                name: "Group DM",
+                is_spam: false,
+                owner_id: "self",
+            },
+            {
+                id: "deleted-user-dm",
+                flags: 0,
+                last_message_id: "last-message",
+                type: ChannelType.DM,
+                recipients: ["self"],
+                icon: null,
+                name: null,
+                is_spam: false,
+                owner_id: undefined,
+            },
+        ],
+    );
+    assert.deepEqual([...users].map((user) => user.id).sort(), ["friend", "other", "self"]);
+    assert.deepEqual(
+        groupRecipients.map((recipient) => recipient.user.id),
+        ["self", "friend", "other"],
+    );
+});
+
+test("READY thread member serialization exposes public user ids instead of member indexes", () => {
+    const serialized = serializePublicThreadMember(
+        {
+            id: "thread",
+            join_timestamp: new Date("2026-05-08T10:00:00.000Z"),
+            flags: 2,
+            muted: false,
+            mute_config: {
+                end_time: new Date("2026-05-08T11:00:00.000Z"),
+                selected_time_window: 60,
+            },
+            toJSON: () => ({
+                id: "thread",
+                member_idx: "internal-member-index",
+                join_timestamp: new Date("2026-05-08T10:00:00.000Z"),
+                flags: 2,
+                muted: false,
+                mute_config: {
+                    end_time: new Date("2026-05-08T11:00:00.000Z"),
+                    selected_time_window: 60,
+                },
+            }),
+        },
+        "user",
+        { includeMuted: true },
+    );
+
+    assert.deepEqual(serialized, {
+        id: "thread",
+        user_id: "user",
+        join_timestamp: "2026-05-08T10:00:00.000Z",
+        flags: 2,
+        muted: false,
+        mute_config: {
+            end_time: "2026-05-08T11:00:00.000Z",
+            selected_time_window: 60,
+        },
+    });
+    assert.equal("member_idx" in serialized, false);
+});
+
+test("Gateway IDENTIFY generated schema validates JSON-safe wire payloads", () => {
     const payload = {
         token: "auth-token",
         properties: {
@@ -64,8 +186,8 @@ test("Gateway IDENTIFY generated schema validates and coerces wire payloads", ()
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0n);
-    assert.deepEqual(payload.shard, [0n, 1n]);
+    assert.equal(payload.intents, 0);
+    assert.deepEqual(payload.shard, [0, "1"]);
 });
 
 test("Gateway IDENTIFY generated schema validates camelCase client state aliases", () => {
@@ -90,8 +212,8 @@ test("Gateway IDENTIFY generated schema validates camelCase client state aliases
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0n);
-    assert.deepEqual(payload.shard, [0n, 1n]);
+    assert.equal(payload.intents, 0);
+    assert.deepEqual(payload.shard, [0, "1"]);
 });
 
 test("Gateway IDENTIFY generated schema validates presence activities", () => {
@@ -639,14 +761,11 @@ test(
             }).save();
 
             gateway = await startGateway();
-            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken);
+            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, streamGatewayIntents);
             const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
             await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
-            await waitForEventListener(owner.id);
-            await waitForEventListener(guild.id);
-            await waitForEventListener(voiceChannel.id);
 
             ownerClient.send(
                 JSON.stringify({
@@ -689,9 +808,8 @@ test(
             assert.equal(ownerStreamSession.token, ownerServerUpdateData.token);
             assert.equal((await VoiceState.findOneByOrFail({ user_id: owner.id })).self_stream, true);
 
-            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken);
+            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, streamGatewayIntents);
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
-            await waitForEventListener(viewer.id);
 
             viewerClient.send(
                 JSON.stringify({
@@ -747,7 +865,7 @@ test(
     },
 );
 
-async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents = 0) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
     assert.equal(hello.op, 10);
@@ -757,7 +875,7 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string)
             op: 2,
             d: {
                 token,
-                intents: 0,
+                intents,
                 properties: {
                     os: "test",
                     browser: "spacebar-test",
@@ -768,6 +886,35 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string)
     );
 
     return client;
+}
+
+function makePublicUser(id: string): PublicUser {
+    return {
+        id,
+        username: id,
+        discriminator: "0001",
+        public_flags: 0,
+        avatar: undefined,
+        accent_color: 0,
+        banner: undefined,
+        bio: "",
+        bot: false,
+        premium_since: null,
+        premium_type: 0,
+        theme_colors: [],
+        pronouns: "",
+        badge_ids: [],
+    };
+}
+
+function makeReadyRecipient(user: PublicUser) {
+    return {
+        user_id: user.id,
+        user: {
+            id: user.id,
+            toPublicUser: () => user,
+        },
+    };
 }
 
 async function readUntil(client: ws, predicate: (payload: GatewayPayload) => boolean) {

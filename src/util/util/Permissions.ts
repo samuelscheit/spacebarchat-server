@@ -2,7 +2,7 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah
 // @fc-license-skip
 
-import type { Channel, Guild, Member, Role } from "../entities";
+import type { Channel, Guild, Member, Recipient, Role } from "../entities";
 import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
@@ -23,6 +23,7 @@ type GuildOwnerIdentity = {
 };
 
 type UserIdentity = string | { id?: string | null } | null | undefined;
+type PermissionRecipient = Pick<Recipient, "user_id"> & Partial<Pick<Recipient, "closed">>;
 
 export function isGuildOwner(guild: GuildOwnerIdentity | null | undefined, ...users: UserIdentity[]) {
     const ownerId = guild?.owner?.id ?? guild?.owner_id;
@@ -173,19 +174,18 @@ export class Permissions extends BitField {
         guild,
         channel,
     }: {
-        user: { id: string; roles: string[]; communication_disabled_until: Date | null; flags: number };
-        guild: { id: string; owner_id: string; roles: Role[] };
+        user: { id: string; roles: string[]; resolved_roles: Role[]; communication_disabled_until: Date | null; flags: number };
+        guild: { id: string; owner_id: string };
         channel?: {
             overwrites?: ChannelPermissionOverwrite[];
-            recipient_ids?: string[] | null;
+            recipients?: PermissionRecipient[] | null;
             owner_id?: string;
         };
     }) {
         if (user.id === "0") return new Permissions("ADMINISTRATOR"); // system user id
         if (isGuildOwner(guild, user)) return new Permissions(Permissions.ALL);
 
-        const roles = guild.roles.filter((x) => user.roles.includes(x.id));
-        let permission = Permissions.rolePermission(roles);
+        let permission = Permissions.rolePermission(user.resolved_roles);
 
         if (channel?.overwrites) {
             const overwrites = channel.overwrites.filter((x) => {
@@ -196,25 +196,9 @@ export class Permissions extends BitField {
             permission = Permissions.channelPermission(overwrites, permission);
         }
 
-        if (channel?.recipient_ids) {
+        if (channel?.recipients) {
             if (channel?.owner_id === user.id) return new Permissions("ADMINISTRATOR");
-            if (channel.recipient_ids.includes(user.id)) {
-                // Default dm permissions
-                return new Permissions([
-                    "VIEW_CHANNEL",
-                    "SEND_MESSAGES",
-                    "STREAM",
-                    "ADD_REACTIONS",
-                    "EMBED_LINKS",
-                    "ATTACH_FILES",
-                    "READ_MESSAGE_HISTORY",
-                    "MENTION_EVERYONE",
-                    "USE_EXTERNAL_EMOJIS",
-                    "CONNECT",
-                    "SPEAK",
-                    "MANAGE_CHANNELS",
-                ]);
-            }
+            if (channel.recipients.some((recipient) => recipient.user_id === user.id && recipient.closed === false)) return new Permissions(Permissions.DEFAULT_DM_PERMISSIONS);
 
             return new Permissions();
         }
@@ -342,26 +326,22 @@ export async function getPermission(
         });
     }
 
-    let recipient_ids = channel?.recipients?.map((x) => x.user_id);
-    if (!recipient_ids?.length) recipient_ids = undefined;
-
-    // TODO: remove guild.roles and convert recipient_ids to recipients
     const permission = Permissions.finalPermission({
         user: {
             id: user_id,
             roles: member?.roles.map((x) => x.id) || [],
+            resolved_roles: member?.roles || [],
             communication_disabled_until: member?.communication_disabled_until ?? null,
             flags: user.flags,
         },
         guild: {
             id: guild?.id || "",
             owner_id: guild?.owner_id || "",
-            roles: member?.roles || [],
         },
         channel: {
             overwrites: channel?.permission_overwrites,
             owner_id: channel?.owner_id,
-            recipient_ids,
+            recipients: channel?.recipients?.length ? channel.recipients : undefined,
         },
     });
 

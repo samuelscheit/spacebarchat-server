@@ -26,6 +26,7 @@ const assetsPath = path.join(process.cwd(), "assets");
 
 interface JsonShape {
     $ref?: string;
+    additionalProperties?: JsonShape | boolean;
     anyOf?: JsonShape[];
     items?: JsonShape;
     oneOf?: JsonShape[];
@@ -52,6 +53,17 @@ function unionRefs(schemas: Record<string, JsonShape>, shape: JsonShape | undefi
     return (union ?? []).map((item) => item.$ref).filter((ref): ref is string => Boolean(ref));
 }
 
+function expectResolvedMapRefs(resolved: JsonShape | undefined) {
+    assert.ok(resolved);
+    assert.deepEqual(Object.keys(resolved.properties ?? {}).sort(), ["attachments", "channels", "members", "messages", "roles", "users"]);
+    assert.equal((resolved.properties?.attachments?.additionalProperties as JsonShape | undefined)?.$ref, "#/definitions/PublicAttachment");
+    assert.equal((resolved.properties?.channels?.additionalProperties as JsonShape | undefined)?.$ref, "#/definitions/ResolvedChannel");
+    assert.equal((resolved.properties?.members?.additionalProperties as JsonShape | undefined)?.$ref, "#/definitions/ResolvedGuildMember");
+    assert.equal((resolved.properties?.messages?.additionalProperties as JsonShape | undefined)?.$ref, "#/definitions/PartialMessage");
+    assert.equal((resolved.properties?.roles?.additionalProperties as JsonShape | undefined)?.$ref, "#/definitions/PublicRole");
+    assert.equal((resolved.properties?.users?.additionalProperties as JsonShape | undefined)?.$ref, "#/definitions/PartialUser");
+}
+
 test("SendableModalSubmitDataSchema exposes submitted modal components", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
 
@@ -76,7 +88,8 @@ test("SendableModalSubmitDataSchema exposes submitted modal components", () => {
     assert.deepEqual(schemas.ModalSubmitTextDisplayComponentData.properties?.content, { type: "string" });
     assert.deepEqual(schemas.ModalSubmitTextDisplayComponentData.required?.toSorted(), ["content", "type"]);
     assert.deepEqual(schemas.SendableModalSubmitDataSchema.required, ["components", "custom_id"]);
-    assert.deepEqual(Object.keys(schemas.ModalSubmitResolvedData.properties ?? {}).sort(), ["attachments", "channels", "members", "messages", "roles", "users"]);
+    assert.equal(schemas.SendableModalSubmitDataSchema.properties?.resolved?.$ref, "#/definitions/ResolvedData");
+    expectResolvedMapRefs(resolveRef(schemas, schemas.SendableModalSubmitDataSchema.properties?.resolved));
     assert.deepEqual(Object.keys(schemas.SendableModalSubmitDataSchema.properties ?? {}).sort(), ["attachments", "components", "custom_id", "id", "resolved"]);
     assert.equal(schemas.SendableModalSubmitDataSchema.properties?.id?.type, "string");
 });
@@ -182,6 +195,9 @@ test("SendableModalSubmitDataSchema validates submitted text input values", () =
                     "111111111111111111": {
                         id: "111111111111111111",
                         filename: "bug.png",
+                        size: 12,
+                        url: "https://cdn.example.test/bug.png",
+                        proxy_url: "https://proxy.example.test/bug.png",
                     },
                 },
             },
@@ -269,6 +285,20 @@ test("SendableModalSubmitDataSchema validates submitted text input values", () =
             ...modalSubmit,
             resolved: {
                 unknown_map: {},
+            },
+        }),
+        false,
+    );
+    assert.equal(
+        ajv.validate("SendableModalSubmitDataSchema", {
+            ...modalSubmit,
+            resolved: {
+                attachments: {
+                    "111111111111111111": {
+                        id: "111111111111111111",
+                        filename: "bug.png",
+                    },
+                },
             },
         }),
         false,

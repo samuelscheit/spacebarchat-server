@@ -18,7 +18,89 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { earliestPremiumGuildSince, toMutualGuildResponses, toPartialConnectedAccountResponse, toProfileBadgeResponse } from "./userProfileResponse";
+import {
+    earliestPremiumGuildSince,
+    toGuildMemberProfileResponse,
+    toMutualGuildResponse,
+    toMutualGuildResponses,
+    toPartialConnectedAccountResponse,
+    toProfileBadgeResponse,
+    toUserProfileResponse,
+} from "./userProfileResponse";
+
+test("toUserProfileResponse serializes route profile fields", () => {
+    assert.deepEqual(
+        toUserProfileResponse({
+            bio: "hello",
+            accent_color: 123,
+            banner: "banner-hash",
+            pronouns: "they/them",
+            theme_colors: ["16711680", 65280],
+        }),
+        {
+            bio: "hello",
+            accent_color: 123,
+            banner: "banner-hash",
+            pronouns: "they/them",
+            theme_colors: [16711680, 65280],
+        },
+    );
+});
+
+test("toUserProfileResponse hides bot profile bio and normalizes absent pronouns", () => {
+    assert.deepEqual(
+        toUserProfileResponse(
+            {
+                bio: "hidden bot bio",
+                accent_color: null,
+                banner: null,
+                pronouns: null,
+                theme_colors: null,
+            },
+            { hideBio: true },
+        ),
+        {
+            bio: null,
+            accent_color: null,
+            banner: null,
+            pronouns: "",
+            theme_colors: undefined,
+        },
+    );
+
+    assert.equal(toUserProfileResponse({ bio: null, pronouns: undefined }).pronouns, "");
+    assert.equal(Object.hasOwn(toUserProfileResponse({ bio: null }), "theme_colors"), true);
+});
+
+test("toGuildMemberProfileResponse serializes guild-specific profile defaults", () => {
+    assert.deepEqual(
+        toGuildMemberProfileResponse({
+            banner: "guild-banner",
+            bio: "guild bio",
+            guild_id: "guild-1",
+        }),
+        {
+            accent_color: null,
+            banner: "guild-banner",
+            bio: "guild bio",
+            guild_id: "guild-1",
+        },
+    );
+
+    assert.deepEqual(
+        toGuildMemberProfileResponse({
+            banner: "",
+            bio: null,
+            guild_id: "guild-2",
+        }),
+        {
+            accent_color: null,
+            banner: null,
+            bio: "",
+            guild_id: "guild-2",
+        },
+    );
+});
 
 test("toPartialConnectedAccountResponse only exposes visible non-null metadata", () => {
     assert.deepEqual(
@@ -130,9 +212,48 @@ test("toMutualGuildResponses returns only shared requested memberships", () => {
             [
                 { guild_id: "guild-a", nick: "alpha", premium_since: null },
                 { guild_id: "guild-b", nick: null, premium_since: 1000 },
+                { guild_id: "guild-c", premium_since: 2000 },
             ],
             [{ guild_id: "guild-b" }, { guild_id: "guild-c" }],
         ),
-        [{ id: "guild-b", nick: null }],
+        [
+            { id: "guild-b", nick: null },
+            { id: "guild-c", nick: null },
+        ],
+    );
+});
+
+test("toMutualGuildResponse normalizes absent nicknames to null", () => {
+    assert.deepEqual(
+        toMutualGuildResponse({
+            guild_id: "guild-1",
+            nick: undefined,
+        }),
+        {
+            id: "guild-1",
+            nick: null,
+        },
+    );
+
+    assert.deepEqual(
+        toMutualGuildResponse({
+            guild_id: "guild-2",
+            nick: null,
+        }),
+        {
+            id: "guild-2",
+            nick: null,
+        },
+    );
+
+    assert.deepEqual(
+        toMutualGuildResponse({
+            guild_id: "guild-3",
+            nick: "Alice",
+        }),
+        {
+            id: "guild-3",
+            nick: "Alice",
+        },
     );
 });

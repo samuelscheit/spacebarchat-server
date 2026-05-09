@@ -7,6 +7,7 @@ import { closeDatabase, Config, generateToken, Guild, GuildFeature, initDatabase
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
+import { withoutSelfLeaveRight } from "../fixtures/rights";
 import { startApi } from "../server/startApi";
 
 type EventCapture = Awaited<ReturnType<typeof captureEvents>>;
@@ -292,6 +293,31 @@ test(
             const guildDeleteForMember = await events.waitFor((event) => event.event === "GUILD_DELETE" && event.user_id === member.id && event.data.id === guildId);
             assert.equal(guildDeleteForMember.data.id, guildId);
             assert.equal(await Member.countBy({ guild_id: guildId, id: member.id }), 0);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
+
+            const selfLeaveUser = await User.register({
+                username: `selfleave${suffix.slice(-8)}`,
+                email: `self-leave-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            await User.update({ id: selfLeaveUser.id }, { rights: withoutSelfLeaveRight(selfLeaveUser.rights) });
+            const selfLeaveToken = await generateToken(selfLeaveUser.id);
+            assert.ok(selfLeaveToken, "self-leave token generation should return a bearer token");
+            await Member.addToGuild(selfLeaveUser.id, guildId);
+            await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, selfLeaveToken), 403);
+            assert.notEqual(await Member.findOneBy({ guild_id: guildId, id: selfLeaveUser.id }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
+
+            await Member.update({ guild_id: guildId, id: selfLeaveUser.id }, { joined_by: owner.id });
+            const beforeForceLeave = markCapturedEvents(events);
+            await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, selfLeaveToken), 204);
+            const selfLeaveRemoveEvent = await waitForEventAfter(
+                events,
+                beforeForceLeave,
+                (event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === selfLeaveUser.id,
+            );
+            assert.equal(selfLeaveRemoveEvent.data.guild_id, guildId);
+            assert.equal(await Member.findOneBy({ guild_id: guildId, id: selfLeaveUser.id }), null);
             assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
 
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`, ownerToken), 204);

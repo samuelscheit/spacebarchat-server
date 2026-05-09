@@ -16,14 +16,40 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PreloadMessageResponse } from "@spacebar/schemas";
-import { emitEvent, type Message, type MessageDeleteBulkEvent } from "@spacebar/util";
+import type { PartialUser, PreloadMessageResponse, PublicMessage, PublicUser } from "@spacebar/schemas";
+import { emitEvent, toMessageMentionUser, type Message, type MessageDeleteBulkEvent } from "@spacebar/util";
 
 export function toPreloadMessageResponse(message: Message): PreloadMessageResponse {
     // https://docs.discord.food/resources/message#preload-messages - reactions are not included in the response
     const { reactions, ...preloadMessage } = message.toJSON();
     void reactions;
     return preloadMessage;
+}
+
+type InteractionMetadataWithUser = NonNullable<PublicMessage["interaction_metadata"]> & {
+    user?: PublicUser;
+};
+
+type LegacyInteractionWithUser = NonNullable<PublicMessage["interaction"]> & {
+    user?: PartialUser;
+};
+
+export async function hydrateInteractionMetadataUsers<T extends { interaction?: LegacyInteractionWithUser; interaction_metadata?: InteractionMetadataWithUser }>(
+    messages: T[],
+    getPublicUser: (userId: string) => Promise<PublicUser>,
+): Promise<void> {
+    await Promise.all(
+        messages
+            .filter((message) => !!message.interaction_metadata?.user_id)
+            .map(async (message) => {
+                const metadata = message.interaction_metadata!;
+                const user = metadata.user ?? (await getPublicUser(metadata.user_id));
+                metadata.user ??= user;
+                if (message.interaction && !message.interaction.user) {
+                    message.interaction.user = toMessageMentionUser(user);
+                }
+            }),
+    );
 }
 
 export const DEFAULT_MESSAGE_DELETE_CHUNK_SIZE = 100;
