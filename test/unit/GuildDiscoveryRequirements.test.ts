@@ -3,8 +3,8 @@ import test from "node:test";
 import { toGuildDiscoveryRequirements } from "@spacebar/api";
 import { ajv } from "@spacebar/schemas";
 
-test("toGuildDiscoveryRequirements returns the current permissive requirements contract", () => {
-    const requirements = toGuildDiscoveryRequirements("123");
+test("toGuildDiscoveryRequirements returns the current eligible requirements contract", () => {
+    const requirements = toGuildDiscoveryRequirements({ id: "123", discovery_excluded: false });
 
     assert.deepEqual(requirements, {
         guild_id: "123",
@@ -33,5 +33,15 @@ test("toGuildDiscoveryRequirements returns the current permissive requirements c
 });
 
 test("toGuildDiscoveryRequirements uses the requested guild id", () => {
-    assert.equal(toGuildDiscoveryRequirements("987654321").guild_id, "987654321");
+    assert.equal(toGuildDiscoveryRequirements({ id: "987654321" }).guild_id, "987654321");
+});
+
+test("toGuildDiscoveryRequirements marks admin-excluded guilds as insufficient", () => {
+    const requirements = toGuildDiscoveryRequirements({ id: "123", discovery_excluded: true });
+
+    assert.equal(requirements.safe_environment, false);
+    assert.equal(requirements.protected, false);
+    assert.equal(requirements.sufficient, false);
+    assert.equal(requirements.sufficient_without_grace_period, false);
+    assert.equal(ajv.validate("GuildDiscoveryRequirementsResponse", requirements), true, JSON.stringify(ajv.errors));
 });

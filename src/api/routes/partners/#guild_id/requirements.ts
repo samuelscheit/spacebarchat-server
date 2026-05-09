@@ -18,6 +18,7 @@
 
 import { Router, Request, Response } from "express";
 import { route, toGuildDiscoveryRequirements } from "@spacebar/api";
+import { Guild } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
@@ -30,10 +31,14 @@ router.get(
             },
         },
     }),
-    (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
+        const guild = await Guild.findOneOrFail({
+            where: { id: guild_id },
+            select: { id: true, discovery_excluded: true },
+        });
 
-        res.send(toGuildDiscoveryRequirements(guild_id));
+        res.send(toGuildDiscoveryRequirements(guild));
     },
 );
 
