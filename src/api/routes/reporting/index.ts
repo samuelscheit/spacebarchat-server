@@ -26,6 +26,39 @@ import { FieldErrors } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 if (process.env.LOG_ROUTES !== "false") console.log("[Server] Registering reporting menu routes...");
+
+function getReportMenuPath(type: string) {
+    const assetPath = path.join("assets", "temp_report_menu_responses", `${type}.json`);
+    const roots = [__dirname, process.cwd()];
+
+    for (const root of roots) {
+        let current = root;
+        while (true) {
+            const candidate = path.join(current, assetPath);
+            if (fs.existsSync(candidate)) return candidate;
+
+            const parent = path.dirname(current);
+            if (parent === current) break;
+            current = parent;
+        }
+    }
+
+    return path.join(process.cwd(), assetPath);
+}
+
+function readReportMenu(type: string) {
+    return JSON.parse(fs.readFileSync(getReportMenuPath(type), "utf-8"));
+}
+
+function invalidBreadcrumbsPath() {
+    return FieldErrors({
+        breadcrumbs: {
+            message: `Invalid report menu breadcrumbs path.`,
+            code: "INVALID_REPORT_MENU_BREADCRUMBS_PATH",
+        },
+    });
+}
+
 router.get(
     "/",
     route({
@@ -58,14 +91,14 @@ for (const type of Object.values(ReportMenuTypeNames)) {
             spacebarOnly: false, // Maps to /reporting/menu/:id
         }),
         (req: Request, res: Response) => {
-            res.sendFile(path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`));
+            res.sendFile(getReportMenuPath(type));
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/menu/${type} registered (reports).`);
     router.post(
         `/${type}`,
         route({
-            description: `Get reporting menu options for ${type} reports.`,
+            description: `Submit a ${type} report menu response.`,
             requestBody: "CreateReportSchema",
             responses: {
                 200: {
@@ -75,7 +108,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
             },
             spacebarOnly: false, // Maps to /reporting/:id
         }),
-        (req: Request) => {
+        (req: Request, res: Response) => {
             // TODO: implement
             const body = req.body as CreateReportSchema;
             if (body.name !== type)
@@ -86,8 +119,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
                     },
                 });
 
-            const menuPath = path.join(__dirname, "..", "..", "..", "..", "assets", "temp_report_menu_responses", `${type}.json`);
-            const menuData = JSON.parse(fs.readFileSync(menuPath, "utf-8"));
+            const menuData = readReportMenu(type);
             if (body.version !== menuData.version) {
                 throw FieldErrors({
                     version: {
@@ -132,13 +164,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
                 return true;
             };
 
-            if (!validateBreadcrumbs(menuData.nodes[menuData.root_node_id], body.breadcrumbs))
-                throw FieldErrors({
-                    breadcrumbs: {
-                        message: `Invalid report menu breadcrumbs path.`,
-                        code: "INVALID_REPORT_MENU_BREADCRUMBS_PATH",
-                    },
-                });
+            if (body.breadcrumbs[0] !== menuData.root_node_id || !validateBreadcrumbs(menuData.nodes[menuData.root_node_id], body.breadcrumbs)) throw invalidBreadcrumbsPath();
 
             const requireFields = (obj: CreateReportSchema, fields: string[]) => {
                 const missingFields: string[] = [];
@@ -163,7 +189,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
             if (!requiredFields) throw new HTTPError("Unknown report menu type", 400);
             requireFields(body, requiredFields);
 
-            throw new HTTPError("Validation success - implementation TODO", 418);
+            res.json(menuData);
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/${type} registered (reports).`);
