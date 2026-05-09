@@ -127,7 +127,7 @@ function makeEntityMessage(overrides: Record<string, unknown> = {}): Parameters<
             description: "Public app description",
             verify_key: "private-verify-key",
         },
-        sticker_items: [{ id: "800" }],
+        sticker_items: [{ id: "800", name: "wave", format_type: 1, guild_id: "400", tags: "hello,wave" }],
         interaction: { id: "900", type: 2, name: "command" },
         interaction_metadata: makeInteractionMetadata(),
         resolved: makeResolvedData(),
@@ -136,7 +136,7 @@ function makeEntityMessage(overrides: Record<string, unknown> = {}): Parameters<
             toPublicUser: makePublicUser,
         },
         ...overrides,
-    } as Parameters<typeof messageToPublicMessage>[0] & Record<string, unknown>;
+    } as unknown as Parameters<typeof messageToPublicMessage>[0] & Record<string, unknown>;
 }
 
 test("toPreloadMessageResponse returns a schema-compliant DTO without entity-only fields", () => {
@@ -157,7 +157,10 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
     assert.deepEqual(dto.interaction_metadata, entityMessage.interaction_metadata);
     assert.deepEqual(dto.resolved, entityMessage.resolved);
     assert.equal("reactions" in dto, false);
-    for (const field of ["guild_id", "thread_id", "pinned_at", "username", "avatar", "author_id", "member_id", "channel", "guild", "webhook", "sticker_items"]) {
+    assert.deepEqual(dto.sticker_items, [{ id: "800", name: "wave", format_type: 1 }]);
+    assert.equal((dto.sticker_items?.[0] as { guild_id?: string }).guild_id, undefined);
+    assert.equal((dto.sticker_items?.[0] as { tags?: string }).tags, undefined);
+    for (const field of ["guild_id", "thread_id", "pinned_at", "username", "avatar", "author_id", "member_id", "channel", "guild", "webhook"]) {
         assert.equal(Object.hasOwn(dto, field), false, `${field} should not be exposed`);
     }
     assert.deepEqual(dto.application, {

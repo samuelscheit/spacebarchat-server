@@ -122,6 +122,14 @@ interface PublicMessageInteractionSource {
     user?: object;
 }
 
+type PublicMessageStickerItem = NonNullable<PublicMessage["sticker_items"]>[number];
+
+interface PublicMessageStickerItemSource {
+    format_type: PublicMessageStickerItem["format_type"];
+    id: string;
+    name: string;
+}
+
 function serializeInteractionUser(user: PublicMessageInteractionSource["user"]): PartialUser | undefined {
     if (!user) return undefined;
     return toMessageMentionUser(user);
@@ -157,6 +165,8 @@ interface PublicMessageSource {
     reactions?: StoredReaction[];
     referenced_message?: { toJSON: (shallow?: boolean) => PublicMessage } | null;
     resolved?: PublicMessage["resolved"];
+    sticker_items?: PublicMessageStickerItemSource[] | null;
+    stickers?: PublicMessage["stickers"];
     thread?: { toJSON: () => PublicMessage["thread"] } | PublicMessage["thread"];
     timestamp: Date;
     tts?: boolean | null;
@@ -177,6 +187,14 @@ function toPartialPublicChannel(channel: PublicMentionChannelSource): PartialPub
         type: channel.type,
         name: requireChannelMentionField(channel.name, "name", channel.id),
     };
+}
+
+function serializeMessageStickerItems(stickerItems: PublicMessageStickerItemSource[] | null | undefined): PublicMessage["sticker_items"] {
+    return stickerItems?.map((sticker) => ({
+        id: sticker.id,
+        name: sticker.name,
+        format_type: sticker.format_type,
+    }));
 }
 
 type PublicMessageApplicationSource = Partial<IntegrationApplication> & {
@@ -254,6 +272,8 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         components: message.components ?? [],
         message_snapshots: message.message_snapshots ?? undefined,
         interaction_metadata: serializeInteractionMetadata(message.interaction_metadata),
+        sticker_items: serializeMessageStickerItems(message.sticker_items),
+        stickers: message.stickers ?? undefined,
         poll: message.poll ?? undefined,
         thread: message.thread && "toJSON" in message.thread ? message.thread.toJSON() : message.thread,
         referenced_message: message.referenced_message && !shallow ? message.referenced_message.toJSON(true) : undefined,
