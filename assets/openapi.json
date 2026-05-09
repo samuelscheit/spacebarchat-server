@@ -7715,7 +7715,7 @@
                     "self_mute"
                 ]
             },
-            "StartWebAuthnCredentialRegistrationSchema": {
+            "WebAuthnCredentialRegistrationChallengeSchema": {
                 "type": "object",
                 "properties": {
                     "password": {
@@ -7726,7 +7726,7 @@
                     "password"
                 ]
             },
-            "FinishWebAuthnCredentialRegistrationSchema": {
+            "WebAuthnCredentialRegistrationCompletionSchema": {
                 "type": "object",
                 "properties": {
                     "credential": {
@@ -7748,10 +7748,10 @@
             "WebAuthnPostSchema": {
                 "anyOf": [
                     {
-                        "$ref": "#/components/schemas/StartWebAuthnCredentialRegistrationSchema"
+                        "$ref": "#/components/schemas/WebAuthnCredentialRegistrationChallengeSchema"
                     },
                     {
-                        "$ref": "#/components/schemas/FinishWebAuthnCredentialRegistrationSchema"
+                        "$ref": "#/components/schemas/WebAuthnCredentialRegistrationCompletionSchema"
                     }
                 ]
             },
