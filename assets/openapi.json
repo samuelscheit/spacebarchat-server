@@ -8642,6 +8642,38 @@
                     "name"
                 ]
             },
+            "ThreadMemberMuteConfigSchema": {
+                "type": "object",
+                "properties": {
+                    "end_time": {
+                        "type": "string"
+                    },
+                    "selected_time_window": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "ThreadMemberSettingsUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "muted": {
+                        "type": "boolean"
+                    },
+                    "mute_config": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ThreadMemberMuteConfigSchema"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
             "PostDataSchema": {
                 "type": "object",
                 "properties": {
@@ -34819,8 +34851,21 @@
                         "bearer": []
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ThreadMemberSettingsUpdateSchema"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
+                        "description": "No description available"
+                    },
+                    "204": {
                         "description": "No description available"
                     },
                     "403": {

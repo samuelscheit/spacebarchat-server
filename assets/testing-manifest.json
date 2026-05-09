@@ -4452,7 +4452,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 158,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4503,7 +4503,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 129,
+            "line": 130,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4551,7 +4551,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 155,
+            "line": 156,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4602,7 +4602,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 154,
+            "line": 155,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4653,14 +4653,16 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 198,
+            "line": 199,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
+                "requestBody": "ThreadMemberSettingsUpdateSchema",
                 "responseBodies": [],
                 "responseStatuses": [
                     200,
+                    204,
                     403
                 ],
                 "hasQuery": false,
@@ -4703,7 +4705,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 98,
+            "line": 99,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

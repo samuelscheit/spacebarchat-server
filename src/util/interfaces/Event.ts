@@ -753,10 +753,8 @@ export interface ThreadListSyncEvent extends Event {
 
 export interface ThreadMemberUpdateEvent extends Event {
     event: "THREAD_MEMBER_UPDATE";
-    data: SerializedThreadMember & { guild_id: string };
+    data: ThreadMemberPayload & { guild_id: string };
 }
-
-type SerializedThreadMember = ReturnType<ThreadMember["toJSON"]>;
 
 export interface ThreadMembersUpdateEvent extends Event {
     event: "THREAD_MEMBERS_UPDATE";

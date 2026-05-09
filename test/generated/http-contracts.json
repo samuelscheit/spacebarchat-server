@@ -5912,7 +5912,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 158,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5986,7 +5986,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 129,
+            "line": 130,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6058,7 +6058,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 155,
+            "line": 156,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6132,7 +6132,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 154,
+            "line": 155,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6206,7 +6206,7 @@
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "samplePath": "/channels/100000000000000002/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 198,
+            "line": 199,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6220,8 +6220,9 @@
                 "line": 220
             },
             "routeMetadata": {
+                "requestBody": "ThreadMemberSettingsUpdateSchema",
                 "responses": [],
-                "responseStatuses": [200, 403],
+                "responseStatuses": [200, 204, 403],
                 "permission": "VIEW_CHANNEL",
                 "emittedEvents": ["THREAD_MEMBER_UPDATE"]
             },
@@ -6241,6 +6242,11 @@
                 {
                     "id": "malformed-auth",
                     "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "ThreadMemberSettingsUpdateSchema"
                 },
                 {
                     "id": "authorization-denied",
@@ -6264,10 +6270,6 @@
                     }
                 },
                 {
-                    "id": "policy-schema-validation",
-                    "checks": ["schema-validation"]
-                },
-                {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
                 }
@@ -6280,7 +6282,7 @@
             "path": "/channels/:channel_id/thread-members/",
             "samplePath": "/channels/100000000000000002/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 98,
+            "line": 99,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
