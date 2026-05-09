@@ -18,6 +18,15 @@ function assertBefore(source: string, first: string, second: string): void {
 }
 
 describe("message media permission route integration", () => {
+    test("message handler validates payload limits before persistence side effects", () => {
+        const source = readSource("src/api/util/handlers/Message.ts");
+
+        assertBefore(source, "assertMessagePayloadLimits(opts);", "const handle = opts.components ? handleComps");
+        assertBefore(source, "assertMessagePayloadLimits(opts);", "const channel = await Channel.findOneOrFail");
+        assertBefore(source, "assertMessagePayloadLimits(opts);", "const message = Message.create({");
+        assertBefore(source, "assertMessagePayloadLimits(opts);", "await processMessageOptionAttachments(opts, message);");
+    });
+
     test("message edit resolves retained attachment references before handleMessage", () => {
         const source = readSource("src/api/routes/channels/#channel_id/messages/#message_id/index.ts");
 
@@ -86,9 +95,13 @@ describe("message media permission route integration", () => {
 
         assert.notEqual(indexOf(source, "InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE"), -1);
         assert.notEqual(indexOf(source, "InteractionCallbackType.DEFERRED_UPDATE_MESSAGE"), -1);
+        assertBefore(source, "assertMessagePayloadLimits(body.data);", "clearTimeout(interaction.timeout);");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "clearTimeout(interaction.timeout);");
+        assertBefore(source, "assertMessagePayloadLimits(body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", 'event: "INTERACTION_SUCCESS"');
+        assertBefore(source, "assertMessagePayloadLimits(body.data);", "await sendMessage({");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await sendMessage({");
+        assertBefore(source, "assertMessagePayloadLimits(body.data);", "message.embeds = body.data.embeds || [];");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "message.embeds = body.data.embeds || [];");
     });
 
