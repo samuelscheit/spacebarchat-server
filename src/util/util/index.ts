@@ -64,6 +64,7 @@ export * from "./MessageRoleMentions";
 export * from "./Metrics";
 export * from "./networking";
 export * from "./Permissions";
+export * from "./PermissionResolution";
 export * from "./PrivateGatewayActivities";
 export * from "./RabbitMQ";
 export * from "./RabbitMqPayloadCodec";

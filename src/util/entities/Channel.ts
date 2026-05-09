@@ -31,6 +31,7 @@ import { normalizeAndAssertCreateDmRecipientsForLimit } from "../util/DmRecipien
 import { emitEvent } from "../util/Event";
 import { GuildFeature } from "../util/GuildFeatures";
 import { assertExistingGroupDmRecipient } from "../util/GroupDmRecipients";
+import { isExpectedPermissionMiss } from "../util/PermissionResolution";
 import { getPermission, isGuildOwner, Permissions } from "../util/Permissions";
 import { Snowflake } from "../util/Snowflake";
 import { trimSpecial } from "../util/String";
@@ -763,65 +764,79 @@ export class Channel extends BaseClass {
     }
 
     async getUserPermissions(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<Permissions> {
-        if (this.isDm()) return this.owner_id == (opts.user_id ?? opts.user?.id) ? Permissions.ALL : Permissions.DEFAULT_DM_PERMISSIONS;
-        let guild = opts.guild;
-        if (!guild) {
-            if (this.guild) guild = this.guild;
-            else if (this.guild_id) guild = await Guild.findOneOrFail({ where: { id: this.guild_id } });
-            else {
-                console.error("Channel.getUserPermissions: called without guild for non-DM channel.");
-                return Permissions.NONE;
+        const userId = opts.user_id ?? opts.user?.id ?? opts.member?.id;
+        if (this.isDm()) return await this.getDmUserPermissions(userId);
+
+        try {
+            let guild = opts.guild;
+            if (!guild) {
+                if (this.guild) guild = this.guild;
+                else if (this.guild_id) guild = await Guild.findOneOrFail({ where: { id: this.guild_id } });
+                else {
+                    console.error("Channel.getUserPermissions: called without guild for non-DM channel.");
+                    return Permissions.NONE;
+                }
             }
-        }
 
-        // check if we can resolve here to short-circuit possibly calling the database unnecessarily
-        if (isGuildOwner(guild, opts.user_id, opts.user, opts.member)) return Permissions.ALL;
+            // check if we can resolve here to short-circuit possibly calling the database unnecessarily
+            if (isGuildOwner(guild, opts.user_id, opts.user, opts.member)) return Permissions.ALL;
 
-        let member = opts.member;
-        if (!member) {
-            if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: { roles: true } });
-            else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: { roles: true } });
-            else {
-                console.error("Channel.getUserPermissions: called without user or member for non-DM channel.");
-                return Permissions.NONE;
+            let member = opts.member;
+            if (!member) {
+                if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: { roles: true } });
+                else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: { roles: true } });
+                else {
+                    console.error("Channel.getUserPermissions: called without user or member for non-DM channel.");
+                    return Permissions.NONE;
+                }
             }
-        }
 
-        const roles = (
-            member.roles ||
-            (
-                await Member.findOneOrFail({
-                    where: { guild_id: guild.id, index: member.index },
-                    relations: { roles: true },
-                    select: {
-                        roles: {
-                            id: true,
-                            permissions: true,
-                            position: true,
+            const roles = (
+                member.roles ||
+                (
+                    await Member.findOneOrFail({
+                        where: { guild_id: guild.id, index: member.index },
+                        relations: { roles: true },
+                        select: {
+                            roles: {
+                                id: true,
+                                permissions: true,
+                                position: true,
+                            },
                         },
-                    },
-                    loadEagerRelations: false,
-                })
-            ).roles
-        ).sort((a, b) => a.position - b.position); // ascending by position
+                        loadEagerRelations: false,
+                    })
+                ).roles
+            ).sort((a, b) => a.position - b.position); // ascending by position
 
-        return Permissions.finalPermission({
-            user: {
-                ...member,
-                roles: roles.map((r) => r.id),
-                flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
-            },
-            guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
-            channel: this,
-        });
+            return Permissions.finalPermission({
+                user: {
+                    ...member,
+                    roles: roles.map((r) => r.id),
+                    flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
+                },
+                guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
+                channel: this,
+            });
+        } catch (error) {
+            if (isExpectedPermissionMiss(error)) return Permissions.NONE;
+            throw error;
+        }
     }
 
-    // TODO: should we throw for missing args?
+    // Authorization predicates fail closed when caller context is incomplete.
     async canViewChannel(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<boolean> {
-        if (this.isDm()) return await this.canViewDmChannel(opts.user_id, opts.user);
-
         const userPerms = await this.getUserPermissions(opts);
         return userPerms.has("VIEW_CHANNEL");
+    }
+
+    private async getDmUserPermissions(userId?: string): Promise<Permissions> {
+        if (!userId) {
+            console.error("Channel.getUserPermissions: called without user for DM channel.");
+            return Permissions.NONE;
+        }
+        if (this.owner_id === userId) return Permissions.ALL;
+        return (await this.canViewDmChannel(userId)) ? Permissions.DEFAULT_DM_PERMISSIONS : Permissions.NONE;
     }
 
     private async canViewDmChannel(user_id?: string, user?: User): Promise<boolean> {
@@ -830,11 +845,10 @@ export class Channel extends BaseClass {
             console.error("Channel.canViewChannel: called without user for DM channel.");
             return false;
         }
-        if (!user) return false;
-        if (this.recipients) return this.recipients.some((r) => r.user_id === user.id && !r.closed);
+        if (this.recipients) return this.recipients.some((r) => r.user_id === userId && !r.closed);
         else {
             // we dont have recipients on hand
-            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: user.id } });
+            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: userId } });
             return recipient == null ? false : !recipient.closed;
         }
     }
