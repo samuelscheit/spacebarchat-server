@@ -41,6 +41,7 @@ import {
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    syncPersistedThreadMemberCount,
 } from "../../../util/utility/ThreadMembers";
 
 const router = Router({ mergeParams: true });
@@ -73,19 +74,14 @@ async function addThreadMember(req: Request, res: Response) {
     }
 
     const threadMember = await ThreadMember.createForUser(user_id, thread, ThreadMemberFlags.ALL_MESSAGES);
-
-    // increment member count
-    if (thread.member_count !== null && thread.member_count !== undefined) {
-        thread.member_count++;
-        await thread.save();
-    }
+    const memberCount = await syncPersistedThreadMemberCount(thread);
 
     await emitEvent({
         event: "THREAD_MEMBERS_UPDATE",
         data: {
             guild_id: thread.guild_id!,
             id: thread.id,
-            member_count: thread.member_count ?? 0, //TODO: is this the right fix?
+            member_count: memberCount,
             added_members: [serializeThreadMemberPayload(threadMember, user_id)],
         },
         channel_id: thread.id,

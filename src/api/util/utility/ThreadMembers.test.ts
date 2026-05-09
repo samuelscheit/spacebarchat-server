@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { afterEach, describe, test } from "node:test";
+import { FieldError, serializeThreadMemberPayload, ThreadMember, ThreadMemberFlags } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { FieldError, serializeThreadMemberPayload, ThreadMemberFlags } from "@spacebar/util";
 import {
     applyThreadMemberListQuery,
     applyThreadMemberSettingsUpdate,
@@ -11,7 +11,17 @@ import {
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    syncPersistedThreadMemberCount,
+    syncThreadMemberCount,
 } from "./ThreadMembers";
+
+const originalThreadMemberCountBy = ThreadMember.countBy;
+
+afterEach(() => {
+    Object.assign(ThreadMember, {
+        countBy: originalThreadMemberCountBy,
+    });
+});
 
 describe("thread member helpers", () => {
     test("defaults thread member limit", () => {
@@ -132,6 +142,48 @@ describe("thread member helpers", () => {
         });
     });
 
+    test("syncs an existing thread member count from persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: 2 });
+        const countThreadMembers = createThreadMemberCountReader(5);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 5);
+        assert.equal(thread.member_count, 5);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("repairs a missing thread member count by counting persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: null });
+        const countThreadMembers = createThreadMemberCountReader(4);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 4);
+        assert.equal(thread.member_count, 4);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("syncs thread member counts from persisted ThreadMember rows by default", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: null });
+        const countByCalls: unknown[] = [];
+        Object.assign(ThreadMember, {
+            countBy: async (where: unknown) => {
+                countByCalls.push(where);
+                return 3;
+            },
+        });
+
+        const memberCount = await syncPersistedThreadMemberCount(thread);
+
+        assert.equal(memberCount, 3);
+        assert.equal(thread.member_count, 3);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
+    });
+
     test("builds thread member list query against member user ids", () => {
         const builder = createFakeQueryBuilder();
 
@@ -250,4 +302,25 @@ function createThreadMember(overrides: Record<string, unknown> = {}) {
         mute_config: undefined,
         ...overrides,
     } as Parameters<typeof applyThreadMemberSettingsUpdate>[0];
+}
+
+function createCountedThread({ id, member_count }: { id: string; member_count?: number | null }) {
+    return {
+        id,
+        member_count,
+        saveCalls: 0,
+        async save() {
+            this.saveCalls++;
+        },
+    };
+}
+
+function createThreadMemberCountReader(count: number) {
+    const countThreadMembers = async (threadId: string) => {
+        countThreadMembers.threadIds.push(threadId);
+        return count;
+    };
+    countThreadMembers.threadIds = [] as string[];
+
+    return countThreadMembers;
 }

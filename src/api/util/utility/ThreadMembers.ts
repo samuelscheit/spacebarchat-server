@@ -1,5 +1,5 @@
 import type { ThreadMemberSettingsUpdateSchema } from "@spacebar/schemas";
-import { FieldErrors, type ThreadMember, ThreadMemberFlags } from "@spacebar/util";
+import { FieldErrors, ThreadMember, ThreadMemberFlags } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 
 export const DEFAULT_THREAD_MEMBER_LIMIT = 100;
@@ -102,6 +102,27 @@ function toIsoString(value: Date | string | undefined): string | undefined {
 
 function toDate(value: Date | string): Date {
     return value instanceof Date ? value : new Date(value);
+}
+
+export interface ThreadMemberCountThread {
+    id: string;
+    member_count?: number | null;
+    save(): Promise<unknown>;
+}
+
+export type ThreadMemberCountReader = (threadId: string) => Promise<number>;
+
+export async function syncThreadMemberCount(thread: ThreadMemberCountThread, countThreadMembers: ThreadMemberCountReader) {
+    thread.member_count = await countThreadMembers(thread.id);
+    await thread.save();
+
+    return thread.member_count;
+}
+
+export const countPersistedThreadMembers: ThreadMemberCountReader = (threadId) => ThreadMember.countBy({ id: threadId });
+
+export async function syncPersistedThreadMemberCount(thread: ThreadMemberCountThread) {
+    return await syncThreadMemberCount(thread, countPersistedThreadMembers);
 }
 
 type QueryParameters = Record<string, unknown>;
