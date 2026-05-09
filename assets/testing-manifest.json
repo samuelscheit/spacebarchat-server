@@ -3387,7 +3387,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 81,
+            "line": 82,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3438,7 +3438,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 235,
+            "line": 236,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3499,7 +3499,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 501,
+            "line": 498,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4441,7 +4441,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 161,
+            "line": 157,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4492,7 +4492,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 133,
+            "line": 129,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4540,7 +4540,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 159,
+            "line": 155,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4591,7 +4591,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 158,
+            "line": 154,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4642,7 +4642,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 202,
+            "line": 198,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4692,7 +4692,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 102,
+            "line": 98,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
