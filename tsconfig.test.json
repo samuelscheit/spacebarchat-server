@@ -172,6 +172,7 @@
         "src/util/util/GatewaySessions.test.ts",
         "src/util/util/Intents.test.ts",
         "src/util/util/InternalCdnRoutes.test.ts",
+        "src/util/util/json/JsonSerializer.test.ts",
         "src/util/util/json/JsonSerializerAsyncEnumerable.test.ts",
         "src/util/util/json/jsonWorker.ts",
         "src/util/util/lambert-server/check.test.ts",
