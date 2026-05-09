@@ -48,6 +48,26 @@ const makeEmbedImage = (url: string | undefined, width: number | undefined, heig
     };
 };
 
+const makeEmbedVideo = (url: string | undefined, width?: number, height?: number): EmbedImage | undefined => {
+    if (!url) return undefined;
+
+    const video: EmbedImage = { url };
+    if (width) video.width = width;
+    if (height) video.height = height;
+    if (width && height) video.proxy_url = getProxyUrl(new URL(url), width, height);
+
+    return video;
+};
+
+const makeDirectVideoEmbed = (url: URL): Embed => ({
+    url: url.href,
+    type: EmbedType.video,
+    video: {
+        url: url.href,
+        proxy_url: url.href,
+    },
+});
+
 let hasWarnedAboutImagor = false;
 
 const getImagorImagePath = (url: URL): string => {
@@ -245,15 +265,18 @@ export const getMetaDescriptions = (text: string) => {
 
     return {
         type: getMeta($, "og:type"),
-        title: getMeta($, "og:title") || $("title").first().text(),
+        title: getMeta($, "og:title") || getMeta($, "twitter:title") || $("title").first().text(),
         provider_name: getMeta($, "og:site_name"),
         author: getMeta($, "article:author"),
-        description: getMeta($, "og:description") || getMeta($, "description"),
+        description: getMeta($, "og:description") || getMeta($, "twitter:description") || getMeta($, "description"),
         image: getMeta($, "og:image") || getMeta($, "twitter:image"),
         image_fallback: $(`image`).attr("src"),
+        video: getMeta($, "og:video:secure_url") || getMeta($, "og:video:url") || getMeta($, "og:video") || getMeta($, "twitter:player:stream") || getMeta($, "twitter:player"),
         video_fallback: $(`video`).attr("src"),
         width: tryParseInt(getMeta($, "og:image:width")),
         height: tryParseInt(getMeta($, "og:image:height")),
+        video_width: tryParseInt(getMeta($, "og:video:width") || getMeta($, "twitter:player:width")),
+        video_height: tryParseInt(getMeta($, "og:video:height") || getMeta($, "twitter:player:height")),
         url: getMeta($, "og:url"),
         youtube_embed: getMeta($, "og:video:secure_url"),
         site_name: getMeta($, "og:site_name"),
@@ -337,15 +360,6 @@ const getMediaContentFamily = (contentType: string | null): "image" | "video" | 
     return undefined;
 };
 
-const makeDirectVideoEmbed = (url: URL): Embed => ({
-    url: url.href,
-    type: EmbedType.video,
-    video: {
-        url: url.href,
-        proxy_url: url.href,
-    },
-});
-
 const makeDirectMediaEmbed = async (url: URL, contentType: string | null): Promise<Embed | null | undefined> => {
     const mediaFamily = getMediaContentFamily(contentType);
 
@@ -427,6 +441,10 @@ export const EmbedHandlers: {
         const text = await response.text();
         const metas = getMetaDescriptions(text);
 
+        if (!metas.video) metas.video = metas.video_fallback;
+        if (metas.video) metas.video = new URL(metas.video, url).toString();
+        const metadataVideo = metas.video && metas.video_width && metas.video_height ? makeEmbedVideo(metas.video, metas.video_width, metas.video_height) : undefined;
+
         if (!metas.image) metas.image = metas.image_fallback;
 
         if (metas.image && (!metas.width || !metas.height)) {
@@ -436,7 +454,7 @@ export const EmbedHandlers: {
             metas.height = result.height;
         }
 
-        if (!metas.image && (!metas.title || !metas.description)) {
+        if (!metas.image && !metadataVideo && (!metas.title || !metas.description)) {
             // we don't have any content to display
             return null;
         }
@@ -445,11 +463,13 @@ export const EmbedHandlers: {
         if (metas.type == "article") embedType = EmbedType.article;
         if (metas.type == "object") embedType = EmbedType.article; // github
         if (metas.type == "rich") embedType = EmbedType.rich;
+        if (metadataVideo) embedType = EmbedType.video;
 
         return {
             url: url.href,
             type: embedType,
             title: metas.title,
+            video: metadataVideo,
             thumbnail: makeEmbedImage(metas.image, metas.width, metas.height),
             description: metas.description,
             provider: metas.site_name
