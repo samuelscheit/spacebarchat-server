@@ -84,7 +84,7 @@ export type VoiceStateRecord = {
 };
 
 type MemberRecord = {
-    toPublicMember(): { user?: { id?: string } } & Record<string, unknown>;
+    toPublicMember(): { user?: { id?: string } };
 } & Parameters<typeof memberToVoiceStateMember>[0];
 
 export interface VoiceStateModifyDependencies {
