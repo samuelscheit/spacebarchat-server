@@ -11331,6 +11331,9 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
+                "responseStatuses": [
+                    204
+                ],
                 "hasQuery": false
             },
             "coverage": {
