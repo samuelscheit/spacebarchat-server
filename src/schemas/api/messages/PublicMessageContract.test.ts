@@ -5,6 +5,7 @@ import fs from "node:fs";
 type SchemaObject = {
     $ref?: string;
     type?: string;
+    anyOf?: SchemaObject[];
     items?: SchemaObject;
     properties?: Record<string, SchemaObject>;
     additionalProperties?: SchemaObject | boolean;
@@ -64,6 +65,15 @@ function expectResolvedMapRefs(resolved: SchemaObject, expectedRefs: Record<stri
         assert.notEqual(property.additionalProperties, false);
         assert.equal((property.additionalProperties as SchemaObject).$ref, expectedRefs[name]);
     }
+}
+
+function assertJsonValueSchema(schema: SchemaObject, objectRef: string, arrayItemRef: string) {
+    assert.ok(schema.anyOf, "JSON data schema should describe JSON objects, arrays, and primitives");
+    assert.equal(schema.anyOf.length, 3);
+    assert.equal(schema.anyOf[0].$ref, objectRef);
+    assert.equal(schema.anyOf[1].type, "array");
+    assert.equal(schema.anyOf[1].items?.$ref, arrayItemRef);
+    assert.deepEqual(schema.anyOf[2].type, ["null", "string", "number", "boolean"]);
 }
 
 describe("public message generated contract", () => {
@@ -175,6 +185,22 @@ describe("public message generated contract", () => {
         assert.equal(apiMessageArray.type, "array");
         assert.equal(apiMessageArray.items?.$ref, "#/definitions/PublicMessage");
         assert.ok(item.properties?.member, "APIMessageArray items should expose the public message schema");
+    });
+
+    test("unfurled media content scan metadata is documented as JSON data", () => {
+        const schemas = readJson("assets/schemas.json");
+        const unfurledMediaItem = resolveAssetSchema(schemas, schemas.UnfurledMediaItem);
+        const contentScanMetadata = unfurledMediaItem.properties!.content_scan_metadata!;
+
+        assertJsonValueSchema(contentScanMetadata, "#/definitions/JsonObject", "#/definitions/JsonValue");
+    });
+
+    test("OpenAPI exposes unfurled media content scan metadata as JSON data", () => {
+        const openapi = readJson("assets/openapi.json");
+        const unfurledMediaItem = resolveOpenApi(openapi, openapi.components.schemas.UnfurledMediaItem);
+        const contentScanMetadata = unfurledMediaItem.properties!.content_scan_metadata!;
+
+        assertJsonValueSchema(contentScanMetadata, "#/components/schemas/JsonObject", "#/components/schemas/JsonValue");
     });
 
     test("message sticker fields use the public sticker response contract", () => {

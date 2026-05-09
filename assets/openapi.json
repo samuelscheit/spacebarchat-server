@@ -16306,7 +16306,27 @@
                     "content_type": {
                         "type": "string"
                     },
-                    "content_scan_metadata": {},
+                    "content_scan_metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonObject"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "number",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
                     "placeholder_version": {
                         "type": "integer"
                     },
@@ -16322,6 +16342,33 @@
                 },
                 "required": [
                     "url"
+                ]
+            },
+            "JsonObject": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/JsonValue"
+                }
+            },
+            "JsonValue": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/JsonObject"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "number",
+                            "boolean"
+                        ]
+                    }
                 ]
             },
             "ButtonComponent": {
@@ -21246,33 +21293,6 @@
                     "name",
                     "type"
                 ]
-            },
-            "JsonValue": {
-                "anyOf": [
-                    {
-                        "$ref": "#/components/schemas/JsonObject"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/JsonValue"
-                        }
-                    },
-                    {
-                        "type": [
-                            "null",
-                            "string",
-                            "number",
-                            "boolean"
-                        ]
-                    }
-                ]
-            },
-            "JsonObject": {
-                "type": "object",
-                "additionalProperties": {
-                    "$ref": "#/components/schemas/JsonValue"
-                }
             },
             "TeamListTeam": {
                 "type": "object",
