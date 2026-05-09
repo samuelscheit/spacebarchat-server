@@ -28,7 +28,8 @@ describe("message media permission route integration", () => {
     test("message handler validates payload limits before persistence side effects", () => {
         const source = readSource("src/api/util/handlers/Message.ts");
 
-        assertBefore(source, "assertMessagePayloadLimits(opts);", "const handle = opts.components ? handleComps");
+        assertBefore(source, "assertMessagePayloadLimits(opts);", "const isEdit = isMessageEditOperation(opts);");
+        assertBefore(source, "assertMessagePayloadLimits(opts);", "const handle = (!isEdit || opts.process_component_media === true)");
         assertBefore(source, "assertMessagePayloadLimits(opts);", "const channel = await Channel.findOneOrFail");
         assertBefore(source, "assertMessagePayloadLimits(opts);", "const message = Message.create({");
         assertBefore(source, "assertMessagePayloadLimits(opts);", "await processMessageOptionAttachments(opts, message);");
@@ -37,9 +38,9 @@ describe("message media permission route integration", () => {
     test("message edit resolves retained attachment references before handleMessage", () => {
         const source = readSource("src/api/routes/channels/#channel_id/messages/#message_id/index.ts");
 
-        assertBefore(source, "const existingAttachmentsById = new Map", "const new_message = await handleMessage(");
-        assertBefore(source, "if (isNewMessagePayloadAttachment(attachment)) return attachment;", "const retained = existingAttachmentsById.get(attachment.id);");
-        assertBefore(source, 'throw new HTTPError("Unknown attachment", 400);', "const new_message = await handleMessage(");
+        assertBefore(source, "normalizeMessageEditBodyAttachments(body, message.attachments);", "const new_message = await handleMessage(");
+        assertBefore(source, "buildMessageEditComponentProcessingOptions(normalizedBody);", "const new_message = await handleMessage(");
+        assert.notEqual(indexOf(source, "...componentProcessingOptions,"), -1);
     });
 
     test("normal message create checks media permissions before thread side effects", () => {
@@ -116,10 +117,13 @@ describe("message media permission route integration", () => {
             indexOf(source, "case InteractionCallbackType.UPDATE_MESSAGE:"),
             indexOf(source, "case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:"),
         );
-        assertBefore(updateMessageCase, "const existingAttachmentsById = new Map", "const updatedMessage = await handleMessage(");
-        assertBefore(updateMessageCase, "buildMessageEditHandleMessageOptions(message, messageData", 'event: "MESSAGE_UPDATE"');
+        assertBefore(updateMessageCase, "normalizeMessageEditBodyAttachments(body.data, message.attachments);", "const updatedMessage = await handleMessage(");
+        assertBefore(updateMessageCase, "buildMessageEditComponentProcessingOptions(normalizedBody);", "const updatedMessage = await handleMessage(");
+        assertBefore(updateMessageCase, "buildMessageEditHandleMessageOptions(message, normalizedBody", 'event: "MESSAGE_UPDATE"');
         assertBefore(updateMessageCase, "const updatedMessage = await handleMessage(", 'event: "MESSAGE_UPDATE"');
+        assertBefore(updateMessageCase, "attachment_user_id: interaction.applicationId,", "attachment_channel_ids: [channelId],");
         assertBefore(updateMessageCase, 'event: "MESSAGE_UPDATE"', "                break;");
+        assert.notEqual(indexOf(updateMessageCase, "...componentProcessingOptions,"), -1);
         assert.equal(updateMessageCase.includes("// TODO"), false);
         assert.equal(updateMessageCase.includes("message.embeds = body.data.embeds || []"), false);
     });
@@ -211,11 +215,39 @@ describe("message media permission route integration", () => {
         assertBefore(deferredRouteAcknowledgement, "await acknowledgeDeferredMessageUpdateInteraction(", "return;");
     });
 
+    test("message edit attachment resolution is shared by normal edits and interaction callbacks", () => {
+        const channelEditSource = readSource("src/api/routes/channels/#channel_id/messages/#message_id/index.ts");
+        const interactionCallbackSource = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
+        const attachmentSource = readSource("src/api/util/utility/MessageEditAttachments.ts");
+
+        assert.notEqual(indexOf(channelEditSource, "normalizeMessageEditBodyAttachments(body, message.attachments);"), -1);
+        assert.notEqual(indexOf(interactionCallbackSource, "normalizeMessageEditBodyAttachments(body.data, message.attachments);"), -1);
+        assert.notEqual(indexOf(channelEditSource, "buildMessageEditComponentProcessingOptions(normalizedBody)"), -1);
+        assert.notEqual(indexOf(interactionCallbackSource, "buildMessageEditComponentProcessingOptions(normalizedBody)"), -1);
+        assert.notEqual(indexOf(attachmentSource, "const existingAttachmentsById = new Map"), -1);
+        assert.notEqual(indexOf(attachmentSource, "if (isNewMessagePayloadAttachment(attachment)) return attachment;"), -1);
+        assert.notEqual(indexOf(attachmentSource, 'throw new HTTPError("Unknown attachment", 400);'), -1);
+    });
+
+    test("webhook message edits share explicit component processing state with normal edits", () => {
+        const source = readSource("src/api/util/handlers/WebhookMessage.ts");
+
+        assertBefore(source, "buildMessageEditComponentProcessingOptions(body);", "buildMessageEditHandleMessageOptions(message, body");
+        assert.notEqual(indexOf(source, "...componentProcessingOptions,"), -1);
+    });
+
     test("component media extraction is shared between permission gates and message handling", () => {
         const messageSource = readSource("src/api/util/handlers/Message.ts");
         const permissionSource = readSource("src/api/util/utility/MessagePayloadPermissions.ts");
 
         assert.notEqual(indexOf(permissionSource, "hasMessagePayloadComponentMedia(opts.components)"), -1);
         assertBefore(messageSource, "const medias = collectMessageComponentMedia(components);", "processMedia(m, messageId");
+        assertBefore(
+            messageSource,
+            "const handle = (!isEdit || opts.process_component_media === true) && opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;",
+            "if (isEdit) await handle?.(message.id, message.author as User, message.channel);",
+        );
+        assertBefore(messageSource, "delete messageOptions.process_component_media;", "const message = Message.create({");
+        assertBefore(messageSource, "if (isEdit) await handle?.(message.id, message.author as User, message.channel);", "return message;");
     });
 });

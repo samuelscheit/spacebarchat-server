@@ -364,12 +364,13 @@ function shouldNotifyReplyMention(allowedMentions: AllowedMentions | null | unde
 
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
     assertMessagePayloadLimits(opts);
-    const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const isEdit = isMessageEditOperation(opts);
+    const handle = (!isEdit || opts.process_component_media === true) && opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const messageOptions = { ...opts };
     delete messageOptions.attachment_channel_ids;
     delete messageOptions.attachment_user_id;
     delete messageOptions.cloud_attachment_upload_channel_id;
+    delete messageOptions.process_component_media;
 
     const channel = await Channel.findOneOrFail({
         where: { id: opts.channel_id },
@@ -765,6 +766,8 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 
     // TODO: check and put it all in the body
 
+    if (isEdit) await handle?.(message.id, message.author as User, message.channel);
+
     return message;
 }
 
@@ -826,6 +829,7 @@ interface MessageOptions extends MessageCreateSchema {
     attachment_user_id?: string;
     attachment_channel_ids?: string[];
     cloud_attachment_upload_channel_id?: string;
+    process_component_media?: boolean;
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;
