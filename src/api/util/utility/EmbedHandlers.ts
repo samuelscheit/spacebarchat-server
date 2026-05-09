@@ -50,6 +50,17 @@ const makeEmbedImage = (url: string | undefined, width: number | undefined, heig
 
 let hasWarnedAboutImagor = false;
 
+const getImagorImagePath = (url: URL): string => {
+    const path = `${url.host}${url.pathname}`;
+
+    if (!url.search && url.protocol === "https:") return path;
+
+    // A raw "?" would become the Imagor request query instead of the source image
+    // query. Use Imagor's b64: image URI form when the original URL cannot be
+    // represented safely as the plain default-HTTPS host/path form.
+    return `b64:${Buffer.from(`${url.origin}${url.pathname}${url.search}`).toString("base64url")}`;
+};
+
 export const getProxyUrl = (url: URL, width: number, height: number): string => {
     const { resizeWidthMax, resizeHeightMax, imagorServerUrl } = Config.get().cdn;
     const secret = Config.get().security.requestSignature;
@@ -58,7 +69,7 @@ export const getProxyUrl = (url: URL, width: number, height: number): string => 
 
     // Imagor
     if (imagorServerUrl) {
-        const path = `${width}x${height}/${url.host}${url.pathname}`;
+        const path = `${width}x${height}/${getImagorImagePath(url)}`;
 
         const hash = crypto.createHmac("sha1", secret).update(path).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
 
@@ -504,7 +515,6 @@ export const EmbedHandlers: {
         };
     },
 
-    // TODO: docs: Pixiv won't work without Imagor
     "pixiv.net": (url) => EmbedHandlers["www.pixiv.net"](url),
     "www.pixiv.net": async (url: URL) => {
         const response = await doFetch(url);
@@ -512,6 +522,22 @@ export const EmbedHandlers: {
         const metas = getMetaDescriptions(await response.text());
 
         if (!metas.image) return null;
+
+        metas.image = new URL(metas.image, url).toString();
+
+        if (!metas.width || !metas.height) {
+            try {
+                const result = await probe(metas.image, {
+                    headers: {
+                        referer: `${url.origin}/`,
+                    },
+                });
+                metas.width = result.width;
+                metas.height = result.height;
+            } catch {
+                return null;
+            }
+        }
 
         return {
             url: url.href,
