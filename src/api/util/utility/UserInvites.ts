@@ -18,7 +18,7 @@
 
 import { RelationshipType, UserInviteResponse } from "@spacebar/schemas";
 import { Config, DiscordApiErrors, Invite, User } from "@spacebar/util";
-import { randomString } from "./RandomInviteID";
+import { type InviteCodeRepository, INVITE_CODE_MAX_LENGTH, INVITE_CODE_REGEX, generateUnusedInviteCode, randomString, validateInviteCode } from "./RandomInviteID";
 import { UpdateRelationshipOptions, relationshipUserProjection, updateRelationship } from "./Relationships";
 
 export interface UserInviteCreateBody {
@@ -33,8 +33,7 @@ type UnsavedInvite = InviteRecord & {
     save: () => Promise<InviteRecord>;
 };
 
-type InviteRepository = {
-    findOne: (options: { where: { code: string }; select?: { code: true } }) => Promise<unknown>;
+type InviteRepository = InviteCodeRepository & {
     create: (invite: Partial<Invite>) => UnsavedInvite;
 };
 
@@ -57,12 +56,11 @@ export interface RevokeUserInviteOptions {
     deleteInvite?: (criteria: { code: string }) => Promise<unknown>;
 }
 
-const RANDOM_INVITE_ATTEMPTS = 5;
 export const USER_INVITE_TYPE = 2;
 export const USER_INVITE_MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
 export const USER_INVITE_MAX_USES = 5;
-export const USER_INVITE_CODE_MAX_LENGTH = 20;
-export const USER_INVITE_CODE_REGEX = new RegExp(`^[A-Za-z0-9]{1,${USER_INVITE_CODE_MAX_LENGTH}}$`);
+export const USER_INVITE_CODE_MAX_LENGTH = INVITE_CODE_MAX_LENGTH;
+export const USER_INVITE_CODE_REGEX = INVITE_CODE_REGEX;
 
 export function isUserInvite(
     invite: Pick<Invite, "guild_id" | "channel_id" | "inviter_id">,
@@ -77,7 +75,7 @@ export async function createUserInvite(user_id: string, body: UserInviteCreateBo
     const now = options.now ?? (() => new Date());
 
     const createdAt = now();
-    const code = body.code === undefined ? await createUnusedInviteCode(inviteRepository, generateCode) : validateUserInviteCode(body.code);
+    const code = body.code === undefined ? await generateUnusedInviteCode({ inviteRepository, generateCode }) : validateUserInviteCode(body.code);
 
     if (body.code !== undefined && (await inviteRepository.findOne({ where: { code }, select: { code: true } }))) {
         throw DiscordApiErrors.INVALID_OR_TAKEN_INVITE_CODE;
@@ -143,11 +141,7 @@ export async function revokeUserInvite(user_id: string, invite: Invite, options:
 }
 
 function validateUserInviteCode(code: unknown): string {
-    if (typeof code !== "string" || !USER_INVITE_CODE_REGEX.test(code)) {
-        throw DiscordApiErrors.INVALID_OR_TAKEN_INVITE_CODE;
-    }
-
-    return code;
+    return validateInviteCode(code);
 }
 
 export function toUserInviteResponse(invite: InviteRecord, inviter: UserInviteResponse["inviter"]): UserInviteResponse {
@@ -165,14 +159,4 @@ export function toUserInviteResponse(invite: InviteRecord, inviter: UserInviteRe
         inviter,
         flags: data.flags as number,
     };
-}
-
-async function createUnusedInviteCode(inviteRepository: InviteRepository, generateCode: () => string): Promise<string> {
-    for (let attempt = 0; attempt < RANDOM_INVITE_ATTEMPTS; attempt++) {
-        const code = generateCode();
-        validateUserInviteCode(code);
-        if (!(await inviteRepository.findOne({ where: { code }, select: { code: true } }))) return code;
-    }
-
-    throw DiscordApiErrors.INVALID_OR_TAKEN_INVITE_CODE;
 }
