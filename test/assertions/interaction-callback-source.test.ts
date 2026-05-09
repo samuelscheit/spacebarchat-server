@@ -25,17 +25,22 @@ test("UPDATE_MESSAGE interaction callbacks stay implemented", () => {
 
     assert.equal(/todo/i.test(updateMessageCase), false, "implemented UPDATE_MESSAGE branch should not retain a placeholder TODO");
     assert.match(updateMessageCase, /Message\.findOneOrFail\(/);
+    assert.match(updateMessageCase, /normalizeMessageEditBodyAttachments\(body\.data, message\.attachments\)/);
+    assert.match(updateMessageCase, /buildMessageEditComponentProcessingOptions\(normalizedBody\)/);
     assert.match(updateMessageCase, /await handleMessage\(/);
-    assert.match(updateMessageCase, /const messageData: typeof body\.data/);
-    assert.match(updateMessageCase, /const existingAttachmentsById = new Map/);
-    assert.match(updateMessageCase, /buildMessageEditHandleMessageOptions\(message, messageData, channelId, message\.id/);
+    assert.match(updateMessageCase, /buildMessageEditHandleMessageOptions\(message, normalizedBody, channelId, message\.id/);
     assert.match(updateMessageCase, /attachment_user_id: interaction\.applicationId/);
     assert.match(updateMessageCase, /attachment_channel_ids: \[channelId\]/);
     assert.match(updateMessageCase, /is_edit: true/);
+    assert.match(updateMessageCase, /\.\.\.componentProcessingOptions/);
     assert.match(updateMessageCase, /await updatedMessage\.save\(\);/);
     assert.match(updateMessageCase, /event: "MESSAGE_UPDATE"/);
-    assert.match(updateMessageCase, /data: updatedMessage\.toJSON\(\)/);
+    assert.match(updateMessageCase, /\.\.\.updatedMessage\.toJSON\(\)/);
+    assert.match(updateMessageCase, /nonce: undefined/);
     assert.match(updateMessageCase, /postHandleMessage\(updatedMessage\)/);
+    assert.equal(updateMessageCase.includes("const messageData"), false);
+    assert.equal(updateMessageCase.includes("const existingAttachmentsById"), false);
+    assert.equal(updateMessageCase.includes("message.embeds = body.data.embeds || []"), false);
 
     const caseStart = source.indexOf("case InteractionCallbackType.UPDATE_MESSAGE:");
     const updateEventIndex = source.indexOf('event: "MESSAGE_UPDATE"', caseStart);
