@@ -20,7 +20,7 @@ import { PartialConnectedAccountResponse, PublicMember, PublicUser } from "@spac
 
 export type MutualGuild = {
     id: string;
-    nick?: string | null;
+    nick: string | null;
 };
 
 export interface PublicMemberProfile {
@@ -48,7 +48,7 @@ export interface ProfileBadge {
 export interface UserProfileResponse {
     user: PublicUser;
     connected_accounts: PartialConnectedAccountResponse[];
-    premium_guild_since?: number;
+    premium_guild_since?: number | null;
     premium_since?: Date | null;
     mutual_guilds?: MutualGuild[];
     mutual_friends?: PublicUser[];

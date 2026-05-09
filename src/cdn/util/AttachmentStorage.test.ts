@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { Storage } from "./Storage";
-import { attachmentStoragePath, getAttachmentFileFromStorage, legacyAttachmentStoragePath } from "./AttachmentStorage";
+import { attachmentStoragePath, deleteStoragePathIfExists, getAttachmentFileFromStorage, legacyAttachmentStoragePath } from "./AttachmentStorage";
 
 class MemoryStorage implements Storage {
     files = new Map<string, Buffer>();
@@ -131,6 +131,15 @@ describe("attachment storage paths", () => {
         });
 
         assert.equal(result, null);
+    });
+
+    it("deletes storage paths idempotently for post-commit cleanup", async () => {
+        const storage = new MemoryStorage();
+        await storage.set("attachments/channel/message/file.png", Buffer.from("delete me"));
+
+        assert.equal(await deleteStoragePathIfExists(storage, "attachments/channel/message/file.png"), true);
+        assert.equal(await storage.exists("attachments/channel/message/file.png"), false);
+        assert.equal(await deleteStoragePathIfExists(storage, "attachments/channel/message/file.png"), false);
     });
 
     it("re-reads the current file when another migrator wins the legacy move race", async () => {

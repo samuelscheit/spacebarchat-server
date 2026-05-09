@@ -21,10 +21,19 @@ import { ApiError, ConnectedAccount, ConnectionStore, DiscordApiErrors, FieldErr
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
 
-// TODO: this route is only used for spotify, twitch, and youtube. (battlenet seems to be able to PUT, maybe others also)
+export const ACCESS_TOKEN_SUPPORTED_CONNECTIONS = ["twitch", "youtube"] as const;
 
-// spotify is disabled here because it cant be used
-const ALLOWED_CONNECTIONS = ["twitch", "youtube"];
+// Discord also exposes this endpoint for Spotify, but the local Spotify connection
+// disables token refresh because it cannot currently be used reliably.
+export const ACCESS_TOKEN_DISABLED_CONNECTIONS = ["spotify"] as const;
+
+export function isAccessTokenSupportedConnection(connectionName: string): boolean {
+    return ACCESS_TOKEN_SUPPORTED_CONNECTIONS.includes(connectionName as (typeof ACCESS_TOKEN_SUPPORTED_CONNECTIONS)[number]);
+}
+
+export function getAccessTokenSupportedConnectionTypes(): string {
+    return ACCESS_TOKEN_SUPPORTED_CONNECTIONS.join(", ");
+}
 
 // NOTE: this route has not been extensively tested, as the required connections are not implemented as of writing
 router.get("/", route({}), async (req: Request, res: Response) => {
@@ -32,12 +41,12 @@ router.get("/", route({}), async (req: Request, res: Response) => {
 
     const connection = ConnectionStore.connections.get(connection_name);
 
-    if (!ALLOWED_CONNECTIONS.includes(connection_name) || !connection)
+    if (!isAccessTokenSupportedConnection(connection_name) || !connection)
         throw FieldErrors({
             provider_id: {
                 code: "BASE_TYPE_CHOICES",
                 message: req.t("common:field.BASE_TYPE_CHOICES", {
-                    types: ALLOWED_CONNECTIONS.join(", "),
+                    types: getAccessTokenSupportedConnectionTypes(),
                 }),
             },
         });

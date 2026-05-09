@@ -16,17 +16,19 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertCanManageGuildRoles, route } from "@spacebar/api";
 import {
     Config,
     DiscordApiErrors,
     emitEvent,
     GuildRoleCreateEvent,
     GuildRoleUpdateEvent,
+    Guild,
     handleFile,
     Member,
     Role,
     Snowflake,
+    assertRoleIconPolicy,
     resolveCreatedRolePermissions,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
@@ -50,6 +52,7 @@ router.post(
     route({
         requestBody: "RoleModifySchema",
         permission: "MANAGE_ROLES",
+        right: "CREATE_ROLES",
         responses: {
             200: {
                 body: "Role",
@@ -71,11 +74,10 @@ router.post(
 
         if (role_count > maxRoles) throw DiscordApiErrors.MAXIMUM_ROLES.withParams(maxRoles);
 
-        // TODO: proper field error
-        if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
-
-        const everyoneRole = await Role.findOne({ where: { id: guild_id } });
+        const [everyoneRole, guild] = await Promise.all([Role.findOne({ where: { id: guild_id } }), Guild.findOneOrFail({ where: { id: guild_id }, select: { features: true } })]);
         const id = Snowflake.generate();
+
+        assertRoleIconPolicy({ guildFeatures: guild.features, body, creating: true, rights: req.rights });
 
         if (body.icon?.length) body.icon = await handleFile(`/role-icons/${id}`, body.icon as string);
 
@@ -94,7 +96,6 @@ router.post(
                 actor: req.permission?.bitfield,
             }),
             tags: undefined,
-            unicode_emoji: undefined,
             id,
             colors: {
                 primary_color: body.colors?.primary_color || body.color || 0,
@@ -148,6 +149,28 @@ router.patch(
     async (req: Request, res: Response) => {
         const { guild_id } = req.params as { [key: string]: string };
         const body = req.body as RolePositionUpdateSchema;
+
+        const targetRoles = await Role.find({
+            where: body.map((x) => ({ id: x.id, guild_id })),
+        });
+        const targetRolesById = new Map(targetRoles.map((role) => [role.id, role]));
+
+        await assertCanManageGuildRoles({
+            actorId: req.user_id,
+            guildId: guild_id,
+            targetRoles: body.flatMap((requestedRole) => {
+                const role = targetRolesById.get(requestedRole.id);
+                if (!role) return [];
+
+                return [
+                    {
+                        id: role.id,
+                        position: role.position,
+                        requestedPosition: requestedRole.position,
+                    },
+                ];
+            }),
+        });
 
         await Promise.all(body.map(async (x) => Role.update({ guild_id, id: x.id }, { position: x.position })));
 

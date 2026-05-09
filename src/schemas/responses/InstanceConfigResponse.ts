@@ -17,6 +17,7 @@
 */
 
 import type { ConfigValue } from "../../util/config/Config";
+import type { GeneralConfiguration, LimitsConfiguration } from "@spacebar/util";
 
 export interface PublicInstanceConfigResponse {
     limits_user_maxGuilds: number;
@@ -42,3 +43,6 @@ export interface PublicInstanceConfigResponse {
 export type FullInstanceConfigResponse = ConfigValue;
 
 export type InstanceConfigResponse = PublicInstanceConfigResponse | FullInstanceConfigResponse;
+
+export type APIGeneralConfiguration = GeneralConfiguration;
+export type APILimitsConfiguration = LimitsConfiguration;

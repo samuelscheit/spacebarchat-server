@@ -25,20 +25,23 @@ import {
     Permissions,
     ThreadCreateEvent,
     ThreadDeleteEvent,
-    ThreadMemberUpdateEvent,
     ThreadMember,
     ThreadMemberFlags,
+    ThreadMemberUpdateEvent,
     ThreadMembersUpdateEvent,
+    serializeThreadMemberPayload,
 } from "@spacebar/util";
-import { ChannelType, Snowflake } from "@spacebar/schemas";
+import { ChannelType, Snowflake, ThreadMemberSettingsUpdateSchema } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
 import {
     applyThreadMemberListQuery,
+    applyThreadMemberSettingsUpdate,
     assertThreadIsNotArchived,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    syncPersistedThreadMemberCount,
 } from "../../../util/utility/ThreadMembers";
 
 const router = Router({ mergeParams: true });
@@ -71,20 +74,15 @@ async function addThreadMember(req: Request, res: Response) {
     }
 
     const threadMember = await ThreadMember.createForUser(user_id, thread, ThreadMemberFlags.ALL_MESSAGES);
-
-    // increment member count
-    if (thread.member_count !== null && thread.member_count !== undefined) {
-        thread.member_count++;
-        await thread.save();
-    }
+    const memberCount = await syncPersistedThreadMemberCount(thread);
 
     await emitEvent({
         event: "THREAD_MEMBERS_UPDATE",
         data: {
             guild_id: thread.guild_id!,
             id: thread.id,
-            member_count: thread.member_count ?? 0, //TODO: is this the right fix?
-            added_members: [{ user_id: user_id, ...threadMember.toJSON() }],
+            member_count: memberCount,
+            added_members: [serializeThreadMemberPayload(threadMember, user_id)],
         },
         channel_id: thread.id,
     } satisfies ThreadMembersUpdateEvent);
@@ -181,26 +179,7 @@ router.delete(
             if (!userCanRemovePrivateThreadMember) (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.MANAGE_THREADS);
         } else user_id = req.user_id;
 
-        const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id! } });
-        const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
-        await threadMember.remove();
-
-        // decrement member count
-        if (thread.member_count !== null && thread.member_count !== undefined && thread.member_count > 0) {
-            thread.member_count--;
-            await thread.save();
-        }
-
-        await emitEvent({
-            event: "THREAD_MEMBERS_UPDATE",
-            data: {
-                guild_id: thread.guild_id!,
-                id: thread.id,
-                member_count: thread.member_count ?? 0, // TODO: is this the right fix?
-                removed_member_ids: [user_id],
-            },
-            channel_id: thread.id,
-        } satisfies ThreadMembersUpdateEvent);
+        await ThreadMember.removeFromThread(user_id, channel_id);
         if (thread.type === ChannelType.GUILD_PRIVATE_THREAD)
             await emitEvent({
                 event: "THREAD_DELETE",
@@ -220,37 +199,37 @@ router.delete(
 router.patch(
     "/@me/settings",
     route({
+        requestBody: "ThreadMemberSettingsUpdateSchema",
         responses: {
             200: {},
+            204: {},
             403: {},
         },
         permission: "VIEW_CHANNEL",
     }),
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
-        const body = req.body as {
-            muted?: boolean;
-            mute_config?: ThreadMember["mute_config"] | null;
-            flags?: ThreadMemberFlags;
-        };
-        const thread = await Channel.findOneOrFail({ where: { id: channel_id } });
+        const body = req.body as ThreadMemberSettingsUpdateSchema;
+        const thread = await Channel.findOneOrFail({ where: { id: channel_id }, select: { guild_id: true, id: true } });
         const member = await Member.findOneOrFail({ where: { id: req.user_id, guild_id: thread.guild_id! }, select: { index: true } });
         const threadMember = await ThreadMember.findOneOrFail({ where: { member_idx: member.index, id: channel_id } });
+        const { changed } = applyThreadMemberSettingsUpdate(threadMember, body);
 
-        if ("muted" in body) threadMember.muted = body.muted ?? false;
-        if ("mute_config" in body) threadMember.mute_config = body.mute_config ?? undefined;
-        if ("flags" in body) threadMember.flags = body.flags ?? ThreadMemberFlags.NONE;
+        if (!changed) return res.status(204).send();
 
-        await Promise.all([
-            threadMember.save(),
-            emitEvent({
-                event: "THREAD_MEMBER_UPDATE",
-                data: { ...threadMember.toJSON(), guild_id: thread.guild_id! },
-                user_id: req.user_id,
-            } satisfies ThreadMemberUpdateEvent),
-        ]);
+        await threadMember.save();
+        const publicThreadMember = serializeThreadMemberPayload(threadMember, req.user_id);
 
-        return res.json(threadMember.toJSON());
+        await emitEvent({
+            event: "THREAD_MEMBER_UPDATE",
+            data: {
+                guild_id: thread.guild_id!,
+                ...publicThreadMember,
+            },
+            user_id: req.user_id,
+        } satisfies ThreadMemberUpdateEvent);
+
+        return res.json(publicThreadMember);
     },
 );
 

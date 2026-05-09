@@ -29,17 +29,17 @@ import {
     Presence,
     UserSettings,
     IReadyGuildDTO,
-    ReadyUserGuildSettingsEntries,
-    ReadyPrivateChannel,
     GuildOrUnavailable,
     Snowflake,
     ThreadMember,
+    ThreadMemberPayload,
 } from "@spacebar/util";
 import { JsonValue } from "@protobuf-ts/runtime";
+import type { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 import {
     ApplicationCommand,
     GuildCreateResponse,
-    Interaction,
+    GuildScheduledEventResponse,
     InteractionFailureReason,
     PartialEmoji,
     PublicChannel,
@@ -50,7 +50,10 @@ import {
     RelationshipType,
     StageInstanceResponse,
     UserPrivate,
+    ChannelType,
 } from "@spacebar/schemas";
+import type { VoiceStateMember } from "../entities/MemberPublic";
+import type { ReadyUserGuildSettingsEntries } from "./ReadyUserGuildSettingsEntries";
 
 export interface Event {
     guild_id?: string;
@@ -64,6 +67,11 @@ export interface Event {
     reconnect_delay?: number;
     origin?: string;
     transaction_id?: string;
+    /**
+     * Internal event bus route. This is consumed by server-side listeners only
+     * and is intentionally not part of Discord gateway payload data.
+     */
+    spacebar_event_id?: string;
 }
 
 // ! Custom Events that shouldn't get sent to the client but processed by the server
@@ -79,6 +87,16 @@ export interface PublicRelationship {
     nickname?: string;
 }
 
+export interface ReadyRelationship {
+    id: string;
+    user_id: string;
+    type: RelationshipType;
+    nickname: string | null;
+    since: string | null;
+    is_spam_request: boolean;
+    user_ignored: boolean;
+}
+
 // ! END Custom Events that shouldn't get sent to the client but processed by the server
 
 export interface ReadyChannelReadState {
@@ -86,6 +104,7 @@ export interface ReadyChannelReadState {
     mention_count: number;
     last_viewed: number;
     last_message_id?: string | null;
+    notifications_cursor?: string | null;
     last_pin_timestamp: Date | string;
     flags: number;
 }
@@ -99,6 +118,21 @@ export interface ReadyNonChannelReadState {
 }
 
 export type ReadyReadState = ReadyChannelReadState | ReadyNonChannelReadState;
+
+export const READY_SESSION_TYPE = "normal" as const;
+export type ReadySessionType = typeof READY_SESSION_TYPE;
+
+export interface ReadyPrivateChannel {
+    id: string;
+    flags: number;
+    icon?: string | null;
+    is_spam: boolean;
+    last_message_id?: string | null;
+    name?: string | null;
+    owner_id?: string;
+    recipients: PublicUser[];
+    type: ChannelType.DM | ChannelType.GROUP_DM;
+}
 
 export interface ReadyEventData {
     v: number;
@@ -133,7 +167,7 @@ export interface ReadyEventData {
     user_settings?: UserSettings;
     user_settings_proto?: string;
     user_settings_proto_json?: JsonValue;
-    relationships?: PublicRelationship[]; // TODO
+    relationships?: ReadyRelationship[];
     read_state: ReadyReadState[];
     user_guild_settings?: {
         entries: ReadyUserGuildSettingsEntries[];
@@ -151,7 +185,7 @@ export interface ReadyEventData {
     api_code_version: number;
     tutorial: number | null;
     resume_gateway_url: string;
-    session_type: string;
+    session_type: ReadySessionType;
     auth_session_id_hash: string;
     required_action?:
         | "REQUIRE_VERIFIED_EMAIL"
@@ -223,12 +257,11 @@ export interface GuildCreateEvent extends Event {
     event: "GUILD_CREATE";
     data: IReadyGuildDTO & {
         joined_at: Date;
-        // TODO: add them to guild
-        guild_scheduled_events: never[];
+        guild_scheduled_events: GuildScheduledEventResponse[];
         guild_hashes: unknown;
         presences: never[];
         stage_instances: StageInstanceResponse[];
-        threads: never[];
+        threads: unknown[];
         embedded_activities: never[];
         // Only when not using PRIORITISED_READY_PAYLOAD capability
         voice_states?: PublicVoiceState[];
@@ -363,9 +396,12 @@ export interface GuildRoleDeleteEvent extends Event {
 
 export interface InviteCreateEvent extends Event {
     event: "INVITE_CREATE";
-    data: Omit<Invite, "guild" | "channel"> & {
+    data: Omit<Invite, "guild" | "channel" | "inviter"> & {
         channel_id: string;
         guild_id?: string;
+        inviter?: PublicUser;
+        guild?: unknown;
+        channel?: Channel;
     };
 }
 
@@ -421,6 +457,21 @@ export interface MessageReactionAddEvent extends Event {
         burst: boolean;
         burst_colors?: string[];
         type: ReactionType;
+    };
+}
+
+export interface DebouncedReaction {
+    users: string[];
+    emoji: PartialEmoji;
+}
+
+export interface MessageReactionAddManyEvent extends Event {
+    event: "MESSAGE_REACTION_ADD_MANY";
+    data: {
+        channel_id: string;
+        message_id: string;
+        guild_id?: string;
+        reactions: DebouncedReaction[];
     };
 }
 
@@ -490,8 +541,10 @@ export interface UserConnectionsUpdateEvent extends Event {
 
 export interface VoiceStateUpdateEvent extends Event {
     event: "VOICE_STATE_UPDATE";
-    data: PublicVoiceState & {
-        member: PublicMember;
+    data: Omit<PublicVoiceState, "channel_id" | "guild_id"> & {
+        channel_id: string | null;
+        guild_id: string | null;
+        member?: VoiceStateMember;
     };
 }
 
@@ -578,7 +631,7 @@ export interface ApplicationCommandDeleteEvent extends Event {
 export interface InteractionCreateEvent extends Event {
     event: "INTERACTION_CREATE";
     data:
-        | Interaction
+        | InteractionCreateSchema
         | {
               id: Snowflake;
               nonce?: string;
@@ -589,7 +642,7 @@ export interface InteractionSuccessEvent extends Event {
     event: "INTERACTION_SUCCESS";
     data: {
         id: Snowflake;
-        nonce: string;
+        nonce?: string;
     };
 }
 
@@ -604,6 +657,8 @@ export interface InteractionFailureEvent extends Event {
 
 export interface MessageAckEvent extends Event {
     event: "MESSAGE_ACK";
+    channel_id: string;
+    user_id?: never;
     data: {
         channel_id: string;
         message_id: string;
@@ -698,7 +753,7 @@ export interface ThreadListSyncEvent extends Event {
 
 export interface ThreadMemberUpdateEvent extends Event {
     event: "THREAD_MEMBER_UPDATE";
-    data: ThreadMember & { guild_id: string };
+    data: ThreadMemberPayload & { guild_id: string };
 }
 
 export interface ThreadMembersUpdateEvent extends Event {
@@ -707,7 +762,7 @@ export interface ThreadMembersUpdateEvent extends Event {
         id: string;
         guild_id: string;
         member_count: number;
-        added_members?: (ThreadMember & { user_id: string })[];
+        added_members?: ThreadMemberPayload[];
         removed_member_ids?: string[];
     };
 }
@@ -744,6 +799,7 @@ export type EventData =
     | MessageDeleteEvent
     | MessageDeleteBulkEvent
     | MessageReactionAddEvent
+    | MessageReactionAddManyEvent
     | MessageReactionRemoveEvent
     | MessageReactionRemoveAllEvent
     | MessageReactionRemoveEmojiEvent
@@ -808,6 +864,7 @@ export enum EVENTEnum {
     MessageDelete = "MESSAGE_DELETE",
     MessageDeleteBulk = "MESSAGE_DELETE_BULK",
     MessageReactionAdd = "MESSAGE_REACTION_ADD",
+    MessageReactionAddMany = "MESSAGE_REACTION_ADD_MANY",
     MessageReactionRemove = "MESSAGE_REACTION_REMOVE",
     MessageReactionRemoveAll = "MESSAGE_REACTION_REMOVE_ALL",
     MessageReactionRemoveEmoji = "MESSAGE_REACTION_REMOVE_EMOJI",
@@ -837,77 +894,87 @@ export enum EVENTEnum {
     ThreadMembersUpdate = "THREAD_MEMBERS_UPDATE",
 }
 
-export type EVENT =
-    | "READY"
-    | "CHANNEL_CREATE"
-    | "CHANNEL_UPDATE"
-    | "CHANNEL_DELETE"
-    | "CHANNEL_PINS_UPDATE"
-    | "CHANNEL_RECIPIENT_ADD"
-    | "CHANNEL_RECIPIENT_REMOVE"
-    | "GUILD_CREATE"
-    | "GUILD_UPDATE"
-    | "GUILD_DELETE"
-    | "GUILD_BAN_ADD"
-    | "GUILD_BAN_REMOVE"
-    | "GUILD_EMOJI_UPDATE"
-    | "GUILD_EMOJIS_UPDATE"
-    | "GUILD_STICKERS_UPDATE"
-    | "GUILD_INTEGRATIONS_UPDATE"
-    | "GUILD_MEMBER_ADD"
-    | "GUILD_MEMBER_REMOVE"
-    | "GUILD_MEMBER_UPDATE"
-    | "GUILD_MEMBER_SPEAKING"
-    | "GUILD_MEMBERS_CHUNK"
-    | "GUILD_MEMBER_LIST_UPDATE"
-    | "GUILD_ROLE_CREATE"
-    | "GUILD_ROLE_DELETE"
-    | "GUILD_ROLE_UPDATE"
-    | "INVITE_CREATE"
-    | "INVITE_DELETE"
-    | "MESSAGE_CREATE"
-    | "MESSAGE_UPDATE"
-    | "MESSAGE_DELETE"
-    | "MESSAGE_DELETE_BULK"
-    | "MESSAGE_REACTION_ADD"
-    // TODO: add a new event: bulk add reaction:
-    // | "MESSAGE_REACTION_BULK_ADD"
-    | "MESSAGE_REACTION_REMOVE"
-    | "MESSAGE_REACTION_REMOVE_ALL"
-    | "MESSAGE_REACTION_REMOVE_EMOJI"
-    | "PRESENCE_UPDATE"
-    | "TYPING_START"
-    | "USER_UPDATE"
-    | "USER_DELETE"
-    | "USER_CONNECTIONS_UPDATE"
-    | "USER_NOTE_UPDATE"
-    | "WEBHOOKS_UPDATE"
-    | "INTERACTION_CREATE"
-    | "INTERACTION_SUCCESS"
-    | "INTERACTION_FAILURE"
-    | "VOICE_STATE_UPDATE"
-    | "VOICE_SERVER_UPDATE"
-    | "STAGE_INSTANCE_CREATE"
-    | "STAGE_INSTANCE_UPDATE"
-    | "STAGE_INSTANCE_DELETE"
-    | "STREAM_CREATE"
-    | "STREAM_SERVER_UPDATE"
-    | "STREAM_DELETE"
-    | "APPLICATION_COMMAND_CREATE"
-    | "APPLICATION_COMMAND_UPDATE"
-    | "APPLICATION_COMMAND_DELETE"
-    | "MESSAGE_ACK"
-    | "RELATIONSHIP_ADD"
-    | "RELATIONSHIP_REMOVE"
-    | "RELATIONSHIP_UPDATE"
-    | "SESSIONS_REPLACE"
-    | "USER_SETTINGS_PROTO_UPDATE"
-    | "THREAD_CREATE"
-    | "THREAD_UPDATE"
-    | "THREAD_DELETE"
-    | "THREAD_LIST_SYNC"
-    | "THREAD_MEMBER_UPDATE"
-    | "THREAD_MEMBERS_UPDATE"
-    | CUSTOMEVENTS;
+export const CUSTOM_EVENT_NAMES = ["INVALIDATED", "RATELIMIT", "SB_SESSION_REMOVE", "SB_SESSION_CLOSE", "SB_GW_CLOSE", "SB_RELOAD_CONFIG"] as const;
 
-export type CUSTOMEVENTS = "INVALIDATED" | "RATELIMIT" | "SB_SESSION_REMOVE" | "SB_SESSION_CLOSE" | "SB_RELOAD_CONFIG";
+export type CUSTOMEVENTS = (typeof CUSTOM_EVENT_NAMES)[number];
+
+export const EVENT_NAMES = [
+    "READY",
+    "CHANNEL_CREATE",
+    "CHANNEL_UPDATE",
+    "CHANNEL_DELETE",
+    "CHANNEL_PINS_UPDATE",
+    "CHANNEL_RECIPIENT_ADD",
+    "CHANNEL_RECIPIENT_REMOVE",
+    "GUILD_CREATE",
+    "GUILD_UPDATE",
+    "GUILD_DELETE",
+    "GUILD_BAN_ADD",
+    "GUILD_BAN_REMOVE",
+    "GUILD_EMOJI_UPDATE",
+    "GUILD_EMOJIS_UPDATE",
+    "GUILD_STICKERS_UPDATE",
+    "GUILD_INTEGRATIONS_UPDATE",
+    "GUILD_MEMBER_ADD",
+    "GUILD_MEMBER_REMOVE",
+    "GUILD_MEMBER_UPDATE",
+    "GUILD_MEMBER_SPEAKING",
+    "GUILD_MEMBERS_CHUNK",
+    "GUILD_MEMBER_LIST_UPDATE",
+    "GUILD_ROLE_CREATE",
+    "GUILD_ROLE_DELETE",
+    "GUILD_ROLE_UPDATE",
+    "INVITE_CREATE",
+    "INVITE_DELETE",
+    "MESSAGE_CREATE",
+    "MESSAGE_UPDATE",
+    "MESSAGE_DELETE",
+    "MESSAGE_DELETE_BULK",
+    "MESSAGE_REACTION_ADD",
+    "MESSAGE_REACTION_ADD_MANY",
+    "MESSAGE_REACTION_REMOVE",
+    "MESSAGE_REACTION_REMOVE_ALL",
+    "MESSAGE_REACTION_REMOVE_EMOJI",
+    "PRESENCE_UPDATE",
+    "TYPING_START",
+    "USER_UPDATE",
+    "USER_DELETE",
+    "USER_CONNECTIONS_UPDATE",
+    "USER_NOTE_UPDATE",
+    "WEBHOOKS_UPDATE",
+    "INTERACTION_CREATE",
+    "INTERACTION_SUCCESS",
+    "INTERACTION_FAILURE",
+    "VOICE_STATE_UPDATE",
+    "VOICE_SERVER_UPDATE",
+    "STAGE_INSTANCE_CREATE",
+    "STAGE_INSTANCE_UPDATE",
+    "STAGE_INSTANCE_DELETE",
+    "STREAM_CREATE",
+    "STREAM_SERVER_UPDATE",
+    "STREAM_DELETE",
+    "APPLICATION_COMMAND_CREATE",
+    "APPLICATION_COMMAND_UPDATE",
+    "APPLICATION_COMMAND_DELETE",
+    "MESSAGE_ACK",
+    "RELATIONSHIP_ADD",
+    "RELATIONSHIP_REMOVE",
+    "RELATIONSHIP_UPDATE",
+    "SESSIONS_REPLACE",
+    "USER_SETTINGS_PROTO_UPDATE",
+    "THREAD_CREATE",
+    "THREAD_UPDATE",
+    "THREAD_DELETE",
+    "THREAD_LIST_SYNC",
+    "THREAD_MEMBER_UPDATE",
+    "THREAD_MEMBERS_UPDATE",
+    ...CUSTOM_EVENT_NAMES,
+] as const;
+
+const EVENT_NAME_SET = new Set<string>(EVENT_NAMES);
+
+export type EVENT = (typeof EVENT_NAMES)[number];
+
+export function isEventName(value: unknown): value is EVENT {
+    return typeof value === "string" && EVENT_NAME_SET.has(value);
+}

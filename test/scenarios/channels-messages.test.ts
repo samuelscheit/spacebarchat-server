@@ -5,7 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Invite, Message, ReadState, User } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
@@ -130,6 +130,7 @@ test(
                     name: "scenario-text",
                     type: ChannelType.GUILD_TEXT,
                     topic: "initial topic",
+                    icon_emoji: { id: null, name: "💬" },
                 },
                 token,
             );
@@ -139,16 +140,33 @@ test(
             assert.equal(createChannelBody.guild_id, guildId);
             assert.equal(createChannelBody.name, "scenario-text");
             assert.equal(createChannelBody.type, ChannelType.GUILD_TEXT);
+            assertIconEmoji(createChannelBody.icon_emoji, { id: null, name: "💬" });
             const channelCreateEvent = await guildEvents.waitFor(
                 (event) => event.event === "CHANNEL_CREATE" && event.guild_id === guildId && event.data.id === channelId,
                 eventTimeoutMs,
             );
             assert.equal(channelCreateEvent.data.name, "scenario-text");
-            assert.equal((await Channel.findOneByOrFail({ id: channelId })).name, "scenario-text");
+            assertIconEmoji(channelCreateEvent.data.icon_emoji, { id: null, name: "💬" });
+            const persistedCreatedChannel = await Channel.findOneByOrFail({ id: channelId });
+            assert.equal(persistedCreatedChannel.name, "scenario-text");
+            assertIconEmoji(persistedCreatedChannel.icon_emoji, { id: null, name: "💬" });
             channelEvents = await captureEvents(channelId);
 
             const channelsAfterCreate = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, token);
             assert.deepEqual(channelsAfterCreate.map((channel) => channel.id).sort(), [defaultChannelId, channelId].sort());
+
+            const beforeRejectedThread = markCapturedEvents(guildEvents);
+            const rejectedThread = await postJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, { name: "scenario-thread", type: ChannelType.GUILD_PUBLIC_THREAD }, token);
+            await assertStatus(rejectedThread, 400);
+            assert.equal(await Channel.findOneBy({ guild_id: guildId, name: "scenario-thread", type: ChannelType.GUILD_PUBLIC_THREAD }), null);
+            await assert.rejects(
+                waitForEventAfter(
+                    guildEvents,
+                    beforeRejectedThread,
+                    (event) => event.event === "CHANNEL_CREATE" && event.guild_id === guildId && event.data.name === "scenario-thread",
+                ),
+                /Timed out waiting for event/,
+            );
 
             const reorderChannels = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/channels`, [{ id: channelId, position: 0 }], token);
             await assertStatus(reorderChannels, 204);
@@ -171,6 +189,7 @@ test(
                 {
                     name: "scenario-renamed",
                     topic: "updated topic",
+                    icon_emoji: { id: "123456789012345678", name: null },
                 },
                 token,
             );
@@ -178,14 +197,44 @@ test(
             const updateChannelBody = await assertJsonObject(updateChannel);
             assert.equal(updateChannelBody.name, "scenario-renamed");
             assert.equal(updateChannelBody.topic, "updated topic");
+            assertIconEmoji(updateChannelBody.icon_emoji, { id: "123456789012345678", name: null });
             const channelUpdateEvent = await channelEvents.waitFor(
                 (event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId && event.data.name === "scenario-renamed",
                 eventTimeoutMs,
             );
             assert.equal(channelUpdateEvent.data.topic, "updated topic");
+            assertIconEmoji(channelUpdateEvent.data.icon_emoji, { id: "123456789012345678", name: null });
             const persistedChannel = await Channel.findOneByOrFail({ id: channelId });
             assert.equal(persistedChannel.name, "scenario-renamed");
             assert.equal(persistedChannel.topic, "updated topic");
+            assertIconEmoji(persistedChannel.icon_emoji, { id: "123456789012345678", name: null });
+            assert.equal(persistedChannel.applied_tags, null);
+
+            const invalidAppliedTags = await patchJson(`${api.apiBaseUrl}/channels/${channelId}`, { applied_tags: ["tag-for-threads-only"] }, token);
+            const invalidAppliedTagsBody = await assertJsonError(invalidAppliedTags, 400);
+            const invalidAppliedTagsErrors = invalidAppliedTagsBody.errors as {
+                applied_tags?: { _errors?: Array<{ code: string; message: string }> };
+            };
+            assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.code, "BASE_TYPE_BAD_VALUE");
+            assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.message, "Applied tags can only be set on threads");
+            assert.equal((await Channel.findOneByOrFail({ id: channelId })).applied_tags, null);
+
+            const getChannelAfterIconEmojiUpdate = await getJson(`${api.apiBaseUrl}/channels/${channelId}`, token);
+            await assertStatus(getChannelAfterIconEmojiUpdate, 200);
+            assertIconEmoji((await assertJsonObject(getChannelAfterIconEmojiUpdate)).icon_emoji, { id: "123456789012345678", name: null });
+
+            const beforeClearIconEmoji = markCapturedEvents(channelEvents);
+            const clearIconEmoji = await patchJson(`${api.apiBaseUrl}/channels/${channelId}`, { icon_emoji: null }, token);
+            await assertStatus(clearIconEmoji, 200);
+            const clearIconEmojiBody = await assertJsonObject(clearIconEmoji);
+            assert.equal(clearIconEmojiBody.icon_emoji, null);
+            const clearIconEmojiEvent = await waitForEventAfter(
+                channelEvents,
+                beforeClearIconEmoji,
+                (event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId && event.data.id === channelId && event.data.icon_emoji === null,
+            );
+            assert.equal(clearIconEmojiEvent.data.icon_emoji, null);
+            assert.equal((await Channel.findOneByOrFail({ id: channelId })).icon_emoji, null);
 
             const createInvite = await postJson(`${api.apiBaseUrl}/channels/${channelId}/invites`, { max_age: 3600, max_uses: 1, temporary: false, unique: true }, token);
             assert.ok(createInvite.status === 200 || createInvite.status === 201);
@@ -394,6 +443,14 @@ async function deleteJsonWithBody(url: string, body: unknown, token: string) {
         },
         body: JSON.stringify(body),
     });
+}
+
+function assertIconEmoji(value: unknown, expected: { id: string | null; name: string | null }) {
+    assert.ok(value && typeof value === "object");
+    const iconEmoji = value as Record<string, unknown>;
+    assert.deepEqual(Object.keys(iconEmoji).sort(), ["id", "name"]);
+    assert.equal(iconEmoji.id, expected.id);
+    assert.equal(iconEmoji.name, expected.name);
 }
 
 function markCapturedEvents(capture: EventCapture) {

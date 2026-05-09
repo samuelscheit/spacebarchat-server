@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Role, User } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Rights, Role, User } from "@spacebar/util";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -121,6 +121,7 @@ test(
                 {
                     name: updatedName,
                     description: updatedDescription,
+                    profile_tag: "sb",
                 },
                 token,
             );
@@ -129,13 +130,37 @@ test(
             assert.equal(updateBody.id, guildId);
             assert.equal(updateBody.name, updatedName);
             assert.equal(updateBody.description, updatedDescription);
+            assert.equal(updateBody.profile_tag, "SB");
             const updateEvent = await guildEvents.waitFor((event) => event.event === "GUILD_UPDATE" && event.guild_id === guildId);
             assert.equal(updateEvent.data.id, guildId);
             assert.equal(updateEvent.data.name, updatedName);
             assert.equal(updateEvent.data.description, updatedDescription);
+            assert.equal(updateEvent.data.profile_tag, "SB");
             const persistedUpdatedGuild = await Guild.findOneByOrFail({ id: guildId });
             assert.equal(persistedUpdatedGuild.name, updatedName);
             assert.equal(persistedUpdatedGuild.description, updatedDescription);
+            assert.equal(persistedUpdatedGuild.profile_tag, "SB");
+
+            const profile = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/profile`, token);
+            await assertStatus(profile, 200);
+            const profileBody = await assertJsonObject(profile);
+            assert.equal(profileBody.id, guildId);
+            assert.equal(profileBody.tag, "SB");
+
+            const instanceManager = await User.register({
+                username: `guildmanager${suffix.slice(-8)}`,
+                email: `guild-manager-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            await User.update({ id: instanceManager.id }, { rights: Rights.FLAGS.MANAGE_GUILDS.toString() });
+            const instanceManagerToken = await generateToken(instanceManager.id);
+            assert.ok(instanceManagerToken, "instance manager token generation should return a bearer token");
+
+            const managerUpdateGuild = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}`, { features: ["DISCOVERABLE"] }, instanceManagerToken);
+            await assertStatus(managerUpdateGuild, 200);
+            const managerUpdateBody = await assertJsonObject(managerUpdateGuild);
+            assert.deepEqual(managerUpdateBody.features, ["DISCOVERABLE"]);
+            assert.deepEqual((await Guild.findOneByOrFail({ id: guildId })).features, ["DISCOVERABLE"]);
 
             const deleteGuild = await postJson(`${api.apiBaseUrl}/guilds/${guildId}/delete`, {}, token);
             await assertStatus(deleteGuild, 204);

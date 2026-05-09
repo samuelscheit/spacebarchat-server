@@ -21,6 +21,7 @@ import {
     EVENTEnum,
     EventOpts,
     getPermission,
+    Intents,
     listenEvent,
     ListenEventOpts,
     Member,
@@ -31,14 +32,15 @@ import {
     Recipient,
     Relationship,
     Role,
+    UserUpdateEvent,
+    profilePronouns,
 } from "@spacebar/util";
-import { CLOSECODES, OPCODES, Send, sendReconnectAndClose } from "../util";
+import { Capabilities, GatewayShard, isGuildOnShard, OPCODES, Send } from "../util";
 import { WebSocket } from "@spacebar/gateway";
 import { Channel as AMQChannel } from "amqplib";
-import { PublicChannel, PublicMember, RelationshipType } from "@spacebar/schemas";
+import { PublicChannel, PublicMember, PublicUser, PublicUserProjection, RelationshipType } from "@spacebar/schemas";
 import { bgRedBright } from "picocolors";
 import {
-    getEventRouteId,
     hasGuildMemberEventId,
     isEventRouteSubscribed,
     trackGuildEventId,
@@ -49,6 +51,12 @@ import {
     unsubscribeGuildMemberEventIds,
 } from "./subscriptions";
 import { getEventPermissionLookupId } from "../util/EventPermissions";
+import { handlePreDispatchGatewayEvent } from "./sessionControl";
+
+export const listenerDependencies = {
+    getPermission,
+    listenEvent,
+};
 
 type GuildCreatePermissionData = {
     id: string;
@@ -66,6 +74,112 @@ type GuildCreatePermissionData = {
     >;
 };
 
+export function canDispatchGuildMemberEvent(
+    event: "GUILD_MEMBER_ADD" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_UPDATE",
+    currentUserId: string | undefined,
+    intents: Intents,
+    eventUserId: string | undefined,
+) {
+    if (!eventUserId) return false;
+    if (event === "GUILD_MEMBER_UPDATE" && eventUserId === currentUserId) return true;
+
+    return intents.has(Intents.FLAGS.GUILD_MEMBERS);
+}
+
+type IntentEventMap = Record<number, readonly string[]>;
+
+const INTERNAL_LISTENER_EVENTS = new Set<string>(["SB_SESSION_CLOSE", "SB_SESSION_REMOVE"]);
+const EXTENSION_EVENT_INTENTS = new Map<string, bigint>([["USER_DELETE", Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES]]);
+
+function getIntentEventAllowance(intents: Intents, event: string, map: IntentEventMap) {
+    for (const [intentBit, events] of Object.entries(map)) {
+        if (events.includes(event)) return intents.has(BigInt(1) << BigInt(intentBit));
+    }
+
+    return undefined;
+}
+
+const GUILD_CHANNEL_ROUTE_INTENT_BITS = new Set<number>([
+    0, // GUILDS: channel/thread/stage lifecycle events can be emitted on channel routes.
+    5, // GUILD_WEBHOOKS
+    7, // GUILD_VOICE_STATES: voice and stream state updates are emitted on channel routes.
+    9, // GUILD_MESSAGES
+    10, // GUILD_MESSAGE_REACTIONS
+    11, // GUILD_MESSAGE_TYPING
+    16, // GUILD_SCHEDULED_EVENTS
+    24, // GUILD_MESSAGE_POLLS
+]);
+
+function hasAnyIntent(intents: Intents, map: IntentEventMap) {
+    return Object.keys(map).some((intentBit) => intents.has(BigInt(1) << BigInt(intentBit)));
+}
+
+function hasAnyIntentBit(intents: Intents, intentBits: Iterable<number>) {
+    for (const intentBit of intentBits) {
+        if (intents.has(BigInt(1) << BigInt(intentBit))) return true;
+    }
+
+    return false;
+}
+
+export function shouldSubscribeGuildEvents(intents: Intents) {
+    return hasAnyIntent(intents, Intents.GUILD_INTENT_TO_EVENTS_MAP) || hasAnyIntent(intents, Intents.INTENT_TO_EVENTS_MAP);
+}
+
+export function shouldSubscribeGuildChannelEvents(intents: Intents) {
+    return hasAnyIntentBit(intents, GUILD_CHANNEL_ROUTE_INTENT_BITS);
+}
+
+export function shouldSubscribeDirectMessageEvents(intents: Intents) {
+    return hasAnyIntent(intents, Intents.DM_INTENT_TO_EVENTS_MAP);
+}
+
+export function shouldSubscribePresenceEvents(intents: Intents) {
+    return intents.has(Intents.FLAGS.GUILD_PRESENCES);
+}
+
+function isGuildIntentEvent(opts: Pick<EventOpts, "channel_id" | "data" | "guild_id">, guildEventIds: Record<string, Set<string>>) {
+    const channelId = opts.channel_id ?? opts.data?.channel_id;
+    const isTrackedGuildRoute = !!channelId && Object.values(guildEventIds).some((eventIds) => eventIds.has(channelId));
+
+    return !!(opts.guild_id || opts.data?.guild_id || isTrackedGuildRoute);
+}
+
+export function shouldSubscribeChannelRouteEvents(intents: Intents, opts: Pick<EventOpts, "channel_id" | "data" | "guild_id">, guildEventIds: Record<string, Set<string>> = {}) {
+    if (isGuildIntentEvent(opts, guildEventIds)) return shouldSubscribeGuildChannelEvents(intents);
+
+    return shouldSubscribeDirectMessageEvents(intents);
+}
+
+export function canDispatchIntentEvent(
+    intents: Intents,
+    opts: Pick<EventOpts, "channel_id" | "data" | "event" | "guild_id">,
+    guildEventIds: Record<string, Set<string>> = {},
+    currentUserId?: string,
+) {
+    const event = opts.event as string;
+    if (INTERNAL_LISTENER_EVENTS.has(event)) return true;
+    if (isCurrentUserGuildMemberUpdate(event, currentUserId, opts.data as { user?: { id?: string } } | undefined)) return true;
+
+    const extensionIntent = EXTENSION_EVENT_INTENTS.get(event);
+    if (extensionIntent !== undefined) return intents.has(extensionIntent);
+
+    const globalAllowance = getIntentEventAllowance(intents, event, Intents.INTENT_TO_EVENTS_MAP);
+    if (globalAllowance !== undefined) return globalAllowance;
+
+    const guildAllowance = getIntentEventAllowance(intents, event, Intents.GUILD_INTENT_TO_EVENTS_MAP);
+    const directMessageAllowance = getIntentEventAllowance(intents, event, Intents.DM_INTENT_TO_EVENTS_MAP);
+    const isGuildEvent = isGuildIntentEvent(opts, guildEventIds);
+
+    if (isGuildEvent && guildAllowance !== undefined) return guildAllowance;
+    if (!isGuildEvent && directMessageAllowance !== undefined) return directMessageAllowance;
+    if (guildAllowance !== undefined) return guildAllowance;
+
+    // Keep custom and not-yet-mapped events as passthrough so adding intent support
+    // does not silently drop Spacebar extensions or newly introduced events.
+    return true;
+}
+
 export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<string, Set<string>>, guildId: string | undefined, presenceUserId: string | undefined) {
     if (!guildId) return true;
     if (!presenceUserId) return false;
@@ -73,9 +187,72 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
     return hasGuildMemberEventId(guildMemberEventIds, guildId, presenceUserId);
 }
 
-// TODO: close connection on Invalidated Token
-// TODO: check intent
-// TODO: Guild Member Update is sent for current-user updates regardless of whether the GUILD_MEMBERS intent is set.
+export function canDispatchGuildUserUpdate(memberEventGuildIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
+    if (!updatedUserId) return false;
+
+    return !!memberEventGuildIds[updatedUserId]?.size;
+}
+
+export function canDispatchUserUpdate(events: Record<string, unknown>, memberEventGuildIds: Record<string, Set<string>>, updatedUserId: string | undefined) {
+    if (!updatedUserId) return false;
+
+    return Boolean(events[updatedUserId]) || canDispatchGuildUserUpdate(memberEventGuildIds, updatedUserId);
+}
+
+export function toPublicUserUpdateData(data: UserUpdateEvent["data"]) {
+    if (typeof data.toPublicUser === "function") return data.toPublicUser();
+
+    const source = data as unknown as Record<string, unknown>;
+    const user = Object.fromEntries(PublicUserProjection.map((field) => [field, source[field]])) as PublicUser;
+    user.pronouns = profilePronouns(source.pronouns as string | null | undefined);
+
+    return user;
+}
+
+const GUILD_ID_DATA_ID_EVENTS = new Set(["GUILD_CREATE", "GUILD_UPDATE", "GUILD_DELETE"]);
+
+function getIntentBitForEvent(eventMap: IntentEventMap, event: string): bigint | undefined {
+    for (const [intentBit, events] of Object.entries(eventMap)) {
+        if (events.includes(event)) return BigInt(1) << BigInt(intentBit);
+    }
+
+    return undefined;
+}
+
+export function getRequiredIntentForEvent(event: string, guildId: string | undefined): bigint | undefined {
+    const extensionIntent = EXTENSION_EVENT_INTENTS.get(event);
+    if (extensionIntent !== undefined) return extensionIntent;
+
+    const commonIntent = getIntentBitForEvent(Intents.INTENT_TO_EVENTS_MAP, event);
+    if (commonIntent !== undefined) return commonIntent;
+
+    const eventMap: IntentEventMap = guildId ? Intents.GUILD_INTENT_TO_EVENTS_MAP : Intents.DM_INTENT_TO_EVENTS_MAP;
+    return getIntentBitForEvent(eventMap, event);
+}
+
+export function getIntentGuildIdForEvent(opts: Pick<EventOpts, "event" | "guild_id" | "data">): string | undefined {
+    const data = opts.data as { guild_id?: string; id?: string } | undefined;
+    const guildId = opts.guild_id ?? data?.guild_id;
+    if (guildId) return guildId;
+
+    return GUILD_ID_DATA_ID_EVENTS.has(opts.event) ? data?.id : undefined;
+}
+
+function isCurrentUserGuildMemberUpdate(event: string, userId: string | undefined, data: { user?: { id?: string } } | undefined) {
+    return event === "GUILD_MEMBER_UPDATE" && !!userId && data?.user?.id === userId;
+}
+
+export function canDispatchEventForIntents(intents: Intents | undefined, event: string, guildId: string | undefined, userId?: string, data?: { user?: { id?: string } }) {
+    const requiredIntent = getRequiredIntentForEvent(event, guildId);
+    if (requiredIntent === undefined) return true;
+    if (requiredIntent === Intents.FLAGS.GUILD_MEMBERS && isCurrentUserGuildMemberUpdate(event, userId, data)) return true;
+
+    return intents?.has(requiredIntent) ?? false;
+}
+
+export function canDispatchDebouncedMessageReactions(capabilities?: Capabilities) {
+    return Boolean(capabilities?.has(Capabilities.FLAGS.DEBOUNCE_MESSAGE_REACTIONS));
+}
 
 // Sharding: calculate if the current shard id matches the formula: shard_id = (guild_id >> 22) % num_shards
 // https://discord.com/developers/docs/topics/gateway#sharding
@@ -83,13 +260,24 @@ export function canDispatchGuildPresenceUpdate(guildMemberEventIds: Record<strin
 export function handlePresenceUpdate(this: WebSocket, opts: EventOpts) {
     const { event, acknowledge, data } = opts;
     acknowledge?.();
+    if (!canDispatchIntentEvent(this.intents, opts, this.guild_event_ids)) return;
     if (!isEventRouteSubscribed(this.events, opts) && !isEventRouteSubscribed(this.member_events, opts)) return;
 
     if (event === EVENTEnum.PresenceUpdate) {
+        if (!canDispatchEventForIntents(this.intents, event, getIntentGuildIdForEvent(opts), this.user_id, data)) return;
         return Send(this, {
             op: OPCODES.Dispatch,
             t: event,
             d: data,
+            s: this.sequence++,
+        });
+    }
+
+    if (event === EVENTEnum.UserUpdate && canDispatchUserUpdate(this.events, this.member_event_guild_ids, data.id)) {
+        return Send(this, {
+            op: OPCODES.Dispatch,
+            t: event,
+            d: toPublicUserUpdateData(data),
             s: this.sequence++,
         });
     }
@@ -101,7 +289,7 @@ async function subscribeEvent(this: WebSocket, eventId: string, callback: (event
         return;
     }
 
-    const unsubscribe = await listenEvent(eventId, callback, opts);
+    const unsubscribe = await listenerDependencies.listenEvent(eventId, callback, opts);
 
     if (guildId && !this.permissions[guildId]) {
         await unsubscribe();
@@ -118,7 +306,35 @@ async function subscribeEvent(this: WebSocket, eventId: string, callback: (event
     if (guildId) trackGuildEventId(this.guild_event_ids, guildId, eventId);
 }
 
+export async function subscribeDirectUserEvent(this: WebSocket, userId: string, opts: ListenEventOpts) {
+    if (this.events[userId]) return;
+
+    const memberUnsubscribe = this.member_events[userId];
+    if (memberUnsubscribe) {
+        delete this.member_events[userId];
+        this.events[userId] = memberUnsubscribe;
+        return;
+    }
+
+    await subscribeEvent.call(this, userId, handlePresenceUpdate.bind(this), opts);
+}
+
+export async function unsubscribeDirectUserEvent(this: WebSocket, userId: string) {
+    const unsubscribe = this.events[userId];
+    if (!unsubscribe) return;
+
+    delete this.events[userId];
+
+    if (this.member_event_guild_ids[userId]?.size && !this.member_events[userId]) {
+        this.member_events[userId] = unsubscribe;
+        return;
+    }
+
+    await unsubscribe();
+}
+
 export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string, userId: string) {
+    if (!shouldSubscribePresenceEvents(this.intents)) return false;
     if (hasGuildMemberEventId(this.guild_member_event_ids, guildId, userId)) return false;
 
     if (this.member_events[userId]) {
@@ -126,10 +342,11 @@ export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string
         return false;
     }
 
+    trackGuildMemberEventId(this.guild_member_event_ids, this.member_event_guild_ids, guildId, userId);
+
     if (this.events[userId]) return false; // already subscribed as friend
 
-    trackGuildMemberEventId(this.guild_member_event_ids, this.member_event_guild_ids, guildId, userId);
-    const unsubscribe = await listenEvent(userId, handlePresenceUpdate.bind(this), this.listen_options);
+    const unsubscribe = await listenerDependencies.listenEvent(userId, handlePresenceUpdate.bind(this), this.listen_options);
 
     if (!hasGuildMemberEventId(this.guild_member_event_ids, guildId, userId)) {
         await unsubscribe();
@@ -145,7 +362,35 @@ export async function subscribeGuildMemberEvent(this: WebSocket, guildId: string
     return true;
 }
 
-function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionData) {
+function getSocketShard(socket: WebSocket): GatewayShard | undefined {
+    if (socket.shard_id == null || socket.shard_count == null) return undefined;
+
+    return { id: socket.shard_id, count: socket.shard_count };
+}
+
+export async function handleGuildMemberSubscriptionEvent(socket: WebSocket, event: string, guildId: string | undefined, userId: string | undefined) {
+    if (!guildId || !userId) return;
+
+    switch (event) {
+        case "GUILD_MEMBER_ADD":
+            await subscribeGuildMemberEvent.call(socket, guildId, userId);
+            break;
+        case "GUILD_MEMBER_REMOVE":
+            await unsubscribeGuildMemberEventIds(socket.member_events, socket.guild_member_event_ids, socket.member_event_guild_ids, guildId, [userId]);
+            break;
+        case "GUILD_MEMBER_UPDATE":
+            // Member updates refresh cached member data, including profile-only
+            // user changes. They do not mean the member left the visible lazy
+            // list, so keep the member subscription alive for future presence
+            // updates. Lazy requests still reconcile stale subscriptions when
+            // the client asks for a new list/range.
+            break;
+        default:
+            break;
+    }
+}
+
+export function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionData) {
     const member = guild.members?.find((member) => member.user?.id === userId || member.id === userId);
     const roleIds = member?.roles?.length ? member.roles : [guild.id];
     const roles = (guild.roles ?? []).filter((role) => roleIds.includes(role.id)) as Role[];
@@ -155,13 +400,13 @@ function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionDa
         user: {
             id: userId,
             roles: roleIds,
+            resolved_roles: roles,
             communication_disabled_until: member?.communication_disabled_until ? new Date(member.communication_disabled_until) : null,
             flags: userFlags,
         },
         guild: {
             id: guild.id,
             owner_id: guild.owner_id ?? "",
-            roles,
         },
     });
 
@@ -170,8 +415,55 @@ function getGuildCreatePermission(userId: string, guild: GuildCreatePermissionDa
     return permission;
 }
 
-// TODO: use already queried guilds/channels of Identify and don't fetch them again
-export async function setupListener(this: WebSocket) {
+export type ListenerSetupGuild = {
+    id: string;
+    owner_id?: string;
+    roles?: Array<Pick<Role, "id" | "permissions">>;
+    channels?: Array<Pick<PublicChannel, "id" | "permission_overwrites">>;
+};
+
+export type ListenerSetupData = {
+    guilds: ListenerSetupGuild[];
+    dm_channels: Array<Pick<PublicChannel, "id">>;
+    relationships: Array<Pick<Relationship, "to_id">>;
+    permissions?: Record<string, Permissions>;
+};
+
+export async function getListenerSetupData(userId: string, preloaded?: ListenerSetupData): Promise<ListenerSetupData> {
+    if (preloaded) return preloaded;
+
+    const [members, recipients, relationships] = await Promise.all([
+        Member.find({
+            where: { id: userId },
+            relations: { guild: { channels: true } },
+        }),
+        Recipient.find({
+            where: { user_id: userId, closed: false },
+            relations: { channel: true },
+        }),
+        Relationship.find({
+            where: {
+                from_id: userId,
+                type: RelationshipType.friends,
+            },
+        }),
+    ]);
+
+    return {
+        guilds: members.map((x) => x.guild),
+        dm_channels: recipients.map((x) => x.channel),
+        relationships,
+    };
+}
+
+export function getListenerGuildPermission(userId: string, guild: ListenerSetupGuild, preloaded?: Record<string, Permissions>) {
+    const permission = preloaded?.[guild.id];
+    if (permission) return permission;
+
+    return listenerDependencies.getPermission(userId, guild.id);
+}
+
+export async function setupListener(this: WebSocket, preloaded?: ListenerSetupData) {
     const opts: {
         acknowledge: boolean;
         channel?: AMQChannel & { queues?: unknown; ch?: number };
@@ -179,33 +471,17 @@ export async function setupListener(this: WebSocket) {
         acknowledge: true,
     };
     this.listen_options = opts;
-    const consumer = consume.bind(this);
+    const consumer = consumeListenerEvent.bind(this);
 
     const handleChannelError = (err: unknown) => {
         console.error(`[RabbitMQ] [user-${this.user_id}] Channel Error (Handled):`, err);
     };
 
     // Function to set up all event listeners (used for initial setup and reconnection)
-    const setupEventListeners = async () => {
-        const [members, recipients, relationships] = await Promise.all([
-            Member.find({
-                where: { id: this.user_id },
-                relations: { guild: { channels: true } },
-            }),
-            Recipient.find({
-                where: { user_id: this.user_id, closed: false },
-                relations: { channel: true },
-            }),
-            Relationship.find({
-                where: {
-                    from_id: this.user_id,
-                    type: RelationshipType.friends,
-                },
-            }),
-        ]);
-
-        const guilds = members.map((x) => x.guild);
-        const dm_channels = recipients.map((x) => x.channel);
+    const setupEventListeners = async (setupData?: ListenerSetupData) => {
+        const { guilds, dm_channels, relationships, permissions } = await getListenerSetupData(this.user_id, setupData);
+        const gatewayShard = getSocketShard(this);
+        const shardGuilds = guilds.filter((guild) => isGuildOnShard(guild.id, gatewayShard));
 
         if (RabbitMQ.connection) {
             console.log(`[RabbitMQ] [user-${this.user_id}] Setting up channel and event listeners`);
@@ -219,37 +495,50 @@ export async function setupListener(this: WebSocket) {
         await subscribeEvent.call(this, this.user_id, consumer, opts);
         await subscribeEvent.call(this, this.session_id, consumer, opts);
 
-        await Promise.all(
-            relationships.map(async (relationship) => {
-                await subscribeEvent.call(this, relationship.to_id, handlePresenceUpdate.bind(this), opts);
-            }),
-        );
+        if (shouldSubscribePresenceEvents(this.intents)) {
+            await Promise.all(
+                relationships.map(async (relationship) => {
+                    await subscribeDirectUserEvent.call(this, relationship.to_id, opts);
+                }),
+            );
+        }
+
+        if (shouldSubscribeDirectMessageEvents(this.intents)) {
+            await Promise.all(
+                dm_channels.map(async (channel) => {
+                    await subscribeEvent.call(this, channel.id, consumer, opts);
+                }),
+            );
+        }
+
+        const shouldSubscribeGuildRoutes = shouldSubscribeGuildEvents(this.intents);
+        const shouldSubscribeGuildChannelRoutes = shouldSubscribeGuildChannelEvents(this.intents);
+        if (!shouldSubscribeGuildRoutes && !shouldSubscribeGuildChannelRoutes) return;
 
         await Promise.all(
-            dm_channels.map(async (channel) => {
-                await subscribeEvent.call(this, channel.id, consumer, opts);
-            }),
-        );
-
-        await Promise.all(
-            guilds.map(async (guild) => {
-                const permission = await getPermission(this.user_id, guild.id);
+            shardGuilds.map(async (guild) => {
+                const permission = await getListenerGuildPermission(this.user_id, guild, permissions);
                 this.permissions[guild.id] = permission;
-                await subscribeEvent.call(this, guild.id, consumer, opts, guild.id);
 
-                await Promise.all(
-                    guild.channels.map(async (channel) => {
-                        if (permission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) {
-                            await subscribeEvent.call(this, channel.id, consumer, opts, guild.id);
-                        }
-                    }),
-                );
+                const subscriptions: Promise<unknown>[] = [];
+                if (shouldSubscribeGuildRoutes) subscriptions.push(subscribeEvent.call(this, guild.id, consumer, opts, guild.id));
+                if (shouldSubscribeGuildChannelRoutes) {
+                    subscriptions.push(
+                        ...(guild.channels ?? []).map(async (channel) => {
+                            if (permission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) {
+                                await subscribeEvent.call(this, channel.id, consumer, opts, guild.id);
+                            }
+                        }),
+                    );
+                }
+
+                await Promise.all(subscriptions);
             }),
         );
     };
 
     // Initial setup
-    await setupEventListeners();
+    await setupEventListeners(preloaded);
 
     // Handle RabbitMQ reconnection - re-establish all subscriptions
     const handleReconnect = async () => {
@@ -320,63 +609,34 @@ export async function setupListener(this: WebSocket) {
     });
 }
 
-// TODO: only subscribe for events that are in the connection intents
-async function consume(this: WebSocket, opts: EventOpts) {
-    const { data, event } = opts;
+export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
+    const { event } = opts;
+    if (await handlePreDispatchGatewayEvent(this, opts)) return;
+
+    const { data } = opts;
+    if (!data || typeof data !== "object") return;
     const id = data.id as string;
     const guildId = data.guild_id as string | undefined;
     const permissionLookupId = getEventPermissionLookupId(event, data);
     const permission =
         (permissionLookupId && this.permissions[permissionLookupId]) || (guildId && this.permissions[guildId]) || this.permissions[id] || new Permissions("ADMINISTRATOR"); // default permission for dm
 
-    const consumer = consume.bind(this);
+    const consumer = consumeListenerEvent.bind(this);
     const listenOpts = opts as ListenEventOpts;
-    opts.acknowledge?.();
-    const eventRouteId = getEventRouteId(opts);
-    if (eventRouteId && !this.events[eventRouteId]) return;
+
+    const eventGuildId = guildId ?? (event.startsWith("GUILD_") ? id : undefined);
+    if (eventGuildId && !isGuildOnShard(eventGuildId, getSocketShard(this))) return;
     // console.log("event", event);
-
-    // deduplicate gateway messages
-    if (opts.transaction_id) {
-        if (this.recentTransactions.includes(opts.transaction_id)) return;
-        this.recentTransactions.push(opts.transaction_id);
-        if (this.recentTransactions.length > 100) this.recentTransactions = this.recentTransactions.slice(1);
-    }
-
-    // special codes
-    switch (event) {
-        case "SB_SESSION_CLOSE":
-            await sendReconnectAndClose(this, opts.reconnect_delay ?? opts.data ?? 1000);
-            return;
-        case "SB_SESSION_REMOVE":
-            // TODO: what do we even send here?
-            await Send(this, {
-                op: OPCODES.Invalid_Session,
-                s: this.sequence++,
-            });
-            this.close(CLOSECODES.Invalid_session); // TODO: this is deprecated?
-            return;
-        default:
-            // no special treatment
-            break;
-    }
 
     // subscription managment
     switch (event) {
         case "GUILD_MEMBER_REMOVE":
-            if (!guildId) break;
-            await unsubscribeGuildMemberEventIds(this.member_events, this.guild_member_event_ids, this.member_event_guild_ids, guildId, [data.user.id]);
-            break;
         case "GUILD_MEMBER_ADD":
-            if (!guildId) break;
-            await subscribeGuildMemberEvent.call(this, guildId, data.user.id);
-            break;
         case "GUILD_MEMBER_UPDATE":
-            if (!guildId) break;
-            await unsubscribeGuildMemberEventIds(this.member_events, this.guild_member_event_ids, this.member_event_guild_ids, guildId, [data.user.id]);
+            await handleGuildMemberSubscriptionEvent(this, event, guildId, data.user?.id);
             break;
         case "RELATIONSHIP_REMOVE":
-            await unsubscribeEventIds(this.events, [id]);
+            await unsubscribeDirectUserEvent.call(this, id);
             break;
         case "CHANNEL_DELETE":
             untrackGuildEventId(this.guild_event_ids, guildId, id);
@@ -402,28 +662,32 @@ async function consume(this: WebSocket, opts: EventOpts) {
         }
         case "CHANNEL_CREATE":
             if (!permission.overwriteChannel(data.permission_overwrites).has("VIEW_CHANNEL")) return;
-            await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
+            if (shouldSubscribeChannelRouteEvents(this.intents, opts, this.guild_event_ids)) await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
             break;
         case "RELATIONSHIP_ADD":
-            await subscribeEvent.call(this, data.user.id, handlePresenceUpdate.bind(this), this.listen_options);
+            if (shouldSubscribePresenceEvents(this.intents)) await subscribeDirectUserEvent.call(this, data.user.id, this.listen_options);
             break;
         case "GUILD_CREATE": {
             const guildPermission = getGuildCreatePermission(this.user_id, data as GuildCreatePermissionData);
             this.permissions[id] = guildPermission;
-            await Promise.all([
-                ...((data.channels ?? []) as PublicChannel[]).map(async (channel) => {
-                    if (!guildPermission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) return;
-                    await subscribeEvent.call(this, channel.id, consumer, listenOpts, id);
-                }),
-                subscribeEvent.call(this, id, consumer, listenOpts, id),
-            ]);
+            const subscriptions: Promise<unknown>[] = [];
+            if (shouldSubscribeGuildEvents(this.intents)) subscriptions.push(subscribeEvent.call(this, id, consumer, listenOpts, id));
+            if (shouldSubscribeGuildChannelEvents(this.intents)) {
+                subscriptions.push(
+                    ...((data.channels ?? []) as PublicChannel[]).map(async (channel) => {
+                        if (!guildPermission.overwriteChannel(channel.permission_overwrites ?? []).has("VIEW_CHANNEL")) return;
+                        await subscribeEvent.call(this, channel.id, consumer, listenOpts, id);
+                    }),
+                );
+            }
+            await Promise.all(subscriptions);
             break;
         }
         case "CHANNEL_UPDATE": {
             const exists = this.events[id];
             if (permission.overwriteChannel(data.permission_overwrites).has("VIEW_CHANNEL")) {
                 if (exists) break;
-                await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
+                if (shouldSubscribeChannelRouteEvents(this.intents, opts, this.guild_event_ids)) await subscribeEvent.call(this, id, consumer, listenOpts, guildId);
             } else {
                 if (!exists) return; // return -> do not send channel update events for hidden channels
                 untrackGuildEventId(this.guild_event_ids, guildId, id);
@@ -435,6 +699,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
             // no special treatment
             break;
     }
+
+    if (!canDispatchIntentEvent(this.intents, opts, this.guild_event_ids, this.user_id)) return;
 
     // permission checking
     switch (event) {
@@ -448,7 +714,8 @@ async function consume(this: WebSocket, opts: EventOpts) {
             break;
         case "GUILD_MEMBER_ADD":
         case "GUILD_MEMBER_REMOVE":
-        case "GUILD_MEMBER_UPDATE": // only send them, if the user subscribed for this part of the member list, or is a bot
+        case "GUILD_MEMBER_UPDATE": // current-user updates are always visible; other member events require GUILD_MEMBERS.
+            if (!canDispatchGuildMemberEvent(event, this.user_id, this.intents, data.user?.id)) return;
             break;
         case "PRESENCE_UPDATE": // direct user routes cover friends/DMs; guild routes require an authorized lazy member-list subscription.
             if (!canDispatchGuildPresenceUpdate(this.guild_member_event_ids, guildId, data.user?.id)) return;
@@ -456,6 +723,10 @@ async function consume(this: WebSocket, opts: EventOpts) {
         case "GUILD_BAN_ADD":
         case "GUILD_BAN_REMOVE":
             if (!permission.has("BAN_MEMBERS")) return;
+            break;
+        case "MESSAGE_REACTION_ADD_MANY":
+            if (!canDispatchDebouncedMessageReactions(this.capabilities)) return;
+            if (!permission.has("VIEW_CHANNEL")) return;
             break;
         case "VOICE_STATE_UPDATE":
         case "MESSAGE_CREATE":

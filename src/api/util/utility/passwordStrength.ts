@@ -20,7 +20,61 @@ import { Config } from "@spacebar/util";
 
 const reNUMBER = /[0-9]/g;
 const reUPPERCASELETTER = /[A-Z]/g;
-const reSYMBOLS = /[A-Za-z0-9]/g;
+const reNON_SYMBOL = /[A-Za-z0-9]/g;
+
+type PasswordPolicy = {
+    minLength: number;
+    minNumbers: number;
+    minUpperCase: number;
+    minSymbols: number;
+};
+
+export type PasswordPolicyFailure = {
+    code: "PASSWORD_REQUIREMENTS_MIN_LENGTH" | "PASSWORD_REQUIREMENTS_MIN_NUMBERS" | "PASSWORD_REQUIREMENTS_MIN_UPPERCASE" | "PASSWORD_REQUIREMENTS_MIN_SYMBOLS";
+    message: string;
+    values: Record<string, number>;
+};
+
+function countMatches(password: string, expression: RegExp) {
+    return password.match(expression)?.length ?? 0;
+}
+
+export function validatePasswordPolicy(password: string, policy: PasswordPolicy = Config.get().register.password): PasswordPolicyFailure | undefined {
+    if (password.length < policy.minLength) {
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
+            message: `The password must be at least ${policy.minLength} characters long.`,
+            values: { min: policy.minLength },
+        };
+    }
+
+    const numbers = countMatches(password, reNUMBER);
+    if (numbers < policy.minNumbers) {
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_NUMBERS",
+            message: `The password must contain at least ${policy.minNumbers} numbers.`,
+            values: { min: policy.minNumbers },
+        };
+    }
+
+    const uppercase = countMatches(password, reUPPERCASELETTER);
+    if (uppercase < policy.minUpperCase) {
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_UPPERCASE",
+            message: `The password must contain at least ${policy.minUpperCase} uppercase letters.`,
+            values: { min: policy.minUpperCase },
+        };
+    }
+
+    const symbols = password.replace(reNON_SYMBOL, "").length;
+    if (symbols < policy.minSymbols) {
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_SYMBOLS",
+            message: `The password must contain at least ${policy.minSymbols} symbols.`,
+            values: { min: policy.minSymbols },
+        };
+    }
+}
 
 // const blocklist: string[] = []; // TODO: update ones passwordblocklist is stored in db
 /*
@@ -35,31 +89,33 @@ const reSYMBOLS = /[A-Za-z0-9]/g;
  * Returns: 0 > pw > 1
  */
 export function checkPassword(password: string): number {
-    const { minLength, minNumbers, minUpperCase, minSymbols } = Config.get().register.password;
+    if (password.length <= 1) return 0;
+
+    const policy = Config.get().register.password;
     let strength = 0;
 
     // checks for total password len
-    if (password.length >= minLength - 1) {
+    if (password.length >= policy.minLength) {
         strength += 0.05;
     }
 
     // checks for amount of Numbers
-    if ((password.match(reNUMBER)?.length ?? 0) >= minNumbers - 1) {
+    if (countMatches(password, reNUMBER) >= policy.minNumbers) {
         strength += 0.05;
     }
 
     // checks for amount of Uppercase Letters
-    if ((password.match(reUPPERCASELETTER)?.length ?? 0) >= minUpperCase - 1) {
+    if (countMatches(password, reUPPERCASELETTER) >= policy.minUpperCase) {
         strength += 0.05;
     }
 
     // checks for amount of symbols
-    if (password.replace(reSYMBOLS, "").length >= minSymbols - 1) {
+    if (password.replace(reNON_SYMBOL, "").length >= policy.minSymbols) {
         strength += 0.05;
     }
 
     // checks if password only consists of numbers or only consists of chars
-    if (password.length == password.match(reNUMBER)?.length || password.length === password.match(reUPPERCASELETTER)?.length) {
+    if (password.length === countMatches(password, reNUMBER) || password.length === countMatches(password, reUPPERCASELETTER)) {
         strength = 0;
     }
 
@@ -71,7 +127,10 @@ export function checkPassword(password: string): number {
 
     const entropies = Object.values(entropyMap);
 
-    entropies.map((x) => x / entropyMap.length);
-    strength += entropies.reduceRight((a: number, x: number) => a - x * Math.log2(x)) / Math.log2(password.length);
+    const entropy = entropies.reduce((sum: number, count: number) => {
+        const probability = count / password.length;
+        return sum - probability * Math.log2(probability);
+    }, 0);
+    strength += entropy / Math.log2(password.length);
     return strength;
 }

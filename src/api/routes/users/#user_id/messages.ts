@@ -17,9 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { Config, Message, User } from "@spacebar/util";
+import { createMessageBodyRouteHandlers, createMessageResolvedChannelRouteHandlers } from "../../../util/handlers/ChannelMessageCreateRoute";
+import { Channel, Config, Message, User } from "@spacebar/util";
+import { ChannelType, DmMessagesResponseSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
-import { DmMessagesResponseSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
 router.get(
@@ -37,10 +38,12 @@ router.get(
     async (req: Request, res: Response) => {
         const user = await User.findOneOrFail({ where: { id: req.params.user_id as string } });
         const channel = await user.getDmChannelWith(req.user_id);
+        if (!channel) return res.status(200).send([] satisfies DmMessagesResponseSchema);
 
         const messages = (
             await Message.find({
-                where: { channel_id: channel?.id },
+                where: { channel_id: channel.id },
+                relations: { author: true },
                 order: { timestamp: "DESC" },
                 take: Math.min(Math.max(req.query.limit ? Number(req.query.limit) : 50, 1), Config.get().limits.message.maxPreloadCount),
             })
@@ -52,6 +55,21 @@ router.get(
     },
 );
 
-// TODO: POST to send a message to the user
+router.post(
+    "/",
+    ...createMessageBodyRouteHandlers,
+    async (req: Request, _res: Response, next) => {
+        try {
+            const targetUser = await User.findOneOrFail({ where: { id: req.params.user_id as string } });
+            const dmChannel = await Channel.createDMChannel([targetUser.id], req.user_id);
+            if (dmChannel.type !== ChannelType.DM) throw new Error(`Expected one-to-one DM channel for user ${targetUser.id}`);
+            req.params.channel_id = dmChannel.id;
+            next();
+        } catch (error) {
+            next(error);
+        }
+    },
+    ...createMessageResolvedChannelRouteHandlers,
+);
 
 export default router;

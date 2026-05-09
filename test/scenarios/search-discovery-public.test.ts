@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Categories, closeDatabase, Config, generateToken, initDatabase, User } from "@spacebar/util";
+import { closeDatabase, Config, DEFAULT_DISCOVERY_CATEGORIES, generateToken, GuildFeature, initDatabase, User } from "@spacebar/util";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { makeGuild } from "../fixtures/entities";
@@ -253,13 +253,15 @@ async function coverDiscoveryRoutes(api: StartedApi, token: string) {
     const categories = await getJsonArray(`${api.apiBaseUrl}/discovery/categories`, token);
     assert.deepEqual(
         categories.map((category) => category.id),
-        [1, 2],
+        DEFAULT_DISCOVERY_CATEGORIES.map((category) => category.id),
     );
+    assert.equal(categories.find((category) => category.id === 1)?.name, "Gaming");
+    assert.deepEqual(categories.find((category) => category.id === 1)?.localizations, { de: "Gaming", fr: "Gaming", ru: "Игры" });
 
     const primaryCategories = await getJsonArray(`${api.apiBaseUrl}/discovery/categories?primary_only=true`, token);
     assert.deepEqual(
         primaryCategories.map((category) => category.id),
-        [1],
+        DEFAULT_DISCOVERY_CATEGORIES.filter((category) => category.is_primary).map((category) => category.id),
     );
 
     await assertJsonError(await getJson(`${api.apiBaseUrl}/discoverable-guilds?categories=1&limit=5`), 401);
@@ -276,6 +278,12 @@ async function coverDiscoveryRoutes(api: StartedApi, token: string) {
     assert.equal("discovery_splash" in guilds[0], false);
 
     await assertJsonError(await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`), 401);
+    assert.equal(Config.get().guild.discovery.useRecommendation, false);
+    const disabledRecommendations = await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`, token);
+    const disabledRecommendationsBody = await assertJsonError(disabledRecommendations, 404);
+    assert.match(disabledRecommendationsBody.message as string, /Guild recommendations are disabled/);
+
+    Config.get().guild.discovery.useRecommendation = true;
     const recommendations = await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`, token);
     await assertStatus(recommendations, 200);
     const recommendationsBody = await assertJsonObject(recommendations);
@@ -314,14 +322,11 @@ async function coverGifRoutes(api: StartedApi, token: string, tenorRequests: str
 }
 
 async function seedDiscoveryData(owner: User) {
-    await Categories.create({ id: 1, name: "Gaming", is_primary: true, icon: "controller", localizations: {} }).save();
-    await Categories.create({ id: 2, name: "Music", is_primary: false, icon: "music", localizations: {} }).save();
-
     await makeGuild(owner, {
         id: "100000000000002001",
         name: "Discoverable Scenario",
-        features: ["DISCOVERABLE"],
-        primary_category_id: "1",
+        features: [GuildFeature.Discoverable],
+        primary_category_id: 1,
         member_count: 42,
         discovery_weight: 100,
         discovery_splash: "should-not-serialize",
@@ -331,8 +336,8 @@ async function seedDiscoveryData(owner: User) {
     await makeGuild(owner, {
         id: "100000000000002002",
         name: "Excluded Scenario",
-        features: ["DISCOVERABLE"],
-        primary_category_id: "1",
+        features: [GuildFeature.Discoverable],
+        primary_category_id: 1,
         member_count: 99,
         discovery_weight: 200,
         discovery_excluded: true,
@@ -342,7 +347,7 @@ async function seedDiscoveryData(owner: User) {
         id: "100000000000002003",
         name: "Private Scenario",
         features: [],
-        primary_category_id: "1",
+        primary_category_id: 1,
         member_count: 7,
         discovery_weight: 300,
         discovery_excluded: false,

@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Application, ApplicationCommand, closeDatabase, Config, generateToken, initDatabase, Member, Message, pendingInteractions, User } from "@spacebar/util";
+import { Application, ApplicationCommand, closeDatabase, Config, DiscordApiErrors, generateToken, initDatabase, Member, Message, pendingInteractions, User } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -285,7 +285,13 @@ test(
 
             const guildBulk = await putJson(
                 `${api.apiBaseUrl}/applications/${applicationId}/guilds/${guildId}/commands`,
-                [commandBody("scenario-guild-updated", "Updated guild command"), commandBody("scenario-guild-bulk", "Bulk guild command")],
+                [
+                    commandBody("scenario-guild-updated", "Updated guild command"),
+                    commandBody("scenario-guild-bulk", "Bulk guild command", {
+                        name: { "pt-BR": "scenario-guild-bulk-pt" },
+                        description: { "pt-BR": "Comando guild em portugues" },
+                    }),
+                ],
                 ownerToken,
             );
             await assertStatus(guildBulk, 200);
@@ -309,6 +315,19 @@ test(
                 "scenario-guild-bulk",
                 "scenario-guild-updated",
             ]);
+
+            const localizedCommandIndex = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/application-command-index`, ownerToken, { "x-discord-locale": "pt-BR" });
+            await assertStatus(localizedCommandIndex, 200);
+            const localizedCommandIndexBody = await assertJsonObject(localizedCommandIndex);
+            const localizedIndexedCommands = localizedCommandIndexBody.application_commands as Array<Record<string, unknown>>;
+            const localizedGuildCommand = localizedIndexedCommands.find((command) => command.name === "scenario-guild-bulk");
+            assert.ok(localizedGuildCommand);
+            assert.equal(localizedGuildCommand.name_localized, "scenario-guild-bulk-pt");
+            assert.equal(localizedGuildCommand.description_localized, "Comando guild em portugues");
+            const unlocalizedGuildCommand = localizedIndexedCommands.find((command) => command.name === "scenario-guild-updated");
+            assert.ok(unlocalizedGuildCommand);
+            assert.equal("name_localized" in unlocalizedGuildCommand, false);
+            assert.equal("description_localized" in unlocalizedGuildCommand, false);
 
             eventCapture = await captureEvents([owner.id, applicationId, channelId]);
             const interaction = await postJson(
@@ -341,10 +360,26 @@ test(
                 "application INTERACTION_CREATE",
             );
             assert.equal(applicationInteractionEvent.data.application_id, applicationId);
+            assert.equal(applicationInteractionEvent.data.id, userInteractionEvent.data.id);
+            assert.notEqual(applicationInteractionEvent.data.id, guildCommand.id);
+            assert.equal(applicationInteractionEvent.data.data.id, guildCommand.id);
+            assert.equal(Object.hasOwn(applicationInteractionEvent.data, "member_id"), false);
+            assert.equal(applicationInteractionEvent.data.member.id, owner.id);
+            assert.equal(applicationInteractionEvent.data.member.guild_id, guildId);
+            assert.equal(applicationInteractionEvent.data.member.user.id, owner.id);
             const interactionId = applicationInteractionEvent.data.id as string;
             const interactionToken = applicationInteractionEvent.data.token as string;
             assert.ok(interactionToken);
-            assert.equal(userInteractionEvent.data.id, interactionId);
+
+            const mismatchedCallback = await postPublicJson(`${api.apiBaseUrl}/interactions/${interactionId}/wrong-token/callback`, {
+                type: 4,
+                data: {
+                    content: "wrong token response",
+                },
+            });
+            await assertStatus(mismatchedCallback, 400);
+            assert.equal((await assertJsonObject(mismatchedCallback)).code, DiscordApiErrors.UNKNOWN_INTERACTION.code);
+            assert.ok(pendingInteractions.has(interactionId), "mismatched callback token must not consume the pending interaction");
 
             const callback = await postPublicJson(`${api.apiBaseUrl}/interactions/${interactionId}/${interactionToken}/callback`, {
                 type: 4,
@@ -370,7 +405,79 @@ test(
                 "interaction MESSAGE_CREATE",
             );
             assert.equal(interactionMessageEvent.data.content, "interaction callback response");
-            assert.ok(await Message.findOneBy({ id: interactionMessageEvent.data.id as string, application_id: applicationId }));
+            const interactionMessageId = interactionMessageEvent.data.id as string;
+            assert.ok(await Message.findOneBy({ id: interactionMessageId, application_id: applicationId }));
+
+            const componentInteractionNonce = `component-interaction-${suffix}`;
+            const componentInteraction = await postJson(
+                `${api.apiBaseUrl}/interactions`,
+                {
+                    type: 3,
+                    application_id: applicationId,
+                    guild_id: guildId,
+                    channel_id: channelId,
+                    message_id: interactionMessageId,
+                    nonce: componentInteractionNonce,
+                    data: {
+                        id: 1,
+                        custom_id: "scenario-update-message",
+                        component_type: 2,
+                        resolved: {},
+                    },
+                },
+                ownerToken,
+            );
+            await assertStatus(componentInteraction, 204);
+            const componentUserInteractionEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) => event.event === "INTERACTION_CREATE" && event.user_id === owner.id && event.data.nonce === componentInteractionNonce,
+                "component user INTERACTION_CREATE",
+            );
+            const componentApplicationInteractionEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) =>
+                    event.event === "INTERACTION_CREATE" &&
+                    event.user_id === applicationId &&
+                    event.data.id === componentUserInteractionEvent.data.id &&
+                    event.data.type === 3 &&
+                    event.data.message?.id === interactionMessageId,
+                "component application INTERACTION_CREATE",
+            );
+            const componentInteractionId = componentApplicationInteractionEvent.data.id as string;
+            const componentInteractionToken = componentApplicationInteractionEvent.data.token as string;
+            assert.ok(componentInteractionToken);
+
+            const updatedInteractionContent = "interaction callback updated message";
+            const updateCallback = await postPublicJson(`${api.apiBaseUrl}/interactions/${componentInteractionId}/${componentInteractionToken}/callback`, {
+                type: 7,
+                data: {
+                    content: updatedInteractionContent,
+                },
+            });
+            await assertStatus(updateCallback, 204);
+            assert.ok(
+                await waitForLabeledEvent(
+                    eventCapture,
+                    (event) =>
+                        event.event === "INTERACTION_SUCCESS" &&
+                        event.user_id === owner.id &&
+                        event.data.id === componentInteractionId &&
+                        event.data.nonce === componentInteractionNonce,
+                    "component INTERACTION_SUCCESS",
+                ),
+            );
+            const updateMessageEvent = await waitForLabeledEvent(
+                eventCapture,
+                (event) =>
+                    event.event === "MESSAGE_UPDATE" &&
+                    event.channel_id === channelId &&
+                    event.data.id === interactionMessageId &&
+                    event.data.content === updatedInteractionContent,
+                "interaction MESSAGE_UPDATE",
+            );
+            assert.equal(updateMessageEvent.data.content, updatedInteractionContent);
+            assert.equal((await Message.findOneByOrFail({ id: interactionMessageId })).content, updatedInteractionContent);
+            assert.equal(pendingInteractions.has(componentInteractionId), false);
 
             const globalBulkCommand = await ApplicationCommand.findOneByOrFail({ application_id: applicationId, guild_id: undefined, name: "scenario-global-bulk" });
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/applications/${applicationId}/commands/${globalBulkCommand.id}`, ownerToken), 204);
@@ -395,18 +502,28 @@ test(
     },
 );
 
-function commandBody(name: string, description: string) {
+function commandBody(
+    name: string,
+    description: string,
+    localizations?: {
+        name?: Record<string, string>;
+        description?: Record<string, string>;
+    },
+) {
     return {
         name,
+        name_localizations: localizations?.name,
         description,
+        description_localizations: localizations?.description,
         type: 1,
     };
 }
 
-async function getJson(url: string, token: string) {
+async function getJson(url: string, token: string, headers?: Record<string, string>) {
     return await fetch(url, {
         headers: {
             authorization: `Bearer ${token}`,
+            ...headers,
         },
     });
 }

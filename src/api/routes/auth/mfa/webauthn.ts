@@ -24,7 +24,7 @@ import {
     route,
     webAuthnLoginMfaSecurityKeyLookup,
 } from "@spacebar/api";
-import { isWebAuthnTicketPayload, SecurityKey, User, verifyWebAuthnToken, WebAuthn } from "@spacebar/util";
+import { isWebAuthnTicketPayload, requireWebAuthnFido2, SecurityKey, User, verifyWebAuthnToken } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { WebAuthnTotpSchema } from "@spacebar/schemas";
@@ -41,10 +41,7 @@ router.post(
         spacebarOnly: false, // not part of public openapi
     }),
     async (req: Request, res: Response) => {
-        if (!WebAuthn.fido2) {
-            // TODO: I did this for typescript and I can't use !
-            throw new Error("WebAuthn not enabled");
-        }
+        const fido2 = requireWebAuthnFido2();
 
         const { code, ticket } = req.body as WebAuthnTotpSchema;
 
@@ -78,7 +75,7 @@ router.post(
             where: securityKeyLookup,
         });
 
-        const authnResult = await WebAuthn.fido2.assertionResult(parsedCredential.credential, buildWebAuthnAssertionExpectations(verified, securityKey));
+        const authnResult = await fido2.assertionResult(parsedCredential.credential, buildWebAuthnAssertionExpectations(verified, securityKey));
 
         const counter = authnResult.authnrData.get("counter");
 
