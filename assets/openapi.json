@@ -5504,7 +5504,8 @@
                             },
                             "additionalProperties": false,
                             "required": [
-                                "id"
+                                "id",
+                                "nick"
                             ]
                         }
                     },
@@ -9832,7 +9833,10 @@
                         "additionalProperties": false
                     },
                     "intents": {
-                        "type": "number"
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
                     },
                     "presence": {
                         "$ref": "#/components/schemas/ActivitySchema"
@@ -9851,7 +9855,7 @@
                         "maxItems": 2,
                         "type": "array",
                         "items": {
-                            "type": "number"
+                            "$ref": "#/components/schemas/IdentifyBitfield"
                         }
                     },
                     "guild_subscriptions": {
@@ -10305,14 +10309,24 @@
                     "$ref": {
                         "type": "string"
                     },
-                    "type": {
-                        "type": "string"
-                    },
                     "items": {
                         "$ref": "#/components/schemas/JsonSchema"
                     },
                     "properties": {
                         "$ref": "#/components/schemas/Record%3Cstring%2CJsonSchema%3E"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
                     }
                 }
             },
@@ -22457,6 +22471,12 @@
                     1,
                     2,
                     3
+                ]
+            },
+            "IdentifyBitfield": {
+                "type": [
+                    "string",
+                    "integer"
                 ]
             }
         }

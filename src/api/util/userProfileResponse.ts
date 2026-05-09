@@ -22,6 +22,7 @@ import { profilePronouns } from "@spacebar/util";
 type ProfileBadgeResponse = UserProfileResponse["badges"][number];
 type UserProfileResponseProfile = UserProfileResponse["user_profile"];
 type GuildMemberProfileResponse = NonNullable<UserProfileResponse["guild_member_profile"]>;
+type MutualGuildResponse = NonNullable<UserProfileResponse["mutual_guilds"]>[number];
 
 export interface UserProfileSource {
     bio: string | null;
@@ -55,6 +56,11 @@ export interface ProfileBadgeSource {
     description: string;
     icon: string;
     link?: string | null;
+}
+
+export interface MutualGuildSource {
+    guild_id: string;
+    nick?: string | null;
 }
 
 export function toUserProfileResponse(source: UserProfileSource, options: UserProfileResponseOptions = {}): UserProfileResponseProfile {
@@ -105,4 +111,11 @@ export function toProfileBadgeResponse(source: ProfileBadgeSource): ProfileBadge
     }
 
     return response;
+}
+
+export function toMutualGuildResponse(source: MutualGuildSource): MutualGuildResponse {
+    return {
+        id: source.guild_id,
+        nick: source.nick ?? null,
+    };
 }

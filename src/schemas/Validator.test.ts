@@ -7,6 +7,7 @@ import { ajv, validateSchema } from "./Validator";
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
 type JsonShape = {
+    $ref?: string;
     type?: string | string[];
     items?: JsonShape;
     properties?: Record<string, JsonShape & { format?: string }>;
@@ -140,8 +141,20 @@ describe("schema validator custom formats", () => {
 });
 
 describe("generated JSON schemas", () => {
-    test("normalizes TypeScript bigint fields to JSON number schemas", () => {
-        assert.equal(Schemas.IdentifySchema.properties?.intents?.type, "number");
-        assert.equal(Schemas.IdentifySchema.properties?.shard?.items?.type, "number");
+    function schemaTypes(schema: JsonShape | undefined): string[] {
+        assert.ok(schema);
+
+        if (schema.$ref) {
+            const match = /^#\/definitions\/(.+)$/.exec(schema.$ref);
+            assert.ok(match, `unexpected schema ref ${schema.$ref}`);
+            return schemaTypes(Schemas[match[1]]);
+        }
+
+        return (Array.isArray(schema.type) ? schema.type : [schema.type]).filter((type): type is string => typeof type === "string").sort();
+    }
+
+    test("keeps gateway identify bitfields JSON-safe", () => {
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.intents), ["integer", "string"]);
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.shard?.items), ["integer", "string"]);
     });
 });

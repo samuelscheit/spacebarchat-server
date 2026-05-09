@@ -30,7 +30,13 @@ import {
     UserProfileModifySchema,
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
-import { toGuildMemberProfileResponse, toPartialConnectedAccountResponse, toProfileBadgeResponse, toUserProfileResponse } from "../../../util/userProfileResponse";
+import {
+    toGuildMemberProfileResponse,
+    toMutualGuildResponse,
+    toPartialConnectedAccountResponse,
+    toProfileBadgeResponse,
+    toUserProfileResponse,
+} from "../../../util/userProfileResponse";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -92,10 +98,7 @@ router.get(
                 }
                 for (const smem of self_member) {
                     if (smem.guild_id === rmem.guild_id) {
-                        mutual_guilds.push({
-                            id: rmem.guild_id,
-                            nick: rmem.nick,
-                        });
+                        mutual_guilds.push(toMutualGuildResponse(rmem));
                     }
                 }
             }
@@ -132,7 +135,7 @@ router.get(
             connected_accounts: publicUserConnections,
             premium_guild_since: premium_guild_since, // TODO
             premium_since: user.premium_since,
-            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
+            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined,
             mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,
             mutual_friends_count: with_mutual_friends_count == "true" ? mutual_friends_count : undefined,
             user: user.toPublicUser(),

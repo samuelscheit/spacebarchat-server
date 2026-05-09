@@ -18,7 +18,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { toGuildMemberProfileResponse, toPartialConnectedAccountResponse, toProfileBadgeResponse, toUserProfileResponse } from "./userProfileResponse";
+import { toGuildMemberProfileResponse, toMutualGuildResponse, toPartialConnectedAccountResponse, toProfileBadgeResponse, toUserProfileResponse } from "./userProfileResponse";
 
 test("toUserProfileResponse serializes route profile fields", () => {
     assert.deepEqual(
@@ -175,6 +175,41 @@ test("toProfileBadgeResponse omits nullable database links", () => {
             description: "Partner",
             icon: "partner",
             link: "https://example.com/partner",
+        },
+    );
+});
+
+test("toMutualGuildResponse normalizes absent nicknames to null", () => {
+    assert.deepEqual(
+        toMutualGuildResponse({
+            guild_id: "guild-1",
+            nick: undefined,
+        }),
+        {
+            id: "guild-1",
+            nick: null,
+        },
+    );
+
+    assert.deepEqual(
+        toMutualGuildResponse({
+            guild_id: "guild-2",
+            nick: null,
+        }),
+        {
+            id: "guild-2",
+            nick: null,
+        },
+    );
+
+    assert.deepEqual(
+        toMutualGuildResponse({
+            guild_id: "guild-3",
+            nick: "Alice",
+        }),
+        {
+            id: "guild-3",
+            nick: "Alice",
         },
     );
 });

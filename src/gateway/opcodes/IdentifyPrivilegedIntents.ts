@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Intents } from "@spacebar/util";
+import { Intents, type BitFieldResolvable } from "@spacebar/util";
 import type { PrivilegedIntentsConfiguration } from "../../util/config/types/GatewayConfiguration";
 
 export const DEFAULT_IDENTIFY_INTENTS = Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS;
@@ -51,7 +51,7 @@ export function getConfiguredPrivilegedIntents(configValue: PrivilegedIntentsCon
     return new Intents(configValue);
 }
 
-export function getRequestedIdentifyIntents(requestedIntents: number | bigint | string | null | undefined): Intents {
+export function getRequestedIdentifyIntents(requestedIntents: BitFieldResolvable | null | undefined): Intents {
     return new Intents(Intents.resolveGatewayIdentifyIntents(requestedIntents));
 }
 
