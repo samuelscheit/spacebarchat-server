@@ -59,11 +59,13 @@ export class VoiceState extends BaseClass {
     })
     user: User;
 
-    // @JoinColumn([{ name: "user_id", referencedColumnName: "id" },{ name: "guild_id", referencedColumnName: "guild_id" }])
-    // @ManyToOne(() => Member, {
-    // 	onDelete: "CASCADE",
-    // })
-    //TODO find a way to make it work without breaking Guild.voice_states
+    @JoinColumn([
+        { name: "user_id", referencedColumnName: "id" },
+        { name: "guild_id", referencedColumnName: "guild_id" },
+    ])
+    @ManyToOne(() => Member, {
+        createForeignKeyConstraints: false,
+    })
     member: Member;
 
     @Column()

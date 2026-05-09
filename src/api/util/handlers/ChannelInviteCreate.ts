@@ -3,6 +3,8 @@ import { Channel, Guild, Invite, InviteCreateEvent, User, emitEvent, normalizeIn
 import { HTTPError } from "lambert-server";
 import { InviteCreateSchema, isTextChannel } from "@spacebar/schemas";
 
+type InviteCreateEventData = InviteCreateEvent["data"];
+
 export async function createChannelInvite(user_id: string, channel_id: string, body: InviteCreateSchema) {
     const channel = await Channel.findOneOrFail({
         where: { id: channel_id },
@@ -24,7 +26,7 @@ export async function createChannelInvite(user_id: string, channel_id: string, b
 
     const existingInvite = await Invite.findReusableForCreate(inviteContext, inviteOptions);
     if (existingInvite) {
-        const data = existingInvite.toJSON();
+        const data = existingInvite.toJSON() as InviteCreateEventData;
         data.inviter = await User.getPublicUser(user_id);
         data.guild = await Guild.findOne({ where: { id: guild_id } });
         data.channel = channel;
@@ -34,7 +36,7 @@ export async function createChannelInvite(user_id: string, channel_id: string, b
 
     const invite = await Invite.createForChannel(randomString(), inviteContext, inviteOptions).save();
 
-    const data = invite.toJSON();
+    const data = invite.toJSON() as InviteCreateEventData;
     data.inviter = await User.getPublicUser(user_id);
     data.guild = await Guild.findOne({ where: { id: guild_id } });
     data.channel = channel;

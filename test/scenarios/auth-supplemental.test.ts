@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -88,13 +88,31 @@ test(
             process.env.DATABASE = database.url;
             process.env.APPLY_DB_MIGRATIONS = "true";
             process.env.LOG_ROUTES = "false";
-            delete process.env.CONFIG_PATH;
+            process.env.CONFIG_PATH = path.join(tempCwd, "config.json");
             delete process.env.DB_SYNC;
+            await writeFile(
+                process.env.CONFIG_PATH,
+                JSON.stringify({
+                    general: { serverName: "localhost", autoCreateBotUsers: false },
+                    api: { endpointPublic: "http://localhost:3001/api/v9" },
+                    cdn: { endpointPublic: "http://localhost:3003", endpointPrivate: "http://127.0.0.1:3003" },
+                    gateway: { endpointPublic: "ws://localhost:3002" },
+                    guild: {
+                        autoJoin: {
+                            enabled: false,
+                            guilds: [],
+                            canLeave: true,
+                            bots: false,
+                        },
+                    },
+                    register: { allowMultipleAccounts: false },
+                }),
+            );
+            await Config.init(true);
 
             await initDatabase();
             WebAuthn.init();
             api = await startApi();
-            Config.get().register.allowMultipleAccounts = false;
 
             const suffix = `${process.pid}${Date.now()}`;
             const email = `auth-supplemental-${suffix}@example.com`;
