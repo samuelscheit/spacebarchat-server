@@ -747,23 +747,25 @@ test(
     },
 );
 
-async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents?: number) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
     assert.equal(hello.op, 10);
 
+    const identify = {
+        token,
+        ...(intents === undefined ? {} : { intents }),
+        properties: {
+            os: "test",
+            browser: "spacebar-test",
+            device: "spacebar-test",
+        },
+    };
+
     client.send(
         JSON.stringify({
             op: 2,
-            d: {
-                token,
-                intents: 0,
-                properties: {
-                    os: "test",
-                    browser: "spacebar-test",
-                    device: "spacebar-test",
-                },
-            },
+            d: identify,
         }),
     );
 
