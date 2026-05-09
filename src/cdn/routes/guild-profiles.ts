@@ -17,22 +17,17 @@
 */
 
 import { assertCdnFileSizeLimit, Config } from "@spacebar/util";
-import crypto from "node:crypto";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { multer } from "../util/multer";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { cache } from "../util/cache";
+import { hashImageBuffer, isAllowedImageMimeType, stripFileExtension } from "../util/ImageRouteHelpers";
+import { assertAnimatedImageUploadAllowed, getGuildProfileImageLimits, getPremiumStatusForAnimatedImageUpload } from "../util/ImageUploadPolicy";
 
-// TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
-// TODO: delete old icons
-
-const ANIMATED_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
-const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
-const ALLOWED_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
 
 const router = Router({ mergeParams: true });
 
@@ -40,7 +35,7 @@ function getProfileUploadPath(req: Request, hash?: string) {
     const { guild_id, user_id } = req.params as { [key: string]: string | undefined };
     if (!guild_id || !user_id) return `guild-profiles${hash ? `/${hash}` : ""}`;
 
-    const cleanUserId = user_id.split(".")[0];
+    const cleanUserId = stripFileExtension(user_id);
     const assetType = req.baseUrl.includes("/banners") ? "banners" : "avatars";
     return `guilds/${guild_id}/users/${cleanUserId}/${assetType}${hash ? `/${hash}` : ""}`;
 }
@@ -51,12 +46,15 @@ router.post("/", multer.single("file"), async (req: Request, res: Response) => {
     const { buffer, size } = req.file;
     assertCdnFileSizeLimit(`/${getProfileUploadPath(req)}`, size, Config.get().cdn);
 
-    let hash = crypto.createHash("md5").update(buffer).digest("hex");
-
     const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-    if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
+    if (!isAllowedImageMimeType(type?.mime)) throw new HTTPError("Invalid file type");
 
+    const imageLimits = getGuildProfileImageLimits(req.baseUrl);
+    const { user_id } = req.params as { [key: string]: string | undefined };
+    const premiumStatus = await getPremiumStatusForAnimatedImageUpload(type.mime, imageLimits, user_id);
+    assertAnimatedImageUploadAllowed(type.mime, imageLimits, premiumStatus);
+
+    const hash = hashImageBuffer(buffer, type.mime);
     const path = getProfileUploadPath(req, hash);
     const endpoint = Config.get().cdn.endpointPublic;
 
@@ -84,7 +82,7 @@ router.get("/", cache, async (req: Request, res: Response) => {
 
 router.get("/:hash", cache, async (req: Request, res: Response) => {
     let { hash } = req.params as { [key: string]: string };
-    hash = hash.split(".")[0]; // remove .file extension
+    hash = stripFileExtension(hash);
     const path = getProfileUploadPath(req, hash);
 
     const file = await storage.get(path);

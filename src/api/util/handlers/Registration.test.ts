@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { assertPasswordMeetsPolicy, isRegistrationInviteUsable, RegistrationInviteConfiguration, registrationRequiresInvite } from "./Registration";
+import { isRegistrationInviteUsable, RegistrationInviteConfiguration, registrationRequiresInvite, validateRegistrationDateOfBirth } from "./Registration";
 
 describe("registrationRequiresInvite", () => {
     test("requires invites when the instance is invite-only", () => {
@@ -41,46 +41,26 @@ describe("registrationRequiresInvite", () => {
     });
 });
 
-describe("assertPasswordMeetsPolicy", () => {
-    const policy = {
-        minLength: 8,
-        minNumbers: 2,
-        minUpperCase: 2,
-        minSymbols: 1,
-        blocklist: ["Password123!"],
-    };
+describe("validateRegistrationDateOfBirth", () => {
+    const now = new Date("2026-05-08T12:00:00.000Z");
 
-    test("throws a password field error for the first unmet configured password policy requirement", () => {
-        assert.throws(
-            () => assertPasswordMeetsPolicy("AA1!aaaa", policy, translate),
-            (error) => {
-                const passwordError = getPasswordError(error);
-                assert.equal(passwordError.code, "PASSWORD_REQUIREMENTS_MIN_NUMBERS");
-                assert.equal(passwordError.message, "auth:register.PASSWORD_REQUIREMENTS_MIN_NUMBERS:2");
-                return true;
-            },
-        );
+    test("requires date_of_birth only when configured as required", () => {
+        assert.equal(validateRegistrationDateOfBirth({ required: true, minimum: 13 }, undefined, now), "required");
+        assert.equal(validateRegistrationDateOfBirth({ required: false, minimum: 13 }, undefined, now), undefined);
     });
 
-    test("throws a password field error for configured blocklisted passwords", () => {
-        assert.throws(
-            () => assertPasswordMeetsPolicy("Password123!", { ...policy, minUpperCase: 1, minSymbols: 0 }, translate),
-            (error) => {
-                assert.equal(getPasswordError(error).code, "PASSWORD_REQUIREMENTS_BLOCKLIST");
-                return true;
-            },
-        );
+    test("validates supplied date_of_birth even when optional", () => {
+        const config = { required: false, minimum: 13 };
+
+        assert.equal(validateRegistrationDateOfBirth(config, "", now), "invalid");
+        assert.equal(validateRegistrationDateOfBirth(config, "2010-02-31", now), "invalid");
+        assert.equal(validateRegistrationDateOfBirth(config, "2000-04-03", now), undefined);
     });
 
-    test("allows passwords that satisfy the configured registration policy", () => {
-        assert.doesNotThrow(() => assertPasswordMeetsPolicy("AA11!aaa", policy, translate));
+    test("enforces configured minimum age for supplied date_of_birth", () => {
+        const config = { required: true, minimum: 13 };
+
+        assert.equal(validateRegistrationDateOfBirth(config, "2013-05-08", now), undefined);
+        assert.equal(validateRegistrationDateOfBirth(config, "2013-05-09", now), "underage");
     });
 });
-
-function translate(key: string, params?: Record<string, number>) {
-    return params?.min === undefined ? key : `${key}:${params.min}`;
-}
-
-function getPasswordError(error: unknown) {
-    return (error as { errors: { password: { _errors: { code: string; message: string }[] } } }).errors.password._errors[0];
-}

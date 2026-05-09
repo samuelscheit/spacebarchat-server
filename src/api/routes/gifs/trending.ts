@@ -40,8 +40,6 @@ router.get(
     }),
     async (req: Request, res: Response) => {
         // TODO: Custom providers
-        // TODO: return gifs as mp4
-        // const { media_format, locale } = req.query;
         const { locale } = req.query;
 
         const apiKey = getGifApiKey();
@@ -51,7 +49,7 @@ router.get(
                 method: "get",
                 headers: { "Content-Type": "application/json" },
             }),
-            fetch(`https://g.tenor.com/v1/trending?locale=${locale}&key=${apiKey}`, {
+            fetch(`https://g.tenor.com/v1/trending?media_filter=basic&locale=${locale}&key=${apiKey}`, {
                 method: "get",
                 headers: { "Content-Type": "application/json" },
             }),

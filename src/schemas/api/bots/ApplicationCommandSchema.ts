@@ -16,7 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ApplicationCommandOption, Snowflake, StringStringDictionary } from "@spacebar/schemas";
+import type { LocalizedApplicationCommandOption } from "../developers/Application";
+import type { StringStringDictionary } from "../../HelperTypes";
+import type { Snowflake } from "../../Identifiers";
 
 export interface ApplicationCommandSchema {
     id?: Snowflake;
@@ -29,7 +31,7 @@ export interface ApplicationCommandSchema {
     description: string;
     description_localizations?: StringStringDictionary;
     description_localized?: string | null;
-    options?: ApplicationCommandOption[];
+    options?: LocalizedApplicationCommandOption[];
     default_member_permissions: string | null;
     /*
      * @deprecated
@@ -46,8 +48,12 @@ export interface ApplicationCommandSchema {
 
 export interface ApplicationCommandIndexPermissions {
     user?: boolean;
-    roles?: Record<Snowflake, boolean>;
-    channels?: Record<Snowflake, boolean>;
+    roles?: ApplicationCommandIndexPermissionMap;
+    channels?: ApplicationCommandIndexPermissionMap;
+}
+
+export interface ApplicationCommandIndexPermissionMap {
+    [target_id: Snowflake]: boolean;
 }
 
 export enum ApplicationCommandType {

@@ -40,7 +40,8 @@ import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
-import { assertPasswordMeetsPolicy, isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
+import { isRegistrationInviteUsable, registrationRequiresInvite, validateRegistrationDateOfBirth } from "../../util/handlers/Registration";
+import { validatePasswordPolicy } from "../../util/utility/passwordStrength";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -245,47 +246,45 @@ router.post(
             });
         }
 
-        if (register.dateOfBirth.required && !body.date_of_birth) {
+        const dateOfBirthError = validateRegistrationDateOfBirth(register.dateOfBirth, body.date_of_birth);
+        if (dateOfBirthError === "required") {
             throw FieldErrors({
                 date_of_birth: {
                     code: "BASE_TYPE_REQUIRED",
                     message: req.t("common:field.BASE_TYPE_REQUIRED"),
                 },
             });
-        } else if (register.dateOfBirth.required && register.dateOfBirth.minimum) {
-            const minimum = new Date();
-            minimum.setFullYear(minimum.getFullYear() - register.dateOfBirth.minimum);
+        } else if (dateOfBirthError === "invalid") {
+            throw FieldErrors({
+                date_of_birth: {
+                    code: "DATE_OF_BIRTH_INVALID",
+                    message: req.t("auth:register.DATE_OF_BIRTH_INVALID"),
+                },
+            });
+        } else if (dateOfBirthError === "underage") {
+            throw FieldErrors({
+                date_of_birth: {
+                    code: "DATE_OF_BIRTH_UNDERAGE",
+                    message: req.t("auth:register.DATE_OF_BIRTH_UNDERAGE", {
+                        years: register.dateOfBirth.minimum,
+                    }),
+                },
+            });
+        }
 
-            let parsedDob;
-            try {
-                parsedDob = new Date(body.date_of_birth as Date);
-                if (isNaN(parsedDob.getTime())) {
-                    throw new Error("Invalid date");
-                }
-            } catch (e) {
+        if (body.password) {
+            const passwordPolicyFailure = validatePasswordPolicy(body.password, register.password);
+            if (passwordPolicyFailure) {
                 throw FieldErrors({
-                    date_of_birth: {
-                        code: "DATE_OF_BIRTH_INVALID",
-                        message: req.t("auth:register.DATE_OF_BIRTH_INVALID"),
-                    },
-                });
-            }
-
-            // higher is younger
-            if (parsedDob > minimum) {
-                throw FieldErrors({
-                    date_of_birth: {
-                        code: "DATE_OF_BIRTH_UNDERAGE",
-                        message: req.t("auth:register.DATE_OF_BIRTH_UNDERAGE", {
-                            years: register.dateOfBirth.minimum,
+                    password: {
+                        code: passwordPolicyFailure.code,
+                        message: req.t(`auth:register.${passwordPolicyFailure.code}`, {
+                            defaultValue: passwordPolicyFailure.message,
+                            ...passwordPolicyFailure.values,
                         }),
                     },
                 });
             }
-        }
-
-        if (body.password) {
-            assertPasswordMeetsPolicy(body.password, register.password, (key, params) => req.t(key, params));
             // the salt is saved in the password refer to bcrypt docs
             body.password = await bcrypt.hash(body.password, 12);
         } else if (register.password.required) {
@@ -382,7 +381,7 @@ export default router;
 
 /**
  * POST /auth/register
- * @argument { "fingerprint":"805826570869932034.wR8vi8lGlFBJerErO9LG5NViJFw", "email":"qo8etzvaf@gmail.com", "username":"qp39gr98", "password":"Register-Password-42", "invite":null, "consent":true, "date_of_birth":"2000-04-04", "gift_code_sku_id":null, "captcha_key":null}
+ * @argument { "fingerprint":"805826570869932034.wR8vi8lGlFBJerErO9LG5NViJFw", "email":"qo8etzvaf@gmail.com", "username":"qp39gr98", "password":"wtp9gep9gw", "invite":null, "consent":true, "date_of_birth":"2000-04-04", "gift_code_sku_id":null, "captcha_key":null}
  *
  * Field Error
  * @returns { "code": 50035, "errors": { "consent": { "_errors": [{ "code": "CONSENT_REQUIRED", "message": "You must agree to Discord's Terms of Service and Privacy Policy." }]}}, "message": "Invalid Form Body"}

@@ -15,7 +15,75 @@ afterEach(() => {
     mock.restoreAll();
 });
 
-describe("password strength", () => {
+describe("validatePasswordPolicy", () => {
+    test("accepts a password that exactly satisfies every configured requirement", () => {
+        assert.equal(validatePasswordPolicy("ABabcd12!", policy), undefined);
+    });
+
+    test("rejects passwords that are one character shorter than the minimum length", () => {
+        assert.equal(validatePasswordPolicy("ABcd12!", policy)?.code, "PASSWORD_REQUIREMENTS_MIN_LENGTH");
+    });
+
+    test("rejects passwords that have one fewer number than required", () => {
+        assert.equal(validatePasswordPolicy("ABabcdef1!", policy)?.code, "PASSWORD_REQUIREMENTS_MIN_NUMBERS");
+    });
+
+    test("rejects passwords that have one fewer uppercase letter than required", () => {
+        assert.equal(validatePasswordPolicy("Abcdef12!", policy)?.code, "PASSWORD_REQUIREMENTS_MIN_UPPERCASE");
+    });
+
+    test("rejects passwords that have one fewer symbol than required", () => {
+        assert.equal(validatePasswordPolicy("ABabcdef12", policy)?.code, "PASSWORD_REQUIREMENTS_MIN_SYMBOLS");
+    });
+
+    test("returns the first upstream-style policy failure instead of an aggregate result", () => {
+        const failure = validatePasswordPolicy("short", policy);
+
+        assert.deepEqual(failure, {
+            code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
+            message: "The password must be at least 8 characters long.",
+            values: { min: 8 },
+        });
+        assert.equal("failures" in (failure as object), false);
+        assert.equal("score" in (failure as object), false);
+    });
+
+    test("allows symbol checks to be disabled", () => {
+        assert.equal(validatePasswordPolicy("ABabcdef12", { ...policy, minSymbols: 0 }), undefined);
+    });
+
+    test("rejects configured blocklisted passwords after content requirements pass", () => {
+        const failure = validatePasswordPolicy("Password123!", {
+            ...policy,
+            minUpperCase: 1,
+            blocklist: [" password123! "],
+        });
+
+        assert.equal(failure?.code, "PASSWORD_REQUIREMENTS_BLOCKLIST");
+        assert.deepEqual(failure?.values, {});
+    });
+
+    test("normalizes exact blocklist matches without rejecting partial matches", () => {
+        assert.equal(isPasswordBlocklisted("Password123!", [" password123! "]), true);
+        assert.equal(isPasswordBlocklisted("Password123!", ["not-password123!"]), false);
+    });
+
+    test("treats non-ASCII letters and numbers as alphanumeric instead of symbols", () => {
+        const unicodePolicy: PasswordStrengthPolicy = {
+            minLength: 8,
+            minNumbers: 2,
+            minUpperCase: 1,
+            minSymbols: 1,
+            blocklist: [],
+        };
+
+        assert.equal(validatePasswordPolicy("Äbcdef12", unicodePolicy)?.code, "PASSWORD_REQUIREMENTS_MIN_SYMBOLS");
+        assert.equal(validatePasswordPolicy("Äbcdef12!", { ...unicodePolicy, minLength: 9 }), undefined);
+        assert.equal(validatePasswordPolicy("Äbcdef١٢!", { ...unicodePolicy, minLength: 9 }), undefined);
+    });
+});
+
+describe("checkPassword", () => {
     test("returns zero for configured blocklisted passwords", () => {
         mock.method(
             Config,
@@ -32,36 +100,6 @@ describe("password strength", () => {
         );
 
         assert.equal(checkPassword("Password123!"), 0);
-        assert.equal(isPasswordBlocklisted("Password123!", [" password123! "]), true);
-    });
-
-    test("uses exact configured thresholds instead of off-by-one minimums", () => {
-        assert.deepEqual(failureCodes("AA1!aaaa"), ["PASSWORD_REQUIREMENTS_MIN_NUMBERS"]);
-        assert.deepEqual(failureCodes("A11!aaaa"), ["PASSWORD_REQUIREMENTS_MIN_UPPERCASE"]);
-        assert.deepEqual(failureCodes("AA11aaaa"), ["PASSWORD_REQUIREMENTS_MIN_SYMBOLS"]);
-        assert.deepEqual(failureCodes("AA11!aa"), ["PASSWORD_REQUIREMENTS_MIN_LENGTH"]);
-        assert.equal(validatePasswordPolicy("AA11!aaa", policy).valid, true);
-    });
-
-    test("treats non-ASCII letters and numbers as alphanumeric instead of symbols", () => {
-        const unicodePolicy: PasswordStrengthPolicy = {
-            minLength: 8,
-            minNumbers: 2,
-            minUpperCase: 1,
-            minSymbols: 1,
-            blocklist: [],
-        };
-
-        const withoutSymbol = validatePasswordPolicy("Äbcdef12", unicodePolicy);
-        assert.equal(withoutSymbol.metrics.upperCase, 1);
-        assert.equal(withoutSymbol.metrics.numbers, 2);
-        assert.equal(withoutSymbol.metrics.symbols, 0);
-        assert.deepEqual(
-            withoutSymbol.failures.map((failure) => failure.code),
-            ["PASSWORD_REQUIREMENTS_MIN_SYMBOLS"],
-        );
-
-        assert.equal(validatePasswordPolicy("Äbcdef12!", { ...unicodePolicy, minLength: 9 }).valid, true);
     });
 
     test("returns finite bounded scores for empty and short passwords", () => {
@@ -72,7 +110,8 @@ describe("password strength", () => {
             assert.ok(strength <= 1, password);
         }
 
-        assert.equal(calculatePasswordStrength("", policy), 0);
+        assert.equal(checkPassword(""), 0);
+        assert.equal(checkPassword("a"), 0);
     });
 
     test("scores repeated low-entropy passwords lower than diverse passwords", () => {
@@ -86,21 +125,4 @@ describe("password strength", () => {
 
         assert.ok(calculatePasswordStrength("abc123!?", relaxedPolicy) > calculatePasswordStrength("aaaaaaaa", relaxedPolicy));
     });
-
-    test("normalizes exact blocklist matches", () => {
-        const result = validatePasswordPolicy("Password123!", {
-            ...policy,
-            minUpperCase: 1,
-            blocklist: [" password123! "],
-        });
-
-        assert.equal(result.blocklisted, true);
-        assert.equal(result.score, 0);
-        assert.ok(result.failures.some((failure) => failure.code === "PASSWORD_REQUIREMENTS_BLOCKLIST"));
-        assert.equal(isPasswordBlocklisted("Password123!", ["not-password123!"]), false);
-    });
 });
-
-function failureCodes(password: string): string[] {
-    return validatePasswordPolicy(password, policy).failures.map((failure) => failure.code);
-}

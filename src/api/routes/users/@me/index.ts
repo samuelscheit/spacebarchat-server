@@ -21,19 +21,19 @@ import {
     Config,
     emailAlreadyRegisteredFieldError,
     emailMatches,
-    emitEvent,
     FieldErrors,
     generateToken,
     handleFile,
     isNormalizedEmailUniqueViolation,
+    isUserTagUniqueViolation,
     normalizeOptionalEmail,
+    userDiscriminatorAlreadyTakenFieldError,
     User,
-    UserUpdateEvent,
 } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
-import { getUserRecentAvatarHash, recordUserRecentAvatar } from "@spacebar/api/util";
+import { emitUserUpdateEvents, getUserRecentAvatarHash, recordUserRecentAvatar } from "@spacebar/api/util";
 import { Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
@@ -61,6 +61,7 @@ router.patch(
     "/",
     route({
         requestBody: "UserModifySchema",
+        event: ["USER_UPDATE", "GUILD_MEMBER_UPDATE"],
         responses: {
             200: {
                 body: "UserUpdateResponse",
@@ -86,7 +87,9 @@ router.patch(
         let newToken: string | undefined;
 
         if (body.avatar) {
-            const uploadedAvatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string);
+            const uploadedAvatar = await handleFile(`/avatars/${req.user_id}`, body.avatar as string, {
+                animatedAvatarUserId: req.user_id,
+            });
             body.avatar = uploadedAvatar;
             if (uploadedAvatar) {
                 recentAvatarToRecord = {
@@ -183,30 +186,18 @@ router.patch(
         }
 
         if (body.discriminator) {
-            // TODO: HACK - maybe make this optional?
-            if (!/^\d{4}$/.test(body.discriminator)) {
-                throw FieldErrors({
-                    discriminator: {
-                        code: "INVALID_DISCRIMINATOR",
-                        message: "Discriminator must be 4 digits.",
-                    },
-                });
-            }
+            body.discriminator = User.normalizeDiscriminator(body.discriminator);
 
             if (
                 await User.findOne({
                     where: {
                         discriminator: body.discriminator,
                         username: body.username || user.username,
+                        id: Not(req.user_id),
                     },
                 })
             ) {
-                throw FieldErrors({
-                    discriminator: {
-                        code: "INVALID_DISCRIMINATOR",
-                        message: "This discriminator is already in use.",
-                    },
-                });
+                throw userDiscriminatorAlreadyTakenFieldError();
             }
         }
 
@@ -247,12 +238,14 @@ router.patch(
         }
 
         user.assign(body);
-        user.validate();
         try {
             await user.save();
         } catch (error) {
             if (isNormalizedEmailUniqueViolation(error)) {
                 throw emailAlreadyRegisteredFieldError(req.t("auth:register.EMAIL_ALREADY_REGISTERED"));
+            }
+            if (isUserTagUniqueViolation(error)) {
+                throw userDiscriminatorAlreadyTakenFieldError();
             }
             throw error;
         }
@@ -262,12 +255,7 @@ router.patch(
         //@ts-ignore
         delete user.data;
 
-        // TODO: send update member list event in gateway
-        await emitEvent({
-            event: "USER_UPDATE",
-            user_id: req.user_id,
-            data: user,
-        } satisfies UserUpdateEvent);
+        await emitUserUpdateEvents(user);
 
         res.json({
             ...user.toPrivateUser(),

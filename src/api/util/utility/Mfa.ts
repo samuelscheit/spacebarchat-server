@@ -1,16 +1,19 @@
 import crypto from "node:crypto";
+import { isWebAuthnTicketPayload, loadOrGenerateKeypair, verifyWebAuthnToken, type WebAuthnTicketPayload } from "@spacebar/util";
 import { consumeMfaBackupCode, isCurrentTotpCode } from "./Totp";
+import { isWebAuthnTicketForUser } from "./WebAuthn";
 
 export const RECENT_MFA_COOKIE = "__Secure-recent_mfa";
 export const RECENT_MFA_HEADER = "x-discord-mfa-authorization";
 export const RECENT_MFA_MAX_AGE_SECONDS = 5 * 60;
 export const MFA_REQUIRED_CODE = 60003;
 export const MFA_ACTION_TOTP_ENABLE = "totp_enable";
+export const MFA_ACTION_LOGIN = "login_mfa";
 
 type MfaTokenPrefix = "mfa" | "mfa_ticket";
 type MfaPayloadType = MfaTokenPrefix;
 
-export type MfaAction = typeof MFA_ACTION_TOTP_ENABLE;
+export type MfaAction = typeof MFA_ACTION_TOTP_ENABLE | typeof MFA_ACTION_LOGIN;
 
 export interface MfaTokenContext {
     userId: string;
@@ -44,6 +47,8 @@ interface RecentMfaTokenPayload extends TimedMfaPayload {
 export interface MfaTicketPayload extends TimedMfaPayload {
     token_type: "mfa_ticket";
 }
+
+export type LoginMfaTicketPayload = MfaTicketPayload | WebAuthnTicketPayload;
 
 export function createMfaRequiredResponse(ticket: string): MfaRequiredResponseBody {
     return {
@@ -120,6 +125,12 @@ export function verifyMfaTicket(token: string | undefined, secret: string, now =
     return payload;
 }
 
+export function verifyLoginMfaTicket(token: string | undefined, userId: string, secret: string, now = Date.now()): MfaTicketPayload | undefined {
+    const payload = verifyMfaPayload(token, "mfa_ticket", secret, now);
+    if (!payload || payload.action !== MFA_ACTION_LOGIN || payload.user_id !== userId || payload.session_id !== undefined) return undefined;
+    return payload;
+}
+
 function verifyMfaPayload(token: string | undefined, expectedPrefix: "mfa", secret: string, now?: number): RecentMfaTokenPayload | undefined;
 function verifyMfaPayload(token: string | undefined, expectedPrefix: "mfa_ticket", secret: string, now?: number): MfaTicketPayload | undefined;
 function verifyMfaPayload(token: string | undefined, expectedPrefix: MfaTokenPrefix, secret: string, now = Date.now()): RecentMfaTokenPayload | MfaTicketPayload | undefined {
@@ -153,7 +164,7 @@ function isMfaPayload(payload: RecentMfaTokenPayload | MfaTicketPayload, expecte
     return (
         payload &&
         payload.token_type === expectedPrefix &&
-        (payload.action as string) === MFA_ACTION_TOTP_ENABLE &&
+        (payload.action === MFA_ACTION_TOTP_ENABLE || payload.action === MFA_ACTION_LOGIN) &&
         typeof payload.user_id === "string" &&
         typeof payload.iat === "number" &&
         typeof payload.exp === "number" &&
@@ -163,7 +174,6 @@ function isMfaPayload(payload: RecentMfaTokenPayload | MfaTicketPayload, expecte
 }
 
 async function getRecentMfaSecret(): Promise<string> {
-    const { loadOrGenerateKeypair } = await import("../../../util/index.js");
     const keyPair = await loadOrGenerateKeypair();
     return keyPair.privateKey.export({ format: "pem", type: "sec1" }).toString();
 }
@@ -176,12 +186,32 @@ export async function generateMfaTicket(context: MfaTokenContext): Promise<strin
     return signMfaTicket(context, await getRecentMfaSecret());
 }
 
+export async function generateLoginMfaTicket(userId: string): Promise<string> {
+    return signMfaTicket({ userId, action: MFA_ACTION_LOGIN, sessionId: undefined }, await getRecentMfaSecret());
+}
+
 export async function hasRecentMfaToken(headers: { [key: string]: string | string[] | undefined }, context: MfaTokenContext): Promise<boolean> {
     return verifyRecentMfaToken(getRecentMfaToken(headers), context, await getRecentMfaSecret());
 }
 
 export async function verifyMfaTicketFromRequest(ticket: string): Promise<MfaTicketPayload | undefined> {
     return verifyMfaTicket(ticket, await getRecentMfaSecret());
+}
+
+export async function verifyLoginMfaTicketFromRequest(ticket: string, userId: string): Promise<LoginMfaTicketPayload | undefined> {
+    const signedLoginMfaTicket = verifyLoginMfaTicket(ticket, userId, await getRecentMfaSecret());
+    if (signedLoginMfaTicket) return signedLoginMfaTicket;
+
+    try {
+        const webAuthnTicket = await verifyWebAuthnToken(ticket);
+        if (isWebAuthnTicketPayload(webAuthnTicket) && isWebAuthnTicketForUser(webAuthnTicket, userId, MFA_ACTION_LOGIN)) {
+            return webAuthnTicket;
+        }
+    } catch {
+        // Not a valid WebAuthn login ticket.
+    }
+
+    return undefined;
 }
 
 export async function verifyTotpOrBackupCode(userId: string, totpSecret: string | null | undefined, code: string): Promise<boolean> {

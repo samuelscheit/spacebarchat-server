@@ -17,11 +17,73 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@spacebar/util";
+import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, assertCanAddGroupDmRecipient, emitEvent, Recipient, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
+
+type GroupDmRecipientCarrier = { recipients?: Pick<Recipient, "user_id">[] };
+
+function assertNewGroupDmRecipient(channel: GroupDmRecipientCarrier, user_id: string) {
+    if (channel.recipients?.some((recipient) => recipient.user_id === user_id)) {
+        throw DiscordApiErrors.INVALID_RECIPIENT;
+    }
+}
+
+async function loadGroupDmRecipientUser(user_id: string) {
+    const user = await User.findOne({
+        where: { id: user_id },
+        select: PublicUserProjection,
+    });
+    if (!user) throw DiscordApiErrors.INVALID_RECIPIENT;
+
+    return user;
+}
+
+export async function loadAddableGroupDmRecipient(channel: GroupDmRecipientCarrier, user_id: string) {
+    assertNewGroupDmRecipient(channel, user_id);
+    return await loadGroupDmRecipientUser(user_id);
+}
+
+export async function putChannelRecipient(req: Request, res: Response) {
+    const { channel_id, user_id } = req.params as { [key: string]: string };
+    const channel = await Channel.findOneOrFail({
+        where: { id: channel_id },
+        relations: { recipients: true },
+    });
+
+    if (channel.type !== ChannelType.GROUP_DM) {
+        const recipients = [...new Set([...(channel.recipients?.map((r) => r.user_id) || []), user_id])];
+
+        const new_channel = await Channel.createDMChannel(recipients, req.user_id);
+        return res.status(201).json(new_channel);
+    } else {
+        assertNewGroupDmRecipient(channel, user_id);
+        assertCanAddGroupDmRecipient(channel.recipients, channel.owner_id);
+        const user = await loadGroupDmRecipientUser(user_id);
+
+        channel.recipients?.push(Recipient.create({ channel_id: channel_id, user_id: user_id }));
+        await channel.save();
+
+        const channel_dto = await DmChannelDTO.from(channel);
+        await emitEvent({
+            event: "CHANNEL_CREATE",
+            data: channel_dto.forRecipient(user_id),
+            user_id: user_id,
+        });
+
+        await emitEvent({
+            event: "CHANNEL_RECIPIENT_ADD",
+            data: {
+                channel_id: channel_id,
+                user: user.toPublicUser(),
+            },
+            channel_id: channel_id,
+        } satisfies ChannelRecipientAddEvent);
+        return res.sendStatus(204);
+    }
+}
 
 router.put(
     "/:user_id",
@@ -31,49 +93,7 @@ router.put(
             404: {},
         },
     }),
-    async (req: Request, res: Response) => {
-        const { channel_id, user_id } = req.params as { [key: string]: string };
-        const channel = await Channel.findOneOrFail({
-            where: { id: channel_id },
-            relations: { recipients: true },
-        });
-
-        if (channel.type !== ChannelType.GROUP_DM) {
-            const recipients = [...new Set([...(channel.recipients?.map((r) => r.user_id) || []), user_id])];
-
-            const new_channel = await Channel.createDMChannel(recipients, req.user_id);
-            return res.status(201).json(new_channel);
-        } else {
-            if (channel.recipients?.map((r) => r.user_id).includes(user_id)) {
-                throw DiscordApiErrors.INVALID_RECIPIENT; //TODO is this the right error?
-            }
-
-            channel.recipients?.push(Recipient.create({ channel_id: channel_id, user_id: user_id }));
-            await channel.save();
-
-            const channel_dto = await DmChannelDTO.from(channel);
-            await emitEvent({
-                event: "CHANNEL_CREATE",
-                data: channel_dto.forRecipient(user_id),
-                user_id: user_id,
-            });
-
-            await emitEvent({
-                event: "CHANNEL_RECIPIENT_ADD",
-                data: {
-                    channel_id: channel_id,
-                    user: (
-                        await User.findOneOrFail({
-                            where: { id: user_id },
-                            select: PublicUserProjection,
-                        })
-                    ).toPublicUser(),
-                },
-                channel_id: channel_id,
-            } satisfies ChannelRecipientAddEvent);
-            return res.sendStatus(204);
-        }
-    },
+    putChannelRecipient,
 );
 
 router.delete(
@@ -91,10 +111,6 @@ router.delete(
             relations: { recipients: true },
         });
         if (!(channel.type === ChannelType.GROUP_DM && (channel.owner_id === req.user_id || user_id === req.user_id))) throw DiscordApiErrors.MISSING_PERMISSIONS;
-
-        if (!channel.recipients?.map((r) => r.user_id).includes(user_id)) {
-            throw DiscordApiErrors.INVALID_RECIPIENT; //TODO is this the right error?
-        }
 
         await Channel.removeRecipientFromChannel(channel, user_id);
 

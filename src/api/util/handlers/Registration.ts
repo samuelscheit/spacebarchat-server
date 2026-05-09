@@ -16,20 +16,24 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { FieldErrors } from "@spacebar/util";
 import { RegisterSchema } from "../../../schemas/uncategorised/RegisterSchema";
-import { type PasswordStrengthPolicy, validatePasswordPolicy } from "../utility/passwordStrength";
+import { DateOfBirthInput, evaluateDateOfBirth } from "../../../util/util/DateOfBirth";
 
 export interface RegistrationInviteConfiguration {
     requireInvite: boolean;
     guestsRequireInvite: boolean;
 }
 
+export interface RegistrationDateOfBirthConfiguration {
+    required: boolean;
+    minimum?: number;
+}
+
 export interface RegistrationInvite {
     isExpired(): boolean;
 }
 
-export type PasswordPolicyTranslator = (key: string, params?: Record<string, number>) => string;
+export type RegistrationDateOfBirthValidationError = "required" | "invalid" | "underage";
 
 export function registrationRequiresInvite(register: RegistrationInviteConfiguration, body: Pick<RegisterSchema, "email" | "invite">): boolean {
     return !body.invite && (register.requireInvite || (register.guestsRequireInvite && !body.email));
@@ -39,15 +43,17 @@ export function isRegistrationInviteUsable(invite: RegistrationInvite | null | u
     return invite !== null && invite !== undefined && !invite.isExpired();
 }
 
-export function assertPasswordMeetsPolicy(password: string, policy: PasswordStrengthPolicy, translate: PasswordPolicyTranslator) {
-    const validation = validatePasswordPolicy(password, policy);
-    if (validation.valid) return;
+export function validateRegistrationDateOfBirth(
+    dateOfBirthConfig: RegistrationDateOfBirthConfiguration,
+    dateOfBirth: DateOfBirthInput | null | undefined,
+    now = new Date(),
+): RegistrationDateOfBirthValidationError | undefined {
+    const result = evaluateDateOfBirth(dateOfBirth, dateOfBirthConfig.minimum, now);
 
-    const failure = validation.failures[0];
-    throw FieldErrors({
-        password: {
-            code: failure.code,
-            message: translate(`auth:register.${failure.code}`, failure.params),
-        },
-    });
+    if (result.status === "missing") return dateOfBirthConfig.required ? "required" : undefined;
+
+    if (result.status === "invalid") return "invalid";
+    if (result.status === "underage") return "underage";
+
+    return undefined;
 }

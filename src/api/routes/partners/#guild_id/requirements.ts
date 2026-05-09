@@ -17,39 +17,29 @@
 */
 
 import { Router, Request, Response } from "express";
-import { route } from "@spacebar/api";
+import { route, toGuildDiscoveryRequirements } from "@spacebar/api";
+import { Guild } from "@spacebar/util";
 
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    const { guild_id } = req.params as { [key: string]: string };
-    // TODO:
-    // Load from database
-    // Admin control, but for now it allows anyone to be discoverable
-
-    res.send({
-        guild_id: guild_id,
-        safe_environment: true,
-        healthy: true,
-        health_score_pending: false,
-        size: true,
-        nsfw_properties: {},
-        protected: true,
-        sufficient: true,
-        sufficient_without_grace_period: true,
-        valid_rules_channel: true,
-        retention_healthy: true,
-        engagement_healthy: true,
-        age: true,
-        minimum_age: 0,
-        health_score: {
-            avg_nonnew_participators: 0,
-            avg_nonnew_communicators: 0,
-            num_intentful_joiners: 0,
-            perc_ret_w1_intentful: 0,
+router.get(
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "GuildDiscoveryRequirementsResponse",
+            },
         },
-        minimum_size: 0,
-    });
-});
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id } = req.params as { [key: string]: string };
+        const guild = await Guild.findOneOrFail({
+            where: { id: guild_id },
+            select: { id: true, discovery_excluded: true },
+        });
+
+        res.send(toGuildDiscoveryRequirements(guild));
+    },
+);
 
 export default router;

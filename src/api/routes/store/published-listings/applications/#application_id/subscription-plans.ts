@@ -21,23 +21,8 @@ import { route } from "@spacebar/api";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    //TODO
-    res.json([
-        {
-            id: "",
-            name: "",
-            interval: 1,
-            interval_count: 1,
-            tax_inclusive: true,
-            sku_id: "",
-            fallback_price: 499,
-            fallback_currency: "eur",
-            currency: "eur",
-            price: 4199,
-            price_tier: null,
-        },
-    ]).status(200);
+router.get("/", route({}), (_req: Request, res: Response) => {
+    res.status(200).json([]);
 });
 
 export default router;

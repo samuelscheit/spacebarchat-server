@@ -34,26 +34,19 @@ export type PasswordRequirementCode =
 
 export type PasswordStrengthPolicy = Pick<PasswordConfiguration, "minLength" | "minNumbers" | "minUpperCase" | "minSymbols"> & Partial<Pick<PasswordConfiguration, "blocklist">>;
 
-export interface PasswordRequirementFailure {
+export type PasswordPolicyFailure = {
     code: PasswordRequirementCode;
-    params?: Record<string, number>;
-}
+    message: string;
+    values: Record<string, number>;
+};
 
-export interface PasswordStrengthMetrics {
+type PasswordStrengthMetrics = {
     length: number;
     numbers: number;
     upperCase: number;
     symbols: number;
     entropy: number;
-}
-
-export interface PasswordValidationResult {
-    valid: boolean;
-    score: number;
-    blocklisted: boolean;
-    failures: PasswordRequirementFailure[];
-    metrics: PasswordStrengthMetrics;
-}
+};
 
 /*
  * https://en.wikipedia.org/wiki/Password_policy
@@ -70,41 +63,60 @@ export function checkPassword(password: string): number {
     return calculatePasswordStrength(password, Config.get().register.password);
 }
 
-export function calculatePasswordStrength(password: string, policy: PasswordStrengthPolicy): number {
-    return validatePasswordPolicy(password, policy).score;
-}
-
-export function validatePasswordPolicy(password: string, policy: PasswordStrengthPolicy): PasswordValidationResult {
+export function calculatePasswordStrength(password: string, policy: PasswordStrengthPolicy = Config.get().register.password): number {
     const characters = Array.from(password);
     const metrics = getPasswordMetrics(characters);
-    const blocklisted = isPasswordBlocklisted(password, policy.blocklist);
-    const failures: PasswordRequirementFailure[] = [];
+
+    return scorePasswordPolicy(metrics, policy, isPasswordBlocklisted(password, policy.blocklist));
+}
+
+export function validatePasswordPolicy(password: string, policy: PasswordStrengthPolicy = Config.get().register.password): PasswordPolicyFailure | undefined {
+    const characters = Array.from(password);
+    const metrics = getPasswordMetrics(characters);
 
     if (!meetsMinimum(metrics.length, policy.minLength)) {
-        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_LENGTH", params: { min: normalizedMinimum(policy.minLength) } });
+        const min = normalizedMinimum(policy.minLength);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
+            message: `The password must be at least ${min} characters long.`,
+            values: { min },
+        };
     }
 
     if (!meetsMinimum(metrics.numbers, policy.minNumbers)) {
-        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_NUMBERS", params: { min: normalizedMinimum(policy.minNumbers) } });
+        const min = normalizedMinimum(policy.minNumbers);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_NUMBERS",
+            message: `The password must contain at least ${min} numbers.`,
+            values: { min },
+        };
     }
 
     if (!meetsMinimum(metrics.upperCase, policy.minUpperCase)) {
-        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_UPPERCASE", params: { min: normalizedMinimum(policy.minUpperCase) } });
+        const min = normalizedMinimum(policy.minUpperCase);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_UPPERCASE",
+            message: `The password must contain at least ${min} uppercase letters.`,
+            values: { min },
+        };
     }
 
     if (!meetsMinimum(metrics.symbols, policy.minSymbols)) {
-        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_SYMBOLS", params: { min: normalizedMinimum(policy.minSymbols) } });
+        const min = normalizedMinimum(policy.minSymbols);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_SYMBOLS",
+            message: `The password must contain at least ${min} symbols.`,
+            values: { min },
+        };
     }
 
-    if (blocklisted) failures.push({ code: "PASSWORD_REQUIREMENTS_BLOCKLIST" });
-
-    return {
-        valid: failures.length === 0,
-        score: scorePasswordPolicy(metrics, policy, blocklisted),
-        blocklisted,
-        failures,
-        metrics,
-    };
+    if (isPasswordBlocklisted(password, policy.blocklist)) {
+        return {
+            code: "PASSWORD_REQUIREMENTS_BLOCKLIST",
+            message: "This password is too common. Please choose a different password.",
+            values: {},
+        };
+    }
 }
 
 export function isPasswordBlocklisted(password: string, blocklist: string[] = []): boolean {
@@ -142,7 +154,7 @@ function isSymbol(character: string): boolean {
 }
 
 function scorePasswordPolicy(metrics: PasswordStrengthMetrics, policy: PasswordStrengthPolicy, blocklisted: boolean): number {
-    if (metrics.length === 0 || blocklisted) return 0;
+    if (metrics.length <= 1 || blocklisted) return 0;
 
     let strength = 0;
     if (meetsMinimum(metrics.length, policy.minLength)) strength += PASSWORD_REQUIREMENT_SCORE;

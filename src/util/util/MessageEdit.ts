@@ -21,6 +21,16 @@ export function preserveEditedMessageReactions(existing: StoredReaction[] | null
     return existing ?? [];
 }
 
+export function hasExplicitMessageEditComponentUpdate(body: object): boolean {
+    return Object.hasOwn(body, "components");
+}
+
+export function buildMessageEditComponentProcessingOptions(body: object): { process_component_media: boolean } {
+    return {
+        process_component_media: hasExplicitMessageEditComponentUpdate(body),
+    };
+}
+
 export function buildMessageEditHandleMessageOptions<T extends MessageEditSource, B extends object, E extends object = object>(
     message: T,
     body: B,
@@ -31,10 +41,9 @@ export function buildMessageEditHandleMessageOptions<T extends MessageEditSource
 ): MessageEditHandleMessageOptions<T, B, E> {
     return {
         ...message,
-        // TODO: should message_reference be overridable?
-        message_reference: message.message_reference,
         ...body,
         ...(extraOptions ?? ({} as E)),
+        message_reference: message.message_reference,
         author_id: message.author_id,
         channel_id: channelId,
         id: messageId,

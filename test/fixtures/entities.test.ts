@@ -24,4 +24,8 @@ test("entity fixtures build linked unsaved domain objects without a database", (
     assert.equal(message.channel_id, channel.id);
     assert.equal(webhook.channel_id, channel.id);
     assert.equal(application.owner.id, owner.id);
+
+    for (const entity of [owner, guild, role, channel, message, webhook, application]) {
+        assert.match(entity.id, /^\d+$/, `${entity.constructor.name} fixture id must be a numeric snowflake`);
+    }
 });
