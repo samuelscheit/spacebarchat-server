@@ -100,6 +100,7 @@
         "src/schemas/api/users/ConnectedAccount.test.ts",
         "src/schemas/BitField.test.ts",
         "src/schemas/Validator.test.ts",
+        "src/schemas/api/bots/InteractionCallbackSchema.test.ts",
         "src/schemas/api/bots/InteractionCreateSchema.test.ts",
         "src/schemas/api/bots/SendableModalSubmitDataSchema.test.ts",
         "src/schemas/api/guilds/VoiceState.test.ts",
