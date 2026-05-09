@@ -166,6 +166,7 @@
         "src/util/util/ReadStateAck.test.ts",
         "src/util/util/ReplacedCdnAsset.test.ts",
         "src/util/util/RoleIconPolicy.test.ts",
+        "src/util/util/RolePermissions.test.ts",
         "src/util/util/Config.test.ts",
         "src/util/dtos/WebhookDTO.test.ts",
         "src/util/entities/ChannelSerialization.test.ts",
