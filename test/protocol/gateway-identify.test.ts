@@ -10,6 +10,7 @@ import {
     events,
     generateToken,
     initDatabase,
+    Intents,
     Permissions,
     Snowflake,
     Stream,
@@ -759,7 +760,7 @@ test(
             }).save();
 
             gateway = await startGateway();
-            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken);
+            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, Number(Intents.FLAGS.GUILD_VOICE_STATES));
             const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
@@ -928,18 +929,33 @@ function makeReadyRecipient(user: PublicUser) {
 }
 
 async function readUntil(client: ws, predicate: (payload: GatewayPayload) => boolean) {
-    for (let i = 0; i < 10; i++) {
-        const payload = await readJsonMessage(client);
-        if (predicate(payload)) return payload;
-    }
+    const state = getBufferedGatewayClientState(client);
+    const skipped: ws.RawData[] = [];
 
-    assert.fail("Timed out waiting for matching gateway payload");
+    try {
+        for (let i = 0; i < 10; i++) {
+            const raw = await readRawGatewayMessage(client);
+            const payload = JSON.parse(raw.toString()) as GatewayPayload;
+            if (predicate(payload)) return payload;
+
+            skipped.push(raw);
+        }
+
+        assert.fail("Timed out waiting for matching gateway payload");
+    } finally {
+        state.messages.unshift(...skipped);
+    }
 }
 
 async function readJsonMessage(client: ws) {
+    const raw = await readRawGatewayMessage(client);
+    return JSON.parse(raw.toString()) as GatewayPayload;
+}
+
+async function readRawGatewayMessage(client: ws) {
     const state = getBufferedGatewayClientState(client);
     const queued = state.messages.shift();
-    if (queued) return JSON.parse(queued.toString()) as GatewayPayload;
+    if (queued) return queued;
 
     const raw = await new Promise<ws.RawData>((resolve, reject) => {
         const timeout = setTimeout(() => {
@@ -970,7 +986,7 @@ async function readJsonMessage(client: ws) {
         client.once("close", onClose);
     });
 
-    return JSON.parse(raw.toString()) as GatewayPayload;
+    return raw;
 }
 
 function getBufferedGatewayClientState(client: ws) {
