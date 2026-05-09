@@ -21,6 +21,7 @@ import { DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
 import { requireOAuthAuthorizeApplication } from "../../util/utility/OAuthAuthorizeApplication";
+import { serializeOAuthAuthorizeApplication } from "../../util/utility/OAuthAuthorize";
 import { toOAuthAuthorizeBot } from "../../util/utility/OAuthAuthorizeResponse";
 const router = Router({ mergeParams: true });
 
@@ -133,20 +134,7 @@ router.get(
         return res.json({
             guilds: guildsWithPermissions,
             user: toOAuthAuthorizeUserPreview(user),
-            application: {
-                id: app.id,
-                name: app.name,
-                icon: app.icon,
-                description: app.description,
-                summary: app.summary,
-                type: app.type,
-                hook: app.hook,
-                guild_id: null, // TODO support guilds
-                bot_public: app.bot_public,
-                bot_require_code_grant: app.bot_require_code_grant,
-                verify_key: app.verify_key,
-                flags: app.flags,
-            },
+            application: serializeOAuthAuthorizeApplication(app),
             bot: {
                 ...toOAuthAuthorizeBot(bot),
                 approximated_guild_count: botApproximateGuildCount,

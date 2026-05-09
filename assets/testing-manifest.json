@@ -10326,7 +10326,7 @@
             "method": "GET",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 52,
+            "line": 53,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10366,7 +10366,7 @@
             "method": "POST",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 159,
+            "line": 147,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

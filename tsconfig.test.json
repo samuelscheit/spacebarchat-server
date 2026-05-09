@@ -11,6 +11,7 @@
         "src/api/util/handlers/VoiceStateModify.test.ts",
         "src/api/ServerConfigure.test.ts",
         "src/api/routes/oauth2/authorize.test.ts",
+        "src/api/util/utility/OAuthAuthorize.test.ts",
         "src/api/util/utility/OAuthAuthorizeResponse.test.ts",
         "src/api/util/utility/OAuthAuthorizeApplication.test.ts",
         "src/api/util/utility/OAuth2Authorization.test.ts",
@@ -186,11 +187,7 @@
         "src/util/entities/ChannelDeleteChannelAttachments.test.ts",
         "src/api/util/UserUpdateEvents.test.ts"
     ],
-    "exclude": [
-        "node_modules",
-        "dist",
-        "dist-test"
-    ],
+    "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {
         "rootDir": ".",
         "noEmit": true,
