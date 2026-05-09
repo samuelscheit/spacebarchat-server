@@ -1,3 +1,5 @@
+import { format, type Options as PrettierOptions } from "prettier";
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
 
 export interface RouteCatalogEntry {
@@ -47,6 +49,10 @@ export interface ComparedRouteEntry {
 }
 
 const httpMethods = new Set<HttpMethod>(["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"]);
+const defaultPrettierOptions: PrettierOptions = {
+    tabWidth: 4,
+    printWidth: 180,
+};
 
 export function buildMissingRouteReport(implemented: RouteCatalogSource, targets: RouteCatalogSource[], options: CompareOptions = {}): MissingRouteReport {
     const ignoredMethods = new Set(Array.from(options.ignoredMethods ?? []).map((method) => method.toUpperCase()));
@@ -79,6 +85,14 @@ export function buildMissingRouteReport(implemented: RouteCatalogSource, targets
         ignored_methods: Array.from(ignoredMethods).sort(),
         method_aware: true,
     };
+}
+
+export async function formatMissingRouteReport(report: MissingRouteReport, prettierOptions: PrettierOptions = {}): Promise<string> {
+    return format(JSON.stringify(report), {
+        ...defaultPrettierOptions,
+        ...prettierOptions,
+        parser: "json",
+    });
 }
 
 function catalogMap(sources: RouteCatalogSource[], ignoredMethods: Set<string>): Map<string, ComparedRouteEntry> {

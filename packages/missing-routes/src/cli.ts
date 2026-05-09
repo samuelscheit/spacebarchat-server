@@ -2,8 +2,9 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveConfig } from "prettier";
 
-import { buildMissingRouteReport, RouteCatalogEntry, RouteCatalogSource } from "./index.js";
+import { buildMissingRouteReport, formatMissingRouteReport, RouteCatalogEntry, RouteCatalogSource } from "./index.js";
 
 const defaultImplementedCatalog = "packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json";
 const defaultTargetCatalogs = [
@@ -37,7 +38,8 @@ async function main(): Promise<void> {
     });
 
     await mkdir(path.dirname(outputPath), { recursive: true });
-    await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+    const prettierOptions = await resolveConfig(outputPath);
+    await writeFile(outputPath, await formatMissingRouteReport(report, prettierOptions ?? {}), "utf8");
 
     console.log(`Spacebar is missing ${report.missing}`);
     console.log(`Spacebar implements ${report.spacebar}`);
@@ -128,7 +130,7 @@ async function exists(filePath: string): Promise<boolean> {
 async function findRepoRoot(): Promise<string> {
     let current = path.dirname(fileURLToPath(import.meta.url));
     while (current !== path.dirname(current)) {
-        if (await exists(path.join(current, "package.json")) && await exists(path.join(current, "packages", "automatic-reverse-engineering"))) {
+        if ((await exists(path.join(current, "package.json"))) && (await exists(path.join(current, "packages", "automatic-reverse-engineering")))) {
             return current;
         }
         current = path.dirname(current);

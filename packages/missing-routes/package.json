@@ -20,5 +20,8 @@
         "test": "npm run build && node --test dist/**/*.test.js",
         "typecheck": "tsc -p tsconfig.json --noEmit"
     },
+    "dependencies": {
+        "prettier": "^3.8.3"
+    },
     "license": "ISC"
 }

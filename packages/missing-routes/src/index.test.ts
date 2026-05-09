@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildMissingRouteReport, RouteCatalogEntry } from "./index.js";
+import { buildMissingRouteReport, formatMissingRouteReport, RouteCatalogEntry } from "./index.js";
 
 const implemented: RouteCatalogEntry[] = [
     { method: "GET", route: "/users/@me", route_name: "GET_USERS_ME", source: "spacebar" },
@@ -18,11 +18,7 @@ const target: RouteCatalogEntry[] = [
 ];
 
 test("compares route catalogs by method and normalized route", () => {
-    const report = buildMissingRouteReport(
-        { path: "implemented.json", entries: implemented },
-        [{ path: "target.json", entries: target }],
-        { ignoredMethods: ["OPTIONS"] },
-    );
+    const report = buildMissingRouteReport({ path: "implemented.json", entries: implemented }, [{ path: "target.json", entries: target }], { ignoredMethods: ["OPTIONS"] });
 
     assert.equal(report.spacebar, 3);
     assert.equal(report.discord, 3);
@@ -33,4 +29,15 @@ test("compares route catalogs by method and normalized route", () => {
     assert.equal(report.missing_entries[0].route, "/users/@me");
     assert.deepEqual(report.missing_entries[0].sources, ["discord-a", "discord-b"]);
     assert.deepEqual(report.missing_entries[0].summaries, ["Modify current user"]);
+});
+
+test("formats reports with repository JSON style", async () => {
+    const report = buildMissingRouteReport({ path: "implemented.json", entries: implemented }, [{ path: "target.json", entries: target }], { ignoredMethods: ["OPTIONS"] });
+
+    const formatted = await formatMissingRouteReport(report);
+
+    assert.equal(formatted.endsWith("\n"), true);
+    assert.match(formatted, /\n {4}"missing": 1,/);
+    assert.match(formatted, /"sources": \["discord-a", "discord-b"\]/);
+    assert.equal((JSON.parse(formatted) as { missing: number }).missing, report.missing);
 });
