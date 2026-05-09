@@ -179,7 +179,7 @@ async function coverAckSearchPreloadAndStubs(
     await waitForEventAfter(
         events,
         beforeAck,
-        (event) => event.event === "MESSAGE_ACK" && event.user_id === ownerId && event.data.channel_id === channelId && event.data.message_id === messageId,
+        (event) => event.event === "MESSAGE_ACK" && event.channel_id === channelId && event.data.channel_id === channelId && event.data.message_id === messageId,
     );
     const readState = await ReadState.findOneByOrFail({ user_id: ownerId, channel_id: channelId });
     assert.equal(readState.last_message_id, messageId);
@@ -202,7 +202,11 @@ async function coverAckSearchPreloadAndStubs(
     const postData = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${channelId}/post-data`, { thread_ids: [] }, token));
     assert.deepEqual(postData, { threads: {} });
     assert.deepEqual(readStateCursorSnapshot(await ReadState.findOneByOrFail({ user_id: ownerId, channel_id: channelId })), readStateBeforePostData);
-    await assertNoEvent(events, (event) => !beforePostData.has(event) && event.event === "MESSAGE_ACK" && event.user_id === ownerId && event.data.channel_id === channelId, 50);
+    await assertNoEvent(
+        events,
+        (event) => !beforePostData.has(event) && event.event === "MESSAGE_ACK" && event.channel_id === channelId && event.data.channel_id === channelId,
+        50,
+    );
 
     const beforeCrosspost = markCapturedEvents(events);
     const crosspost = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${newsChannelId}/messages/${newsMessageId}/crosspost`, {}, token));
