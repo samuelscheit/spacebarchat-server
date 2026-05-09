@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import http from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -18,6 +19,8 @@ import {
     Role,
     User,
 } from "@spacebar/util";
+import express from "express";
+import refreshRouter from "../../src/api/routes/connections/#connection_name/#connection_id/refresh";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -38,6 +41,19 @@ const coveredManifestIds = [
     "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
     "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
 ];
+
+test("top-level connection refresh route is a compatibility no-op", async () => {
+    const { server, url } = await startRefreshCompatibilityServer();
+
+    try {
+        const response = await postEmpty(`${url}/connections/youtube/scenario-external/refresh`);
+
+        assert.equal(response.statusCode, 204);
+        assert.equal(response.body, "");
+    } finally {
+        await closeServer(server);
+    }
+});
 
 test(
     "oauth authorization and connected accounts persist state and redact provider secrets",
@@ -337,8 +353,21 @@ test(
             assert.equal(expiredConnection?.token_data?.access_token, "expired-token");
             assert.equal(expiredConnection?.token_data?.expires_at, 1);
 
+            await assertStatus(await postJson(`${api.apiBaseUrl}/connections/youtube/scenario-external/refresh`, {}, ownerToken), 204);
+            assert.equal(scenarioConnection.refreshCount, 0);
+            assert.equal(
+                (
+                    await ConnectedAccount.findOne({
+                        where: { user_id: owner.id, type: "youtube", external_id: "scenario-external" },
+                        select: { token_data: true },
+                    })
+                )?.token_data?.access_token,
+                "expired-token",
+            );
+
             const accessToken = await getJson(`${api.apiBaseUrl}/users/@me/connections/youtube/scenario-external/access-token`, ownerToken);
             await assertStatus(accessToken, 200);
+            assert.equal(scenarioConnection.refreshCount, 1);
             assert.equal((await assertJsonObject(accessToken)).access_token, "refreshed-token");
             assert.equal(
                 (
@@ -351,6 +380,7 @@ test(
             );
 
             await assertStatus(await postJson(`${api.apiBaseUrl}/connections/youtube/scenario-external/refresh`, {}, ownerToken), 204);
+            assert.equal(scenarioConnection.refreshCount, 1);
 
             await eventCapture.stop();
             eventCapture = await captureEvents(owner.id);
@@ -375,6 +405,7 @@ class ScenarioYoutubeConnection extends RefreshableConnection {
     friendlyName = "Scenario YouTube";
     setupUrl = "https://connections.example/setup";
     requiredScopes = ["identify"];
+    refreshCount = 0;
 
     init(): void {
         // no-op for scenario connection
@@ -417,6 +448,8 @@ class ScenarioYoutubeConnection extends RefreshableConnection {
     }
 
     async refreshToken(): Promise<ConnectedAccountCommonOAuthTokenResponse> {
+        this.refreshCount++;
+
         return {
             access_token: "refreshed-token",
             token_type: "Bearer",
@@ -465,6 +498,43 @@ function installScenarioConnection(connection: ScenarioYoutubeConnection) {
             delete config[connection.id];
         }
     };
+}
+
+async function startRefreshCompatibilityServer() {
+    const app = express();
+    app.use("/connections/:connection_name/:connection_id/refresh", refreshRouter);
+
+    const server = http.createServer(app);
+    await new Promise<void>((resolve) => {
+        server.listen(0, "127.0.0.1", resolve);
+    });
+    const address = server.address();
+    assert(address && typeof address === "object");
+
+    return {
+        server,
+        url: `http://${address.address}:${address.port}`,
+    };
+}
+
+async function closeServer(server: http.Server) {
+    await new Promise<void>((resolve, reject) => {
+        server.close((error) => (error ? reject(error) : resolve()));
+    });
+}
+
+async function postEmpty(url: string): Promise<{ statusCode: number | undefined; body: string }> {
+    return await new Promise((resolve, reject) => {
+        const req = http.request(url, { method: "POST" }, (res) => {
+            let body = "";
+            res.setEncoding("utf8");
+            res.on("data", (chunk) => (body += chunk));
+            res.on("end", () => resolve({ statusCode: res.statusCode, body }));
+        });
+
+        req.on("error", reject);
+        req.end();
+    });
 }
 
 async function assertApiError(response: Response, expectedStatus: number, expectedError: { code: number; message: string }) {
