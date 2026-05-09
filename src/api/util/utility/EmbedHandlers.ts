@@ -262,6 +262,52 @@ export const getMetaDescriptions = (text: string) => {
     };
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
+const isNonEmptyString = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
+
+const toHttpUrl = (value: unknown): string | undefined => {
+    if (!isNonEmptyString(value)) return undefined;
+
+    try {
+        const url = new URL(value.trim());
+        if (url.protocol !== "http:" && url.protocol !== "https:") return undefined;
+        return url.toString();
+    } catch (e) {
+        return undefined;
+    }
+};
+
+export const getSteamHighlightVideo = ($: cheerio.CheerioAPI): EmbedImage | undefined => {
+    const props = $(".gamehighlight_desktopcarousel").attr("data-props");
+    if (!props) return undefined;
+
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(props);
+    } catch (e) {
+        return undefined;
+    }
+
+    if (!isRecord(parsed)) return undefined;
+
+    const trailers = Array.isArray(parsed.trailers) ? parsed.trailers : [];
+    const manifests = trailers.filter(isRecord).map((trailer) => ({
+        hls: toHttpUrl(trailer.hlsManifest),
+        dash: Array.isArray(trailer.dashManifests) ? trailer.dashManifests.map(toHttpUrl).filter((url): url is string => !!url) : [],
+    }));
+
+    const hlsManifest = manifests.find((manifest) => manifest.hls)?.hls;
+    if (hlsManifest) return { url: hlsManifest };
+
+    const dashManifests = manifests.flatMap((manifest) => manifest.dash);
+    const h264DashManifest = dashManifests.find((manifest) => new URL(manifest).pathname.toLowerCase().endsWith("/dash_h264.mpd"));
+    const dashManifest = h264DashManifest ?? dashManifests[0];
+    if (dashManifest) return { url: dashManifest };
+
+    return undefined;
+};
+
 const doFetch = async (url: URL, opts?: RequestInit) => {
     try {
         const res = await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
@@ -596,7 +642,7 @@ export const EmbedHandlers: {
                 name: "Steam",
             },
             fields,
-            // TODO: Video
+            video: getSteamHighlightVideo(metas.$),
         };
     },
 
