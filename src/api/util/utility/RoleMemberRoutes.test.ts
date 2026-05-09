@@ -28,6 +28,15 @@ describe("role member update route behavior", () => {
         assert.ok(source.includes('updateRoleMembers(req, res, "replace")'));
     });
 
+    test("persists role membership changes through the bulk member helper", () => {
+        const source = getRoleMembersRouteSource();
+
+        assert.ok(source.includes("Member.updateRoleMembers(guild_id, role_id, { addMemberIds, removeMemberIds })"));
+        assert.doesNotMatch(source, /Member\.addRole\(/);
+        assert.doesNotMatch(source, /Member\.removeRole\(/);
+        assert.doesNotMatch(source, /TODO \(erkin\): have a bulk add\/remove function/);
+    });
+
     test("PATCH add mode adds missing desired members without removing omitted current holders", () => {
         const changes = calculateRoleMemberChanges(members, ["already-desired", "needs-add"], roleId, "add");
 

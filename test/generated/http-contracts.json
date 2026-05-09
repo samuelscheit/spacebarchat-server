@@ -11341,7 +11341,7 @@
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "samplePath": "/guilds/100000000000000001/roles/100000000000000005/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 82,
+            "line": 78,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11358,8 +11358,7 @@
                 "requestBody": "RoleMembersUpdateSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 403],
-                "permission": "MANAGE_ROLES",
-                "emittedEvents": ["GUILD_MEMBER_UPDATE"]
+                "permission": "MANAGE_ROLES"
             },
             "cases": [
                 {
@@ -11389,11 +11388,6 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "event-emission",
-                    "checks": ["events"],
-                    "events": ["GUILD_MEMBER_UPDATE"]
-                },
-                {
                     "id": "rate-limit-headers",
                     "checks": ["rate-limit-headers"],
                     "rateLimit": {
@@ -11407,6 +11401,10 @@
                 {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
                 }
             ]
         },
@@ -11417,7 +11415,7 @@
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "samplePath": "/guilds/100000000000000001/roles/100000000000000005/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 96,
+            "line": 92,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11434,8 +11432,7 @@
                 "requestBody": "RoleMembersUpdateSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 403],
-                "permission": "MANAGE_ROLES",
-                "emittedEvents": ["GUILD_MEMBER_UPDATE"]
+                "permission": "MANAGE_ROLES"
             },
             "cases": [
                 {
@@ -11465,11 +11462,6 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "event-emission",
-                    "checks": ["events"],
-                    "events": ["GUILD_MEMBER_UPDATE"]
-                },
-                {
                     "id": "rate-limit-headers",
                     "checks": ["rate-limit-headers"],
                     "rateLimit": {
@@ -11483,6 +11475,10 @@
                 {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
                 }
             ]
         },
