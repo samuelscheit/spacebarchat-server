@@ -17,7 +17,7 @@
 */
 
 import { Config, DateBuilder, getDatabase, getPermission, GuildMembersChunkEvent, Member, Presence, Session } from "@spacebar/util";
-import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest } from "@spacebar/gateway";
+import { WebSocket, Payload, OPCODES, Send, handleOffloadedGatewayRequest, normalizeGuildMembersRequestLimit } from "@spacebar/gateway";
 import { check } from "./instanceOf";
 import { FindManyOptions, ILike, In, MoreThan } from "typeorm";
 import { RequestGuildMembersSchema } from "@spacebar/schemas";
@@ -56,8 +56,7 @@ export async function onRequestGuildMembers(this: WebSocket, { d }: Payload) {
         throw new Error('"query" and "user_ids" are mutually exclusive');
     }
 
-    // TODO: Configurable limit?
-    if ((query || (user_ids && user_ids.length > 0)) && (!limit || limit > 100)) limit = 100;
+    limit = normalizeGuildMembersRequestLimit(query, user_ids, limit);
 
     const permissions = await getPermission(this.user_id, guild_id);
     permissions.hasThrow("VIEW_CHANNEL");

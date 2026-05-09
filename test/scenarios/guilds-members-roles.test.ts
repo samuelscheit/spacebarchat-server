@@ -3,10 +3,11 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { closeDatabase, Config, generateToken, Guild, initDatabase, Member, Role, User } from "@spacebar/util";
+import { closeDatabase, Config, generateToken, Guild, GuildFeature, initDatabase, Member, Permissions, Role, User } from "@spacebar/util";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
+import { withoutSelfLeaveRight } from "../fixtures/rights";
 import { startApi } from "../server/startApi";
 
 type EventCapture = Awaited<ReturnType<typeof captureEvents>>;
@@ -106,15 +107,22 @@ test(
                 email: `role-member-${suffix}@example.com`,
                 password: "not-a-real-login-hash",
             });
+            const outsider = await User.register({
+                username: `roleoutsider${suffix.slice(-8)}`,
+                email: `role-outsider-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
             const ownerToken = await generateToken(owner.id);
             const memberToken = await generateToken(member.id);
+            const outsiderToken = await generateToken(outsider.id);
             assert.ok(ownerToken, "owner token generation should return a bearer token");
             assert.ok(memberToken, "member token generation should return a bearer token");
+            assert.ok(outsiderToken, "outsider token generation should return a bearer token");
 
             const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `roles-${suffix.slice(-8)}` }, ownerToken);
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
-            await Guild.update({ id: guildId }, { features: ["DISCOVERABLE"] });
+            await Guild.update({ id: guildId }, { features: [GuildFeature.Discoverable] });
             events = await captureEvents([guildId, member.id]);
 
             const joinGuild = await putJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, {}, memberToken);
@@ -123,6 +131,11 @@ test(
             assert.equal(joinEvent.data.guild_id, guildId);
             const readyEvent = await events.waitFor((event) => event.event === "GUILD_CREATE" && event.user_id === member.id && event.data.id === guildId);
             assert.equal(readyEvent.data.member_count, 2);
+            const readyMembers = readyEvent.data.members as Array<{ id: string; roles: string[]; user?: { id?: string } }>;
+            const readyMember = readyMembers.find((readyMember) => readyMember.id === member.id);
+            assert.ok(readyMember, "GUILD_CREATE should include the joining member in data.members");
+            assert.equal(readyMember.user?.id, member.id);
+            assert.deepEqual(readyMember.roles, [guildId]);
             assert.notEqual(await Member.findOneBy({ guild_id: guildId, id: member.id }), null);
             assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
 
@@ -170,6 +183,9 @@ test(
             assert.equal(fetchedRoleBody.id, roleId);
             assert.equal(fetchedRoleBody.name, "scenario-role");
 
+            const outsiderRoleMembers = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}/member-ids`, outsiderToken);
+            await assertStatus(outsiderRoleMembers, 403);
+
             const updateRole = await patchJson(
                 `${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`,
                 {
@@ -201,6 +217,64 @@ test(
                 (event) => event.event === "GUILD_ROLE_UPDATE" && event.guild_id === guildId && event.data.role.id === roleId && event.data.role.position === 3,
             );
             assert.equal(roleMoveEvent.data.role.position, 3);
+
+            const managerRole = await postJson(
+                `${api.apiBaseUrl}/guilds/${guildId}/roles`,
+                {
+                    name: "manager-role",
+                    permissions: String(Permissions.FLAGS.MANAGE_ROLES),
+                    color: 3066993,
+                    hoist: false,
+                    mentionable: false,
+                },
+                ownerToken,
+            );
+            await assertStatus(managerRole, 200);
+            const managerRoleId = (await assertJsonObject(managerRole)).id as string;
+            const lowerRole = await postJson(
+                `${api.apiBaseUrl}/guilds/${guildId}/roles`,
+                {
+                    name: "lower-role",
+                    permissions: "0",
+                    color: 10181046,
+                    hoist: false,
+                    mentionable: false,
+                },
+                ownerToken,
+            );
+            await assertStatus(lowerRole, 200);
+            const lowerRoleId = (await assertJsonObject(lowerRole)).id as string;
+
+            await Promise.all([
+                Role.update({ guild_id: guildId, id: roleId }, { position: 5 }),
+                Role.update({ guild_id: guildId, id: managerRoleId }, { position: 3, permissions: String(Permissions.FLAGS.MANAGE_ROLES) }),
+                Role.update({ guild_id: guildId, id: lowerRoleId }, { position: 1 }),
+            ]);
+            await Member.addRole(member.id, guildId, managerRoleId);
+
+            await assertStatus(await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`, { name: "blocked-high-role" }, memberToken), 403);
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: roleId })).name, "scenario-role-updated");
+            await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`, memberToken), 403);
+            assert.notEqual(await Role.findOneBy({ guild_id: guildId, id: roleId }), null);
+            await assertStatus(await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${lowerRoleId}`, { position: 3 }, memberToken), 403);
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: lowerRoleId })).position, 1);
+            await assertStatus(await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles`, [{ id: lowerRoleId, position: 3 }], memberToken), 403);
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: lowerRoleId })).position, 1);
+            await assertStatus(
+                await patchJson(
+                    `${api.apiBaseUrl}/guilds/${guildId}/roles`,
+                    [
+                        { id: lowerRoleId, position: 3 },
+                        { id: lowerRoleId, position: 1 },
+                    ],
+                    memberToken,
+                ),
+                403,
+            );
+            assert.equal((await Role.findOneByOrFail({ guild_id: guildId, id: lowerRoleId })).position, 1);
+            const memberCanUpdateLowerRole = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${lowerRoleId}`, { name: "member-managed-lower-role" }, memberToken);
+            await assertStatus(memberCanUpdateLowerRole, 200);
+            assert.equal((await assertJsonObject(memberCanUpdateLowerRole)).name, "member-managed-lower-role");
 
             const managedNick = "managed member";
             const patchMember = await patchJson(`${api.apiBaseUrl}/guilds/${guildId}/members/${member.id}`, { nick: managedNick, roles: [roleId] }, ownerToken);
@@ -288,6 +362,54 @@ test(
             assert.equal(guildDeleteForMember.data.id, guildId);
             assert.equal(await Member.countBy({ guild_id: guildId, id: member.id }), 0);
             assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
+
+            const selfLeaveUser = await User.register({
+                username: `selfleave${suffix.slice(-8)}`,
+                email: `self-leave-${suffix}@example.com`,
+                password: "not-a-real-login-hash",
+            });
+            await User.update({ id: selfLeaveUser.id }, { rights: withoutSelfLeaveRight(selfLeaveUser.rights) });
+            const selfLeaveToken = await generateToken(selfLeaveUser.id);
+            assert.ok(selfLeaveToken, "self-leave token generation should return a bearer token");
+            await Member.addToGuild(selfLeaveUser.id, guildId);
+            await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, selfLeaveToken), 403);
+            assert.notEqual(await Member.findOneBy({ guild_id: guildId, id: selfLeaveUser.id }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
+
+            await Member.update({ guild_id: guildId, id: selfLeaveUser.id }, { joined_by: owner.id });
+            const beforeForceLeave = markCapturedEvents(events);
+            await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, selfLeaveToken), 204);
+            const selfLeaveRemoveEvent = await waitForEventAfter(
+                events,
+                beforeForceLeave,
+                (event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === selfLeaveUser.id,
+            );
+            assert.equal(selfLeaveRemoveEvent.data.guild_id, guildId);
+            assert.equal(await Member.findOneBy({ guild_id: guildId, id: selfLeaveUser.id }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
+
+            const capRole = await Role.save(
+                Role.create({
+                    guild_id: guildId,
+                    color: 0,
+                    hoist: false,
+                    managed: false,
+                    mentionable: false,
+                    name: "cap-role",
+                    permissions: "0",
+                    position: 4,
+                    flags: 0,
+                    colors: { primary_color: 0, secondary_color: undefined, tertiary_color: undefined },
+                }),
+            );
+            const capMemberIds = await createRoleMemberIdFixtures(guildId, capRole, 105, suffix);
+            const cappedRoleMembers = (await getJsonArray(
+                `${api.apiBaseUrl}/guilds/${guildId}/roles/${capRole.id}/member-ids?limit=500&after=0`,
+                ownerToken,
+            )) as unknown as string[];
+            assert.equal(cappedRoleMembers.length, 100);
+            assert.deepEqual(cappedRoleMembers, [...cappedRoleMembers].sort());
+            assert.ok(cappedRoleMembers.every((id) => capMemberIds.includes(id)));
 
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/guilds/${guildId}/roles/${roleId}`, ownerToken), 204);
             const roleDeleteEvent = await events.waitFor((event) => event.event === "GUILD_ROLE_DELETE" && event.guild_id === guildId && event.data.role_id === roleId);
@@ -378,6 +500,39 @@ async function memberRoleIds(userId: string, guildId: string) {
         relations: { roles: true },
     });
     return member.roles.map((role) => role.id).sort();
+}
+
+async function createRoleMemberIdFixtures(guildId: string, role: Role, count: number, suffix: string) {
+    const users = await Promise.all(
+        Array.from({ length: count }, async (_, index) =>
+            User.register({
+                username: `capmember${suffix.slice(-8)}${index}`,
+                password: "not-a-real-login-hash",
+                emitSideEffects: false,
+            }),
+        ),
+    );
+
+    await Member.save(
+        users.map((user) =>
+            Member.create({
+                id: user.id,
+                user,
+                guild_id: guildId,
+                roles: [Role.create({ id: role.id })],
+                joined_at: new Date(),
+                deaf: false,
+                mute: false,
+                pending: false,
+                settings: {},
+                bio: "",
+                communication_disabled_until: null,
+                flags: 0,
+            }),
+        ),
+    );
+
+    return users.map((user) => user.id);
 }
 
 function markCapturedEvents(capture: EventCapture) {

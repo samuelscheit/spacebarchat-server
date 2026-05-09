@@ -34,6 +34,7 @@ flake-utils.lib.eachSystem flake-utils.lib.allSystems (
             srcRoot = ./.;
             packNupkg = false;
             projectReferences = [
+              proj.Spacebar-Cdn-Shared
               proj.Spacebar-Interop-Cdn-Abstractions
             ];
             nativeBuildInputs = [

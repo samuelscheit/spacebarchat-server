@@ -16,8 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Config, DiscordApiErrors, emitEvent, Emoji, getPermission, getRights, Guild, GuildMemberUpdateEvent, handleFile, Member, Role, Sticker } from "@spacebar/util";
+import { assertCanSelfLeaveGuild, route } from "@spacebar/api";
+import { joinGuildMember } from "../../../../../util/handlers/GuildMemberJoin";
+import { deleteReplacedCdnAsset, emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { MemberChangeSchema, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
 
@@ -115,7 +116,9 @@ router.patch(
             rights.hasThrow("MANAGE_USERS");
         }
 
-        if (body.avatar) body.avatar = await handleFile(`/guilds/${guild_id}/users/${member_id}/avatars`, body.avatar as string);
+        const previousAvatar = member.avatar;
+        const memberAvatarPath = `/guilds/${guild_id}/users/${member_id}/avatars`;
+        if (body.avatar) body.avatar = await handleFile(memberAvatarPath, body.avatar as string);
 
         member.assign(body);
 
@@ -148,6 +151,8 @@ router.patch(
             data: { ...member, roles: member.roles.map((x) => x.id) },
         } satisfies GuildMemberUpdateEvent);
 
+        if ("avatar" in body) await deleteReplacedCdnAsset(memberAvatarPath, previousAvatar, member.avatar);
+
         res.json(member);
     },
 );
@@ -155,10 +160,18 @@ router.patch(
 router.put(
     "/",
     route({
+        query: {
+            lurker: {
+                type: "string",
+                description: "Return 204 for existing member lurker join probes.",
+                values: ["true", "1"],
+            },
+        },
         responses: {
             200: {
                 body: "MemberJoinGuildResponse",
             },
+            204: {},
             403: {
                 body: "APIErrorResponse",
             },
@@ -168,44 +181,17 @@ router.put(
         },
     }),
     async (req: Request, res: Response) => {
-        // TODO: Lurker mode
-
-        const rights = await getRights(req.user_id);
-
-        const { guild_id } = req.params as { [key: string]: string };
-        let { member_id } = req.params as { [key: string]: string };
-        if (member_id === "@me") {
-            member_id = req.user_id;
-            rights.hasThrow("JOIN_GUILDS");
-            if (req.user_bot && !Config.get().user.botsCanUseInvites) throw DiscordApiErrors.BOT_PROHIBITED_ENDPOINT;
-        } else {
-            // TODO: check oauth2 scope
-
-            throw DiscordApiErrors.MISSING_REQUIRED_OAUTH2_SCOPE;
-        }
-
-        const guild = await Guild.findOneOrFail({
-            where: { id: guild_id },
+        const { guild_id, member_id } = req.params as { [key: string]: string };
+        const result = await joinGuildMember({
+            guild_id,
+            member_id,
+            user_id: req.user_id,
+            user_bot: req.user_bot,
+            query: req.query,
         });
 
-        if (!guild.features.includes("DISCOVERABLE")) {
-            throw DiscordApiErrors.UNKNOWN_GUILD;
-        }
-
-        const emoji = await Emoji.find({
-            where: { guild_id: guild_id },
-        });
-
-        const roles = await Role.find({
-            where: { guild_id: guild_id },
-        });
-
-        const stickers = await Sticker.find({
-            where: { guild_id: guild_id },
-        });
-
-        await Member.addToGuild(member_id, guild_id);
-        res.send({ ...guild, emojis: emoji, roles: roles, stickers: stickers });
+        if (result.status === 204) return res.sendStatus(204);
+        return res.status(result.status).send(result.data);
     },
 );
 
@@ -220,13 +206,13 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const { guild_id, member_id } = req.params as { [key: string]: string };
+        const { guild_id } = req.params as { [key: string]: string };
+        const member_id = req.params.member_id === "@me" ? req.user_id : (req.params.member_id as string);
         const permission = await getPermission(req.user_id, guild_id);
-        const rights = await getRights(req.user_id);
-        if (member_id === "@me" || member_id === req.user_id) {
-            // TODO: unless force-joined
-            rights.hasThrow("SELF_LEAVE_GROUPS");
+        if (member_id === req.user_id) {
+            await assertCanSelfLeaveGuild(req.user_id, guild_id);
         } else {
+            const rights = await getRights(req.user_id);
             rights.hasThrow("KICK_BAN_MEMBERS");
             permission.hasThrow("KICK_MEMBERS");
         }

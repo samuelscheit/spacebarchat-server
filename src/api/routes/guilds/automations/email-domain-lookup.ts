@@ -59,7 +59,6 @@ router.post(
     },
 );
 
-// noinspection JSUnusedLocalSymbols - TODO: implement
 router.post(
     "/verify-code",
     route({

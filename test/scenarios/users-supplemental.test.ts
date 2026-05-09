@@ -5,11 +5,28 @@ import path from "node:path";
 import { test } from "node:test";
 import bcrypt from "bcrypt";
 import { FrecencyUserSettings, PreloadedUserSettings } from "discord-protos";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, InstanceBan, Member, Recipient, User, UserSettingsProtos } from "@spacebar/util";
+import {
+    Channel,
+    closeDatabase,
+    Config,
+    generateToken,
+    Guild,
+    initDatabase,
+    InstanceBan,
+    Member,
+    Message,
+    Permissions,
+    Recipient,
+    Rights,
+    Session,
+    User,
+    UserSettingsProtos,
+} from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
+import { withoutSelfLeaveRight } from "../fixtures/rights";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
@@ -48,6 +65,7 @@ const coveredManifestIds = [
     "api:http:PATCH:/users/@me/settings-proto/2/",
     "api:http:PATCH:/users/@me/settings-proto/2/json",
     "api:http:POST:/users/:user_id/delete/",
+    "api:http:POST:/users/:user_id/messages/",
     "api:http:POST:/users/@me/billing/payment-sources/",
     "api:http:POST:/users/@me/channels/",
     "api:http:POST:/users/@me/delete/",
@@ -99,6 +117,7 @@ test(
             "api:http:PATCH:/users/@me/settings-proto/2/",
             "api:http:PATCH:/users/@me/settings-proto/2/json",
             "api:http:POST:/users/:user_id/delete/",
+            "api:http:POST:/users/:user_id/messages/",
             "api:http:POST:/users/@me/billing/payment-sources/",
             "api:http:POST:/users/@me/channels/",
             "api:http:POST:/users/@me/delete/",
@@ -149,6 +168,7 @@ test(
             const groupTarget = await registerUser(`usersuppgroup${suffix.slice(-8)}`, `users-supp-group-${suffix}@example.com`);
             const ownerToken = await generateToken(owner.id);
             assert.ok(ownerToken, "owner token generation should return a bearer token");
+            await Session.update({ user_id: owner.id }, { status: "online" });
             ownerEvents = await captureEvents(owner.id);
 
             const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `users-supp-${suffix.slice(-8)}` }, ownerToken);
@@ -190,8 +210,49 @@ test(
             const dmMessages = await getJsonArray(`${api.apiBaseUrl}/users/${target.id}/messages?limit=5`, ownerToken);
             assert.deepEqual(dmMessages, []);
 
+            const invalidMessageRecipient = await registerUser(`invaliddm${suffix.slice(-8)}`, `users-invalid-dm-${suffix}@example.com`);
+            const invalidDirectMessage = await postJson(
+                `${api.apiBaseUrl}/users/${invalidMessageRecipient.id}/messages`,
+                {
+                    content: "invalid direct body",
+                    files: [{ id: "0", uploaded_filename: "not-allowed-here.png" }],
+                },
+                ownerToken,
+            );
+            await assertStatus(invalidDirectMessage, 400);
+            assert.equal(await owner.getDmChannelWith(invalidMessageRecipient.id), undefined, "invalid direct-message bodies must not create or reopen a DM");
+
+            const noRightSender = await registerUser(`norightdm${suffix.slice(-8)}`, `users-no-right-dm-${suffix}@example.com`);
+            await User.update({ id: noRightSender.id }, { rights: (BigInt(noRightSender.rights) & ~Rights.FLAGS.SEND_MESSAGES).toString() });
+            const noRightToken = await generateToken(noRightSender.id);
+            assert.ok(noRightToken, "no-right token generation should return a bearer token");
+            const noRightDirectMessage = await postJson(`${api.apiBaseUrl}/users/${target.id}/messages`, { content: "blocked by rights" }, noRightToken);
+            await assertStatus(noRightDirectMessage, 403);
+            assert.equal(await noRightSender.getDmChannelWith(target.id), undefined, "missing SEND_MESSAGES rights must not create or reopen a DM");
+
+            const directMessage = await postJson(
+                `${api.apiBaseUrl}/users/${target.id}/messages`,
+                {
+                    content: "direct route message",
+                    nonce: `direct-${suffix}`,
+                },
+                ownerToken,
+            );
+            await assertStatus(directMessage, 200);
+            const directMessageBody = await assertJsonObject(directMessage);
+            assert.equal(directMessageBody.channel_id, dmId);
+            assert.equal(directMessageBody.content, "direct route message");
+            assert.equal((await Message.findOneByOrFail({ id: directMessageBody.id as string, channel_id: dmId })).content, "direct route message");
+
             const guilds = await getJsonArray(`${api.apiBaseUrl}/users/@me/guilds`, ownerToken);
             assert.ok(guilds.some((guild) => guild.id === guildId));
+
+            const guildsWithCounts = await getJsonArray(`${api.apiBaseUrl}/users/@me/guilds?with_counts=true`, ownerToken);
+            const guildWithCounts = guildsWithCounts.find((guild) => guild.id === guildId);
+            assert.ok(guildWithCounts, "joined guild should be returned when with_counts is true");
+            assert.equal(guildWithCounts.approximate_member_count, 2);
+            assert.equal(guildWithCounts.approximate_presence_count, 1);
+            assert.equal(guildWithCounts.permissions, Permissions.ALL.bitfield.toString());
 
             const guildSettings = await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}/settings`, ownerToken));
             assert.equal(guildSettings.guild_id, null);
@@ -217,11 +278,23 @@ test(
             assert.equal(persistedMemberSettings.settings.muted, true);
             assert.equal(persistedMemberSettings.settings.mobile_push, false);
 
+            const guildMemberCountBeforeBlockedLeave = await Member.countBy({ guild_id: guildId });
+            await User.update({ id: target.id }, { rights: withoutSelfLeaveRight(target.rights) });
+            const blockedLeaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
+            await assertStatus(blockedLeaveGuild, 403);
+            assert.notEqual(await Member.findOneBy({ id: target.id, guild_id: guildId }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, guildMemberCountBeforeBlockedLeave);
+
+            await Member.update({ id: target.id, guild_id: guildId }, { joined_by: owner.id });
+            const guildMemberCountBeforeLeave = await Member.countBy({ guild_id: guildId });
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, guildMemberCountBeforeLeave);
             const leaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
             await assertStatus(leaveGuild, 204);
             await guildEvents.waitFor((event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === target.id, eventTimeoutMs);
             assert.equal(await Member.findOneBy({ id: target.id, guild_id: guildId }), null);
-            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
+            const guildMemberCountAfterLeave = await Member.countBy({ guild_id: guildId });
+            assert.equal(guildMemberCountAfterLeave, guildMemberCountBeforeLeave - 1);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, guildMemberCountAfterLeave);
 
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/activities/statistics/applications`, ownerToken);
             assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/affinities/guilds`, ownerToken)), { guild_affinities: [] });
@@ -245,7 +318,7 @@ test(
                 },
                 initialized: false,
             });
-            await assertArrayResponse(`${api.apiBaseUrl}/users/@me/entitlements/gifts`, ownerToken);
+            assert.deepEqual(await assertArrayResponse(`${api.apiBaseUrl}/users/@me/entitlements/gifts`, ownerToken), []);
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/guilds/premium/subscription-slots`, ownerToken);
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/library`, ownerToken);
 
@@ -293,10 +366,15 @@ test(
 
             const selfDeletePassword = "delete-password-42";
             const selfDeleteUser = await registerLoginCapableUser(`selfdelete${suffix.slice(-8)}`, `users-self-delete-${suffix}@example.com`, selfDeletePassword);
+            await Member.addToGuild(selfDeleteUser.id, guildId);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
             const selfDeleteToken = await generateToken(selfDeleteUser.id);
             assert.ok(selfDeleteToken, "self-delete token generation should return a bearer token");
             await assertStatus(await postJson(`${api.apiBaseUrl}/users/@me/delete`, { password: selfDeletePassword }, selfDeleteToken), 204);
+            await guildEvents.waitFor((event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === selfDeleteUser.id, eventTimeoutMs);
             assert.equal(await User.findOneBy({ id: selfDeleteUser.id }), null);
+            assert.equal(await Member.findOneBy({ id: selfDeleteUser.id, guild_id: guildId }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
 
             const admin = await registerUser(`admin${suffix.slice(-8)}`, `users-admin-${suffix}@example.com`);
             await User.update({ id: admin.id }, { rights: "1" });

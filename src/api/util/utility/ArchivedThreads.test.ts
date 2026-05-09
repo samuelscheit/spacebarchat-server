@@ -11,6 +11,7 @@ import {
     MAX_ARCHIVED_THREAD_LIMIT,
     parseArchivedThreadLimit,
     PUBLIC_ARCHIVED_THREAD_PERMISSIONS,
+    serializePublicArchivedThreadMember,
 } from "./ArchivedThreads";
 
 describe("archived thread helpers", () => {
@@ -83,6 +84,40 @@ describe("archived thread helpers", () => {
         );
         assert.deepEqual(builder.calls.at(-2), ["orderBy", archivedThreadArchiveTimestampExpression(), "DESC"]);
         assert.deepEqual(builder.calls.at(-1), ["take", 51]);
+    });
+
+    test("serializes public archived thread members with public user ids", () => {
+        assert.deepEqual(
+            serializePublicArchivedThreadMember(
+                {
+                    id: "thread-id",
+                    join_timestamp: new Date("2026-01-02T03:04:05.000Z"),
+                    flags: 3,
+                },
+                "user-id",
+            ),
+            {
+                id: "thread-id",
+                user_id: "user-id",
+                join_timestamp: "2026-01-02T03:04:05.000Z",
+                flags: 3,
+            },
+        );
+    });
+
+    test("rejects invalid public archived thread member timestamps", () => {
+        assert.throws(
+            () =>
+                serializePublicArchivedThreadMember(
+                    {
+                        id: "thread-id",
+                        join_timestamp: "not-a-date",
+                        flags: 0,
+                    },
+                    "user-id",
+                ),
+            RangeError,
+        );
     });
 });
 

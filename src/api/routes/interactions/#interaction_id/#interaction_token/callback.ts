@@ -16,22 +16,33 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
-import { Request, Response, Router } from "express";
+import { InteractionCallbacksSchema, InteractionCallbackType, MessageType } from "@spacebar/schemas";
 import {
-    Config,
+    assertMessagePayloadPermissions,
+    createApplicationCommandInteractionMessageData,
+    handleMessage,
+    normalizeMessageEditBodyAttachments,
+    postHandleMessage,
+    route,
+    sendMessage,
+} from "@spacebar/api";
+import { Request, Response, Router } from "express";
+import { acknowledgeDeferredMessageUpdateInteraction } from "../../../../util/handlers/InteractionCallbackState";
+import {
+    buildMessageEditComponentProcessingOptions,
+    buildMessageEditHandleMessageOptions,
     emitEvent,
     getPermission,
     InteractionSuccessEvent,
     Message,
     MessageUpdateEvent,
     pendingInteractions,
+    requirePendingInteractionForCallback,
     User,
-    InteractionFailureEvent,
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
+import { assertMessagePayloadLimits } from "../../../../util/utility/MessagePayloadLimits";
 
 const router = Router({ mergeParams: true });
 
@@ -45,11 +56,8 @@ router.post(
         const body = req.body as InteractionCallbacksSchema;
 
         const interactionId = req.params.interaction_id as string;
-        const interaction = pendingInteractions.get(req.params.interaction_id);
-
-        if (!interaction) {
-            return;
-        }
+        const interactionToken = req.params.interaction_token as string | undefined;
+        const interaction = requirePendingInteractionForCallback(interactionId, interactionToken);
 
         if (
             body.type === InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE ||
@@ -57,9 +65,16 @@ router.post(
             body.type === InteractionCallbackType.UPDATE_MESSAGE ||
             body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ) {
+            assertMessagePayloadLimits(body.data);
             if (!interaction.channelId) throw new HTTPError("Interaction channel not found", 400);
             const permissions = await getPermission(interaction.applicationId, interaction.guildId, interaction.channelId);
             assertMessagePayloadPermissions(permissions, body.data);
+        }
+
+        if (body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE) {
+            await acknowledgeDeferredMessageUpdateInteraction(interactionId, interaction, pendingInteractions, emitEvent);
+            res.sendStatus(204);
+            return;
         }
 
         clearTimeout(interaction.timeout);
@@ -69,26 +84,24 @@ router.post(
             user_id: interaction?.userId,
             data: {
                 id: interactionId,
-                nonce: interaction.nonce ?? "", // TODO: did i do this right?
+                nonce: interaction.nonce,
             },
         } satisfies InteractionSuccessEvent);
 
         switch (body.type) {
             case InteractionCallbackType.PONG:
-                // TODO
+                // PONG acknowledges ping interactions without creating or updating messages.
                 break;
             case InteractionCallbackType.ACKNOWLEDGE:
                 // Deprected
                 break;
-            case InteractionCallbackType.CHANNEL_MESSAGE:
-                // TODO
-                break;
             case InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE: {
                 const user = await User.findOneOrFail({ where: { id: interaction.userId } });
+                const interactionUser = user.toPublicUser();
                 /*
 			const files = (req.files as Express.Multer.File[]) ?? [];
 			//I don't think traditional attachments are allowed anyways
-			const attachments: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[] = [];
+			const attachments: (Attachment | MessageCreateAttachmentMetadata)[] = [];
 			for (const currFile of files) {
 				try {
 					const file = await uploadFile(`/attachments/${interaction.channelId}`, currFile);
@@ -114,23 +127,13 @@ router.post(
                     flags: body.data.flags,
                     reactions: [],
                     // webhook_id: interaction.applicationId, // This one requires a webhook to be created first
-                    interaction: {
-                        id: interactionId,
-                        name: interaction.commandName ?? "",
-                        type: 2,
-                        user,
-                    },
-                    interaction_metadata: {
-                        id: interactionId,
-                        type: 2,
-                        user_id: interaction.userId,
-                        user,
-                        authorizing_integration_owners: {
-                            "1": interaction.userId,
-                        },
-                        name: interaction.commandName ?? "",
-                        command_type: interaction.commandType,
-                    },
+                    ...createApplicationCommandInteractionMessageData({
+                        commandName: interaction.commandName,
+                        commandType: interaction.commandType,
+                        interactionId,
+                        userId: interaction.userId,
+                        user: interactionUser,
+                    }),
                 });
 
                 break;
@@ -138,49 +141,44 @@ router.post(
             case InteractionCallbackType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE:
                 // TODO
                 break;
-            case InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
-                //TODO keep track of state of this
-                interaction.timeout = setTimeout(() => {
-                    emitEvent({
-                        event: "INTERACTION_FAILURE",
-                        user_id: req.user_id,
-                        data: {
-                            id: interactionId,
-                            nonce: interaction.nonce,
-                            reason_code: InteractionFailureReason.TIMEOUT,
-                        },
-                    } as InteractionFailureEvent);
-                }, 30000);
-                pendingInteractions.delete(interactionId);
-                res.sendStatus(204);
-                return;
             case InteractionCallbackType.UPDATE_MESSAGE:
                 {
                     if (!interaction.messageId) throw new HTTPError("no. That was not a message");
+                    const channelId = interaction.channelId;
+                    if (!channelId) throw new HTTPError("Interaction channel not found", 400);
                     const message = await Message.findOneOrFail({
                         relations: {
                             ...messagePublicWithThreadRelations,
+                            attachments: true,
                             channel: true,
                         },
                         where: {
                             id: interaction.messageId,
+                            channel_id: channelId,
                         },
                     });
-                    if (body.data.content && body.data.content.length > Config.get().limits.message.maxCharacters) {
-                        throw new HTTPError("Content length over max character limit");
-                    }
-                    message.embeds = body.data.embeds || [];
-                    const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
-                    await handle?.(message.id, message.author as User, message.channel);
-                    message.components = body.data.components;
-                    await message.save();
-                    emitEvent({
+                    const normalizedBody = normalizeMessageEditBodyAttachments(body.data, message.attachments);
+                    const componentProcessingOptions = buildMessageEditComponentProcessingOptions(normalizedBody);
+                    const updatedMessage = await handleMessage(
+                        buildMessageEditHandleMessageOptions(message, normalizedBody, channelId, message.id, new Date(), {
+                            attachment_user_id: interaction.applicationId,
+                            attachment_channel_ids: [channelId],
+                            is_edit: true,
+                            ...componentProcessingOptions,
+                        }),
+                        { suppress_notifications: true },
+                    );
+                    await updatedMessage.save();
+                    await emitEvent({
                         event: "MESSAGE_UPDATE",
-                        channel_id: message.channel_id,
-                        data: message.toJSON(),
+                        channel_id: channelId,
+                        data: {
+                            ...updatedMessage.toJSON(),
+                            nonce: undefined,
+                        },
                     } satisfies MessageUpdateEvent);
+                    postHandleMessage(updatedMessage).catch((e) => console.error("[InteractionCallback] post-message handler failed", e));
                 }
-                // TODO
                 break;
             /*
             case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:
@@ -193,10 +191,9 @@ router.post(
                 // Deprecated
                 break;
             case InteractionCallbackType.IFRAME_MODAL:
-                // TODO
                 break;
             case InteractionCallbackType.LAUNCH_ACTIVITY:
-                // TODO
+                // Unsupported until InteractionCallbacksSchema and embedded activity launch state exist.
                 break;
             */
             default:

@@ -1,15 +1,28 @@
 import assert from "node:assert/strict";
-import { describe, test } from "node:test";
+import { afterEach, describe, test } from "node:test";
+import { FieldError, serializeThreadMemberPayload, ThreadMember, ThreadMemberFlags } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import {
     applyThreadMemberListQuery,
+    applyThreadMemberSettingsUpdate,
     assertThreadIsNotArchived,
     DEFAULT_THREAD_MEMBER_LIMIT,
+    MAX_THREAD_MEMBER_COUNT,
     MAX_THREAD_MEMBER_LIMIT,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
+    syncPersistedThreadMemberCount,
+    syncThreadMemberCount,
 } from "./ThreadMembers";
+
+const originalThreadMemberCountBy = ThreadMember.countBy;
+
+afterEach(() => {
+    Object.assign(ThreadMember, {
+        countBy: originalThreadMemberCountBy,
+    });
+});
 
 describe("thread member helpers", () => {
     test("defaults thread member limit", () => {
@@ -43,6 +56,158 @@ describe("thread member helpers", () => {
         assert.doesNotThrow(() => assertThreadIsNotArchived({}));
         assert.doesNotThrow(() => assertThreadIsNotArchived({ thread_metadata: { archived: false } }));
         assert.throws(() => assertThreadIsNotArchived({ thread_metadata: { archived: true } }), RangeError);
+    });
+
+    test("applies thread member settings while preserving server-managed interaction flag", () => {
+        const threadMember = createThreadMember({
+            flags: ThreadMemberFlags.HAS_INTERACTED | ThreadMemberFlags.ALL_MESSAGES,
+            muted: false,
+        });
+
+        const result = applyThreadMemberSettingsUpdate(threadMember, {
+            flags: ThreadMemberFlags.ONLY_MENTIONS,
+            muted: true,
+            mute_config: {
+                end_time: "2026-02-03T04:05:06.000Z",
+                selected_time_window: 3600,
+            },
+        });
+
+        assert.equal(result.changed, true);
+        assert.equal(threadMember.flags, ThreadMemberFlags.HAS_INTERACTED | ThreadMemberFlags.ONLY_MENTIONS);
+        assert.equal(threadMember.muted, true);
+        assert.deepEqual(threadMember.mute_config, {
+            end_time: new Date("2026-02-03T04:05:06.000Z"),
+            selected_time_window: 3600,
+        });
+    });
+
+    test("detects unchanged thread member settings", () => {
+        const threadMember = createThreadMember({
+            flags: ThreadMemberFlags.NO_MESSAGES,
+            muted: true,
+            mute_config: {
+                end_time: new Date("2026-02-03T04:05:06.000Z"),
+                selected_time_window: 3600,
+            },
+        });
+
+        const result = applyThreadMemberSettingsUpdate(threadMember, {
+            flags: ThreadMemberFlags.NO_MESSAGES,
+            muted: true,
+            mute_config: {
+                end_time: "2026-02-03T04:05:06.000Z",
+                selected_time_window: 3600,
+            },
+        });
+
+        assert.equal(result.changed, false);
+    });
+
+    test("clears thread member mute config with null", () => {
+        const threadMember = createThreadMember({
+            muted: true,
+            mute_config: { selected_time_window: 3600 },
+        });
+
+        const result = applyThreadMemberSettingsUpdate(threadMember, { mute_config: null });
+
+        assert.equal(result.changed, true);
+        assert.equal(threadMember.mute_config, undefined);
+    });
+
+    test("rejects client-managed thread member flags", () => {
+        assertInvalidThreadMemberSettingsFlags(ThreadMemberFlags.HAS_INTERACTED);
+        assertInvalidThreadMemberSettingsFlags(1 << 9);
+        assertInvalidThreadMemberSettingsFlags(2 ** 32);
+    });
+
+    test("serializes public thread member update payload with the shared serializer", () => {
+        const serialized = serializeThreadMemberPayload(
+            createThreadMember({
+                id: "thread-id",
+                join_timestamp: new Date("2026-01-02T03:04:05.000Z"),
+                flags: ThreadMemberFlags.ONLY_MENTIONS,
+                muted: true,
+                mute_config: { end_time: new Date("2026-02-03T04:05:06.000Z") },
+            }),
+            "user-id",
+        );
+
+        assert.deepEqual(serialized, {
+            id: "thread-id",
+            user_id: "user-id",
+            join_timestamp: "2026-01-02T03:04:05.000Z",
+            flags: ThreadMemberFlags.ONLY_MENTIONS,
+            muted: true,
+            mute_config: { end_time: "2026-02-03T04:05:06.000Z" },
+        });
+    });
+
+    test("syncs an existing thread member count from persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: 2 });
+        const countThreadMembers = createThreadMemberCountReader(5);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 5);
+        assert.equal(thread.member_count, 5);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("repairs a missing thread member count by counting persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: null });
+        const countThreadMembers = createThreadMemberCountReader(4);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 4);
+        assert.equal(thread.member_count, 4);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("repairs an undefined thread member count by counting persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: undefined });
+        const countThreadMembers = createThreadMemberCountReader(4);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 4);
+        assert.equal(thread.member_count, 4);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("caps synced thread member counts to Discord's approximate count maximum", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: 2 });
+        const countThreadMembers = createThreadMemberCountReader(MAX_THREAD_MEMBER_COUNT + 10);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, MAX_THREAD_MEMBER_COUNT);
+        assert.equal(thread.member_count, MAX_THREAD_MEMBER_COUNT);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("syncs thread member counts from persisted ThreadMember rows by default", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: null });
+        const countByCalls: unknown[] = [];
+        Object.assign(ThreadMember, {
+            countBy: async (where: unknown) => {
+                countByCalls.push(where);
+                return 3;
+            },
+        });
+
+        const memberCount = await syncPersistedThreadMemberCount(thread);
+
+        assert.equal(memberCount, 3);
+        assert.equal(thread.member_count, 3);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countByCalls, [{ id: "thread-id" }]);
     });
 
     test("builds thread member list query against member user ids", () => {
@@ -139,4 +304,49 @@ function createFakeQueryBuilder() {
             return this;
         },
     };
+}
+
+function assertInvalidThreadMemberSettingsFlags(flags: number) {
+    let error: unknown;
+
+    try {
+        applyThreadMemberSettingsUpdate(createThreadMember(), { flags });
+    } catch (caught) {
+        error = caught;
+    }
+
+    assert.ok(error instanceof FieldError);
+    assert.equal(error.code, 50035);
+}
+
+function createThreadMember(overrides: Record<string, unknown> = {}) {
+    return {
+        id: "thread-id",
+        join_timestamp: new Date("2026-01-02T03:04:05.000Z"),
+        flags: ThreadMemberFlags.ALL_MESSAGES,
+        muted: false,
+        mute_config: undefined,
+        ...overrides,
+    } as Parameters<typeof applyThreadMemberSettingsUpdate>[0];
+}
+
+function createCountedThread({ id, member_count }: { id: string; member_count?: number | null }) {
+    return {
+        id,
+        member_count,
+        saveCalls: 0,
+        async save() {
+            this.saveCalls++;
+        },
+    };
+}
+
+function createThreadMemberCountReader(count: number) {
+    const countThreadMembers = async (threadId: string) => {
+        countThreadMembers.threadIds.push(threadId);
+        return count;
+    };
+    countThreadMembers.threadIds = [] as string[];
+
+    return countThreadMembers;
 }
