@@ -62,6 +62,7 @@ nixpkgs.lib.recursiveUpdate (
           projectFile = "Spacebar.Interop.Cdn.Abstractions.csproj";
           nugetDeps = Interop/Spacebar.Interop.Cdn.Abstractions/deps.json;
           srcRoot = Interop/Spacebar.Interop.Cdn.Abstractions;
+          projectReferences = [ proj.Spacebar-Cdn-Shared ];
         };
         Spacebar-Interop-Cdn-Signing = buildSpacebarDotnetModule {
           name = "Spacebar.Interop.Cdn.Signing";
@@ -134,9 +135,17 @@ nixpkgs.lib.recursiveUpdate (
           nugetDeps = Utilities/Spacebar.Cdn.Fsck/deps.json;
           packNupkg = false;
           projectReferences = [
+            proj.Spacebar-Cdn-Shared
             proj.Spacebar-Models-Db
             proj.Spacebar-Interop-Cdn-Abstractions
           ];
+        };
+
+        # Shared CDN helpers
+        Spacebar-Cdn-Shared = buildSpacebarDotnetModule {
+          name = "Spacebar.Cdn.Shared";
+          projectFile = "Spacebar.Cdn.Shared.csproj";
+          srcRoot = ./Spacebar.Cdn.Shared;
         };
 
         # Main projects
@@ -166,6 +175,7 @@ nixpkgs.lib.recursiveUpdate (
           packNupkg = false;
           projectReferences = [
             proj.Spacebar-Models-Db
+            proj.Spacebar-Cdn-Shared
             proj.Spacebar-Interop-Cdn-Abstractions
             proj.Spacebar-Interop-Cdn-Signing
           ];

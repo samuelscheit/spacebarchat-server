@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { normalizeChannelName, normalizeGuildChannelName, normalizeThreadName, assertChannelNamePresent } from "./ChannelName";
+import { GuildFeature } from "./GuildFeatures";
 
 const GUILD_TEXT = 0;
 const GUILD_VOICE = 2;
@@ -44,12 +45,12 @@ describe("channel name validation", () => {
     });
 
     it("preserves invalid names when explicitly allowed", () => {
-        assert.equal(normalizeGuildChannelName("chat\nroom", GUILD_TEXT, ["ALLOW_INVALID_CHANNEL_NAMES"]), "chat\nroom");
-        assert.equal(normalizeThreadName("thread\nname", ["ALLOW_INVALID_CHANNEL_NAMES"]), "thread\nname");
+        assert.equal(normalizeGuildChannelName("chat\nroom", GUILD_TEXT, [GuildFeature.AllowInvalidChannelNames]), "chat\nroom");
+        assert.equal(normalizeThreadName("thread\nname", [GuildFeature.AllowInvalidChannelNames]), "thread\nname");
     });
 
     it("rejects normalized empty names unless unnamed channels are allowed", () => {
         assert.throws(() => assertChannelNamePresent("", []), /cannot be empty/);
-        assert.doesNotThrow(() => assertChannelNamePresent("", ["ALLOW_UNNAMED_CHANNELS"]));
+        assert.doesNotThrow(() => assertChannelNamePresent("", [GuildFeature.AllowUnnamedChannels]));
     });
 });

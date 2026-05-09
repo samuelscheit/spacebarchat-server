@@ -33,6 +33,7 @@ import {
     type MetricSample,
     registerPrometheusMetricsRoute,
 } from "@spacebar/util";
+import { initializeStorage } from "../cdn/util/Storage";
 import { Authentication, CORS, ImageProxy, BodyParser, ErrorHandler, initRateLimits, initTranslation } from "./middlewares";
 import { Request, Response, Router } from "express";
 import { Server, ServerOptions } from "lambert-server";
@@ -52,14 +53,6 @@ const PUBLIC_ASSETS_FOLDER = path.join(ASSETS_FOLDER, "public");
 export type SpacebarServerOptions = ServerOptions & {
     registerMetricsEndpoint?: boolean;
 };
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace Express {
-        interface Request {
-            server: SpacebarServer;
-        }
-    }
-}
 
 export class SpacebarServer extends Server {
     declare public options: SpacebarServerOptions;
@@ -118,8 +111,8 @@ export class SpacebarServer extends Server {
         this.app = api;
 
         api.use(Authentication);
-        await initRateLimits(api);
         await initTranslation(api);
+        await initRateLimits(api);
 
         this.routes = (await registerRoutes(this, path.join(__dirname, "routes", "/"))).filter((r) => !!r);
 
@@ -223,6 +216,7 @@ export class SpacebarServer extends Server {
 
     async start() {
         await initStartupConfigAndDatabase();
+        initializeStorage();
         await initEvent();
         await Email.init();
         await ConnectionConfig.init();

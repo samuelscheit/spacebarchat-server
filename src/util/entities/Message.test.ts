@@ -1,5 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
+import { getMetadataArgsStorage } from "typeorm";
 
 function attachmentUrl(filename: string, messageId = "message-id") {
     return `https://cdn.example/attachments/channel-id/${messageId}/${filename}`;
@@ -27,6 +28,21 @@ async function getMessageSigningContext() {
         }),
     };
 }
+
+describe("Message indexes", () => {
+    test("declares indexes for channel message rate checks", async () => {
+        const { Message } = await getMessageSigningContext();
+        const indexes = getMetadataArgsStorage().indices.filter((index) => index.target === Message);
+
+        const channelTimestampIndex = indexes.find((index) => index.name === "IDX_messages_channel_timestamp");
+        assert.ok(channelTimestampIndex);
+        assert.deepEqual(channelTimestampIndex.columns, ["channel_id", "timestamp"]);
+
+        const channelAuthorTimestampIndex = indexes.find((index) => index.name === "IDX_messages_channel_author_timestamp");
+        assert.ok(channelAuthorTimestampIndex);
+        assert.deepEqual(channelAuthorTimestampIndex.columns, ["channel_id", "author_id", "timestamp"]);
+    });
+});
 
 describe("Message.withSignedAttachments", () => {
     test("signs attachment-derived embed and component media urls", async () => {

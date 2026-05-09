@@ -40,6 +40,14 @@ export const WebAuthn: {
     },
 };
 
+export function requireWebAuthnFido2(): Fido2Lib {
+    if (!WebAuthn.fido2) {
+        throw new Error("WebAuthn not enabled");
+    }
+
+    return WebAuthn.fido2;
+}
+
 export type WebAuthnTicketPurpose = "login_mfa" | "credential_registration";
 
 export type WebAuthnTicketPayload = {

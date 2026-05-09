@@ -16,8 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity imports
-import type { Channel, Recipient, Tag, ThreadMember } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 import { Snowflake } from "../../Identifiers";
 import { PartialUser, PublicMember } from "../users";
@@ -66,12 +64,55 @@ export interface ThreadMetadata {
     create_timestamp: string; //Discord docs say this is optional, but it's only for after a certain date so it's not
 }
 
-export interface DMChannel extends Omit<Channel, "type" | "recipients"> {
-    type: ChannelType.DM | ChannelType.GROUP_DM;
-    recipients: Recipient[];
+export type IconEmoji = CustomIconEmoji | UnicodeIconEmoji;
+
+export interface CustomIconEmoji {
+    /**
+     * @minLength 1
+     */
+    id: Snowflake;
+    name: null;
 }
 
-// TODO: probably more props
+export interface UnicodeIconEmoji {
+    id: null;
+    /**
+     * @minLength 1
+     */
+    name: string;
+}
+
+export interface DMChannel {
+    icon: string | null;
+    id: Snowflake;
+    last_message_id: Snowflake | null;
+    name: string | null;
+    origin_channel_id: Snowflake | null;
+    owner_id?: Snowflake;
+    type: ChannelType.DM | ChannelType.GROUP_DM;
+    recipients: PartialUser[];
+}
+
+export interface ChannelTag {
+    id: Snowflake;
+    name: string;
+    moderated: boolean;
+    emoji_id?: Snowflake | null;
+    emoji_name?: string | null;
+}
+
+export interface PublicThreadMember {
+    id: Snowflake;
+    user_id: Snowflake;
+    join_timestamp: string;
+    muted?: boolean;
+    mute_config?: {
+        end_time?: string;
+        selected_time_window?: number;
+    };
+    flags: number;
+}
+
 export function isTextChannel(type: ChannelType): boolean {
     switch (type) {
         case ChannelType.GUILD_STORE:
@@ -79,6 +120,13 @@ export function isTextChannel(type: ChannelType): boolean {
         case ChannelType.GUILD_CATEGORY:
         case ChannelType.GUILD_FORUM:
         case ChannelType.GUILD_DIRECTORY:
+        case ChannelType.GUILD_LFG:
+        case ChannelType.LFG_GROUP_DM:
+        case ChannelType.THREAD_ALPHA:
+        case ChannelType.GUILD_MEDIA:
+        case ChannelType.LOBBY:
+        case ChannelType.EPHEMERAL_DM:
+        case ChannelType.UNHANDLED:
             throw new HTTPError("not a text channel", 400);
         case ChannelType.DM:
         case ChannelType.GROUP_DM:
@@ -89,9 +137,24 @@ export function isTextChannel(type: ChannelType): boolean {
         case ChannelType.GUILD_PRIVATE_THREAD:
         case ChannelType.GUILD_TEXT:
             return true;
-        default:
-            throw new HTTPError("unimplemented", 400);
+        default: {
+            const exhaustiveCheck: never = type;
+            throw new HTTPError(`unimplemented channel type ${exhaustiveCheck}`, 400);
+        }
     }
+}
+
+/**
+ * Channel object embedded in message channel mentions.
+ *
+ * Discord only exposes the channel identity needed to render the mention, not
+ * the full channel resource payload.
+ */
+export interface PartialPublicChannel {
+    id: Snowflake;
+    guild_id: Snowflake;
+    type: ChannelType;
+    name: string;
 }
 
 // TODO: split up by channel type?
@@ -112,10 +175,8 @@ export interface PublicChannel {
     recipients?: PartialUser[];
     recipient_flags?: number;
     icon?: string | null;
-    // nicks?: ChannelNick[]; // TODO
     managed?: boolean;
     blocked_user_warning_dismissed?: boolean;
-    // safety_warnings?: SafetyWarning[]; // TODO
     application_id?: Snowflake;
     owner_id?: Snowflake;
     owner?: PublicMember | null;
@@ -127,18 +188,18 @@ export interface PublicChannel {
     member_count?: number;
     member_ids_preview?: Snowflake[];
     thread_metadata?: ThreadMetadata;
-    member?: ThreadMember;
+    member?: PublicThreadMember;
     default_auto_archive_duration?: number | null;
     default_thread_rate_limit_per_user?: number;
     permissions?: string;
     flags?: number;
-    available_tags?: Tag[];
+    available_tags?: ChannelTag[];
     applied_tags?: Snowflake[];
     default_reaction_emoji?: string | null; // DefaultReaction type..? this is supposed to be an object apparently
     default_forum_layout?: number;
     default_sort_order?: number | null;
     default_tag_setting?: string;
-    // icon_emoji?: IconEmoji | null; // TODO
+    icon_emoji?: IconEmoji | null;
     is_message_request?: boolean;
     is_message_request_timestamp?: string | null;
     is_spam?: boolean;

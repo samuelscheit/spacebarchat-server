@@ -6,6 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import type { FileStorage } from "@spacebar/cdn";
 import { Config } from "@spacebar/util";
+import imageSize from "image-size";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createCdnObject, withFileStorage } from "../fixtures/files";
 import { startCdn } from "../server/startCdn";
@@ -30,6 +31,7 @@ type SingleAssetFamily = {
 
 const requestSignature = "cdn-assets-scenario-signature";
 const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
+const gif = Buffer.from("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", "base64");
 const pngHash = createHash("md5").update(png).digest("hex");
 const cacheHeader = "public, max-age=21600, s-maxage=21600, immutable";
 
@@ -120,7 +122,7 @@ const hashAssetFamilies: HashAssetFamily[] = [
         storagePrefix: "guilds/100000000000001010/users/100000000000001011/banners",
     },
     { name: "icon root download", basePath: "/icons/100000000000001012", storagePrefix: "icons/100000000000001012" },
-    { name: "role icon", basePath: "/role-icons/100000000000001013", storagePrefix: "role-icons/100000000000001013", storedName: (id) => `${id}.png` },
+    { name: "role icon", basePath: "/role-icons/100000000000001013", storagePrefix: "role-icons/100000000000001013" },
     { name: "splash", basePath: "/splashes/100000000000001014", storagePrefix: "splashes/100000000000001014" },
     { name: "team icon", basePath: "/team-icons/100000000000001015", storagePrefix: "team-icons/100000000000001015" },
 ];
@@ -241,6 +243,8 @@ async function coverHashAssetFamily(cdn: StartedCdn, storage: TestStorage, famil
     await assertAssetDownload(await fetch(uploadUrl), png);
     await assertAssetDownload(await fetch(`${uploadUrl}/${id}.png`), png);
 
+    if (family.name === "role icon") await assertRoleIconResizedDownloads(uploadUrl, id);
+
     if (family.assertUnsignedDelete) {
         const unsignedDelete = await fetch(`${uploadUrl}/${id}`, { method: "DELETE" });
         await assertStatus(unsignedDelete, 400);
@@ -262,6 +266,22 @@ async function coverSingleAssetFamily(cdn: StartedCdn, storage: TestStorage, fam
     const invalidUpload = await postMultipart(uploadUrl, Buffer.from(`not a ${family.name} image`), "invalid.txt", "text/plain");
     await assertStatus(invalidUpload, 400);
     assert.equal((await assertJsonObject(invalidUpload)).message, "Error: Invalid file type");
+
+    if (family.name === "sticker") {
+        const animatedUpload = await postMultipart(uploadUrl, gif, "animated-sticker.gif", "image/gif");
+        await assertStatus(animatedUpload, 400);
+        const animatedUploadBody = await assertJsonObject(animatedUpload);
+        assert.equal(animatedUploadBody.code, 50046);
+        assert.equal(animatedUploadBody.message, "Invalid file uploaded");
+        assert.equal(await storage.exists(family.storagePath), false);
+
+        const oversizedUpload = await postMultipart(uploadUrl, Buffer.concat([png, Buffer.from([0])]), "oversized-sticker.png", "image/png");
+        await assertStatus(oversizedUpload, 400);
+        const oversizedUploadBody = await assertJsonObject(oversizedUpload);
+        assert.equal(oversizedUploadBody.code, 50045);
+        assert.equal(oversizedUploadBody.message, "File uploaded exceeds the maximum size");
+        assert.equal(await storage.exists(family.storagePath), false);
+    }
 
     const upload = await postMultipart(uploadUrl, png, `${family.name}.png`, "image/png");
     await assertStatus(upload, 200);
@@ -310,6 +330,24 @@ async function assertAssetDownload(response: Response, expected?: Buffer) {
     else assert.equal(body.subarray(1, 4).toString("ascii"), "PNG");
 }
 
+async function assertRoleIconResizedDownloads(uploadUrl: string, id: string) {
+    await assertResizedPngDownload(await fetch(`${uploadUrl}?size=16`), 16);
+    await assertResizedPngDownload(await fetch(`${uploadUrl}/${id}.png?size=16`), 16);
+    await assertAssetDownload(await fetch(`${uploadUrl}?size=17`), png);
+    await assertAssetDownload(await fetch(`${uploadUrl}/${id}.png?size=17`), png);
+}
+
+async function assertResizedPngDownload(response: Response, expectedSize: number) {
+    await assertStatus(response, 200);
+    assert.equal(response.headers.get("content-type"), "image/png");
+    assert.equal(response.headers.get("cache-control"), cacheHeader);
+
+    const body = Buffer.from(await response.arrayBuffer());
+    const dimensions = imageSize(body);
+    assert.equal(dimensions.width, expectedSize);
+    assert.equal(dimensions.height, expectedSize);
+}
+
 async function postMultipart(url: string, buffer: Buffer, filename: string, mimetype: string) {
     const form = new FormData();
     const bytes = new Uint8Array(buffer.length);
@@ -337,7 +375,16 @@ async function withCdnConfig<T>(fn: () => Promise<T>): Promise<T> {
             JSON.stringify({
                 general: { serverName: "localhost" },
                 api: { endpointPublic: "http://localhost:3001/api/v9" },
-                cdn: { endpointPublic: "https://cdn.example", endpointPrivate: "http://127.0.0.1:3003" },
+                cdn: {
+                    endpointPublic: "https://cdn.example",
+                    endpointPrivate: "http://127.0.0.1:3003",
+                    limits: {
+                        sticker: {
+                            allowAnimated: "never",
+                            maxSize: png.length,
+                        },
+                    },
+                },
                 gateway: { endpointPublic: "ws://localhost:3002" },
                 security: { requestSignature, cdnSignUrls: true },
             }),

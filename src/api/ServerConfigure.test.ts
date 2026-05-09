@@ -6,7 +6,8 @@ import { SpacebarServer } from "@spacebar/api";
 describe("SpacebarServer.configureApp", () => {
     test("mounts public readiness routes without startup database initialization", async () => {
         const app = new SpacebarServer();
-        await withoutStartupSideEffects(() => app.configureApp());
+        const routeRegistrationErrors = await captureRouteRegistrationErrors(() => withoutStartupSideEffects(() => app.configureApp()));
+        assert.deepEqual(routeRegistrationErrors, []);
 
         const server = createServer(app.app);
         const port = await listen(server);
@@ -20,6 +21,16 @@ describe("SpacebarServer.configureApp", () => {
             assert.equal(apiPing.status, 200);
             const pingBody = (await apiPing.json()) as { ping: string };
             assert.equal(pingBody.ping, "pong!");
+
+            for (const telemetryPath of ["/science?events=1", "/track?source=client"]) {
+                const telemetry = await fetch(`http://127.0.0.1:${port}/api/v9${telemetryPath}`, {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ events: [{ type: "client_heartbeat" }] }),
+                });
+                assert.equal(telemetry.status, 204);
+                assert.equal(await telemetry.text(), "");
+            }
 
             const openapi = await fetch(`http://127.0.0.1:${port}/_spacebar/api/openapi.json`);
             assert.equal(openapi.status, 200);
@@ -65,4 +76,28 @@ async function withoutStartupSideEffects<T>(task: () => Promise<T>) {
         if (previousConfigPath === undefined) delete process.env.CONFIG_PATH;
         else process.env.CONFIG_PATH = previousConfigPath;
     }
+}
+
+async function captureRouteRegistrationErrors<T>(task: () => Promise<T>) {
+    const previousError = console.error;
+    const routeRegistrationErrors: string[] = [];
+
+    console.error = (...args: unknown[]) => {
+        const message = args.map(formatConsoleErrorArgument).join(" ");
+        if (message.includes("[Server] Failed to register route")) routeRegistrationErrors.push(message);
+        previousError(...args);
+    };
+
+    try {
+        await task();
+    } finally {
+        console.error = previousError;
+    }
+
+    return routeRegistrationErrors;
+}
+
+function formatConsoleErrorArgument(value: unknown) {
+    if (value instanceof Error) return value.message;
+    return String(value);
 }

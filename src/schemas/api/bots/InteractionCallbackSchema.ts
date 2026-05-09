@@ -18,7 +18,7 @@
 
 import { InteractionCallbackType } from "./InteractionCallbackType";
 import { AllowedMentions, BaseMessageComponents, Embed } from "../messages";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "../../uncategorised/MessageCreateSchema";
+import { MessageCreateAttachmentMetadata, PollCreationSchema } from "../../uncategorised/MessageCreateSchema";
 
 export interface InteractionCallbackSchema {
     type: InteractionCallbackType;
@@ -29,9 +29,6 @@ export interface PongCallback extends InteractionCallbackSchema {
 }
 export interface AckCallback extends InteractionCallbackSchema {
     type: InteractionCallbackType.ACKNOWLEDGE;
-}
-export interface MessageCallback extends InteractionCallbackSchema {
-    type: InteractionCallbackType.CHANNEL_MESSAGE;
 }
 export interface MessageWSourceCallback extends InteractionCallbackSchema {
     type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE;
@@ -49,14 +46,7 @@ export interface MessageDUpdateCallback extends InteractionCallbackSchema {
     type: InteractionCallbackType.DEFERRED_UPDATE_MESSAGE;
     data: InteractionMessage;
 }
-export type InteractionCallbacksSchema =
-    | PongCallback
-    | AckCallback
-    | MessageCallback
-    | MessageWSourceCallback
-    | MessageDWSourceCallback
-    | MessageUpdateCallback
-    | MessageDUpdateCallback;
+export type InteractionCallbacksSchema = PongCallback | AckCallback | MessageWSourceCallback | MessageDWSourceCallback | MessageUpdateCallback | MessageDUpdateCallback;
 
 export interface InteractionMessage {
     content?: string;
@@ -65,6 +55,6 @@ export interface InteractionMessage {
     allowed_mentions?: AllowedMentions;
     components?: BaseMessageComponents[];
     flags?: number;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
+    attachments?: MessageCreateAttachmentMetadata[];
     poll?: PollCreationSchema;
 }

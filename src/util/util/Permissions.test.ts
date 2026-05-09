@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
-import type { Role } from "../entities";
-import { Permissions } from "./Permissions";
+import { PublicMemberProjection } from "../../schemas/api/users/Member";
+import type { Member, Role } from "../entities";
+import { getPermission, getPermissionMemberQueryOptions, isGuildOwner, Permissions, PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT } from "./Permissions";
 
 const CHANNEL_PERMISSION_OVERWRITE_ROLE = 0;
+const CHANNEL_PERMISSION_OVERWRITE_MEMBER = 1;
 const USER_FLAG_QUARANTINED = Number(1n << 44n);
 
 function adminRole() {
@@ -27,13 +29,13 @@ function finalAdminPermission({
         user: {
             id: "user_id",
             roles: ["admin_role"],
+            resolved_roles: [adminRole()],
             communication_disabled_until: communicationDisabledUntil,
             flags,
         },
         guild: {
             id: "guild_id",
             owner_id: "owner_id",
-            roles: [adminRole()],
         },
         channel: overwrites ? { overwrites } : undefined,
     });
@@ -49,6 +51,143 @@ function adminDenyOverwrite(): ChannelPermissionOverwrite {
 }
 
 describe("Permissions", () => {
+    test("identifies guild owners by id or loaded owner relation", () => {
+        assert.equal(isGuildOwner({ owner_id: "owner_id" }, "owner_id"), true);
+        assert.equal(isGuildOwner({ owner: { id: "owner_id" } }, { id: "owner_id" }), true);
+        assert.equal(isGuildOwner({ owner_id: "owner_id" }, "member_id", { id: "other_member_id" }), false);
+        assert.equal(isGuildOwner({ owner_id: null }, "owner_id"), false);
+    });
+
+    test("final guild permissions use the user's resolved roles", () => {
+        const viewRole = {
+            id: "view_role",
+            permissions: Permissions.FLAGS.VIEW_CHANNEL.toString(),
+        } as Role;
+
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: ["view_role"],
+                resolved_roles: [viewRole],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "guild_id",
+                owner_id: "owner_id",
+            },
+        });
+
+        assert.equal(permissions.has("VIEW_CHANNEL", false), true);
+        assert.equal(permissions.has("SEND_MESSAGES", false), false);
+    });
+
+    test("active DM recipients receive default DM permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "user_id", closed: false }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, Permissions.DEFAULT_DM_PERMISSIONS.bitfield);
+    });
+
+    test("closed DM recipients receive no permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "user_id", closed: true }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, 0n);
+    });
+
+    test("DM recipients without loaded closed state receive no permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "user_id" }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, 0n);
+    });
+
+    test("DM non-recipients receive no permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "user_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                recipients: [{ user_id: "other_user_id", closed: false }],
+            },
+        });
+
+        assert.equal(permissions.bitfield, 0n);
+    });
+
+    test("group DM owner receives administrator permissions", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "owner_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "",
+                owner_id: "",
+            },
+            channel: {
+                owner_id: "owner_id",
+                recipients: [{ user_id: "owner_id", closed: true }],
+            },
+        });
+
+        assert.equal(permissions.has("ADMINISTRATOR", false), true);
+    });
+
     test("channel overwrites cannot deny administrator permissions", () => {
         const permissions = new Permissions(
             Permissions.channelPermission(
@@ -94,6 +233,34 @@ describe("Permissions", () => {
         assert.equal(permissions.has("SEND_MESSAGES", false), true);
     });
 
+    test("final guild permissions grant guild owners all permissions before channel overwrites", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "owner_id",
+                roles: [],
+                resolved_roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "guild_id",
+                owner_id: "owner_id",
+            },
+            channel: {
+                overwrites: [
+                    {
+                        id: "owner_id",
+                        type: CHANNEL_PERMISSION_OVERWRITE_MEMBER,
+                        allow: "0",
+                        deny: Permissions.ALL.bitfield.toString(),
+                    },
+                ],
+            },
+        });
+
+        assert.equal(permissions.bitfield, Permissions.ALL.bitfield);
+    });
+
     test("overwriteChannel preserves administrator permissions", () => {
         const permissions = new Permissions("ADMINISTRATOR");
         permissions.cache = { roles: [{ id: "role_id" } as Role] };
@@ -134,5 +301,70 @@ describe("Permissions", () => {
         assert.equal(withOverwrite.has("VIEW_CHANNEL", false), false);
         assert.equal(withOverwrite.has("READ_MESSAGE_HISTORY", false), false);
         assert.equal(withOverwrite.has("CHANGE_NICKNAME", false), false);
+    });
+
+    test("getPermission short-circuits guild owners without requiring a member row", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+
+        const [{ User }, { Guild }, { Member }] = await Promise.all([import("../entities/User.js"), import("../entities/Guild.js"), import("../entities/Member.js")]);
+        const userClass = User as unknown as {
+            findOneOrFail: (options: unknown) => Promise<unknown>;
+        };
+        const guildClass = Guild as unknown as {
+            findOneOrFail: (options: unknown) => Promise<unknown>;
+        };
+        const memberClass = Member as unknown as {
+            findOneOrFail: (options: unknown) => Promise<unknown>;
+        };
+
+        let memberLookups = 0;
+
+        t.mock.method(userClass, "findOneOrFail", async () => ({ id: "owner_id", flags: 0 }));
+        t.mock.method(guildClass, "findOneOrFail", async () => ({ id: "guild_id", owner_id: "owner_id" }));
+        t.mock.method(memberClass, "findOneOrFail", async () => {
+            memberLookups += 1;
+            throw new Error("owner permission lookup should not require a guild member row");
+        });
+
+        const permissions = await getPermission("owner_id", "guild_id");
+
+        assert.equal(permissions.bitfield, Permissions.ALL.bitfield);
+        assert.equal(memberLookups, 0);
+    });
+
+    test("member permission query selects join owner key for role hydration", () => {
+        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_relations: ["roles", "user"], member_select: ["flags", "roles", "user"] });
+
+        assert.deepEqual(query.where, { guild_id: "guild_id", id: "user_id" });
+        assert.deepEqual(query.relations, ["roles", "user"]);
+        assert.deepEqual(query.select, {
+            index: true,
+            id: true,
+            guild_id: true,
+            communication_disabled_until: true,
+            flags: true,
+            roles: {
+                id: true,
+                guild_id: true,
+                permissions: true,
+            },
+        });
+    });
+
+    test("member permission query can hydrate public message members without selecting full member rows", () => {
+        assert.deepEqual(PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT, PublicMemberProjection);
+
+        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_select: PublicMemberProjection as (keyof Member)[] });
+        const select = query.select as Record<string, unknown>;
+
+        for (const key of PublicMemberProjection) {
+            if (key === "roles") continue;
+            assert.equal(select[key], true, `${key} should be selected`);
+        }
+        assert.deepEqual(select.roles, {
+            id: true,
+            guild_id: true,
+            permissions: true,
+        });
     });
 });
