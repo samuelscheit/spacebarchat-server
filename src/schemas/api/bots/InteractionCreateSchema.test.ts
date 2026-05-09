@@ -7,10 +7,26 @@ import type { ResolvedData } from "@spacebar/schemas";
 import { getAuthorizingIntegrationOwners } from "./InteractionCreateSchema";
 
 const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, unknown>;
+const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
+    components?: {
+        schemas?: Record<string, { properties?: Record<string, { $ref?: string }> }>;
+    };
+};
 const interactionCreateSchema = {
     ...(schemas.InteractionCreateSchema as Record<string, unknown>),
     definitions: schemas,
 };
+const interactionCreateVariantSchemaNames = [
+    "PingInteractionCreateSchema",
+    "ApplicationCommandInteractionCreateSchema",
+    "ApplicationCommandAutocompleteInteractionCreateSchema",
+    "MessageComponentInteractionCreateSchema",
+    "ModalSubmitInteractionCreateSchema",
+] as const;
+
+function interactionCreateVariantSchema(name: (typeof interactionCreateVariantSchemaNames)[number]) {
+    return schemas[name] as { properties?: Record<string, { $ref?: string }> };
+}
 
 function compileInteractionCreateSchema() {
     // The injected generated definitions include unrelated schemas that Ajv cannot meta-validate.
@@ -110,6 +126,28 @@ describe("InteractionCreateSchema", () => {
         } as unknown as ResolvedData;
 
         assert.equal(validate(payload), true, JSON.stringify(validate.errors));
+    });
+
+    test("accepts public channel objects without entity-only fields", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = {
+            ...applicationCommandInteractionPayload(),
+            channel_id: "100000000000000011",
+            channel: {
+                id: "100000000000000011",
+                type: 0,
+                name: "general",
+            },
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
+    });
+
+    test("uses public channel refs for every generated interaction channel schema", () => {
+        for (const schemaName of interactionCreateVariantSchemaNames) {
+            assert.equal(interactionCreateVariantSchema(schemaName).properties?.channel?.$ref, "#/definitions/PublicChannel", `assets/schemas.json ${schemaName}.channel`);
+            assert.equal(openapi.components?.schemas?.[schemaName]?.properties?.channel?.$ref, "#/components/schemas/PublicChannel", `assets/openapi.json ${schemaName}.channel`);
+        }
     });
 
     test("accepts Discord-compatible message component interactions", () => {
