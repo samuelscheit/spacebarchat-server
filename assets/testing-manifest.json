@@ -5446,7 +5446,7 @@
             "method": "GET",
             "path": "/discovery/categories",
             "sourceFile": "src/api/routes/discovery.ts",
-            "line": 25,
+            "line": 45,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5456,7 +5456,7 @@
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",
