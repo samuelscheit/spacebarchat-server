@@ -9,6 +9,7 @@ import {
     events,
     generateToken,
     initDatabase,
+    Intents,
     Permissions,
     Snowflake,
     Stream,
@@ -639,7 +640,8 @@ test(
             }).save();
 
             gateway = await startGateway();
-            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken);
+            const streamGatewayIntents = Number(Intents.FLAGS.GUILD_VOICE_STATES);
+            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, streamGatewayIntents);
             const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
@@ -689,7 +691,7 @@ test(
             assert.equal(ownerStreamSession.token, ownerServerUpdateData.token);
             assert.equal((await VoiceState.findOneByOrFail({ user_id: owner.id })).self_stream, true);
 
-            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken);
+            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, streamGatewayIntents);
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
             await waitForEventListener(viewer.id);
 
@@ -747,7 +749,7 @@ test(
     },
 );
 
-async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents = 0) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
     assert.equal(hello.op, 10);
@@ -757,7 +759,7 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string)
             op: 2,
             d: {
                 token,
-                intents: 0,
+                intents,
                 properties: {
                     os: "test",
                     browser: "spacebar-test",
