@@ -223,31 +223,4 @@ async function hitRoute(opts: { executor_id: string; bucket_id: string; max_hits
     if (limit.hits >= opts.max_hits) {
         limit.blocked = true;
     }
-
-    /*
-	let ratelimit = await RateLimit.findOne({ where: { id: opts.bucket_id, executor_id: opts.executor_id } });
-	if (!ratelimit) {
-		ratelimit = new RateLimit({
-			id: opts.bucket_id,
-			executor_id: opts.executor_id,
-			expires_at: new Date(Date.now() + opts.window * 1000),
-			hits: 0,
-			blocked: false
-		});
-	}
-	ratelimit.hits++;
-	const updateBlock = !ratelimit.blocked && ratelimit.hits >= opts.max_hits;
-	if (updateBlock) {
-		ratelimit.blocked = true;
-		Cache.set(opts.executor_id + opts.bucket_id, ratelimit);
-		await emitEvent({
-			channel_id: EventRateLimit,
-			event: EventRateLimit,
-			data: ratelimit
-		});
-	} else {
-		Cache.delete(opts.executor_id);
-	}
-	await ratelimit.save();
-	*/
 }
