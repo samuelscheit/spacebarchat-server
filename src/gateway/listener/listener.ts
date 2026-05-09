@@ -87,6 +87,7 @@ export function canDispatchGuildMemberEvent(
 type IntentEventMap = Record<number, readonly string[]>;
 
 const INTERNAL_LISTENER_EVENTS = new Set<string>(["SB_SESSION_CLOSE", "SB_SESSION_REMOVE"]);
+const EXTENSION_EVENT_INTENTS = new Map<string, bigint>([["USER_DELETE", Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES]]);
 
 function getIntentEventAllowance(intents: Intents, event: string, map: IntentEventMap) {
     for (const [intentBit, events] of Object.entries(map)) {
@@ -157,6 +158,9 @@ export function canDispatchIntentEvent(
     if (INTERNAL_LISTENER_EVENTS.has(event)) return true;
     if (isCurrentUserGuildMemberUpdate(event, currentUserId, opts.data as { user?: { id?: string } } | undefined)) return true;
 
+    const extensionIntent = EXTENSION_EVENT_INTENTS.get(event);
+    if (extensionIntent !== undefined) return intents.has(extensionIntent);
+
     const globalAllowance = getIntentEventAllowance(intents, event, Intents.INTENT_TO_EVENTS_MAP);
     if (globalAllowance !== undefined) return globalAllowance;
 
@@ -191,6 +195,9 @@ function getIntentBitForEvent(eventMap: IntentEventMap, event: string): bigint |
 }
 
 export function getRequiredIntentForEvent(event: string, guildId: string | undefined): bigint | undefined {
+    const extensionIntent = EXTENSION_EVENT_INTENTS.get(event);
+    if (extensionIntent !== undefined) return extensionIntent;
+
     const commonIntent = getIntentBitForEvent(Intents.INTENT_TO_EVENTS_MAP, event);
     if (commonIntent !== undefined) return commonIntent;
 
