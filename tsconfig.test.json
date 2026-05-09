@@ -107,6 +107,7 @@
         "src/util/entities/Guild.test.ts",
         "src/util/entities/Message.test.ts",
         "src/util/entities/MessageSerialization.test.ts",
+        "src/util/util/MessageMentions.test.ts",
         "src/util/entities/ReadState.test.ts",
         "src/util/entities/VoiceState.test.ts",
         "src/util/migration/postgres/__tests__/1778245000000-DiscoveryCategoryIntegerIds.test.ts",
