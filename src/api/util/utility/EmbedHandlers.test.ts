@@ -281,6 +281,67 @@ function mockExampleEmbedHandler(
     });
 }
 
+function mockSteamEmbedConfig(
+    t: TestContext,
+    Config: UtilModule["Config"],
+    overrides: {
+        imagorServerUrl?: string | null;
+        requestSignature?: string;
+    } = {},
+) {
+    const config = Config.get();
+    const originalCdn = {
+        endpointPublic: config.cdn.endpointPublic,
+        imagorServerUrl: config.cdn.imagorServerUrl,
+        resizeWidthMax: config.cdn.resizeWidthMax,
+        resizeHeightMax: config.cdn.resizeHeightMax,
+    };
+    const originalRequestSignature = config.security.requestSignature;
+
+    config.cdn.endpointPublic = "https://cdn.example.com";
+    config.cdn.imagorServerUrl = overrides.imagorServerUrl ?? null;
+    config.cdn.resizeWidthMax = 1024;
+    config.cdn.resizeHeightMax = 1024;
+    config.security.requestSignature = overrides.requestSignature ?? originalRequestSignature;
+
+    t.after(() => {
+        config.cdn.endpointPublic = originalCdn.endpointPublic;
+        config.cdn.imagorServerUrl = originalCdn.imagorServerUrl;
+        config.cdn.resizeWidthMax = originalCdn.resizeWidthMax;
+        config.cdn.resizeHeightMax = originalCdn.resizeHeightMax;
+        config.security.requestSignature = originalRequestSignature;
+    });
+    t.mock.method(Config, "get", () => config);
+
+    return config;
+}
+
+function mockSteamStoreResponse(t: TestContext, capsuleUrl: string) {
+    const html = `
+        <html>
+            <head>
+                <meta property="og:title" content="Example Game on Steam">
+                <meta property="og:description" content="Example game description">
+                <meta property="og:image" content="${capsuleUrl}">
+            </head>
+            <body>
+                <input id="review_summary_num_reviews" value="1,234 reviews">
+                <div class="game_purchase_price price" data-price-final="1999"></div>
+                <div class="release_date"><div class="date">Dec 31, 2999</div></div>
+            </body>
+        </html>`;
+
+    t.mock.method(globalThis, "fetch", async () => new Response(html));
+}
+
+function getExpectedImagorProxyUrl(imageUrl: string, imagorServerUrl: string, requestSignature: string) {
+    const parsed = new URL(imageUrl);
+    const path = `460x215/${parsed.host}${parsed.pathname}`;
+    const hash = crypto.createHmac("sha1", requestSignature).update(path).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
+
+    return `${imagorServerUrl}/${hash}/${path}`;
+}
+
 describe("mergeGeneratedUrlEmbeds", () => {
     test("does not report a change when no embeds are generated", () => {
         const result = mergeGeneratedUrlEmbeds([], [], 10);
@@ -770,6 +831,73 @@ describe("EmbedHandlers YouTube", () => {
 
         assert.equal(embed.author?.name, "Example Channel");
         assert.equal(embed.author?.url, undefined);
+    });
+});
+
+describe("EmbedHandlers Steam", () => {
+    test("returns Steam store capsule art as a thumbnail", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockSteamEmbedConfig(t, Config);
+
+        const capsuleUrl = "https://cdn.akamai.steamstatic.com/steam/apps/123/header.jpg";
+        mockSteamStoreResponse(t, capsuleUrl);
+
+        const embed = (await EmbedHandlers["store.steampowered.com"](new URL("https://store.steampowered.com/app/123/Example_Game/"))) as Embed;
+
+        assert.equal(embed.type, richEmbedType);
+        assert.equal(embed.title, "Example Game on Steam");
+        assert.equal(embed.description, "Example game description");
+        assert.deepEqual(embed.provider, {
+            url: "https://store.steampowered.com",
+            name: "Steam",
+        });
+        assert.equal(embed.image, undefined);
+        assert.deepEqual(embed.thumbnail, {
+            width: 460,
+            height: 215,
+            url: capsuleUrl,
+            proxy_url: capsuleUrl,
+        });
+        assert.deepEqual(embed.fields, [
+            {
+                name: "Reviews",
+                value: "1,234 reviews",
+                inline: true,
+            },
+            {
+                name: "Price",
+                value: "$19.99",
+                inline: true,
+            },
+            {
+                name: "Release Date",
+                value: "Dec 31, 2999",
+                inline: true,
+            },
+        ]);
+    });
+
+    test("uses the embed image proxy helper for Steam thumbnails", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        const requestSignature = "steam-thumbnail-test-secret";
+        const imagorServerUrl = "https://imagor.example.com";
+        mockSteamEmbedConfig(t, Config, {
+            imagorServerUrl,
+            requestSignature,
+        });
+
+        const capsuleUrl = "https://cdn.akamai.steamstatic.com/steam/apps/123/header.jpg";
+        mockSteamStoreResponse(t, capsuleUrl);
+
+        const embed = (await EmbedHandlers["store.steampowered.com"](new URL("https://store.steampowered.com/app/123/Example_Game/"))) as Embed;
+
+        assert.equal(embed.image, undefined);
+        assert.deepEqual(embed.thumbnail, {
+            width: 460,
+            height: 215,
+            url: capsuleUrl,
+            proxy_url: getExpectedImagorProxyUrl(capsuleUrl, imagorServerUrl, requestSignature),
+        });
     });
 });
 
