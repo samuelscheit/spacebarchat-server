@@ -25,6 +25,7 @@ import { makeChannel, makeGuild, makeMember, makeRole } from "../fixtures/entiti
 import { startGateway } from "../server/startGateway";
 
 const coveredManifestIds = ["gateway:opcode:2:Identify"];
+const streamGatewayIntents = Number(Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_VOICE_STATES);
 type GatewayPayload = { op: number; s?: number; t?: string; d?: Record<string, unknown> | boolean };
 type BufferedGatewayClientState = {
     messages: ws.RawData[];
@@ -640,15 +641,11 @@ test(
             }).save();
 
             gateway = await startGateway();
-            const streamIntents = Number(Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_VOICE_STATES);
-            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, streamIntents);
+            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, streamGatewayIntents);
             const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
             await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
-            await waitForEventListener(owner.id);
-            await waitForEventListener(guild.id);
-            await waitForEventListener(voiceChannel.id);
 
             ownerClient.send(
                 JSON.stringify({
@@ -691,9 +688,8 @@ test(
             assert.equal(ownerStreamSession.token, ownerServerUpdateData.token);
             assert.equal((await VoiceState.findOneByOrFail({ user_id: owner.id })).self_stream, true);
 
-            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, streamIntents);
+            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, streamGatewayIntents);
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
-            await waitForEventListener(viewer.id);
 
             viewerClient.send(
                 JSON.stringify({

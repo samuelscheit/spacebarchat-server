@@ -21,6 +21,7 @@ import {
     createMessageUpload,
     getMessageHistoryQueryOrder,
     handleMessage,
+    hydrateInteractionMetadataUsers,
     messageToResponse,
     postHandleMessage,
     route,
@@ -69,7 +70,6 @@ import {
     MessageCreateSchema,
     normalizeMessageCreateSchema,
     PartialUser,
-    PublicMessage,
     ReadStateType,
     RelationshipType,
 } from "@spacebar/schemas";
@@ -211,17 +211,7 @@ router.get(
         });
         //console.log(ret);
 
-        type MessageWithInteraction = PublicMessage & {
-            interaction_metadata?: { user?: User; user_id: string };
-            interaction?: { user?: User };
-        };
-        await Promise.all(
-            (ret as MessageWithInteraction[])
-                .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
-                .map(async (x) => {
-                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } });
-                }),
-        );
+        await hydrateInteractionMetadataUsers(ret, (userId) => User.getPublicUser(userId));
 
         return res.json(ret);
     },
