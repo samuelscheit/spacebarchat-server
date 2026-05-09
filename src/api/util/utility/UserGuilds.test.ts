@@ -97,17 +97,7 @@ describe("serializeUserGuilds", () => {
     });
 });
 
-function guildFixture({
-    id,
-    owner_id = "owner-id",
-    member_count,
-    presence_count,
-}: {
-    id: string;
-    owner_id?: string;
-    member_count?: number;
-    presence_count?: number;
-}) {
+function guildFixture({ id, owner_id = "owner-id", member_count, presence_count }: { id: string; owner_id?: string; member_count?: number; presence_count?: number }) {
     return {
         id,
         owner_id,
