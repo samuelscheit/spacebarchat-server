@@ -26,6 +26,7 @@ import {
     messagePublicRelations,
     upsertChannelMessageReadState,
     advanceChannelReadStateNotificationCursor,
+    withThreadMessageFlag,
 } from "@spacebar/util";
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 
@@ -86,7 +87,7 @@ router.post(
         );
 
         message.thread = thread;
-        message.flags ||= 1 << 5;
+        message.flags = withThreadMessageFlag(message.flags);
         const starterMessage = await sendMessage({
             channel_id: thread.id,
             type: MessageType.THREAD_STARTER_MESSAGE,

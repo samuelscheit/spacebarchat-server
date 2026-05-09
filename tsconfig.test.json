@@ -201,6 +201,7 @@
         "src/api/util/userProfileResponse.test.ts",
         "src/schemas/responses/UserProfileResponse.test.ts",
         "src/util/util/DatabaseTransformers.test.ts",
+        "src/util/util/MessageFlags.test.ts",
         "src/util/util/TraverseDirectory.test.ts",
         "src/util/entities/User.test.ts",
         "src/api/util/handlers/Registration.test.ts",
