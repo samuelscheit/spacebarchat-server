@@ -22,19 +22,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { ImageDataUriFormat, ImageDataUriOrAssetHashFormat, isImageDataUri, isImageDataUriOrAssetHash } from "./ImageData";
 
-type JsonSchema = {
-    $ref?: string;
-    type?: string | string[];
-    pattern?: string;
-    properties?: Record<string, JsonSchema>;
-    items?: JsonSchema | JsonSchema[];
-    anyOf?: JsonSchema[];
-    oneOf?: JsonSchema[];
-    allOf?: JsonSchema[];
-};
-
 const SchemaPath = resolveSchemaPath();
-const sourceSchemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", "")) as Record<string, JsonSchema>;
+const sourceSchemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", "")) as Record<string, unknown>;
 const schemas = normalizeBigIntSchemas(sourceSchemas) as Record<string, object>;
 
 // const schemas2 = {...schemas, definitions: {...schemas, }};
@@ -121,54 +110,74 @@ function normalizeBigIntSchemas(value: unknown): unknown {
     return normalized;
 }
 
-function coerceBigIntFields(schema: JsonSchema | undefined, value: unknown): unknown {
-    if (!schema) return value;
+function coerceBigIntFields(schema: unknown, value: unknown): unknown {
+    const schemaRecord = getSchemaRecord(schema);
+    if (!schemaRecord) return value;
 
-    const referencedSchema = resolveSchemaReference(schema.$ref);
+    const referencedSchema = resolveSchemaReference(schemaRecord.$ref);
     if (referencedSchema) return coerceBigIntFields(referencedSchema, value);
 
-    if (isBigIntSchema(schema)) return coerceBigIntValue(value);
+    if (isBigIntSchema(schemaRecord)) return coerceBigIntValue(value);
 
-    for (const subSchema of [...(schema.allOf ?? []), ...(schema.anyOf ?? []), ...(schema.oneOf ?? [])]) {
-        coerceBigIntFields(subSchema, value);
+    for (const key of ["allOf", "anyOf", "oneOf"]) {
+        const subSchemas = schemaRecord[key];
+        if (!Array.isArray(subSchemas)) continue;
+
+        for (const subSchema of subSchemas) {
+            const coerced = coerceBigIntFields(subSchema, value);
+            if (coerced !== value) return coerced;
+        }
     }
 
+    const items = schemaRecord.items;
     if (Array.isArray(value)) {
-        if (Array.isArray(schema.items)) {
-            for (const [index, itemSchema] of schema.items.entries()) {
+        if (Array.isArray(items)) {
+            for (const [index, itemSchema] of items.entries()) {
                 value[index] = coerceBigIntFields(itemSchema, value[index]);
             }
-        } else if (schema.items) {
+        } else if (items) {
             for (const [index, item] of value.entries()) {
-                value[index] = coerceBigIntFields(schema.items, item);
+                value[index] = coerceBigIntFields(items, item);
             }
         }
         return value;
     }
 
-    if (!value || typeof value !== "object" || !schema.properties) return value;
+    const properties = getSchemaMap(schemaRecord.properties);
+    if (!value || typeof value !== "object" || !properties) return value;
 
     const objectValue = value as Record<string, unknown>;
-    for (const [key, propertySchema] of Object.entries(schema.properties)) {
+    for (const [key, propertySchema] of Object.entries(properties)) {
         if (key in objectValue) objectValue[key] = coerceBigIntFields(propertySchema, objectValue[key]);
     }
 
     return value;
 }
 
-function resolveSchemaReference(ref: string | undefined): JsonSchema | undefined {
-    if (!ref) return undefined;
+function resolveSchemaReference(ref: unknown): unknown {
+    if (typeof ref !== "string") return undefined;
 
     const schemaName = ref.replace(/^#\/definitions\//, "");
-    return sourceSchemas[schemaName] as JsonSchema | undefined;
+    return sourceSchemas[schemaName];
 }
 
-function isBigIntSchema(schema: JsonSchema) {
+function isBigIntSchema(schema: Record<string, unknown>) {
+    const { type, pattern } = schema;
+
     return (
-        schema.type === "bigint" ||
-        (Array.isArray(schema.type) && schema.type.includes("bigint")) ||
-        (Array.isArray(schema.type) && schema.type.includes("integer") && schema.type.includes("string") && schema.pattern === "^-?[0-9]+$")
+        type === "bigint" ||
+        (Array.isArray(type) && type.includes("bigint")) ||
+        (Array.isArray(type) && type.includes("integer") && type.includes("string") && pattern === "^-?[0-9]+$")
     );
+}
+
+function getSchemaRecord(schema: unknown): Record<string, unknown> | undefined {
+    if (!schema || typeof schema !== "object" || Array.isArray(schema)) return undefined;
+    return schema as Record<string, unknown>;
+}
+
+function getSchemaMap(schema: unknown): Record<string, unknown> | undefined {
+    return getSchemaRecord(schema);
 }
 
 function coerceBigIntValue(value: unknown) {
