@@ -70,6 +70,7 @@ export * from "./utility/PreloadMessages";
 export * from "./utility/GuildRecommendations";
 export * from "./utility/MfaBackupCodes";
 export * from "./utility/RecentAvatars";
+export * from "./utility/Query";
 export * from "./utility/GuildMemberLeave";
 
 export * from "./UserUpdateEvents";
