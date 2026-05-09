@@ -201,7 +201,7 @@ router.post(
             case InteractionCallbackType.IFRAME_MODAL:
                 break;
             case InteractionCallbackType.LAUNCH_ACTIVITY:
-                // TODO
+                // Unsupported until InteractionCallbacksSchema and embedded activity launch state exist.
                 break;
             */
             default:
