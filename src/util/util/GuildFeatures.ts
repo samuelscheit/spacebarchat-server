@@ -63,6 +63,11 @@ export const MUTABLE_GUILD_FEATURES: readonly GuildFeatureValue[] = Object.freez
     GuildFeature.InvitesDisabled,
     GuildFeature.RaidAlertsDisabled,
 ]);
+const MUTABLE_GUILD_FEATURE_SET = new Set<GuildFeatureValue>(MUTABLE_GUILD_FEATURES);
+
+export function canPatchGuildFeature(feature: GuildFeatureValue): boolean {
+    return MUTABLE_GUILD_FEATURE_SET.has(feature);
+}
 
 export const VANITY_URL_FEATURE: KnownGuildFeature = GuildFeature.VanityUrl;
 

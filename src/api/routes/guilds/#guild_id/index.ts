@@ -32,7 +32,7 @@ import {
     handleFile,
     Config,
     removeChannelOrderingFromGuildSave,
-    MUTABLE_GUILD_FEATURES,
+    canPatchGuildFeature,
     type GuildFeatureValue,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
@@ -183,7 +183,7 @@ router.patch(
             const diff = guild.features.filter((x) => !requestedFeatures.includes(x)).concat(requestedFeatures.filter((x) => !guild.features.includes(x)));
 
             for (const feature of diff) {
-                if (MUTABLE_GUILD_FEATURES.includes(feature)) continue;
+                if (canPatchGuildFeature(feature)) continue;
 
                 throw SpacebarApiErrors.FEATURE_IS_IMMUTABLE.withParams(feature);
             }
