@@ -4433,6 +4433,9 @@
                     "cdn": {
                         "$ref": "#/components/schemas/CdnConfiguration"
                     },
+                    "cors": {
+                        "$ref": "#/components/schemas/CorsConfiguration"
+                    },
                     "api": {
                         "$ref": "#/components/schemas/ApiConfiguration"
                     },
@@ -4505,6 +4508,7 @@
                     "api",
                     "cdn",
                     "components",
+                    "cors",
                     "defaults",
                     "email",
                     "embeds",
@@ -19375,6 +19379,58 @@
                     "maxWidth"
                 ]
             },
+            "CorsConfiguration": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowCredentials": {
+                        "type": "boolean",
+                        "default": true
+                    },
+                    "allowedOrigins": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "*"
+                        ]
+                    },
+                    "allowedMethods": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "*"
+                        ]
+                    },
+                    "allowedHeaders": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": [
+                            "*"
+                        ]
+                    },
+                    "maxAgeSeconds": {
+                        "type": "integer",
+                        "default": 60
+                    }
+                },
+                "required": [
+                    "allowCredentials",
+                    "allowedHeaders",
+                    "allowedMethods",
+                    "allowedOrigins",
+                    "enabled",
+                    "maxAgeSeconds"
+                ]
+            },
             "ApiConfiguration": {
                 "type": "object",
                 "properties": {
@@ -21093,6 +21149,9 @@
                     "cdn": {
                         "$ref": "#/components/schemas/CdnConfiguration"
                     },
+                    "cors": {
+                        "$ref": "#/components/schemas/CorsConfiguration"
+                    },
                     "api": {
                         "$ref": "#/components/schemas/ApiConfiguration"
                     },
@@ -21165,6 +21224,7 @@
                     "api",
                     "cdn",
                     "components",
+                    "cors",
                     "defaults",
                     "email",
                     "embeds",
