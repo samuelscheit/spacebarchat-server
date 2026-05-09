@@ -2301,6 +2301,10 @@
                     }
                 }
             },
+            "BillingSubscriptionsResponse": {
+                "type": "array",
+                "items": {}
+            },
             "CollectiblesCategoriesResponse": {
                 "type": "array",
                 "items": {
@@ -25035,8 +25039,15 @@
                     }
                 ],
                 "responses": {
-                    "default": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingSubscriptionsResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [

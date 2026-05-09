@@ -12254,8 +12254,12 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "BillingSubscriptionsResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "coverage": {
