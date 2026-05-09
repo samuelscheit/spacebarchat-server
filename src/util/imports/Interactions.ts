@@ -20,7 +20,7 @@ import type { ApplicationCommandType, InteractionType } from "@spacebar/schemas"
 import { DiscordApiErrors } from "../util/Constants";
 
 export interface PendingInteraction {
-    timeout: NodeJS.Timeout;
+    timeout?: NodeJS.Timeout;
     token: string;
     applicationId: string;
     userId: string;

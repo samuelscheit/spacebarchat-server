@@ -39,8 +39,8 @@ function createCallbackApp() {
     const callbackModulePath = path.join(process.cwd(), "dist/api/routes/interactions/#interaction_id/#interaction_token/callback.js");
     const callbackRouter = require(callbackModulePath).default as express.Router;
     app.use("/interactions/:interaction_id/:interaction_token/callback", callbackRouter);
-    app.use((error: { code?: number | string; message?: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-        res.status(typeof error.code === "number" ? error.code : 500).json({ code: error.code, message: error.message });
+    app.use((error: { code?: number | string; httpStatus?: number; message?: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+        res.status(error.httpStatus ?? 500).json({ code: error.code, message: error.message });
     });
 
     return app;
@@ -74,6 +74,25 @@ async function postInteractionCallback(nonce?: string) {
     } finally {
         clearTimeout(timeout);
         pendingInteractions.delete(interactionId);
+    }
+}
+
+async function postExpiredInteractionCallback() {
+    const interactionId = `expired-interaction-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const timeout = setTimeout(() => undefined, 30_000);
+    pendingInteractions.set(interactionId, {
+        timeout,
+        token: "callback-token",
+        applicationId: "application-id",
+        userId: `user-${interactionId}`,
+        type: 1,
+    });
+    pendingInteractions.delete(interactionId);
+
+    try {
+        return await postJson(createCallbackApp(), `/interactions/${interactionId}/callback-token/callback`, { type: 1, data: {} });
+    } finally {
+        clearTimeout(timeout);
     }
 }
 
@@ -123,4 +142,13 @@ test("interaction callback success does not synthesize an empty nonce", async ()
 
     assert.equal(event.data.nonce, undefined);
     assert.notEqual(event.data.nonce, "");
+});
+
+test("interaction callbacks reject correct tokens after the pending interaction expires", async () => {
+    const response = await postExpiredInteractionCallback();
+
+    assert.equal(response.status, 400);
+    const body = (await response.json()) as { code?: number; message?: string };
+    assert.equal(body.code, util.DiscordApiErrors.UNKNOWN_INTERACTION.code);
+    assert.equal(body.message, util.DiscordApiErrors.UNKNOWN_INTERACTION.message);
 });
