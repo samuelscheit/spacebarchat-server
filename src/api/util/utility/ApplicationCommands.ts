@@ -53,7 +53,6 @@ export function normalizeApplicationCommandName(name: string) {
     const trimmedName = name.trim();
 
     if (trimmedName.length < 1 || trimmedName.length > 32) {
-        // TODO: configurable?
         throw FieldErrors({
             name: {
                 code: "BASE_TYPE_BAD_LENGTH",
