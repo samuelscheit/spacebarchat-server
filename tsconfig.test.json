@@ -59,6 +59,7 @@
         "src/api/util/handlers/Message.test.ts",
         "src/util/imports/Interactions.test.ts",
         "src/api/util/handlers/MessagePayloadLimitRoutes.test.ts",
+        "src/api/util/handlers/UserMessagesRoute.test.ts",
         "src/api/util/handlers/MessagePayloadPermissionRoutes.test.ts",
         "src/api/util/handlers/InviteAcceptancePolicy.test.ts",
         "src/api/util/handlers/Webhook.test.ts",

@@ -26,12 +26,26 @@ function assertOrdered(source: string, fragments: string[]): void {
 
 describe("message payload limit route integration", () => {
     test("normal message create validates dynamic limits before message side effects", () => {
-        const source = readSource("src/api/routes/channels/#channel_id/messages/index.ts");
+        const helperSource = readSource("src/api/util/handlers/ChannelMessageCreateRoute.ts");
+        const routeSource = readSource("src/api/routes/channels/#channel_id/messages/index.ts");
 
-        assertOrdered(source, ["router.post(", "validateMessagePayloadLimits,", "const channel = await Channel.findOneOrFail({"]);
-        assertOrdered(source, ["router.post(", "validateMessagePayloadLimits,", "ThreadMember.create({"]);
-        assertOrdered(source, ["router.post(", "validateMessagePayloadLimits,", "uploadFile(`/attachments/"]);
-        assertOrdered(source, ["router.post(", "validateMessagePayloadLimits,", "const message = await handleMessage({"]);
+        assert.match(routeSource, /router\.post\("\/", \.\.\.createMessageRouteHandlers\);/);
+        assertOrdered(helperSource, ["export const createMessageBodyRouteHandlers: RequestHandler[] = [", "createMessageBodyRoute,", "validateMessagePayloadLimits,", "];"]);
+        assertOrdered(helperSource, ["export const createMessageChannelRouteHandlers: RequestHandler[] = [", "createMessagePermissionRoute", "createMessageHandler", "];"]);
+        assertOrdered(helperSource, [
+            "export const createMessageRouteHandlers: RequestHandler[] = [",
+            "createMessageUploadHandler,",
+            "normalizeMessageCreateRequestBody,",
+            "createMessagePermissionRoute,",
+            "createMessageBodyRoute,",
+            "validateMessagePayloadLimits,",
+            "createMessageHandler,",
+            "];",
+        ]);
+        assertOrdered(helperSource, ["export const createMessageHandler: RequestHandler", "const channel = await Channel.findOneOrFail({"]);
+        assertOrdered(helperSource, ["export const createMessageHandler: RequestHandler", "ThreadMember.create({"]);
+        assertOrdered(helperSource, ["export const createMessageHandler: RequestHandler", "uploadFile(`/attachments/"]);
+        assertOrdered(helperSource, ["export const createMessageHandler: RequestHandler", "const message = await handleMessage({"]);
     });
 
     test("message edit validates dynamic limits before loading or rebuilding the message", () => {

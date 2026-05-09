@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 434,
+        "totalEntries": 435,
         "byService": {
-            "api": 337,
+            "api": 338,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 409,
+            "http-route": 410,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 53,
-            "stateful-domain": 246,
+            "stateful-domain": 247,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 297,
+            "route-class": 298,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -177,8 +177,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -206,8 +204,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -530,8 +526,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -564,8 +558,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -599,8 +591,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -633,8 +623,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -668,8 +656,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -703,8 +689,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "BulkApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -815,8 +799,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -849,8 +831,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -884,8 +864,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -918,8 +896,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -953,8 +929,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -988,8 +962,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "BulkApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -1505,7 +1477,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -1752,7 +1723,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "SessionsLogoutSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -1946,7 +1916,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -2138,8 +2107,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -2711,7 +2678,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "MessageAcknowledgeSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -3346,7 +3312,6 @@
                 "present": true,
                 "permission": "CREATE_PUBLIC_THREADS",
                 "requestBody": "MessageThreadCreationSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -3393,7 +3358,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 82,
+            "line": 31,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3444,7 +3409,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 226,
+            "line": 169,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3506,12 +3471,11 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 488,
+            "line": 171,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "AcknowledgeDeleteSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -4096,7 +4060,6 @@
                 "present": true,
                 "permission": "VIEW_CHANNEL",
                 "requestBody": "PostDataSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4196,7 +4159,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     404
@@ -4248,7 +4210,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     201,
                     404
@@ -4457,7 +4418,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4508,7 +4468,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403,
@@ -4556,7 +4515,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4607,7 +4565,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4659,7 +4616,6 @@
                 "present": true,
                 "permission": "VIEW_CHANNEL",
                 "requestBody": "ThreadMemberSettingsUpdateSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     204,
@@ -4710,7 +4666,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4814,8 +4769,8 @@
                 "present": true,
                 "permission": "VIEW_CHANNEL",
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "ActiveThreadsResponse"
+                    "ActiveThreadsResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -5025,7 +4980,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "SEND_MESSAGES",
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     403,
@@ -5342,8 +5296,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -5373,8 +5325,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -5405,8 +5355,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConnectionCallbackSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "USER_CONNECTIONS_UPDATE"
@@ -5991,8 +5939,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -7695,7 +7641,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "MANAGE_ROLES",
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     403
@@ -7843,8 +7788,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -7943,7 +7886,6 @@
                 "responseBodies": [
                     "GuildProfileResponse"
                 ],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -7988,7 +7930,6 @@
                 "responseBodies": [
                     "GuildPruneResponse"
                 ],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -8294,8 +8235,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -8437,8 +8376,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -8591,8 +8528,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -9194,8 +9129,8 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "ActiveThreadsResponse"
+                    "ActiveThreadsResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -9928,8 +9863,6 @@
                 "present": true,
                 "right": "CREATE_GUILDS",
                 "requestBody": "GuildTemplateCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -9965,8 +9898,6 @@
             "authMode": "public-app-route",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10063,8 +9994,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "InteractionCallbacksSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "INTERACTION_SUCCESS",
@@ -10100,8 +10029,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "InteractionSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "INTERACTION_CREATE",
@@ -10411,8 +10338,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10444,8 +10369,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10751,8 +10674,6 @@
             "authMode": "public-app-route",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10817,8 +10738,8 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "AccountStandingResponse"
+                    "AccountStandingResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -10853,8 +10774,8 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "AccountStandingResponse"
+                    "AccountStandingResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -10888,8 +10809,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10918,7 +10837,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -11239,8 +11157,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11269,8 +11185,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11299,8 +11213,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11329,8 +11241,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11428,7 +11338,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -11582,7 +11491,7 @@
             "method": "GET",
             "path": "/users/:user_id/messages/",
             "sourceFile": "src/api/routes/users/#user_id/messages.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11595,6 +11504,58 @@
                     400
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/users/:user_id/messages/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/:user_id/messages/",
+            "sourceFile": "src/api/routes/users/#user_id/messages.ts",
+            "line": 58,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "right": "SEND_MESSAGES",
+                "requestBody": "MessageCreateSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11672,9 +11633,11 @@
                     "USER_UPDATE",
                     "GUILD_MEMBER_UPDATE"
                 ],
-                "responseBodies": [],
-                "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE",
+                    "USER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11830,8 +11793,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11864,8 +11825,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11898,8 +11857,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12010,8 +11967,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12082,7 +12037,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -12472,8 +12426,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "USER_CONNECTIONS_UPDATE"
@@ -12510,8 +12462,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConnectionUpdateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12544,8 +12494,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12578,8 +12526,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12656,8 +12602,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12807,7 +12751,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     404
@@ -12968,8 +12911,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -13044,8 +12985,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -13246,7 +13185,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -13282,8 +13220,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -14096,7 +14032,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -14384,7 +14319,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     404

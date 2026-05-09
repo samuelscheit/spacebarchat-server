@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 387,
+        "totalCoveredManifestEntries": 388,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 365,
-                "totalCoveredManifestEntries": 365,
-                "totalCoveredRequiredManifestEntries": 365,
+                "totalRequiredManifestEntries": 366,
+                "totalCoveredManifestEntries": 366,
+                "totalCoveredRequiredManifestEntries": 366,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 246,
+            "stateful-domain": 247,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 365,
-                "totalCoveredManifestEntries": 365,
-                "totalCoveredRequiredManifestEntries": 365,
+                "totalRequiredManifestEntries": 366,
+                "totalCoveredManifestEntries": 366,
+                "totalCoveredRequiredManifestEntries": 366,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -326,6 +326,7 @@
                 "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                 "api:http:POST:/oauth2/authorize/",
                 "api:http:POST:/users/:user_id/delete/",
+                "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/delete/",
@@ -693,6 +694,7 @@
                 "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                 "api:http:POST:/oauth2/authorize/",
                 "api:http:POST:/users/:user_id/delete/",
+                "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/delete/",
@@ -911,6 +913,7 @@
                         "api:http:PATCH:/users/@me/settings-proto/2/json",
                         "api:http:PATCH:/users/@me/settings/",
                         "api:http:POST:/users/:user_id/delete/",
+                        "api:http:POST:/users/:user_id/messages/",
                         "api:http:POST:/users/@me/billing/payment-sources/",
                         "api:http:POST:/users/@me/channels/",
                         "api:http:POST:/users/@me/delete/",
