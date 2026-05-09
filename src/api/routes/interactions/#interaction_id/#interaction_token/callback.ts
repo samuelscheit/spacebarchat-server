@@ -70,7 +70,7 @@ router.post(
             user_id: interaction?.userId,
             data: {
                 id: interactionId,
-                nonce: interaction.nonce ?? "", // TODO: did i do this right?
+                nonce: interaction.nonce,
             },
         } satisfies InteractionSuccessEvent);
 
