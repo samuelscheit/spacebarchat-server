@@ -308,6 +308,7 @@ async function main() {
         filterSchema(definitions[defKey]);
     }
     aliasPublicMessageSchema(definitions);
+    normalizeBigIntTypes(definitions);
 
     if (process.env.WRITE_SCHEMA_DIR === "true") {
         await Promise.all(writePromises);
@@ -372,6 +373,15 @@ function aliasPublicMessageSchema(definitions) {
     // Several legacy response schemas still pull in the TypeORM Message entity as a
     // nested definition; keep the public API contract tied to PublicMessage instead.
     definitions.Message = structuredClone(definitions.PublicMessage);
+}
+
+function normalizeBigIntTypes(schema) {
+    if (!schema || typeof schema !== "object") return;
+
+    if (schema.type === "bigint") schema.type = "number";
+    else if (Array.isArray(schema.type)) schema.type = schema.type.map((type) => (type === "bigint" ? "number" : type));
+
+    for (const value of Object.values(schema)) normalizeBigIntTypes(value);
 }
 
 function deepEqual(a, b) {
