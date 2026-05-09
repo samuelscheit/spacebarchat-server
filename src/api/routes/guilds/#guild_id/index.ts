@@ -38,6 +38,7 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { GuildUpdateSchema } from "@spacebar/schemas";
+import { ensureGuildUpdateChannelIdsExistInGuild } from "../../../util/utility/GuildUpdateChannelIds";
 
 const router = Router({ mergeParams: true });
 
@@ -192,7 +193,7 @@ router.patch(
             guild.features = requestedFeatures;
         }
 
-        // TODO: check if body ids are valid
+        await ensureGuildUpdateChannelIdsExistInGuild(body, guild_id);
         guild.assign(body);
 
         if (body.public_updates_channel_id == "1") {
@@ -218,12 +219,6 @@ router.patch(
             );
 
             guild.public_updates_channel_id = channel.id;
-        } else if (body.public_updates_channel_id != undefined) {
-            // ensure channel exists in this guild
-            await Channel.findOneOrFail({
-                where: { guild_id, id: body.public_updates_channel_id },
-                select: { id: true },
-            });
         }
 
         if (body.safety_alerts_channel_id != undefined) {
@@ -259,12 +254,6 @@ router.patch(
             );
 
             guild.rules_channel_id = channel.id;
-        } else if (body.rules_channel_id != undefined) {
-            // ensure channel exists in this guild
-            await Channel.findOneOrFail({
-                where: { guild_id, id: body.rules_channel_id },
-                select: { id: true },
-            });
         }
 
         // Channel.createChannel owns guild.channel_ordering writes. Do not let this

@@ -1968,13 +1968,19 @@
                         "type": "integer"
                     },
                     "public_updates_channel_id": {
-                        "type": "string"
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "afk_timeout": {
                         "type": "integer"
                     },
                     "afk_channel_id": {
-                        "type": "string"
+                        "type": [
+                            "null",
+                            "string"
+                        ]
                     },
                     "preferred_locale": {
                         "type": "string"
@@ -28089,6 +28095,15 @@
                             "type": "string"
                         },
                         "description": "guild_id"
+                    },
+                    {
+                        "name": "style",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Widget image style."
                     }
                 ],
                 "tags": [
