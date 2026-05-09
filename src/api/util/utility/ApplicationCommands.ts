@@ -71,6 +71,106 @@ export function normalizeApplicationCommandName(name: string) {
     return trimmedName;
 }
 
+const APPLICATION_COMMAND_LOCALE_FALLBACKS: Record<string, string> = {
+    "en-US": "en-GB",
+    "en-GB": "en-US",
+    "es-419": "es-ES",
+};
+
+type ApplicationCommandLocaleSource = string | string[] | null | undefined;
+
+export type ApplicationCommandLocaleSources = {
+    discordLocale?: ApplicationCommandLocaleSource;
+    acceptLanguage?: ApplicationCommandLocaleSource;
+    userSettingsLocale?: ApplicationCommandLocaleSource;
+};
+
+type ApplicationCommandLocalizationSource = {
+    name_localizations?: Record<string, string> | null;
+    description_localizations?: Record<string, string> | null;
+};
+
+function firstLocaleValue(locale: ApplicationCommandLocaleSource) {
+    const localeValue = Array.isArray(locale) ? locale[0] : locale;
+
+    return localeValue?.trim();
+}
+
+function normalizeApplicationCommandLocale(locale: ApplicationCommandLocaleSource) {
+    const trimmedLocale = firstLocaleValue(locale);
+    if (!trimmedLocale || trimmedLocale === "*") return undefined;
+
+    const [language, region] = trimmedLocale.replace(/_/g, "-").split("-");
+    if (!region) return language.toLowerCase() === "en" ? "en-US" : language.toLowerCase();
+
+    return `${language.toLowerCase()}-${region.toUpperCase()}`;
+}
+
+function parseAcceptLanguageLocale(acceptLanguage: ApplicationCommandLocaleSource) {
+    const acceptLanguageValue = firstLocaleValue(acceptLanguage);
+    if (!acceptLanguageValue) return undefined;
+
+    return acceptLanguageValue
+        .split(",")
+        .map((language, index) => {
+            const [locale, ...parameters] = language.trim().split(";");
+            const qualityParameter = parameters.find((parameter) => parameter.trim().startsWith("q="));
+            const quality = qualityParameter ? Number(qualityParameter.trim().slice(2)) : 1;
+
+            return {
+                index,
+                locale: normalizeApplicationCommandLocale(locale),
+                quality: Number.isFinite(quality) ? quality : 0,
+            };
+        })
+        .filter((language): language is { index: number; locale: string; quality: number } => !!language.locale && language.quality > 0)
+        .sort((a, b) => b.quality - a.quality || a.index - b.index)[0]?.locale;
+}
+
+export function resolveApplicationCommandLocale(sources: ApplicationCommandLocaleSources) {
+    return (
+        normalizeApplicationCommandLocale(sources.discordLocale) ??
+        parseAcceptLanguageLocale(sources.acceptLanguage) ??
+        normalizeApplicationCommandLocale(sources.userSettingsLocale)
+    );
+}
+
+function localizationsValueForLocale(localizations: Record<string, string>, locale: string) {
+    const localized = localizations[locale];
+    if (localized !== undefined) return localized;
+
+    const normalizedLocale = normalizeApplicationCommandLocale(locale)?.toLowerCase();
+    if (!normalizedLocale) return undefined;
+
+    return Object.entries(localizations).find(([localizationLocale]) => normalizeApplicationCommandLocale(localizationLocale)?.toLowerCase() === normalizedLocale)?.[1];
+}
+
+export function getApplicationCommandLocalizedText(localizations: Record<string, string> | null | undefined, locale: string | null | undefined) {
+    const normalizedLocale = normalizeApplicationCommandLocale(locale);
+    if (!localizations || !normalizedLocale) return undefined;
+
+    const fallbackLocale = APPLICATION_COMMAND_LOCALE_FALLBACKS[normalizedLocale];
+    const baseLocale = normalizedLocale.split("-")[0];
+    const localeCandidates = [normalizedLocale, fallbackLocale, baseLocale === normalizedLocale ? undefined : baseLocale].filter((candidate): candidate is string => !!candidate);
+
+    for (const candidate of localeCandidates) {
+        const localized = localizationsValueForLocale(localizations, candidate);
+        if (localized !== undefined) return localized;
+    }
+
+    return undefined;
+}
+
+export function getApplicationCommandLocalizedFields(command: ApplicationCommandLocalizationSource, locale: string | null | undefined) {
+    const nameLocalized = getApplicationCommandLocalizedText(command.name_localizations, locale);
+    const descriptionLocalized = getApplicationCommandLocalizedText(command.description_localizations, locale);
+
+    return {
+        ...(nameLocalized === undefined ? {} : { name_localized: nameLocalized }),
+        ...(descriptionLocalized === undefined ? {} : { description_localized: descriptionLocalized }),
+    };
+}
+
 export function buildApplicationCommand(scope: ApplicationCommandScope, body: ApplicationCommandCreateSchema): ApplicationCommandSchema {
     body.type ??= 1;
 
@@ -94,85 +194,19 @@ export function buildApplicationCommand(scope: ApplicationCommandScope, body: Ap
     };
 }
 
-const APPLICATION_COMMAND_LOCALE_FALLBACKS: Record<string, string> = {
-    "en-us": "en-GB",
-    "en-gb": "en-US",
-    "es-419": "es-ES",
-};
-
-type LocaleHeader = string | string[] | undefined;
-
-function normalizeApplicationCommandLocale(locale: string) {
-    return locale.trim().replace(/_/g, "-");
-}
-
-function headerLocaleValue(header: LocaleHeader) {
-    if (typeof header !== "string") return undefined;
-
-    const locale = normalizeApplicationCommandLocale(header);
-    return locale || undefined;
-}
-
-function acceptLanguageLocale(acceptLanguageHeader: LocaleHeader) {
-    if (typeof acceptLanguageHeader !== "string") return undefined;
-
-    const preferences = acceptLanguageHeader
-        .split(",")
-        .map((part, index) => {
-            const [rawLocale, ...parameters] = part.split(";").map((value) => value.trim());
-            const locale = normalizeApplicationCommandLocale(rawLocale ?? "");
-            if (!locale || locale === "*") return undefined;
-
-            const qualityParameter = parameters.find((parameter) => parameter.toLowerCase().startsWith("q="));
-            const quality = qualityParameter ? Number(qualityParameter.slice(2)) : 1;
-            if (!Number.isFinite(quality) || quality <= 0) return undefined;
-
-            return { locale, quality, index };
-        })
-        .filter((preference): preference is { locale: string; quality: number; index: number } => preference !== undefined);
-
-    preferences.sort((a, b) => b.quality - a.quality || a.index - b.index);
-
-    return preferences[0]?.locale;
-}
-
-function applicationCommandLocaleCandidates(locale: string) {
-    const rawLocale = locale.trim();
-    const normalizedLocale = normalizeApplicationCommandLocale(locale);
-    const fallbackLocale = APPLICATION_COMMAND_LOCALE_FALLBACKS[normalizedLocale.toLowerCase()];
-
-    return [...new Set([rawLocale, normalizedLocale, fallbackLocale].filter((candidate): candidate is string => !!candidate))];
-}
-
-function localizedApplicationCommandValue(localizations: Record<string, string> | null | undefined, locale: string | undefined) {
-    if (!locale || !localizations) return undefined;
-
-    for (const candidate of applicationCommandLocaleCandidates(locale)) {
-        const localized = localizations[candidate];
-        if (localized !== undefined) return localized;
-
-        const normalizedCandidate = normalizeApplicationCommandLocale(candidate).toLowerCase();
-        const matchingLocalization = Object.entries(localizations).find(
-            ([localizationLocale]) => normalizeApplicationCommandLocale(localizationLocale).toLowerCase() === normalizedCandidate,
-        );
-        if (matchingLocalization) return matchingLocalization[1];
-    }
-
-    return undefined;
-}
-
 function serializeApplicationCommandOptionChoice(choice: ApplicationCommandOptionChoice, locale?: string): LocalizedApplicationCommandOptionChoice {
+    const nameLocalized = getApplicationCommandLocalizedText(choice.name_localizations, locale);
+
     return {
         ...choice,
-        name_localized: localizedApplicationCommandValue(choice.name_localizations, locale),
+        ...(nameLocalized === undefined ? {} : { name_localized: nameLocalized }),
     };
 }
 
 function serializeApplicationCommandOption(option: ApplicationCommandOption, locale?: string): LocalizedApplicationCommandOption {
     return {
         ...option,
-        name_localized: localizedApplicationCommandValue(option.name_localizations, locale),
-        description_localized: localizedApplicationCommandValue(option.description_localizations, locale),
+        ...getApplicationCommandLocalizedFields(option, locale),
         choices: option.choices?.map((choice) => serializeApplicationCommandOptionChoice(choice, locale)),
         options: option.options?.map((childOption) => serializeApplicationCommandOption(childOption, locale)),
     };
@@ -186,10 +220,9 @@ export function serializeApplicationCommand(command: ApplicationCommand, locale?
         guild_id: command.guild_id,
         name: command.name,
         name_localizations: command.name_localizations,
-        name_localized: localizedApplicationCommandValue(command.name_localizations, locale),
+        ...getApplicationCommandLocalizedFields(command, locale),
         description: command.description,
         description_localizations: command.description_localizations,
-        description_localized: localizedApplicationCommandValue(command.description_localizations, locale),
         options: command.type === ApplicationCommandType.CHAT_INPUT ? command.options?.map((option) => serializeApplicationCommandOption(option, locale)) : undefined,
         default_member_permissions: command.default_member_permissions,
         dm_permission: command.dm_permission,
@@ -201,10 +234,4 @@ export function serializeApplicationCommand(command: ApplicationCommand, locale?
         version: command.version,
         handler: command.handler,
     };
-}
-
-export function resolveApplicationCommandLocale(localeHeader: LocaleHeader, acceptLanguageHeader: LocaleHeader, userSettingsLocale: string | undefined) {
-    return (
-        headerLocaleValue(localeHeader) ?? acceptLanguageLocale(acceptLanguageHeader) ?? (userSettingsLocale ? normalizeApplicationCommandLocale(userSettingsLocale) : undefined)
-    );
 }

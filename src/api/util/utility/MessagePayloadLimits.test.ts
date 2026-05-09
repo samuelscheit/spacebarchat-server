@@ -4,7 +4,21 @@ import { Config } from "@spacebar/util";
 import { assertMessagePayloadLimits, validateMessagePayloadLimits } from "./MessagePayloadLimits";
 import type { Request, Response } from "express";
 
-function mockMessageLimits(t: TestContext, limits: { maxCharacters: number; maxTTSCharacters: number; maxEmbeds: number }) {
+type MessageLimitMock = {
+    maxCharacters: number;
+    maxTTSCharacters: number;
+    maxEmbeds: number;
+    maxEmbedTitle?: number;
+    maxEmbedDescription?: number;
+    maxEmbedFields?: number;
+    maxEmbedFieldName?: number;
+    maxEmbedFieldValue?: number;
+    maxEmbedFooterText?: number;
+    maxEmbedAuthorName?: number;
+    maxEmbedCharacters?: number;
+};
+
+function mockMessageLimits(t: TestContext, limits: MessageLimitMock) {
     t.mock.method(Config, "get", () => ({
         limits: {
             message: limits,
@@ -64,6 +78,83 @@ describe("assertMessagePayloadLimits", () => {
                 assert.deepEqual((error as { errors?: Record<string, unknown> }).errors?.embeds, {
                     _errors: [{ code: "BASE_TYPE_MAX_ITEMS", message: "Must contain 1 or fewer items." }],
                 });
+                return true;
+            },
+        );
+    });
+
+    test("accepts embed text at configured field and aggregate limits", (t) => {
+        mockMessageLimits(t, {
+            maxCharacters: 100,
+            maxTTSCharacters: 100,
+            maxEmbeds: 1,
+            maxEmbedTitle: 5,
+            maxEmbedDescription: 5,
+            maxEmbedFields: 1,
+            maxEmbedFieldName: 5,
+            maxEmbedFieldValue: 5,
+            maxEmbedFooterText: 5,
+            maxEmbedAuthorName: 5,
+            maxEmbedCharacters: 30,
+        });
+
+        assert.doesNotThrow(() =>
+            assertMessagePayloadLimits({
+                embeds: [
+                    {
+                        title: "12345",
+                        description: "12345",
+                        footer: { text: "12345" },
+                        author: { name: "12345" },
+                        fields: [{ name: "12345", value: "12345" }],
+                    },
+                ],
+            }),
+        );
+    });
+
+    test("rejects embed text over configured field and aggregate limits", (t) => {
+        mockMessageLimits(t, {
+            maxCharacters: 100,
+            maxTTSCharacters: 100,
+            maxEmbeds: 1,
+            maxEmbedTitle: 5,
+            maxEmbedDescription: 5,
+            maxEmbedFields: 1,
+            maxEmbedFieldName: 5,
+            maxEmbedFieldValue: 5,
+            maxEmbedFooterText: 5,
+            maxEmbedAuthorName: 5,
+            maxEmbedCharacters: 10,
+        });
+
+        assert.throws(
+            () =>
+                assertMessagePayloadLimits({
+                    embeds: [
+                        {
+                            title: "123456",
+                            description: "123456",
+                            footer: { text: "123456" },
+                            author: { name: "123456" },
+                            fields: [
+                                { name: "123456", value: "123456" },
+                                { name: "ok", value: "ok" },
+                            ],
+                        },
+                    ],
+                }),
+            (error: unknown) => {
+                const fieldError = error as { code?: unknown; errors?: Record<string, unknown> };
+                assert.equal(fieldError.code, 50035);
+                assert.ok(fieldError.errors?.embeds);
+                assert.ok(fieldError.errors?.["embeds[0].title"]);
+                assert.ok(fieldError.errors?.["embeds[0].description"]);
+                assert.ok(fieldError.errors?.["embeds[0].footer.text"]);
+                assert.ok(fieldError.errors?.["embeds[0].author.name"]);
+                assert.ok(fieldError.errors?.["embeds[0].fields"]);
+                assert.ok(fieldError.errors?.["embeds[0].fields[0].name"]);
+                assert.ok(fieldError.errors?.["embeds[0].fields[0].value"]);
                 return true;
             },
         );

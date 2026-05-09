@@ -45,6 +45,18 @@ test("guild widget JSON skips invite lookup when widget_channel_id is null", asy
         };
     });
     t.mock.method(util.Channel, "getOrderedChannels", async () => []);
+    const emptyWidgetMemberQuery = {
+        andWhere: () => emptyWidgetMemberQuery,
+        getRawMany: async () => [],
+        getRawOne: async () => ({ count: 0 }),
+        groupBy: () => emptyWidgetMemberQuery,
+        innerJoin: () => emptyWidgetMemberQuery,
+        limit: () => emptyWidgetMemberQuery,
+        orderBy: () => emptyWidgetMemberQuery,
+        select: () => emptyWidgetMemberQuery,
+        where: () => emptyWidgetMemberQuery,
+    };
+    t.mock.method(util.Member, "createQueryBuilder", () => emptyWidgetMemberQuery);
     t.mock.method(util.Member, "find", async () => []);
 
     const { getWidgetJsonData } = require("./#guild_id/widget.json") as typeof import("./#guild_id/widget.json");

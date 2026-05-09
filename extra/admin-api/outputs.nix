@@ -135,6 +135,7 @@ nixpkgs.lib.recursiveUpdate (
           nugetDeps = Utilities/Spacebar.Cdn.Fsck/deps.json;
           packNupkg = false;
           projectReferences = [
+            proj.Spacebar-Cdn-Shared
             proj.Spacebar-Models-Db
             proj.Spacebar-Interop-Cdn-Abstractions
           ];
@@ -144,7 +145,7 @@ nixpkgs.lib.recursiveUpdate (
         Spacebar-Cdn-Shared = buildSpacebarDotnetModule {
           name = "Spacebar.Cdn.Shared";
           projectFile = "Spacebar.Cdn.Shared.csproj";
-          srcRoot = Spacebar.Cdn.Shared;
+          srcRoot = ./Spacebar.Cdn.Shared;
         };
 
         # Main projects

@@ -21,7 +21,8 @@
                 "api:http:GET:/policies/instance/domains/",
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
-                "api:http:GET:/scheduled-maintenances/upcoming.json/"
+                "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "suites": [
                 {
@@ -50,11 +51,14 @@
                         "test/scenarios/users-profile-settings.test.ts",
                         "test/scenarios/users-relationships.test.ts",
                         "test/scenarios/users-notes.test.ts",
+                        "test/scenarios/users-guild-settings-route.test.ts",
                         "test/scenarios/users-supplemental.test.ts",
+                        "test/scenarios/users-delete-route.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
-                        "src/util/dtos/ConnectedAccountDTO.test.ts"
+                        "src/util/dtos/ConnectedAccountDTO.test.ts",
+                        "src/api/util/UserUpdateEvents.test.ts"
                     ],
                     "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/users" }],
                     "fixtures": ["users", "sessions", "relationships", "settings"],
@@ -178,6 +182,16 @@
                     "checks": ["auth-boundary", "response-shape", "db-state", "provider-stub"]
                 },
                 {
+                    "id": "store-published-listings",
+                    "title": "Store published listings compatibility responses",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/store-published-listings.test.ts"],
+                    "manifestIds": ["api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"],
+                    "fixtures": ["config"],
+                    "checks": ["response-shape", "no-fabricated-store-data"]
+                },
+                {
                     "id": "cdn",
                     "title": "CDN uploads, downloads, deletes, signed URLs, and object metadata",
                     "kind": "stateful-scenario",
@@ -211,7 +225,12 @@
                     "title": "Middleware and server event bus",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/api/middlewares/Authentication.test.ts", "src/gateway/listener/subscriptions.test.ts", "src/util/util/Presence.test.ts"],
+                    "testFiles": [
+                        "src/api/middlewares/Authentication.test.ts",
+                        "src/gateway/listener/subscriptions.test.ts",
+                        "src/gateway/listener/listener.test.ts",
+                        "src/util/util/Presence.test.ts"
+                    ],
                     "selectors": [{ "manifestId": "api:middleware:auth-rate-limit-error" }, { "manifestId": "server:event-bus" }],
                     "fixtures": ["config", "users", "sessions", "event-bus"],
                     "checks": ["auth-boundary", "rate-limit-headers", "emit-listen", "subscription-filter"]
@@ -235,6 +254,7 @@
                         "src/gateway/opcodes/Heartbeat.test.ts",
                         "src/gateway/events/Close.test.ts",
                         "src/gateway/listener/subscriptions.test.ts",
+                        "src/gateway/listener/listener.test.ts",
                         "src/gateway/util/ReadyReadState.test.ts",
                         "src/gateway/util/Send.test.ts",
                         "src/gateway/util/StreamRegion.test.ts"

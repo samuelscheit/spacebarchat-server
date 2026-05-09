@@ -32,12 +32,13 @@ import {
     handleFile,
     Config,
     removeChannelOrderingFromGuildSave,
-    MUTABLE_GUILD_FEATURES,
+    canPatchGuildFeature,
     type GuildFeatureValue,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { GuildUpdateSchema } from "@spacebar/schemas";
+import { ensureGuildUpdateChannelIdsExistInGuild } from "../../../util/utility/GuildUpdateChannelIds";
 
 const router = Router({ mergeParams: true });
 
@@ -97,6 +98,12 @@ export async function saveGuildUpdateAndDeleteReplacedImages({
     await saveGuild();
     await deleteReplacedImages(replacedImagePaths);
     await emitGuildUpdate();
+}
+
+export function normalizeGuildProfileTag(profile_tag: string | null | undefined): string | null | undefined {
+    if (profile_tag === undefined || profile_tag === null) return profile_tag;
+    if (!/^[A-Za-z0-9]{1,4}$/.test(profile_tag)) throw new HTTPError("Invalid profile_tag");
+    return profile_tag.toUpperCase();
 }
 
 router.get(
@@ -177,13 +184,14 @@ router.patch(
         if ("splash" in body) body.splash = await handleGuildImageField(`/splashes/${guild_id}`, body.splash, guild.splash);
         if ("discovery_splash" in body)
             body.discovery_splash = (await handleGuildImageField(`/discovery-splashes/${guild_id}`, body.discovery_splash, guild.discovery_splash)) as string | undefined;
+        if ("profile_tag" in body) body.profile_tag = normalizeGuildProfileTag(body.profile_tag);
 
         if (body.features) {
             const requestedFeatures = body.features as GuildFeatureValue[];
             const diff = guild.features.filter((x) => !requestedFeatures.includes(x)).concat(requestedFeatures.filter((x) => !guild.features.includes(x)));
 
             for (const feature of diff) {
-                if (MUTABLE_GUILD_FEATURES.includes(feature)) continue;
+                if (canPatchGuildFeature(feature)) continue;
 
                 throw SpacebarApiErrors.FEATURE_IS_IMMUTABLE.withParams(feature);
             }
@@ -192,7 +200,7 @@ router.patch(
             guild.features = requestedFeatures;
         }
 
-        // TODO: check if body ids are valid
+        await ensureGuildUpdateChannelIdsExistInGuild(body, guild_id);
         guild.assign(body);
 
         if (body.public_updates_channel_id == "1") {
@@ -218,12 +226,6 @@ router.patch(
             );
 
             guild.public_updates_channel_id = channel.id;
-        } else if (body.public_updates_channel_id != undefined) {
-            // ensure channel exists in this guild
-            await Channel.findOneOrFail({
-                where: { guild_id, id: body.public_updates_channel_id },
-                select: { id: true },
-            });
         }
 
         if (body.safety_alerts_channel_id != undefined) {
@@ -259,12 +261,6 @@ router.patch(
             );
 
             guild.rules_channel_id = channel.id;
-        } else if (body.rules_channel_id != undefined) {
-            // ensure channel exists in this guild
-            await Channel.findOneOrFail({
-                where: { guild_id, id: body.rules_channel_id },
-                select: { id: true },
-            });
         }
 
         // Channel.createChannel owns guild.channel_ordering writes. Do not let this

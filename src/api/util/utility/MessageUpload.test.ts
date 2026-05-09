@@ -7,6 +7,7 @@ type InspectableMessageUpload = ReturnType<typeof createMessageUpload> & {
     limits?: {
         fields?: number;
         fileSize?: number;
+        files?: number;
     };
     storage?: {
         constructor?: {
@@ -24,6 +25,15 @@ test("createMessageUpload uses explicit message attachment size limits", () => {
 
     assert.equal(upload.limits?.fileSize, 4096);
     assert.equal(upload.limits?.fields, MESSAGE_UPLOAD_FIELD_LIMIT);
+    assert.equal(upload.storage?.constructor?.name, "MemoryStorage");
+});
+
+test("createMessageUpload supports route-specific field and file-count limits", () => {
+    const upload = inspectMessageUpload(createMessageUpload({ maxAttachmentSize: 4096, fields: 2, files: 1 }));
+
+    assert.equal(upload.limits?.fileSize, 4096);
+    assert.equal(upload.limits?.fields, 2);
+    assert.equal(upload.limits?.files, 1);
     assert.equal(upload.storage?.constructor?.name, "MemoryStorage");
 });
 

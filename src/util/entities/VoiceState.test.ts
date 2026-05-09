@@ -8,6 +8,20 @@ type EntityClass = abstract new (...args: never[]) => unknown;
 
 const localRequire = createRequire(__filename);
 const schemasPath = localRequire.resolve("@spacebar/schemas");
+const publicVoiceStateProjection = [
+    "user_id",
+    "suppress",
+    "session_id",
+    "self_video",
+    "self_mute",
+    "self_deaf",
+    "self_stream",
+    "request_to_speak_timestamp",
+    "mute",
+    "deaf",
+    "channel_id",
+    "guild_id",
+];
 
 const fallbackSchemaValue = new Proxy(Object.create(null), {
     get: (_target, property) => {
@@ -22,20 +36,7 @@ const fallbackSchemaValue = new Proxy(Object.create(null), {
 const schemasMock = new Proxy(
     {
         ApplicationCommandType: { CHAT_INPUT: 1 },
-        PublicVoiceStateProjection: [
-            "user_id",
-            "suppress",
-            "session_id",
-            "self_video",
-            "self_mute",
-            "self_deaf",
-            "self_stream",
-            "request_to_speak_timestamp",
-            "mute",
-            "deaf",
-            "channel_id",
-            "guild_id",
-        ],
+        PublicVoiceStateProjection: publicVoiceStateProjection,
     },
     {
         get: (target, property) => {
@@ -122,5 +123,41 @@ describe("VoiceState entity metadata", () => {
         assert.equal(guildVoiceStatesRelation.inverseEntityMetadata.target, VoiceState);
         assert.equal(guildRelation.inverseRelation, guildVoiceStatesRelation);
         assert.equal(guildVoiceStatesRelation.inverseRelation, guildRelation);
+    });
+
+    test("toPublicVoiceState serializes only the public schema projection", () => {
+        const voiceState = new VoiceState();
+        voiceState.guild_id = "guild-1";
+        voiceState.channel_id = "channel-1";
+        voiceState.user_id = "user-1";
+        voiceState.session_id = "session-1";
+        voiceState.deaf = false;
+        voiceState.mute = true;
+        voiceState.self_deaf = false;
+        voiceState.self_mute = true;
+        voiceState.self_stream = true;
+        voiceState.self_video = false;
+        voiceState.suppress = true;
+        voiceState.request_to_speak_timestamp = new Date("2026-05-08T12:00:00.000Z");
+        voiceState.token = "entity-only-token";
+
+        const publicVoiceState = voiceState.toPublicVoiceState();
+
+        assert.deepEqual(Object.keys(publicVoiceState), publicVoiceStateProjection);
+        assert.deepEqual(publicVoiceState, {
+            user_id: "user-1",
+            suppress: true,
+            session_id: "session-1",
+            self_video: false,
+            self_mute: true,
+            self_deaf: false,
+            self_stream: true,
+            request_to_speak_timestamp: new Date("2026-05-08T12:00:00.000Z"),
+            mute: true,
+            deaf: false,
+            channel_id: "channel-1",
+            guild_id: "guild-1",
+        });
+        assert.equal("token" in publicVoiceState, false);
     });
 });

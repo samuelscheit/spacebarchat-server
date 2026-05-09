@@ -150,6 +150,116 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "MessageAcknowledgeSchema": {
+        "type": "object",
+        "properties": {
+            "manual": {
+                "type": "boolean"
+            },
+            "mention_count": {
+                "type": "integer"
+            },
+            "flags": {
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    4
+                ],
+                "type": "number"
+            },
+            "last_viewed": {
+                "type": "integer"
+            },
+            "token": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AckBulkSchema": {
+        "type": "object",
+        "properties": {
+            "read_states": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "channel_id": {
+                            "type": "string"
+                        },
+                        "message_id": {
+                            "type": "string"
+                        },
+                        "read_state_type": {
+                            "enum": [
+                                0,
+                                1,
+                                2,
+                                3,
+                                4,
+                                5
+                            ],
+                            "type": "number"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "channel_id",
+                        "message_id"
+                    ]
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "read_states"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AcknowledgeDeleteSchema": {
+        "type": "object",
+        "properties": {
+            "read_state_type": {
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "type": "number"
+            },
+            "version": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FieldErrorResponse": {
+        "type": "object",
+        "properties": {
+            "code": {
+                "type": "integer"
+            },
+            "message": {
+                "type": "string"
+            },
+            "errors": {
+                "$ref": "#/definitions/ErrorList"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "code",
+            "errors",
+            "message"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "InstanceUserDeleteSchema": {
         "$ref": "#/definitions/InstanceUserDeleteSchemaContent",
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -452,116 +562,6 @@
             "theme",
             "timezone_offset",
             "view_nsfw_guilds"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageAcknowledgeSchema": {
-        "type": "object",
-        "properties": {
-            "manual": {
-                "type": "boolean"
-            },
-            "mention_count": {
-                "type": "integer"
-            },
-            "flags": {
-                "enum": [
-                    0,
-                    1,
-                    2,
-                    4
-                ],
-                "type": "number"
-            },
-            "last_viewed": {
-                "type": "integer"
-            },
-            "token": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "AckBulkSchema": {
-        "type": "object",
-        "properties": {
-            "read_states": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "channel_id": {
-                            "type": "string"
-                        },
-                        "message_id": {
-                            "type": "string"
-                        },
-                        "read_state_type": {
-                            "enum": [
-                                0,
-                                1,
-                                2,
-                                3,
-                                4,
-                                5
-                            ],
-                            "type": "number"
-                        }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "channel_id",
-                        "message_id"
-                    ]
-                }
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "read_states"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "AcknowledgeDeleteSchema": {
-        "type": "object",
-        "properties": {
-            "read_state_type": {
-                "enum": [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5
-                ],
-                "type": "number"
-            },
-            "version": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "FieldErrorResponse": {
-        "type": "object",
-        "properties": {
-            "code": {
-                "type": "integer"
-            },
-            "message": {
-                "type": "string"
-            },
-            "errors": {
-                "$ref": "#/definitions/ErrorList"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "code",
-            "errors",
-            "message"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -2034,19 +2034,34 @@
                 "type": "integer"
             },
             "public_updates_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "afk_timeout": {
                 "type": "integer"
             },
             "afk_channel_id": {
-                "type": "string"
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "preferred_locale": {
                 "type": "string"
             },
             "premium_progress_bar_enabled": {
                 "type": "boolean"
+            },
+            "profile_tag": {
+                "minLength": 1,
+                "maxLength": 4,
+                "pattern": "^[A-Za-z0-9]+$",
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "discovery_splash": {
                 "format": "image-data-uri-or-asset-hash",
@@ -2390,6 +2405,11 @@
             }
         },
         "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "BillingSubscriptionsResponse": {
+        "type": "array",
+        "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "CollectiblesCategoriesResponse": {
@@ -2987,6 +3007,12 @@
             "mfa_level": {
                 "type": "integer"
             },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "owner_id": {
                 "type": "string"
             },
@@ -3130,6 +3156,12 @@
             "region": {
                 "type": "string"
             },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "insert": {
                 "type": "object",
                 "additionalProperties": false
@@ -3238,12 +3270,6 @@
             "default_message_notifications": {
                 "type": "integer"
             },
-            "description": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
             "discovery_splash": {
                 "type": "string"
             },
@@ -3285,6 +3311,12 @@
             },
             "mfa_level": {
                 "type": "integer"
+            },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "preferred_locale": {
                 "type": "string"
@@ -3443,6 +3475,12 @@
             },
             "mfa_level": {
                 "type": "integer"
+            },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
             },
             "owner_id": {
                 "type": "string"
@@ -3746,6 +3784,303 @@
             "sufficient_without_grace_period",
             "valid_rules_channel"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationModifySchema": {
+        "type": "object",
+        "properties": {
+            "description": {
+                "type": "string"
+            },
+            "icon": {
+                "format": "image-data-uri",
+                "type": "string"
+            },
+            "cover_image": {
+                "format": "image-data-uri",
+                "type": "string"
+            },
+            "interactions_endpoint_url": {
+                "type": "string"
+            },
+            "max_participants": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "name": {
+                "type": "string"
+            },
+            "privacy_policy_url": {
+                "type": "string"
+            },
+            "role_connections_verification_url": {
+                "type": "string"
+            },
+            "tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "terms_of_service_url": {
+                "type": "string"
+            },
+            "bot_public": {
+                "type": "boolean"
+            },
+            "bot_require_code_grant": {
+                "type": "boolean"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "custom_install_url": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "install_params": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/ApplicationInstallParams"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "APIIntegrationApplication": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "summary": {
+                "type": "string"
+            },
+            "type": {
+                "anyOf": [
+                    {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "hook": {
+                "type": "boolean"
+            },
+            "bot_public": {
+                "type": "boolean"
+            },
+            "bot_require_code_grant": {
+                "type": "boolean"
+            },
+            "verify_key": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "redirect_uris": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "rpc_application_state": {
+                "type": "integer"
+            },
+            "store_application_state": {
+                "type": "integer"
+            },
+            "verification_state": {
+                "type": "integer"
+            },
+            "interactions_endpoint_url": {
+                "type": "string"
+            },
+            "integration_public": {
+                "type": "boolean"
+            },
+            "integration_require_code_grant": {
+                "type": "boolean"
+            },
+            "discoverability_state": {
+                "type": "integer"
+            },
+            "discovery_eligibility_flags": {
+                "type": "integer"
+            },
+            "tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "cover_image": {
+                "type": "string"
+            },
+            "install_params": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/ApplicationInstallParams"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "terms_of_service_url": {
+                "type": "string"
+            },
+            "privacy_policy_url": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "custom_install_url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "discoverability_state",
+            "discovery_eligibility_flags",
+            "flags",
+            "hook",
+            "id",
+            "integration_public",
+            "integration_require_code_grant",
+            "name",
+            "redirect_uris",
+            "rpc_application_state",
+            "store_application_state",
+            "summary",
+            "verification_state",
+            "verify_key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "APIGuildIntegration": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "type": {
+                "type": "string",
+                "const": "discord"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "syncing": {
+                "type": "boolean"
+            },
+            "role_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "enable_emoticons": {
+                "type": "boolean"
+            },
+            "expire_behavior": {
+                "type": "integer"
+            },
+            "expire_grace_period": {
+                "type": "integer"
+            },
+            "user": {
+                "type": "null"
+            },
+            "account": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "synced_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "subscriber_count": {
+                "type": "integer"
+            },
+            "revoked": {
+                "type": "boolean"
+            },
+            "application": {
+                "$ref": "#/definitions/APIIntegrationApplication"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "account",
+            "application",
+            "enable_emoticons",
+            "enabled",
+            "expire_behavior",
+            "expire_grace_period",
+            "id",
+            "name",
+            "revoked",
+            "role_id",
+            "subscriber_count",
+            "synced_at",
+            "syncing",
+            "type",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "APIGuildIntegrationArray": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/APIGuildIntegration"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "GuildMessagesSearchResponse": {
@@ -4279,6 +4614,9 @@
             "cdn": {
                 "$ref": "#/definitions/CdnConfiguration"
             },
+            "cors": {
+                "$ref": "#/definitions/CorsConfiguration"
+            },
             "api": {
                 "$ref": "#/definitions/ApiConfiguration"
             },
@@ -4290,6 +4628,9 @@
             },
             "security": {
                 "$ref": "#/definitions/SecurityConfiguration"
+            },
+            "store": {
+                "$ref": "#/definitions/StoreConfiguration"
             },
             "login": {
                 "$ref": "#/definitions/LoginConfiguration"
@@ -4349,6 +4690,7 @@
             "api",
             "cdn",
             "components",
+            "cors",
             "defaults",
             "email",
             "embeds",
@@ -4365,6 +4707,7 @@
             "regions",
             "register",
             "security",
+            "store",
             "templates",
             "updates",
             "user",
@@ -5033,8 +5376,11 @@
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
+            },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
             },
             "lobby_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -5073,7 +5419,7 @@
             "mention_channels": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/PublicChannel"
+                    "$ref": "#/definitions/PartialPublicChannel"
                 }
             },
             "attachments": {
@@ -5101,6 +5447,9 @@
             "activity": {
                 "$ref": "#/definitions/MessageActivity"
             },
+            "application": {
+                "$ref": "#/definitions/IntegrationApplication"
+            },
             "message_reference": {
                 "$ref": "#/definitions/MessageReference"
             },
@@ -5120,6 +5469,12 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "interaction": {
+                "$ref": "#/definitions/PartialMessageInteraction"
+            },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -5132,7 +5487,7 @@
             "sticker_items": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "poll": {
@@ -5756,7 +6111,8 @@
                     },
                     "additionalProperties": false,
                     "required": [
-                        "id"
+                        "id",
+                        "nick"
                     ]
                 }
             },
@@ -6855,14 +7211,17 @@
             "flags": {
                 "type": "integer"
             },
+            "channel_id": {
+                "type": "string"
+            },
             "applied_tags": {
                 "type": "array",
                 "items": {
                     "type": "string"
                 }
             },
-            "channel_id": {
-                "type": "string"
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionSchema"
             },
             "content": {
                 "type": "string"
@@ -6892,15 +7251,8 @@
             "nonce": {
                 "type": "string"
             },
-            "message_reference": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/MessageReference"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
+            "interaction": {
+                "$ref": "#/definitions/MessageInteractionSchema"
             },
             "components": {
                 "anyOf": [
@@ -6952,12 +7304,6 @@
             },
             "avatar_url": {
                 "type": "string"
-            },
-            "interaction": {
-                "$ref": "#/definitions/MessageInteractionSchema"
-            },
-            "interaction_metadata": {
-                "$ref": "#/definitions/MessageInteractionSchema"
             }
         },
         "additionalProperties": false,
@@ -8096,7 +8442,31 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "GenerateWebAuthnCredentialsSchema": {
+    "VoiceStateModifySchema": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "type": "string"
+            },
+            "request_to_speak_timestamp": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "suppress": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "WebAuthnCredentialRegistrationChallengeSchema": {
         "type": "object",
         "properties": {
             "password": {
@@ -8109,7 +8479,7 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "CreateWebAuthnCredentialSchema": {
+    "WebAuthnCredentialRegistrationCompletionSchema": {
         "type": "object",
         "properties": {
             "credential": {
@@ -8133,10 +8503,10 @@
     "WebAuthnPostSchema": {
         "anyOf": [
             {
-                "$ref": "#/definitions/GenerateWebAuthnCredentialsSchema"
+                "$ref": "#/definitions/WebAuthnCredentialRegistrationChallengeSchema"
             },
             {
-                "$ref": "#/definitions/CreateWebAuthnCredentialSchema"
+                "$ref": "#/definitions/WebAuthnCredentialRegistrationCompletionSchema"
             }
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -8628,22 +8998,6 @@
             "flags": {
                 "type": "integer"
             },
-            "icon": {
-                "format": "image-data-uri",
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "parent_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "default_auto_archive_duration": {
-                "type": "integer"
-            },
             "permission_overwrites": {
                 "type": "array",
                 "items": {
@@ -8670,6 +9024,22 @@
                         "type"
                     ]
                 }
+            },
+            "icon": {
+                "format": "image-data-uri",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "parent_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "default_auto_archive_duration": {
+                "type": "integer"
             },
             "video_quality_mode": {
                 "type": "integer"
@@ -8864,7 +9234,7 @@
                 }
             },
             "resolved": {
-                "$ref": "#/definitions/ModalSubmitResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             },
             "attachments": {
                 "type": "array",
@@ -9207,7 +9577,7 @@
                 "type": "string"
             },
             "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/PublicChannel"
             },
             "channel_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -9305,7 +9675,7 @@
                 "type": "string"
             },
             "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/PublicChannel"
             },
             "channel_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -9404,7 +9774,7 @@
                 "type": "string"
             },
             "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/PublicChannel"
             },
             "channel_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -9503,7 +9873,7 @@
                 "type": "string"
             },
             "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/PublicChannel"
             },
             "channel_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -9602,7 +9972,7 @@
                 "type": "string"
             },
             "channel": {
-                "$ref": "#/definitions/Channel"
+                "$ref": "#/definitions/PublicChannel"
             },
             "channel_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
@@ -9679,76 +10049,6 @@
         "required": [
             "name"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationModifySchema": {
-        "type": "object",
-        "properties": {
-            "description": {
-                "type": "string"
-            },
-            "icon": {
-                "format": "image-data-uri",
-                "type": "string"
-            },
-            "cover_image": {
-                "format": "image-data-uri",
-                "type": "string"
-            },
-            "interactions_endpoint_url": {
-                "type": "string"
-            },
-            "max_participants": {
-                "type": [
-                    "null",
-                    "integer"
-                ]
-            },
-            "name": {
-                "type": "string"
-            },
-            "privacy_policy_url": {
-                "type": "string"
-            },
-            "role_connections_verification_url": {
-                "type": "string"
-            },
-            "tags": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "terms_of_service_url": {
-                "type": "string"
-            },
-            "bot_public": {
-                "type": "boolean"
-            },
-            "bot_require_code_grant": {
-                "type": "boolean"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "custom_install_url": {
-                "type": "string"
-            },
-            "guild_id": {
-                "type": "string"
-            },
-            "install_params": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/ApplicationInstallParams"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            }
-        },
-        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ApplicationOwnerModifySchema": {
@@ -10262,7 +10562,11 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "pattern": "^-?[0-9]+$",
+                "type": [
+                    "string",
+                    "integer"
+                ]
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -10281,7 +10585,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "$ref": "#/definitions/IdentifyBitfield"
                 }
             },
             "guild_subscriptions": {
@@ -10754,14 +11058,24 @@
             "$ref": {
                 "type": "string"
             },
-            "type": {
-                "type": "string"
-            },
             "items": {
                 "$ref": "#/definitions/JsonSchema"
             },
             "properties": {
                 "$ref": "#/definitions/Record%3Cstring%2CJsonSchema%3E"
+            },
+            "type": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
@@ -10800,23 +11114,23 @@
             "type": {
                 "$ref": "#/definitions/ApplicationCommandOptionType"
             },
-            "required": {
-                "type": "boolean"
-            },
-            "description": {
-                "type": "string"
-            },
             "name_localizations": {
                 "type": "object",
                 "additionalProperties": {
                     "type": "string"
                 }
             },
+            "description": {
+                "type": "string"
+            },
             "description_localizations": {
                 "type": "object",
                 "additionalProperties": {
                     "type": "string"
                 }
+            },
+            "required": {
+                "type": "boolean"
             }
         },
         "additionalProperties": false,
@@ -10906,6 +11220,57 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ErrorList": {
+        "type": "object",
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/ErrorList"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "code": {
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "code",
+                            "message"
+                        ]
+                    }
+                }
+            ]
+        },
+        "properties": {
+            "_errors": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "string"
+                        },
+                        "message": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "code",
+                        "message"
+                    ]
+                }
+            }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "InstanceUserDeleteSchemaContent": {
         "type": "object",
         "properties": {
@@ -10983,57 +11348,6 @@
         "required": [
             "guild_ids"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ErrorList": {
-        "type": "object",
-        "additionalProperties": {
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/ErrorList"
-                },
-                {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "code": {
-                                "type": "string"
-                            },
-                            "message": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "code",
-                            "message"
-                        ]
-                    }
-                }
-            ]
-        },
-        "properties": {
-            "_errors": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "code": {
-                            "type": "string"
-                        },
-                        "message": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "code",
-                        "message"
-                    ]
-                }
-            }
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Status": {
@@ -14748,6 +15062,12 @@
             "name": {
                 "type": "string"
             },
+            "profile_tag": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "owner_id": {
                 "type": "string"
             },
@@ -16121,7 +16441,7 @@
             "mention_channels": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/PublicChannel"
+                    "$ref": "#/definitions/PartialPublicChannel"
                 }
             },
             "attachments": {
@@ -16161,6 +16481,9 @@
             "activity": {
                 "$ref": "#/definitions/MessageActivity"
             },
+            "application": {
+                "$ref": "#/definitions/IntegrationApplication"
+            },
             "application_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
@@ -16187,6 +16510,15 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "interaction": {
+                "$ref": "#/definitions/PartialMessageInteraction"
+            },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -16199,13 +16531,13 @@
             "sticker_items": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "poll": {
@@ -16532,6 +16864,91 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PublicUser": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "username": {
+                "type": "string"
+            },
+            "discriminator": {
+                "type": "string"
+            },
+            "public_flags": {
+                "type": "integer"
+            },
+            "avatar": {
+                "type": "string"
+            },
+            "accent_color": {
+                "type": "integer"
+            },
+            "banner": {
+                "type": "string"
+            },
+            "bio": {
+                "type": "string"
+            },
+            "bot": {
+                "type": "boolean"
+            },
+            "premium_since": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "premium_type": {
+                "type": "integer"
+            },
+            "theme_colors": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "pronouns": {
+                "type": "string"
+            },
+            "badge_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
+            "primary_guild": {
+                "$ref": "#/definitions/PrimaryGuild"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "bio",
+            "bot",
+            "discriminator",
+            "id",
+            "premium_type",
+            "public_flags",
+            "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationCommandType": {
         "type": "number",
         "enum": [
@@ -16687,7 +17104,27 @@
             "content_type": {
                 "type": "string"
             },
-            "content_scan_metadata": {},
+            "content_scan_metadata": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/JsonObject"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/JsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "number",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
             "placeholder_version": {
                 "type": "integer"
             },
@@ -16704,6 +17141,35 @@
         "additionalProperties": false,
         "required": [
             "url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "JsonObject": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/JsonValue"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "JsonValue": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/JsonObject"
+            },
+            {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonValue"
+                }
+            },
+            {
+                "type": [
+                    "null",
+                    "string",
+                    "number",
+                    "boolean"
+                ]
+            }
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -17467,7 +17933,7 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/definitions/Sticker"
+                            "$ref": "#/definitions/StickerResponse"
                         }
                     }
                 },
@@ -17601,91 +18067,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "PublicUser": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "username": {
-                "type": "string"
-            },
-            "discriminator": {
-                "type": "string"
-            },
-            "public_flags": {
-                "type": "integer"
-            },
-            "avatar": {
-                "type": "string"
-            },
-            "accent_color": {
-                "type": "integer"
-            },
-            "banner": {
-                "type": "string"
-            },
-            "bio": {
-                "type": "string"
-            },
-            "bot": {
-                "type": "boolean"
-            },
-            "premium_since": {
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "premium_type": {
-                "type": "integer"
-            },
-            "theme_colors": {
-                "type": "array",
-                "items": {
-                    "type": "integer"
-                }
-            },
-            "pronouns": {
-                "type": "string"
-            },
-            "badge_ids": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "avatar_decoration_data": {
-                "$ref": "#/definitions/AvatarDecorationData"
-            },
-            "display_name_styles": {
-                "$ref": "#/definitions/DisplayNameStyle"
-            },
-            "collectibles": {
-                "$ref": "#/definitions/Collectibles"
-            },
-            "primary_guild": {
-                "$ref": "#/definitions/PrimaryGuild"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "bio",
-            "bot",
-            "discriminator",
-            "id",
-            "premium_type",
-            "public_flags",
-            "username"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "GuildMessagesSearchMessage": {
         "type": "object",
         "properties": {
@@ -17744,7 +18125,7 @@
             "mention_channels": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/PublicChannel"
+                    "$ref": "#/definitions/PartialPublicChannel"
                 }
             },
             "attachments": {
@@ -17784,6 +18165,9 @@
             "activity": {
                 "$ref": "#/definitions/MessageActivity"
             },
+            "application": {
+                "$ref": "#/definitions/IntegrationApplication"
+            },
             "application_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
@@ -17810,6 +18194,15 @@
                     "$ref": "#/definitions/MessageSnapshot"
                 }
             },
+            "interaction": {
+                "$ref": "#/definitions/PartialMessageInteraction"
+            },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
             "thread": {
                 "$ref": "#/definitions/PublicChannel"
             },
@@ -17822,13 +18215,13 @@
             "sticker_items": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "poll": {
@@ -17965,6 +18358,713 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PartialPublicChannel": {
+        "description": "Channel object embedded in message channel mentions.\n\nDiscord only exposes the channel identity needed to render the mention, not\nthe full channel resource payload.",
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ChannelType"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild_id",
+            "id",
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "Reaction": {
+        "type": "object",
+        "properties": {
+            "count": {
+                "type": "integer"
+            },
+            "count_details": {
+                "$ref": "#/definitions/ReactionCountDetails"
+            },
+            "me": {
+                "type": "boolean"
+            },
+            "me_burst": {
+                "type": "boolean"
+            },
+            "emoji": {
+                "$ref": "#/definitions/PartialEmoji"
+            },
+            "burst_colors": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "count",
+            "emoji"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageActivity": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/MessageActivityType"
+            },
+            "session_id": {
+                "type": "string"
+            },
+            "party_id": {
+                "type": "string"
+            },
+            "name_override": {
+                "type": "string"
+            },
+            "icon_override": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageActivityType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "IntegrationApplication": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description": {
+                "type": "string"
+            },
+            "cover_image": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageReference": {
+        "type": "object",
+        "properties": {
+            "message_id": {
+                "type": "string"
+            },
+            "channel_id": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "fail_if_not_exists": {
+                "type": "boolean"
+            },
+            "type": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PublicMessage": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "lobby_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "author": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "member": {
+                "$ref": "#/definitions/PublicMessageMember"
+            },
+            "content": {
+                "type": "string"
+            },
+            "timestamp": {
+                "type": "string"
+            },
+            "edited_timestamp": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "tts": {
+                "type": "boolean"
+            },
+            "mention_everyone": {
+                "type": "boolean"
+            },
+            "mentions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialUser"
+                }
+            },
+            "mention_roles": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "mention_channels": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialPublicChannel"
+                }
+            },
+            "attachments": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PublicAttachment"
+                }
+            },
+            "embeds": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Embed"
+                }
+            },
+            "reactions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Reaction"
+                }
+            },
+            "nonce": {
+                "type": [
+                    "string",
+                    "integer"
+                ]
+            },
+            "pinned": {
+                "type": "boolean"
+            },
+            "webhook_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "activity": {
+                "$ref": "#/definitions/MessageActivity"
+            },
+            "application": {
+                "$ref": "#/definitions/IntegrationApplication"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "message_reference": {
+                "$ref": "#/definitions/MessageReference"
+            },
+            "referenced_message": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PublicMessage"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "message_snapshots": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/MessageSnapshot"
+                }
+            },
+            "interaction": {
+                "$ref": "#/definitions/PartialMessageInteraction"
+            },
+            "interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
+            "resolved": {
+                "$ref": "#/definitions/ResolvedData"
+            },
+            "thread": {
+                "$ref": "#/definitions/PublicChannel"
+            },
+            "components": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/MessageComponent"
+                }
+            },
+            "sticker_items": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StickerResponse"
+                }
+            },
+            "stickers": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StickerResponse"
+                }
+            },
+            "poll": {
+                "$ref": "#/definitions/Poll"
+            },
+            "changelog_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "potions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/Potion"
+                }
+            },
+            "shared_client_theme": {
+                "$ref": "#/definitions/SharedClientTheme"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "attachments",
+            "author",
+            "channel_id",
+            "components",
+            "content",
+            "edited_timestamp",
+            "embeds",
+            "flags",
+            "id",
+            "mention_everyone",
+            "mention_roles",
+            "mentions",
+            "pinned",
+            "timestamp",
+            "tts",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PartialMessageInteraction": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/InteractionType"
+            },
+            "name": {
+                "type": "string"
+            },
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageInteractionMetadata": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/InteractionType"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "authorizing_integration_owners": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "name": {
+                "type": "string"
+            },
+            "command_type": {
+                "$ref": "#/definitions/ApplicationCommandType"
+            },
+            "ephemerality_reason": {
+                "type": "integer"
+            },
+            "user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "original_response_message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "interacted_message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "triggering_interaction_metadata": {
+                "$ref": "#/definitions/MessageInteractionMetadata"
+            },
+            "target_user": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "target_message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "authorizing_integration_owners",
+            "command_type",
+            "id",
+            "name",
+            "type",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ResolvedData": {
+        "type": "object",
+        "properties": {
+            "users": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PartialUser"
+                }
+            },
+            "members": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/ResolvedGuildMember"
+                }
+            },
+            "roles": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PublicRole"
+                }
+            },
+            "channels": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/ResolvedChannel"
+                }
+            },
+            "messages": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PartialMessage"
+                }
+            },
+            "attachments": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/PublicAttachment"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ResolvedGuildMember": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "nick": {
+                "type": "string"
+            },
+            "roles": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "joined_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "pending": {
+                "type": "boolean"
+            },
+            "premium_since": {
+                "type": "integer"
+            },
+            "avatar": {
+                "type": "string"
+            },
+            "banner": {
+                "type": "string"
+            },
+            "bio": {
+                "type": "string"
+            },
+            "theme_colors": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "pronouns": {
+                "type": "string"
+            },
+            "communication_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "permissions": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PublicRole": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "color": {
+                "type": "integer"
+            },
+            "hoist": {
+                "type": "boolean"
+            },
+            "managed": {
+                "type": "boolean"
+            },
+            "mentionable": {
+                "type": "boolean"
+            },
+            "name": {
+                "type": "string"
+            },
+            "permissions": {
+                "type": "string"
+            },
+            "position": {
+                "type": "integer"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "unicode_emoji": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "tags": {
+                "$ref": "#/definitions/PublicRoleTags"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "colors": {
+                "$ref": "#/definitions/RoleColors"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "color",
+            "colors",
+            "flags",
+            "hoist",
+            "id",
+            "managed",
+            "mentionable",
+            "name",
+            "permissions",
+            "position"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PublicRoleTags": {
+        "type": "object",
+        "properties": {
+            "bot_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "integration_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "premium_subscriber": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ResolvedChannel": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ChannelType"
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "permissions": {
+                "type": "string"
+            },
+            "last_message_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "last_pin_timestamp": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "nsfw": {
+                "type": "boolean"
+            },
+            "parent_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "rate_limit_per_user": {
+                "type": "integer"
+            },
+            "topic": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "position": {
+                "type": "integer"
+            },
+            "thread_metadata": {
+                "$ref": "#/definitions/ThreadMetadata"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PublicChannel": {
         "type": "object",
         "properties": {
@@ -18097,7 +19197,7 @@
                 "$ref": "#/definitions/ThreadMetadata"
             },
             "member": {
-                "$ref": "#/definitions/ThreadMember"
+                "$ref": "#/definitions/PublicThreadMember"
             },
             "default_auto_archive_duration": {
                 "type": [
@@ -18117,7 +19217,7 @@
             "available_tags": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Tag"
+                    "$ref": "#/definitions/ChannelTag"
                 }
             },
             "applied_tags": {
@@ -18290,272 +19390,79 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "Reaction": {
-        "type": "object",
-        "properties": {
-            "count": {
-                "type": "integer"
-            },
-            "count_details": {
-                "$ref": "#/definitions/ReactionCountDetails"
-            },
-            "me": {
-                "type": "boolean"
-            },
-            "me_burst": {
-                "type": "boolean"
-            },
-            "emoji": {
-                "$ref": "#/definitions/PartialEmoji"
-            },
-            "burst_colors": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "count",
-            "emoji"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageActivity": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "$ref": "#/definitions/MessageActivityType"
-            },
-            "session_id": {
-                "type": "string"
-            },
-            "party_id": {
-                "type": "string"
-            },
-            "name_override": {
-                "type": "string"
-            },
-            "icon_override": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageActivityType": {
-        "type": "number",
-        "enum": [
-            1,
-            2,
-            3,
-            4,
-            5
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageReference": {
-        "type": "object",
-        "properties": {
-            "message_id": {
-                "type": "string"
-            },
-            "channel_id": {
-                "type": "string"
-            },
-            "guild_id": {
-                "type": "string"
-            },
-            "fail_if_not_exists": {
-                "type": "boolean"
-            },
-            "type": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "PublicMessage": {
+    "PublicThreadMember": {
         "type": "object",
         "properties": {
             "id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
             },
-            "channel_id": {
+            "user_id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
             },
-            "lobby_id": {
+            "join_timestamp": {
+                "type": "string"
+            },
+            "muted": {
+                "type": "boolean"
+            },
+            "mute_config": {
+                "type": "object",
+                "properties": {
+                    "end_time": {
+                        "type": "string"
+                    },
+                    "selected_time_window": {
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "flags",
+            "id",
+            "join_timestamp",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ChannelTag": {
+        "type": "object",
+        "properties": {
+            "id": {
                 "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
                 "type": "string"
             },
-            "author": {
-                "$ref": "#/definitions/PartialUser"
-            },
-            "member": {
-                "$ref": "#/definitions/PublicMessageMember"
-            },
-            "content": {
+            "name": {
                 "type": "string"
             },
-            "timestamp": {
-                "type": "string"
+            "moderated": {
+                "type": "boolean"
             },
-            "edited_timestamp": {
+            "emoji_id": {
                 "type": [
                     "null",
                     "string"
                 ]
             },
-            "tts": {
-                "type": "boolean"
-            },
-            "mention_everyone": {
-                "type": "boolean"
-            },
-            "mentions": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/PartialUser"
-                }
-            },
-            "mention_roles": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "mention_channels": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/PublicChannel"
-                }
-            },
-            "attachments": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/PublicAttachment"
-                }
-            },
-            "embeds": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Embed"
-                }
-            },
-            "reactions": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Reaction"
-                }
-            },
-            "nonce": {
+            "emoji_name": {
                 "type": [
-                    "string",
-                    "integer"
+                    "null",
+                    "string"
                 ]
-            },
-            "pinned": {
-                "type": "boolean"
-            },
-            "webhook_id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "type": {
-                "type": "integer"
-            },
-            "activity": {
-                "$ref": "#/definitions/MessageActivity"
-            },
-            "application_id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "message_reference": {
-                "$ref": "#/definitions/MessageReference"
-            },
-            "referenced_message": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/PublicMessage"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            },
-            "message_snapshots": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/MessageSnapshot"
-                }
-            },
-            "thread": {
-                "$ref": "#/definitions/PublicChannel"
-            },
-            "components": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/MessageComponent"
-                }
-            },
-            "sticker_items": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Sticker"
-                }
-            },
-            "stickers": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Sticker"
-                }
-            },
-            "poll": {
-                "$ref": "#/definitions/Poll"
-            },
-            "changelog_id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "potions": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/Potion"
-                }
-            },
-            "shared_client_theme": {
-                "$ref": "#/definitions/SharedClientTheme"
             }
         },
         "additionalProperties": false,
         "required": [
-            "attachments",
-            "author",
-            "channel_id",
-            "components",
-            "content",
-            "edited_timestamp",
-            "embeds",
-            "flags",
             "id",
-            "mention_everyone",
-            "mention_roles",
-            "mentions",
-            "pinned",
-            "timestamp",
-            "tts",
-            "type"
+            "moderated",
+            "name"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -19371,6 +20278,60 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CorsConfiguration": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowCredentials": {
+                "type": "boolean",
+                "default": true
+            },
+            "allowedOrigins": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "*"
+                ]
+            },
+            "allowedMethods": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "*"
+                ]
+            },
+            "allowedHeaders": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": [
+                    "*"
+                ]
+            },
+            "maxAgeSeconds": {
+                "type": "integer",
+                "default": 60
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowCredentials",
+            "allowedHeaders",
+            "allowedMethods",
+            "allowedOrigins",
+            "enabled",
+            "maxAgeSeconds"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApiConfiguration": {
         "type": "object",
         "properties": {
@@ -19635,6 +20596,38 @@
             "maxEmbeds": {
                 "type": "integer",
                 "default": 20
+            },
+            "maxEmbedTitle": {
+                "type": "integer",
+                "default": 256
+            },
+            "maxEmbedDescription": {
+                "type": "integer",
+                "default": 4096
+            },
+            "maxEmbedFields": {
+                "type": "integer",
+                "default": 25
+            },
+            "maxEmbedFieldName": {
+                "type": "integer",
+                "default": 256
+            },
+            "maxEmbedFieldValue": {
+                "type": "integer",
+                "default": 1024
+            },
+            "maxEmbedFooterText": {
+                "type": "integer",
+                "default": 2048
+            },
+            "maxEmbedAuthorName": {
+                "type": "integer",
+                "default": 256
+            },
+            "maxEmbedCharacters": {
+                "type": "integer",
+                "default": 6000
             }
         },
         "additionalProperties": false,
@@ -19642,7 +20635,15 @@
             "maxAttachmentSize",
             "maxBulkDelete",
             "maxCharacters",
+            "maxEmbedAuthorName",
+            "maxEmbedCharacters",
+            "maxEmbedDescription",
             "maxEmbedDownloadSize",
+            "maxEmbedFieldName",
+            "maxEmbedFieldValue",
+            "maxEmbedFields",
+            "maxEmbedFooterText",
+            "maxEmbedTitle",
             "maxEmbeds",
             "maxPreloadCount",
             "maxReactions",
@@ -20043,6 +21044,91 @@
         "additionalProperties": false,
         "required": [
             "generateBackupCodes"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StoreConfiguration": {
+        "type": "object",
+        "properties": {
+            "customSubscriptionPlans": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StoreSubscriptionPlanConfiguration"
+                },
+                "default": []
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "customSubscriptionPlans"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StoreSubscriptionPlanConfiguration": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "interval": {
+                "type": "integer",
+                "default": 1
+            },
+            "interval_count": {
+                "type": "integer",
+                "default": 1
+            },
+            "tax_inclusive": {
+                "type": "boolean",
+                "default": true
+            },
+            "sku_id": {
+                "type": "string"
+            },
+            "currency": {
+                "type": "string",
+                "default": "usd"
+            },
+            "price": {
+                "type": "integer",
+                "default": 0
+            },
+            "price_tier": {
+                "type": [
+                    "null",
+                    "integer"
+                ],
+                "default": null
+            },
+            "discount_price": {
+                "type": "integer"
+            },
+            "fallback_price": {
+                "type": "integer"
+            },
+            "fallback_currency": {
+                "type": "string"
+            },
+            "prices": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "currency",
+            "id",
+            "interval",
+            "interval_count",
+            "name",
+            "price",
+            "price_tier",
+            "sku_id",
+            "tax_inclusive"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -21066,6 +22152,9 @@
             "cdn": {
                 "$ref": "#/definitions/CdnConfiguration"
             },
+            "cors": {
+                "$ref": "#/definitions/CorsConfiguration"
+            },
             "api": {
                 "$ref": "#/definitions/ApiConfiguration"
             },
@@ -21077,6 +22166,9 @@
             },
             "security": {
                 "$ref": "#/definitions/SecurityConfiguration"
+            },
+            "store": {
+                "$ref": "#/definitions/StoreConfiguration"
             },
             "login": {
                 "$ref": "#/definitions/LoginConfiguration"
@@ -21136,6 +22228,7 @@
             "api",
             "cdn",
             "components",
+            "cors",
             "defaults",
             "email",
             "embeds",
@@ -21152,6 +22245,7 @@
             "regions",
             "register",
             "security",
+            "store",
             "templates",
             "updates",
             "user",
@@ -21379,35 +22473,6 @@
             "name",
             "type"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "JsonValue": {
-        "anyOf": [
-            {
-                "$ref": "#/definitions/JsonObject"
-            },
-            {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/JsonValue"
-                }
-            },
-            {
-                "type": [
-                    "null",
-                    "string",
-                    "number",
-                    "boolean"
-                ]
-            }
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "JsonObject": {
-        "type": "object",
-        "additionalProperties": {
-            "$ref": "#/definitions/JsonValue"
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "TeamListTeam": {
@@ -22075,61 +23140,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ModalSubmitResolvedData": {
-        "type": "object",
-        "properties": {
-            "users": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "members": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "roles": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "channels": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "messages": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            },
-            "attachments": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "InteractionCallbackType": {
         "type": "number",
         "enum": [
@@ -22568,7 +23578,7 @@
                 "type": "string"
             },
             "resolved": {
-                "$ref": "#/definitions/InteractionResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             },
             "options": {
                 "type": "array",
@@ -22591,40 +23601,6 @@
             "name",
             "type"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InteractionResolvedData": {
-        "type": "object",
-        "properties": {
-            "users": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "members": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "roles": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "channels": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "messages": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            },
-            "attachments": {
-                "$ref": "#/definitions/InteractionResolvedObjectMap"
-            }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InteractionResolvedObjectMap": {
-        "type": "object",
-        "additionalProperties": {
-            "type": "object",
-            "properties": {},
-            "additionalProperties": true
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "InteractionApplicationCommandDataOption": {
@@ -22676,7 +23652,7 @@
                 }
             },
             "resolved": {
-                "$ref": "#/definitions/InteractionResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             }
         },
         "additionalProperties": false,
@@ -22699,7 +23675,7 @@
                 }
             },
             "resolved": {
-                "$ref": "#/definitions/InteractionResolvedData"
+                "$ref": "#/definitions/ResolvedData"
             },
             "attachments": {
                 "type": "array",
@@ -23426,6 +24402,14 @@
             1,
             2,
             3
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "IdentifyBitfield": {
+        "pattern": "^-?[0-9]+$",
+        "type": [
+            "string",
+            "integer"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
