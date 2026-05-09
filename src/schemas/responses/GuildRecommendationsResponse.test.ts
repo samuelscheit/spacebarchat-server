@@ -20,6 +20,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { GuildFeature } from "../../util/util/GuildFeatures";
 import { ajv } from "../Validator";
 
 const assetsPath = path.join(process.cwd(), "assets");
@@ -61,7 +62,7 @@ test("GuildRecommendationsResponse validates recommendation payloads and rejects
                 banner: null,
                 splash: null,
                 description: null,
-                features: ["DISCOVERABLE"],
+                features: [GuildFeature.Discoverable],
                 widget_enabled: true,
                 welcome_screen: {
                     enabled: false,

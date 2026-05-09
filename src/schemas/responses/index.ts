@@ -41,6 +41,7 @@ export * from "./GuildDiscoveryRequirements";
 export * from "./GuildMessagesSearchResponse";
 export * from "./GuildPruneResponse";
 export * from "./GuildRecommendationsResponse";
+export * from "./GuildScheduledEventResponse";
 export * from "./GuildVanityUrl";
 export * from "./GuildVoiceRegionsResponse";
 export * from "./GuildWidgetJsonResponse";

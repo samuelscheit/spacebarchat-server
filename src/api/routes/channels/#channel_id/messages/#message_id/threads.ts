@@ -17,15 +17,7 @@
 */
 
 import { route, sendMessage } from "@spacebar/api";
-import {
-    Message,
-    Channel,
-    emitEvent,
-    User,
-    MessageUpdateEvent,
-    messagePublicRelations,
-    withThreadMessageFlag,
-} from "@spacebar/util";
+import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations, upsertChannelMessageReadState, withThreadMessageFlag } from "@spacebar/util";
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
@@ -34,7 +26,6 @@ const router = Router({ mergeParams: true });
 
 // TODO: public read receipts & privacy scoping
 // TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -87,7 +78,7 @@ router.post(
 
         message.thread = thread;
         message.flags = withThreadMessageFlag(message.flags);
-        await sendMessage({
+        const starterMessage = await sendMessage({
             channel_id: thread.id,
             type: MessageType.THREAD_STARTER_MESSAGE,
             message_reference: {
@@ -108,6 +99,7 @@ router.post(
             author_id: user.id,
         });
         await Promise.all([
+            upsertChannelMessageReadState({ user_id: req.user_id, channel_id: thread.id }, starterMessage.id),
             emitEvent({
                 event: "THREAD_CREATE",
                 channel_id,
