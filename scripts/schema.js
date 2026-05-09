@@ -310,6 +310,7 @@ async function main() {
         filterSchema(definitions[defKey]);
     }
     aliasPublicMessageSchema(definitions);
+    applyIdentifyAliasConstraints(definitions);
 
     if (process.env.WRITE_SCHEMA_DIR === "true") {
         await Promise.all(writePromises);
@@ -374,6 +375,52 @@ function aliasPublicMessageSchema(definitions) {
     // Several legacy response schemas still pull in the TypeORM Message entity as a
     // nested definition; keep the public API contract tied to PublicMessage instead.
     definitions.Message = structuredClone(definitions.PublicMessage);
+}
+
+function applyIdentifyAliasConstraints(definitions) {
+    const identifySchema = definitions.IdentifySchema;
+    if (!identifySchema) return;
+
+    ensureMutuallyExclusiveProperties(identifySchema, [
+        ["large_threshold", "largeThreshold"],
+        ["client_state", "clientState"],
+    ]);
+
+    for (const propertyName of ["client_state", "clientState"]) {
+        const clientStateSchema = resolvePropertySchema(definitions, identifySchema, propertyName);
+        ensureMutuallyExclusiveProperties(clientStateSchema, [
+            ["guild_hashes", "guildHashes"],
+            ["highest_last_message_id", "highestLastMessageId"],
+            ["read_state_version", "readStateVersion"],
+            ["user_guild_settings_version", "userGuildSettingsVersion"],
+            ["user_settings_version", "userSettingsVersion"],
+            ["useruser_guild_settings_version", "useruserGuildSettingsVersion"],
+            ["private_channels_version", "privateChannelsVersion"],
+            ["guild_versions", "guildVersions"],
+            ["api_code_version", "apiCodeVersion"],
+            ["initial_guild_id", "initialGuildId"],
+        ]);
+    }
+}
+
+function resolvePropertySchema(definitions, schema, propertyName) {
+    const propertySchema = schema?.properties?.[propertyName];
+    const refName = propertySchema?.$ref?.replace("#/definitions/", "");
+    return refName ? definitions[refName] : propertySchema;
+}
+
+function ensureMutuallyExclusiveProperties(schema, propertyPairs) {
+    if (!schema || typeof schema !== "object") return;
+
+    const constraints = propertyPairs.map((required) => ({
+        not: {
+            properties: Object.fromEntries(required.map((propertyName) => [propertyName, {}])),
+            required,
+        },
+    }));
+    const existingConstraints = Array.isArray(schema.allOf) ? schema.allOf : [];
+
+    schema.allOf = [...existingConstraints, ...constraints.filter((constraint) => !existingConstraints.some((existingConstraint) => deepEqual(existingConstraint, constraint)))];
 }
 
 function deepEqual(a, b) {

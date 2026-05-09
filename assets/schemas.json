@@ -10775,68 +10775,10 @@
                 "type": "integer"
             },
             "client_state": {
-                "type": "object",
-                "properties": {
-                    "guild_hashes": {},
-                    "highest_last_message_id": {
-                        "type": "integer"
-                    },
-                    "read_state_version": {
-                        "type": "integer"
-                    },
-                    "user_guild_settings_version": {
-                        "type": "integer"
-                    },
-                    "user_settings_version": {
-                        "type": "integer"
-                    },
-                    "useruser_guild_settings_version": {
-                        "type": "integer"
-                    },
-                    "private_channels_version": {
-                        "type": "integer"
-                    },
-                    "guild_versions": {},
-                    "api_code_version": {
-                        "type": "integer"
-                    },
-                    "initial_guild_id": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
+                "$ref": "#/definitions/IdentifyClientState"
             },
             "clientState": {
-                "type": "object",
-                "properties": {
-                    "guildHashes": {},
-                    "highestLastMessageId": {
-                        "type": "integer"
-                    },
-                    "readStateVersion": {
-                        "type": "integer"
-                    },
-                    "userGuildSettingsVersion": {
-                        "type": "integer"
-                    },
-                    "userSettingsVersion": {
-                        "type": "integer"
-                    },
-                    "useruserGuildSettingsVersion": {
-                        "type": "integer"
-                    },
-                    "privateChannelsVersion": {
-                        "type": "integer"
-                    },
-                    "guildVersions": {},
-                    "apiCodeVersion": {
-                        "type": "integer"
-                    },
-                    "initialGuildId": {
-                        "type": "string"
-                    }
-                },
-                "additionalProperties": false
+                "$ref": "#/definitions/IdentifyClientState"
             },
             "v": {
                 "type": "integer"
@@ -10850,7 +10792,33 @@
             "properties",
             "token"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "allOf": [
+            {
+                "not": {
+                    "properties": {
+                        "large_threshold": {},
+                        "largeThreshold": {}
+                    },
+                    "required": [
+                        "large_threshold",
+                        "largeThreshold"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "client_state": {},
+                        "clientState": {}
+                    },
+                    "required": [
+                        "client_state",
+                        "clientState"
+                    ]
+                }
+            }
+        ]
     },
     "StreamCreateSchema": {
         "type": "object",
@@ -24752,6 +24720,187 @@
             "integer"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "IdentifyClientState": {
+        "type": "object",
+        "properties": {
+            "guild_hashes": {},
+            "guildHashes": {},
+            "highest_last_message_id": {
+                "type": "integer"
+            },
+            "highestLastMessageId": {
+                "type": "integer"
+            },
+            "read_state_version": {
+                "type": "integer"
+            },
+            "readStateVersion": {
+                "type": "integer"
+            },
+            "user_guild_settings_version": {
+                "type": "integer"
+            },
+            "userGuildSettingsVersion": {
+                "type": "integer"
+            },
+            "user_settings_version": {
+                "type": "integer"
+            },
+            "userSettingsVersion": {
+                "type": "integer"
+            },
+            "useruser_guild_settings_version": {
+                "type": "integer"
+            },
+            "useruserGuildSettingsVersion": {
+                "type": "integer"
+            },
+            "private_channels_version": {
+                "type": "integer"
+            },
+            "privateChannelsVersion": {
+                "type": "integer"
+            },
+            "guild_versions": {},
+            "guildVersions": {},
+            "api_code_version": {
+                "type": "integer"
+            },
+            "apiCodeVersion": {
+                "type": "integer"
+            },
+            "initial_guild_id": {
+                "type": "string"
+            },
+            "initialGuildId": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "allOf": [
+            {
+                "not": {
+                    "properties": {
+                        "guild_hashes": {},
+                        "guildHashes": {}
+                    },
+                    "required": [
+                        "guild_hashes",
+                        "guildHashes"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "highest_last_message_id": {},
+                        "highestLastMessageId": {}
+                    },
+                    "required": [
+                        "highest_last_message_id",
+                        "highestLastMessageId"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "read_state_version": {},
+                        "readStateVersion": {}
+                    },
+                    "required": [
+                        "read_state_version",
+                        "readStateVersion"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "user_guild_settings_version": {},
+                        "userGuildSettingsVersion": {}
+                    },
+                    "required": [
+                        "user_guild_settings_version",
+                        "userGuildSettingsVersion"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "user_settings_version": {},
+                        "userSettingsVersion": {}
+                    },
+                    "required": [
+                        "user_settings_version",
+                        "userSettingsVersion"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "useruser_guild_settings_version": {},
+                        "useruserGuildSettingsVersion": {}
+                    },
+                    "required": [
+                        "useruser_guild_settings_version",
+                        "useruserGuildSettingsVersion"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "private_channels_version": {},
+                        "privateChannelsVersion": {}
+                    },
+                    "required": [
+                        "private_channels_version",
+                        "privateChannelsVersion"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "guild_versions": {},
+                        "guildVersions": {}
+                    },
+                    "required": [
+                        "guild_versions",
+                        "guildVersions"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "api_code_version": {},
+                        "apiCodeVersion": {}
+                    },
+                    "required": [
+                        "api_code_version",
+                        "apiCodeVersion"
+                    ]
+                }
+            },
+            {
+                "not": {
+                    "properties": {
+                        "initial_guild_id": {},
+                        "initialGuildId": {}
+                    },
+                    "required": [
+                        "initial_guild_id",
+                        "initialGuildId"
+                    ]
+                }
+            }
+        ]
     },
     "SessionClientStatus": {
         "type": "object",
