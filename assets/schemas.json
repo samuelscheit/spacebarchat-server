@@ -8100,6 +8100,30 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "VoiceStateModifySchema": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "type": "string"
+            },
+            "request_to_speak_timestamp": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "suppress": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "WebAuthnCredentialRegistrationChallengeSchema": {
         "type": "object",
         "properties": {
@@ -10266,7 +10290,7 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": "number"
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -10285,7 +10309,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "type": "number"
                 }
             },
             "guild_subscriptions": {

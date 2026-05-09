@@ -7719,6 +7719,28 @@
                     "self_mute"
                 ]
             },
+            "VoiceStateModifySchema": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "type": "string"
+                    },
+                    "request_to_speak_timestamp": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "suppress": {
+                        "type": "boolean"
+                    }
+                }
+            },
             "WebAuthnCredentialRegistrationChallengeSchema": {
                 "type": "object",
                 "properties": {
@@ -28345,6 +28367,7 @@
         },
         "/guilds/{guild_id}/voice-states/{user_id}/": {
             "patch": {
+                "x-fires-event": "VOICE_STATE_UPDATE",
                 "security": [
                     {
                         "bearer": []
@@ -28355,7 +28378,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/VoiceStateUpdateSchema"
+                                "$ref": "#/components/schemas/VoiceStateModifySchema"
                             }
                         }
                     }
