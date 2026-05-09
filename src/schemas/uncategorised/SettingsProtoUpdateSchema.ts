@@ -27,9 +27,3 @@ export interface SettingsProtoUpdateJsonSchema {
     settings: JsonObject;
     required_data_version?: number;
 }
-
-// TODO: what is this?
-// export interface SettingsProtoUpdateTestSettingsSchema {
-// 	settings: {};
-// 	required_data_version?: number;
-// }
