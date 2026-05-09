@@ -16,12 +16,12 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionCallbacksSchema, InteractionCallbackType, MessageCreateAttachment, MessageCreateCloudAttachment, MessageType } from "@spacebar/schemas";
+import { InteractionCallbacksSchema, InteractionCallbackType, MessageType } from "@spacebar/schemas";
 import {
     assertMessagePayloadPermissions,
     createApplicationCommandInteractionMessageData,
     handleMessage,
-    isNewMessagePayloadAttachment,
+    normalizeMessageEditBodyAttachments,
     postHandleMessage,
     route,
     sendMessage,
@@ -29,7 +29,7 @@ import {
 import { Request, Response, Router } from "express";
 import { acknowledgeDeferredMessageUpdateInteraction } from "../../../../util/handlers/InteractionCallbackState";
 import {
-    Attachment,
+    buildMessageEditComponentProcessingOptions,
     buildMessageEditHandleMessageOptions,
     emitEvent,
     getPermission,
@@ -149,35 +149,27 @@ router.post(
             case InteractionCallbackType.UPDATE_MESSAGE:
                 {
                     if (!interaction.messageId) throw new HTTPError("no. That was not a message");
+                    const channelId = interaction.channelId;
+                    if (!channelId) throw new HTTPError("Interaction channel not found", 400);
                     const message = await Message.findOneOrFail({
                         relations: {
                             ...messagePublicWithThreadRelations,
+                            attachments: true,
                             channel: true,
                         },
                         where: {
                             id: interaction.messageId,
+                            channel_id: channelId,
                         },
                     });
-                    const messageData: typeof body.data & {
-                        attachments?: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[];
-                    } = { ...body.data };
-                    if (body.data.attachments) {
-                        const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
-                        messageData.attachments = body.data.attachments.map((attachment) => {
-                            if (isNewMessagePayloadAttachment(attachment)) return attachment;
-                            if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
-                            const retained = existingAttachmentsById.get(attachment.id);
-                            if (!retained) throw new HTTPError("Unknown attachment", 400);
-                            return retained;
-                        });
-                    }
-                    const channelId = message.channel_id ?? interaction.channelId;
-                    if (!channelId) throw new HTTPError("Interaction channel not found", 400);
+                    const normalizedBody = normalizeMessageEditBodyAttachments(body.data, message.attachments);
+                    const componentProcessingOptions = buildMessageEditComponentProcessingOptions(normalizedBody);
                     const updatedMessage = await handleMessage(
-                        buildMessageEditHandleMessageOptions(message, messageData, channelId, message.id, new Date(), {
+                        buildMessageEditHandleMessageOptions(message, normalizedBody, channelId, message.id, new Date(), {
                             attachment_user_id: interaction.applicationId,
                             attachment_channel_ids: [channelId],
                             is_edit: true,
+                            ...componentProcessingOptions,
                         }),
                         { suppress_notifications: true },
                     );
@@ -185,9 +177,12 @@ router.post(
                     await emitEvent({
                         event: "MESSAGE_UPDATE",
                         channel_id: channelId,
-                        data: updatedMessage.toJSON(),
+                        data: {
+                            ...updatedMessage.toJSON(),
+                            nonce: undefined,
+                        },
                     } satisfies MessageUpdateEvent);
-                    postHandleMessage(updatedMessage).catch((e) => console.error("[Message] post-message handler failed", e));
+                    postHandleMessage(updatedMessage).catch((e) => console.error("[InteractionCallback] post-message handler failed", e));
                 }
                 break;
             /*

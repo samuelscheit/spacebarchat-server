@@ -53,6 +53,7 @@ export * from "./utility/RoleMembers";
 export * from "./utility/GuildDiscoveryMetadata";
 export * from "./utility/GuildIntegrations";
 export * from "./utility/MessagePayloadPermissions";
+export * from "./utility/MessageEditAttachments";
 export * from "./utility/MessageUpload";
 export * from "./utility/MessageNotifications";
 export * from "./utility/MessageHistoryPagination";
