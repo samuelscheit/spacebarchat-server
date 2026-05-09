@@ -39,6 +39,7 @@ export * from "./GuildBansResponse";
 export * from "./GuildCreateResponse";
 export * from "./GuildDiscoveryMetadataResponse";
 export * from "./GuildDiscoveryRequirements";
+export * from "./GuildIntegrationResponse";
 export * from "./GuildMessagesSearchResponse";
 export * from "./GuildPruneResponse";
 export * from "./GuildRecommendationsResponse";

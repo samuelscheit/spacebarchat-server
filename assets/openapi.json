@@ -3612,6 +3612,296 @@
                     "valid_rules_channel"
                 ]
             },
+            "ApplicationModifySchema": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "format": "image-data-uri",
+                        "type": "string"
+                    },
+                    "cover_image": {
+                        "format": "image-data-uri",
+                        "type": "string"
+                    },
+                    "interactions_endpoint_url": {
+                        "type": "string"
+                    },
+                    "max_participants": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "privacy_policy_url": {
+                        "type": "string"
+                    },
+                    "role_connections_verification_url": {
+                        "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "terms_of_service_url": {
+                        "type": "string"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "custom_install_url": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
+            "APIIntegrationApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "hook": {
+                        "type": "boolean"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "verify_key": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "redirect_uris": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "rpc_application_state": {
+                        "type": "integer"
+                    },
+                    "store_application_state": {
+                        "type": "integer"
+                    },
+                    "verification_state": {
+                        "type": "integer"
+                    },
+                    "interactions_endpoint_url": {
+                        "type": "string"
+                    },
+                    "integration_public": {
+                        "type": "boolean"
+                    },
+                    "integration_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "discoverability_state": {
+                        "type": "integer"
+                    },
+                    "discovery_eligibility_flags": {
+                        "type": "integer"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "cover_image": {
+                        "type": "string"
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "terms_of_service_url": {
+                        "type": "string"
+                    },
+                    "privacy_policy_url": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "custom_install_url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "description",
+                    "discoverability_state",
+                    "discovery_eligibility_flags",
+                    "flags",
+                    "hook",
+                    "id",
+                    "integration_public",
+                    "integration_require_code_grant",
+                    "name",
+                    "redirect_uris",
+                    "rpc_application_state",
+                    "store_application_state",
+                    "summary",
+                    "verification_state",
+                    "verify_key"
+                ]
+            },
+            "APIGuildIntegration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "const": "discord"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "syncing": {
+                        "type": "boolean"
+                    },
+                    "role_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "enable_emoticons": {
+                        "type": "boolean"
+                    },
+                    "expire_behavior": {
+                        "type": "integer"
+                    },
+                    "expire_grace_period": {
+                        "type": "integer"
+                    },
+                    "user": {
+                        "type": "null"
+                    },
+                    "account": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "synced_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "subscriber_count": {
+                        "type": "integer"
+                    },
+                    "revoked": {
+                        "type": "boolean"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/APIIntegrationApplication"
+                    }
+                },
+                "required": [
+                    "account",
+                    "application",
+                    "enable_emoticons",
+                    "enabled",
+                    "expire_behavior",
+                    "expire_grace_period",
+                    "id",
+                    "name",
+                    "revoked",
+                    "role_id",
+                    "subscriber_count",
+                    "synced_at",
+                    "syncing",
+                    "type",
+                    "user"
+                ]
+            },
+            "APIGuildIntegrationArray": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/APIGuildIntegration"
+                }
+            },
             "GuildMessagesSearchResponse": {
                 "type": "object",
                 "properties": {
@@ -9266,74 +9556,6 @@
                 "required": [
                     "name"
                 ]
-            },
-            "ApplicationModifySchema": {
-                "type": "object",
-                "properties": {
-                    "description": {
-                        "type": "string"
-                    },
-                    "icon": {
-                        "format": "image-data-uri",
-                        "type": "string"
-                    },
-                    "cover_image": {
-                        "format": "image-data-uri",
-                        "type": "string"
-                    },
-                    "interactions_endpoint_url": {
-                        "type": "string"
-                    },
-                    "max_participants": {
-                        "type": [
-                            "null",
-                            "integer"
-                        ]
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "privacy_policy_url": {
-                        "type": "string"
-                    },
-                    "role_connections_verification_url": {
-                        "type": "string"
-                    },
-                    "tags": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "terms_of_service_url": {
-                        "type": "string"
-                    },
-                    "bot_public": {
-                        "type": "boolean"
-                    },
-                    "bot_require_code_grant": {
-                        "type": "boolean"
-                    },
-                    "flags": {
-                        "type": "integer"
-                    },
-                    "custom_install_url": {
-                        "type": "string"
-                    },
-                    "guild_id": {
-                        "type": "string"
-                    },
-                    "install_params": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/ApplicationInstallParams"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    }
-                }
             },
             "ApplicationOwnerModifySchema": {
                 "type": "object",
@@ -24659,9 +24881,21 @@
                         "bearer": []
                     }
                 ],
+                "description": "Returns the server's default email notification preferences for Discord client compatibility.",
+                "summary": "Get Email Settings",
                 "responses": {
-                    "default": {
+                    "200": {
                         "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [
@@ -30685,14 +30919,23 @@
         },
         "/guilds/{guild_id}/integrations/": {
             "get": {
+                "x-permission-required": "MANAGE_GUILD",
                 "security": [
                     {
                         "bearer": []
                     }
                 ],
+                "description": "Returns application-backed integrations installed in the guild. Requires the MANAGE_GUILD permission.",
                 "responses": {
-                    "default": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIGuildIntegrationArray"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

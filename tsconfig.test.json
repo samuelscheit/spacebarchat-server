@@ -35,6 +35,7 @@
         "src/api/util/handlers/InviteAcceptancePolicy.test.ts",
         "src/api/util/utility/DiscoverableGuildCategories.test.ts",
         "src/api/util/utility/GuildDiscoveryMetadata.test.ts",
+        "src/api/util/utility/GuildIntegrations.test.ts",
         "src/api/util/utility/GuildRecommendations.test.ts",
         "src/api/util/utility/GuildUpdateChannelIds.test.ts",
         "src/api/util/utility/EmojiEvents.test.ts",

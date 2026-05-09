@@ -18,7 +18,7 @@
         "runtimePublicResponseSchemaContracts": 8,
         "runtimeAuthenticatedResponseSchemaContracts": 19,
         "runtimeRightOnlyDenialContracts": 7,
-        "runtimePermissionOnlyDenialContracts": 79,
+        "runtimePermissionOnlyDenialContracts": 80,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
@@ -9757,7 +9757,7 @@
             "path": "/guilds/:guild_id/integrations/",
             "samplePath": "/guilds/100000000000000001/integrations/",
             "sourceFile": "src/api/routes/guilds/#guild_id/integrations.ts",
-            "line": 24,
+            "line": 23,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -9771,8 +9771,9 @@
                 "line": 205
             },
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": []
+                "responses": ["APIGuildIntegrationArray"],
+                "responseStatuses": [200],
+                "permission": "MANAGE_GUILD"
             },
             "cases": [
                 {
@@ -9792,6 +9793,11 @@
                     "checks": ["invalid-auth", "error-shape"]
                 },
                 {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "permission": "MANAGE_GUILD"
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": ["rate-limit-headers"],
                     "rateLimit": {
@@ -9801,10 +9807,6 @@
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
                         "line": 205
                     }
-                },
-                {
-                    "id": "policy-permission-denied",
-                    "checks": ["permission-denied"]
                 },
                 {
                     "id": "policy-schema-validation",
