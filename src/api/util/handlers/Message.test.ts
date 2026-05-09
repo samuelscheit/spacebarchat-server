@@ -140,6 +140,9 @@ async function setupHandleMessageTest(t: TestContext, options: HandleMessageTest
     const createdReadStates: Record<string, unknown>[] = [];
 
     t.mock.method(spacebarUtil.Config, "get", () => ({
+        cdn: {
+            endpointPublic: "https://cdn.example",
+        },
         limits: {
             message: messageLimits,
         },
@@ -928,5 +931,61 @@ describe("handleMessage", () => {
 
         assert.equal(fetchMock.mock.calls.length, 0);
         assert.equal(attachmentCreateMock.mock.calls.length, 0);
+    });
+
+    test("rewrites attachment-backed embed media and removes consumed attachments", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            permissionHas: () => false,
+        });
+        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+        const makeAttachment = (filename: string) => {
+            const attachment = new spacebarUtil.Attachment();
+            Object.assign(attachment, {
+                filename,
+                size: 1,
+                channel_id: "channel_id",
+                message_id: "message_id",
+            });
+            return attachment;
+        };
+
+        const message = await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            embeds: [
+                {
+                    footer: { text: "footer", icon_url: "attachment://footer.png" },
+                    image: { url: "attachment://image.gif" },
+                    thumbnail: { url: "attachment://thumb.jpg" },
+                    video: { url: "attachment://video.mp4" },
+                    author: { name: "author", icon_url: "attachment://author.png" },
+                },
+            ],
+            attachments: [
+                makeAttachment("footer.png"),
+                makeAttachment("image.gif"),
+                makeAttachment("thumb.jpg"),
+                makeAttachment("video.mp4"),
+                makeAttachment("author.png"),
+                makeAttachment("kept.txt"),
+            ],
+        });
+
+        const embed = message.embeds[0];
+        assert.equal(embed.footer?.icon_url, "https://cdn.example/attachments/channel_id/message_id/footer.png");
+        assert.equal(embed.footer?.proxy_icon_url, "https://cdn.example/attachments/channel_id/message_id/footer.png");
+        assert.equal(embed.image?.url, "https://cdn.example/attachments/channel_id/message_id/image.gif");
+        assert.equal(embed.image?.proxy_url, "https://cdn.example/attachments/channel_id/message_id/image.gif");
+        assert.equal(embed.thumbnail?.url, "https://cdn.example/attachments/channel_id/message_id/thumb.jpg");
+        assert.equal(embed.thumbnail?.proxy_url, "https://cdn.example/attachments/channel_id/message_id/thumb.jpg");
+        assert.equal(embed.video?.url, "https://cdn.example/attachments/channel_id/message_id/video.mp4");
+        assert.equal(embed.video?.proxy_url, "https://cdn.example/attachments/channel_id/message_id/video.mp4");
+        assert.equal(embed.author?.icon_url, "https://cdn.example/attachments/channel_id/message_id/author.png");
+        assert.equal(embed.author?.proxy_icon_url, "https://cdn.example/attachments/channel_id/message_id/author.png");
+        assert.deepEqual(
+            message.attachments?.map((attachment: { filename: string }) => attachment.filename),
+            ["kept.txt"],
+        );
     });
 });
