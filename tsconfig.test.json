@@ -12,6 +12,7 @@
         "src/api/ServerConfigure.test.ts",
         "src/api/routes/oauth2/authorize.test.ts",
         "src/api/util/utility/OAuthAuthorizeResponse.test.ts",
+        "src/api/util/utility/OAuthAuthorizeApplication.test.ts",
         "src/api/routes/applications/@me.test.ts",
         "src/api/middlewares/CORS.test.ts",
         "src/api/middlewares/RateLimit.test.ts",
