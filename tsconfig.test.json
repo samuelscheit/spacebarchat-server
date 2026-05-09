@@ -10,6 +10,7 @@
         "src/api/util/utility/Experiments.test.ts",
         "src/api/util/utility/Fingerprint.test.ts",
         "src/api/middlewares/CORS.test.ts",
+        "src/api/middlewares/RateLimit.test.ts",
         "src/api/util/utility/ApplicationCommands.test.ts",
         "src/api/util/utility/InteractionMetadata.test.ts",
         "src/api/tests/users/userMessagesResponseSchema.test.ts",
@@ -169,11 +170,7 @@
         "src/util/entities/ChannelDeleteChannelAttachments.test.ts",
         "src/api/util/UserUpdateEvents.test.ts"
     ],
-    "exclude": [
-        "node_modules",
-        "dist",
-        "dist-test"
-    ],
+    "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {
         "rootDir": ".",
         "noEmit": true,
