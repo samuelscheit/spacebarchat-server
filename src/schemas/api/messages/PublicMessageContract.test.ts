@@ -67,6 +67,24 @@ function expectResolvedMapRefs(resolved: SchemaObject, expectedRefs: Record<stri
 }
 
 describe("public message generated contract", () => {
+    test("OpenAPI documents legacy interaction as a partial message interaction", () => {
+        const openapi = readJson("assets/openapi.json");
+        const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
+        const interaction = resolveOpenApi(openapi, publicMessage.properties!.interaction!);
+
+        assert.equal(publicMessage.properties!.interaction?.$ref, "#/components/schemas/PartialMessageInteraction");
+        assert.equal(interaction.properties?.user?.$ref, "#/components/schemas/PartialUser");
+    });
+
+    test("validation schemas document legacy interaction as a partial message interaction", () => {
+        const schemas = readJson("assets/schemas.json");
+        const publicMessage = resolveAssetSchema(schemas, schemas.APIPublicMessage);
+        const interaction = resolveAssetSchema(schemas, publicMessage.properties!.interaction!);
+
+        assert.equal(publicMessage.properties!.interaction?.$ref, "#/definitions/PartialMessageInteraction");
+        assert.equal(interaction.properties?.user?.$ref, "#/definitions/PartialUser");
+    });
+
     test("OpenAPI documents message member roles as role id strings", () => {
         const openapi = readJson("assets/openapi.json");
         const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
@@ -202,7 +220,7 @@ describe("public message generated contract", () => {
         const publicMessage = resolveAssetSchema(schemas, schemas.PublicMessage);
         const interactionMetadata = resolveAssetSchema(schemas, publicMessage.properties!.interaction_metadata!);
 
-        assert.equal(publicMessage.properties?.interaction, undefined);
+        assert.equal(publicMessage.properties?.interaction?.$ref, "#/definitions/PartialMessageInteraction");
         assert.ok(publicMessage.properties?.interaction_metadata, "PublicMessage should document interaction_metadata");
         assert.equal(interactionMetadata.properties?.id?.type, "string");
         assert.equal(interactionMetadata.properties?.user_id?.type, "string");
@@ -215,7 +233,7 @@ describe("public message generated contract", () => {
         const publicMessage = resolveOpenApi(openapi, openapi.components.schemas.APIPublicMessage);
         const interactionMetadata = resolveOpenApi(openapi, publicMessage.properties!.interaction_metadata!);
 
-        assert.equal(publicMessage.properties?.interaction, undefined);
+        assert.equal(publicMessage.properties?.interaction?.$ref, "#/components/schemas/PartialMessageInteraction");
         assert.ok(publicMessage.properties?.interaction_metadata, "APIPublicMessage should document interaction_metadata");
         assert.equal(interactionMetadata.properties?.id?.type, "string");
         assert.equal(interactionMetadata.properties?.user_id?.type, "string");

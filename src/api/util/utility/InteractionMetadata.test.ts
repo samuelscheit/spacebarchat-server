@@ -43,3 +43,24 @@ test("createApplicationCommandInteractionMessageData defaults missing command fi
     assert.equal(data.interaction_metadata.name, "");
     assert.equal(data.interaction_metadata.command_type, chatInputCommandType);
 });
+
+test("createApplicationCommandInteractionMessageData stores projected users when supplied", () => {
+    const user = {
+        id: "300",
+        username: "alice",
+        discriminator: "0001",
+        public_flags: 0,
+        bio: "",
+        bot: false,
+        premium_type: 0,
+    };
+    const data = createApplicationCommandInteractionMessageData({
+        commandName: "ping",
+        interactionId: "900",
+        user,
+        userId: "300",
+    });
+
+    assert.deepEqual(data.interaction.user, user);
+    assert.deepEqual(data.interaction_metadata.user, user);
+});

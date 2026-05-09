@@ -190,6 +190,13 @@ export interface IntegrationApplication {
     flags?: number;
 }
 
+export interface PartialMessageInteraction {
+    id: Snowflake;
+    type: InteractionType;
+    name: string;
+    user?: PartialUser;
+}
+
 export interface PublicMessage {
     id: Snowflake;
     channel_id: Snowflake;
@@ -219,7 +226,7 @@ export interface PublicMessage {
     referenced_message?: PublicMessage | null;
     message_snapshots?: MessageSnapshot[];
     // call?: MessageCall;
-    // interaction?: PartialMessageInteraction; // TODO
+    interaction?: PartialMessageInteraction;
     interaction_metadata?: MessageInteractionMetadata;
     resolved?: ResolvedData;
     thread?: PublicChannel;

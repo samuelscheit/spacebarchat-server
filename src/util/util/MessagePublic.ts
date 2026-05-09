@@ -18,7 +18,7 @@
 
 import type { IntegrationApplication, PartialPublicChannel, PartialUser, PublicMessage, PublicUser, StoredReaction } from "@spacebar/schemas";
 import { serializePublicMember, type PublicMemberLike } from "./MemberRoles";
-import { serializeMessageMentions } from "./MessageMentions";
+import { serializeMessageMentions, toMessageMentionUser } from "./MessageMentions";
 import { serializeMessageRoleMentions, type SerializableRoleMention } from "./MessageRoleMentions";
 import { toPublicReactions } from "./Reactions";
 
@@ -115,6 +115,18 @@ interface PublicMentionChannelSource {
     name?: string | null;
 }
 
+interface PublicMessageInteractionSource {
+    id: string;
+    type: NonNullable<PublicMessage["interaction"]>["type"];
+    name: string;
+    user?: object;
+}
+
+function serializeInteractionUser(user: PublicMessageInteractionSource["user"]): PartialUser | undefined {
+    if (!user) return undefined;
+    return toMessageMentionUser(user);
+}
+
 interface PublicMessageSource {
     activity?: PublicMessage["activity"];
     application?: PublicMessageApplicationSource | null;
@@ -130,6 +142,7 @@ interface PublicMessageSource {
     embeds?: PublicMessage["embeds"];
     flags: number;
     id: string;
+    interaction?: PublicMessageInteractionSource | null;
     member?: PublicMemberLike | null;
     mention_channels?: PublicMentionChannelSource[];
     mention_everyone?: boolean | null;
@@ -230,6 +243,14 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         pinned: message.pinned,
         type: message.type,
         activity: message.activity ?? undefined,
+        interaction: message.interaction
+            ? {
+                  id: message.interaction.id,
+                  type: message.interaction.type,
+                  name: message.interaction.name,
+                  ...(message.interaction.user ? { user: serializeInteractionUser(message.interaction.user) } : {}),
+              }
+            : undefined,
         components: message.components ?? [],
         message_snapshots: message.message_snapshots ?? undefined,
         interaction_metadata: serializeInteractionMetadata(message.interaction_metadata),

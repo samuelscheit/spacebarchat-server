@@ -5222,6 +5222,9 @@
                             "$ref": "#/components/schemas/MessageSnapshot"
                         }
                     },
+                    "interaction": {
+                        "$ref": "#/components/schemas/PartialMessageInteraction"
+                    },
                     "resolved": {
                         "$ref": "#/components/schemas/ResolvedData"
                     },
@@ -6911,6 +6914,9 @@
                     "nonce": {
                         "type": "string"
                     },
+                    "interaction": {
+                        "$ref": "#/components/schemas/MessageInteractionSchema"
+                    },
                     "components": {
                         "anyOf": [
                             {
@@ -6961,9 +6967,6 @@
                     },
                     "avatar_url": {
                         "type": "string"
-                    },
-                    "interaction": {
-                        "$ref": "#/components/schemas/MessageInteractionSchema"
                     }
                 }
             },
@@ -15736,6 +15739,9 @@
                             "$ref": "#/components/schemas/MessageSnapshot"
                         }
                     },
+                    "interaction": {
+                        "$ref": "#/components/schemas/PartialMessageInteraction"
+                    },
                     "interaction_metadata": {
                         "$ref": "#/components/schemas/MessageInteractionMetadata"
                     },
@@ -16071,6 +16077,89 @@
                     3,
                     4,
                     5
+                ]
+            },
+            "PublicUser": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "discriminator": {
+                        "type": "string"
+                    },
+                    "public_flags": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
+                    "accent_color": {
+                        "type": "integer"
+                    },
+                    "banner": {
+                        "type": "string"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "bot": {
+                        "type": "boolean"
+                    },
+                    "premium_since": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "premium_type": {
+                        "type": "integer"
+                    },
+                    "theme_colors": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "pronouns": {
+                        "type": "string"
+                    },
+                    "badge_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "avatar_decoration_data": {
+                        "$ref": "#/components/schemas/AvatarDecorationData"
+                    },
+                    "display_name_styles": {
+                        "$ref": "#/components/schemas/DisplayNameStyle"
+                    },
+                    "collectibles": {
+                        "$ref": "#/components/schemas/Collectibles"
+                    },
+                    "primary_guild": {
+                        "$ref": "#/components/schemas/PrimaryGuild"
+                    }
+                },
+                "required": [
+                    "bio",
+                    "bot",
+                    "discriminator",
+                    "id",
+                    "premium_type",
+                    "public_flags",
+                    "username"
                 ]
             },
             "ApplicationCommandType": {
@@ -17078,89 +17167,6 @@
                     "name"
                 ]
             },
-            "PublicUser": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "username": {
-                        "type": "string"
-                    },
-                    "discriminator": {
-                        "type": "string"
-                    },
-                    "public_flags": {
-                        "type": "integer"
-                    },
-                    "avatar": {
-                        "type": "string"
-                    },
-                    "accent_color": {
-                        "type": "integer"
-                    },
-                    "banner": {
-                        "type": "string"
-                    },
-                    "bio": {
-                        "type": "string"
-                    },
-                    "bot": {
-                        "type": "boolean"
-                    },
-                    "premium_since": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "format": "date-time"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "premium_type": {
-                        "type": "integer"
-                    },
-                    "theme_colors": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "pronouns": {
-                        "type": "string"
-                    },
-                    "badge_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "avatar_decoration_data": {
-                        "$ref": "#/components/schemas/AvatarDecorationData"
-                    },
-                    "display_name_styles": {
-                        "$ref": "#/components/schemas/DisplayNameStyle"
-                    },
-                    "collectibles": {
-                        "$ref": "#/components/schemas/Collectibles"
-                    },
-                    "primary_guild": {
-                        "$ref": "#/components/schemas/PrimaryGuild"
-                    }
-                },
-                "required": [
-                    "bio",
-                    "bot",
-                    "discriminator",
-                    "id",
-                    "premium_type",
-                    "public_flags",
-                    "username"
-                ]
-            },
             "GuildMessagesSearchMessage": {
                 "type": "object",
                 "properties": {
@@ -17287,6 +17293,9 @@
                         "items": {
                             "$ref": "#/components/schemas/MessageSnapshot"
                         }
+                    },
+                    "interaction": {
+                        "$ref": "#/components/schemas/PartialMessageInteraction"
                     },
                     "interaction_metadata": {
                         "$ref": "#/components/schemas/MessageInteractionMetadata"
@@ -17712,6 +17721,9 @@
                             "$ref": "#/components/schemas/MessageSnapshot"
                         }
                     },
+                    "interaction": {
+                        "$ref": "#/components/schemas/PartialMessageInteraction"
+                    },
                     "interaction_metadata": {
                         "$ref": "#/components/schemas/MessageInteractionMetadata"
                     },
@@ -17772,6 +17784,29 @@
                     "pinned",
                     "timestamp",
                     "tts",
+                    "type"
+                ]
+            },
+            "PartialMessageInteraction": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/InteractionType"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
                     "type"
                 ]
             },

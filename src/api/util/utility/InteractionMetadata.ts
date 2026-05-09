@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { ApplicationCommandType, InteractionType } from "@spacebar/schemas";
+import type { ApplicationCommandType, InteractionType, PublicUser } from "@spacebar/schemas";
 
 const applicationCommandInteractionType = 2 as InteractionType;
 const chatInputCommandType = 1 as ApplicationCommandType;
@@ -25,10 +25,11 @@ interface ApplicationCommandInteractionMessageInput {
     commandName?: string;
     commandType?: ApplicationCommandType;
     interactionId: string;
+    user?: PublicUser;
     userId: string;
 }
 
-export function createApplicationCommandInteractionMessageData({ commandName, commandType, interactionId, userId }: ApplicationCommandInteractionMessageInput) {
+export function createApplicationCommandInteractionMessageData({ commandName, commandType, interactionId, user, userId }: ApplicationCommandInteractionMessageInput) {
     const name = commandName ?? "";
 
     return {
@@ -36,11 +37,13 @@ export function createApplicationCommandInteractionMessageData({ commandName, co
             id: interactionId,
             name,
             type: applicationCommandInteractionType,
+            ...(user ? { user } : {}),
         },
         interaction_metadata: {
             id: interactionId,
             type: applicationCommandInteractionType,
             user_id: userId,
+            ...(user ? { user } : {}),
             authorizing_integration_owners: {
                 "1": userId,
             },

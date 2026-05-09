@@ -142,15 +142,22 @@ function makeEntityMessage(overrides: Record<string, unknown> = {}): Parameters<
 test("toPreloadMessageResponse returns a schema-compliant DTO without entity-only fields", () => {
     const entityMessage = makeEntityMessage();
     const publicMessage = messageToPublicMessage(entityMessage);
+
+    assert.deepEqual(publicMessage.interaction, {
+        id: "900",
+        type: 2,
+        name: "command",
+    });
+
     const dto = toPreloadMessageResponse({ toJSON: () => publicMessage } as never);
 
+    assert.deepEqual(dto.interaction, publicMessage.interaction);
     assert.deepEqual(publicMessage.interaction_metadata, entityMessage.interaction_metadata);
     assert.deepEqual(publicMessage.resolved, entityMessage.resolved);
     assert.deepEqual(dto.interaction_metadata, entityMessage.interaction_metadata);
     assert.deepEqual(dto.resolved, entityMessage.resolved);
-    assert.equal("interaction" in publicMessage, false);
     assert.equal("reactions" in dto, false);
-    for (const field of ["guild_id", "thread_id", "pinned_at", "username", "avatar", "author_id", "member_id", "channel", "guild", "webhook", "sticker_items", "interaction"]) {
+    for (const field of ["guild_id", "thread_id", "pinned_at", "username", "avatar", "author_id", "member_id", "channel", "guild", "webhook", "sticker_items"]) {
         assert.equal(Object.hasOwn(dto, field), false, `${field} should not be exposed`);
     }
     assert.deepEqual(dto.application, {
@@ -196,12 +203,43 @@ test("messageToPublicMessage omits incomplete interaction metadata", () => {
     assert.equal(publicMessage.interaction_metadata, undefined);
 });
 
-test("hydrateInteractionMetadataUsers attaches public users without legacy interaction leakage", async () => {
+test("messageToPublicMessage serializes stored legacy interaction users as public users", () => {
+    const publicUser = makePublicUser();
+    const publicMessage = messageToPublicMessage(
+        makeEntityMessage({
+            interaction: {
+                id: "900",
+                type: 2,
+                name: "command",
+                user: {
+                    id: publicUser.id,
+                    username: publicUser.username,
+                    discriminator: publicUser.discriminator,
+                    email: "private@example.invalid",
+                    phone: "private-phone",
+                    verified: true,
+                },
+            },
+        }),
+    );
+
+    assert.deepEqual(publicMessage.interaction, {
+        id: "900",
+        type: 2,
+        name: "command",
+        user: publicUser,
+    });
+});
+
+test("hydrateInteractionMetadataUsers attaches public metadata users and legacy partial interaction users", async () => {
     const publicUser = makeCompletePublicUser();
     const existingUser = makeCompletePublicUser({ id: "301" });
-    const messages: Array<{ interaction_metadata?: NonNullable<PublicMessage["interaction_metadata"]> }> = [
-        { interaction_metadata: makeInteractionMetadata() },
-        { interaction_metadata: { ...makeInteractionMetadata("301"), user: existingUser } },
+    const messages: Array<{
+        interaction?: NonNullable<PublicMessage["interaction"]>;
+        interaction_metadata?: NonNullable<PublicMessage["interaction_metadata"]>;
+    }> = [
+        { interaction: { id: "900", type: 2, name: "command" }, interaction_metadata: makeInteractionMetadata() },
+        { interaction: { id: "901", type: 2, name: "context" }, interaction_metadata: { ...makeInteractionMetadata("301"), user: existingUser } },
         {},
     ];
     const requestedUserIds: string[] = [];
@@ -214,7 +252,22 @@ test("hydrateInteractionMetadataUsers attaches public users without legacy inter
     assert.deepEqual(requestedUserIds, ["300"]);
     assert.deepEqual(messages[0].interaction_metadata?.user, publicUser);
     assert.deepEqual(messages[1].interaction_metadata?.user, existingUser);
-    assert.equal("interaction" in messages[0], false);
+    assert.deepEqual(messages[0].interaction?.user, {
+        id: "300",
+        username: "alice",
+        discriminator: "0001",
+        avatar: null,
+        bot: false,
+        public_flags: 0,
+    });
+    assert.deepEqual(messages[1].interaction?.user, {
+        id: "301",
+        username: "alice",
+        discriminator: "0001",
+        avatar: null,
+        bot: false,
+        public_flags: 0,
+    });
 });
 
 test("buildMessageDeleteBulkEvent builds MESSAGE_DELETE_BULK payloads with guild ids", () => {
