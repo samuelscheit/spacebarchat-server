@@ -1,6 +1,6 @@
 {
-    "missing": 866,
-    "spacebar": 311,
+    "missing": 849,
+    "spacebar": 331,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -128,7 +128,6 @@
         "/channels/{param}/messages/search/tabs",
         "/channels/{param}/messages/{param}/hide-guild-feed",
         "/channels/{param}/messages/{param}/interaction-data",
-        "/channels/{param}/messages/{param}/reactions/{param}/{param}/@me",
         "/channels/{param}/pins/ack",
         "/channels/{param}/polls/{param}/answers/@me",
         "/channels/{param}/polls/{param}/answers/{param}",
@@ -144,7 +143,6 @@
         "/channels/{param}/summaries",
         "/channels/{param}/summaries/{param}",
         "/channels/{param}/thread-members/@me",
-        "/channels/{param}/threads/active",
         "/channels/{param}/voice-channel-effects",
         "/channels/{param}/voice-status",
         "/checkpoint",
@@ -260,7 +258,6 @@
         "/guilds/{param}/creator-monetization/restrictions",
         "/guilds/{param}/directory-entries/broadcast",
         "/guilds/{param}/discovery-categories/{param}",
-        "/guilds/{param}/discovery-metadata",
         "/guilds/{param}/entitlements",
         "/guilds/{param}/entitlements/{param}",
         "/guilds/{param}/game-server-regions",
@@ -339,7 +336,6 @@
         "/guilds/{param}/skus/{param}",
         "/guilds/{param}/soundboard-sounds",
         "/guilds/{param}/soundboard-sounds/{param}",
-        "/guilds/{param}/threads/active",
         "/guilds/{param}/top-emojis",
         "/guilds/{param}/top-games",
         "/guilds/{param}/top-read-channels",
@@ -370,7 +366,6 @@
         "/messages/explicit-media",
         "/metrics",
         "/metrics/v2",
-        "/mfa/finish",
         "/modules/{param}/versions.json",
         "/modules/{param}/{param}/{param}",
         "/networking/token",
@@ -459,9 +454,7 @@
         "/soundboard-sounds/{param}/guild/{param}",
         "/sso",
         "/sso-token",
-        "/stage-instances",
         "/stage-instances/extra",
-        "/stage-instances/{param}",
         "/sticker-packs/directory-v2/{param}",
         "/sticker-packs/{param}",
         "/store/applications/{param}/assets",
@@ -530,9 +523,7 @@
         "/users/@me/applications/{param}/role-connection",
         "/users/@me/applications/{param}/ticket",
         "/users/@me/audio-settings/{param}/{param}",
-        "/users/@me/avatars",
         "/users/@me/avatars/discordify",
-        "/users/@me/avatars/{param}",
         "/users/@me/background-sync",
         "/users/@me/billing/adyen/payment-methods",
         "/users/@me/billing/apple/trial-offer-signature",
@@ -671,7 +662,6 @@
         "/users/disable-server-highlight-notifications",
         "/users/{param}/application-identities",
         "/users/{param}/channels/{param}/guilds/{param}/application/{param}/webhooks/{param}/teams/{param}/subscriptions/{param}/quests/{param}/payments/{param}/lobbies/{param}/invites/{param}/roles/{param}/templates/{param}/connections/{param}/interactions/{param}/permissions/{param}",
-        "/users/{param}/messages",
         "/users/{param}/messages/{param}",
         "/users/{param}/sessions/{param}/activities/{param}/1",
         "/users/{param}/sessions/{param}/activities/{param}/metadata",
@@ -681,7 +671,6 @@
         "/voice/public-keys",
         "/voice/{param}/match-public-key",
         "/webhooks/{param}/{param}/messages/@original",
-        "/webhooks/{param}/{param}/messages/{param}",
         "/webhooks/{param}/{param}/{param}",
         "/{param}/force-send-prompt"
     ],
@@ -697,6 +686,8 @@
         "/channels/{param}/attachments/{param}",
         "/channels/{param}/messages/{param}",
         "/channels/{param}/messages/{param}/reactions/{param}/@me",
+        "/channels/{param}/messages/{param}/reactions/{param}/{param}",
+        "/channels/{param}/messages/{param}/reactions/{param}/{param}/@me",
         "/channels/{param}/purge",
         "/connections",
         "/connections/{param}/{param}/refresh",
@@ -704,6 +695,7 @@
         "/guild-recommendations",
         "/guilds/{param}/members/{param}/nick",
         "/guilds/{param}/profile/{param}",
+        "/guilds/{param}/roles/{param}/members",
         "/guilds/{param}/shield.svg",
         "/oauth2/applications/@me",
         "/partners/{param}/requirements",
@@ -716,7 +708,6 @@
         "/reporting",
         "/safety-hub/suspended/@me",
         "/scheduled-maintenances/upcoming.json",
-        "/stage-instances",
         "/stop",
         "/store/published-listings/applications/{param}/subscription-plans",
         "/track",
@@ -730,7 +721,8 @@
         "/users/{param}/delete",
         "/users/{param}/profile",
         "/warp/license",
-        "/webhooks/{param}/{param}/github"
+        "/webhooks/{param}/{param}/github",
+        "/webhooks/{param}/{param}/slack"
     ],
     "missing_entries": [
         {
@@ -827,14 +819,6 @@
             "sources": ["userdoccers:resources/message.mdx"],
             "source_routes": ["/channels/{channel_id}/messages/{message_id}/hide-guild-feed"],
             "summaries": ["Unhide Message from Guild Feed"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/channels/{param}/messages/{param}/reactions/{param}/{param}/@me",
-            "route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_REACTION_TYPE__ME",
-            "sources": ["userdoccers:resources/message.mdx"],
-            "source_routes": ["/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{reaction_type}/@me"],
-            "summaries": ["Delete Own Reaction"]
         },
         {
             "method": "DELETE",
@@ -1186,14 +1170,6 @@
             "source_routes": ["/quests/{quest_id}/preview/status"],
             "summaries": ["Reset Quest"]
         },
-        {
-            "method": "DELETE",
-            "route": "/stage-instances/{param}",
-            "route_name": "DELETE_STAGE_INSTANCES_CHANNEL_ID",
-            "sources": ["userdoccers:resources/stage-instance.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/stage-instances/{channel_id}"],
-            "summaries": ["Delete Stage Instance"]
-        },
         { "method": "DELETE", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "DELETE",
@@ -1228,14 +1204,6 @@
             "summaries": ["Delete DM Message"]
         },
         { "method": "DELETE", "route": "/users/@me", "route_name": "DELETE_USERS__ME", "sources": ["userdoccers:_typography.mdx"], "summaries": ["DELETE Example"] },
-        {
-            "method": "DELETE",
-            "route": "/users/@me/avatars/{param}",
-            "route_name": "DELETE_USERS__ME_AVATARS_AVATAR_ID",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/users/@me/avatars/{avatar_id}"],
-            "summaries": ["Delete Recent Avatar"]
-        },
         { "method": "DELETE", "route": "/users/@me/avatars/discordify", "route_name": "DISCORDIFY_ME", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "DELETE",
@@ -1356,14 +1324,6 @@
         },
         { "method": "DELETE", "route": "/users/@me/scheduled-messages/{param}", "route_name": "SCHEDULED_MESSAGE", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "DELETE", "route": "/users/@me/video-filters/assets/{param}", "route_name": "VIDEO_FILTER_ASSET", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "DELETE",
-            "route": "/webhooks/{param}/{param}/messages/{param}",
-            "route_name": "DELETE_WEBHOOKS_APPLICATION_ID_INTERACTION_TOKEN_MESSAGES_MESSAGE_ID",
-            "sources": ["userdoccers:interactions/receiving-and-responding.mdx", "userdoccers:resources/webhook.mdx"],
-            "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/{message_id}", "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"],
-            "summaries": ["Delete Followup Message", "Delete Webhook Message"]
-        },
         {
             "method": "DELETE",
             "route": "/webhooks/{param}/{param}/messages/@original",
@@ -1885,14 +1845,6 @@
             "source_routes": ["/channels/{channel_id}/summaries"],
             "summaries": ["Get Conversation Summaries"]
         },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/threads/active",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_THREADS_ACTIVE",
-            "sources": ["userdoccers:resources/channel.mdx"],
-            "source_routes": ["/channels/{channel_id}/threads/active"],
-            "summaries": ["Get Active Threads"]
-        },
         { "method": "GET", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/checkpoint", "route_name": "GET_CHECKPOINT", "sources": ["userdoccers:resources/checkpoint.mdx"], "summaries": ["Get Checkpoint"] },
         {
@@ -2372,14 +2324,6 @@
         },
         {
             "method": "GET",
-            "route": "/guilds/{param}/discovery-metadata",
-            "route_name": "GET_GUILDS_GUILD_ID_DISCOVERY_METADATA",
-            "sources": ["userdoccers:resources/discovery.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/discovery-metadata"],
-            "summaries": ["Get Guild Discovery Metadata"]
-        },
-        {
-            "method": "GET",
             "route": "/guilds/{param}/entitlements",
             "route_name": "GET_GUILDS_GUILD_ID_ENTITLEMENTS",
             "sources": ["userdoccers:resources/entitlement.mdx", "xhyrom:data/client/routes.json"],
@@ -2642,14 +2586,6 @@
             "sources": ["userdoccers:resources/soundboard.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/soundboard-sounds/{sound_id}", "/guilds/{guild_id}/soundboard-sounds/{param}"],
             "summaries": ["Get Guild Soundboard Sound"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/threads/active",
-            "route_name": "GET_GUILDS_GUILD_ID_THREADS_ACTIVE",
-            "sources": ["userdoccers:resources/channel.mdx"],
-            "source_routes": ["/guilds/{guild_id}/threads/active"],
-            "summaries": ["Get Guild Active Threads"]
         },
         {
             "method": "GET",
@@ -3011,14 +2947,6 @@
         },
         { "method": "GET", "route": "/sso", "route_name": "SSO", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sso-token", "route_name": "SSO_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/stage-instances/{param}",
-            "route_name": "GET_STAGE_INSTANCES_CHANNEL_ID",
-            "sources": ["userdoccers:resources/stage-instance.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/stage-instances/{channel_id}"],
-            "summaries": ["Get Stage Instance"]
-        },
         { "method": "GET", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
@@ -3351,13 +3279,6 @@
             "route_name": "GET_USERS__ME_APPLICATIONS_ROLE_CONNECTIONS",
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Application Role Connections"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/avatars",
-            "route_name": "GET_USERS__ME_AVATARS",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Recent Avatars"]
         },
         {
             "method": "GET",
@@ -3769,14 +3690,6 @@
         },
         {
             "method": "GET",
-            "route": "/webhooks/{param}/{param}/messages/{param}",
-            "route_name": "GET_WEBHOOKS_APPLICATION_ID_INTERACTION_TOKEN_MESSAGES_MESSAGE_ID",
-            "sources": ["userdoccers:interactions/receiving-and-responding.mdx", "userdoccers:resources/webhook.mdx"],
-            "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/{message_id}", "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"],
-            "summaries": ["Get Followup Message", "Get Webhook Message"]
-        },
-        {
-            "method": "GET",
             "route": "/webhooks/{param}/{param}/messages/@original",
             "route_name": "GET_WEBHOOKS_APPLICATION_ID_INTERACTION_TOKEN_MESSAGES__ORIGINAL",
             "sources": ["userdoccers:interactions/receiving-and-responding.mdx"],
@@ -3885,14 +3798,6 @@
             "route_name": "GUILD_AUTOMOD_VALIDATE_RULE",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/auto-moderation/rules/validate"]
-        },
-        {
-            "method": "PATCH",
-            "route": "/guilds/{param}/discovery-metadata",
-            "route_name": "PATCH_GUILDS_GUILD_ID_DISCOVERY_METADATA",
-            "sources": ["userdoccers:resources/discovery.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/discovery-metadata"],
-            "summaries": ["Modify Guild Discovery Metadata"]
         },
         {
             "method": "PATCH",
@@ -4111,14 +4016,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Bulk Scan Explicit Media"]
         },
-        {
-            "method": "PATCH",
-            "route": "/stage-instances/{param}",
-            "route_name": "PATCH_STAGE_INSTANCES_CHANNEL_ID",
-            "sources": ["userdoccers:resources/stage-instance.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/stage-instances/{channel_id}"],
-            "summaries": ["Modify Stage Instance"]
-        },
         { "method": "PATCH", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PATCH",
@@ -4260,14 +4157,6 @@
             "sources": ["userdoccers:resources/user-settings-proto.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/users/@me/settings-proto/{user_settings_proto_type}"],
             "summaries": ["Modify User Settings Proto"]
-        },
-        {
-            "method": "PATCH",
-            "route": "/webhooks/{param}/{param}/messages/{param}",
-            "route_name": "PATCH_WEBHOOKS_APPLICATION_ID_INTERACTION_TOKEN_MESSAGES_MESSAGE_ID",
-            "sources": ["userdoccers:interactions/receiving-and-responding.mdx", "userdoccers:resources/webhook.mdx"],
-            "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/{message_id}", "/webhooks/{webhook_id}/{webhook_token}/messages/{message_id}"],
-            "summaries": ["Modify Followup Message", "Edit Webhook Message"]
         },
         {
             "method": "PATCH",
@@ -5151,13 +5040,6 @@
         { "method": "POST", "route": "/messages-log/private-channels/get", "route_name": "MESSAGE_LOG_PRIVATE_CHANNELS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/metrics", "route_name": "METRICS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/metrics/v2", "route_name": "METRICS_V2", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/mfa/finish",
-            "route_name": "POST_MFA_FINISH",
-            "sources": ["userdoccers:authentication.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Verify MFA"]
-        },
         { "method": "POST", "route": "/networking/token", "route_name": "NETWORKING_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",
@@ -5431,13 +5313,6 @@
         },
         {
             "method": "POST",
-            "route": "/stage-instances",
-            "route_name": "POST_STAGE_INSTANCES",
-            "sources": ["userdoccers:resources/stage-instance.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Create Stage Instance"]
-        },
-        {
-            "method": "POST",
             "route": "/store/applications/{param}/assets",
             "route_name": "POST_STORE_APPLICATIONS_APPLICATION_ID_ASSETS",
             "sources": ["userdoccers:resources/store.mdx"],
@@ -5573,14 +5448,6 @@
             "route_name": "POST_UNVERIFIED_APPLICATIONS_ICONS",
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Upload Unverified Application Icon"]
-        },
-        {
-            "method": "POST",
-            "route": "/users/{param}/messages",
-            "route_name": "POST_USERS_USER_ID_MESSAGES",
-            "sources": ["userdoccers:resources/message.mdx"],
-            "source_routes": ["/users/{user_id}/messages"],
-            "summaries": ["Create DM Message"]
         },
         { "method": "POST", "route": "/users/@me", "route_name": "POST_USERS__ME", "sources": ["userdoccers:_typography.mdx"], "summaries": ["POST Example"] },
         {
@@ -5833,13 +5700,6 @@
             "route_name": "POST_USERS__ME_IDENTITY_VERIFICATION",
             "sources": ["userdoccers:resources/user.mdx"],
             "summaries": ["Create User Identity Verification"]
-        },
-        {
-            "method": "POST",
-            "route": "/users/@me/invites",
-            "route_name": "POST_USERS__ME_INVITES",
-            "sources": ["userdoccers:resources/invite.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Create User Invite"]
         },
         { "method": "POST", "route": "/users/@me/library/{param}/{param}/installed", "route_name": "LIBRARY_APPLICATION_INSTALLED", "sources": ["xhyrom:data/client/routes.json"] },
         {
@@ -6456,6 +6316,13 @@
             "sources": ["src/api/routes/auth/generate-registration-tokens.ts"]
         },
         { "method": "GET", "route": "/auth/whoami", "route_name": "GET_AUTH_WHOAMI", "sources": ["src/api/routes/auth/whoami.ts"] },
+        {
+            "method": "GET",
+            "route": "/channels/{param}/messages/{param}/reactions/{param}/{param}",
+            "route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_TYPE",
+            "sources": ["src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts"],
+            "source_routes": ["/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}"]
+        },
         { "method": "GET", "route": "/connections", "route_name": "GET_CONNECTIONS", "sources": ["src/api/routes/connections/index.ts"] },
         { "method": "GET", "route": "/download", "route_name": "GET_DOWNLOAD", "sources": ["src/api/routes/download.ts"] },
         { "method": "GET", "route": "/guild-recommendations", "route_name": "GET_GUILD_RECOMMENDATIONS", "sources": ["src/api/routes/guild-recommendations.ts"] },
@@ -6488,7 +6355,6 @@
             "route_name": "GET_SCHEDULED_MAINTENANCES_UPCOMING_JSON",
             "sources": ["src/api/routes/scheduled-maintenances/upcoming.json.ts"]
         },
-        { "method": "GET", "route": "/stage-instances", "route_name": "GET_STAGE_INSTANCES", "sources": ["src/api/routes/stage-instances.ts"] },
         {
             "method": "GET",
             "route": "/store/published-listings/applications/{param}/subscription-plans",
@@ -6599,11 +6465,32 @@
             "source_routes": ["/webhooks/{webhook_id}/{token}/github"]
         },
         {
+            "method": "POST",
+            "route": "/webhooks/{param}/{param}/slack",
+            "route_name": "POST_WEBHOOKS_WEBHOOK_ID_TOKEN_SLACK",
+            "sources": ["src/api/routes/webhooks/#webhook_id/#token/slack.ts"],
+            "source_routes": ["/webhooks/{webhook_id}/{token}/slack"]
+        },
+        {
             "method": "PUT",
             "route": "/channels/{param}/messages/{param}",
             "route_name": "PUT_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
             "sources": ["src/api/routes/channels/#channel_id/messages/#message_id/index.ts"],
             "source_routes": ["/channels/{channel_id}/messages/{message_id}"]
+        },
+        {
+            "method": "PUT",
+            "route": "/channels/{param}/messages/{param}/reactions/{param}/{param}/@me",
+            "route_name": "PUT_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_TYPE__ME",
+            "sources": ["src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts"],
+            "source_routes": ["/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}/@me"]
+        },
+        {
+            "method": "PUT",
+            "route": "/guilds/{param}/roles/{param}/members",
+            "route_name": "PUT_GUILDS_GUILD_ID_ROLES_ROLE_ID_MEMBERS",
+            "sources": ["src/api/routes/guilds/#guild_id/roles/#role_id/members.ts"],
+            "source_routes": ["/guilds/{guild_id}/roles/{role_id}/members"]
         }
     ],
     "catalogs": {
