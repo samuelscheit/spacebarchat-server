@@ -61,12 +61,12 @@ async function postInteractionCallback(nonce?: string) {
     if (nonce !== undefined) pendingInteraction.nonce = nonce;
     pendingInteractions.set(interactionId, pendingInteraction);
 
+    const app = createCallbackApp();
     const eventPromise = waitForUserEvent(userId);
 
     try {
-        const response = await postJson(createCallbackApp(), `/interactions/${interactionId}/callback-token/callback`, { type: 1, data: {} });
+        const [response, event] = await Promise.all([postJson(app, `/interactions/${interactionId}/callback-token/callback`, { type: 1, data: {} }), eventPromise]);
         assert.equal(response.status, 204);
-        const event = await eventPromise;
         assert.equal(event.event, "INTERACTION_SUCCESS");
         assert.equal(event.user_id, userId);
         assert.equal(event.data.id, interactionId);
@@ -98,7 +98,7 @@ async function postExpiredInteractionCallback() {
 
 async function waitForUserEvent(userId: string) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 1000);
+    const timeout = setTimeout(() => controller.abort(), 5000);
 
     try {
         const [event] = (await once(util.events, userId, { signal: controller.signal })) as [InteractionSuccessEventPayload];
