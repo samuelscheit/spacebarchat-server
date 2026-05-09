@@ -134,6 +134,7 @@ async function runDatabaseBoot(databaseUrl: string, options: { applyMigrations?:
     const script = `
 const assert = require("node:assert/strict");
 const { initDatabase, closeDatabase } = require("./dist/util/util/Database.js");
+const { DEFAULT_DISCOVERY_CATEGORIES } = require("./dist/util");
 
 (async () => {
     const database = await initDatabase();
@@ -141,6 +142,15 @@ const { initDatabase, closeDatabase } = require("./dist/util/util/Database.js");
     assert.equal(tables.config, "config");
     assert.equal(tables.migrations, "migrations");
     assert.equal(tables.users, "users");
+
+    const categories = await database.query("select id::int, name, localizations, is_primary from categories order by id");
+    assert.deepEqual(categories.map((category) => category.id), DEFAULT_DISCOVERY_CATEGORIES.map((category) => category.id));
+    assert.deepEqual(categories[0], {
+        id: DEFAULT_DISCOVERY_CATEGORIES[0].id,
+        name: DEFAULT_DISCOVERY_CATEGORIES[0].name,
+        localizations: DEFAULT_DISCOVERY_CATEGORIES[0].localizations,
+        is_primary: DEFAULT_DISCOVERY_CATEGORIES[0].is_primary,
+    });
     await closeDatabase();
 })().catch((error) => {
     console.error(error);

@@ -25,6 +25,8 @@ const CategoryLocalizationsTransformer: ValueTransformer = {
     from: normalizeCategoryLocalizations,
 };
 
+// Discovery categories use Discord's stable integer category IDs instead of snowflakes.
+// Default rows are inserted by the DefaultDiscoveryCategories migration and may be customized by operators.
 @Entity({
     name: "categories",
 })
