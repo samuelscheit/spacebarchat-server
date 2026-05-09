@@ -293,10 +293,7 @@ async function coverVoiceState(apiBaseUrl: string, guildId: string, token: strin
         suppress: false,
     }).save();
 
-    await assertStatus(
-        await patchJson(`${apiBaseUrl}/guilds/${guildId}/voice-states/@me`, { channel_id: stageId, self_mute: false, self_deaf: false, suppress: true }, token),
-        204,
-    );
+    await assertStatus(await patchJson(`${apiBaseUrl}/guilds/${guildId}/voice-states/@me`, { channel_id: stageId, suppress: true }, token), 204);
     await events.waitFor(
         (event) => event.event === "VOICE_STATE_UPDATE" && event.guild_id === guildId && event.data.user_id === ownerId && event.data.suppress === true,
         eventTimeoutMs,
