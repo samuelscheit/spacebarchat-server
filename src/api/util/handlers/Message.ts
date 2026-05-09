@@ -804,8 +804,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     }
     message.attachments = message.attachments?.filter((_, index) => !attachmentsToRemove.has(index));
 
-    // TODO: check and put it all in the body
-
     if (isEdit && handle) {
         const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(channel.id, opts.cloud_attachment_upload_channel_id);
         await handle(message, message.author as User, channel, {
