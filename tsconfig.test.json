@@ -33,6 +33,7 @@
         "src/api/util/ChannelModifyTypeConversion.test.ts",
         "src/api/util/utility/captcha.test.ts",
         "src/api/util/utility/PostData.test.ts",
+        "src/api/util/utility/passwordStrength.test.ts",
         "src/api/util/utility/MessagePayloadLimits.test.ts",
         "src/api/util/utility/MessageSearch.test.ts",
         "src/api/util/utility/MessageUpload.test.ts",

@@ -2008,7 +2008,7 @@
             "path": "/auth/register/",
             "samplePath": "/auth/register/",
             "sourceFile": "src/api/routes/auth/register.ts",
-            "line": 56,
+            "line": 57,
             "authMode": "public",
             "testTier": "auth-scenario",
             "benchmarkClass": "hot-path",
