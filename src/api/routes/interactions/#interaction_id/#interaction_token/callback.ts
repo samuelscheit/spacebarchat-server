@@ -17,10 +17,9 @@
 */
 
 import { InteractionCallbacksSchema, InteractionCallbackType, InteractionFailureReason, MessageType } from "@spacebar/schemas";
-import { assertMessagePayloadPermissions, handleComps, route, sendMessage } from "@spacebar/api";
+import { assertMessagePayloadPermissions, createApplicationCommandInteractionMessageData, handleComps, route, sendMessage } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import {
-    Config,
     emitEvent,
     getPermission,
     InteractionSuccessEvent,
@@ -32,6 +31,7 @@ import {
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
 import { HTTPError } from "#util/util/lambert-server";
+import { assertMessagePayloadLimits } from "../../../../util/utility/MessagePayloadLimits";
 
 const router = Router({ mergeParams: true });
 
@@ -57,6 +57,7 @@ router.post(
             body.type === InteractionCallbackType.UPDATE_MESSAGE ||
             body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE
         ) {
+            assertMessagePayloadLimits(body.data);
             if (!interaction.channelId) throw new HTTPError("Interaction channel not found", 400);
             const permissions = await getPermission(interaction.applicationId, interaction.guildId, interaction.channelId);
             assertMessagePayloadPermissions(permissions, body.data);
@@ -85,6 +86,7 @@ router.post(
                 break;
             case InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE: {
                 const user = await User.findOneOrFail({ where: { id: interaction.userId } });
+                const interactionUser = user.toPublicUser();
                 /*
 			const files = (req.files as Express.Multer.File[]) ?? [];
 			//I don't think traditional attachments are allowed anyways
@@ -114,23 +116,13 @@ router.post(
                     flags: body.data.flags,
                     reactions: [],
                     // webhook_id: interaction.applicationId, // This one requires a webhook to be created first
-                    interaction: {
-                        id: interactionId,
-                        name: interaction.commandName ?? "",
-                        type: 2,
-                        user,
-                    },
-                    interaction_metadata: {
-                        id: interactionId,
-                        type: 2,
-                        user_id: interaction.userId,
-                        user,
-                        authorizing_integration_owners: {
-                            "1": interaction.userId,
-                        },
-                        name: interaction.commandName ?? "",
-                        command_type: interaction.commandType,
-                    },
+                    ...createApplicationCommandInteractionMessageData({
+                        commandName: interaction.commandName,
+                        commandType: interaction.commandType,
+                        interactionId,
+                        userId: interaction.userId,
+                        user: interactionUser,
+                    }),
                 });
 
                 break;
@@ -166,9 +158,6 @@ router.post(
                             id: interaction.messageId,
                         },
                     });
-                    if (body.data.content && body.data.content.length > Config.get().limits.message.maxCharacters) {
-                        throw new HTTPError("Content length over max character limit");
-                    }
                     message.embeds = body.data.embeds || [];
                     const handle = body.data.components ? handleComps(body.data.components, message.flags) : undefined;
                     await handle?.(message.id, message.author as User, message.channel);

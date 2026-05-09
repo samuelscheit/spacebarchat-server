@@ -46,6 +46,7 @@ import {
     Snowflake,
     messagePublicRelations,
     upsertChannelMessageReadState,
+    advanceChannelReadStateNotificationCursor,
 } from "@spacebar/util";
 import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachmentMetadata, type ThreadSearchResponse } from "@spacebar/schemas";
 
@@ -61,6 +62,7 @@ import {
     serializePrivateArchivedThreadMember,
 } from "../../../util/utility/PrivateArchivedThreads";
 import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../../../util/ChannelAppliedTagsValidation";
+import { assertMessagePayloadLimits } from "../../../util/utility/MessagePayloadLimits";
 
 const router = Router({ mergeParams: true });
 
@@ -91,6 +93,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as ThreadCreationSchema;
+        if (body.message) assertMessagePayloadLimits(body.message);
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
@@ -150,8 +153,8 @@ router.post(
                 },
             }),
         ]);
-        if (shouldSendThreadCreatedMessage(threadType, channel))
-            await sendMessage({
+        if (shouldSendThreadCreatedMessage(threadType, channel)) {
+            const threadCreatedMessage = await sendMessage({
                 channel_id: channel.id,
                 type: MessageType.THREAD_CREATED,
                 content: thread.name,
@@ -161,6 +164,8 @@ router.post(
                 },
                 author_id: user.id,
             });
+            await advanceChannelReadStateNotificationCursor({ user_id: req.user_id, channel_id: channel.id }, threadCreatedMessage.id);
+        }
         if (body.message) {
             const attachments = messageAttachments;
 

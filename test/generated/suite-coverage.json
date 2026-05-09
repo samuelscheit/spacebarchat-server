@@ -5,14 +5,14 @@
     "policySource": "testing/suite-coverage-policy.json",
     "summary": {
         "totalGroups": 3,
-        "totalSuites": 13,
-        "totalCoveredManifestEntries": 386,
+        "totalSuites": 14,
+        "totalCoveredManifestEntries": 387,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 364,
-                "totalCoveredManifestEntries": 364,
-                "totalCoveredRequiredManifestEntries": 364,
-                "totalSuites": 10
+                "totalRequiredManifestEntries": 365,
+                "totalCoveredManifestEntries": 365,
+                "totalCoveredRequiredManifestEntries": 365,
+                "totalSuites": 11
             },
             "protocol": {
                 "totalRequiredManifestEntries": 21,
@@ -29,7 +29,7 @@
         },
         "byCoveredTestTier": {
             "stateful-domain": 246,
-            "contract": 16,
+            "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
             "cdn-integration": 74,
@@ -59,13 +59,14 @@
                 "api:http:GET:/policies/instance/domains/",
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
-                "api:http:GET:/scheduled-maintenances/upcoming.json/"
+                "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 364,
-                "totalCoveredManifestEntries": 364,
-                "totalCoveredRequiredManifestEntries": 364,
-                "totalSuites": 10
+                "totalRequiredManifestEntries": 365,
+                "totalCoveredManifestEntries": 365,
+                "totalCoveredRequiredManifestEntries": 365,
+                "totalSuites": 11
             },
             "requiredManifestIds": [
                 "api:http:DELETE:/applications/:application_id/commands/:command_id/",
@@ -193,6 +194,7 @@
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
                 "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/",
                 "api:http:GET:/users/:user_id/",
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
@@ -559,6 +561,7 @@
                 "api:http:GET:/policies/instance/limits/",
                 "api:http:GET:/policies/stats/",
                 "api:http:GET:/scheduled-maintenances/upcoming.json/",
+                "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/",
                 "api:http:GET:/users/:user_id/",
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
@@ -843,11 +846,14 @@
                         "test/scenarios/users-profile-settings.test.ts",
                         "test/scenarios/users-relationships.test.ts",
                         "test/scenarios/users-notes.test.ts",
+                        "test/scenarios/users-guild-settings-route.test.ts",
                         "test/scenarios/users-supplemental.test.ts",
+                        "test/scenarios/users-delete-route.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
-                        "src/util/dtos/ConnectedAccountDTO.test.ts"
+                        "src/util/dtos/ConnectedAccountDTO.test.ts",
+                        "src/api/util/UserUpdateEvents.test.ts"
                     ],
                     "fixtures": ["users", "sessions", "relationships", "settings"],
                     "checks": ["ownership-boundary", "schema-validation", "db-state", "events"],
@@ -1227,6 +1233,16 @@
                     ]
                 },
                 {
+                    "id": "store-published-listings",
+                    "title": "Store published listings compatibility responses",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/store-published-listings.test.ts"],
+                    "fixtures": ["config"],
+                    "checks": ["response-shape", "no-fabricated-store-data"],
+                    "manifestIds": ["api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"]
+                },
+                {
                     "id": "cdn",
                     "title": "CDN uploads, downloads, deletes, signed URLs, and object metadata",
                     "kind": "stateful-scenario",
@@ -1332,7 +1348,12 @@
                     "title": "Middleware and server event bus",
                     "kind": "stateful-scenario",
                     "status": "partial-existing-tests",
-                    "testFiles": ["src/api/middlewares/Authentication.test.ts", "src/gateway/listener/subscriptions.test.ts", "src/util/util/Presence.test.ts"],
+                    "testFiles": [
+                        "src/api/middlewares/Authentication.test.ts",
+                        "src/gateway/listener/subscriptions.test.ts",
+                        "src/gateway/listener/listener.test.ts",
+                        "src/util/util/Presence.test.ts"
+                    ],
                     "fixtures": ["config", "users", "sessions", "event-bus"],
                     "checks": ["auth-boundary", "rate-limit-headers", "emit-listen", "subscription-filter"],
                     "manifestIds": ["api:middleware:auth-rate-limit-error", "server:event-bus"]
@@ -1409,6 +1430,7 @@
                         "src/gateway/opcodes/Heartbeat.test.ts",
                         "src/gateway/events/Close.test.ts",
                         "src/gateway/listener/subscriptions.test.ts",
+                        "src/gateway/listener/listener.test.ts",
                         "src/gateway/util/ReadyReadState.test.ts",
                         "src/gateway/util/Send.test.ts",
                         "src/gateway/util/StreamRegion.test.ts"

@@ -22,9 +22,9 @@ import { emitEvent, getPermission, MessageAckEvent, upsertChannelMessageReadStat
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
+const MESSAGE_ACK_VERSION = 3763;
 
 // TODO: public read receipts & privacy scoping
-// TODO: send read state event to all channel members
 
 router.post(
     "/",
@@ -46,11 +46,11 @@ router.post(
 
         await emitEvent({
             event: "MESSAGE_ACK",
-            user_id: req.user_id,
+            channel_id,
             data: {
                 channel_id,
                 message_id,
-                version: 3763, // what is this number?
+                version: MESSAGE_ACK_VERSION,
             },
         } satisfies MessageAckEvent);
 

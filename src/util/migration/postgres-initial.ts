@@ -201,6 +201,7 @@ export class initial0 implements MigrationInterface {
 			template_id character varying,
 			mfa_level integer,
 			name character varying NOT NULL,
+			profile_tag character varying(4),
 			owner_id character varying,
 			preferred_locale character varying,
 			premium_subscription_count integer,
