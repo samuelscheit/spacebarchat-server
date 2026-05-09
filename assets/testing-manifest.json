@@ -3812,7 +3812,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 94,
+            "line": 93,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
