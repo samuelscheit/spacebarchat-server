@@ -119,6 +119,7 @@ test("buildIdentifyPendingGuildCreateData serializes queued bot guild payloads",
         threads: [createThreadSource()],
         threadMemberMap: new Map([["thread-id", createThreadMember()]]),
         stageInstances: [createStageInstanceSource()],
+        userId: publicUser.id,
     });
 
     assert.equal(pendingGuild.id, "guild-id");
@@ -139,12 +140,11 @@ test("buildIdentifyPendingGuildCreateData serializes queued bot guild payloads",
             name: "thread",
             member: {
                 id: "thread-id",
-                index: "thread-member-row",
-                member_idx: "guild-member-row",
-                join_timestamp: new Date("2026-05-08T00:00:00.000Z"),
+                user_id: publicUser.id,
+                join_timestamp: "2026-05-08T00:00:00.000Z",
+                flags: 3,
                 muted: false,
                 mute_config: { selected_time_window: 60 },
-                flags: 3,
             },
         },
     ]);
@@ -164,6 +164,7 @@ test("buildIdentifyBotGuildCreateData sends exactly the bot member", () => {
         threads: [],
         threadMemberMap: new Map(),
         stageInstances: [],
+        userId: publicUser.id,
     });
     const memberWithoutUser = {
         toPublicMember() {

@@ -20,7 +20,7 @@ import { PartialConnectedAccountResponse, PublicMember, PublicUser } from "@spac
 
 export type MutualGuild = {
     id: string;
-    nick?: string | null;
+    nick: string | null;
 };
 
 export interface PublicMemberProfile {

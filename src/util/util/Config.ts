@@ -35,11 +35,11 @@ import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";
 import { applyEnvConfigOverrides } from "./EnvConfig";
 import { readJsonConfigFile } from "./JsonConfigFile";
 
-// TODO: yaml instead of json
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
-// TODO: use events to inform about config updates
+// Config.set only updates local memory and persistence. Cluster-wide reloads are
+// sent explicitly with the SB_RELOAD_CONFIG event after operator-triggered changes.
 // Config keys are separated with _
 
 export class Config {
@@ -116,31 +116,50 @@ export class Config {
         const next = mergeConfigDefaults(options.validate === false ? config : structuredClone(config), val);
 
         if (options.validate !== false) validateFinalConfig(next);
+        generateConfigPairs(next);
         config = next;
 
         return applyConfig(config);
     }
 }
 
-// TODO: better types
+type ConfigRecord = Record<string, unknown>;
+
+function isConfigRecord(value: unknown): value is ConfigRecord {
+    return typeof value === "object" && value !== null && !Array.isArray(value) && Object.prototype.toString.call(value) === "[object Object]";
+}
+
+function isJsonConfigValue(value: unknown): value is JsonValue {
+    if (value === null) return true;
+    if (typeof value === "string" || typeof value === "boolean") return true;
+    if (typeof value === "number") return Number.isFinite(value);
+    if (Array.isArray(value)) return value.every((item) => isJsonConfigValue(item));
+    if (isConfigRecord(value)) return Object.values(value).every((item) => isJsonConfigValue(item));
+    return false;
+}
+
 export const generateConfigPairs = (obj: unknown, key = ""): ConfigEntity[] => {
-    if (typeof obj == "object" && obj != null && !Array.isArray(obj)) {
-        return Object.keys(obj)
-            .map((k) =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                generateConfigPairs((obj as any)[k], key ? `${key}_${k}` : k),
-            )
-            .flat();
-    }
+    if (obj === undefined) return [];
+
+    if (isConfigRecord(obj)) return Object.entries(obj).flatMap(([k, value]) => generateConfigPairs(value, key ? `${key}_${k}` : k));
+
+    if (!isJsonConfigValue(obj)) throw new TypeError(`Config value '${key}' cannot be persisted as a database config entry`);
 
     const ret = new ConfigEntity();
     ret.key = key;
-    ret.value = obj as JsonValue | undefined;
+    ret.value = obj;
     return [ret];
 };
 
 export function findStaleConfigKeys(existingKeys: string[], generatedKeys: string[]) {
     return existingKeys.filter((existingKey) => generatedKeys.some((generatedKey) => existingKey.startsWith(`${generatedKey}_`)));
+}
+
+function findRemovedConfigKeys(existingKeys: string[], generatedKeys: string[], previousKeys: string[]) {
+    const generatedKeySet = new Set(generatedKeys);
+    const previousKeySet = new Set(previousKeys);
+
+    return existingKeys.filter((existingKey) => previousKeySet.has(existingKey) && !generatedKeySet.has(existingKey));
 }
 
 function hasConfigPairAncestor(key: string, keys: Set<string>) {
@@ -156,14 +175,16 @@ function hasConfigPairAncestor(key: string, keys: Set<string>) {
 
 async function applyConfig(val: ConfigValue) {
     const configPath = process.env.CONFIG_PATH;
-    if (configPath)
+    const generatedPairs = generateConfigPairs(val);
+    if (configPath) {
         if (!process.env.CONFIG_READONLY) await fs.writeFile(configPath, JSON.stringify(val, null, 4));
         else console.log("[WARNING] JSON config file in use, and writing is disabled! Programmatic config changes will not be persisted, and your config will not get updated!");
-    else {
-        const generatedPairs = generateConfigPairs(val);
+        pairs = generatedPairs;
+    } else {
         const generatedKeys = generatedPairs.map((pair) => pair.key);
+        const previousKeys = pairs?.map((pair) => pair.key) ?? [];
         const existingKeys = (await ConfigEntity.find({ select: { key: true } })).map((pair) => pair.key);
-        const staleKeys = findStaleConfigKeys(existingKeys, generatedKeys);
+        const staleKeys = [...new Set([...findRemovedConfigKeys(existingKeys, generatedKeys, previousKeys), ...findStaleConfigKeys(existingKeys, generatedKeys)])];
 
         // keys are sorted to try to influence database order...
         await Promise.all(generatedPairs.sort((x, y) => (x.key > y.key ? 1 : -1)).map((pair) => pair.save()));
@@ -173,33 +194,57 @@ async function applyConfig(val: ConfigValue) {
     return val;
 }
 
+type ReconstructedConfigLeaf = ConfigEntity["value"];
+type ReconstructedConfigValue = ReconstructedConfigLeaf | ReconstructedConfigObject | ReconstructedConfigValue[];
+type ReconstructedConfigObject = { [key: string]: ReconstructedConfigValue };
+type ReconstructedConfigContainer = ReconstructedConfigObject | ReconstructedConfigValue[];
+
+function isArrayIndex(key: string) {
+    return /^\d+$/.test(key);
+}
+
+function getReconstructedConfigValue(container: ReconstructedConfigContainer, key: string) {
+    if (Array.isArray(container) && isArrayIndex(key)) return container[Number(key)];
+    return (container as ReconstructedConfigObject)[key];
+}
+
+function setReconstructedConfigValue(container: ReconstructedConfigContainer, key: string, value: ReconstructedConfigValue) {
+    if (Array.isArray(container) && isArrayIndex(key)) container[Number(key)] = value;
+    else (container as ReconstructedConfigObject)[key] = value;
+}
+
+function hasTruthyLength(value: ReconstructedConfigValue | undefined) {
+    return Boolean((value as { length?: unknown } | undefined)?.length);
+}
+
 export function pairsToConfig(pairs: ConfigEntity[]) {
-    // TODO: typings
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value: any = {};
+    const value: ReconstructedConfigObject = {};
     const pairKeys = new Set(pairs.map((pair) => pair.key));
 
     pairs.forEach((p) => {
         if (hasConfigPairAncestor(p.key, pairKeys)) return;
 
         const keys = p.key.split("_");
-        let obj = value;
+        let obj: ReconstructedConfigContainer = value;
         let prev = "";
-        let prevObj = obj;
+        let prevObj: ReconstructedConfigContainer = obj;
         let i = 0;
 
         for (const key of keys) {
-            if (!isNaN(Number(key)) && !prevObj[prev]?.length) prevObj[prev] = obj = [];
-            if (i++ === keys.length - 1) obj[key] = p.value;
-            else if (!obj[key]) obj[key] = {};
+            if (isArrayIndex(key) && !hasTruthyLength(getReconstructedConfigValue(prevObj, prev))) {
+                obj = [];
+                setReconstructedConfigValue(prevObj, prev, obj);
+            }
+            if (i++ === keys.length - 1) setReconstructedConfigValue(obj, key, p.value);
+            else if (!getReconstructedConfigValue(obj, key)) setReconstructedConfigValue(obj, key, {});
 
             prev = key;
             prevObj = obj;
-            obj = obj[key];
+            obj = getReconstructedConfigValue(obj, key) as ReconstructedConfigContainer;
         }
     });
 
-    return value as ConfigValue;
+    return value as unknown as ConfigValue;
 }
 
 const validateConfig = async () => {

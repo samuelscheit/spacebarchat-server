@@ -117,7 +117,7 @@ for (const path of [localRequire.resolve("../util"), localRequire.resolve("../ut
 
 const { Channel } = localRequire("./Channel") as { Channel: typeof import("./Channel").Channel };
 const { Member } = localRequire("./Member") as { Member: typeof import("./Member").Member };
-const { ThreadMember } = localRequire("./ThreadMember") as { ThreadMember: ThreadMemberClass };
+const { MAX_THREAD_MEMBER_COUNT, ThreadMember } = localRequire("./ThreadMember") as { MAX_THREAD_MEMBER_COUNT: number; ThreadMember: ThreadMemberClass };
 
 afterEach(() => {
     transactionManager = undefined;
@@ -224,6 +224,19 @@ describe("ThreadMember.removeFromThread", () => {
         assert.deepEqual(
             emittedEvents.map((event) => event.data.member_count),
             [0],
+        );
+    });
+
+    test("caps the synced thread member count before persisting and emitting", async () => {
+        const { calls } = stubRemoval({ memberCount: 99, persistedMemberCount: MAX_THREAD_MEMBER_COUNT + 10 });
+
+        await ThreadMember.removeFromThread("user-id", "thread-id");
+
+        assert.deepEqual(calls[3], ["count", "ThreadMember", { where: { id: "thread-id" } }]);
+        assert.deepEqual(calls[4], ["update", "Channel", { id: "thread-id" }, { member_count: MAX_THREAD_MEMBER_COUNT }]);
+        assert.deepEqual(
+            emittedEvents.map((event) => event.data.member_count),
+            [MAX_THREAD_MEMBER_COUNT],
         );
     });
 

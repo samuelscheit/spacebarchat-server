@@ -6,10 +6,17 @@ import { ajv, validateSchema } from "./Validator";
 
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
-const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<
-    string,
-    { properties?: Record<string, { format?: string }> }
->;
+type JsonShape = {
+    $ref?: string;
+    maxLength?: number;
+    minLength?: number;
+    pattern?: string;
+    type?: string | string[];
+    items?: JsonShape;
+    properties?: Record<string, JsonShape & { format?: string }>;
+};
+
+const Schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
 
 const ImageDataUriFields = [
     ["ApplicationModifySchema", "icon"],
@@ -114,6 +121,19 @@ describe("schema validator custom formats", () => {
         assert.deepEqual(payload.shard, [0n, 1n]);
     });
 
+    test("preserves large bigint strings without precision loss", () => {
+        const payload = {
+            token: "gateway-token",
+            properties: {},
+            intents: "9007199254740993",
+            shard: ["0", "1"],
+        };
+
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 9007199254740993n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
+
     test("rejects bigint schema fields that cannot be coerced", () => {
         assert.throws(() =>
             validateSchema("IdentifySchema", {
@@ -127,6 +147,13 @@ describe("schema validator custom formats", () => {
                 token: "auth-token",
                 properties: {},
                 shard: ["not-an-integer"],
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "1.5",
             }),
         );
     });
@@ -153,6 +180,15 @@ describe("schema validator custom formats", () => {
         });
     });
 
+    test("documents writable guild profile tags", () => {
+        assert.deepEqual(Schemas.GuildUpdateSchema.properties?.profile_tag, {
+            type: ["null", "string"],
+            minLength: 1,
+            maxLength: 4,
+            pattern: "^[A-Za-z0-9]+$",
+        });
+    });
+
     test("keeps upload formats on request fields and off response hash fields", () => {
         for (const [schemaName, field] of ImageDataUriFields) {
             assert.equal(Schemas[schemaName].properties?.[field]?.format, "image-data-uri", `${schemaName}.${field}`);
@@ -163,5 +199,24 @@ describe("schema validator custom formats", () => {
             assert.notEqual(Schemas.APIGuildWithJoinedAt.properties?.[field]?.format, "image-data-uri", `APIGuildWithJoinedAt.${field}`);
             assert.equal(Schemas.GuildUpdateSchema.properties?.[field]?.format, "image-data-uri-or-asset-hash", `GuildUpdateSchema.${field}`);
         }
+    });
+});
+
+describe("generated JSON schemas", () => {
+    function schemaTypes(schema: JsonShape | undefined): string[] {
+        assert.ok(schema);
+
+        if (schema.$ref) {
+            const match = /^#\/definitions\/(.+)$/.exec(schema.$ref);
+            assert.ok(match, `unexpected schema ref ${schema.$ref}`);
+            return schemaTypes(Schemas[match[1]]);
+        }
+
+        return (Array.isArray(schema.type) ? schema.type : [schema.type]).filter((type): type is string => typeof type === "string").sort();
+    }
+
+    test("keeps gateway identify bitfields JSON-safe", () => {
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.intents), ["integer", "string"]);
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.shard?.items), ["integer", "string"]);
     });
 });

@@ -2,7 +2,18 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, test } from "node:test";
-import { GUILD_FEATURES, GuildFeature, MUTABLE_GUILD_FEATURES, VANITY_URL_FEATURE, getVanityUrlFeatureState, setVanityUrlFeature, type GuildFeatureValue } from "./GuildFeatures";
+import {
+    GUILD_FEATURES,
+    GuildFeature,
+    MUTABLE_GUILD_FEATURES,
+    VANITY_URL_FEATURE,
+    VIP_REGIONS_FEATURE,
+    canPatchGuildFeature,
+    getVanityUrlFeatureState,
+    hasGuildFeature,
+    setVanityUrlFeature,
+    type GuildFeatureValue,
+} from "./GuildFeatures";
 
 const documentedDiscordGuildFeatures = [
     "ANIMATED_BANNER",
@@ -38,11 +49,11 @@ const documentedDiscordGuildFeatures = [
     "VIP_REGIONS",
     "WELCOME_SCREEN_ENABLED",
 ] as const;
-
 describe("Guild feature helpers", () => {
     test("keeps known feature values compatible with stored guild feature strings", () => {
         assert.equal(GuildFeature.Discoverable, "DISCOVERABLE");
         assert.equal(GuildFeature.VanityUrl, "VANITY_URL");
+        assert.equal(GuildFeature.VipRegions, "VIP_REGIONS");
         assert.equal(GuildFeature.AllowUnnamedChannels, "ALLOW_UNNAMED_CHANNELS");
     });
 
@@ -60,6 +71,14 @@ describe("Guild feature helpers", () => {
             [],
         );
         assert.equal(VANITY_URL_FEATURE, GuildFeature.VanityUrl);
+        assert.equal(VIP_REGIONS_FEATURE, GuildFeature.VipRegions);
+    });
+
+    test("detects named guild feature membership", () => {
+        assert.equal(hasGuildFeature([GuildFeature.Community, GuildFeature.VipRegions], GuildFeature.VipRegions), true);
+        assert.equal(hasGuildFeature([GuildFeature.Community, "VIP_REGIONS_DISABLED"], GuildFeature.VipRegions), false);
+        assert.equal(hasGuildFeature(undefined, GuildFeature.VipRegions), false);
+        assert.equal(hasGuildFeature(null, GuildFeature.VipRegions), false);
     });
 
     test("exports the mutable guild feature subset", () => {
@@ -67,6 +86,18 @@ describe("Guild feature helpers", () => {
             [...MUTABLE_GUILD_FEATURES].sort(),
             [GuildFeature.Community, GuildFeature.Discoverable, GuildFeature.InvitesDisabled, GuildFeature.RaidAlertsDisabled].sort(),
         );
+    });
+
+    test("identifies guild features that the guild update route may patch", () => {
+        for (const feature of MUTABLE_GUILD_FEATURES) {
+            assert.equal(canPatchGuildFeature(feature), true, `${feature} should be patch-mutable`);
+        }
+    });
+
+    test("keeps privileged and derived guild features immutable through guild updates", () => {
+        assert.equal(canPatchGuildFeature(GuildFeature.VanityUrl), false);
+        assert.equal(canPatchGuildFeature(GuildFeature.News), false);
+        assert.equal(canPatchGuildFeature(""), false);
     });
 
     test("keeps guild feature arrays open for unknown Discord or Spacebar-specific values", () => {

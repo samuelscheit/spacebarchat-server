@@ -21,7 +21,6 @@ import {
     Config,
     emailAlreadyRegisteredFieldError,
     emailMatches,
-    emitEvent,
     FieldErrors,
     generateToken,
     handleFile,
@@ -30,12 +29,11 @@ import {
     normalizeOptionalEmail,
     userDiscriminatorAlreadyTakenFieldError,
     User,
-    UserUpdateEvent,
 } from "@spacebar/util";
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { DisplayNameStyle, PrivateUserProjection, UserModifySchema } from "@spacebar/schemas";
-import { getUserRecentAvatarHash, recordUserRecentAvatar } from "@spacebar/api/util";
+import { emitUserUpdateEvents, getUserRecentAvatarHash, recordUserRecentAvatar } from "@spacebar/api/util";
 import { Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
@@ -63,6 +61,7 @@ router.patch(
     "/",
     route({
         requestBody: "UserModifySchema",
+        event: ["USER_UPDATE", "GUILD_MEMBER_UPDATE"],
         responses: {
             200: {
                 body: "UserUpdateResponse",
@@ -256,12 +255,7 @@ router.patch(
         //@ts-ignore
         delete user.data;
 
-        // TODO: send update member list event in gateway
-        await emitEvent({
-            event: "USER_UPDATE",
-            user_id: req.user_id,
-            data: user,
-        } satisfies UserUpdateEvent);
+        await emitUserUpdateEvents(user);
 
         res.json({
             ...user.toPrivateUser(),

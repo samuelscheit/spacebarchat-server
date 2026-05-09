@@ -28,6 +28,7 @@ import {
     OPCODES,
     Payload,
     Send,
+    serializeReadyPrivateChannels,
     serializeReadyReadState,
     serializeReadyRelationships,
     setupListener,
@@ -82,7 +83,6 @@ import {
     VoiceState,
     getReadyReadStateWhere,
     READY_READ_STATE_SELECT,
-    serializeReadyPrivateChannel,
 } from "@spacebar/util";
 import { toReadyMergedMembers } from "../util/MergedMembers";
 import { hasLoadedDmChannel } from "../util/DmRecipient";
@@ -580,6 +580,7 @@ export async function onIdentify(this: WebSocket, data: Payload) {
             threads,
             threadMemberMap,
             stageInstances: stageInstancesByGuild.get(member.guild_id) ?? [],
+            userId: this.user_id,
         });
 
         if (user.bot) {
@@ -602,9 +603,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
 
     // Populated with users from private channels, relationships.
     // Uses a set to dedupe for us.
-    const users: Set<PublicUser> = new Set();
-    const currentUser = user.toPublicUser();
-
     const openDmPresenceRecipientIdsByChannelId = new Map<string, Set<string>>();
 
     // Generate dm channels from recipients list. Append recipients to `users` list
@@ -612,9 +610,8 @@ export async function onIdentify(this: WebSocket, data: Payload) {
     for (const { channel } of loadedDmRecipients) {
         openDmPresenceRecipientIdsByChannelId.set(channel.id, getOpenDmPresenceRecipientIds(channel.recipients, this.user_id));
     }
-    const readyPrivateChannels = loadedDmRecipients.map((r) => serializeReadyPrivateChannel(r.channel, this.user_id, currentUser));
-    const channels = readyPrivateChannels.map(({ channel }) => channel);
-    readyPrivateChannels.forEach(({ users: channelUsers }) => channelUsers.forEach((channelUser) => users.add(channelUser)));
+    const { channels, users: privateChannelUsers } = serializeReadyPrivateChannels(loadedDmRecipients, user);
+    const users: Set<PublicUser> = new Set(privateChannelUsers);
     const generateDmChannelsTime = taskSw.getElapsedAndReset();
 
     // From user relationships ( friends ), also append to `users` list
@@ -846,8 +843,11 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         permissions: listenerPermissions,
     };
 
-    // Install event listeners before READY so clients can immediately send
-    // gateway opcodes that emit events without racing subscription setup.
+    // Register dispatch listeners before clients can observe READY. Clients may send
+    // follow-up gateway opcodes immediately after READY/READY_SUPPLEMENTAL, and any
+    // emitted events must not be dropped while listener setup is still in flight.
+    // TODO send GUILD_MEMBER_LIST_UPDATE
+    // TODO send VOICE_STATE_UPDATE to let the client know if another device is already connected to a voice channel
     await setupListener.call(this, listenerSetupData);
 
     // Send READY
@@ -877,8 +877,6 @@ export async function onIdentify(this: WebSocket, data: Payload) {
         d: buildReadySupplementalData(guilds, { friendIds, sessions: relationshipSessions }),
     });
 
-    //TODO send GUILD_MEMBER_LIST_UPDATE
-    //TODO send VOICE_STATE_UPDATE to let the client know if another device is already connected to a voice channel
     console.log(
         `[Gateway/${this.user_id}] IDENTIFY ${this.user_id} in ${totalSw.elapsed().totalMilliseconds}ms`,
         process.env.LOG_GATEWAY_TRACES ? JSON.stringify(d._trace, null, 2) : "",

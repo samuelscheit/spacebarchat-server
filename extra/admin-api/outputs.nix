@@ -135,6 +135,7 @@ nixpkgs.lib.recursiveUpdate (
           nugetDeps = Utilities/Spacebar.Cdn.Fsck/deps.json;
           packNupkg = false;
           projectReferences = [
+            proj.Spacebar-Cdn-Shared
             proj.Spacebar-Models-Db
             proj.Spacebar-Interop-Cdn-Abstractions
           ];

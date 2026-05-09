@@ -22,19 +22,20 @@ import fs from "node:fs";
 import path from "node:path";
 import { ImageDataUriFormat, ImageDataUriOrAssetHashFormat, isImageDataUri, isImageDataUriOrAssetHash } from "./ImageData";
 
-const SchemaPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
-const sourceSchemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", ""));
-const schemas = normalizeBigIntSchemas(sourceSchemas);
-
 type JsonSchema = {
     $ref?: string;
     type?: string | string[];
+    pattern?: string;
     properties?: Record<string, JsonSchema>;
     items?: JsonSchema | JsonSchema[];
     anyOf?: JsonSchema[];
     oneOf?: JsonSchema[];
     allOf?: JsonSchema[];
 };
+
+const SchemaPath = resolveSchemaPath();
+const sourceSchemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", "")) as Record<string, JsonSchema>;
+const schemas = normalizeBigIntSchemas(sourceSchemas) as Record<string, object>;
 
 // const schemas2 = {...schemas, definitions: {...schemas, }};
 // console.log(schemas);
@@ -77,6 +78,12 @@ function createAjv(coerceTypes: boolean) {
     return validator;
 }
 
+function resolveSchemaPath() {
+    const builtAssetPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
+    if (fs.existsSync(builtAssetPath)) return builtAssetPath;
+    return path.join(process.cwd(), "assets", "schemas.json");
+}
+
 export const ajv = createAjv(true);
 export const nonCoercingAjv = createAjv(false);
 
@@ -103,12 +110,12 @@ function normalizeBigIntSchemas(value: unknown): unknown {
 
     if (normalized.type === "bigint") {
         delete normalized.type;
-        normalized.anyOf = [{ type: "integer" }, { type: "string", pattern: "^-?\\d+$" }];
+        normalized.anyOf = [{ type: "string", pattern: "^-?\\d+$" }, { type: "integer" }];
     } else if (Array.isArray(normalized.type) && normalized.type.includes("bigint")) {
         const remainingTypes = normalized.type.filter((type) => type !== "bigint");
         if (remainingTypes.length > 0) normalized.type = remainingTypes;
         else delete normalized.type;
-        normalized.anyOf = [...((normalized.anyOf as unknown[] | undefined) ?? []), { type: "integer" }, { type: "string", pattern: "^-?\\d+$" }];
+        normalized.anyOf = [...((normalized.anyOf as unknown[] | undefined) ?? []), { type: "string", pattern: "^-?\\d+$" }, { type: "integer" }];
     }
 
     return normalized;
@@ -157,7 +164,11 @@ function resolveSchemaReference(ref: string | undefined): JsonSchema | undefined
 }
 
 function isBigIntSchema(schema: JsonSchema) {
-    return schema.type === "bigint" || (Array.isArray(schema.type) && schema.type.includes("bigint"));
+    return (
+        schema.type === "bigint" ||
+        (Array.isArray(schema.type) && schema.type.includes("bigint")) ||
+        (Array.isArray(schema.type) && schema.type.includes("integer") && schema.type.includes("string") && schema.pattern === "^-?[0-9]+$")
+    );
 }
 
 function coerceBigIntValue(value: unknown) {

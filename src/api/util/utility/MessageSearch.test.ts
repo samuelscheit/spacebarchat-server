@@ -1,6 +1,41 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { messageToSearchResult } from "./MessageSearch";
+import { getSearchChannelNsfwFilter, messageToSearchResult, parseIncludeNsfwSearchParam, parseMessageSearchSortBy } from "./MessageSearch";
+
+describe("parseMessageSearchSortBy", () => {
+    test("defaults omitted sort_by to timestamp ordering", () => {
+        assert.equal(parseMessageSearchSortBy(undefined), "timestamp");
+    });
+
+    test("accepts explicit timestamp sorting", () => {
+        assert.equal(parseMessageSearchSortBy("timestamp"), "timestamp");
+    });
+
+    test("rejects relevance sorting until ranked message search exists", () => {
+        assert.throws(
+            () => parseMessageSearchSortBy("relevance"),
+            (error: unknown) => {
+                assert.equal((error as { code?: number }).code, 50035);
+                assert.equal((error as { errors?: { sort_by?: { _errors?: { code?: string; message?: string }[] } } }).errors?.sort_by?._errors?.[0]?.code, "BASE_TYPE_CHOICES");
+                assert.equal(
+                    (error as { errors?: { sort_by?: { _errors?: { code?: string; message?: string }[] } } }).errors?.sort_by?._errors?.[0]?.message,
+                    "Value must be one of ('timestamp').",
+                );
+                return true;
+            },
+        );
+    });
+
+    test("rejects repeated sort_by query parameters", () => {
+        assert.throws(
+            () => parseMessageSearchSortBy(["timestamp", "relevance"]),
+            (error: unknown) => {
+                assert.equal((error as { errors?: { sort_by?: { _errors?: { code?: string }[] } } }).errors?.sort_by?._errors?.[0]?.code, "BASE_TYPE_CHOICES");
+                return true;
+            },
+        );
+    });
+});
 
 describe("messageToSearchResult", () => {
     test("serializes mentions through the public message serializer", async () => {
@@ -52,6 +87,25 @@ describe("messageToSearchResult", () => {
             bot: true,
             public_flags: 0,
         });
+    });
+});
+
+describe("search include_nsfw query handling", () => {
+    test("only the literal true value includes NSFW channels", () => {
+        assert.equal(parseIncludeNsfwSearchParam("true"), true);
+        assert.equal(parseIncludeNsfwSearchParam(undefined), false);
+        assert.equal(parseIncludeNsfwSearchParam("false"), false);
+        assert.equal(parseIncludeNsfwSearchParam("1"), false);
+        assert.equal(parseIncludeNsfwSearchParam("True"), false);
+        assert.equal(parseIncludeNsfwSearchParam(["true"]), false);
+        assert.equal(parseIncludeNsfwSearchParam(["false", "true"]), false);
+    });
+
+    test("excludes NSFW channels unless include_nsfw=true is requested", () => {
+        assert.deepEqual(getSearchChannelNsfwFilter(undefined), { channel: { nsfw: false } });
+        assert.deepEqual(getSearchChannelNsfwFilter("false"), { channel: { nsfw: false } });
+        assert.deepEqual(getSearchChannelNsfwFilter(["true"]), { channel: { nsfw: false } });
+        assert.deepEqual(getSearchChannelNsfwFilter("true"), {});
     });
 });
 

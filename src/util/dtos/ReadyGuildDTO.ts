@@ -16,8 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Channel, Emoji, Guild, Role, StageInstance, Sticker, ThreadMember } from "../entities";
-import type { GuildScheduledEventResponse, PublicChannel, PublicMember, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
+import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
+import type { GuildScheduledEventResponse, PublicChannel, PublicMember, PublicThreadMember, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
 
 export type { ReadyUserGuildSettingsEntries } from "../interfaces/ReadyUserGuildSettingsEntries";
 
@@ -29,7 +29,7 @@ export function getReadyUserGuildSettingsVersion(entries: ReadonlyArray<{ readon
 }
 
 type ReadyStageInstance = StageInstance | StageInstanceResponse;
-type ReadyThreadMember = Pick<ThreadMember, "id" | "index" | "member_idx" | "join_timestamp" | "muted" | "mute_config" | "flags">;
+type ReadyThreadMember = PublicThreadMember;
 type ReadyThread = Channel | (Omit<PublicChannel, "member"> & { member?: ReadyThreadMember });
 type ReadyVoiceState = Guild["voice_states"][number] | PublicVoiceState;
 type AvailableReadyGuild = Omit<Partial<Guild>, "channels" | "emojis" | "features" | "id" | "name" | "roles" | "stage_instances" | "stickers" | "threads" | "voice_states"> &
