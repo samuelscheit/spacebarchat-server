@@ -16,86 +16,97 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Channel, Emoji, Guild, Role, StageInstance, Sticker } from "../entities";
-import type { ChannelOverride, ChannelType, PublicMember, PublicUser, StageInstanceResponse, UserGuildSettings } from "@spacebar/schemas";
+import type { Channel, Emoji, Guild, Role, StageInstance, Sticker, ThreadMember } from "../entities";
+import type { GuildScheduledEventResponse, PublicChannel, PublicMember, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
 
-// TODO: this is not the best place for this type
-export type ReadyUserGuildSettingsEntries = Omit<UserGuildSettings, "channel_overrides"> & {
-    channel_overrides: (ChannelOverride & { channel_id: string })[];
-};
+export type { ReadyUserGuildSettingsEntries } from "../interfaces/ReadyUserGuildSettingsEntries";
 
-// TODO: probably should move somewhere else
-export interface ReadyPrivateChannel {
-    id: string;
-    flags: number;
-    is_spam: boolean;
-    last_message_id?: string;
-    recipients: PublicUser[];
-    type: ChannelType.DM | ChannelType.GROUP_DM;
+export function getReadyUserGuildSettingsVersion(entries: ReadonlyArray<{ readonly version?: number | null }>): number {
+    return entries.reduce((version, entry) => {
+        if (typeof entry.version !== "number" || !Number.isFinite(entry.version)) return version;
+        return Math.max(version, entry.version);
+    }, 0);
 }
 
 type ReadyStageInstance = StageInstance | StageInstanceResponse;
+type ReadyThreadMember = Pick<ThreadMember, "id" | "index" | "member_idx" | "join_timestamp" | "muted" | "mute_config" | "flags">;
+type ReadyThread = Channel | (Omit<PublicChannel, "member"> & { member?: ReadyThreadMember });
+type ReadyVoiceState = Guild["voice_states"][number] | PublicVoiceState;
+type AvailableReadyGuild = Omit<Partial<Guild>, "channels" | "emojis" | "features" | "id" | "name" | "roles" | "stage_instances" | "stickers" | "threads" | "voice_states"> &
+    Pick<Guild, "channels" | "emojis" | "features" | "id" | "name" | "roles" | "stickers"> & {
+        joined_at?: Date;
+        unavailable: undefined;
+        stage_instances: ReadyStageInstance[];
+        threads: ReadyThread[];
+        voice_states?: ReadyVoiceState[];
+    };
 
-export type GuildOrUnavailable =
-    | { id: string; unavailable: boolean }
-    | (Guild & { joined_at?: Date; unavailable: undefined; threads: Channel[]; stage_instances: ReadyStageInstance[] });
+export const MAX_STAGE_VIDEO_CHANNEL_USERS = 50 as const;
 
-const guildIsAvailable = (guild: GuildOrUnavailable): guild is Guild & { joined_at: Date; unavailable: false; threads: Channel[]; stage_instances: ReadyStageInstance[] } =>
-    guild.unavailable != true;
+type AvailableReadyGuildWithScheduledEvents = AvailableReadyGuild & { guild_scheduled_events?: GuildScheduledEventResponse[] };
+
+export type GuildOrUnavailable = { id: string; unavailable: boolean } | AvailableReadyGuildWithScheduledEvents;
+
+const guildIsAvailable = (guild: GuildOrUnavailable): guild is AvailableReadyGuildWithScheduledEvents & { joined_at: Date } => guild.unavailable != true;
 
 function stageInstanceToResponse(stageInstance: ReadyStageInstance): StageInstanceResponse {
     if ("toPublicStageInstance" in stageInstance) return stageInstance.toPublicStageInstance();
     return stageInstance;
 }
 
+export type ReadyApplicationCommandCounts = Partial<Record<1 | 2 | 3, number>>;
+
+export interface ReadyGuildProperties {
+    name: string;
+    description?: string | null;
+    icon?: string | null;
+    splash?: string | null;
+    banner?: string | null;
+    features: string[];
+    preferred_locale?: string | null;
+    owner_id?: string | null;
+    application_id?: string | null;
+    afk_channel_id?: string | null;
+    afk_timeout: number | undefined;
+    system_channel_id?: string | null;
+    verification_level: number | undefined;
+    explicit_content_filter: number | undefined;
+    default_message_notifications: number | undefined;
+    mfa_level: number | undefined;
+    vanity_url_code?: string | null;
+    premium_tier: number | undefined;
+    premium_progress_bar_enabled: boolean;
+    system_channel_flags: number | undefined;
+    discovery_splash?: string | null;
+    rules_channel_id?: string | null;
+    public_updates_channel_id?: string | null;
+    max_video_channel_users: number | undefined;
+    max_members: number | undefined;
+    nsfw_level: number | undefined;
+    hub_type?: unknown | null; // ????
+
+    // Discord currently includes this READY guild property as null; keep it for client compatibility until a non-null shape is observed.
+    home_header: null;
+    latest_onboarding_question_id: null; // TODO
+    safety_alerts_channel_id: string | null;
+    max_stage_video_channel_users: number;
+    nsfw: boolean;
+    id: string;
+}
+
 export interface IReadyGuildDTO {
-    application_command_counts?: { 1: number; 2: number; 3: number }; // ????????????
+    application_command_counts?: ReadyApplicationCommandCounts;
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
-    guild_scheduled_events: unknown[]; // TODO
+    guild_scheduled_events: GuildScheduledEventResponse[];
     id: string;
     large: boolean | undefined;
     lazy: boolean;
     member_count: number | undefined;
     members: PublicMember[];
     premium_subscription_count: number | undefined;
-    properties: {
-        name: string;
-        description?: string | null;
-        icon?: string | null;
-        splash?: string | null;
-        banner?: string | null;
-        features: string[];
-        preferred_locale?: string | null;
-        owner_id?: string | null;
-        application_id?: string | null;
-        afk_channel_id?: string | null;
-        afk_timeout: number | undefined;
-        system_channel_id?: string | null;
-        verification_level: number | undefined;
-        explicit_content_filter: number | undefined;
-        default_message_notifications: number | undefined;
-        mfa_level: number | undefined;
-        vanity_url_code?: string | null;
-        premium_tier: number | undefined;
-        premium_progress_bar_enabled: boolean;
-        system_channel_flags: number | undefined;
-        discovery_splash?: string | null;
-        rules_channel_id?: string | null;
-        public_updates_channel_id?: string | null;
-        max_video_channel_users: number | undefined;
-        max_members: number | undefined;
-        nsfw_level: number | undefined;
-        hub_type?: unknown | null; // ????
-
-        home_header: null; // TODO
-        latest_onboarding_question_id: null; // TODO
-        safety_alerts_channel_id: null; // TODO
-        max_stage_video_channel_users: 50; // TODO
-        nsfw: boolean;
-        id: string;
-    };
+    properties: ReadyGuildProperties;
     roles: Role[];
     stage_instances: StageInstanceResponse[];
     stickers: Sticker[];
@@ -106,53 +117,18 @@ export interface IReadyGuildDTO {
 }
 
 export class ReadyGuildDTO implements IReadyGuildDTO {
-    application_command_counts?: { 1: number; 2: number; 3: number }; // ????????????
+    application_command_counts?: ReadyApplicationCommandCounts;
     channels: Channel[];
     data_mode: string; // what is this
     emojis: Emoji[];
-    guild_scheduled_events: unknown[];
+    guild_scheduled_events: GuildScheduledEventResponse[];
     id: string;
     large: boolean | undefined;
     lazy: boolean;
     member_count: number | undefined;
     members: PublicMember[];
     premium_subscription_count: number | undefined;
-    properties: {
-        name: string;
-        description?: string | null;
-        icon?: string | null;
-        splash?: string | null;
-        banner?: string | null;
-        features: string[];
-        preferred_locale?: string | null;
-        owner_id?: string | null;
-        application_id?: string | null;
-        afk_channel_id?: string | null;
-        afk_timeout: number | undefined;
-        system_channel_id?: string | null;
-        verification_level: number | undefined;
-        explicit_content_filter: number | undefined;
-        default_message_notifications: number | undefined;
-        mfa_level: number | undefined;
-        vanity_url_code?: string | null;
-        premium_tier: number | undefined;
-        premium_progress_bar_enabled: boolean;
-        system_channel_flags: number | undefined;
-        discovery_splash?: string | null;
-        rules_channel_id?: string | null;
-        public_updates_channel_id?: string | null;
-        max_video_channel_users: number | undefined;
-        max_members: number | undefined;
-        nsfw_level: number | undefined;
-        hub_type?: unknown | null; // ????
-
-        home_header: null; // TODO
-        latest_onboarding_question_id: null; // TODO
-        safety_alerts_channel_id: null; // TODO
-        max_stage_video_channel_users: 50; // TODO
-        nsfw: boolean;
-        id: string;
-    };
+    properties: ReadyGuildProperties;
     roles: Role[];
     stage_instances: StageInstanceResponse[];
     stickers: Sticker[];
@@ -169,20 +145,16 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             return;
         }
 
-        this.application_command_counts = {
-            1: 5,
-            2: 2,
-            3: 2,
-        }; // ????? // emma: this appears to always be an empty attrset...
+        this.application_command_counts = {};
         this.channels = guild.channels;
         this.data_mode = "full";
         this.emojis = guild.emojis;
-        this.guild_scheduled_events = [];
+        this.guild_scheduled_events = guild.guild_scheduled_events ?? [];
         this.id = guild.id;
         this.large = guild.large;
         this.lazy = true; // ??????????
         this.member_count = guild.member_count;
-        this.members = guild.members?.map((x) => x.toPublicMember());
+        this.members = guild.members?.map((x) => x.toPublicMember()) ?? [];
         this.premium_subscription_count = guild.premium_subscription_count;
         this.properties = {
             name: guild.name,
@@ -203,7 +175,7 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             mfa_level: guild.mfa_level,
             vanity_url_code: null, // ?????
             premium_tier: guild.premium_tier,
-            premium_progress_bar_enabled: guild.premium_progress_bar_enabled,
+            premium_progress_bar_enabled: guild.premium_progress_bar_enabled ?? false,
             system_channel_flags: guild.system_channel_flags,
             discovery_splash: guild.discovery_splash,
             rules_channel_id: guild.rules_channel_id,
@@ -216,9 +188,9 @@ export class ReadyGuildDTO implements IReadyGuildDTO {
             home_header: null,
             id: guild.id,
             latest_onboarding_question_id: null,
-            max_stage_video_channel_users: 50, // TODO
-            nsfw: guild.nsfw,
-            safety_alerts_channel_id: null,
+            max_stage_video_channel_users: guild.max_stage_video_channel_users ?? MAX_STAGE_VIDEO_CHANNEL_USERS,
+            nsfw: guild.nsfw ?? false,
+            safety_alerts_channel_id: guild.safety_alerts_channel_id ?? null,
         };
         this.roles = guild.roles.map((x) => x.toJSON());
         this.stage_instances = guild.stage_instances?.map(stageInstanceToResponse) ?? [];

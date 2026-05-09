@@ -1,8 +1,10 @@
 import crypto from "node:crypto";
 
 export const ANIMATED_IMAGE_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
-export const STATIC_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
+export const RASTER_IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"];
+export const STATIC_IMAGE_MIME_TYPES = [...RASTER_IMAGE_MIME_TYPES, "image/svg+xml", "image/svg"];
 export const DEFAULT_IMAGE_MIME_TYPES = [...ANIMATED_IMAGE_MIME_TYPES, ...STATIC_IMAGE_MIME_TYPES];
+export const CDN_IMAGE_SIZES = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 export function stripFileExtension(value: string) {
     return value.split(".")[0];
@@ -13,10 +15,44 @@ export function hashImageBuffer(buffer: Buffer, mimeType: string) {
     return ANIMATED_IMAGE_MIME_TYPES.includes(mimeType) ? `a_${hash}` : hash;
 }
 
-export function isAllowedImageMimeType(mimeType: string | undefined, allowedMimeTypes: string[] = DEFAULT_IMAGE_MIME_TYPES) {
+export function isAllowedImageMimeType(mimeType: string | undefined, allowedMimeTypes: string[] = DEFAULT_IMAGE_MIME_TYPES): mimeType is string {
     return !!mimeType && allowedMimeTypes.includes(mimeType);
 }
 
 export function getCdnImagePath(pathPrefix: string, resourceId: string, hash?: string) {
     return hash ? `${pathPrefix}/${resourceId}/${stripFileExtension(hash)}` : `${pathPrefix}/${stripFileExtension(resourceId)}`;
+}
+
+export function getCdnImageHashPaths(pathPrefix: string, resourceId: string, hash: string, legacyExtensions: string[] = []) {
+    const basePath = getCdnImagePath(pathPrefix, resourceId, hash);
+    const paths = [basePath];
+    const requestedExtension = hash.includes(".") ? hash.split(".")[1] : undefined;
+    const extensions = requestedExtension && legacyExtensions.length ? [requestedExtension, ...legacyExtensions] : legacyExtensions;
+
+    for (const extension of extensions) {
+        const normalizedExtension = extension.replace(/^\./, "");
+        if (normalizedExtension) paths.push(`${basePath}.${normalizedExtension}`);
+    }
+
+    return [...new Set(paths)];
+}
+
+export function parseCdnImageSize(rawSize: unknown) {
+    const size = Array.isArray(rawSize) ? rawSize[0] : rawSize;
+    if (size === undefined) return undefined;
+    if (typeof size !== "string" || !/^\d+$/.test(size)) return undefined;
+
+    const parsed = Number(size);
+    return CDN_IMAGE_SIZES.includes(parsed) ? parsed : undefined;
+}
+
+export function canResizeImageMimeType(mimeType: string | undefined) {
+    return !!mimeType && RASTER_IMAGE_MIME_TYPES.includes(mimeType);
+}
+
+export async function resizeCdnImage(buffer: Buffer, mimeType: string | undefined, size: number | undefined) {
+    if (!size || !canResizeImageMimeType(mimeType)) return buffer;
+
+    const { default: sharp } = await import("sharp");
+    return sharp(buffer).resize(size, size, { fit: "cover" }).toBuffer();
 }

@@ -16,8 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { CLOSECODES, OPCODES, Payload, Send, setupListener, WebSocket } from "@spacebar/gateway";
-import { checkToken, Intents, Session } from "@spacebar/util";
+import { CLOSECODES, OPCODES, Payload, Send, sendInvalidSessionAndClose, setupListener, WebSocket } from "@spacebar/gateway";
+import { checkToken, Session } from "@spacebar/util";
+import { getSessionGatewayIntents } from "../util/SessionIntents";
 
 interface ResumePayload {
     token: string;
@@ -46,7 +47,7 @@ export async function onResume(this: WebSocket, data: Payload) {
     this.user_id = tokenData.user.id;
     this.session_id = tokenData.session.session_id;
     this.session = tokenData.session;
-    this.intents = new Intents(0);
+    this.intents = getSessionGatewayIntents(tokenData.session);
     this.sequence = (data.d.seq ?? -1) + 1;
 
     await Promise.all([
@@ -71,12 +72,7 @@ export async function onResume(this: WebSocket, data: Payload) {
 }
 
 async function rejectResume(this: WebSocket) {
-    await Send(this, {
-        op: OPCODES.Invalid_Session,
-        d: false,
-    });
-
-    return this.close(CLOSECODES.Invalid_session);
+    return sendInvalidSessionAndClose(this);
 }
 
 function isResumePayload(value: unknown): value is ResumePayload {
