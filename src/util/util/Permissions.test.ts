@@ -2,9 +2,10 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
 import type { Role } from "../entities";
-import { Permissions } from "./Permissions";
+import { getPermission, isGuildOwner, Permissions } from "./Permissions";
 
 const CHANNEL_PERMISSION_OVERWRITE_ROLE = 0;
+const CHANNEL_PERMISSION_OVERWRITE_MEMBER = 1;
 const USER_FLAG_QUARANTINED = Number(1n << 44n);
 
 function adminRole() {
@@ -49,6 +50,13 @@ function adminDenyOverwrite(): ChannelPermissionOverwrite {
 }
 
 describe("Permissions", () => {
+    test("identifies guild owners by id or loaded owner relation", () => {
+        assert.equal(isGuildOwner({ owner_id: "owner_id" }, "owner_id"), true);
+        assert.equal(isGuildOwner({ owner: { id: "owner_id" } }, { id: "owner_id" }), true);
+        assert.equal(isGuildOwner({ owner_id: "owner_id" }, "member_id", { id: "other_member_id" }), false);
+        assert.equal(isGuildOwner({ owner_id: null }, "owner_id"), false);
+    });
+
     test("channel overwrites cannot deny administrator permissions", () => {
         const permissions = new Permissions(
             Permissions.channelPermission(
@@ -94,6 +102,34 @@ describe("Permissions", () => {
         assert.equal(permissions.has("SEND_MESSAGES", false), true);
     });
 
+    test("final guild permissions grant guild owners all permissions before channel overwrites", () => {
+        const permissions = Permissions.finalPermission({
+            user: {
+                id: "owner_id",
+                roles: [],
+                communication_disabled_until: null,
+                flags: 0,
+            },
+            guild: {
+                id: "guild_id",
+                owner_id: "owner_id",
+                roles: [],
+            },
+            channel: {
+                overwrites: [
+                    {
+                        id: "owner_id",
+                        type: CHANNEL_PERMISSION_OVERWRITE_MEMBER,
+                        allow: "0",
+                        deny: Permissions.ALL.bitfield.toString(),
+                    },
+                ],
+            },
+        });
+
+        assert.equal(permissions.bitfield, Permissions.ALL.bitfield);
+    });
+
     test("overwriteChannel preserves administrator permissions", () => {
         const permissions = new Permissions("ADMINISTRATOR");
         permissions.cache = { roles: [{ id: "role_id" } as Role] };
@@ -134,5 +170,34 @@ describe("Permissions", () => {
         assert.equal(withOverwrite.has("VIEW_CHANNEL", false), false);
         assert.equal(withOverwrite.has("READ_MESSAGE_HISTORY", false), false);
         assert.equal(withOverwrite.has("CHANGE_NICKNAME", false), false);
+    });
+
+    test("getPermission short-circuits guild owners without requiring a member row", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+
+        const [{ User }, { Guild }, { Member }] = await Promise.all([import("../entities/User.js"), import("../entities/Guild.js"), import("../entities/Member.js")]);
+        const userClass = User as unknown as {
+            findOneOrFail: (options: unknown) => Promise<unknown>;
+        };
+        const guildClass = Guild as unknown as {
+            findOneOrFail: (options: unknown) => Promise<unknown>;
+        };
+        const memberClass = Member as unknown as {
+            findOneOrFail: (options: unknown) => Promise<unknown>;
+        };
+
+        let memberLookups = 0;
+
+        t.mock.method(userClass, "findOneOrFail", async () => ({ id: "owner_id", flags: 0 }));
+        t.mock.method(guildClass, "findOneOrFail", async () => ({ id: "guild_id", owner_id: "owner_id" }));
+        t.mock.method(memberClass, "findOneOrFail", async () => {
+            memberLookups += 1;
+            throw new Error("owner permission lookup should not require a guild member row");
+        });
+
+        const permissions = await getPermission("owner_id", "guild_id");
+
+        assert.equal(permissions.bitfield, Permissions.ALL.bitfield);
+        assert.equal(memberLookups, 0);
     });
 });
