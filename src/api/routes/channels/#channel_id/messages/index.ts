@@ -18,6 +18,7 @@
 
 import {
     assertMessagePayloadPermissions,
+    createMessageUpload,
     getMessageHistoryQueryOrder,
     handleMessage,
     messageToResponse,
@@ -59,7 +60,6 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import multer from "multer";
 import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
 import {
     AcknowledgeDeleteSchema,
@@ -225,15 +225,7 @@ router.get(
     },
 );
 
-// TODO: config max upload size
-export const messageUpload = multer({
-    limits: {
-        fileSize: Config.get().limits.message.maxAttachmentSize,
-        fields: 10,
-        // files: 1
-    },
-    storage: multer.memoryStorage(),
-}); // max upload 50 mb
+export const messageUpload = createMessageUpload();
 /**
  TODO: dynamically change limit of MessageCreateSchema with config
 
