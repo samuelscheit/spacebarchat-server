@@ -9806,7 +9806,11 @@
                         "additionalProperties": false
                     },
                     "intents": {
-                        "type": "number"
+                        "type": [
+                            "string",
+                            "integer",
+                            "number"
+                        ]
                     },
                     "presence": {
                         "$ref": "#/components/schemas/ActivitySchema"
@@ -9825,7 +9829,7 @@
                         "maxItems": 2,
                         "type": "array",
                         "items": {
-                            "type": "number"
+                            "$ref": "#/components/schemas/IdentifyBitfield"
                         }
                     },
                     "guild_subscriptions": {
@@ -22346,6 +22350,13 @@
                     1,
                     2,
                     3
+                ]
+            },
+            "IdentifyBitfield": {
+                "type": [
+                    "string",
+                    "integer",
+                    "number"
                 ]
             }
         }

@@ -18,6 +18,8 @@
 
 import type { ActivitySchema } from "../uncategorised/ActivitySchema";
 
+export type IdentifyBitfield = bigint | number | string;
+
 export interface IdentifySchema {
     token: string;
     properties: {
@@ -46,7 +48,9 @@ export interface IdentifySchema {
         window_manager?: string;
         distro?: string;
     };
-    intents?: bigint; // discord uses a Integer for bitfields we use a bigint tho. | instanceOf will automatically convert the Number to a BigInt
+    // IDENTIFY is a JSON wire payload, so clients send bitfields as JSON numbers
+    // or strings. Gateway code normalizes the value to bigint after validation.
+    intents?: IdentifyBitfield;
     presence?: ActivitySchema;
     compress?: boolean;
     large_threshold?: number;
@@ -55,7 +59,7 @@ export interface IdentifySchema {
      * @minItems 2
      * @maxItems 2
      */
-    shard?: bigint[]; // puyo: changed from [bigint, bigint] because it breaks openapi
+    shard?: IdentifyBitfield[]; // puyo: changed from [bigint, bigint] because it breaks openapi
     guild_subscriptions?: boolean;
     capabilities?: number;
     client_state?: {

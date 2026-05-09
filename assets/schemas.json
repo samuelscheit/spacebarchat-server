@@ -10262,7 +10262,11 @@
                 "additionalProperties": false
             },
             "intents": {
-                "type": "bigint"
+                "type": [
+                    "string",
+                    "integer",
+                    "bigint"
+                ]
             },
             "presence": {
                 "$ref": "#/definitions/ActivitySchema"
@@ -10281,7 +10285,7 @@
                 "maxItems": 2,
                 "type": "array",
                 "items": {
-                    "type": "bigint"
+                    "$ref": "#/definitions/IdentifyBitfield"
                 }
             },
             "guild_subscriptions": {
@@ -23430,6 +23434,14 @@
             1,
             2,
             3
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "IdentifyBitfield": {
+        "type": [
+            "string",
+            "integer",
+            "bigint"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     }
