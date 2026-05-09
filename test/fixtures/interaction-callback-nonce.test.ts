@@ -11,6 +11,7 @@ import type { Event } from "@spacebar/util";
 
 interface PendingInteractionRecord {
     timeout: NodeJS.Timeout;
+    token: string;
     applicationId: string;
     userId: string;
     channelId?: string;
@@ -51,6 +52,7 @@ async function postInteractionCallback(nonce?: string) {
     const timeout = setTimeout(() => undefined, 30_000);
     const pendingInteraction: PendingInteractionRecord = {
         timeout,
+        token: "callback-token",
         applicationId: "application-id",
         userId,
         type: 1,
