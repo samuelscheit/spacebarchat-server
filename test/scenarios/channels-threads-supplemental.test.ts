@@ -3,7 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
+import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Permissions, Role, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
 import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -108,6 +108,7 @@ test(
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
             await Guild.update({ id: guildId }, { features: ["DISCOVERABLE"] });
+            await grantEveryonePermission(guildId, Permissions.FLAGS.SEND_MESSAGES_IN_THREADS);
             await assertStatus(await putJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, {}, memberToken), 200);
 
             const initialChannels = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, ownerToken);
@@ -478,6 +479,12 @@ async function registerUser(username: string, email: string) {
         email,
         password: "not-a-real-login-hash",
     });
+}
+
+async function grantEveryonePermission(guildId: string, permission: bigint) {
+    const everyoneRole = await Role.findOneByOrFail({ id: guildId, guild_id: guildId });
+    everyoneRole.permissions = (BigInt(everyoneRole.permissions) | permission).toString();
+    await everyoneRole.save();
 }
 
 async function getJson(url: string, token: string) {
