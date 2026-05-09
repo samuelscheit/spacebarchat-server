@@ -642,7 +642,7 @@ export interface InteractionSuccessEvent extends Event {
     event: "INTERACTION_SUCCESS";
     data: {
         id: Snowflake;
-        nonce: string;
+        nonce?: string;
     };
 }
 
