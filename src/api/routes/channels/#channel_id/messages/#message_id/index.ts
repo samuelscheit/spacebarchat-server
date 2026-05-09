@@ -18,6 +18,7 @@
 
 import {
     Attachment,
+    buildMessageEditComponentProcessingOptions,
     buildMessageEditHandleMessageOptions,
     Channel,
     Message,
@@ -35,7 +36,15 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { assertMessagePayloadPermissions, createMessageUpload, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
+import {
+    assertMessagePayloadPermissions,
+    createMessageUpload,
+    handleMessage,
+    messageToResponse,
+    normalizeMessageEditBodyAttachments,
+    postHandleMessage,
+    route,
+} from "@spacebar/api";
 import { MessageCreateAttachmentMetadata, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
 import { validateMessagePayloadLimits } from "../../../../../util/utility/MessagePayloadLimits";
 
@@ -84,25 +93,15 @@ router.patch(
 
         assertMessagePayloadPermissions(permissions, body);
 
-        const normalizedBody = { ...body } as MessageEditSchema & {
-            attachments?: (Attachment | MessageCreateAttachmentMetadata)[];
-        };
-        if (body.attachments) {
-            const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
-            normalizedBody.attachments = body.attachments.map((attachment) => {
-                if (isNewMessagePayloadAttachment(attachment)) return attachment;
-                if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
-                const retained = existingAttachmentsById.get(attachment.id);
-                if (!retained) throw new HTTPError("Unknown attachment", 400);
-                return retained;
-            });
-        }
+        const normalizedBody = normalizeMessageEditBodyAttachments(body, message.attachments);
+        const componentProcessingOptions = buildMessageEditComponentProcessingOptions(normalizedBody);
 
         const new_message = await handleMessage(
             buildMessageEditHandleMessageOptions(message, normalizedBody, channel_id, message_id, new Date(), {
                 attachment_user_id: req.user_id,
                 attachment_channel_ids: [channel_id],
                 is_edit: true,
+                ...componentProcessingOptions,
             }),
             { suppress_notifications: true },
         );

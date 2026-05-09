@@ -92,11 +92,23 @@ describe("InteractionMessage", () => {
 });
 
 describe("InteractionCallbacksSchema", () => {
+    test("rejects deprecated channel message callbacks", () => {
+        const validate = compileInteractionCallbacksSchema();
+
+        assert.equal(validate({ type: 3, data: validInteractionMessage() }), false);
+    });
+
     test("rejects unsupported callback response types", () => {
         const validate = compileInteractionCallbacksSchema();
 
         for (const type of [8, 9, 10, 11, 12]) {
             assert.equal(validate({ type, data: {} }), false, `type ${type} should stay unsupported until route handling exists`);
         }
+    });
+
+    test("accepts channel message with source callbacks", () => {
+        const validate = compileInteractionCallbacksSchema();
+
+        assert.equal(validate({ type: 4, data: validInteractionMessage() }), true, JSON.stringify(validate.errors));
     });
 });

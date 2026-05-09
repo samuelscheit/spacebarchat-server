@@ -47,8 +47,8 @@ before(async () => {
         resolveWebhookMessageEditAttachments,
         shouldDecrementWebhookMessageChannel,
         uploadWebhookMessageFiles,
-    } = await import("./WebhookMessage.js"));
-    ({ isMessageEditOperation, shouldResolveMessageAuthor } = await import("./Message.js"));
+    } = require("./WebhookMessage") as typeof import("./WebhookMessage"));
+    ({ isMessageEditOperation, shouldResolveMessageAuthor } = require("./Message") as typeof import("./Message"));
 });
 
 function attachment(id: string): Attachment {
@@ -151,6 +151,13 @@ describe("WebhookMessage handlers", () => {
             content: "",
             embeds: [],
         });
+    });
+
+    it("omits untouched webhook message edit components so message processing does not reprocess preserved media", () => {
+        const normalized = normalizeWebhookMessageEditBody({ content: "edited" });
+
+        assert.deepEqual(normalized, { content: "edited" });
+        assert.equal(Object.hasOwn(normalized, "components"), false);
     });
 
     it("marks edit operations so message processing can skip create-only side effects", () => {
