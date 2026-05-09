@@ -20,12 +20,6 @@ interface ErrorResponse {
     errors: Record<string, { _errors: { code: string }[] }>;
 }
 
-interface ReportingMenuResponseBody {
-    name: string;
-    success_node_id: number;
-    nodes: Record<string, { button: { type: string } }>;
-}
-
 let server: http.Server;
 let baseUrl: string;
 
@@ -37,7 +31,7 @@ function createMessageReportBody(overrides: Record<string, unknown> = {}) {
         variant: messageMenu.variant,
         name: "message",
         language: "en-US",
-        breadcrumbs: [messageMenu.root_node_id],
+        breadcrumbs: [messageMenu.root_node_id, 98],
         channel_id: "100000000000000001",
         message_id: "100000000000000002",
         ...overrides,
@@ -106,14 +100,11 @@ after(async () => {
 });
 
 describe("report submissions", () => {
-    test("returns the reporting menu response after a valid submission", async () => {
+    test("returns no content after a valid submission", async () => {
         const response = await postJson(`${baseUrl}/reporting/message`, createMessageReportBody());
-        const body = response.body as ReportingMenuResponseBody;
 
-        assert.equal(response.statusCode, 200);
-        assert.equal(body.name, "message");
-        assert.equal(body.success_node_id, messageMenu.success_node_id);
-        assert.equal(body.nodes[String(messageMenu.success_node_id)].button.type, "done");
+        assert.equal(response.statusCode, 204);
+        assert.equal(response.body, null);
     });
 
     test("rejects submissions for a stale menu version", async () => {

@@ -10778,7 +10778,7 @@
             "method": "GET",
             "path": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 62,
+            "line": 211,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

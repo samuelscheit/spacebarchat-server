@@ -78,6 +78,7 @@
         "src/api/util/utility/GuildRegionsRoute.test.ts",
         "src/api/routes/guilds/#guild_id/widget.json.test.ts",
         "src/api/tests/reporting/reportSubmission.test.ts",
+        "src/api/tests/reporting/createReport.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/cdn/routes/banners.test.ts",
         "src/cdn/routes/role-icons.test.ts",
