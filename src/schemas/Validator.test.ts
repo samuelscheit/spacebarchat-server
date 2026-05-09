@@ -6,10 +6,15 @@ import { ajv, validateSchema } from "./Validator";
 
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
-const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<
-    string,
-    { properties?: Record<string, { format?: string }> }
->;
+type JsonShape = {
+    additionalProperties?: boolean | JsonShape;
+    format?: string;
+    items?: JsonShape;
+    properties?: Record<string, JsonShape>;
+    type?: string | string[];
+};
+
+const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
 
 const ImageDataUriFields = [
     ["ApplicationModifySchema", "icon"],
@@ -133,5 +138,31 @@ describe("schema validator custom formats", () => {
             assert.notEqual(Schemas.APIGuildWithJoinedAt.properties?.[field]?.format, "image-data-uri", `APIGuildWithJoinedAt.${field}`);
             assert.equal(Schemas.GuildUpdateSchema.properties?.[field]?.format, "image-data-uri-or-asset-hash", `GuildUpdateSchema.${field}`);
         }
+    });
+});
+
+describe("schema validator bigint fields", () => {
+    test("keeps gateway IDENTIFY bitfields on the patched bigint type", () => {
+        const identify = Schemas.IdentifySchema;
+
+        assert.equal(identify.properties?.intents?.type, "bigint");
+        assert.equal(identify.properties?.intents?.additionalProperties, undefined);
+        assert.equal(identify.properties?.intents?.properties, undefined);
+        assert.equal(identify.properties?.shard?.items?.type, "bigint");
+        assert.equal(identify.properties?.shard?.items?.additionalProperties, undefined);
+        assert.equal(identify.properties?.shard?.items?.properties, undefined);
+    });
+
+    test("coerces gateway IDENTIFY bitfields to bigint values", () => {
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: "1",
+            shard: [0, "1"],
+        };
+
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 1n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
     });
 });

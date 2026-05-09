@@ -1,35 +1,31 @@
 diff --git a/node_modules/ajv/dist/compile/jtd/parse.js b/node_modules/ajv/dist/compile/jtd/parse.js
-index 8fc94fd..abeeda9 100644
+index 8fc94fd..787bebc 100644
 --- a/node_modules/ajv/dist/compile/jtd/parse.js
 +++ b/node_modules/ajv/dist/compile/jtd/parse.js
 @@ -239,6 +239,9 @@ function parseType(cxt) {
              gen.if(fail, () => parsingError(cxt, (0, codegen_1.str) `invalid timestamp`));
              break;
          }
-+		case "bigint":
-+			parseBigInt(cxt);
-+			break
++        case "bigint":
++            parseBigInt(cxt);
++            break;
          case "float32":
          case "float64":
              parseNumber(cxt);
-@@ -284,6 +287,15 @@ function parseNumber(cxt, maxDigits) {
+@@ -284,6 +287,11 @@ function parseNumber(cxt, maxDigits) {
      skipWhitespace(cxt);
      gen.if((0, codegen_1._) `"-0123456789".indexOf(${jsonSlice(1)}) < 0`, () => jsonSyntaxError(cxt), () => parseWith(cxt, parseJson_1.parseJsonNumber, maxDigits));
  }
 +function parseBigInt(cxt, maxDigits) {
-+  const {gen} = cxt
-+  skipWhitespace(cxt)
-+  gen.if(
-+    _`"-0123456789".indexOf(${jsonSlice(1)}) < 0`,
-+    () => jsonSyntaxError(cxt),
-+    () => parseWith(cxt, parseJson_1.parseJsonBigInt, maxDigits)
-+  )
++    const { gen } = cxt;
++    skipWhitespace(cxt);
++    gen.if((0, codegen_1._) `"-0123456789".indexOf(${jsonSlice(1)}) < 0`, () => jsonSyntaxError(cxt), () => parseWith(cxt, parseJson_1.parseJsonBigInt, maxDigits));
 +}
  function parseBooleanToken(bool, fail) {
      return (cxt) => {
          const { gen, data } = cxt;
 diff --git a/node_modules/ajv/dist/compile/rules.js b/node_modules/ajv/dist/compile/rules.js
-index 82a591f..1ebd8fe 100644
+index 82a591f..5ed3a58 100644
 --- a/node_modules/ajv/dist/compile/rules.js
 +++ b/node_modules/ajv/dist/compile/rules.js
 @@ -1,7 +1,7 @@
@@ -37,7 +33,7 @@ index 82a591f..1ebd8fe 100644
  Object.defineProperty(exports, "__esModule", { value: true });
  exports.getRules = exports.isJSONType = void 0;
 -const _jsonTypes = ["string", "number", "integer", "boolean", "null", "object", "array"];
-+const _jsonTypes = ["string", "number", "integer", "boolean", "null", "object", "array","bigint"];
++const _jsonTypes = ["string", "number", "integer", "boolean", "null", "object", "array", "bigint"];
  const jsonTypes = new Set(_jsonTypes);
  function isJSONType(x) {
      return typeof x == "string" && jsonTypes.has(x);
@@ -45,7 +41,7 @@ index 82a591f..1ebd8fe 100644
          string: { type: "string", rules: [] },
          array: { type: "array", rules: [] },
          object: { type: "object", rules: [] },
-+		bigint: {type: "bigint", rules: []}
++        bigint: { type: "bigint", rules: [] },
      };
      return {
 -        types: { ...groups, integer: true, boolean: true, null: true },
@@ -56,7 +52,7 @@ index 82a591f..1ebd8fe 100644
          all: {},
          keywords: {},
 diff --git a/node_modules/ajv/dist/compile/validate/dataType.js b/node_modules/ajv/dist/compile/validate/dataType.js
-index 6d03e0d..f19021f 100644
+index 6d03e0d..33b43d3 100644
 --- a/node_modules/ajv/dist/compile/validate/dataType.js
 +++ b/node_modules/ajv/dist/compile/validate/dataType.js
 @@ -53,7 +53,7 @@ function coerceAndCheckDataType(it, types) {
@@ -64,38 +60,36 @@ index 6d03e0d..f19021f 100644
  }
  exports.coerceAndCheckDataType = coerceAndCheckDataType;
 -const COERCIBLE = new Set(["string", "number", "integer", "boolean", "null"]);
-+const COERCIBLE = new Set(["string", "number", "integer", "boolean", "null","bigint"]);
++const COERCIBLE = new Set(["string", "number", "integer", "boolean", "null", "bigint"]);
  function coerceToTypes(types, coerceTypes) {
      return coerceTypes
          ? types.filter((t) => COERCIBLE.has(t) || (coerceTypes === "array" && t === "array"))
-@@ -84,6 +84,15 @@ function coerceData(it, types, coerceTo) {
+@@ -84,6 +84,13 @@ function coerceData(it, types, coerceTo) {
      });
      function coerceSpecificType(t) {
          switch (t) {
-+			case "bigint":
-+				gen
-+				.elseIf(
-+					codegen_1._`${dataType} == "boolean" || ${data} === null
-+					|| (${dataType} == "number" && Number.isInteger(${data}))
-+					|| (${dataType} == "string" && ${data} && ${data} == BigInt(${data}))`
-+				)
-+				.assign(coerced, codegen_1._`BigInt(${data})`)
-+				return
++            case "bigint":
++                gen
++                    .elseIf(codegen_1._ `${dataType} == "boolean" || ${data} === null
++              || (${dataType} == "number" && Number.isInteger(${data}))
++              || (${dataType} == "string" && ${data} && ${data} == BigInt(${data}))`)
++                    .assign(coerced, codegen_1._ `BigInt(${data})`);
++                return;
              case "string":
                  gen
                      .elseIf((0, codegen_1._) `${dataType} == "number" || ${dataType} == "boolean"`)
-@@ -144,6 +153,9 @@ function checkDataType(dataType, data, strictNums, correct = DataType.Correct) {
+@@ -144,6 +151,9 @@ function checkDataType(dataType, data, strictNums, correct = DataType.Correct) {
          case "number":
              cond = numCond();
              break;
-+		 case "bigint":
-+			cond = codegen_1._`typeof ${data} == "bigint"`
-+			break
++        case "bigint":
++            cond = codegen_1._ `typeof ${data} == "bigint"`;
++            break;
          default:
              return (0, codegen_1._) `typeof ${data} ${EQ} ${dataType}`;
      }
 diff --git a/node_modules/ajv/dist/refs/json-schema-2019-09/meta/validation.json b/node_modules/ajv/dist/refs/json-schema-2019-09/meta/validation.json
-index 7027a12..25679c8 100644
+index 7027a12..c5b0fe1 100644
 --- a/node_modules/ajv/dist/refs/json-schema-2019-09/meta/validation.json
 +++ b/node_modules/ajv/dist/refs/json-schema-2019-09/meta/validation.json
 @@ -78,7 +78,7 @@
@@ -103,12 +97,12 @@ index 7027a12..25679c8 100644
      },
      "simpleTypes": {
 -      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
-+      "enum": ["array", "boolean", "integer", "null", "number", "object", "string","bigint"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
      },
      "stringArray": {
        "type": "array",
 diff --git a/node_modules/ajv/dist/refs/json-schema-2020-12/meta/validation.json b/node_modules/ajv/dist/refs/json-schema-2020-12/meta/validation.json
-index e0ae13d..57c9036 100644
+index e0ae13d..dc4b8fe 100644
 --- a/node_modules/ajv/dist/refs/json-schema-2020-12/meta/validation.json
 +++ b/node_modules/ajv/dist/refs/json-schema-2020-12/meta/validation.json
 @@ -78,7 +78,7 @@
@@ -116,12 +110,12 @@ index e0ae13d..57c9036 100644
      },
      "simpleTypes": {
 -      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
-+      "enum": ["array", "boolean", "integer", "null", "number", "object", "string","bigint"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
      },
      "stringArray": {
        "type": "array",
 diff --git a/node_modules/ajv/dist/refs/json-schema-draft-06.json b/node_modules/ajv/dist/refs/json-schema-draft-06.json
-index 5410064..774435b 100644
+index 5410064..69e79d2 100644
 --- a/node_modules/ajv/dist/refs/json-schema-draft-06.json
 +++ b/node_modules/ajv/dist/refs/json-schema-draft-06.json
 @@ -16,7 +16,7 @@
@@ -129,12 +123,12 @@ index 5410064..774435b 100644
      },
      "simpleTypes": {
 -      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
-+      "enum": ["array", "boolean", "integer", "null", "number", "object", "string","bigint"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
      },
      "stringArray": {
        "type": "array",
 diff --git a/node_modules/ajv/dist/refs/json-schema-draft-07.json b/node_modules/ajv/dist/refs/json-schema-draft-07.json
-index 6a74851..fc6dd7d 100644
+index 6a74851..ff177a8 100644
 --- a/node_modules/ajv/dist/refs/json-schema-draft-07.json
 +++ b/node_modules/ajv/dist/refs/json-schema-draft-07.json
 @@ -16,7 +16,7 @@
@@ -142,7 +136,7 @@ index 6a74851..fc6dd7d 100644
      },
      "simpleTypes": {
 -      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
-+      "enum": ["array", "boolean", "integer", "null", "number", "object", "string","bigint"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
      },
      "stringArray": {
        "type": "array",
@@ -159,10 +153,18 @@ index 1ee940a..1148887 100644
          },
      },
 diff --git a/node_modules/ajv/dist/runtime/parseJson.js b/node_modules/ajv/dist/runtime/parseJson.js
-index eaa2838..02ad708 100644
+index eaa2838..7567631 100644
 --- a/node_modules/ajv/dist/runtime/parseJson.js
 +++ b/node_modules/ajv/dist/runtime/parseJson.js
-@@ -97,6 +97,71 @@ exports.parseJsonNumber = parseJsonNumber;
+@@ -1,6 +1,6 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.parseJsonString = exports.parseJsonNumber = exports.parseJson = void 0;
++exports.parseJsonString = exports.parseJsonBigInt = exports.parseJsonNumber = exports.parseJson = void 0;
+ const rxParseJson = /position\s(\d+)(?: \(line \d+ column \d+\))?$/;
+ function parseJson(s, pos) {
+     let endPos;
+@@ -97,6 +97,69 @@ exports.parseJsonNumber = parseJsonNumber;
  parseJsonNumber.message = undefined;
  parseJsonNumber.position = 0;
  parseJsonNumber.code = 'require("ajv/dist/runtime/parseJson").parseJsonNumber';
@@ -229,22 +231,143 @@ index eaa2838..02ad708 100644
 +parseJsonBigInt.message = undefined;
 +parseJsonBigInt.position = 0;
 +parseJsonBigInt.code = 'require("ajv/dist/runtime/parseJson").parseJsonBigInt';
-+
-+
  const escapedChars = {
      b: "\b",
      f: "\f",
 diff --git a/node_modules/ajv/dist/vocabularies/jtd/type.js b/node_modules/ajv/dist/vocabularies/jtd/type.js
-index 17a0b51..bc54aad 100644
+index 17a0b51..df72555 100644
 --- a/node_modules/ajv/dist/vocabularies/jtd/type.js
 +++ b/node_modules/ajv/dist/vocabularies/jtd/type.js
 @@ -45,6 +45,9 @@ const def = {
                  cond = timestampCode(cxt);
                  break;
              }
-+			case "bigint":
-+				cond = codegen_1._`typeof ${data} == "bigint" || typeof ${data} == "string"`
-+				break
++            case "bigint":
++                cond = codegen_1._ `typeof ${data} == "bigint" || typeof ${data} == "string"`;
++                break;
              case "float32":
              case "float64":
                  cond = (0, codegen_1._) `typeof ${data} == "number"`;
+diff --git a/node_modules/ajv/lib/compile/rules.ts b/node_modules/ajv/lib/compile/rules.ts
+index 7dbf7ab..55ca70e 100644
+--- a/node_modules/ajv/lib/compile/rules.ts
++++ b/node_modules/ajv/lib/compile/rules.ts
+@@ -1,6 +1,6 @@
+ import type {AddedKeywordDefinition} from "../types"
+
+-const _jsonTypes = ["string", "number", "integer", "boolean", "null", "object", "array"] as const
++const _jsonTypes = ["string", "number", "integer", "boolean", "null", "object", "array", "bigint"] as const
+
+ export type JSONType = (typeof _jsonTypes)[number]
+
+@@ -34,15 +34,16 @@ export interface Rule {
+ }
+
+ export function getRules(): ValidationRules {
+-  const groups: Record<"number" | "string" | "array" | "object", RuleGroup> = {
++  const groups: Record<"number" | "string" | "array" | "object" | "bigint", RuleGroup> = {
+     number: {type: "number", rules: []},
+     string: {type: "string", rules: []},
+     array: {type: "array", rules: []},
+     object: {type: "object", rules: []},
++    bigint: {type: "bigint", rules: []},
+   }
+   return {
+-    types: {...groups, integer: true, boolean: true, null: true},
+-    rules: [{rules: []}, groups.number, groups.string, groups.array, groups.object],
++    types: {...groups, integer: true, boolean: true, null: true, bigint: true},
++    rules: [{rules: []}, groups.number, groups.string, groups.array, groups.object, groups.bigint],
+     post: {rules: []},
+     all: {},
+     keywords: {},
+diff --git a/node_modules/ajv/lib/compile/validate/dataType.ts b/node_modules/ajv/lib/compile/validate/dataType.ts
+index d8142b3..309c33b 100644
+--- a/node_modules/ajv/lib/compile/validate/dataType.ts
++++ b/node_modules/ajv/lib/compile/validate/dataType.ts
+@@ -53,7 +53,7 @@ export function coerceAndCheckDataType(it: SchemaObjCxt, types: JSONType[]): boo
+   return checkTypes
+ }
+
+-const COERCIBLE: Set<JSONType> = new Set(["string", "number", "integer", "boolean", "null"])
++const COERCIBLE: Set<JSONType> = new Set(["string", "number", "integer", "boolean", "null", "bigint"])
+ function coerceToTypes(types: JSONType[], coerceTypes?: boolean | "array"): JSONType[] {
+   return coerceTypes
+     ? types.filter((t) => COERCIBLE.has(t) || (coerceTypes === "array" && t === "array"))
+@@ -89,6 +89,15 @@ function coerceData(it: SchemaObjCxt, types: JSONType[], coerceTo: JSONType[]):
+
+   function coerceSpecificType(t: string): void {
+     switch (t) {
++      case "bigint":
++        gen
++          .elseIf(
++            _`${dataType} == "boolean" || ${data} === null
++              || (${dataType} == "number" && Number.isInteger(${data}))
++              || (${dataType} == "string" && ${data} && ${data} == BigInt(${data}))`
++          )
++          .assign(coerced, _`BigInt(${data})`)
++        return
+       case "string":
+         gen
+           .elseIf(_`${dataType} == "number" || ${dataType} == "boolean"`)
+@@ -165,6 +174,9 @@ export function checkDataType(
+     case "number":
+       cond = numCond()
+       break
++    case "bigint":
++      cond = _`typeof ${data} == "bigint"`
++      break
+     default:
+       return _`typeof ${data} ${EQ} ${dataType}`
+   }
+diff --git a/node_modules/ajv/lib/refs/json-schema-2019-09/meta/validation.json b/node_modules/ajv/lib/refs/json-schema-2019-09/meta/validation.json
+index 7027a12..c5b0fe1 100644
+--- a/node_modules/ajv/lib/refs/json-schema-2019-09/meta/validation.json
++++ b/node_modules/ajv/lib/refs/json-schema-2019-09/meta/validation.json
+@@ -78,7 +78,7 @@
+       "default": 0
+     },
+     "simpleTypes": {
+-      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
+     },
+     "stringArray": {
+       "type": "array",
+diff --git a/node_modules/ajv/lib/refs/json-schema-2020-12/meta/validation.json b/node_modules/ajv/lib/refs/json-schema-2020-12/meta/validation.json
+index e0ae13d..dc4b8fe 100644
+--- a/node_modules/ajv/lib/refs/json-schema-2020-12/meta/validation.json
++++ b/node_modules/ajv/lib/refs/json-schema-2020-12/meta/validation.json
+@@ -78,7 +78,7 @@
+       "default": 0
+     },
+     "simpleTypes": {
+-      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
+     },
+     "stringArray": {
+       "type": "array",
+diff --git a/node_modules/ajv/lib/refs/json-schema-draft-06.json b/node_modules/ajv/lib/refs/json-schema-draft-06.json
+index 5410064..69e79d2 100644
+--- a/node_modules/ajv/lib/refs/json-schema-draft-06.json
++++ b/node_modules/ajv/lib/refs/json-schema-draft-06.json
+@@ -16,7 +16,7 @@
+       "allOf": [{"$ref": "#/definitions/nonNegativeInteger"}, {"default": 0}]
+     },
+     "simpleTypes": {
+-      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
+     },
+     "stringArray": {
+       "type": "array",
+diff --git a/node_modules/ajv/lib/refs/json-schema-draft-07.json b/node_modules/ajv/lib/refs/json-schema-draft-07.json
+index 6a74851..ff177a8 100644
+--- a/node_modules/ajv/lib/refs/json-schema-draft-07.json
++++ b/node_modules/ajv/lib/refs/json-schema-draft-07.json
+@@ -16,7 +16,7 @@
+       "allOf": [{"$ref": "#/definitions/nonNegativeInteger"}, {"default": 0}]
+     },
+     "simpleTypes": {
+-      "enum": ["array", "boolean", "integer", "null", "number", "object", "string"]
++      "enum": ["array", "boolean", "integer", "null", "number", "object", "string", "bigint"]
+     },
+     "stringArray": {
+       "type": "array",

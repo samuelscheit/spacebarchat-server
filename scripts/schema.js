@@ -304,6 +304,7 @@ async function main() {
     }
 
     deleteOneOfKindUndefinedRecursive(definitions, "$");
+    normalizeGeneratedBigintSchemas(definitions);
     for (const defKey in definitions) {
         filterSchema(definitions[defKey]);
     }
@@ -372,6 +373,32 @@ function aliasPublicMessageSchema(definitions) {
     // Several legacy response schemas still pull in the TypeORM Message entity as a
     // nested definition; keep the public API contract tied to PublicMessage instead.
     definitions.Message = structuredClone(definitions.PublicMessage);
+}
+
+function normalizeGeneratedBigintSchemas(schema) {
+    if (!schema || typeof schema !== "object") return;
+
+    if (isTypescriptJsonSchemaBigintShape(schema)) {
+        schema.type = "bigint";
+        delete schema.properties;
+        delete schema.additionalProperties;
+    }
+
+    for (const value of Object.values(schema)) {
+        if (value && typeof value === "object") normalizeGeneratedBigintSchemas(value);
+    }
+}
+
+function isTypescriptJsonSchemaBigintShape(schema) {
+    return (
+        schema.type === "number" &&
+        schema.additionalProperties === false &&
+        schema.properties &&
+        Object.keys(schema.properties).length === 0 &&
+        !schema.items &&
+        !schema.enum &&
+        !schema.const
+    );
 }
 
 function deepEqual(a, b) {
