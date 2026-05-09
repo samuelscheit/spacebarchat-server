@@ -66,7 +66,12 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
         channel: { id: "100" },
         guild: { id: "400" },
         webhook: { id: "600" },
-        application: { id: "700" },
+        application: {
+            id: "700",
+            name: "Rich Presence App",
+            description: "Public app description",
+            verify_key: "private-verify-key",
+        },
         sticker_items: [{ id: "800" }],
         interaction: { id: "900", type: 2, name: "command" },
         interaction_metadata: { id: "901", type: 2, user_id: "300", authorizing_integration_owners: {}, name: "command", command_type: 1 },
@@ -91,13 +96,17 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
         "channel",
         "guild",
         "webhook",
-        "application",
         "sticker_items",
         "interaction",
         "interaction_metadata",
     ]) {
         assert.equal(Object.hasOwn(dto, field), false, `${field} should not be exposed`);
     }
+    assert.deepEqual(dto.application, {
+        id: "700",
+        name: "Rich Presence App",
+        description: "Public app description",
+    });
 
     const serializedDto = jsonRoundTrip(dto);
     assert.equal(ajv.validate("PreloadMessagesResponse", [serializedDto]), true, ajv.errorsText());
