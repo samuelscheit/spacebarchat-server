@@ -5,6 +5,9 @@ import { describe, test } from "node:test";
 
 type JsonSchema = {
     $ref?: string;
+    anyOf?: JsonSchema[];
+    enum?: unknown[];
+    format?: string;
     type?: string;
     items?: JsonSchema;
     properties?: Record<string, JsonSchema>;
@@ -117,6 +120,28 @@ describe("TypedResponses migration", () => {
         assert.equal(schemas.APIChannel.properties?.permission_overwrites?.items?.$ref, "#/definitions/ChannelPermissionOverwrite");
         assert.equal(schemas.APIRole.properties?.colors?.$ref, "#/definitions/RoleColors");
         assert.equal(schemas.APITemplate.properties?.serialized_source_guild?.$ref, "#/definitions/APITemplateGuild");
+    });
+
+    test("schema-owned DTOs preserve runtime field shapes", () => {
+        const schemas = readJsonAsset<SchemaMap>("schemas.json");
+        const applicationType = schemas.APIApplication.properties?.type;
+        const applicationTypeOptions = applicationType?.anyOf ?? [];
+
+        assert.deepEqual(applicationTypeOptions.find((option) => option.enum)?.enum, [1, 2, 3, 4]);
+        assert.equal(applicationTypeOptions.find((option) => option.type === "null")?.type, "null");
+        assert.notEqual(applicationType?.type, "object", "APIApplication.type must not accept arbitrary objects");
+
+        const inviteProperties = schemas.APIInvite.properties ?? {};
+        assert.equal(inviteProperties.target_user_type?.type, "integer");
+        assert.equal(inviteProperties.target_type, undefined);
+        assert.equal(inviteProperties.stage_instance, undefined);
+        assert.equal(inviteProperties.guild_scheduled_event, undefined);
+
+        assert.equal(inviteProperties.created_at?.format, "date-time");
+        assert.equal(inviteProperties.expires_at?.anyOf?.find((option) => option.format === "date-time")?.format, "date-time");
+        assert.equal(schemas.APIChannel.properties?.created_at?.format, "date-time");
+        assert.equal(schemas.APITemplate.properties?.created_at?.format, "date-time");
+        assert.equal(schemas.APITemplate.properties?.updated_at?.format, "date-time");
     });
 
     test("domain modules that own legacy schema names do not import persistence entities", () => {

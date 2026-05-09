@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { ApplicationInstallParams, PublicUser, Snowflake } from "@spacebar/schemas";
+import type { ApplicationInstallParams, ApplicationType, PublicUser, Snowflake } from "@spacebar/schemas";
 
 export interface OAuthAuthorizeResponse {
     location: string;
@@ -28,7 +28,7 @@ export interface APIApplication {
     icon?: string | null;
     description: string;
     summary?: string;
-    type?: object;
+    type?: ApplicationType | null;
     hook?: boolean;
     bot_public?: boolean;
     bot_require_code_grant?: boolean;

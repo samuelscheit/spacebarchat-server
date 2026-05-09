@@ -48,13 +48,11 @@ export interface APIInvite {
     channel?: APIInviteChannel | null;
     inviter?: PublicUser | null;
     target_user?: PublicUser | null;
-    target_type?: number;
+    target_user_type?: number;
     approximate_presence_count?: number;
     approximate_member_count?: number;
-    expires_at?: string | null;
-    stage_instance?: unknown;
-    guild_scheduled_event?: unknown;
-    created_at?: string;
+    expires_at?: Date | null;
+    created_at?: Date;
     max_age?: number;
     uses?: number;
     max_uses?: number;

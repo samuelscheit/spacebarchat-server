@@ -58,7 +58,7 @@ export interface APIThreadMember {
 
 export interface APIChannel {
     id: Snowflake;
-    created_at?: string;
+    created_at?: Date;
     name?: string | null;
     icon?: string | null;
     type: ChannelType;
@@ -128,8 +128,8 @@ export interface APITemplate {
     usage_count?: number;
     creator_id: Snowflake;
     creator?: PublicUser;
-    created_at: string;
-    updated_at: string;
+    created_at: Date;
+    updated_at: Date;
     source_guild_id: Snowflake;
     serialized_source_guild: APITemplateGuild;
     id: Snowflake;
