@@ -4,6 +4,7 @@
         "test/**/*.ts",
         "src/admin/config.test.ts",
         "src/admin/dto.test.ts",
+        "src/api/routes/discovery.test.ts",
         "src/api/routes/guild-recommendations.test.ts",
         "src/api/util/handlers/VoiceStateModify.test.ts",
         "src/api/ServerConfigure.test.ts",
