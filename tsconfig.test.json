@@ -89,6 +89,7 @@
         "src/schemas/Validator.test.ts",
         "src/schemas/api/bots/InteractionCreateSchema.test.ts",
         "src/schemas/api/bots/SendableModalSubmitDataSchema.test.ts",
+        "src/schemas/api/guilds/VoiceState.test.ts",
         "src/schemas/api/messages/PublicMessageContract.test.ts",
         "src/schemas/gateway/IdentifySchema.test.ts",
         "src/schemas/responses/UserProfileResponse.test.ts",
