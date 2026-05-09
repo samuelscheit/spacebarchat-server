@@ -399,13 +399,13 @@ export function getGuildCreatePermission(userId: string, guild: GuildCreatePermi
         user: {
             id: userId,
             roles: roleIds,
+            resolved_roles: roles,
             communication_disabled_until: member?.communication_disabled_until ? new Date(member.communication_disabled_until) : null,
             flags: userFlags,
         },
         guild: {
             id: guild.id,
             owner_id: guild.owner_id ?? "",
-            roles,
         },
     });
 
