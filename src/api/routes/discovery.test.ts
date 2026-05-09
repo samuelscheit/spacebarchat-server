@@ -56,7 +56,7 @@ describe("discovery categories", () => {
 
         const result = await getDiscoveryCategories({ primary_only: "true", locale: "de" });
 
-        assert.deepEqual(find.mock.calls[0].arguments, [{ where: { is_primary: true } }]);
+        assert.deepEqual(find.mock.calls[0].arguments, [{ order: { id: "ASC" }, where: { is_primary: true } }]);
         assert.equal(result[0].name, "Spiele");
     });
 
@@ -66,7 +66,7 @@ describe("discovery categories", () => {
 
         const result = await getDiscoveryCategories({ primary_only: "false", locale: "de" });
 
-        assert.deepEqual(find.mock.calls[0].arguments, []);
+        assert.deepEqual(find.mock.calls[0].arguments, [{ order: { id: "ASC" } }]);
         assert.strictEqual(result[0], categories[0]);
     });
 
@@ -76,7 +76,7 @@ describe("discovery categories", () => {
 
         const result = await getDiscoveryCategories({ locale: "de" });
 
-        assert.deepEqual(find.mock.calls[0].arguments, []);
+        assert.deepEqual(find.mock.calls[0].arguments, [{ order: { id: "ASC" } }]);
         assert.strictEqual(result[0], categories[0]);
     });
 });

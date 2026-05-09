@@ -28,8 +28,8 @@ import {
     PublicChannel,
     PublicUser,
     Snowflake,
-    StickerResponse,
 } from "@spacebar/schemas";
+import type { StickerFormatType, StickerResponse } from "../guilds/Sticker";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
 import type { ResolvedData } from "./ResolvedData";
@@ -159,6 +159,12 @@ export interface AllowedMentions {
     replied_user?: boolean;
 }
 
+export interface MessageStickerItem {
+    id: Snowflake;
+    name: string;
+    format_type: StickerFormatType;
+}
+
 export interface MessageSnapshot {
     message: {
         content: string;
@@ -172,7 +178,7 @@ export interface MessageSnapshot {
         flags: number;
         components?: MessageComponent[];
         resolved?: object[];
-        sticker_items?: StickerResponse[];
+        sticker_items?: MessageStickerItem[];
         // soundboard_sounds?: object[]; // TODO: when soundboard is done
     };
 }
@@ -234,7 +240,7 @@ export interface PublicMessage {
     // purchase_notification?: MessagePurchaseNotification;
     // gift_info?: MessageGiftInfo;
     components: MessageComponent[];
-    sticker_items?: StickerResponse[];
+    sticker_items?: MessageStickerItem[];
     stickers?: StickerResponse[];
     poll?: Poll;
     changelog_id?: Snowflake;

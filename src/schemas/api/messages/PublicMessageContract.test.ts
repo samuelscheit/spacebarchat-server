@@ -51,11 +51,31 @@ function assertStickerResponseArray(schema: SchemaObject, resolveSchema: (schema
     assert.equal(sticker.properties?.user_id, undefined);
 }
 
-function assertMessageStickerFields(schema: SchemaObject, resolveSchema: (schema: SchemaObject) => SchemaObject, expectedRef: string) {
+function assertMessageStickerItemArray(schema: SchemaObject, resolveSchema: (schema: SchemaObject) => SchemaObject, expectedRef: string) {
+    const stickerItems = resolveSchema(schema);
+    const stickerItem = resolveSchema(stickerItems.items!);
+
+    assert.equal(stickerItems.type, "array");
+    assert.equal(stickerItems.items?.$ref, expectedRef);
+    assert.deepEqual(Object.keys(stickerItem.properties ?? {}).sort(), ["format_type", "id", "name"]);
+    assert.equal(stickerItem.properties?.id?.type, "string");
+    assert.equal(stickerItem.properties?.name?.type, "string");
+    assert.equal(stickerItem.properties?.guild_id, undefined);
+    assert.equal(stickerItem.properties?.tags, undefined);
+    assert.equal(stickerItem.properties?.description, undefined);
+    assert.equal(stickerItem.properties?.user_id, undefined);
+}
+
+function assertMessageStickerFields(
+    schema: SchemaObject,
+    resolveSchema: (schema: SchemaObject) => SchemaObject,
+    expectedStickerItemRef: string,
+    expectedStickerResponseRef: string,
+) {
     const message = resolveSchema(schema);
 
-    assertStickerResponseArray(message.properties!.sticker_items!, resolveSchema, expectedRef);
-    assertStickerResponseArray(message.properties!.stickers!, resolveSchema, expectedRef);
+    assertMessageStickerItemArray(message.properties!.sticker_items!, resolveSchema, expectedStickerItemRef);
+    assertStickerResponseArray(message.properties!.stickers!, resolveSchema, expectedStickerResponseRef);
 }
 
 function expectResolvedMapRefs(resolved: SchemaObject, expectedRefs: Record<string, string>) {
@@ -203,15 +223,25 @@ describe("public message generated contract", () => {
         assertJsonValueSchema(contentScanMetadata, "#/components/schemas/JsonObject", "#/components/schemas/JsonValue");
     });
 
-    test("message sticker fields use the public sticker response contract", () => {
+    test("message sticker fields use public sticker contracts", () => {
         const schemas = readJson("assets/schemas.json");
         const snapshot = resolveAssetSchema(schemas, schemas.MessageSnapshot);
         const snapshotMessage = resolveAssetSchema(schemas, snapshot.properties!.message!);
 
-        assertMessageStickerFields(schemas.PublicMessage, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
-        assertMessageStickerFields(schemas.PreloadMessageResponse, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
-        assertMessageStickerFields(schemas.GuildMessagesSearchMessage, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
-        assertStickerResponseArray(snapshotMessage.properties!.sticker_items!, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
+        assertMessageStickerFields(schemas.PublicMessage, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/MessageStickerItem", "#/definitions/StickerResponse");
+        assertMessageStickerFields(
+            schemas.PreloadMessageResponse,
+            (schema) => resolveAssetSchema(schemas, schema),
+            "#/definitions/MessageStickerItem",
+            "#/definitions/StickerResponse",
+        );
+        assertMessageStickerFields(
+            schemas.GuildMessagesSearchMessage,
+            (schema) => resolveAssetSchema(schemas, schema),
+            "#/definitions/MessageStickerItem",
+            "#/definitions/StickerResponse",
+        );
+        assertMessageStickerItemArray(snapshotMessage.properties!.sticker_items!, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/MessageStickerItem");
 
         const messageSchemaRefs = ["PublicMessage", "APIPublicMessage", "PreloadMessageResponse", "GuildMessagesSearchMessage", "MessageSnapshot"].flatMap((name) =>
             collectRefs(resolveAssetSchema(schemas, schemas[name])),
@@ -222,15 +252,30 @@ describe("public message generated contract", () => {
         );
     });
 
-    test("OpenAPI message sticker fields use the public sticker response contract", () => {
+    test("OpenAPI message sticker fields use public sticker contracts", () => {
         const openapi = readJson("assets/openapi.json");
         const snapshot = resolveOpenApi(openapi, openapi.components.schemas.MessageSnapshot);
         const snapshotMessage = resolveOpenApi(openapi, snapshot.properties!.message!);
 
-        assertMessageStickerFields(openapi.components.schemas.APIPublicMessage, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
-        assertMessageStickerFields(openapi.components.schemas.PreloadMessageResponse, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
-        assertMessageStickerFields(openapi.components.schemas.GuildMessagesSearchMessage, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
-        assertStickerResponseArray(snapshotMessage.properties!.sticker_items!, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
+        assertMessageStickerFields(
+            openapi.components.schemas.APIPublicMessage,
+            (schema) => resolveOpenApi(openapi, schema),
+            "#/components/schemas/MessageStickerItem",
+            "#/components/schemas/StickerResponse",
+        );
+        assertMessageStickerFields(
+            openapi.components.schemas.PreloadMessageResponse,
+            (schema) => resolveOpenApi(openapi, schema),
+            "#/components/schemas/MessageStickerItem",
+            "#/components/schemas/StickerResponse",
+        );
+        assertMessageStickerFields(
+            openapi.components.schemas.GuildMessagesSearchMessage,
+            (schema) => resolveOpenApi(openapi, schema),
+            "#/components/schemas/MessageStickerItem",
+            "#/components/schemas/StickerResponse",
+        );
+        assertMessageStickerItemArray(snapshotMessage.properties!.sticker_items!, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/MessageStickerItem");
 
         const messageSchemaRefs = ["PublicMessage", "APIPublicMessage", "PreloadMessageResponse", "GuildMessagesSearchMessage", "MessageSnapshot"].flatMap((name) =>
             collectRefs(resolveOpenApi(openapi, openapi.components.schemas[name])),
