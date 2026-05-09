@@ -34,20 +34,8 @@ export interface SettingsProtoUpdateJsonResponse extends SettingsProtoJsonRespon
     out_of_date?: boolean;
 }
 
-// TODO: these dont work with schemas validation
-// Typed JSON schemas:
-// export interface SettingsProtoUpdatePreloadedUserSettingsJsonResponse {
-// 	settings: PreloadedUserSettings;
-// 	out_of_date?: boolean;
-// }
-//
-// export interface SettingsProtoUpdateFrecencyUserSettingsJsonResponse {
-// 	settings: FrecencyUserSettings;
-// 	out_of_date?: boolean;
-// }
-
-// TODO: what is this?
-// export interface SettingsProtoUpdateTestSettingsJsonResponse {
-// 	settings: {};
-// 	out_of_date?: boolean;
-// }
+// Keep JSON settings responses intentionally generic. The route handlers emit
+// protobuf-ts JSON via PreloadedUserSettings.toJson/FrecencyUserSettings.toJson;
+// TypeScript declaration-derived schemas for those protobuf types mark scalar
+// fields as required and integer-only, which rejects valid protobuf JSON output
+// where default scalar values are omitted or floating-point fields are present.

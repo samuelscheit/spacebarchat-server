@@ -20,3 +20,11 @@ export interface BackupCodesChallengeResponse {
     nonce: string;
     regenerate_nonce: string;
 }
+
+export interface APIBackupCode {
+    id: string;
+    code: string;
+    consumed: boolean;
+}
+
+export type APIBackupCodeArray = APIBackupCode[];

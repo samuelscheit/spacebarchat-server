@@ -1,6 +1,6 @@
 import { before, describe, test } from "node:test";
 import assert from "node:assert/strict";
-import type { PublicMember } from "@spacebar/schemas";
+import { PublicMemberProjection, type PublicMember } from "@spacebar/schemas";
 import type { NewUrlUserSignatureData as NewUrlUserSignatureDataType } from "../Signing";
 import type { Member as MemberType } from "./Member";
 import type { Message as MessageType } from "./Message";
@@ -12,6 +12,13 @@ let Message: typeof import("./Message").Message;
 let NewUrlUserSignatureData: typeof import("../Signing").NewUrlUserSignatureData;
 let signatureData: NewUrlUserSignatureDataType;
 
+type PublicMemberProjectionKey = (typeof PublicMemberProjection)[number];
+type PublicMemberProjectedField = Exclude<keyof PublicMember, "user">;
+type MissingPublicMemberProjectionKeys = Exclude<PublicMemberProjectedField, PublicMemberProjectionKey>;
+type ExtraPublicMemberProjectionKeys = Exclude<PublicMemberProjectionKey, PublicMemberProjectedField>;
+
+const _publicMemberProjectionCoversSchema: [MissingPublicMemberProjectionKeys, ExtraPublicMemberProjectionKeys] extends [never, never] ? true : never = true;
+
 before(async () => {
     process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar-tests";
     ({ Member } = await import("./Member.js"));
@@ -20,7 +27,7 @@ before(async () => {
     signatureData = new NewUrlUserSignatureData({ ip: "127.0.0.1", userAgent: "node:test" });
 });
 
-function createMemberWithRoles(roles: (string | { id: string })[]) {
+function createMemberWithRoles(roles: (string | ({ id: string } & Partial<Role>))[]) {
     const member = new Member();
     member.id = "user-a";
     member.guild_id = "guild-a";
@@ -87,6 +94,40 @@ describe("message member serialization", () => {
         assert.deepEqual(member.toPublicMember().roles, ["role-a", "role-b"]);
     });
 
+    test("memberToVoiceStateMember only exposes voice state member and user projections", async () => {
+        const { memberToVoiceStateMember } = await import("./MemberPublic.js");
+        const member = createMemberWithRoles([
+            { id: "role-a", hoist: false, position: 30 },
+            { id: "role-b", hoist: true, position: 20 },
+            { id: "role-c", hoist: true, position: 10 },
+        ]);
+        member.nick = "extra member field";
+        member.bio = "extra profile field";
+        member.banner = "banner-hash";
+        member.pending = true;
+        member.user = {
+            ...createAuthor(),
+            public_flags: 64,
+            bot: true,
+            banner: "banner-hash",
+            accent_color: 123,
+            bio: "extra profile field",
+        } as unknown as User;
+
+        const voiceStateMember = memberToVoiceStateMember(member);
+
+        assert.deepEqual(Object.keys(voiceStateMember).sort(), ["deaf", "hoisted_role", "joined_at", "mute", "roles", "user"]);
+        assert.deepEqual(Object.keys(voiceStateMember.user ?? {}).sort(), ["avatar", "discriminator", "id", "username"]);
+        assert.deepEqual(voiceStateMember.user, {
+            avatar: null,
+            discriminator: "0001",
+            id: "user-a",
+            username: "alice",
+        });
+        assert.equal(voiceStateMember.hoisted_role, "role-b");
+        assert.deepEqual(voiceStateMember.roles, ["role-a", "role-b", "role-c"]);
+    });
+
     test("Message.toJSON returns a public member instead of the raw member entity", () => {
         const member = createMemberWithRoles([{ id: "role-a" }, { id: "role-b" }]);
         const message = createMessageWithMember(member);
@@ -116,6 +157,94 @@ describe("message member serialization", () => {
         assert.equal(json.referenced_message?.author.username, "bob");
     });
 
+    test("Message.toPartialMessage returns only the documented partial message fields", () => {
+        const member = createMemberWithRoles([]);
+        const message = createMessageWithMember(member);
+        message.application_id = "application-a";
+        message.author = {
+            id: "user-a",
+            username: "alice",
+            discriminator: "0001",
+            avatar: "avatar-a",
+            email: "alice@example.com",
+            verified: true,
+            toPublicUser() {
+                return {
+                    id: "user-a",
+                    username: "alice",
+                    discriminator: "0001",
+                    avatar: "avatar-a",
+                    public_flags: 64,
+                    bot: false,
+                    email: "alice@example.com",
+                    verified: true,
+                };
+            },
+        } as unknown as User;
+        (message as unknown as { recipient_id: string }).recipient_id = "recipient-a";
+
+        const partial = message.toPartialMessage() as unknown as Record<string, unknown>;
+
+        assert.deepEqual(partial, {
+            id: "message-a",
+            channel_id: "channel-a",
+            type: 0,
+            content: "hello",
+            author: {
+                id: "user-a",
+                username: "alice",
+                discriminator: "0001",
+                avatar: "avatar-a",
+                bot: false,
+                public_flags: 64,
+            },
+            flags: 0,
+            application_id: "application-a",
+        });
+        assert.equal(Object.hasOwn(partial, "recipient_id"), false);
+        assert.equal(Object.hasOwn(partial.author as Record<string, unknown>, "email"), false);
+        assert.equal(Object.hasOwn(partial.author as Record<string, unknown>, "verified"), false);
+    });
+
+    test("Message.toPartialMessage requires the route to hydrate the author relation", () => {
+        const message = createMessageWithMember(createMemberWithRoles([]));
+
+        assert.throws(() => message.toPartialMessage(), /Cannot serialize partial message message-a without a hydrated author/);
+    });
+
+    test("Message.toJSON exposes only the safe public application payload", () => {
+        const member = createMemberWithRoles([]);
+        const message = createMessageWithMember(member);
+        message.application_id = "app-a";
+        message.application = {
+            id: "app-a",
+            name: "Rich Presence App",
+            description: "Shown on rich presence embeds",
+            icon: null,
+            cover_image: "cover-hash",
+            flags: 64,
+            verify_key: "private-verify-key",
+            owner: createAuthor("owner-a", "owner"),
+            redirect_uris: ["https://private.example/callback"],
+        } as never;
+
+        const json = message.toJSON();
+        const application = json.application as unknown as Record<string, unknown>;
+
+        assert.equal(json.application_id, "app-a");
+        assert.deepEqual(json.application, {
+            id: "app-a",
+            name: "Rich Presence App",
+            description: "Shown on rich presence embeds",
+            icon: null,
+            cover_image: "cover-hash",
+            flags: 64,
+        });
+        assert.equal(application.verify_key, undefined);
+        assert.equal(application.owner, undefined);
+        assert.equal(application.redirect_uris, undefined);
+    });
+
     test("withSignedAttachments serializes member role entities on message instances", () => {
         const member = createMemberWithRoles([{ id: "role-a" }, { id: "role-b" }]);
         const message = createMessageWithMember(member);
@@ -143,6 +272,9 @@ describe("message member serialization", () => {
             theme_colors: undefined,
             pronouns: undefined,
             communication_disabled_until: null,
+            avatar_decoration_data: undefined,
+            display_name_styles: undefined,
+            collectibles: undefined,
             flags: 0,
         };
 

@@ -27,21 +27,3 @@ export interface SettingsProtoUpdateJsonSchema {
     settings: JsonObject;
     required_data_version?: number;
 }
-
-// TODO: these dont work with schema validation
-// typed JSON schemas:
-// export interface SettingsProtoUpdatePreloadedUserSettingsSchema {
-// 	settings: PreloadedUserSettings;
-// 	required_data_version?: number;
-// }
-//
-// export interface SettingsProtoUpdateFrecencyUserSettingsSchema {
-// 	settings: FrecencyUserSettings;
-// 	required_data_version?: number;
-// }
-
-// TODO: what is this?
-// export interface SettingsProtoUpdateTestSettingsSchema {
-// 	settings: {};
-// 	required_data_version?: number;
-// }

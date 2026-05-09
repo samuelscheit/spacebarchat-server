@@ -42,13 +42,19 @@ public class RabbitMqPayloadEncoderTests {
     }
 
     [Fact]
-    public void EncodeJsonSerializesStringsAndNulls() {
+    public void EncodeJsonSerializesStrings() {
         var encodedString = RabbitMqPayloadEncoder.Encode("payload");
-        var encodedNull = RabbitMqPayloadEncoder.Encode(null);
 
         Assert.Equal("\"payload\"", Encoding.UTF8.GetString(encodedString.Body.Span));
-        Assert.Equal("null", Encoding.UTF8.GetString(encodedNull.Body.Span));
         Assert.Equal("application/json", encodedString.ContentType);
+    }
+
+    [Fact]
+    public void EncodeJsonSerializesContentlessBodiesAsExplicitJsonNullForPublish() {
+        var encodedNull = RabbitMqPayloadEncoder.Encode(null);
+
+        Assert.Equal("null", Encoding.UTF8.GetString(encodedNull.Body.Span));
+        Assert.Equal(4, encodedNull.Body.Length);
         Assert.Equal("application/json", encodedNull.ContentType);
     }
 }

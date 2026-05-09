@@ -4,6 +4,49 @@ import type { PartialEmoji, StoredReaction } from "@spacebar/schemas";
 
 export { normalizeStoredReaction, toPublicReaction, toPublicReactions };
 
+const rgiEmojiPattern = createUnicodeEmojiPattern("^\\p{RGI_Emoji}$", "v");
+const customEmojiNamePattern = /^[A-Za-z0-9_]{2,32}$/;
+const customEmojiIdPattern = /^[1-9]\d{16,19}$/;
+const maxSnowflake = (1n << 64n) - 1n;
+
+function createUnicodeEmojiPattern(pattern: string, flags: string): RegExp | undefined {
+    try {
+        return new RegExp(pattern, flags);
+    } catch {
+        return undefined;
+    }
+}
+
+export function isUnicodeReactionEmoji(value: string): boolean {
+    return Boolean(rgiEmojiPattern?.test(value));
+}
+
+function isReactionEmojiSnowflake(value: string): boolean {
+    if (!customEmojiIdPattern.test(value)) return false;
+    return BigInt(value) <= maxSnowflake;
+}
+
+export function parseReactionEmojiParam(value: string): PartialEmoji | null {
+    // Express has already decoded path parameters before route handlers run.
+    // Decoding here again would accept double-encoded emoji route params.
+    if (!value) return null;
+
+    const parts = value.split(":");
+    if (parts.length === 2) {
+        const [name, id] = parts;
+        if (!customEmojiNamePattern.test(name) || !isReactionEmojiSnowflake(id)) return null;
+        return { name, id };
+    }
+
+    if (parts.length > 1) return null;
+    if (!isUnicodeReactionEmoji(value)) return null;
+
+    return {
+        id: undefined,
+        name: value,
+    };
+}
+
 export function parseReactionTypeParam(value: unknown): ReactionType | null {
     if (value === String(ReactionType.normal)) return ReactionType.normal;
     if (value === String(ReactionType.burst)) return ReactionType.burst;

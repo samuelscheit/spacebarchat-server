@@ -17,6 +17,10 @@ function getRoleMembersRouteSource() {
     return fs.readFileSync(path.join(process.cwd(), "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts"), "utf8");
 }
 
+function getRoleMemberIdsRouteSource() {
+    return fs.readFileSync(path.join(process.cwd(), "src/api/routes/guilds/#guild_id/roles/#role_id/member-ids.ts"), "utf8");
+}
+
 describe("role member update route behavior", () => {
     test("registers PATCH additive and PUT replacement endpoints with the shared schema", () => {
         const source = getRoleMembersRouteSource();
@@ -26,6 +30,29 @@ describe("role member update route behavior", () => {
         assert.match(source, /router\.put\(\s*"\/"/);
         assert.ok(source.includes('updateRoleMembers(req, res, "add")'));
         assert.ok(source.includes('updateRoleMembers(req, res, "replace")'));
+    });
+
+    test("persists role membership changes through the bulk member helper", () => {
+        const source = getRoleMembersRouteSource();
+
+        assert.ok(source.includes("Member.updateRoleMembers(guild_id, role_id, { addMemberIds, removeMemberIds })"));
+        assert.doesNotMatch(source, /Member\.addRole\(/);
+        assert.doesNotMatch(source, /Member\.removeRole\(/);
+        assert.doesNotMatch(source, /TODO \(erkin\): have a bulk add\/remove function/);
+    });
+
+    test("keeps the role member id list route unpaginated but capped", () => {
+        const source = getRoleMemberIdsRouteSource();
+
+        assert.match(source, /router\.get\(\s*"\/"/);
+        assert.ok(source.includes("Member.IsInGuildOrFail(req.user_id, guild_id)"));
+        assert.ok(source.includes("MAX_ROLE_MEMBER_IDS = 100"));
+        assert.ok(source.includes('order: { id: "ASC" }'));
+        assert.ok(source.includes("select: { id: true, index: true }"));
+        assert.ok(source.includes("take: MAX_ROLE_MEMBER_IDS"));
+        assert.ok(source.includes("members.map((x) => x.id)"));
+        assert.doesNotMatch(source, /\b(limit|after|before)\b/);
+        assert.doesNotMatch(source, /\bskip\b/);
     });
 
     test("PATCH add mode adds missing desired members without removing omitted current holders", () => {
