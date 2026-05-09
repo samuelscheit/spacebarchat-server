@@ -175,108 +175,6 @@
                     "recipients"
                 ]
             },
-            "MessageAcknowledgeSchema": {
-                "type": "object",
-                "properties": {
-                    "manual": {
-                        "type": "boolean"
-                    },
-                    "mention_count": {
-                        "type": "integer"
-                    },
-                    "flags": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            4
-                        ],
-                        "type": "number"
-                    },
-                    "last_viewed": {
-                        "type": "integer"
-                    },
-                    "token": {
-                        "type": "string"
-                    }
-                }
-            },
-            "AckBulkSchema": {
-                "type": "object",
-                "properties": {
-                    "read_states": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "channel_id": {
-                                    "type": "string"
-                                },
-                                "message_id": {
-                                    "type": "string"
-                                },
-                                "read_state_type": {
-                                    "enum": [
-                                        0,
-                                        1,
-                                        2,
-                                        3,
-                                        4,
-                                        5
-                                    ],
-                                    "type": "number"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "channel_id",
-                                "message_id"
-                            ]
-                        }
-                    }
-                },
-                "required": [
-                    "read_states"
-                ]
-            },
-            "AcknowledgeDeleteSchema": {
-                "type": "object",
-                "properties": {
-                    "read_state_type": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                        ],
-                        "type": "number"
-                    },
-                    "version": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "FieldErrorResponse": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "errors": {
-                        "$ref": "#/components/schemas/ErrorList"
-                    }
-                },
-                "required": [
-                    "code",
-                    "errors",
-                    "message"
-                ]
-            },
             "InstanceUserDeleteSchema": {
                 "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
@@ -575,6 +473,108 @@
                     "theme",
                     "timezone_offset",
                     "view_nsfw_guilds"
+                ]
+            },
+            "MessageAcknowledgeSchema": {
+                "type": "object",
+                "properties": {
+                    "manual": {
+                        "type": "boolean"
+                    },
+                    "mention_count": {
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    "last_viewed": {
+                        "type": "integer"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AckBulkSchema": {
+                "type": "object",
+                "properties": {
+                    "read_states": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "channel_id": {
+                                    "type": "string"
+                                },
+                                "message_id": {
+                                    "type": "string"
+                                },
+                                "read_state_type": {
+                                    "enum": [
+                                        0,
+                                        1,
+                                        2,
+                                        3,
+                                        4,
+                                        5
+                                    ],
+                                    "type": "number"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "channel_id",
+                                "message_id"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "read_states"
+                ]
+            },
+            "AcknowledgeDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "read_state_type": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5
+                        ],
+                        "type": "number"
+                    },
+                    "version": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "FieldErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "$ref": "#/components/schemas/ErrorList"
+                    }
+                },
+                "required": [
+                    "code",
+                    "errors",
+                    "message"
                 ]
             },
             "ActivitySchema": {
@@ -6557,14 +6557,14 @@
                     "flags": {
                         "type": "integer"
                     },
-                    "channel_id": {
-                        "type": "string"
-                    },
                     "applied_tags": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
+                    },
+                    "channel_id": {
+                        "type": "string"
                     },
                     "content": {
                         "type": "string"
@@ -8220,6 +8220,22 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "icon": {
+                        "format": "image-data-uri",
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "parent_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "default_auto_archive_duration": {
+                        "type": "integer"
+                    },
                     "permission_overwrites": {
                         "type": "array",
                         "items": {
@@ -8246,22 +8262,6 @@
                                 "type"
                             ]
                         }
-                    },
-                    "icon": {
-                        "format": "image-data-uri",
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "parent_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "default_auto_archive_duration": {
-                        "type": "integer"
                     },
                     "video_quality_mode": {
                         "type": "integer"
@@ -10370,56 +10370,6 @@
                     2
                 ]
             },
-            "ErrorList": {
-                "type": "object",
-                "additionalProperties": {
-                    "anyOf": [
-                        {
-                            "$ref": "#/components/schemas/ErrorList"
-                        },
-                        {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "code": {
-                                        "type": "string"
-                                    },
-                                    "message": {
-                                        "type": "string"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "code",
-                                    "message"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "properties": {
-                    "_errors": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "code": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "code",
-                                "message"
-                            ]
-                        }
-                    }
-                }
-            },
             "InstanceUserDeleteSchemaContent": {
                 "type": "object",
                 "properties": {
@@ -10491,6 +10441,56 @@
                     "guild_ids"
                 ]
             },
+            "ErrorList": {
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/components/schemas/ErrorList"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "code",
+                                    "message"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "properties": {
+                    "_errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "code",
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
             "Status": {
                 "enum": [
                     "dnd",
@@ -10527,11 +10527,7 @@
                                 "type": "integer"
                             }
                         },
-                        "additionalProperties": false,
-                        "required": [
-                            "end",
-                            "start"
-                        ]
+                        "additionalProperties": false
                     },
                     "application_id": {
                         "type": "string"
@@ -10555,11 +10551,7 @@
                                 "type": "boolean"
                             }
                         },
-                        "additionalProperties": false,
-                        "required": [
-                            "animated",
-                            "name"
-                        ]
+                        "additionalProperties": false
                     },
                     "party": {
                         "type": "object",
@@ -10626,12 +10618,6 @@
                     "metadata": {
                         "type": "object",
                         "properties": {
-                            "button_urls": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
                             "context_uri": {
                                 "type": "string"
                             },
@@ -10643,25 +10629,20 @@
                                 "items": {
                                     "type": "string"
                                 }
-                            },
-                            "type": {
-                                "enum": [
-                                    "episode",
-                                    "track"
-                                ],
-                                "type": "string"
                             }
                         },
-                        "additionalProperties": false
+                        "additionalProperties": false,
+                        "required": [
+                            "album_id",
+                            "artist_ids"
+                        ]
                     },
                     "session_id": {
                         "type": "string"
                     }
                 },
                 "required": [
-                    "flags",
                     "name",
-                    "session_id",
                     "type"
                 ]
             },
