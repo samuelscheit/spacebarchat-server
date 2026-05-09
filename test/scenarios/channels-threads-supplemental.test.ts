@@ -17,6 +17,7 @@ import {
     Member,
     Message,
     Permissions,
+    ReadState,
     Role,
     Snowflake,
     Tag,
@@ -24,7 +25,7 @@ import {
     ThreadMemberFlags,
     User,
 } from "@spacebar/util";
-import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
+import { ChannelPermissionOverwriteType, ChannelType, MessageType, ReadStateType } from "@spacebar/schemas";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -355,6 +356,11 @@ async function coverThreadRoutes(
     const joinedPrivateArchived = await assertJsonObject(await getJson(`${apiBaseUrl}/channels/${textChannelId}/users/@me/threads/archived/private?limit=10`, token));
     assert.ok((joinedPrivateArchived.threads as Array<Record<string, unknown>>).some((thread) => thread.id === privateThreadId));
 
+    const publicTextThreadId = await createPublicTextThread(apiBaseUrl, textChannelId, token, events);
+    await assertThreadMember(publicTextThreadId, ownerMember.index);
+    const publicTextThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, publicTextThreadId);
+    await assertChannelNotificationCursor(textChannelId, ownerId, publicTextThreadCreatedMessage.id);
+
     const messageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter", token);
     const beforeMessageThread = markCapturedEvents(events);
     const createMessageThread = await postJson(`${apiBaseUrl}/channels/${textChannelId}/messages/${messageId}/threads`, { name: "scenario-message-thread" }, token);
@@ -375,6 +381,21 @@ async function coverThreadRoutes(
     const message = await Message.findOneOrFail({ where: { id: messageId }, relations: { thread: true } });
     assert.ok(message.thread);
     assert.equal(message.thread.id, messageId);
+    const messageThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, messageId);
+    await assertChannelNotificationCursor(textChannelId, ownerId, messageThreadCreatedMessage.id);
+
+    const futureCursor = "9223372036854775807";
+    await ReadState.update({ user_id: ownerId, channel_id: textChannelId, read_state_type: ReadStateType.CHANNEL }, { notifications_cursor: futureCursor });
+    const noRewindMessageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter no rewind", token);
+    const createNoRewindMessageThread = await postJson(
+        `${apiBaseUrl}/channels/${textChannelId}/messages/${noRewindMessageId}/threads`,
+        { name: "scenario-message-thread-no-rewind" },
+        token,
+    );
+    await assertStatus(createNoRewindMessageThread, 200);
+    const noRewindThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, noRewindMessageId);
+    assert.ok(BigInt(noRewindThreadCreatedMessage.id) < BigInt(futureCursor));
+    await assertChannelNotificationCursor(textChannelId, ownerId, futureCursor);
 }
 
 async function coverThreadAppliedTagsPatch(apiBaseUrl: string, threadId: string, token: string) {
@@ -464,6 +485,46 @@ async function createPrivateThread(apiBaseUrl: string, textChannelId: string, to
         (event) => event.event === "THREAD_CREATE" && event.channel_id === textChannelId && event.data.id === threadId && event.data.newly_created === true,
     );
     return threadId;
+}
+
+async function createPublicTextThread(apiBaseUrl: string, textChannelId: string, token: string, events: EventCapture) {
+    const beforeCreate = markCapturedEvents(events);
+    const createThread = await postJson(
+        `${apiBaseUrl}/channels/${textChannelId}/threads`,
+        {
+            name: "scenario-public-text-thread",
+            type: ChannelType.GUILD_PUBLIC_THREAD,
+        },
+        token,
+    );
+    await assertStatus(createThread, 200);
+    const thread = await assertJsonObject(createThread);
+    const threadId = thread.id as string;
+    assert.equal(thread.type, ChannelType.GUILD_PUBLIC_THREAD);
+    await waitForEventAfter(
+        events,
+        beforeCreate,
+        (event) => event.event === "THREAD_CREATE" && event.channel_id === textChannelId && event.data.id === threadId && event.data.newly_created === true,
+    );
+    return threadId;
+}
+
+async function findThreadCreatedMessage(parentChannelId: string, threadId: string) {
+    const messages = await Message.find({
+        where: { channel_id: parentChannelId, type: MessageType.THREAD_CREATED },
+    });
+    const message = messages.find((message) => message.message_reference?.channel_id === threadId);
+    assert.ok(message, `expected THREAD_CREATED message for thread ${threadId}`);
+    return message;
+}
+
+async function assertChannelNotificationCursor(channelId: string, userId: string, expectedCursor: string) {
+    const readState = await ReadState.findOneByOrFail({
+        user_id: userId,
+        channel_id: channelId,
+        read_state_type: ReadStateType.CHANNEL,
+    });
+    assert.equal(readState.notifications_cursor, expectedCursor);
 }
 
 async function coverThreadSearch(apiBaseUrl: string, forumChannelId: string, threadId: string, tagId: string, token: string) {

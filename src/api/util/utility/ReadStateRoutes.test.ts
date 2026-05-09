@@ -18,6 +18,8 @@ describe("read-state route integrations", () => {
         assert.match(messageCreateRoute, /upsertChannelMessageReadState\(\{\s*user_id:\s*req\.user_id,\s*channel_id\s*\},\s*message\.id\)/);
         assert.match(threadRoute, /upsertChannelMessageReadState\(\{\s*user_id:\s*req\.user_id,\s*channel_id:\s*thread\.id\s*\},\s*message\.id\)/);
         assert.match(messageThreadRoute, /upsertChannelMessageReadState\(\{\s*user_id:\s*req\.user_id,\s*channel_id:\s*thread\.id\s*\},\s*starterMessage\.id\)/);
+        assert.match(threadRoute, /advanceChannelReadStateNotificationCursor\(\{\s*user_id:\s*req\.user_id,\s*channel_id:\s*channel\.id\s*\},\s*threadCreatedMessage\.id\)/);
+        assert.match(messageThreadRoute, /advanceChannelReadStateNotificationCursor\(\{\s*user_id:\s*req\.user_id,\s*channel_id\s*\},\s*threadCreatedMessage\.id\)/);
         assert.doesNotMatch(messageThreadRoute, /TODO: advance-only notification cursor/);
     });
 
