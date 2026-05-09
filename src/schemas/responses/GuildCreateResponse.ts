@@ -16,8 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Guild } from "@spacebar/util";
-
 import { GuildWelcomeScreen } from "../api/guilds/GuildWelcomeScreen";
 
 export interface GuildCreateResponse {
@@ -64,8 +62,12 @@ export interface GuildCreateResponse {
     safety_alerts_channel_id?: string | null;
 }
 
-// Removes internal properties from the guild class for public API responses.
-export type APIGuild = Omit<Guild, "afk_channel" | "template" | "owner" | "public_updates_channel" | "rules_channel" | "system_channel" | "widget_channel">;
+export interface APIGuild extends GuildCreateResponse {
+    owner_id: string;
+    joined_at?: string;
+    permissions?: string;
+}
+
 export type APIGuildArray = APIGuild[];
 
 export interface APIGuildWithJoinedAt extends GuildCreateResponse {

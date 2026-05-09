@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { APIWebhook } from "../api/channels";
+import type { APIWebhook } from "@spacebar/schemas";
 
 export type WebhookCreateResponse = APIWebhook;
 

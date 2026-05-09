@@ -6574,7 +6574,7 @@
             "path": "/channels/:channel_id/threads/archived/public/",
             "samplePath": "/channels/100000000000000002/threads/archived/public/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads/archived/public.ts",
-            "line": 33,
+            "line": 35,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

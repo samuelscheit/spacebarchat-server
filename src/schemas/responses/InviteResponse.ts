@@ -16,9 +16,48 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Invite } from "@spacebar/util";
-import { UserInviteResponse } from "./UserInviteResponse";
+import type { ChannelType, PublicUser, Snowflake } from "@spacebar/schemas";
+import type { UserInviteResponse } from "./UserInviteResponse";
 
-export type InviteResponse = Invite | UserInviteResponse;
+export type InviteResponse = APIInvite | UserInviteResponse;
 
-export type APIInviteArray = Invite[];
+export interface APIInviteGuild {
+    id: Snowflake;
+    name: string;
+    icon?: string | null;
+    splash?: string | null;
+    banner?: string | null;
+    description?: string | null;
+    features?: string[];
+    verification_level?: number;
+    vanity_url_code?: string | null;
+    nsfw_level?: number;
+    nsfw?: boolean;
+    premium_subscription_count?: number;
+}
+
+export interface APIInviteChannel {
+    id: Snowflake;
+    name?: string | null;
+    type: ChannelType;
+}
+
+export interface APIInvite {
+    code: string;
+    guild?: APIInviteGuild | null;
+    channel?: APIInviteChannel | null;
+    inviter?: PublicUser | null;
+    target_user?: PublicUser | null;
+    target_user_type?: number;
+    approximate_presence_count?: number;
+    approximate_member_count?: number;
+    expires_at?: Date | null;
+    created_at?: Date;
+    max_age?: number;
+    uses?: number;
+    max_uses?: number;
+    temporary?: boolean;
+    flags?: number;
+}
+
+export type APIInviteArray = APIInvite[];

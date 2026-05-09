@@ -1,10 +1,18 @@
-import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, test } from "node:test";
 import Ajv from "ajv";
 
-const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, unknown>;
+const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonShape>;
+
+interface JsonShape {
+    $ref?: string;
+    additionalProperties?: JsonShape | boolean;
+    definitions?: Record<string, JsonShape>;
+    properties?: Record<string, JsonShape>;
+    type?: string | string[];
+}
 
 function compileSchema(name: string) {
     return new Ajv({ strict: false, validateFormats: false }).compile({
@@ -80,5 +88,19 @@ describe("ApplicationCommandSchema", () => {
             true,
             JSON.stringify(validate.errors),
         );
+    });
+
+    test("application command index permissions use a generated map schema", () => {
+        const permissions = schemas.ApplicationCommandIndexPermissions;
+
+        assert.equal(permissions.properties?.roles?.$ref, "#/definitions/ApplicationCommandIndexPermissionMap");
+        assert.equal(permissions.properties?.channels?.$ref, "#/definitions/ApplicationCommandIndexPermissionMap");
+        assert.deepEqual(schemas.ApplicationCommandIndexPermissionMap, {
+            type: "object",
+            additionalProperties: {
+                type: "boolean",
+            },
+            $schema: "http://json-schema.org/draft-07/schema#",
+        });
     });
 });
