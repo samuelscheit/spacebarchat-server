@@ -9137,9 +9137,6 @@
                         "$ref": "#/components/schemas/AckCallback"
                     },
                     {
-                        "$ref": "#/components/schemas/MessageCallback"
-                    },
-                    {
                         "$ref": "#/components/schemas/MessageWSourceCallback"
                     },
                     {
@@ -22137,23 +22134,6 @@
             "InteractionCallbackType.ACKNOWLEDGE": {
                 "type": "number",
                 "const": 2
-            },
-            "MessageCallback": {
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "$ref": "#/components/schemas/InteractionCallbackType.CHANNEL_MESSAGE"
-                    },
-                    "data": {}
-                },
-                "required": [
-                    "data",
-                    "type"
-                ]
-            },
-            "InteractionCallbackType.CHANNEL_MESSAGE": {
-                "type": "number",
-                "const": 3
             },
             "MessageWSourceCallback": {
                 "type": "object",
