@@ -18,7 +18,81 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { toPartialConnectedAccountResponse, toProfileBadgeResponse } from "./userProfileResponse";
+import { toGuildMemberProfileResponse, toPartialConnectedAccountResponse, toProfileBadgeResponse, toUserProfileResponse } from "./userProfileResponse";
+
+test("toUserProfileResponse serializes route profile fields", () => {
+    assert.deepEqual(
+        toUserProfileResponse({
+            bio: "hello",
+            accent_color: 123,
+            banner: "banner-hash",
+            pronouns: "they/them",
+            theme_colors: ["16711680", 65280],
+        }),
+        {
+            bio: "hello",
+            accent_color: 123,
+            banner: "banner-hash",
+            pronouns: "they/them",
+            theme_colors: [16711680, 65280],
+        },
+    );
+});
+
+test("toUserProfileResponse hides bot profile bio and normalizes absent pronouns", () => {
+    assert.deepEqual(
+        toUserProfileResponse(
+            {
+                bio: "hidden bot bio",
+                accent_color: null,
+                banner: null,
+                pronouns: null,
+                theme_colors: null,
+            },
+            { hideBio: true },
+        ),
+        {
+            bio: null,
+            accent_color: null,
+            banner: null,
+            pronouns: "",
+            theme_colors: undefined,
+        },
+    );
+
+    assert.equal(toUserProfileResponse({ bio: null, pronouns: undefined }).pronouns, "");
+    assert.equal(Object.hasOwn(toUserProfileResponse({ bio: null }), "theme_colors"), true);
+});
+
+test("toGuildMemberProfileResponse serializes guild-specific profile defaults", () => {
+    assert.deepEqual(
+        toGuildMemberProfileResponse({
+            banner: "guild-banner",
+            bio: "guild bio",
+            guild_id: "guild-1",
+        }),
+        {
+            accent_color: null,
+            banner: "guild-banner",
+            bio: "guild bio",
+            guild_id: "guild-1",
+        },
+    );
+
+    assert.deepEqual(
+        toGuildMemberProfileResponse({
+            banner: "",
+            bio: null,
+            guild_id: "guild-2",
+        }),
+        {
+            accent_color: null,
+            banner: null,
+            bio: "",
+            guild_id: "guild-2",
+        },
+    );
+});
 
 test("toPartialConnectedAccountResponse only exposes visible non-null metadata", () => {
     assert.deepEqual(
