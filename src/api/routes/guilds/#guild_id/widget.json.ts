@@ -20,9 +20,13 @@ import { randomString, route } from "@spacebar/api";
 import { Channel, Config, DiscordApiErrors, Guild, Invite, Member, Permissions, normalizeInviteCreateOptions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, GuildWidgetJsonResponse } from "@spacebar/schemas";
+import { In } from "typeorm";
 import { getWidgetMemberStatus } from "../../../util/utility/GuildWidgetMembers";
 
 const router: Router = Router({ mergeParams: true });
+const widgetMemberSampleLimit = 100;
+const onlineSessionWindowMs = 1000 * 60 * 5;
+const visibleWidgetStatuses = ["online", "idle", "dnd"] as const;
 
 // Undocumented API notes:
 // An invite is created for the widget_channel_id on request (only if an existing one created by the widget doesn't already exist)
@@ -76,7 +80,6 @@ export async function getWidgetJsonData(guild_id: string) {
             channel_ordering: true,
             widget_channel_id: true,
             widget_enabled: true,
-            presence_count: true,
             name: true,
         },
     });
@@ -116,29 +119,12 @@ export async function getWidgetJsonData(guild_id: string) {
         }
     });
 
-    // Fetch members
-    // TODO: Understand how Discord's max 100 random member sample works, and apply to here (see top of this file)
-    const members = await Member.find({ where: { guild_id: guild_id }, relations: { user: { sessions: true } } });
-    const minLastSeen = new Date(Date.now() - 1000 * 60 * 5);
-    const memberData: GuildWidgetJsonResponse["members"] = members
-        .flatMap((x): GuildWidgetJsonResponse["members"] => {
-            const status = getWidgetMemberStatus(x.user.sessions, minLastSeen);
-            if (!status) return [];
-
-            return [
-                {
-                    id: x.id,
-                    username: x.user.username,
-                    discriminator: x.user.discriminator,
-                    avatar: null,
-                    status,
-                    avatar_url: x.avatar
-                        ? `${Config.get().cdn.endpointPublic}/guilds/${guild_id}/users/${x.id}/avatars/${x.avatar}.png`
-                        : x.user.avatar
-                          ? `${Config.get().cdn.endpointPublic}/avatars/${x.id}/${x.user.avatar}.png`
-                          : `${Config.get().cdn.endpointPublic}/embed/avatars/${BigInt(x.id) % 6n}.png`,
-                },
-            ];
+    const now = Date.now();
+    const [onlineMembers, onlineMemberCount] = await Promise.all([getWidgetMemberSample(guild_id, now), getWidgetOnlineMemberCount(guild_id, now)]);
+    const memberData: GuildWidgetJsonResponse["members"] = onlineMembers
+        .flatMap((member): GuildWidgetJsonResponse["members"] => {
+            const widgetMember = toWidgetMember(guild_id, member, now);
+            return widgetMember ? [widgetMember] : [];
         })
         .sort((a, b) => Number(BigInt(a.id) - BigInt(b.id)));
 
@@ -149,8 +135,69 @@ export async function getWidgetJsonData(guild_id: string) {
         instant_invite: invite?.code ?? null,
         channels: channels,
         members: memberData,
-        presence_count: guild.presence_count || memberData.length,
+        presence_count: onlineMemberCount,
     } satisfies GuildWidgetJsonResponse;
+}
+
+function getWidgetActiveSince(now = Date.now()) {
+    return new Date(now - onlineSessionWindowMs);
+}
+
+function createVisibleWidgetMemberQuery(guild_id: string, now = Date.now()) {
+    const minLastSeen = getWidgetActiveSince(now);
+
+    return Member.createQueryBuilder("member")
+        .innerJoin("member.user", "user")
+        .innerJoin("user.sessions", "session", "session.last_seen > :minLastSeen AND session.is_admin_session = false", { minLastSeen })
+        .where({ guild_id })
+        .andWhere("session.status IN (:...visibleStatuses)", { visibleStatuses: visibleWidgetStatuses });
+}
+
+export async function getWidgetMemberSample(guild_id: string, now = Date.now()) {
+    const sampledMemberIds = await createVisibleWidgetMemberQuery(guild_id, now)
+        .select("member.id", "id")
+        .groupBy("member.id")
+        .orderBy("RANDOM()")
+        .limit(widgetMemberSampleLimit)
+        .getRawMany<{ id: string }>();
+
+    const memberIds = sampledMemberIds.map((member) => member.id).slice(0, widgetMemberSampleLimit);
+    if (memberIds.length === 0) return [];
+
+    const sampledMembers = await Member.find({
+        where: { guild_id, id: In(memberIds) },
+        relations: { user: { sessions: true } },
+    });
+    const membersById = new Map(sampledMembers.map((member) => [member.id, member]));
+
+    return memberIds
+        .map((id) => membersById.get(id))
+        .filter((member): member is Member => member !== undefined)
+        .slice(0, widgetMemberSampleLimit);
+}
+
+export async function getWidgetOnlineMemberCount(guild_id: string, now = Date.now()) {
+    const result = await createVisibleWidgetMemberQuery(guild_id, now).select("COUNT(DISTINCT member.id)", "count").getRawOne<{ count?: number | string }>();
+
+    return Number(result?.count ?? 0);
+}
+
+export function toWidgetMember(guild_id: string, member: Member, now = Date.now()): GuildWidgetJsonResponse["members"][number] | undefined {
+    const status = getWidgetMemberStatus(member.user.sessions, getWidgetActiveSince(now));
+    if (!status) return undefined;
+
+    return {
+        id: member.id,
+        username: member.user.username,
+        discriminator: member.user.discriminator,
+        avatar: null,
+        status,
+        avatar_url: member.avatar
+            ? `${Config.get().cdn.endpointPublic}/guilds/${guild_id}/users/${member.id}/avatars/${member.avatar}.png`
+            : member.user.avatar
+              ? `${Config.get().cdn.endpointPublic}/avatars/${member.id}/${member.user.avatar}.png`
+              : `${Config.get().cdn.endpointPublic}/embed/avatars/${BigInt(member.id) % 6n}.png`,
+    };
 }
 
 export default router;
