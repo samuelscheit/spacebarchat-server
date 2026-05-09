@@ -852,6 +852,7 @@
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
+                        "src/api/util/utility/UserInvites.test.ts",
                         "src/util/dtos/ConnectedAccountDTO.test.ts",
                         "src/api/util/UserUpdateEvents.test.ts"
                     ],
@@ -937,6 +938,7 @@
                         "test/scenarios/guilds-admin-supplemental.test.ts",
                         "src/util/util/GuildCreate.test.ts",
                         "src/api/routes/guilds/GuildWidgetPage.test.ts",
+                        "src/api/routes/guilds/GuildWidgetInvite.test.ts",
                         "src/api/util/utility/RoleMembers.test.ts",
                         "src/util/util/RolePermissions.test.ts"
                     ],
@@ -1037,6 +1039,7 @@
                         "test/scenarios/channels-supplemental.test.ts",
                         "test/scenarios/channels-threads-supplemental.test.ts",
                         "src/api/tests/ChannelInviteCreate.test.ts",
+                        "src/api/util/utility/RandomInviteID.test.ts",
                         "src/api/util/utility/MessageHistoryPagination.test.ts",
                         "src/api/util/utility/MessageNotifications.test.ts",
                         "src/util/util/InviteCreate.test.ts",
