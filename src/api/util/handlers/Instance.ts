@@ -16,12 +16,60 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Session, TimeSpan } from "@spacebar/util";
+import { Rights, Session, TimeSpan, User } from "@spacebar/util";
 import { setInterval } from "node:timers";
+
+type InstanceAdministratorUser = Pick<User, "id" | "username" | "discriminator" | "rights">;
+
+export interface InstanceAdministratorBootstrapDependencies {
+    findOperator(): Promise<InstanceAdministratorUser | null>;
+    findFirstUser(): Promise<InstanceAdministratorUser | null>;
+    promoteToOperator(user: InstanceAdministratorUser): Promise<void>;
+    log(message: string): void;
+    warn(message: string): void;
+}
+
+export const defaultInstanceAdministratorBootstrapDependencies: InstanceAdministratorBootstrapDependencies = {
+    findOperator: () =>
+        User.createQueryBuilder("user")
+            .where("(CAST(user.rights AS bigint) & :operator) = :operator", { operator: Rights.FLAGS.OPERATOR.toString() })
+            .andWhere("user.bot = false")
+            .andWhere("user.deleted = false")
+            .andWhere("user.disabled = false")
+            .orderBy("user.created_at", "ASC")
+            .addOrderBy("user.id", "ASC")
+            .getOne(),
+    findFirstUser: () =>
+        User.findOne({
+            where: { bot: false, deleted: false, disabled: false },
+            order: { created_at: "ASC", id: "ASC" },
+            select: ["id", "username", "discriminator", "rights"],
+        }),
+    promoteToOperator: async (user) => {
+        await User.update({ id: user.id }, { rights: (BigInt(user.rights) | Rights.FLAGS.OPERATOR).toString() });
+    },
+    log: (message) => console.log(message),
+    warn: (message) => console.warn(message),
+};
+
+export async function ensureInstanceAdministrator(deps: InstanceAdministratorBootstrapDependencies = defaultInstanceAdministratorBootstrapDependencies) {
+    const operator = await deps.findOperator();
+    if (operator) return { status: "operator_exists" as const, user: operator };
+
+    const firstUser = await deps.findFirstUser();
+    if (!firstUser) {
+        deps.warn("[API/Instance.ts] No instance administrator exists. Register the first user, then restart the API to grant OPERATOR rights.");
+        return { status: "no_users" as const };
+    }
+
+    await deps.promoteToOperator(firstUser);
+    deps.log(`[API/Instance.ts] Granted OPERATOR rights to first user ${firstUser.username}#${firstUser.discriminator} (${firstUser.id})`);
+    return { status: "promoted" as const, user: firstUser };
+}
 
 export async function initInstance() {
     // TODO: clean up database and delete tombstone data
-    // TODO: set first user as instance administrator/or generate one if none exists and output it in the terminal
+    await ensureInstanceAdministrator();
 
     // create default guild and add it to auto join
     // TODO: check if any current user is not part of autoJoinGuilds
