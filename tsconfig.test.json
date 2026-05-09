@@ -48,6 +48,7 @@
         "src/api/util/utility/ThreadCreationPermissions.test.ts",
         "src/api/util/utility/ThreadMembers.test.ts",
         "src/api/util/utility/GuildWidgetMembers.test.ts",
+        "src/api/util/utility/GuildRegionsRoute.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/cdn/routes/banners.test.ts",
         "src/cdn/routes/role-icons.test.ts",

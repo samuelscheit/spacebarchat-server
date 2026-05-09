@@ -70,6 +70,11 @@ export function canPatchGuildFeature(feature: GuildFeatureValue): boolean {
 }
 
 export const VANITY_URL_FEATURE: KnownGuildFeature = GuildFeature.VanityUrl;
+export const VIP_REGIONS_FEATURE: KnownGuildFeature = GuildFeature.VipRegions;
+
+export function hasGuildFeature(features: readonly GuildFeatureValue[] | null | undefined, feature: KnownGuildFeature): boolean {
+    return features?.includes(feature) ?? false;
+}
 
 export function setVanityUrlFeature(features: readonly GuildFeatureValue[] | null | undefined, hasVanityUrl: boolean): GuildFeatureValue[] {
     const filteredFeatures = (features ?? []).filter((feature) => feature !== VANITY_URL_FEATURE);

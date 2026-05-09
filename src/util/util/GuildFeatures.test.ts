@@ -7,8 +7,10 @@ import {
     GuildFeature,
     MUTABLE_GUILD_FEATURES,
     VANITY_URL_FEATURE,
+    VIP_REGIONS_FEATURE,
     canPatchGuildFeature,
     getVanityUrlFeatureState,
+    hasGuildFeature,
     setVanityUrlFeature,
     type GuildFeatureValue,
 } from "./GuildFeatures";
@@ -51,6 +53,7 @@ describe("Guild feature helpers", () => {
     test("keeps known feature values compatible with stored guild feature strings", () => {
         assert.equal(GuildFeature.Discoverable, "DISCOVERABLE");
         assert.equal(GuildFeature.VanityUrl, "VANITY_URL");
+        assert.equal(GuildFeature.VipRegions, "VIP_REGIONS");
         assert.equal(GuildFeature.AllowUnnamedChannels, "ALLOW_UNNAMED_CHANNELS");
     });
 
@@ -68,6 +71,14 @@ describe("Guild feature helpers", () => {
             [],
         );
         assert.equal(VANITY_URL_FEATURE, GuildFeature.VanityUrl);
+        assert.equal(VIP_REGIONS_FEATURE, GuildFeature.VipRegions);
+    });
+
+    test("detects named guild feature membership", () => {
+        assert.equal(hasGuildFeature([GuildFeature.Community, GuildFeature.VipRegions], GuildFeature.VipRegions), true);
+        assert.equal(hasGuildFeature([GuildFeature.Community, "VIP_REGIONS_DISABLED"], GuildFeature.VipRegions), false);
+        assert.equal(hasGuildFeature(undefined, GuildFeature.VipRegions), false);
+        assert.equal(hasGuildFeature(null, GuildFeature.VipRegions), false);
     });
 
     test("exports the mutable guild feature subset", () => {
