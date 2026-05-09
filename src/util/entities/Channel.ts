@@ -28,6 +28,7 @@ import { DiscordApiErrors } from "../util/Constants";
 import { getDatabase } from "../util/Database";
 import { canCreateServerDm, shouldCheckServerDmPrivacy } from "../util/DmPrivacy";
 import { normalizeAndAssertCreateDmRecipientsForLimit } from "../util/DmRecipientLimits";
+import { serializeChannelRecipients } from "../util/ChannelRecipients";
 import { emitEvent } from "../util/Event";
 import { GuildFeature } from "../util/GuildFeatures";
 import { assertExistingGroupDmRecipient } from "../util/GroupDmRecipients";
@@ -853,12 +854,16 @@ export class Channel extends BaseClass {
         }
     }
 
+    private toPublicRecipients(): PublicChannel["recipients"] {
+        return serializeChannelRecipients(this);
+    }
+
     toJSON(): PublicChannel {
         return {
             ...this,
             last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
             guild_id: this.guild_id ?? undefined,
-            recipients: undefined, //this.recipients?.map(x=>x.user.toPublicUser()), // TODO: fix me
+            recipients: this.toPublicRecipients(),
             owner: undefined, // TODO: fix me - this is thread owner
 
             // these fields are not returned depending on the type of channel
