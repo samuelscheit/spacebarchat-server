@@ -6,6 +6,7 @@ import { describe, test } from "node:test";
 const repoRoot = process.cwd();
 const testClientProjectPath = path.join(repoRoot, "extra/admin-api/Utilities/Spacebar.AdminApi.TestClient/Spacebar.AdminApi.TestClient.csproj");
 const testClientDepsPath = path.join(repoRoot, "extra/admin-api/Utilities/Spacebar.AdminApi.TestClient/deps.json");
+const cdnFsckDepsPath = path.join(repoRoot, "extra/admin-api/Utilities/Spacebar.Cdn.Fsck/deps.json");
 const adminApiOutputsPath = path.join(repoRoot, "extra/admin-api/outputs.nix");
 
 const readText = (filePath: string) => readFileSync(filePath, "utf8");
@@ -32,6 +33,24 @@ describe("Admin API TestClient Nix packaging", () => {
         assert(packageBlockMatch, "Expected Spacebar-Cdn-Shared package block in outputs.nix");
         assert.match(packageBlockMatch[0], /srcRoot = \.\/Spacebar\.Cdn\.Shared;/);
         assert.doesNotMatch(packageBlockMatch[0], /srcRoot = Spacebar\.Cdn\.Shared;/);
+    });
+
+    test("keeps CDN Fsck offline restore inputs aligned with CDN abstractions", () => {
+        const outputs = readText(adminApiOutputsPath);
+        const packageBlockMatch = outputs.match(/Spacebar-Cdn-Fsck = buildSpacebarDotnetModule \{[\s\S]*?\n {8}\};/);
+
+        assert(packageBlockMatch, "Expected Spacebar-Cdn-Fsck package block in outputs.nix");
+        assert.match(packageBlockMatch[0], /projectReferences = \[[\s\S]*proj\.Spacebar-Cdn-Shared[\s\S]*proj\.Spacebar-Interop-Cdn-Abstractions[\s\S]*\];/);
+
+        const deps = JSON.parse(readText(cdnFsckDepsPath)) as Array<{ pname?: string; version?: string; hash?: string }>;
+        assert.deepEqual(
+            deps.find((dep) => dep.pname === "Magick.NET.Core" && dep.version === "14.12.0"),
+            {
+                pname: "Magick.NET.Core",
+                version: "14.12.0",
+                hash: "sha256-mlOAmFcSL8JzBqwMBpFtWt6+48PIdb1qUc++wPqhBHM=",
+            },
+        );
     });
 
     test("uses CI package references instead of unreachable project references", () => {
