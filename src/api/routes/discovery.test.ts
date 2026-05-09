@@ -1,6 +1,7 @@
 import { afterEach, describe, test } from "node:test";
 import assert from "node:assert";
 import { Categories } from "@spacebar/util";
+import { createDiscoveryCategoryFindOptions } from "../util/utility/DiscoveryCategories";
 import { getDiscoveryCategories, localizeDiscoveryCategories } from "./discovery";
 
 function category(overrides: Partial<Categories>): Categories {
@@ -56,7 +57,7 @@ describe("discovery categories", () => {
 
         const result = await getDiscoveryCategories({ primary_only: "true", locale: "de" });
 
-        assert.deepEqual(find.mock.calls[0].arguments, [{ where: { is_primary: true } }]);
+        assert.deepEqual(find.mock.calls[0].arguments, [createDiscoveryCategoryFindOptions("true")]);
         assert.equal(result[0].name, "Spiele");
     });
 
@@ -66,7 +67,7 @@ describe("discovery categories", () => {
 
         const result = await getDiscoveryCategories({ primary_only: "false", locale: "de" });
 
-        assert.deepEqual(find.mock.calls[0].arguments, []);
+        assert.deepEqual(find.mock.calls[0].arguments, [createDiscoveryCategoryFindOptions("false")]);
         assert.strictEqual(result[0], categories[0]);
     });
 
@@ -76,7 +77,7 @@ describe("discovery categories", () => {
 
         const result = await getDiscoveryCategories({ locale: "de" });
 
-        assert.deepEqual(find.mock.calls[0].arguments, []);
+        assert.deepEqual(find.mock.calls[0].arguments, [createDiscoveryCategoryFindOptions(undefined)]);
         assert.strictEqual(result[0], categories[0]);
     });
 });
