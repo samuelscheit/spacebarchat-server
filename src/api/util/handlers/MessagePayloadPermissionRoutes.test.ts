@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, test } from "node:test";
+import { acknowledgeDeferredMessageUpdateInteraction } from "./InteractionCallbackState.ts";
 
 function readSource(path: string): string {
     return readFileSync(join(process.cwd(), path), "utf8");
@@ -104,6 +105,8 @@ describe("message media permission route integration", () => {
         assertBefore(source, "assertMessagePayloadLimits(body.data);", "clearTimeout(interaction.timeout);");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "clearTimeout(interaction.timeout);");
         assertBefore(source, "assertMessagePayloadLimits(body.data);", 'event: "INTERACTION_SUCCESS"');
+        assertBefore(source, "assertMessagePayloadLimits(body.data);", "await acknowledgeDeferredMessageUpdateInteraction(");
+        assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await acknowledgeDeferredMessageUpdateInteraction(");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadLimits(body.data);", "await sendMessage({");
         assertBefore(source, "assertMessagePayloadPermissions(permissions, body.data);", "await sendMessage({");
@@ -125,6 +128,77 @@ describe("message media permission route integration", () => {
         assert.ok(pongCase < sharedCleanup, "Expected PONG to reach the shared pending interaction cleanup");
         assert.ok(defaultCase < sharedCleanup, "Expected shared cleanup to live after the callback-type switch");
         assert.ok(sharedCleanup < sharedNoContentResponse, "Expected shared cleanup to run before the shared 204 response");
+    });
+
+    test("deferred message updates acknowledge without scheduling an unreachable failure", async () => {
+        const source = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
+        const stateSource = readSource("src/api/util/handlers/InteractionCallbackState.ts");
+        const deferredUpdateAcknowledgement = stateSource.slice(indexOf(stateSource, "export async function acknowledgeDeferredMessageUpdateInteraction"));
+        const deferredRouteAcknowledgement = source.slice(
+            indexOf(source, "await acknowledgeDeferredMessageUpdateInteraction("),
+            indexOf(source, "clearTimeout(interaction.timeout);"),
+        );
+
+        let originalPendingTimeoutFired = false;
+        const originalSetTimeout = globalThis.setTimeout;
+        const pendingTimeout = originalSetTimeout(() => {
+            originalPendingTimeoutFired = true;
+        }, 25);
+        const installedTimeouts: NodeJS.Timeout[] = [];
+        const scheduledDelays: Array<number | undefined> = [];
+        const pending = new Map([
+            [
+                "interaction-1",
+                {
+                    timeout: pendingTimeout,
+                    userId: "user-1",
+                    nonce: "nonce-1",
+                },
+            ],
+        ]);
+        const emittedEvents: unknown[] = [];
+
+        globalThis.setTimeout = ((callback: (...args: unknown[]) => void, delay?: number, ...args: unknown[]) => {
+            scheduledDelays.push(delay);
+            const installedTimeout = originalSetTimeout(() => callback(...args), 60_000);
+            installedTimeouts.push(installedTimeout);
+            return installedTimeout;
+        }) as typeof setTimeout;
+
+        try {
+            await acknowledgeDeferredMessageUpdateInteraction("interaction-1", pending.get("interaction-1")!, pending, (event) => {
+                emittedEvents.push(event);
+            });
+        } finally {
+            globalThis.setTimeout = originalSetTimeout;
+            for (const timeout of installedTimeouts) clearTimeout(timeout);
+        }
+
+        await new Promise((resolve) => {
+            originalSetTimeout(resolve, 50);
+        });
+
+        assert.equal(originalPendingTimeoutFired, false);
+        assert.deepEqual(scheduledDelays, []);
+        assert.deepEqual(emittedEvents, [
+            {
+                event: "INTERACTION_SUCCESS",
+                user_id: "user-1",
+                data: {
+                    id: "interaction-1",
+                    nonce: "nonce-1",
+                },
+            },
+        ]);
+        assert.equal(pending.has("interaction-1"), false);
+        assert.equal(source.includes("InteractionFailureReason"), false);
+        assert.equal(stateSource.includes("nonce ??"), false);
+        assert.equal(stateSource.includes("setTimeout"), false);
+        assertBefore(deferredUpdateAcknowledgement, "clearTimeout(interaction.timeout);", "await emitEvent({");
+        assertBefore(deferredUpdateAcknowledgement, "await emitEvent({", "pendingInteractions.delete(interactionId);");
+        assertBefore(source, "body.type === InteractionCallbackType.DEFERRED_UPDATE_MESSAGE", "await acknowledgeDeferredMessageUpdateInteraction(");
+        assertBefore(deferredRouteAcknowledgement, "await acknowledgeDeferredMessageUpdateInteraction(", "res.sendStatus(204);");
+        assertBefore(deferredRouteAcknowledgement, "await acknowledgeDeferredMessageUpdateInteraction(", "return;");
     });
 
     test("component media extraction is shared between permission gates and message handling", () => {
