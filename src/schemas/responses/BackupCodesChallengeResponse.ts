@@ -16,7 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { BackupCode } from "@spacebar/util";
+
 export interface BackupCodesChallengeResponse {
     nonce: string;
     regenerate_nonce: string;
 }
+
+export type APIBackupCodeArray = BackupCode[];
