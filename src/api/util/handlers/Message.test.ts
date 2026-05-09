@@ -312,7 +312,10 @@ describe("handleMessage", () => {
             allowed_mentions: { users: ["222"] },
         });
 
-        assert.deepEqual(message.mentions.map((user) => user.id), ["222"]);
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["222"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.match(incrementCondition(context), /222/);
         assert.doesNotMatch(incrementCondition(context), /111/);
@@ -329,7 +332,10 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: ["users"], users: ["222"] },
         });
 
-        assert.deepEqual(message.mentions.map((user) => user.id), ["111", "222"]);
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["111", "222"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.match(incrementCondition(context), /111/);
         assert.match(incrementCondition(context), /222/);
@@ -346,7 +352,10 @@ describe("handleMessage", () => {
             allowed_mentions: { roles: ["444"] },
         });
 
-        assert.deepEqual(message.mention_roles.map((role) => role.id), ["444"]);
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
         assert.equal(context.memberFindCalls.length, 1);
         assert.match(JSON.stringify(context.memberFindCalls), /444/);
         assert.doesNotMatch(JSON.stringify(context.memberFindCalls), /555/);
@@ -363,7 +372,10 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: [], users: ["222"], roles: [] },
         });
 
-        assert.deepEqual(message.mentions.map((user) => user.id), ["222"]);
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["222"],
+        );
         assert.deepEqual(message.mention_roles, []);
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.findByCalls.length, 1);
@@ -383,7 +395,10 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: ["users"], users: [], roles: [] },
         });
 
-        assert.deepEqual(message.mentions.map((user) => user.id), ["111", "222"]);
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["111", "222"],
+        );
         assert.deepEqual(message.mention_roles, []);
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.memberFindCalls.length, 0);
@@ -404,7 +419,10 @@ describe("handleMessage", () => {
         });
 
         assert.deepEqual(message.mentions, []);
-        assert.deepEqual(message.mention_roles.map((role) => role.id), ["444"]);
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.memberFindCalls.length, 1);
         assert.match(JSON.stringify(context.memberFindCalls), /444/);
@@ -423,7 +441,10 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: [], users: [], roles: ["444"] },
         });
 
-        assert.deepEqual(message.mention_roles.map((role) => role.id), ["444"]);
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.memberFindCalls.length, 1);
         assert.match(JSON.stringify(context.memberFindCalls), /444/);
@@ -481,8 +502,14 @@ describe("handleMessage", () => {
             is_edit: true,
         });
 
-        assert.deepEqual(message.mentions.map((user) => user.id), ["111"]);
-        assert.deepEqual(message.mention_roles.map((role) => role.id), ["444"]);
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["111"],
+        );
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
         assert.equal(message.mention_everyone, true);
         assert.equal(context.incrementCalls.length, 0);
     });
@@ -501,7 +528,10 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: [], users: [], roles: [], replied_user: true },
         });
 
-        assert.deepEqual(message.mentions.map((user) => user.id), ["reply_author"]);
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["reply_author"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.match(incrementCondition(context), /reply_author/);
     });
