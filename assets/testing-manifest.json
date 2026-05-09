@@ -2482,7 +2482,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 270,
+            "line": 262,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2534,7 +2534,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 239,
+            "line": 231,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2586,7 +2586,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 54,
+            "line": 46,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2643,7 +2643,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 135,
+            "line": 127,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
