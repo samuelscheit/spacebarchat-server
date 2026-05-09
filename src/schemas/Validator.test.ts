@@ -201,6 +201,12 @@ describe("schema validator custom formats", () => {
 });
 
 describe("RoleModifySchema", () => {
+    test("accepts role names up to 255 characters", () => {
+        const name = "a".repeat(255);
+
+        assert.deepEqual(validateSchema("RoleModifySchema", { name }), { name });
+    });
+
     test("rejects role names longer than 255 characters as a field length error", () => {
         const validate = ajv.getSchema("RoleModifySchema");
         assert.ok(validate);
