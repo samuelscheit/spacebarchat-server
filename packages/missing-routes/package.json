@@ -1,0 +1,27 @@
+{
+    "name": "@spacebar/missing-routes",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        }
+    },
+    "bin": {
+        "spacebar-missing-routes": "./dist/cli.js"
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "start": "node dist/cli.js",
+        "test": "npm run build && node --test dist/**/*.test.js",
+        "typecheck": "tsc -p tsconfig.json --noEmit"
+    },
+    "dependencies": {
+        "prettier": "^3.8.3"
+    },
+    "license": "ISC"
+}
