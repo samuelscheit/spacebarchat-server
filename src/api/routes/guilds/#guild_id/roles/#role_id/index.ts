@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertCanManageGuildRole, route } from "@spacebar/api";
 import { emitEvent, Guild, GuildRoleDeleteEvent, GuildRoleUpdateEvent, handleFile, Member, Role, assertRoleIconPolicy } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -70,6 +70,15 @@ router.delete(
         const { guild_id, role_id } = req.params as { [key: string]: string };
         if (role_id === guild_id) throw new HTTPError("You can't delete the @everyone role");
 
+        const role = await Role.findOneOrFail({
+            where: { id: role_id, guild_id },
+        });
+        await assertCanManageGuildRole({
+            actorId: req.user_id,
+            guildId: guild_id,
+            targetRole: role,
+        });
+
         await Promise.all([
             Role.delete({
                 id: role_id,
@@ -88,8 +97,6 @@ router.delete(
         res.sendStatus(204);
     },
 );
-
-// TODO: check role hierarchy
 
 router.patch(
     "/",
@@ -121,6 +128,15 @@ router.patch(
             }),
             Guild.findOneOrFail({ where: { id: guild_id }, select: { features: true } }),
         ]);
+
+        await assertCanManageGuildRole({
+            actorId: req.user_id,
+            guildId: guild_id,
+            targetRole: {
+                ...role,
+                requestedPosition: body.position,
+            },
+        });
 
         assertRoleIconPolicy({ guildFeatures: guild.features, body });
 

@@ -8229,7 +8229,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 94,
+            "line": 101,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
