@@ -10,6 +10,7 @@
         "src/api/routes/guild-recommendations.test.ts",
         "src/api/util/handlers/VoiceStateModify.test.ts",
         "src/api/ServerConfigure.test.ts",
+        "src/api/routes/applications/@me.test.ts",
         "src/api/util/utility/Experiments.test.ts",
         "src/api/util/utility/Fingerprint.test.ts",
         "src/api/middlewares/CORS.test.ts",
