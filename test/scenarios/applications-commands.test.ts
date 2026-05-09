@@ -406,7 +406,12 @@ test(
             );
             const componentApplicationInteractionEvent = await waitForLabeledEvent(
                 eventCapture,
-                (event) => event.event === "INTERACTION_CREATE" && event.user_id === applicationId && event.data.id === componentUserInteractionEvent.data.id,
+                (event) =>
+                    event.event === "INTERACTION_CREATE" &&
+                    event.user_id === applicationId &&
+                    event.data.id === componentUserInteractionEvent.data.id &&
+                    event.data.type === 3 &&
+                    event.data.message?.id === interactionMessageId,
                 "component application INTERACTION_CREATE",
             );
             const componentInteractionId = componentApplicationInteractionEvent.data.id as string;
@@ -443,6 +448,7 @@ test(
             );
             assert.equal(updateMessageEvent.data.content, updatedInteractionContent);
             assert.equal((await Message.findOneByOrFail({ id: interactionMessageId })).content, updatedInteractionContent);
+            assert.equal(pendingInteractions.has(componentInteractionId), false);
 
             const globalBulkCommand = await ApplicationCommand.findOneByOrFail({ application_id: applicationId, guild_id: undefined, name: "scenario-global-bulk" });
             await assertStatus(await deleteJson(`${api.apiBaseUrl}/applications/${applicationId}/commands/${globalBulkCommand.id}`, ownerToken), 204);
