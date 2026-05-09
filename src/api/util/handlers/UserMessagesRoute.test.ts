@@ -41,7 +41,8 @@ describe("user direct-message route", () => {
         assert.match(helperSource, /export const createMessageResolvedChannelRouteHandlers: RequestHandler\[\] = \[loadMessageChannelPermissions, createMessageHandler\];/);
         assert.match(
             helperSource,
-            /export const createMessageRouteHandlers: RequestHandler\[\] = \[\.\.\.createMessageBodyRouteHandlers, \.\.\.createMessageChannelRouteHandlers\];/,
+            /export const createMessageRouteHandlers: RequestHandler\[\] = \[[\s\S]*createMessageUploadHandler,[\s\S]*normalizeMessageCreateRequestBody,[\s\S]*createMessagePermissionRoute,[\s\S]*createMessageBodyRoute,[\s\S]*validateMessagePayloadLimits,[\s\S]*createMessageHandler,[\s\S]*\];/,
+            "canonical channel message route must preserve permission checks before request-body validation while reusing the same body and send handlers",
         );
         assert.match(routeSource, /import \{ createMessageRouteHandlers \} from "\.\.\/\.\.\/\.\.\/\.\.\/util\/handlers\/ChannelMessageCreateRoute";/);
         assert.match(routeSource, /router\.post\("\/", \.\.\.createMessageRouteHandlers\);/);

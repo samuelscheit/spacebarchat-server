@@ -34,8 +34,12 @@ describe("message payload limit route integration", () => {
         assertOrdered(helperSource, ["export const createMessageChannelRouteHandlers: RequestHandler[] = [", "createMessagePermissionRoute", "createMessageHandler", "];"]);
         assertOrdered(helperSource, [
             "export const createMessageRouteHandlers: RequestHandler[] = [",
-            "...createMessageBodyRouteHandlers",
-            "...createMessageChannelRouteHandlers",
+            "createMessageUploadHandler,",
+            "normalizeMessageCreateRequestBody,",
+            "createMessagePermissionRoute,",
+            "createMessageBodyRoute,",
+            "validateMessagePayloadLimits,",
+            "createMessageHandler,",
             "];",
         ]);
         assertOrdered(helperSource, ["export const createMessageHandler: RequestHandler", "const channel = await Channel.findOneOrFail({"]);

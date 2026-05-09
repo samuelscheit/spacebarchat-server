@@ -335,4 +335,11 @@ export const createMessageBodyRouteHandlers: RequestHandler[] = [
 ];
 export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
 export const createMessageResolvedChannelRouteHandlers: RequestHandler[] = [loadMessageChannelPermissions, createMessageHandler];
-export const createMessageRouteHandlers: RequestHandler[] = [...createMessageBodyRouteHandlers, ...createMessageChannelRouteHandlers];
+export const createMessageRouteHandlers: RequestHandler[] = [
+    createMessageUploadHandler,
+    normalizeMessageCreateRequestBody,
+    createMessagePermissionRoute,
+    createMessageBodyRoute,
+    validateMessagePayloadLimits,
+    createMessageHandler,
+];
