@@ -43,6 +43,12 @@ export interface GuildUpdateSchema extends Omit<GuildCreateSchema, "channels" | 
     preferred_locale?: string;
     premium_progress_bar_enabled?: boolean;
     /**
+     * @minLength 1
+     * @maxLength 4
+     * @pattern ^[A-Za-z0-9]+$
+     */
+    profile_tag?: string | null;
+    /**
      * @TJS-format image-data-uri-or-asset-hash
      */
     discovery_splash?: string;

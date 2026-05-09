@@ -8,6 +8,9 @@ const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
 type JsonShape = {
     $ref?: string;
+    maxLength?: number;
+    minLength?: number;
+    pattern?: string;
     type?: string | string[];
     items?: JsonShape;
     properties?: Record<string, JsonShape & { format?: string }>;
@@ -171,6 +174,15 @@ describe("schema validator custom formats", () => {
             icon: AssetHash,
             banner: `a_${AssetHash}`,
             splash: null,
+        });
+    });
+
+    test("documents writable guild profile tags", () => {
+        assert.deepEqual(Schemas.GuildUpdateSchema.properties?.profile_tag, {
+            type: ["null", "string"],
+            minLength: 1,
+            maxLength: 4,
+            pattern: "^[A-Za-z0-9]+$",
         });
     });
 
