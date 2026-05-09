@@ -22,4 +22,5 @@ export class PasswordConfiguration {
     minNumbers: number = 2;
     minUpperCase: number = 2;
     minSymbols: number = 0;
+    blocklist: string[] = [];
 }

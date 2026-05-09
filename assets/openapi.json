@@ -18025,9 +18025,17 @@
                     "minSymbols": {
                         "type": "integer",
                         "default": 0
+                    },
+                    "blocklist": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "default": []
                     }
                 },
                 "required": [
+                    "blocklist",
                     "minLength",
                     "minNumbers",
                     "minSymbols",

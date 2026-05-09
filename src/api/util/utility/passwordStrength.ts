@@ -16,67 +16,38 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "@spacebar/util";
+import { Config, type PasswordConfiguration } from "@spacebar/util";
 
-const reNUMBER = /[0-9]/g;
-const reUPPERCASELETTER = /[A-Z]/g;
-const reNON_SYMBOL = /[A-Za-z0-9]/g;
+const reNUMBER = /^\p{Nd}$/u;
+const reUPPERCASELETTER = /^\p{Lu}$/u;
+const reLETTER_OR_NUMBER = /^[\p{L}\p{N}]$/u;
+const PASSWORD_REQUIREMENT_SCORE = 0.05;
+const PASSWORD_REQUIREMENT_COUNT = 4;
+const ENTROPY_SCORE_WEIGHT = 1 - PASSWORD_REQUIREMENT_SCORE * PASSWORD_REQUIREMENT_COUNT;
 
-type PasswordPolicy = {
-    minLength: number;
-    minNumbers: number;
-    minUpperCase: number;
-    minSymbols: number;
-};
+export type PasswordRequirementCode =
+    | "PASSWORD_REQUIREMENTS_MIN_LENGTH"
+    | "PASSWORD_REQUIREMENTS_MIN_NUMBERS"
+    | "PASSWORD_REQUIREMENTS_MIN_UPPERCASE"
+    | "PASSWORD_REQUIREMENTS_MIN_SYMBOLS"
+    | "PASSWORD_REQUIREMENTS_BLOCKLIST";
+
+export type PasswordStrengthPolicy = Pick<PasswordConfiguration, "minLength" | "minNumbers" | "minUpperCase" | "minSymbols"> & Partial<Pick<PasswordConfiguration, "blocklist">>;
 
 export type PasswordPolicyFailure = {
-    code: "PASSWORD_REQUIREMENTS_MIN_LENGTH" | "PASSWORD_REQUIREMENTS_MIN_NUMBERS" | "PASSWORD_REQUIREMENTS_MIN_UPPERCASE" | "PASSWORD_REQUIREMENTS_MIN_SYMBOLS";
+    code: PasswordRequirementCode;
     message: string;
     values: Record<string, number>;
 };
 
-function countMatches(password: string, expression: RegExp) {
-    return password.match(expression)?.length ?? 0;
-}
+type PasswordStrengthMetrics = {
+    length: number;
+    numbers: number;
+    upperCase: number;
+    symbols: number;
+    entropy: number;
+};
 
-export function validatePasswordPolicy(password: string, policy: PasswordPolicy = Config.get().register.password): PasswordPolicyFailure | undefined {
-    if (password.length < policy.minLength) {
-        return {
-            code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
-            message: `The password must be at least ${policy.minLength} characters long.`,
-            values: { min: policy.minLength },
-        };
-    }
-
-    const numbers = countMatches(password, reNUMBER);
-    if (numbers < policy.minNumbers) {
-        return {
-            code: "PASSWORD_REQUIREMENTS_MIN_NUMBERS",
-            message: `The password must contain at least ${policy.minNumbers} numbers.`,
-            values: { min: policy.minNumbers },
-        };
-    }
-
-    const uppercase = countMatches(password, reUPPERCASELETTER);
-    if (uppercase < policy.minUpperCase) {
-        return {
-            code: "PASSWORD_REQUIREMENTS_MIN_UPPERCASE",
-            message: `The password must contain at least ${policy.minUpperCase} uppercase letters.`,
-            values: { min: policy.minUpperCase },
-        };
-    }
-
-    const symbols = password.replace(reNON_SYMBOL, "").length;
-    if (symbols < policy.minSymbols) {
-        return {
-            code: "PASSWORD_REQUIREMENTS_MIN_SYMBOLS",
-            message: `The password must contain at least ${policy.minSymbols} symbols.`,
-            values: { min: policy.minSymbols },
-        };
-    }
-}
-
-// const blocklist: string[] = []; // TODO: update ones passwordblocklist is stored in db
 /*
  * https://en.wikipedia.org/wiki/Password_policy
  * password must meet following criteria, to be perfect:
@@ -84,53 +55,132 @@ export function validatePasswordPolicy(password: string, policy: PasswordPolicy 
  *  - min <n> numbers
  *  - min <n> symbols
  *  - min <n> uppercase chars
- *  - shannon entropy folded into [0, 1) interval
+ *  - shannon entropy folded into [0, 1] interval
  *
- * Returns: 0 > pw > 1
+ * Returns a bounded score in the [0, 1] interval.
  */
 export function checkPassword(password: string): number {
-    if (password.length <= 1) return 0;
+    return calculatePasswordStrength(password, Config.get().register.password);
+}
 
-    const policy = Config.get().register.password;
+export function calculatePasswordStrength(password: string, policy: PasswordStrengthPolicy = Config.get().register.password): number {
+    const characters = Array.from(password);
+    const metrics = getPasswordMetrics(characters);
+
+    return scorePasswordPolicy(metrics, policy, isPasswordBlocklisted(password, policy.blocklist));
+}
+
+export function validatePasswordPolicy(password: string, policy: PasswordStrengthPolicy = Config.get().register.password): PasswordPolicyFailure | undefined {
+    const characters = Array.from(password);
+    const metrics = getPasswordMetrics(characters);
+
+    if (!meetsMinimum(metrics.length, policy.minLength)) {
+        const min = normalizedMinimum(policy.minLength);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
+            message: `The password must be at least ${min} characters long.`,
+            values: { min },
+        };
+    }
+
+    if (!meetsMinimum(metrics.numbers, policy.minNumbers)) {
+        const min = normalizedMinimum(policy.minNumbers);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_NUMBERS",
+            message: `The password must contain at least ${min} numbers.`,
+            values: { min },
+        };
+    }
+
+    if (!meetsMinimum(metrics.upperCase, policy.minUpperCase)) {
+        const min = normalizedMinimum(policy.minUpperCase);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_UPPERCASE",
+            message: `The password must contain at least ${min} uppercase letters.`,
+            values: { min },
+        };
+    }
+
+    if (!meetsMinimum(metrics.symbols, policy.minSymbols)) {
+        const min = normalizedMinimum(policy.minSymbols);
+        return {
+            code: "PASSWORD_REQUIREMENTS_MIN_SYMBOLS",
+            message: `The password must contain at least ${min} symbols.`,
+            values: { min },
+        };
+    }
+
+    if (isPasswordBlocklisted(password, policy.blocklist)) {
+        return {
+            code: "PASSWORD_REQUIREMENTS_BLOCKLIST",
+            message: "This password is too common. Please choose a different password.",
+            values: {},
+        };
+    }
+}
+
+export function isPasswordBlocklisted(password: string, blocklist: string[] = []): boolean {
+    const normalizedPassword = normalizeBlocklistEntry(password);
+    return blocklist.some((entry) => {
+        const normalizedEntry = normalizeBlocklistEntry(entry);
+        return normalizedEntry !== "" && normalizedEntry === normalizedPassword;
+    });
+}
+
+function normalizeBlocklistEntry(value: string): string {
+    return value.normalize("NFKC").trim().toLowerCase();
+}
+
+function meetsMinimum(value: number, minimum: number): boolean {
+    return value >= normalizedMinimum(minimum);
+}
+
+function normalizedMinimum(minimum: number): number {
+    return Number.isFinite(minimum) ? Math.max(0, minimum) : 0;
+}
+
+function getPasswordMetrics(characters: string[]): PasswordStrengthMetrics {
+    return {
+        length: characters.length,
+        numbers: characters.filter((character) => reNUMBER.test(character)).length,
+        upperCase: characters.filter((character) => reUPPERCASELETTER.test(character)).length,
+        symbols: characters.filter(isSymbol).length,
+        entropy: calculateNormalizedShannonEntropy(characters),
+    };
+}
+
+function isSymbol(character: string): boolean {
+    return !reLETTER_OR_NUMBER.test(character);
+}
+
+function scorePasswordPolicy(metrics: PasswordStrengthMetrics, policy: PasswordStrengthPolicy, blocklisted: boolean): number {
+    if (metrics.length <= 1 || blocklisted) return 0;
+
     let strength = 0;
+    if (meetsMinimum(metrics.length, policy.minLength)) strength += PASSWORD_REQUIREMENT_SCORE;
+    if (meetsMinimum(metrics.numbers, policy.minNumbers)) strength += PASSWORD_REQUIREMENT_SCORE;
+    if (meetsMinimum(metrics.upperCase, policy.minUpperCase)) strength += PASSWORD_REQUIREMENT_SCORE;
+    if (meetsMinimum(metrics.symbols, policy.minSymbols)) strength += PASSWORD_REQUIREMENT_SCORE;
 
-    // checks for total password len
-    if (password.length >= policy.minLength) {
-        strength += 0.05;
+    strength += metrics.entropy * ENTROPY_SCORE_WEIGHT;
+    return clamp(strength, 0, 1);
+}
+
+function calculateNormalizedShannonEntropy(characters: string[]): number {
+    if (characters.length <= 1) return 0;
+
+    const counts = new Map<string, number>();
+    for (const character of characters) counts.set(character, (counts.get(character) ?? 0) + 1);
+
+    let entropy = 0;
+    for (const count of counts.values()) {
+        const probability = count / characters.length;
+        entropy -= probability * Math.log2(probability);
     }
 
-    // checks for amount of Numbers
-    if (countMatches(password, reNUMBER) >= policy.minNumbers) {
-        strength += 0.05;
-    }
+    return entropy / Math.log2(characters.length);
+}
 
-    // checks for amount of Uppercase Letters
-    if (countMatches(password, reUPPERCASELETTER) >= policy.minUpperCase) {
-        strength += 0.05;
-    }
-
-    // checks for amount of symbols
-    if (password.replace(reNON_SYMBOL, "").length >= policy.minSymbols) {
-        strength += 0.05;
-    }
-
-    // checks if password only consists of numbers or only consists of chars
-    if (password.length === countMatches(password, reNUMBER) || password.length === countMatches(password, reUPPERCASELETTER)) {
-        strength = 0;
-    }
-
-    const entropyMap: { [key: string]: number } = {};
-    for (let i = 0; i < password.length; i++) {
-        if (entropyMap[password[i]]) entropyMap[password[i]]++;
-        else entropyMap[password[i]] = 1;
-    }
-
-    const entropies = Object.values(entropyMap);
-
-    const entropy = entropies.reduce((sum: number, count: number) => {
-        const probability = count / password.length;
-        return sum - probability * Math.log2(probability);
-    }, 0);
-    strength += entropy / Math.log2(password.length);
-    return strength;
+function clamp(value: number, minimum: number, maximum: number): number {
+    return Math.min(maximum, Math.max(minimum, value));
 }
