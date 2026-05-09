@@ -93,19 +93,6 @@ export enum MessageType {
 /**
  * https://docs.discord.food/resources/message#partial-message-structure
  */
-/*
-export type PartialMessage = Pick<Message, "id">
-	// & Pick<Message, "lobby_id">
-	& Pick<Message, "channel_id">
-	& Pick<Message, "type">
-	& Pick<Message, "content">
-	& Pick<Message, "author">
-	& Pick<Message, "flags">
-	& Pick<Message, "application_id">
-	& { channel?: Channel }
-	;
- */
-
 export interface PartialMessage {
     id: Snowflake;
     channel_id: string;

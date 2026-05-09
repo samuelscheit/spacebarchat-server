@@ -30755,6 +30755,9 @@
                             }
                         }
                     },
+                    "204": {
+                        "description": "No description available"
+                    },
                     "403": {
                         "description": "",
                         "content": {
@@ -30794,6 +30797,14 @@
                             "type": "string"
                         },
                         "description": "member_id"
+                    },
+                    {
+                        "name": "lurker",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Return 204 for existing member lurker join probes."
                     }
                 ],
                 "tags": [
