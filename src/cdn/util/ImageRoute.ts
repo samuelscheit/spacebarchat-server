@@ -5,12 +5,15 @@ import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
 import { cache, cacheNotFound } from "./cache";
 import { multer } from "./multer";
-import { DEFAULT_IMAGE_MIME_TYPES, getCdnImagePath, hashImageBuffer, isAllowedImageMimeType } from "./ImageRouteHelpers";
+import { DEFAULT_IMAGE_MIME_TYPES, getCdnImageHashPaths, getCdnImagePath, hashImageBuffer, isAllowedImageMimeType, parseCdnImageSize, resizeCdnImage } from "./ImageRouteHelpers";
 
 export interface ImageRouteOptions {
     pathPrefix: string;
     resourceParam: string;
     allowedMimeTypes?: string[];
+    assertUploadSize?: (resourceId: string, size: number) => void;
+    legacyHashExtensions?: string[];
+    resize?: boolean;
 }
 
 function getRouteParam(req: Request, name: string) {
@@ -18,7 +21,21 @@ function getRouteParam(req: Request, name: string) {
     return Array.isArray(value) ? value[0] : value;
 }
 
-export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTypes = DEFAULT_IMAGE_MIME_TYPES }: ImageRouteOptions) {
+function isMissingStorageObjectError(error: unknown) {
+    if (!error || typeof error !== "object") return false;
+    if ("code" in error && String(error.code) === "ENOENT") return true;
+    if ("name" in error && ["NoSuchKey", "NotFound"].includes(String(error.name))) return true;
+    return false;
+}
+
+export function createHashImageRouter({
+    pathPrefix,
+    resourceParam,
+    allowedMimeTypes = DEFAULT_IMAGE_MIME_TYPES,
+    assertUploadSize,
+    legacyHashExtensions = [],
+    resize = false,
+}: ImageRouteOptions) {
     const router = Router({ mergeParams: true });
 
     router.post(`/:${resourceParam}`, multer.single("file"), async (req: Request, res: Response) => {
@@ -27,6 +44,7 @@ export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTy
 
         const { buffer, size } = req.file;
         const resourceId = getRouteParam(req, resourceParam);
+        assertUploadSize?.(resourceId, size);
         const type = await fileTypeFromBuffer(buffer);
 
         if (!isAllowedImageMimeType(type?.mime, allowedMimeTypes)) throw new HTTPError("Invalid file type");
@@ -54,25 +72,48 @@ export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTy
 
         res.set("Content-Type", type?.mime);
 
-        return res.send(file);
+        const body = resize ? await resizeCdnImage(file, type?.mime, parseCdnImageSize(req.query.size)) : file;
+
+        return res.send(body);
     });
 
     router.get(`/:${resourceParam}/:hash`, cache, async (req: Request, res: Response) => {
-        const path = getCdnImagePath(pathPrefix, getRouteParam(req, resourceParam), getRouteParam(req, "hash"));
+        let file: Buffer | null = null;
+        const paths = getCdnImageHashPaths(pathPrefix, getRouteParam(req, resourceParam), getRouteParam(req, "hash"), legacyHashExtensions);
 
-        const file = await storage.get(path);
+        for (const path of paths) {
+            file = await storage.get(path);
+            if (file) break;
+        }
+
         if (!file) return cacheNotFound(req, res);
         const type = await fileTypeFromBuffer(file);
 
         res.set("Content-Type", type?.mime);
 
-        return res.send(file);
+        const body = resize ? await resizeCdnImage(file, type?.mime, parseCdnImageSize(req.query.size)) : file;
+
+        return res.send(body);
     });
 
     router.delete(`/:${resourceParam}/:id`, async (req: Request, res: Response) => {
         if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
 
-        await storage.delete(`${pathPrefix}/${getRouteParam(req, resourceParam)}/${getRouteParam(req, "id")}`);
+        const paths = getCdnImageHashPaths(pathPrefix, getRouteParam(req, resourceParam), getRouteParam(req, "id"), legacyHashExtensions);
+        let firstError: unknown;
+        let deleted = false;
+
+        for (const path of paths) {
+            try {
+                await storage.delete(path);
+                deleted = true;
+            } catch (error) {
+                if (!isMissingStorageObjectError(error)) throw error;
+                firstError ??= error;
+            }
+        }
+
+        if (!deleted && firstError) throw firstError;
 
         return res.send({ success: true });
     });

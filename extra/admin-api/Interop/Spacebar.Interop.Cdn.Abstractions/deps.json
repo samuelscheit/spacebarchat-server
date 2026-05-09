@@ -3,5 +3,10 @@
     "pname": "ArcaneLibs",
     "version": "1.0.1-preview.20260420-212318",
     "hash": "sha256-y+gU8S3jbcFgIwwc0vkkEPMfHzGZ+55//9uvsKOEGXY="
+  },
+  {
+    "pname": "Magick.NET.Core",
+    "version": "14.12.0",
+    "hash": "sha256-mlOAmFcSL8JzBqwMBpFtWt6+48PIdb1qUc++wPqhBHM="
   }
 ]

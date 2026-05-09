@@ -16,79 +16,42 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: Need a way to allow camalCase and pascal_case without just duplicating the schema
+import type { ActivitySchema } from "../uncategorised/ActivitySchema";
 
-import { ActivitySchema } from "@spacebar/schemas";
+/**
+ * @pattern ^-?[0-9]+$
+ */
+export type IdentifyBitfield = number | string;
 
-// TODO: can we get rid of this somehow?
-export const IdentifySchema = {
-    token: String,
-    $intents: BigInt, // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
-    $properties: Object,
-    // {
-    // 	// discord uses $ in the property key for bots, so we need to double prefix it, because instanceOf treats $ (prefix) as a optional key
-    // 	$os: String,
-    // 	$os_arch: String,
-    // 	$browser: String,
-    // 	$device: String,
-    // 	$$os: String,
-    // 	$$browser: String,
-    // 	$$device: String,
-    // 	$browser_user_agent: String,
-    // 	$browser_version: String,
-    // 	$os_version: String,
-    // 	$referrer: String,
-    // 	$$referrer: String,
-    // 	$referring_domain: String,
-    // 	$$referring_domain: String,
-    // 	$referrer_current: String,
-    // 	$referring_domain_current: String,
-    // 	$release_channel: String,
-    // 	$client_build_number: Number,
-    // 	$client_event_source: String,
-    // 	$client_version: String,
-    // 	$system_locale: String,
-    // 	$window_manager: String,
-    // 	$distro: String,
-    // },
-    $presence: ActivitySchema,
-    $compress: Boolean,
-    $large_threshold: Number,
-    $shard: [BigInt, BigInt],
-    $guild_subscriptions: Boolean,
-    $capabilities: Number,
-    $client_state: {
-        $guild_hashes: Object,
-        $highest_last_message_id: Number,
-        $read_state_version: Number,
-        $user_guild_settings_version: Number,
-        $user_settings_version: undefined,
-        $useruser_guild_settings_version: undefined,
-        $private_channels_version: Number,
-        $guild_versions: Object,
-        $api_code_version: Number,
-        $initial_guild_id: String,
-    },
-    $clientState: {
-        $guildHashes: Object,
-        $highestLastMessageId: Number,
-        $readStateVersion: Number,
-        $useruserGuildSettingsVersion: undefined,
-        $userGuildSettingsVersion: undefined,
-        $guildVersions: Object,
-        $apiCodeVersion: Number,
-        $initialGuildId: String,
-    },
-    $v: Number,
-    $version: Number,
-};
+export interface IdentifyClientState {
+    guild_hashes?: unknown;
+    guildHashes?: unknown;
+    highest_last_message_id?: number;
+    highestLastMessageId?: number;
+    read_state_version?: number;
+    readStateVersion?: number;
+    user_guild_settings_version?: number;
+    userGuildSettingsVersion?: number;
+    user_settings_version?: number;
+    userSettingsVersion?: number;
+    useruser_guild_settings_version?: number;
+    useruserGuildSettingsVersion?: number;
+    private_channels_version?: number;
+    privateChannelsVersion?: number;
+    guild_versions?: unknown;
+    guildVersions?: unknown;
+    api_code_version?: number;
+    apiCodeVersion?: number;
+    initial_guild_id?: string;
+    initialGuildId?: string;
+}
 
 export interface IdentifySchema {
     token: string;
     properties: {
         // bruh discord really uses $ in the property key, so we need to double prefix it, because instanceOf treats $ (prefix) as a optional key
         os?: string;
-        os_atch?: string;
+        os_arch?: string;
         browser?: string;
         device?: string;
         $os?: string;
@@ -98,7 +61,9 @@ export interface IdentifySchema {
         browser_version?: string;
         os_version?: string;
         referrer?: string;
+        $referrer?: string;
         referring_domain?: string;
+        $referring_domain?: string;
         referrer_current?: string;
         referring_domain_current?: string;
         release_channel?: "stable" | "dev" | "ptb" | "canary";
@@ -106,8 +71,10 @@ export interface IdentifySchema {
         client_event_source?: string;
         client_version?: string;
         system_locale?: string;
+        window_manager?: string;
+        distro?: string;
     };
-    intents?: bigint; // discord uses a Integer for bitfields we use bigints tho. | instanceOf will automatically convert the Number to a BigInt
+    intents?: IdentifyBitfield; // Discord uses an integer for bitfields; Spacebar also accepts strings for large bitfields.
     presence?: ActivitySchema;
     compress?: boolean;
     large_threshold?: number;
@@ -116,30 +83,11 @@ export interface IdentifySchema {
      * @minItems 2
      * @maxItems 2
      */
-    shard?: bigint[]; // puyo: changed from [bigint, bigint] because it breaks openapi
+    shard?: IdentifyBitfield[];
     guild_subscriptions?: boolean;
     capabilities?: number;
-    client_state?: {
-        guild_hashes?: unknown;
-        highest_last_message_id?: number;
-        read_state_version?: number;
-        user_guild_settings_version?: number;
-        user_settings_version?: number;
-        useruser_guild_settings_version?: number;
-        private_channels_version?: number;
-        guild_versions?: unknown;
-        api_code_version?: number;
-        initial_guild_id?: string;
-    };
-    clientState?: {
-        guildHashes?: unknown;
-        highestLastMessageId?: number;
-        readStateVersion?: number;
-        userGuildSettingsVersion?: number;
-        useruserGuildSettingsVersion?: number;
-        guildVersions?: unknown;
-        apiCodeVersion?: number;
-        initialGuildId?: string;
-    };
+    client_state?: IdentifyClientState;
+    clientState?: IdentifyClientState;
     v?: number;
+    version?: number;
 }

@@ -23,3 +23,10 @@ export interface PartialConnectedAccountResponse {
     verified: boolean;
     metadata?: object;
 }
+
+export type APIConnectionsConfiguration = Record<
+    string,
+    {
+        enabled: boolean;
+    }
+>;

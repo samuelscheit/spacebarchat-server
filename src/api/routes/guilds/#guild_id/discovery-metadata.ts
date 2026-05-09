@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getGuildDiscoveryMetadataUpdate, route, toGuildDiscoveryMetadata } from "@spacebar/api";
+import { DISCOVERABLE_FEATURE, assertCanPublishGuildDiscovery, getGuildDiscoveryMetadataUpdate, route, toGuildDiscoveryMetadata } from "@spacebar/api";
 import { Guild } from "@spacebar/util";
 import { GuildDiscoveryMetadataUpdateSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
@@ -51,6 +51,7 @@ router.patch(
     "/",
     route({
         permission: "MANAGE_GUILD",
+        permissionOrRight: "MANAGE_GUILDS",
         requestBody: "GuildDiscoveryMetadataUpdateSchema",
         responses: {
             200: {
@@ -69,8 +70,12 @@ router.patch(
         const body = req.body as GuildDiscoveryMetadataUpdateSchema;
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
-            select: { id: true, primary_category_id: true, features: true, description: true },
+            select: { id: true, primary_category_id: true, features: true, description: true, discovery_excluded: true },
         });
+
+        if (body.is_published === true && !guild.features.includes(DISCOVERABLE_FEATURE)) {
+            assertCanPublishGuildDiscovery(guild, req.rights);
+        }
 
         const update = getGuildDiscoveryMetadataUpdate(guild, body);
         if (Object.keys(update).length) {

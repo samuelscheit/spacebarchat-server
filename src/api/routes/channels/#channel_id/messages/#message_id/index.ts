@@ -18,6 +18,7 @@
 
 import {
     Attachment,
+    buildMessageEditComponentProcessingOptions,
     buildMessageEditHandleMessageOptions,
     Channel,
     Message,
@@ -35,21 +36,21 @@ import {
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import multer from "multer";
-import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
+import {
+    assertMessagePayloadPermissions,
+    createMessageUpload,
+    handleMessage,
+    messageToResponse,
+    normalizeMessageEditBodyAttachments,
+    postHandleMessage,
+    route,
+} from "@spacebar/api";
+import { MessageCreateAttachmentMetadata, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
+import { validateMessagePayloadLimits } from "../../../../../util/utility/MessagePayloadLimits";
 
 const router = Router({ mergeParams: true });
-// TODO: message content/embed string length limit
 
-const messageUpload = multer({
-    limits: {
-        fileSize: 1024 * 1024 * 100,
-        fields: 10,
-        files: 1,
-    },
-    storage: multer.memoryStorage(),
-}); // max upload 50 mb
+const messageUpload = createMessageUpload({ files: 1 });
 
 router.patch(
     "/",
@@ -68,6 +69,7 @@ router.patch(
             404: {},
         },
     }),
+    validateMessagePayloadLimits,
     async (req: Request, res: Response) => {
         const { message_id, channel_id } = req.params as { [key: string]: string };
         let body = req.body as MessageEditSchema;
@@ -91,25 +93,15 @@ router.patch(
 
         assertMessagePayloadPermissions(permissions, body);
 
-        const normalizedBody = { ...body } as MessageEditSchema & {
-            attachments?: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[];
-        };
-        if (body.attachments) {
-            const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
-            normalizedBody.attachments = body.attachments.map((attachment) => {
-                if (isNewMessagePayloadAttachment(attachment)) return attachment;
-                if (!attachment.id) throw new HTTPError("Unknown attachment", 400);
-                const retained = existingAttachmentsById.get(attachment.id);
-                if (!retained) throw new HTTPError("Unknown attachment", 400);
-                return retained;
-            });
-        }
+        const normalizedBody = normalizeMessageEditBodyAttachments(body, message.attachments);
+        const componentProcessingOptions = buildMessageEditComponentProcessingOptions(normalizedBody);
 
         const new_message = await handleMessage(
             buildMessageEditHandleMessageOptions(message, normalizedBody, channel_id, message_id, new Date(), {
                 attachment_user_id: req.user_id,
                 attachment_channel_ids: [channel_id],
                 is_edit: true,
+                ...componentProcessingOptions,
             }),
             { suppress_notifications: true },
         );
@@ -157,10 +149,11 @@ router.put(
             404: {},
         },
     }),
+    validateMessagePayloadLimits,
     async (req: Request, res: Response) => {
         const { channel_id, message_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
-        const attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        const attachments: MessageCreateAttachmentMetadata[] = body.attachments ?? [];
 
         const rights = await getRights(req.user_id);
         rights.hasThrow("SEND_MESSAGES");

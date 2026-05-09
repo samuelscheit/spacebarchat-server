@@ -16,13 +16,39 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { ApiError, Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
+import { requireOAuth2BotAuthorization, route } from "@spacebar/api";
+import { DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+import { requireOAuthAuthorizeApplication } from "../../util/utility/OAuthAuthorizeApplication";
+import { serializeOAuthAuthorizeApplication } from "../../util/utility/OAuthAuthorize";
+import { toOAuthAuthorizeBot } from "../../util/utility/OAuthAuthorizeResponse";
 const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
+
+type OAuthAuthorizeUserPreview = Omit<
+    Pick<User, "id" | "username" | "avatar" | "avatar_decoration_data" | "discriminator" | "public_flags">,
+    "avatar" | "avatar_decoration_data"
+> & {
+    avatar?: User["avatar"] | null;
+    avatar_decoration_data?: User["avatar_decoration_data"] | null;
+};
+
+export function toOAuthAuthorizeUserPreview(user: OAuthAuthorizeUserPreview) {
+    return {
+        id: user.id,
+        username: user.username,
+        avatar: user.avatar,
+        avatar_decoration_data: user.avatar_decoration_data ?? null,
+        discriminator: user.discriminator,
+        public_flags: user.public_flags,
+    };
+}
+
+export async function getBotApproximateGuildCount(botId: string) {
+    return Member.count({ where: { id: botId } });
+}
 
 router.get(
     "/",
@@ -33,8 +59,9 @@ router.get(
             },
         },
         responses: {
-            // TODO: I really didn't feel like typing all of it out
-            200: {},
+            200: {
+                body: "OAuthAuthorizeInfoResponse",
+            },
             400: {
                 body: "APIErrorResponse",
             },
@@ -55,27 +82,17 @@ router.get(
             });
         }
 
-        const app = await Application.findOne({
-            where: {
-                id: client_id as string,
-            },
-            relations: { bot: true },
-        });
-
-        // TODO: use DiscordApiErrors
-        // findOneOrFail throws code 404
-        if (!app) throw DiscordApiErrors.UNKNOWN_APPLICATION;
-        if (!app.bot) throw DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT;
-
+        const app = await requireOAuthAuthorizeApplication(client_id as string);
         const bot = app.bot;
-        delete app.bot;
+
+        const botApproximateGuildCount = await getBotApproximateGuildCount(bot.id);
 
         const user = await User.findOneOrFail({
             where: {
                 id: req.user_id,
                 bot: false,
             },
-            select: { id: true, username: true, avatar: true, discriminator: true, public_flags: true },
+            select: { id: true, username: true, avatar: true, avatar_decoration_data: true, discriminator: true, public_flags: true },
         });
 
         const guilds = await Member.find({
@@ -95,11 +112,11 @@ router.get(
                 user: {
                     id: user.id,
                     roles: x.roles?.map((x) => x.id) || [],
+                    resolved_roles: x.roles || [],
                     communication_disabled_until: x.communication_disabled_until,
                     flags: x.user.flags,
                 },
                 guild: {
-                    roles: x?.roles || [],
                     id: x.guild.id,
                     owner_id: x.guild.owner_id!, // ownerless guilds...?
                 },
@@ -116,37 +133,11 @@ router.get(
 
         return res.json({
             guilds: guildsWithPermissions,
-            user: {
-                id: user.id,
-                username: user.username,
-                avatar: user.avatar,
-                avatar_decoration: null, // TODO
-                discriminator: user.discriminator,
-                public_flags: user.public_flags,
-            },
-            application: {
-                id: app.id,
-                name: app.name,
-                icon: app.icon,
-                description: app.description,
-                summary: app.summary,
-                type: app.type,
-                hook: app.hook,
-                guild_id: null, // TODO support guilds
-                bot_public: app.bot_public,
-                bot_require_code_grant: app.bot_require_code_grant,
-                verify_key: app.verify_key,
-                flags: app.flags,
-            },
+            user: toOAuthAuthorizeUserPreview(user),
+            application: serializeOAuthAuthorizeApplication(app),
             bot: {
-                id: bot.id,
-                username: bot.username,
-                avatar: bot.avatar,
-                avatar_decoration: null, // TODO
-                discriminator: bot.discriminator,
-                public_flags: bot.public_flags,
-                bot: true,
-                approximated_guild_count: 0, // TODO
+                ...toOAuthAuthorizeBot(bot),
+                approximated_guild_count: botApproximateGuildCount,
             },
             authorized: false,
         });
@@ -191,26 +182,10 @@ router.post(
             });
         }
 
-        // TODO: ensure guild_id is not an empty string
         // TODO: captcha verification
-        // TODO: MFA verification
+        await requireOAuth2BotAuthorization({ getPermission, guildId: body.guild_id, mfaCode: body.code, userId: req.user_id });
 
-        const perms = await getPermission(req.user_id, body.guild_id, undefined, { member_relations: ["user"] });
-        // getPermission cache won't exist if we're owner
-        if (Object.keys(perms.cache || {}).length > 0 && perms.cache.member?.user.bot) throw DiscordApiErrors.UNAUTHORIZED;
-        perms.hasThrow("MANAGE_GUILD");
-
-        const app = await Application.findOne({
-            where: {
-                id: client_id as string,
-            },
-            relations: { bot: true },
-        });
-
-        // TODO: use DiscordApiErrors
-        // findOneOrFail throws code 404
-        if (!app) throw new ApiError("Unknown Application", 10002, 404);
-        if (!app.bot) throw new ApiError("OAuth2 application does not have a bot", 50010, 400);
+        const app = await requireOAuthAuthorizeApplication(client_id as string);
 
         await Member.addToGuild(app.id, body.guild_id);
         if (body.permissions) {

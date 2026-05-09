@@ -5,6 +5,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { closeDatabase, Config, generateToken, initDatabase, Message, ReadState, User } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
+import { assertNoEvent } from "../assertions/events";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -178,7 +179,7 @@ async function coverAckSearchPreloadAndStubs(
     await waitForEventAfter(
         events,
         beforeAck,
-        (event) => event.event === "MESSAGE_ACK" && event.user_id === ownerId && event.data.channel_id === channelId && event.data.message_id === messageId,
+        (event) => event.event === "MESSAGE_ACK" && event.channel_id === channelId && event.data.channel_id === channelId && event.data.message_id === messageId,
     );
     const readState = await ReadState.findOneByOrFail({ user_id: ownerId, channel_id: channelId });
     assert.equal(readState.last_message_id, messageId);
@@ -196,8 +197,16 @@ async function coverAckSearchPreloadAndStubs(
     assert.equal(preload[0].id, messageId);
     assert.equal("reactions" in preload[0], false);
 
+    const readStateBeforePostData = readStateCursorSnapshot(readState);
+    const beforePostData = markCapturedEvents(events);
     const postData = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${channelId}/post-data`, { thread_ids: [] }, token));
     assert.deepEqual(postData, { threads: {} });
+    assert.deepEqual(readStateCursorSnapshot(await ReadState.findOneByOrFail({ user_id: ownerId, channel_id: channelId })), readStateBeforePostData);
+    await assertNoEvent(
+        events,
+        (event) => !beforePostData.has(event) && event.event === "MESSAGE_ACK" && event.channel_id === channelId && event.data.channel_id === channelId,
+        50,
+    );
 
     const beforeCrosspost = markCapturedEvents(events);
     const crosspost = await assertJsonObject(await postJson(`${apiBaseUrl}/channels/${newsChannelId}/messages/${newsMessageId}/crosspost`, {}, token));
@@ -265,6 +274,16 @@ async function createMessage(apiBaseUrl: string, channelId: string, content: str
 
 function markCapturedEvents(capture: EventCapture) {
     return new Set(capture.events);
+}
+
+function readStateCursorSnapshot(readState: ReadState) {
+    return {
+        flags: readState.flags,
+        last_message_id: readState.last_message_id,
+        last_viewed: readState.last_viewed,
+        mention_count: readState.mention_count,
+        notifications_cursor: readState.notifications_cursor,
+    };
 }
 
 async function waitForEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, predicate: (event: CapturedEvent) => boolean) {
