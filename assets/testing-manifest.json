@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 433,
+        "totalEntries": 434,
         "byService": {
-            "api": 336,
+            "api": 337,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 408,
+            "http-route": 409,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 53,
-            "stateful-domain": 245,
+            "stateful-domain": 246,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -47,7 +47,7 @@
             "micro": 2,
             "startup-health": 11,
             "route-class": 297,
-            "hot-path": 28,
+            "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
             "protocol-load": 21
@@ -14124,7 +14124,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 86,
+            "line": 85,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14219,7 +14219,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 124,
+            "line": 123,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14270,7 +14270,7 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 48,
+            "line": 47,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14492,6 +14492,63 @@
                 "hasQuery": true,
                 "emittedEvents": [
                     "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 219
+            },
+            "coverage": {
+                "policyId": "api-webhooks",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "guilds",
+                    "channels",
+                    "webhooks",
+                    "messages"
+                ],
+                "contractChecks": [
+                    "token-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/webhooks/:webhook_id/:token/slack/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/webhooks/:webhook_id/:token/slack/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/slack.ts",
+            "line": 200,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "WebhookExecuteSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
+                    204,
+                    400,
+                    404
+                ],
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE",
+                    "THREAD_UPDATE"
                 ]
             },
             "rateLimit": {

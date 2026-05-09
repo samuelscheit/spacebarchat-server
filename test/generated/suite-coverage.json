@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 386,
+        "totalCoveredManifestEntries": 387,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 364,
-                "totalCoveredManifestEntries": 364,
-                "totalCoveredRequiredManifestEntries": 364,
+                "totalRequiredManifestEntries": 365,
+                "totalCoveredManifestEntries": 365,
+                "totalCoveredRequiredManifestEntries": 365,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 245,
+            "stateful-domain": 246,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 364,
-                "totalCoveredManifestEntries": 364,
-                "totalCoveredRequiredManifestEntries": 364,
+                "totalRequiredManifestEntries": 365,
+                "totalCoveredManifestEntries": 365,
+                "totalCoveredRequiredManifestEntries": 365,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -340,6 +340,7 @@
                 "api:http:POST:/users/@me/relationships/",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
                 "api:http:POST:/webhooks/:webhook_id/:token/github/",
+                "api:http:POST:/webhooks/:webhook_id/:token/slack/",
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
@@ -706,6 +707,7 @@
                 "api:http:POST:/users/@me/relationships/",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
                 "api:http:POST:/webhooks/:webhook_id/:token/github/",
+                "api:http:POST:/webhooks/:webhook_id/:token/slack/",
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
@@ -1138,7 +1140,8 @@
                         "api:http:PATCH:/webhooks/:webhook_id/:token/",
                         "api:http:PATCH:/webhooks/:webhook_id/:token/messages/:message_id/",
                         "api:http:POST:/webhooks/:webhook_id/:token/",
-                        "api:http:POST:/webhooks/:webhook_id/:token/github/"
+                        "api:http:POST:/webhooks/:webhook_id/:token/github/",
+                        "api:http:POST:/webhooks/:webhook_id/:token/slack/"
                     ]
                 },
                 {

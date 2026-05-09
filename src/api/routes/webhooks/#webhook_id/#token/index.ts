@@ -44,7 +44,6 @@ router.get(
 const messageUpload = createMessageUpload();
 
 // https://discord.com/developers/docs/resources/webhook#execute-webhook
-// TODO: Slack compatible hooks
 router.post(
     "/",
     messageUpload.any(),
