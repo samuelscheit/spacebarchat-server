@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { messageToSearchResult, parseMessageSearchSortBy } from "./MessageSearch";
+import { getSearchChannelNsfwFilter, messageToSearchResult, parseIncludeNsfwSearchParam, parseMessageSearchSortBy } from "./MessageSearch";
 
 describe("parseMessageSearchSortBy", () => {
     test("defaults omitted sort_by to timestamp ordering", () => {
@@ -87,6 +87,25 @@ describe("messageToSearchResult", () => {
             bot: true,
             public_flags: 0,
         });
+    });
+});
+
+describe("search include_nsfw query handling", () => {
+    test("only the literal true value includes NSFW channels", () => {
+        assert.equal(parseIncludeNsfwSearchParam("true"), true);
+        assert.equal(parseIncludeNsfwSearchParam(undefined), false);
+        assert.equal(parseIncludeNsfwSearchParam("false"), false);
+        assert.equal(parseIncludeNsfwSearchParam("1"), false);
+        assert.equal(parseIncludeNsfwSearchParam("True"), false);
+        assert.equal(parseIncludeNsfwSearchParam(["true"]), false);
+        assert.equal(parseIncludeNsfwSearchParam(["false", "true"]), false);
+    });
+
+    test("excludes NSFW channels unless include_nsfw=true is requested", () => {
+        assert.deepEqual(getSearchChannelNsfwFilter(undefined), { channel: { nsfw: false } });
+        assert.deepEqual(getSearchChannelNsfwFilter("false"), { channel: { nsfw: false } });
+        assert.deepEqual(getSearchChannelNsfwFilter(["true"]), { channel: { nsfw: false } });
+        assert.deepEqual(getSearchChannelNsfwFilter("true"), {});
     });
 });
 
