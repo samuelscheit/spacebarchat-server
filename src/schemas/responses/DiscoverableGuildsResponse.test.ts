@@ -20,6 +20,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { GuildFeature } from "../../util/util/GuildFeatures";
 import { ajv } from "../Validator";
 import { toDiscoverableGuild } from "./DiscoverableGuildsResponse";
 
@@ -45,7 +46,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         banner: "banner-hash",
         splash: null,
         description: undefined,
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         preferred_locale: "en-US",
         premium_subscription_count: 2,
         member_count: 42,
@@ -57,6 +58,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         max_members: 5000,
         max_presences: 1000,
         max_video_channel_users: 25,
+        max_stage_video_channel_users: 50,
         owner_id: "200",
         premium_tier: 1,
         region: "deprecated",
@@ -88,7 +90,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         discovery_excluded: false,
         discovery_splash: "internal-splash",
         channel_ordering: ["300"],
-        primary_category_id: "gaming",
+        primary_category_id: 1,
         nsfw: false,
         presence_count: 5,
     } as unknown as Parameters<typeof toDiscoverableGuild>[0] & Record<string, unknown>;
@@ -100,7 +102,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         banner: "banner-hash",
         splash: null,
         description: null,
-        features: ["DISCOVERABLE"],
+        features: [GuildFeature.Discoverable],
         preferred_locale: "en-US",
         premium_subscription_count: 2,
         member_count: 42,
@@ -112,6 +114,7 @@ test("toDiscoverableGuild maps entity-shaped guilds to public DTOs", () => {
         max_members: 5000,
         max_presences: 1000,
         max_video_channel_users: 25,
+        max_stage_video_channel_users: 50,
         owner_id: "200",
         premium_tier: 1,
         region: "deprecated",
@@ -166,7 +169,7 @@ test("DiscoverableGuildsResponse validates public guilds and rejects entity inte
                 banner: null,
                 splash: null,
                 description: null,
-                features: ["DISCOVERABLE"],
+                features: [GuildFeature.Discoverable],
                 widget_enabled: true,
                 welcome_screen: {
                     enabled: false,

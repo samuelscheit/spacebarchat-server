@@ -23,6 +23,7 @@ import {
     GuildCreateRoleInput,
     GuildWelcomeScreen,
     Snowflake,
+    assertGuildCreateRolePolicy,
     getGuildCreateCustomRoles,
     getGuildCreateEveryoneRole,
     handleFile,
@@ -30,6 +31,7 @@ import {
     normalizeGuildCreateRole,
     resolveGuildCreateChannelReferences,
     resolveGuildCreatePermissionOverwrites,
+    type Rights,
 } from "..";
 import { Ban } from "./Ban";
 import { BaseClass } from "./BaseClass";
@@ -39,43 +41,36 @@ import { Invite } from "./Invite";
 import { Member } from "./Member";
 import { Role } from "./Role";
 import { Sticker } from "./Sticker";
+import { StageInstance } from "./StageInstance";
 import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import type { GuildCreateResponse } from "@spacebar/schemas";
+import { ChannelType, type GuildCreateResponse } from "@spacebar/schemas";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
-import { setVanityUrlFeature } from "../util/GuildFeatures";
+import { GuildFeature, setVanityUrlFeature, type GuildFeatureValue } from "../util/GuildFeatures";
 import { createTemplateRoleIdMap, getMappedTemplateRoleId, remapTemplateChannelPermissionOverwrites, type TemplateChannelLike } from "../util/GuildTemplates";
-// TODO: application_command_count, application_command_counts: {1: 0, 2: 0, 3: 0}
 // TODO: guild_scheduled_events
-// TODO: stage_instances
-// TODO: threads
-// TODO:
-// "keywords": [
-// 		"Genshin Impact",
-// 		"Paimon",
-// 		"Honkai Impact",
-// 		"ARPG",
-// 		"Open-World",
-// 		"Waifu",
-// 		"Anime",
-// 		"Genshin",
-// 		"miHoYo",
-// 		"Gacha"
-// 	],
 
 type GuildCreateChannelInput = Omit<Partial<Channel>, "permission_overwrites"> & TemplateChannelLike;
+
+export const ReadyGuildThreadTypes = [ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD] as const;
+const readyGuildThreadTypeSet = new Set<number>(ReadyGuildThreadTypes);
+
+export const isReadyGuildThreadChannel = (channel: Pick<Channel, "guild_id" | "type" | "thread_metadata">, guildId: string) =>
+    channel.guild_id === guildId && readyGuildThreadTypeSet.has(channel.type) && channel.thread_metadata?.archived === false;
 
 export const PublicGuildRelations = [
     "channels",
     "emojis",
     "roles",
     "stickers",
+    "stage_instances",
     "voice_states",
-    // "members",		// TODO: These are public, but all members should not be fetched.
-    // "members.user",
+    // Members are public only when explicitly requested through a bounded member query.
+    // Do not add "members" here: this relation set is used for guild payloads and
+    // must not eagerly fetch every member in a guild.
 ];
 
 @Entity({
@@ -121,11 +116,10 @@ export class Guild extends BaseClass {
     explicit_content_filter?: number;
 
     @Column({ type: "varchar", array: true })
-    features: string[] = []; //TODO use enum
-    //TODO: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
+    features: GuildFeatureValue[] = [];
 
-    @Column({ nullable: true, type: "int8" })
-    primary_category_id?: string | null; // TODO: this was number?
+    @Column({ nullable: true, type: "int" })
+    primary_category_id?: number | null;
 
     @Column({ nullable: true })
     icon?: string;
@@ -141,6 +135,9 @@ export class Guild extends BaseClass {
 
     @Column({ nullable: true })
     max_video_channel_users?: number;
+
+    @Column({ nullable: true })
+    max_stage_video_channel_users?: number;
 
     @Column({ nullable: true })
     member_count?: number;
@@ -202,6 +199,14 @@ export class Guild extends BaseClass {
     })
     invites: Invite[];
 
+    @JoinColumn({ name: "stage_instance_ids" })
+    @OneToMany(() => StageInstance, (stageInstance: StageInstance) => stageInstance.guild, {
+        cascade: true,
+        orphanedRowAction: "delete",
+        onDelete: "CASCADE",
+    })
+    stage_instances: StageInstance[];
+
     @JoinColumn({ name: "voice_state_ids" })
     @OneToMany(() => VoiceState, (voicestate: VoiceState) => voicestate.guild, {
         cascade: true,
@@ -255,7 +260,15 @@ export class Guild extends BaseClass {
 
     @JoinColumn({ name: "rules_channel_id" })
     @ManyToOne(() => Channel)
-    rules_channel?: string;
+    rules_channel?: Channel;
+
+    @Column({ type: "int8", nullable: true })
+    @RelationId((guild: Guild) => guild.safety_alerts_channel)
+    safety_alerts_channel_id?: string | null;
+
+    @JoinColumn({ name: "safety_alerts_channel_id" })
+    @ManyToOne(() => Channel)
+    safety_alerts_channel?: Channel;
 
     @Column({ nullable: true })
     region?: string;
@@ -288,7 +301,7 @@ export class Guild extends BaseClass {
 
     @Column({ nullable: true, type: "int8" })
     @RelationId((guild: Guild) => guild.widget_channel)
-    widget_channel_id?: string;
+    widget_channel_id?: string | null;
 
     @JoinColumn({ name: "widget_channel_id" })
     @ManyToOne(() => Channel)
@@ -324,7 +337,7 @@ export class Guild extends BaseClass {
     discovery_excluded: boolean = false;
 
     async ToGuildSource() {
-        if (!this.features.includes("DISCOVERABLE")) {
+        if (!this.features.includes(GuildFeature.Discoverable)) {
             return null;
         }
         return {
@@ -368,12 +381,7 @@ export class Guild extends BaseClass {
 
         return {
             ...data,
-            // TODO: did i do this right?
-            afk_channel_id: data.afk_channel_id ?? undefined,
-            description: data.description ?? undefined,
-            public_updates_channel_id: data.public_updates_channel_id ?? undefined,
-            rules_channel_id: data.rules_channel_id ?? undefined,
-            system_channel_id: data.system_channel_id ?? undefined,
+            safety_alerts_channel_id: data.safety_alerts_channel_id ?? null,
         } satisfies GuildCreateResponse;
     }
 
@@ -393,10 +401,20 @@ export class Guild extends BaseClass {
         system_channel_id?: string | null;
         system_channel_flags?: number;
         rules_channel_id?: string | null;
+        safety_alerts_channel_id?: string | null;
+        rights?: Rights;
     }) {
         const guild_id = Snowflake.generate();
         const roleIds = createTemplateRoleIdMap(body.roles ?? [], body.source_guild_id, guild_id, () => Snowflake.generate());
         const defaultFeatures = setVanityUrlFeature(Config.get().guild.defaultFeatures, false);
+        const customRoles = getGuildCreateCustomRoles(body.roles, body.source_guild_id);
+
+        assertGuildCreateRolePolicy({
+            guildFeatures: defaultFeatures,
+            roles: body.roles ?? [],
+            creatingCustomRoles: customRoles.length > 0,
+            rights: body.rights,
+        });
 
         if (body.channels?.length) {
             body.channels = body.channels.map((channel) => ({
@@ -433,6 +451,7 @@ export class Guild extends BaseClass {
             max_members: Config.get().limits.guild.maxMembers,
             max_presences: Config.get().defaults.guild.maxPresences,
             max_video_channel_users: Config.get().defaults.guild.maxVideoChannelUsers,
+            max_stage_video_channel_users: Config.get().defaults.guild.maxStageVideoChannelUsers,
             region: body.region ?? Config.get().regions.default,
         }).save();
 
@@ -449,6 +468,7 @@ export class Guild extends BaseClass {
             position: 0,
             flags: 0,
         });
+        everyoneRole.icon = await handleFile(`/role-icons/${guild_id}`, everyoneRole.icon);
 
         await Role.create({
             ...everyoneRole,
@@ -458,10 +478,9 @@ export class Guild extends BaseClass {
         }).save();
 
         // create custom roles if provided
-        const customRoles = getGuildCreateCustomRoles(body.roles, body.source_guild_id);
         if (customRoles.length) {
             await Promise.all(
-                customRoles.map((role, index) => {
+                customRoles.map(async (role, index) => {
                     const id = getMappedTemplateRoleId(role.id, roleIds) ?? Snowflake.generate();
                     const normalized = normalizeGuildCreateRole(role, {
                         color: 0,
@@ -474,6 +493,7 @@ export class Guild extends BaseClass {
                         position: index + 1,
                         flags: 0,
                     });
+                    normalized.icon = await handleFile(`/role-icons/${id}`, normalized.icon);
 
                     return Role.create({
                         ...normalized,
@@ -519,10 +539,12 @@ export class Guild extends BaseClass {
             afk_channel_id?: string | null;
             channel_ordering: string[];
             rules_channel_id?: string | null;
+            safety_alerts_channel_id?: string | null;
             system_channel_id?: string | null;
         } = { channel_ordering: guild.channel_ordering };
         if (channelReferences.afk_channel_id !== undefined) guildUpdate.afk_channel_id = channelReferences.afk_channel_id;
         if (channelReferences.rules_channel_id !== undefined) guildUpdate.rules_channel_id = channelReferences.rules_channel_id;
+        if (channelReferences.safety_alerts_channel_id !== undefined) guildUpdate.safety_alerts_channel_id = channelReferences.safety_alerts_channel_id;
         if (channelReferences.system_channel_id !== undefined) guildUpdate.system_channel_id = channelReferences.system_channel_id;
         Object.assign(guild, guildUpdate);
         await Guild.update({ id: guild.id }, guildUpdate);

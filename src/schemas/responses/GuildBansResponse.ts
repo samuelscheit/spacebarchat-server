@@ -16,6 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { Channel, Member, Role, Template } from "@spacebar/util";
+import type { PublicMember } from "@spacebar/schemas";
+
 export type GuildBansResponse = GuildBanResponse[];
 
 export interface GuildBanResponse {
@@ -28,3 +31,9 @@ export interface GuildBanResponse {
         public_flags: number;
     };
 }
+
+export type APIChannelArray = Channel[];
+export type APIMemberArray = Member[];
+export type APIPublicMember = PublicMember;
+export type APIRoleArray = Role[];
+export type APITemplateArray = Template[];
