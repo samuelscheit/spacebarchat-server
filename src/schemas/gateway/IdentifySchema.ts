@@ -18,6 +18,9 @@
 
 import type { ActivitySchema } from "../uncategorised/ActivitySchema";
 
+/**
+ * @pattern ^-?[0-9]+$
+ */
 export type IdentifyBitfield = number | string;
 
 export interface IdentifySchema {

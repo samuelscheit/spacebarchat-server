@@ -13,7 +13,7 @@ type JsonShape = {
     properties?: Record<string, JsonShape & { format?: string }>;
 };
 
-const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
+const Schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
 
 const ImageDataUriFields = [
     ["ApplicationModifySchema", "icon"],
@@ -105,6 +105,53 @@ describe("WebhookExecuteSchema", () => {
 });
 
 describe("schema validator custom formats", () => {
+    test("normalizes generated gateway bigint schemas for Ajv validation", () => {
+        assert.deepEqual(
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: 513,
+                shard: [0, 1],
+            }),
+            {
+                token: "gateway-token",
+                properties: {},
+                intents: 513,
+                shard: [0, 1],
+            },
+        );
+
+        assert.deepEqual(
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "9007199254740993",
+                shard: ["0", "1"],
+            }),
+            {
+                token: "gateway-token",
+                properties: {},
+                intents: "9007199254740993",
+                shard: ["0", "1"],
+            },
+        );
+
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "not-an-integer",
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "1.5",
+            }),
+        );
+    });
+
     test("accepts image data URI fields with matching image bytes", () => {
         assert.deepEqual(validateSchema("WebhookCreateSchema", { name: "hook", avatar: PngDataUri }), { name: "hook", avatar: PngDataUri });
         assert.deepEqual(validateSchema("BotModifySchema", { banner: PngDataUri }), { banner: PngDataUri });

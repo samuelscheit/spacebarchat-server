@@ -9827,6 +9827,7 @@
                         "additionalProperties": false
                     },
                     "intents": {
+                        "pattern": "^-?[0-9]+$",
                         "type": [
                             "string",
                             "integer"
@@ -22468,6 +22469,7 @@
                 ]
             },
             "IdentifyBitfield": {
+                "pattern": "^-?[0-9]+$",
                 "type": [
                     "string",
                     "integer"

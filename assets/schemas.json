@@ -10286,6 +10286,7 @@
                 "additionalProperties": false
             },
             "intents": {
+                "pattern": "^-?[0-9]+$",
                 "type": [
                     "string",
                     "integer"
@@ -23560,6 +23561,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "IdentifyBitfield": {
+        "pattern": "^-?[0-9]+$",
         "type": [
             "string",
             "integer"
