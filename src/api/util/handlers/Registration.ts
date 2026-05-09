@@ -16,7 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { FieldErrors } from "@spacebar/util";
 import { RegisterSchema } from "../../../schemas/uncategorised/RegisterSchema";
+import { type PasswordStrengthPolicy, validatePasswordPolicy } from "../utility/passwordStrength";
 
 export interface RegistrationInviteConfiguration {
     requireInvite: boolean;
@@ -27,10 +29,25 @@ export interface RegistrationInvite {
     isExpired(): boolean;
 }
 
+export type PasswordPolicyTranslator = (key: string, params?: Record<string, number>) => string;
+
 export function registrationRequiresInvite(register: RegistrationInviteConfiguration, body: Pick<RegisterSchema, "email" | "invite">): boolean {
     return !body.invite && (register.requireInvite || (register.guestsRequireInvite && !body.email));
 }
 
 export function isRegistrationInviteUsable(invite: RegistrationInvite | null | undefined): invite is RegistrationInvite {
     return invite !== null && invite !== undefined && !invite.isExpired();
+}
+
+export function assertPasswordMeetsPolicy(password: string, policy: PasswordStrengthPolicy, translate: PasswordPolicyTranslator) {
+    const validation = validatePasswordPolicy(password, policy);
+    if (validation.valid) return;
+
+    const failure = validation.failures[0];
+    throw FieldErrors({
+        password: {
+            code: failure.code,
+            message: translate(`auth:register.${failure.code}`, failure.params),
+        },
+    });
 }

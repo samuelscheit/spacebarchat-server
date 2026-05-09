@@ -16,11 +16,44 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config } from "@spacebar/util";
+import { Config, type PasswordConfiguration } from "@spacebar/util";
 
-const reNUMBER = /[0-9]/g;
-const reUPPERCASELETTER = /[A-Z]/g;
-const reSYMBOLS = /[A-Za-z0-9]/g;
+const reNUMBER = /^\p{Nd}$/u;
+const reUPPERCASELETTER = /^\p{Lu}$/u;
+const reLETTER_OR_NUMBER = /^[\p{L}\p{N}]$/u;
+const PASSWORD_REQUIREMENT_SCORE = 0.05;
+const PASSWORD_REQUIREMENT_COUNT = 4;
+const ENTROPY_SCORE_WEIGHT = 1 - PASSWORD_REQUIREMENT_SCORE * PASSWORD_REQUIREMENT_COUNT;
+
+export type PasswordRequirementCode =
+    | "PASSWORD_REQUIREMENTS_MIN_LENGTH"
+    | "PASSWORD_REQUIREMENTS_MIN_NUMBERS"
+    | "PASSWORD_REQUIREMENTS_MIN_UPPERCASE"
+    | "PASSWORD_REQUIREMENTS_MIN_SYMBOLS"
+    | "PASSWORD_REQUIREMENTS_BLOCKLIST";
+
+export type PasswordStrengthPolicy = Pick<PasswordConfiguration, "minLength" | "minNumbers" | "minUpperCase" | "minSymbols"> & Partial<Pick<PasswordConfiguration, "blocklist">>;
+
+export interface PasswordRequirementFailure {
+    code: PasswordRequirementCode;
+    params?: Record<string, number>;
+}
+
+export interface PasswordStrengthMetrics {
+    length: number;
+    numbers: number;
+    upperCase: number;
+    symbols: number;
+    entropy: number;
+}
+
+export interface PasswordValidationResult {
+    valid: boolean;
+    score: number;
+    blocklisted: boolean;
+    failures: PasswordRequirementFailure[];
+    metrics: PasswordStrengthMetrics;
+}
 
 /*
  * https://en.wikipedia.org/wiki/Password_policy
@@ -29,48 +62,113 @@ const reSYMBOLS = /[A-Za-z0-9]/g;
  *  - min <n> numbers
  *  - min <n> symbols
  *  - min <n> uppercase chars
- *  - shannon entropy folded into [0, 1) interval
+ *  - shannon entropy folded into [0, 1] interval
  *
- * Returns: 0 > pw > 1
+ * Returns a bounded score in the [0, 1] interval.
  */
 export function checkPassword(password: string): number {
-    const { minLength, minNumbers, minUpperCase, minSymbols } = Config.get().register.password;
+    return calculatePasswordStrength(password, Config.get().register.password);
+}
+
+export function calculatePasswordStrength(password: string, policy: PasswordStrengthPolicy): number {
+    return validatePasswordPolicy(password, policy).score;
+}
+
+export function validatePasswordPolicy(password: string, policy: PasswordStrengthPolicy): PasswordValidationResult {
+    const characters = Array.from(password);
+    const metrics = getPasswordMetrics(characters);
+    const blocklisted = isPasswordBlocklisted(password, policy.blocklist);
+    const failures: PasswordRequirementFailure[] = [];
+
+    if (!meetsMinimum(metrics.length, policy.minLength)) {
+        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_LENGTH", params: { min: normalizedMinimum(policy.minLength) } });
+    }
+
+    if (!meetsMinimum(metrics.numbers, policy.minNumbers)) {
+        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_NUMBERS", params: { min: normalizedMinimum(policy.minNumbers) } });
+    }
+
+    if (!meetsMinimum(metrics.upperCase, policy.minUpperCase)) {
+        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_UPPERCASE", params: { min: normalizedMinimum(policy.minUpperCase) } });
+    }
+
+    if (!meetsMinimum(metrics.symbols, policy.minSymbols)) {
+        failures.push({ code: "PASSWORD_REQUIREMENTS_MIN_SYMBOLS", params: { min: normalizedMinimum(policy.minSymbols) } });
+    }
+
+    if (blocklisted) failures.push({ code: "PASSWORD_REQUIREMENTS_BLOCKLIST" });
+
+    return {
+        valid: failures.length === 0,
+        score: scorePasswordPolicy(metrics, policy, blocklisted),
+        blocklisted,
+        failures,
+        metrics,
+    };
+}
+
+export function isPasswordBlocklisted(password: string, blocklist: string[] = []): boolean {
+    const normalizedPassword = normalizeBlocklistEntry(password);
+    return blocklist.some((entry) => {
+        const normalizedEntry = normalizeBlocklistEntry(entry);
+        return normalizedEntry !== "" && normalizedEntry === normalizedPassword;
+    });
+}
+
+function normalizeBlocklistEntry(value: string): string {
+    return value.normalize("NFKC").trim().toLowerCase();
+}
+
+function meetsMinimum(value: number, minimum: number): boolean {
+    return value >= normalizedMinimum(minimum);
+}
+
+function normalizedMinimum(minimum: number): number {
+    return Number.isFinite(minimum) ? Math.max(0, minimum) : 0;
+}
+
+function getPasswordMetrics(characters: string[]): PasswordStrengthMetrics {
+    return {
+        length: characters.length,
+        numbers: characters.filter((character) => reNUMBER.test(character)).length,
+        upperCase: characters.filter((character) => reUPPERCASELETTER.test(character)).length,
+        symbols: characters.filter(isSymbol).length,
+        entropy: calculateNormalizedShannonEntropy(characters),
+    };
+}
+
+function isSymbol(character: string): boolean {
+    return !reLETTER_OR_NUMBER.test(character);
+}
+
+function scorePasswordPolicy(metrics: PasswordStrengthMetrics, policy: PasswordStrengthPolicy, blocklisted: boolean): number {
+    if (metrics.length === 0 || blocklisted) return 0;
+
     let strength = 0;
+    if (meetsMinimum(metrics.length, policy.minLength)) strength += PASSWORD_REQUIREMENT_SCORE;
+    if (meetsMinimum(metrics.numbers, policy.minNumbers)) strength += PASSWORD_REQUIREMENT_SCORE;
+    if (meetsMinimum(metrics.upperCase, policy.minUpperCase)) strength += PASSWORD_REQUIREMENT_SCORE;
+    if (meetsMinimum(metrics.symbols, policy.minSymbols)) strength += PASSWORD_REQUIREMENT_SCORE;
 
-    // checks for total password len
-    if (password.length >= minLength - 1) {
-        strength += 0.05;
+    strength += metrics.entropy * ENTROPY_SCORE_WEIGHT;
+    return clamp(strength, 0, 1);
+}
+
+function calculateNormalizedShannonEntropy(characters: string[]): number {
+    if (characters.length <= 1) return 0;
+
+    const counts = new Map<string, number>();
+    for (const character of characters) counts.set(character, (counts.get(character) ?? 0) + 1);
+
+    let entropy = 0;
+    for (const count of counts.values()) {
+        const probability = count / characters.length;
+        entropy -= probability * Math.log2(probability);
     }
 
-    // checks for amount of Numbers
-    if ((password.match(reNUMBER)?.length ?? 0) >= minNumbers - 1) {
-        strength += 0.05;
-    }
+    return entropy / Math.log2(characters.length);
+}
 
-    // checks for amount of Uppercase Letters
-    if ((password.match(reUPPERCASELETTER)?.length ?? 0) >= minUpperCase - 1) {
-        strength += 0.05;
-    }
-
-    // checks for amount of symbols
-    if (password.replace(reSYMBOLS, "").length >= minSymbols - 1) {
-        strength += 0.05;
-    }
-
-    // checks if password only consists of numbers or only consists of chars
-    if (password.length == password.match(reNUMBER)?.length || password.length === password.match(reUPPERCASELETTER)?.length) {
-        strength = 0;
-    }
-
-    const entropyMap: { [key: string]: number } = {};
-    for (let i = 0; i < password.length; i++) {
-        if (entropyMap[password[i]]) entropyMap[password[i]]++;
-        else entropyMap[password[i]] = 1;
-    }
-
-    const entropies = Object.values(entropyMap);
-
-    entropies.map((x) => x / entropyMap.length);
-    strength += entropies.reduceRight((a: number, x: number) => a - x * Math.log2(x)) / Math.log2(password.length);
-    return strength;
+function clamp(value: number, minimum: number, maximum: number): number {
+    return Math.min(maximum, Math.max(minimum, value));
 }

@@ -51,7 +51,7 @@ test(
 
             const suffix = `${process.pid}${Date.now()}`;
             const email = `auth-scenario-${suffix}@example.com`;
-            const password = "scenario-password-42";
+            const password = "Scenario-Password-42";
             const username = `scenario${suffix.slice(-8)}`;
 
             const register = await postJson(`${api.apiBaseUrl}/auth/register`, {

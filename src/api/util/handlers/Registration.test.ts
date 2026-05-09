@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { isRegistrationInviteUsable, RegistrationInviteConfiguration, registrationRequiresInvite } from "./Registration";
+import { assertPasswordMeetsPolicy, isRegistrationInviteUsable, RegistrationInviteConfiguration, registrationRequiresInvite } from "./Registration";
 
 describe("registrationRequiresInvite", () => {
     test("requires invites when the instance is invite-only", () => {
@@ -40,3 +40,47 @@ describe("registrationRequiresInvite", () => {
         assert.equal(isRegistrationInviteUsable({ isExpired: () => false }), true);
     });
 });
+
+describe("assertPasswordMeetsPolicy", () => {
+    const policy = {
+        minLength: 8,
+        minNumbers: 2,
+        minUpperCase: 2,
+        minSymbols: 1,
+        blocklist: ["Password123!"],
+    };
+
+    test("throws a password field error for the first unmet configured password policy requirement", () => {
+        assert.throws(
+            () => assertPasswordMeetsPolicy("AA1!aaaa", policy, translate),
+            (error) => {
+                const passwordError = getPasswordError(error);
+                assert.equal(passwordError.code, "PASSWORD_REQUIREMENTS_MIN_NUMBERS");
+                assert.equal(passwordError.message, "auth:register.PASSWORD_REQUIREMENTS_MIN_NUMBERS:2");
+                return true;
+            },
+        );
+    });
+
+    test("throws a password field error for configured blocklisted passwords", () => {
+        assert.throws(
+            () => assertPasswordMeetsPolicy("Password123!", { ...policy, minUpperCase: 1, minSymbols: 0 }, translate),
+            (error) => {
+                assert.equal(getPasswordError(error).code, "PASSWORD_REQUIREMENTS_BLOCKLIST");
+                return true;
+            },
+        );
+    });
+
+    test("allows passwords that satisfy the configured registration policy", () => {
+        assert.doesNotThrow(() => assertPasswordMeetsPolicy("AA11!aaa", policy, translate));
+    });
+});
+
+function translate(key: string, params?: Record<string, number>) {
+    return params?.min === undefined ? key : `${key}:${params.min}`;
+}
+
+function getPasswordError(error: unknown) {
+    return (error as { errors: { password: { _errors: { code: string; message: string }[] } } }).errors.password._errors[0];
+}

@@ -40,7 +40,7 @@ import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
-import { isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
+import { assertPasswordMeetsPolicy, isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -226,7 +226,6 @@ router.post(
         //endregion
 
         // TODO: gift_code_sku_id?
-        // TODO: check password strength
 
         const email = normalizeOptionalEmail(body.email);
         body.email = email;
@@ -286,16 +285,7 @@ router.post(
         }
 
         if (body.password) {
-            const min = register.password.minLength ?? 8;
-
-            if (body.password.length < min) {
-                throw FieldErrors({
-                    password: {
-                        code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
-                        message: req.t("auth:register.PASSWORD_REQUIREMENTS_MIN_LENGTH", { min: min }),
-                    },
-                });
-            }
+            assertPasswordMeetsPolicy(body.password, register.password, (key, params) => req.t(key, params));
             // the salt is saved in the password refer to bcrypt docs
             body.password = await bcrypt.hash(body.password, 12);
         } else if (register.password.required) {
@@ -392,7 +382,7 @@ export default router;
 
 /**
  * POST /auth/register
- * @argument { "fingerprint":"805826570869932034.wR8vi8lGlFBJerErO9LG5NViJFw", "email":"qo8etzvaf@gmail.com", "username":"qp39gr98", "password":"wtp9gep9gw", "invite":null, "consent":true, "date_of_birth":"2000-04-04", "gift_code_sku_id":null, "captcha_key":null}
+ * @argument { "fingerprint":"805826570869932034.wR8vi8lGlFBJerErO9LG5NViJFw", "email":"qo8etzvaf@gmail.com", "username":"qp39gr98", "password":"Register-Password-42", "invite":null, "consent":true, "date_of_birth":"2000-04-04", "gift_code_sku_id":null, "captcha_key":null}
  *
  * Field Error
  * @returns { "code": 50035, "errors": { "consent": { "_errors": [{ "code": "CONSENT_REQUIRED", "message": "You must agree to Discord's Terms of Service and Privacy Policy." }]}}, "message": "Invalid Form Body"}

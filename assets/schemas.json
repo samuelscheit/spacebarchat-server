@@ -19592,10 +19592,18 @@
             "minSymbols": {
                 "type": "integer",
                 "default": 0
+            },
+            "blocklist": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "default": []
             }
         },
         "additionalProperties": false,
         "required": [
+            "blocklist",
             "minLength",
             "minNumbers",
             "minSymbols",
