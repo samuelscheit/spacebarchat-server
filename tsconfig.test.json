@@ -69,6 +69,7 @@
         "src/schemas/responses/GuildScheduledEventResponse.test.ts",
         "src/schemas/responses/GuildRecommendationsResponse.test.ts",
         "src/schemas/responses/SettingsProtoUpdateResponse.test.ts",
+        "src/schemas/responses/TypedResponses.test.ts",
         "src/schemas/uncategorised/ActivitySchema.test.ts",
         "src/schemas/uncategorised/UserModifySchema.test.ts",
         "src/schemas/uncategorised/MessageCreateSchema.test.ts",
