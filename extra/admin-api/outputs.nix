@@ -136,6 +136,7 @@ nixpkgs.lib.recursiveUpdate (
           packNupkg = false;
           projectReferences = [
             proj.Spacebar-Models-Db
+            proj.Spacebar-Cdn-Shared
             proj.Spacebar-Interop-Cdn-Abstractions
           ];
         };
