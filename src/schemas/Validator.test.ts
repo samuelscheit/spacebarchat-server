@@ -109,42 +109,45 @@ describe("WebhookExecuteSchema", () => {
 });
 
 describe("schema validator custom formats", () => {
-    test("normalizes generated gateway bigint schemas for Ajv validation", () => {
-        assert.deepEqual(
-            validateSchema("IdentifySchema", {
-                token: "gateway-token",
-                properties: {},
-                intents: 513,
-                shard: [0, 1],
-            }),
-            {
-                token: "gateway-token",
-                properties: {},
-                intents: 513,
-                shard: [0, 1],
-            },
-        );
+    test("coerces bigint schema fields from JSON-safe numbers and strings", () => {
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: 0,
+            shard: [0, "1"],
+        };
 
-        assert.deepEqual(
-            validateSchema("IdentifySchema", {
-                token: "gateway-token",
-                properties: {},
-                intents: "9007199254740993",
-                shard: ["0", "1"],
-            }),
-            {
-                token: "gateway-token",
-                properties: {},
-                intents: "9007199254740993",
-                shard: ["0", "1"],
-            },
-        );
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 0n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
 
+    test("preserves large bigint strings without precision loss", () => {
+        const payload = {
+            token: "gateway-token",
+            properties: {},
+            intents: "9007199254740993",
+            shard: ["0", "1"],
+        };
+
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 9007199254740993n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
+
+    test("rejects bigint schema fields that cannot be coerced", () => {
         assert.throws(() =>
             validateSchema("IdentifySchema", {
-                token: "gateway-token",
+                token: "auth-token",
                 properties: {},
-                intents: "not-an-integer",
+                intents: 1.5,
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                shard: ["not-an-integer"],
             }),
         );
         assert.throws(() =>

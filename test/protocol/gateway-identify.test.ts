@@ -186,8 +186,8 @@ test("Gateway IDENTIFY generated schema validates JSON-safe wire payloads", () =
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0);
-    assert.deepEqual(payload.shard, [0, "1"]);
+    assert.equal(payload.intents as unknown, 0n);
+    assert.deepEqual(payload.shard as unknown, [0n, 1n]);
 });
 
 test("Gateway IDENTIFY generated schema validates camelCase client state aliases", () => {
@@ -212,8 +212,8 @@ test("Gateway IDENTIFY generated schema validates camelCase client state aliases
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0);
-    assert.deepEqual(payload.shard, [0, "1"]);
+    assert.equal(payload.intents as unknown, 0n);
+    assert.deepEqual(payload.shard as unknown, [0n, 1n]);
 });
 
 test("Gateway IDENTIFY generated schema validates presence activities", () => {
@@ -770,6 +770,8 @@ test(
             await waitForEventListener(guild.id);
             await waitForEventListener(voiceChannel.id);
 
+            // READY/READY_SUPPLEMENTAL must not be observable before event
+            // subscriptions are active; send immediately to guard that ordering.
             ownerClient.send(
                 JSON.stringify({
                     op: 18,
@@ -815,6 +817,7 @@ test(
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
             await waitForEventListener(viewer.id);
 
+            // The watching client should also be subscribed as soon as READY is visible.
             viewerClient.send(
                 JSON.stringify({
                     op: 20,
