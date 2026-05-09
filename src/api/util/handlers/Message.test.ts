@@ -77,8 +77,15 @@ type MockChannel = {
     save: () => Promise<void>;
 };
 
+type MessageLimitMock = {
+    maxCharacters: number;
+    maxTTSCharacters: number;
+    maxEmbeds: number;
+};
+
 type HandleMessageTestOptions = {
     channel?: Partial<MockChannel>;
+    messageLimits?: number | MessageLimitMock;
     permissionHas?: (name: string) => boolean;
     users?: MockUser[];
     memberFindResult?: { id: string }[];
@@ -90,6 +97,10 @@ type HandleMessageTestContext = Awaited<ReturnType<typeof setupHandleMessageTest
 
 async function setupHandleMessageTest(t: TestContext, options: HandleMessageTestOptions = {}) {
     process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
+    const messageLimits =
+        typeof options.messageLimits === "number"
+            ? { maxCharacters: options.messageLimits, maxTTSCharacters: options.messageLimits, maxEmbeds: 20 }
+            : (options.messageLimits ?? { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 });
 
     const path = requireModule("node:path") as typeof import("node:path");
     const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
@@ -127,12 +138,10 @@ async function setupHandleMessageTest(t: TestContext, options: HandleMessageTest
 
     t.mock.method(spacebarUtil.Config, "get", () => ({
         limits: {
-            message: {
-                maxCharacters: 2000,
-            },
+            message: messageLimits,
         },
     }));
-    t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
+    const findChannelMock = t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
     const createMessageMock = t.mock.method(spacebarUtil.Message, "create", (input: Record<string, unknown>) => ({
         ...input,
         flags: (input.flags as number | undefined) ?? 0,
@@ -199,6 +208,7 @@ async function setupHandleMessageTest(t: TestContext, options: HandleMessageTest
         channel,
         createMessageMock,
         createdReadStates,
+        findChannelMock,
         findByCalls,
         handleMessage,
         incrementCalls,
@@ -439,6 +449,76 @@ describe("handleMessage", () => {
         assert.equal("duration" in poll, false);
         assert.ok(poll.expiry.getTime() >= start + 2 * 60 * 60 * 1000);
         assert.ok(poll.expiry.getTime() <= end + 2 * 60 * 60 * 1000);
+    });
+
+    test("rejects content longer than the configured message character limit", async (t) => {
+        const context = await setupHandleMessageTest(t, { messageLimits: 5 });
+
+        await assert.rejects(
+            () =>
+                context.handleMessage({
+                    id: "message_id",
+                    channel_id: "channel_id",
+                    author_id: "author_id",
+                    content: "too long",
+                }),
+            (error: unknown) => {
+                assert.equal((error as { code?: unknown }).code, 50035);
+                assert.deepEqual((error as { errors?: Record<string, unknown> }).errors?.content, {
+                    _errors: [{ code: "BASE_TYPE_MAX_LENGTH", message: "Must be 5 or fewer in length." }],
+                });
+                return true;
+            },
+        );
+        assert.equal(context.findChannelMock.mock.callCount(), 0);
+        assert.equal(context.createMessageMock.mock.callCount(), 0);
+    });
+
+    test("rejects TTS content longer than the configured TTS character limit before side effects", async (t) => {
+        const context = await setupHandleMessageTest(t, { messageLimits: { maxCharacters: 100, maxTTSCharacters: 3, maxEmbeds: 20 } });
+
+        await assert.rejects(
+            () =>
+                context.handleMessage({
+                    id: "message_id",
+                    channel_id: "channel_id",
+                    author_id: "author_id",
+                    content: "1234",
+                    tts: true,
+                }),
+            (error: unknown) => {
+                assert.equal((error as { code?: unknown }).code, 50035);
+                assert.deepEqual((error as { errors?: Record<string, unknown> }).errors?.content, {
+                    _errors: [{ code: "BASE_TYPE_MAX_LENGTH", message: "TTS messages must be 3 or fewer in length." }],
+                });
+                return true;
+            },
+        );
+        assert.equal(context.findChannelMock.mock.callCount(), 0);
+        assert.equal(context.createMessageMock.mock.callCount(), 0);
+    });
+
+    test("rejects embed arrays over the configured embed count before side effects", async (t) => {
+        const context = await setupHandleMessageTest(t, { messageLimits: { maxCharacters: 100, maxTTSCharacters: 100, maxEmbeds: 1 } });
+
+        await assert.rejects(
+            () =>
+                context.handleMessage({
+                    id: "message_id",
+                    channel_id: "channel_id",
+                    author_id: "author_id",
+                    embeds: [{}, {}],
+                }),
+            (error: unknown) => {
+                assert.equal((error as { code?: unknown }).code, 50035);
+                assert.deepEqual((error as { errors?: Record<string, unknown> }).errors?.embeds, {
+                    _errors: [{ code: "BASE_TYPE_MAX_ITEMS", message: "Must contain 1 or fewer items." }],
+                });
+                return true;
+            },
+        );
+        assert.equal(context.findChannelMock.mock.callCount(), 0);
+        assert.equal(context.createMessageMock.mock.callCount(), 0);
     });
 
     test("rejects a new user message inside channel slowmode", async (t) => {
