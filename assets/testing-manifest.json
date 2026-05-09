@@ -8477,7 +8477,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 135,
+            "line": 132,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10059,7 +10059,7 @@
             "method": "POST",
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
-            "line": 54,
+            "line": 48,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

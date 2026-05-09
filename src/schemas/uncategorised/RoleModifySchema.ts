@@ -17,6 +17,9 @@
 */
 
 export interface RoleModifySchema {
+    /**
+     * @maxLength 255
+     */
     name?: string;
     permissions?: string;
     color?: number;
