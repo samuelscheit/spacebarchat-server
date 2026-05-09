@@ -35,11 +35,11 @@ import {
     ThreadMemberPayload,
 } from "@spacebar/util";
 import { JsonValue } from "@protobuf-ts/runtime";
+import type { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 import {
     ApplicationCommand,
     GuildCreateResponse,
     GuildScheduledEventResponse,
-    Interaction,
     InteractionFailureReason,
     PartialEmoji,
     PublicChannel,
@@ -631,7 +631,7 @@ export interface ApplicationCommandDeleteEvent extends Event {
 export interface InteractionCreateEvent extends Event {
     event: "INTERACTION_CREATE";
     data:
-        | Interaction
+        | InteractionCreateSchema
         | {
               id: Snowflake;
               nonce?: string;

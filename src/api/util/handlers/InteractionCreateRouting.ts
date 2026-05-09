@@ -26,25 +26,16 @@ type MutableInteractionCreatePayload = Omit<Partial<InteractionCreateSchema>, "d
 
 export type RoutedInteractionCreatePayload = MutableInteractionCreatePayload;
 
-export type BotInteractionCreatePayload = MutableInteractionCreatePayload & {
-    member_id: Snowflake;
-};
+export type BotInteractionCreatePayload = MutableInteractionCreatePayload;
 
 interface BotInteractionCreateMetadata {
     interactionId: Snowflake;
-    memberId: Snowflake;
 }
 
-export function buildBotInteractionCreatePayload(
-    interactionData: RoutedInteractionCreatePayload,
-    { interactionId, memberId }: BotInteractionCreateMetadata,
-): BotInteractionCreatePayload {
+export function buildBotInteractionCreatePayload(interactionData: RoutedInteractionCreatePayload, { interactionId }: BotInteractionCreateMetadata): BotInteractionCreatePayload {
     if (interactionData.id !== interactionId) {
         throw new Error("Interaction create payload id must match the generated interaction id");
     }
 
-    return {
-        ...interactionData,
-        member_id: memberId,
-    };
+    return interactionData;
 }

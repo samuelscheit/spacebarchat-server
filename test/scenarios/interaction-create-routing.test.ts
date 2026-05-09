@@ -37,27 +37,20 @@ function routedInteractionCreatePayload(id: string): RoutedInteractionCreatePayl
 }
 
 describe("buildBotInteractionCreatePayload", () => {
-    test("keeps the generated interaction id on the bot-facing event payload", () => {
+    test("keeps the generated interaction id without adding legacy member_id", () => {
         const interactionId = "100000000000000010";
-        const memberId = "100000000000000003";
         const interactionData = routedInteractionCreatePayload(interactionId);
 
-        const payload = buildBotInteractionCreatePayload(interactionData, { interactionId, memberId });
+        const payload = buildBotInteractionCreatePayload(interactionData, { interactionId });
 
         assert.equal(payload.id, interactionId);
-        assert.equal(payload.member_id, memberId);
-        assert.deepEqual(payload, {
-            ...interactionData,
-            member_id: memberId,
-        });
+        assert.equal(Object.hasOwn(payload, "member_id"), false);
+        assert.deepEqual(payload, interactionData);
     });
 
     test("rejects payloads whose id diverges from the pending interaction id", () => {
         const interactionData = routedInteractionCreatePayload("100000000000000010");
 
-        assert.throws(
-            () => buildBotInteractionCreatePayload(interactionData, { interactionId: "100000000000000011", memberId: "100000000000000003" }),
-            /must match the generated interaction id/,
-        );
+        assert.throws(() => buildBotInteractionCreatePayload(interactionData, { interactionId: "100000000000000011" }), /must match the generated interaction id/);
     });
 });

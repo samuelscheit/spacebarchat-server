@@ -125,7 +125,6 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
         user_id: body.application_id,
         data: buildBotInteractionCreatePayload(interactionData, {
             interactionId,
-            memberId: req.user_id,
         }),
     } satisfies InteractionCreateEvent);
 
