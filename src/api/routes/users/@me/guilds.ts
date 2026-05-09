@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertCanSelfLeaveGuild, route } from "@spacebar/api";
 import { Config, Guild, Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
@@ -57,6 +57,9 @@ router.delete(
             400: {
                 body: "APIErrorResponse",
             },
+            403: {
+                body: "APIErrorResponse",
+            },
             404: {
                 body: "APIErrorResponse",
             },
@@ -76,6 +79,7 @@ router.delete(
             throw new HTTPError("You can't leave instance auto join guilds", 400);
         }
 
+        await assertCanSelfLeaveGuild(req.user_id, guild_id);
         await Member.removeFromGuild(req.user_id, guild_id);
 
         return res.sendStatus(204);

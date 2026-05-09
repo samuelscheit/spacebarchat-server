@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertCanSelfLeaveGuild, route } from "@spacebar/api";
 import { joinGuildMember } from "../../../../../util/handlers/GuildMemberJoin";
 import { deleteReplacedCdnAsset, emitEvent, getPermission, getRights, GuildMemberUpdateEvent, handleFile, Member, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
@@ -206,13 +206,13 @@ router.delete(
         },
     }),
     async (req: Request, res: Response) => {
-        const { guild_id, member_id } = req.params as { [key: string]: string };
+        const { guild_id } = req.params as { [key: string]: string };
+        const member_id = req.params.member_id === "@me" ? req.user_id : (req.params.member_id as string);
         const permission = await getPermission(req.user_id, guild_id);
-        const rights = await getRights(req.user_id);
-        if (member_id === "@me" || member_id === req.user_id) {
-            // TODO: unless force-joined
-            rights.hasThrow("SELF_LEAVE_GROUPS");
+        if (member_id === req.user_id) {
+            await assertCanSelfLeaveGuild(req.user_id, guild_id);
         } else {
+            const rights = await getRights(req.user_id);
             rights.hasThrow("KICK_BAN_MEMBERS");
             permission.hasThrow("KICK_MEMBERS");
         }

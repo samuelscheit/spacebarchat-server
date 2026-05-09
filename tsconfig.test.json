@@ -146,6 +146,7 @@
         "src/util/util/TraverseDirectory.test.ts",
         "src/util/entities/User.test.ts",
         "src/api/util/handlers/Registration.test.ts",
+        "src/api/routes/guilds/#guild_id/members/#member_id/index.test.ts",
         "src/admin/mutations.test.ts",
         "src/cdn/util/AttachmentStorage.test.ts",
         "src/util/entities/ChannelDeleteChannelAttachments.test.ts",

@@ -10,6 +10,7 @@ import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
+import { withoutSelfLeaveRight } from "../fixtures/rights";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
@@ -217,6 +218,13 @@ test(
             assert.equal(persistedMemberSettings.settings.muted, true);
             assert.equal(persistedMemberSettings.settings.mobile_push, false);
 
+            await User.update({ id: target.id }, { rights: withoutSelfLeaveRight(target.rights) });
+            const blockedLeaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
+            await assertStatus(blockedLeaveGuild, 403);
+            assert.notEqual(await Member.findOneBy({ id: target.id, guild_id: guildId }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
+
+            await Member.update({ id: target.id, guild_id: guildId }, { joined_by: owner.id });
             const leaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
             await assertStatus(leaveGuild, 204);
             await guildEvents.waitFor((event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === target.id, eventTimeoutMs);

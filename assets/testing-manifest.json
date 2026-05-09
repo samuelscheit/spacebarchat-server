@@ -7371,7 +7371,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 207,
+            "line": 198,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7423,7 +7423,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 36,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7473,7 +7473,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 78,
+            "line": 69,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7528,7 +7528,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 169,
+            "line": 160,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12877,6 +12877,7 @@
                 "responseStatuses": [
                     204,
                     400,
+                    403,
                     404
                 ],
                 "hasQuery": false,
