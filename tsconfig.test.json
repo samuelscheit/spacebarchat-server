@@ -56,6 +56,7 @@
         "src/api/util/utility/RecentAvatars.test.ts",
         "src/api/util/utility/ReactionTypes.test.ts",
         "src/api/util/utility/ReadStateRoutes.test.ts",
+        "src/api/util/utility/Relationships.test.ts",
         "src/api/util/utility/ThreadCreationPermissions.test.ts",
         "src/api/util/utility/ThreadMembers.test.ts",
         "src/api/util/utility/GuildWidgetMembers.test.ts",
