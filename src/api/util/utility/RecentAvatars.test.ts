@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import path from "node:path";
 import { describe, test } from "node:test";
 import type { Router } from "express";
 import { createUserRouteApp, mockCurrentUserLookup, requestJson } from "../../tests/helpers/UserRouteTestHelpers";
@@ -248,8 +249,8 @@ describe("recent avatars", () => {
             };
             return undefined;
         });
-        t.mock.method(getCdnUtil(), "deleteFile", async (path: string) => {
-            deletedFiles.push(path);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
             return { success: true };
         });
 
@@ -284,7 +285,7 @@ describe("recent avatars", () => {
             };
             return undefined;
         });
-        t.mock.method(getCdnUtil(), "deleteFile", async () => {
+        t.mock.method(getCdnUtilModule(), "deleteFile", async () => {
             throw new Error("cdn delete failed");
         });
         t.mock.method(console, "warn", (...args: unknown[]) => {
@@ -321,8 +322,8 @@ describe("recent avatars", () => {
         t.mock.method(User, "findOne", async () => ({ avatar: "old-hash" }));
         t.mock.method(UserRecentAvatar, "find", async () => rows);
         t.mock.method(UserRecentAvatar, "delete", async () => undefined);
-        t.mock.method(getCdnUtil(), "deleteFile", async (path: string) => {
-            deletedFiles.push(path);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
             return { success: true };
         });
 
@@ -350,8 +351,8 @@ describe("recent avatars", () => {
         });
         t.mock.method(UserRecentAvatar, "find", async () => rows);
         t.mock.method(UserRecentAvatar, "delete", async () => undefined);
-        t.mock.method(getCdnUtil(), "deleteFile", async (path: string) => {
-            deletedFiles.push(path);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
             return { success: true };
         });
 
@@ -361,6 +362,6 @@ describe("recent avatars", () => {
     });
 });
 
-function getCdnUtil(): { deleteFile: (typeof import("@spacebar/util"))["deleteFile"] } {
-    return require("@spacebar/util/util/cdn") as { deleteFile: (typeof import("@spacebar/util"))["deleteFile"] };
+function getCdnUtilModule(): typeof import("../../../util/util/cdn") {
+    return require(path.join(path.dirname(require.resolve("@spacebar/util")), "util", "cdn"));
 }
