@@ -54,6 +54,7 @@
         "src/gateway/opcodes/GuildSync.test.ts",
         "src/gateway/opcodes/GatewayOpcodeAuthorization.test.ts",
         "src/gateway/opcodes/LazyRequest.test.ts",
+        "src/gateway/util/EventPermissions.test.ts",
         "src/gateway/util/DmPresenceRecipients.test.ts",
         "src/gateway/util/IdentifyGuildCreate.test.ts",
         "src/gateway/util/InvalidSessionPayload.test.ts",
