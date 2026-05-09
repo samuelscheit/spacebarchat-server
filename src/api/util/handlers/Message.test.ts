@@ -304,5 +304,4 @@ describe("handleMessage", () => {
         assert.equal(message.content, "edited content");
         assert.equal(findOneMock.mock.callCount(), 0);
     });
-
 });
