@@ -140,7 +140,8 @@
         "src/api/util/handlers/Registration.test.ts",
         "src/admin/mutations.test.ts",
         "src/cdn/util/AttachmentStorage.test.ts",
-        "src/util/entities/ChannelDeleteChannelAttachments.test.ts"
+        "src/util/entities/ChannelDeleteChannelAttachments.test.ts",
+        "src/api/util/UserUpdateEvents.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {
