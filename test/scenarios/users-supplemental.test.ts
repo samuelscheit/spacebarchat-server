@@ -255,11 +255,15 @@ test(
             assert.equal(persistedMemberSettings.settings.muted, true);
             assert.equal(persistedMemberSettings.settings.mobile_push, false);
 
+            const guildMemberCountBeforeLeave = await Member.countBy({ guild_id: guildId });
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, guildMemberCountBeforeLeave);
             const leaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
             await assertStatus(leaveGuild, 204);
             await guildEvents.waitFor((event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === target.id, eventTimeoutMs);
             assert.equal(await Member.findOneBy({ id: target.id, guild_id: guildId }), null);
-            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
+            const guildMemberCountAfterLeave = await Member.countBy({ guild_id: guildId });
+            assert.equal(guildMemberCountAfterLeave, guildMemberCountBeforeLeave - 1);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, guildMemberCountAfterLeave);
 
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/activities/statistics/applications`, ownerToken);
             assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/affinities/guilds`, ownerToken)), { guild_affinities: [] });
