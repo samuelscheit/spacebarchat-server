@@ -40,9 +40,23 @@ type RateLimit = {
 const Cache = new Map<string, RateLimit>();
 const EventRateLimit = "RATELIMIT";
 const RATE_LIMIT_MESSAGE = "You are being rate limited.";
+const READ_METHODS = ["GET", "OPTIONS", "HEAD"];
+const MODIFY_METHODS = ["POST", "DELETE", "PATCH", "PUT"];
 
 function getRateLimitMessage(req: Request) {
     return req.t?.("common:ratelimit.MESSAGE") ?? RATE_LIMIT_MESSAGE;
+}
+
+function getMethodRateLimit(opts: { count: number; GET?: number; MODIFY?: number }, method: string) {
+    if (opts.GET !== undefined && READ_METHODS.includes(method)) {
+        return { methodMaxHits: opts.GET, bucketSuffix: "GET" };
+    }
+
+    if (opts.MODIFY !== undefined && MODIFY_METHODS.includes(method)) {
+        return { methodMaxHits: opts.MODIFY, bucketSuffix: "MODIFY" };
+    }
+
+    return { methodMaxHits: undefined, bucketSuffix: undefined };
 }
 
 export default function rateLimit(opts: {
@@ -70,14 +84,16 @@ export default function rateLimit(opts: {
 
         let max_hits = opts.count;
         if (opts.bot && req.user_bot) max_hits = opts.bot;
-        if (opts.GET && ["GET", "OPTIONS", "HEAD"].includes(req.method)) max_hits = opts.GET;
-        else if (opts.MODIFY && ["POST", "DELETE", "PATCH", "PUT"].includes(req.method)) max_hits = opts.MODIFY;
+        const { methodMaxHits, bucketSuffix } = getMethodRateLimit(opts, req.method);
+        if (methodMaxHits !== undefined) max_hits = methodMaxHits;
+        const effective_bucket_id = bucketSuffix ? `${bucket_id}:${bucketSuffix}` : bucket_id;
+        const cache_key = executor_id + effective_bucket_id;
 
-        const offender = Cache.get(executor_id + bucket_id);
+        const offender = Cache.get(cache_key);
 
         res.set("X-RateLimit-Limit", `${max_hits}`)
             .set("X-RateLimit-Remaining", `${max_hits - (offender?.hits || 0)}`)
-            .set("X-RateLimit-Bucket", `${bucket_id}`)
+            .set("X-RateLimit-Bucket", `${effective_bucket_id}`)
             // assuming we aren't blocked, a new window will start after this request
             .set("X-RateLimit-Reset", `${Date.now() + opts.window}`)
             .set("X-RateLimit-Reset-After", `${opts.window}`);
@@ -92,7 +108,7 @@ export default function rateLimit(opts: {
                 offender.expires_at = new Date(Date.now() + opts.window * 1000);
                 offender.blocked = false;
 
-                Cache.delete(executor_id + bucket_id);
+                Cache.delete(cache_key);
             }
 
             res.set("X-RateLimit-Reset", `${reset}`);
@@ -106,7 +122,7 @@ export default function rateLimit(opts: {
                 resetAfterMs = reset - Date.now();
                 resetAfterSec = Math.ceil(resetAfterMs / 1000);
 
-                console.log(`blocked bucket: ${bucket_id} ${executor_id}`, {
+                console.log(`blocked bucket: ${effective_bucket_id} ${executor_id}`, {
                     resetAfterMs,
                 });
 
@@ -126,7 +142,7 @@ export default function rateLimit(opts: {
 
         next();
         const hitRouteOpts = {
-            bucket_id,
+            bucket_id: effective_bucket_id,
             executor_id,
             max_hits,
             window: opts.window,
