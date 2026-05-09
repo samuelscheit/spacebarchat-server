@@ -10,7 +10,7 @@ type JsonWorkerMessage = {
     error?: string;
 };
 
-type JsonArrayStreamState = "awaitArrayStart" | "awaitValueOrEnd" | "readValue" | "done";
+type JsonArrayStreamState = "awaitArrayStart" | "awaitValueOrEnd" | "readValue" | "awaitValueDelimiter" | "done";
 type JsonStreamParsedValue<T> = { hasValue: false } | { hasValue: true; value: T };
 
 function isJsonWhitespace(char: string): boolean {
@@ -247,7 +247,6 @@ export class JsonSerializer {
         let depth = 0;
         let inString = false;
         let escaped = false;
-        let valueComplete = false;
         let canEndArray = true;
 
         const noValue = { hasValue: false } as const;
@@ -256,7 +255,6 @@ export class JsonSerializer {
             depth = 0;
             inString = false;
             escaped = false;
-            valueComplete = false;
         };
         const parseValue = () => {
             const json = currentValue.trim();
@@ -268,28 +266,12 @@ export class JsonSerializer {
             resetValue();
             return value;
         };
+        const parseValueAndAwaitDelimiter = (): JsonStreamParsedValue<T> => {
+            const value = parseValue();
+            state = "awaitValueDelimiter";
+            return { hasValue: true, value };
+        };
         const processValueChar = (char: string): JsonStreamParsedValue<T> => {
-            if (valueComplete) {
-                if (isJsonWhitespace(char)) {
-                    return noValue;
-                }
-
-                if (char === ",") {
-                    const value = parseValue();
-                    state = "awaitValueOrEnd";
-                    canEndArray = false;
-                    return { hasValue: true, value };
-                }
-
-                if (char === "]") {
-                    const value = parseValue();
-                    state = "done";
-                    return { hasValue: true, value };
-                }
-
-                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
-            }
-
             if (inString) {
                 currentValue += char;
 
@@ -300,7 +282,7 @@ export class JsonSerializer {
                 } else if (char === '"') {
                     inString = false;
                     if (depth === 0) {
-                        valueComplete = true;
+                        return parseValueAndAwaitDelimiter();
                     }
                 }
 
@@ -324,7 +306,7 @@ export class JsonSerializer {
                     currentValue += char;
                     depth--;
                     if (depth === 0) {
-                        valueComplete = true;
+                        return parseValueAndAwaitDelimiter();
                     }
 
                     return noValue;
@@ -357,8 +339,7 @@ export class JsonSerializer {
                     return noValue;
                 }
 
-                valueComplete = true;
-                return noValue;
+                return parseValueAndAwaitDelimiter();
             }
 
             currentValue += char;
@@ -389,7 +370,30 @@ export class JsonSerializer {
                     continue;
                 }
 
-                if (state === "awaitValueOrEnd") {
+                // processValueChar can complete a value and update state from inside a nested function;
+                // keep the branch check widened so TypeScript does not narrow away that mutation.
+                const currentState = state as JsonArrayStreamState;
+
+                if (currentState === "awaitValueDelimiter") {
+                    if (isJsonWhitespace(char)) {
+                        continue;
+                    }
+
+                    if (char === ",") {
+                        state = "awaitValueOrEnd";
+                        canEndArray = false;
+                        continue;
+                    }
+
+                    if (char === "]") {
+                        state = "done";
+                        continue;
+                    }
+
+                    throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+                }
+
+                if (currentState === "awaitValueOrEnd") {
                     if (isJsonWhitespace(char)) {
                         continue;
                     }
@@ -426,17 +430,19 @@ export class JsonSerializer {
             throw new SyntaxError("Unexpected end of JSON array.");
         }
 
-        if (state === "readValue") {
+        const finalState = state as JsonArrayStreamState;
+
+        if (finalState === "awaitValueDelimiter") {
+            throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+        }
+
+        if (finalState === "readValue") {
             if (inString) {
                 throw new SyntaxError("Unterminated string in JSON array item.");
             }
 
             if (depth > 0) {
                 throw new SyntaxError("Unterminated JSON array item.");
-            }
-
-            if (valueComplete) {
-                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
             }
 
             throw new SyntaxError("Unexpected end of JSON array item.");

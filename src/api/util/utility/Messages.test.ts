@@ -21,7 +21,12 @@ import test from "node:test";
 import type { PartialUser, PublicMessage, PublicUser } from "@spacebar/schemas";
 import { ajv } from "../../../schemas/Validator";
 import { messageToPublicMessage } from "../../../util/util/MessagePublic";
-import { hydrateInteractionMetadataUsers, toPreloadMessageResponse } from "./Messages";
+import {
+    buildMessageDeleteBulkEvent,
+    deleteMessagesAndEmitBulkEvents,
+    hydrateInteractionMetadataUsers,
+    toPreloadMessageResponse,
+} from "./Messages";
 
 function makePublicUser(): PartialUser {
     return {
@@ -178,4 +183,92 @@ test("hydrateInteractionMetadataUsers attaches public users without legacy inter
     assert.deepEqual(messages[0].interaction_metadata?.user, publicUser);
     assert.deepEqual(messages[1].interaction_metadata?.user, existingUser);
     assert.equal("interaction" in messages[0], false);
+});
+
+test("buildMessageDeleteBulkEvent builds MESSAGE_DELETE_BULK payloads with guild ids", () => {
+    assert.deepEqual(
+        buildMessageDeleteBulkEvent({
+            ids: ["1", "2"],
+            channel_id: "channel",
+            guild_id: "guild",
+        }),
+        {
+            event: "MESSAGE_DELETE_BULK",
+            channel_id: "channel",
+            data: {
+                ids: ["1", "2"],
+                channel_id: "channel",
+                guild_id: "guild",
+            },
+        },
+    );
+});
+
+test("deleteMessagesAndEmitBulkEvents deletes and emits ids in bounded chunks", async () => {
+    const deleted: string[][] = [];
+    const emitted: string[][] = [];
+
+    const count = await deleteMessagesAndEmitBulkEvents(
+        {
+            ids: ["1", "2", "3", "4", "5"],
+            channel_id: "channel",
+            guild_id: "guild",
+        },
+        {
+            chunkSize: 2,
+            deleteMessageIds: async (ids) => {
+                deleted.push(ids);
+            },
+            emit: async (event) => {
+                emitted.push(event.data.ids);
+                assert.equal(event.data.channel_id, "channel");
+                assert.equal(event.data.guild_id, "guild");
+            },
+        },
+    );
+
+    assert.equal(count, 5);
+    assert.deepEqual(deleted, [["1", "2"], ["3", "4"], ["5"]]);
+    assert.deepEqual(emitted, deleted);
+});
+
+test("deleteMessagesAndEmitBulkEvents does not delete or emit for empty id lists", async () => {
+    let deleteCalls = 0;
+    let emitCalls = 0;
+
+    const count = await deleteMessagesAndEmitBulkEvents(
+        {
+            ids: [],
+            channel_id: "channel",
+        },
+        {
+            chunkSize: 2,
+            deleteMessageIds: async () => {
+                deleteCalls += 1;
+            },
+            emit: async () => {
+                emitCalls += 1;
+            },
+        },
+    );
+
+    assert.equal(count, 0);
+    assert.equal(deleteCalls, 0);
+    assert.equal(emitCalls, 0);
+});
+
+test("deleteMessagesAndEmitBulkEvents rejects invalid chunk sizes", async () => {
+    await assert.rejects(
+        deleteMessagesAndEmitBulkEvents(
+            {
+                ids: ["1"],
+                channel_id: "channel",
+            },
+            {
+                chunkSize: 0,
+                deleteMessageIds: async () => undefined,
+            },
+        ),
+        /chunkSize must be a positive integer/,
+    );
 });

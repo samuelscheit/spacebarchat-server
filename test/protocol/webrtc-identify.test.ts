@@ -59,7 +59,7 @@ test(
                         session_id: sessionId,
                         token,
                         video: true,
-                        streams: [{ type: "video", rid: "100", quality: 100 }],
+                        streams: [{ type: "screen", rid: "100", quality: 100 }],
                     },
                 }),
             );
@@ -70,6 +70,14 @@ test(
             assert.equal(readyData.ip, fakeMediaServer.ip);
             assert.equal(readyData.port, fakeMediaServer.port);
             assert.equal(typeof readyData.ssrc, "number");
+            const readyStreams = assertPayloadArray(readyData.streams);
+            assert.equal(readyStreams.length, 1);
+            const readyStream = assertPayloadRecord(readyStreams[0]);
+            assert.equal(readyStream.type, "video");
+            assert.equal(readyStream.rid, "100");
+            assert.equal(readyStream.quality, 100);
+            assert.equal(typeof readyStream.ssrc, "number");
+            assert.equal(typeof readyStream.rtx_ssrc, "number");
             assert.deepEqual(fakeMediaServer.joinCalls, [{ roomId: channel.id, userId: user.id, type: "guild-voice" }]);
 
             client.send(

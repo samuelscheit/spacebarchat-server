@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
-import { FileStorage } from "@spacebar/cdn";
+import { FileStorage, initializeStorage } from "@spacebar/cdn";
 
 export interface FileStorageFixture {
     root: string;
@@ -16,13 +16,18 @@ export interface UploadFixture {
 }
 
 export async function withFileStorage<T>(fn: (fixture: FileStorageFixture) => T | Promise<T>): Promise<T> {
+    const previousProvider = process.env.STORAGE_PROVIDER;
     const previousLocation = process.env.STORAGE_LOCATION;
     const root = await fs.mkdtemp(join(tmpdir(), "spacebar-cdn-"));
+    process.env.STORAGE_PROVIDER = "file";
     process.env.STORAGE_LOCATION = root;
+    initializeStorage();
 
     try {
         return await fn({ root, storage: new FileStorage() });
     } finally {
+        if (previousProvider === undefined) delete process.env.STORAGE_PROVIDER;
+        else process.env.STORAGE_PROVIDER = previousProvider;
         if (previousLocation === undefined) delete process.env.STORAGE_LOCATION;
         else process.env.STORAGE_LOCATION = previousLocation;
 

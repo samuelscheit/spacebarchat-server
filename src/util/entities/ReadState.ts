@@ -49,8 +49,8 @@ export class ReadState extends BaseClass {
     @Column({ type: "varchar", nullable: true })
     last_acked_id?: string | null;
 
-    @Column({ nullable: true })
-    notifications_cursor: string;
+    @Column({ type: "varchar", nullable: true })
+    notifications_cursor?: string | null;
 
     @Column({ default: 0 })
     mention_count: number;
@@ -81,7 +81,6 @@ export class ReadState extends BaseClass {
             // these only apply to channels:
             delete res.last_pin_timestamp;
             delete res.flags;
-            // delete res.last_viewed; // TODO
         }
         return res;
     }
