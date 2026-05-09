@@ -20,6 +20,7 @@ import { route } from "@spacebar/api";
 import { Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+import { toOAuthAuthorizeBot } from "../../util/utility/OAuthAuthorizeResponse";
 const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
@@ -40,14 +41,6 @@ export function toOAuthAuthorizeUserPreview(user: OAuthAuthorizeUserPreview) {
         avatar_decoration_data: user.avatar_decoration_data ?? null,
         discriminator: user.discriminator,
         public_flags: user.public_flags,
-    };
-}
-
-export function toOAuthAuthorizeBotPreview(user: OAuthAuthorizeUserPreview) {
-    return {
-        ...toOAuthAuthorizeUserPreview(user),
-        bot: true,
-        approximated_guild_count: 0, // TODO
     };
 }
 
@@ -157,7 +150,10 @@ router.get(
                 verify_key: app.verify_key,
                 flags: app.flags,
             },
-            bot: toOAuthAuthorizeBotPreview(bot),
+            bot: {
+                ...toOAuthAuthorizeBot(bot),
+                approximated_guild_count: 0, // TODO
+            },
             authorized: false,
         });
     },
