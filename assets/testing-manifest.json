@@ -10474,8 +10474,12 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "GuildDiscoveryRequirementsResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "coverage": {

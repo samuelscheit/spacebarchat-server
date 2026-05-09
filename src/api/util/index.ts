@@ -53,6 +53,7 @@ export * from "./utility/BillingSubscriptions";
 export * from "./utility/EmbedHandlers";
 export * from "./utility/CrosspostMessage";
 export * from "./utility/RoleMembers";
+export * from "./utility/GuildDiscoveryRequirements";
 export * from "./utility/GuildDiscoveryMetadata";
 export * from "./utility/GuildIntegrations";
 export * from "./utility/MessagePayloadPermissions";

@@ -14324,8 +14324,8 @@
             "fixtureRequirements": ["config"],
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": []
+                "responses": ["GuildDiscoveryRequirementsResponse"],
+                "responseStatuses": [200]
             },
             "cases": [
                 {
