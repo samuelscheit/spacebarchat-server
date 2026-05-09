@@ -1,6 +1,6 @@
 {
-    "missing": 849,
-    "spacebar": 331,
+    "missing": 848,
+    "spacebar": 332,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -244,7 +244,6 @@
         "/guilds/{param}/auto-moderation/false-alarm",
         "/guilds/{param}/auto-moderation/report-raid",
         "/guilds/{param}/auto-moderation/rules/validate",
-        "/guilds/{param}/auto-moderation/rules/{param}",
         "/guilds/{param}/bans/search",
         "/guilds/{param}/basic",
         "/guilds/{param}/creator-monetization/accept-new-terms-demonetized",
@@ -2269,14 +2268,6 @@
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/applications"],
             "summaries": ["Get Guild Applications"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/auto-moderation/rules/{param}",
-            "route_name": "GET_GUILDS_GUILD_ID_AUTO_MODERATION_RULES_AUTOMOD_RULE_ID",
-            "sources": ["userdoccers:resources/auto-moderation.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/auto-moderation/rules/{automod_rule_id}", "/guilds/{guild_id}/auto-moderation/rules/{param}"],
-            "summaries": ["Get Guild AutoMod Rule"]
         },
         {
             "method": "GET",
