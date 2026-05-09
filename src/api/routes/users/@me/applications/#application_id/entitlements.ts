@@ -21,9 +21,18 @@ import { route } from "@spacebar/api";
 
 const router: Router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    //TODO
-    res.json([]).status(200);
-});
+router.get(
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "ApplicationEntitlementsResponse",
+            },
+        },
+    }),
+    (req: Request, res: Response) => {
+        res.status(200).send([]);
+    },
+);
 
 export default router;
