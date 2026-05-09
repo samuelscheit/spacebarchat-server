@@ -97,6 +97,26 @@ describe("ChannelModifySchema", () => {
 
         assert.deepEqual(openApi.components.schemas.ChannelModifySchema.properties.available_tags.items.required, ["name"]);
     });
+
+    test("accepts channel icon emoji objects and null", () => {
+        const validate = getSchema("ChannelModifySchema");
+
+        assert.equal(validate({ icon_emoji: { id: null, name: "wave" } }), true, JSON.stringify(validate.errors));
+        assert.equal(validate({ icon_emoji: { id: "123", name: null } }), true, JSON.stringify(validate.errors));
+        assert.equal(validate({ icon_emoji: null }), true, JSON.stringify(validate.errors));
+    });
+
+    test("rejects malformed channel icon emoji objects", () => {
+        const validate = getSchema("ChannelModifySchema");
+
+        assert.equal(validate({ icon_emoji: { id: null } }), false);
+        assert.equal(validate({ icon_emoji: [] }), false);
+        assert.equal(validate({ icon_emoji: { id: "", name: null } }), false);
+        assert.equal(validate({ icon_emoji: { id: null, name: "" } }), false);
+        assert.equal(validate({ icon_emoji: { id: null, name: null } }), false);
+        assert.equal(validate({ icon_emoji: { id: "123", name: "wave" } }), false);
+        assert.equal(validate({ icon_emoji: { id: null, name: "wave", animated: false } }), false);
+    });
 });
 
 describe("ChannelCreateSchema", () => {
@@ -137,5 +157,11 @@ describe("ChannelCreateSchema", () => {
         ]) {
             assert.equal(validate({ name: `unsupported-${type}`, type }), false, `type ${type} should be rejected`);
         }
+    });
+
+    test("accepts channel icon emoji objects", () => {
+        const validate = getSchema("ChannelCreateSchema");
+
+        assert.equal(validate({ name: "general", type: ChannelType.GUILD_TEXT, icon_emoji: { id: null, name: "chat" } }), true, JSON.stringify(validate.errors));
     });
 });

@@ -64,6 +64,24 @@ export interface ThreadMetadata {
     create_timestamp: string; //Discord docs say this is optional, but it's only for after a certain date so it's not
 }
 
+export type IconEmoji = CustomIconEmoji | UnicodeIconEmoji;
+
+export interface CustomIconEmoji {
+    /**
+     * @minLength 1
+     */
+    id: Snowflake;
+    name: null;
+}
+
+export interface UnicodeIconEmoji {
+    id: null;
+    /**
+     * @minLength 1
+     */
+    name: string;
+}
+
 export interface DMChannel {
     icon: string | null;
     id: Snowflake;
@@ -181,7 +199,7 @@ export interface PublicChannel {
     default_forum_layout?: number;
     default_sort_order?: number | null;
     default_tag_setting?: string;
-    // icon_emoji?: IconEmoji | null; // TODO
+    icon_emoji?: IconEmoji | null;
     is_message_request?: boolean;
     is_message_request_timestamp?: string | null;
     is_spam?: boolean;
