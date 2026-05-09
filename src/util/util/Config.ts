@@ -17,7 +17,6 @@
 */
 
 import fs from "node:fs/promises";
-import { OrmUtils } from "../imports/OrmUtils";
 import {
     DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS,
     DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT,
@@ -30,6 +29,7 @@ import {
 import { ConfigEntity } from "../entities/Config";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
+import { In } from "typeorm";
 import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";
 import { applyEnvConfigOverrides } from "./EnvConfig";
 import { readJsonConfigFile } from "./JsonConfigFile";
@@ -59,7 +59,7 @@ export class Config {
         } else {
             console.log(`[Config] Using CONFIG_PATH rather than database:`, process.env.CONFIG_PATH);
             config = (await readJsonConfigFile(process.env.CONFIG_PATH)) as Partial<ConfigValue> as ConfigValue;
-            pairs = generatePairs(config);
+            pairs = generateConfigPairs(config);
         }
 
         // If a config doesn't exist, create it.
@@ -112,28 +112,43 @@ export class Config {
     }
     public static set(val: Partial<ConfigValue>) {
         if (!config || !val) return;
-        config = OrmUtils.mergeDeep(config, val);
+        config = mergeConfigDefaults(config, val);
 
         return applyConfig(config);
     }
 }
 
 // TODO: better types
-const generatePairs = (obj: object | null, key = ""): ConfigEntity[] => {
-    if (typeof obj == "object" && obj != null) {
+export const generateConfigPairs = (obj: unknown, key = ""): ConfigEntity[] => {
+    if (typeof obj == "object" && obj != null && !Array.isArray(obj)) {
         return Object.keys(obj)
             .map((k) =>
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                generatePairs((obj as any)[k], key ? `${key}_${k}` : k),
+                generateConfigPairs((obj as any)[k], key ? `${key}_${k}` : k),
             )
             .flat();
     }
 
     const ret = new ConfigEntity();
     ret.key = key;
-    ret.value = obj;
+    ret.value = obj as JsonValue | undefined;
     return [ret];
 };
+
+export function findStaleConfigKeys(existingKeys: string[], generatedKeys: string[]) {
+    return existingKeys.filter((existingKey) => generatedKeys.some((generatedKey) => existingKey.startsWith(`${generatedKey}_`)));
+}
+
+function hasConfigPairAncestor(key: string, keys: Set<string>) {
+    let parent = "";
+
+    for (const segment of key.split("_").slice(0, -1)) {
+        parent = parent ? `${parent}_${segment}` : segment;
+        if (keys.has(parent)) return true;
+    }
+
+    return false;
+}
 
 async function applyConfig(val: ConfigValue) {
     const configPath = process.env.CONFIG_PATH;
@@ -141,19 +156,28 @@ async function applyConfig(val: ConfigValue) {
         if (!process.env.CONFIG_READONLY) await fs.writeFile(configPath, JSON.stringify(val, null, 4));
         else console.log("[WARNING] JSON config file in use, and writing is disabled! Programmatic config changes will not be persisted, and your config will not get updated!");
     else {
-        const pairs = generatePairs(val);
+        const generatedPairs = generateConfigPairs(val);
+        const generatedKeys = generatedPairs.map((pair) => pair.key);
+        const existingKeys = (await ConfigEntity.find({ select: { key: true } })).map((pair) => pair.key);
+        const staleKeys = findStaleConfigKeys(existingKeys, generatedKeys);
+
         // keys are sorted to try to influence database order...
-        await Promise.all(pairs.sort((x, y) => (x.key > y.key ? 1 : -1)).map((pair) => pair.save()));
+        await Promise.all(generatedPairs.sort((x, y) => (x.key > y.key ? 1 : -1)).map((pair) => pair.save()));
+        if (staleKeys.length > 0) await ConfigEntity.delete({ key: In(staleKeys) });
+        pairs = generatedPairs;
     }
     return val;
 }
 
-function pairsToConfig(pairs: ConfigEntity[]) {
+export function pairsToConfig(pairs: ConfigEntity[]) {
     // TODO: typings
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const value: any = {};
+    const pairKeys = new Set(pairs.map((pair) => pair.key));
 
     pairs.forEach((p) => {
+        if (hasConfigPairAncestor(p.key, pairKeys)) return;
+
         const keys = p.key.split("_");
         let obj = value;
         let prev = "";

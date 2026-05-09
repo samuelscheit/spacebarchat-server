@@ -111,6 +111,7 @@
         "src/util/util/ReadStateAck.test.ts",
         "src/util/util/ReplacedCdnAsset.test.ts",
         "src/util/util/RoleIconPolicy.test.ts",
+        "src/util/util/Config.test.ts",
         "src/util/util/TraverseDirectory.test.ts",
         "src/util/entities/User.test.ts",
         "src/api/util/handlers/Registration.test.ts",
