@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, Guild, Invite, getDatabase, normalizeInviteCreateOptions } from "@spacebar/util";
+import { Channel, Guild, GuildFeature, Invite, getDatabase, normalizeInviteCreateOptions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { ChannelType, VanityUrlSchema } from "@spacebar/schemas";
@@ -52,7 +52,7 @@ router.get(
         await Invite.deleteWithVanityUrlFeatureSync(expiredInvites);
         const activeInvites = invites.filter((invite) => !expiredInvites.includes(invite));
 
-        if (!guild.features.includes("ALIASABLE_NAMES")) {
+        if (!guild.features.includes(GuildFeature.AliasableNames)) {
             const invite = activeInvites[0];
             if (!invite) return res.json({ code: null });
 
@@ -101,7 +101,7 @@ router.patch(
             const invite = await entityManager.findOne(Invite, { where: { code } });
             if (invite) throw new HTTPError("Invite already exists");
 
-            if (!guild.features.includes("ALIASABLE_NAMES")) {
+            if (!guild.features.includes(GuildFeature.AliasableNames)) {
                 await entityManager.delete(Invite, { guild_id, vanity_url: true });
             }
 

@@ -36,6 +36,7 @@ const TemplateGuildProjection: (keyof Guild)[] = [
     // "roles",
     // "channels",
     "afk_channel_id",
+    "safety_alerts_channel_id",
     "system_channel_id",
     "system_channel_flags",
     "icon",

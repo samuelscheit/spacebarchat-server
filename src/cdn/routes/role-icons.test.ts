@@ -9,8 +9,11 @@ import crypto from "node:crypto";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { after, before, describe, mock, test } from "node:test";
 import { Config, ConfigValue } from "@spacebar/util";
+import { initializeStorage } from "@spacebar/cdn";
+import imageSize from "image-size";
 
 const PNG_IMAGE = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=", "base64");
+const JPEG_IMAGE = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
 const WEBP_IMAGE = Buffer.from("UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA", "base64");
 const GIF_IMAGE = Buffer.from("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", "base64");
 
@@ -18,6 +21,7 @@ describe("role icon CDN route", () => {
     const requestSignature = "role-icon-test-signature";
     const previousStorageProvider = process.env.STORAGE_PROVIDER;
     const previousStorageLocation = process.env.STORAGE_LOCATION;
+    let roleIconMimeTypes: string[] = [];
     let storageRoot = "";
     let server: Server;
     let baseUrl = "";
@@ -33,8 +37,11 @@ describe("role icon CDN route", () => {
             config.security.requestSignature = requestSignature;
             return config;
         });
+        initializeStorage();
 
-        const moduleDefault = (await import("./role-icons.js")).default as unknown as Router & { default?: Router };
+        const roleIconModule = await import("./role-icons.js");
+        roleIconMimeTypes = roleIconModule.ROLE_ICON_MIME_TYPES;
+        const moduleDefault = roleIconModule.default as unknown as Router & { default?: Router };
         const roleIcons = moduleDefault.default ?? moduleDefault;
         const app = express();
         app.use("/role-icons", roleIcons);
@@ -62,24 +69,52 @@ describe("role icon CDN route", () => {
         else process.env.STORAGE_LOCATION = previousStorageLocation;
     });
 
-    test("stores uploaded WebP role icons at extensionless hash paths and serves extension aliases", async () => {
-        const roleId = "webp-role";
-        const response = await uploadRoleIcon(roleId, WEBP_IMAGE, "image/webp", "icon.webp");
+    test("allows only MIME types that can be classified as static from file signatures", () => {
+        assert.equal(roleIconMimeTypes.includes("image/png"), true);
+        assert.equal(roleIconMimeTypes.includes("image/jpeg"), true);
+        assert.equal(roleIconMimeTypes.includes("image/svg+xml"), true);
+
+        assert.equal(roleIconMimeTypes.includes("image/gif"), false);
+        assert.equal(roleIconMimeTypes.includes("image/apng"), false);
+        assert.equal(roleIconMimeTypes.includes("image/webp"), false);
+    });
+
+    test("stores uploaded JPEG role icons at extensionless hash paths and serves extension aliases", async () => {
+        const roleId = "jpeg-role";
+        const response = await uploadRoleIcon(roleId, JPEG_IMAGE, "image/jpeg", "icon.jpg");
         const body = (await response.json()) as { content_type: string; id: string; url: string };
-        const expectedHash = crypto.createHash("md5").update(WEBP_IMAGE).digest("hex");
+        const expectedHash = crypto.createHash("md5").update(JPEG_IMAGE).digest("hex");
 
         assert.equal(response.status, 200);
         assert.equal(body.id, expectedHash);
-        assert.equal(body.content_type, "image/webp");
+        assert.equal(body.content_type, "image/jpeg");
         assert.equal(body.url, `https://cdn.example.test/role-icons/${roleId}/${expectedHash}`);
         await access(join(storageRoot, "role-icons", roleId, expectedHash));
         await assert.rejects(access(join(storageRoot, "role-icons", roleId, `${expectedHash}.png`)));
 
-        for (const hashPath of [expectedHash, `${expectedHash}.webp`]) {
+        for (const hashPath of [expectedHash, `${expectedHash}.jpg`]) {
             const download = await fetch(`${baseUrl}/role-icons/${roleId}/${hashPath}`);
             assert.equal(download.status, 200);
-            assert.equal(download.headers.get("content-type"), "image/webp");
+            assert.equal(download.headers.get("content-type"), "image/jpeg");
             assert.ok((await download.arrayBuffer()).byteLength > 0);
+        }
+    });
+
+    test("resizes PNG role icon downloads for supported size requests", async () => {
+        const roleId = "resized-role";
+        const response = await uploadRoleIcon(roleId, PNG_IMAGE, "image/png", "icon.png");
+        const body = (await response.json()) as { id: string };
+
+        assert.equal(response.status, 200);
+
+        for (const hashPath of [roleId, `${roleId}/${body.id}.png`]) {
+            const download = await fetch(`${baseUrl}/role-icons/${hashPath}?size=16`);
+            assert.equal(download.status, 200);
+            assert.equal(download.headers.get("content-type"), "image/png");
+
+            const dimensions = imageSize(Buffer.from(await download.arrayBuffer()));
+            assert.equal(dimensions.width, 16);
+            assert.equal(dimensions.height, 16);
         }
     });
 
@@ -100,12 +135,17 @@ describe("role icon CDN route", () => {
         await assert.rejects(access(legacyPath));
     });
 
-    test("rejects animated GIF role icons", async () => {
-        const response = await uploadRoleIcon("animated-role", GIF_IMAGE, "image/gif", "icon.gif");
-        const body = (await response.json()) as { message: string };
+    test("rejects animated GIF and ambiguous WebP role icons", async () => {
+        for (const [image, contentType, filename] of [
+            [GIF_IMAGE, "image/gif", "icon.gif"],
+            [WEBP_IMAGE, "image/webp", "icon.webp"],
+        ] as const) {
+            const response = await uploadRoleIcon("animated-role", image, contentType, filename);
+            const body = (await response.json()) as { message: string };
 
-        assert.equal(response.status, 400);
-        assert.equal(body.message, "Invalid file type");
+            assert.equal(response.status, 400);
+            assert.equal(body.message, "Invalid file type");
+        }
     });
 
     async function uploadRoleIcon(roleId: string, image: Buffer, contentType: string, filename: string) {

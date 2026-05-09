@@ -257,30 +257,59 @@ function normalizeEventValue(value) {
     return undefined;
 }
 
-function extractEmittedEvents(source) {
+function extractEventLiterals(source) {
+    const events = [];
+    const parsed = parseLiteralList(extractPropertyValue(source, "event"));
+    const values = Array.isArray(parsed) ? parsed : [parsed];
+    for (const value of values) {
+        const event = normalizeEventValue(value);
+        if (event) events.push(event);
+    }
+
+    return [...new Set(events)].sort();
+}
+
+function extractEmittedEvents(source, eventBuilders = new Map()) {
     const events = [];
 
-    for (const match of source.matchAll(/\bemitEvent\s*\(/g)) {
+    for (const match of source.matchAll(/\b(?:emitEvent|emit)\s*\(/g)) {
         const open = source.indexOf("(", match.index);
         const close = findMatching(source, open);
         if (open === -1 || close === -1) continue;
 
         const [payload] = splitTopLevelArguments(source.slice(open + 1, close));
-        if (!payload || !payload.trim().startsWith("{")) continue;
+        if (!payload) continue;
 
-        const parsed = parseLiteralList(extractPropertyValue(payload, "event"));
-        const values = Array.isArray(parsed) ? parsed : [parsed];
-        for (const value of values) {
-            const event = normalizeEventValue(value);
-            if (event) events.push(event);
+        if (payload.trim().startsWith("{")) {
+            events.push(...extractEventLiterals(payload));
+        } else {
+            events.push(...extractCalledHelperEvents(payload, new Map(), eventBuilders));
         }
     }
 
     return [...new Set(events)].sort();
 }
 
-function extractFunctionEventMap(source) {
+function extractReturnedEventMap(source) {
     const eventsByFunction = new Map();
+    const functionBodies = extractFunctionBodies(source);
+
+    for (const { name, body } of functionBodies) {
+        const events = [];
+        for (const match of body.matchAll(/\breturn\s*{/g)) {
+            const open = body.indexOf("{", match.index);
+            const close = findMatching(body, open, "{", "}");
+            if (open === -1 || close === -1) continue;
+            events.push(...extractEventLiterals(body.slice(open, close + 1)));
+        }
+        if (events.length) eventsByFunction.set(name, [...new Set(events)].sort());
+    }
+
+    return eventsByFunction;
+}
+
+function extractFunctionBodies(source) {
+    const bodies = [];
     const regex = /\b(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(/g;
 
     for (const match of source.matchAll(regex)) {
@@ -294,8 +323,7 @@ function extractFunctionEventMap(source) {
         const bodyClose = findMatching(source, bodyOpen, "{", "}");
         if (bodyClose === -1) continue;
 
-        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
-        if (events.length) eventsByFunction.set(match[1], events);
+        bodies.push({ name: match[1], body: source.slice(bodyOpen + 1, bodyClose) });
     }
 
     const arrowRegex = /\b(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\([^)]*\)\s*=>/g;
@@ -307,8 +335,19 @@ function extractFunctionEventMap(source) {
         const bodyClose = findMatching(source, bodyOpen, "{", "}");
         if (bodyClose === -1) continue;
 
-        const events = extractEmittedEvents(source.slice(bodyOpen + 1, bodyClose));
-        if (events.length) eventsByFunction.set(match[1], events);
+        bodies.push({ name: match[1], body: source.slice(bodyOpen + 1, bodyClose) });
+    }
+
+    return bodies;
+}
+
+function extractFunctionEventMap(source) {
+    const eventsByFunction = new Map();
+    const eventBuilders = extractReturnedEventMap(source);
+
+    for (const { name, body } of extractFunctionBodies(source)) {
+        const events = extractEmittedEvents(body, eventBuilders);
+        if (events.length) eventsByFunction.set(name, events);
     }
 
     return eventsByFunction;
@@ -799,7 +838,11 @@ function makeHttpEntry({ service, method, routePath, sourceFile, line, routeMeta
 }
 
 function collectExternalHelperEventMap(repoRoot) {
-    const sourceDirs = [path.join(repoRoot, "src", "util", "entities"), path.join(repoRoot, "src", "api", "util", "handlers")];
+    const sourceDirs = [
+        path.join(repoRoot, "src", "util", "entities"),
+        path.join(repoRoot, "src", "api", "util", "handlers"),
+        path.join(repoRoot, "src", "api", "util", "utility"),
+    ];
     const maps = [];
 
     for (const dir of sourceDirs) {
@@ -1082,6 +1125,7 @@ function generateManifest(repoRoot, policyPath = path.join(repoRoot, DEFAULT_POL
         sources: [
             "src/api/routes",
             "src/api/util/handlers",
+            "src/api/util/utility",
             "src/api/Server.ts",
             "src/api/middlewares/RateLimit.ts",
             "src/api/middlewares/NoAuthorizationRoutes.ts",
@@ -1129,6 +1173,7 @@ module.exports = {
     applyPolicy,
     combineRoutePaths,
     extractApiRateLimitRulesFromSource,
+    collectExternalHelperEventMap,
     extractNoAuthorizationRulesFromSource,
     extractSourceHelperEventMap,
     generateManifest,

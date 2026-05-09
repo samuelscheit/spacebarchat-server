@@ -5,13 +5,14 @@ import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
 import { cache, cacheNotFound } from "./cache";
 import { multer } from "./multer";
-import { DEFAULT_IMAGE_MIME_TYPES, getCdnImageHashPaths, getCdnImagePath, hashImageBuffer, isAllowedImageMimeType } from "./ImageRouteHelpers";
+import { DEFAULT_IMAGE_MIME_TYPES, getCdnImageHashPaths, getCdnImagePath, hashImageBuffer, isAllowedImageMimeType, parseCdnImageSize, resizeCdnImage } from "./ImageRouteHelpers";
 
 export interface ImageRouteOptions {
     pathPrefix: string;
     resourceParam: string;
     allowedMimeTypes?: string[];
     legacyHashExtensions?: string[];
+    resize?: boolean;
 }
 
 function getRouteParam(req: Request, name: string) {
@@ -26,7 +27,7 @@ function isMissingStorageObjectError(error: unknown) {
     return false;
 }
 
-export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTypes = DEFAULT_IMAGE_MIME_TYPES, legacyHashExtensions = [] }: ImageRouteOptions) {
+export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTypes = DEFAULT_IMAGE_MIME_TYPES, legacyHashExtensions = [], resize = false }: ImageRouteOptions) {
     const router = Router({ mergeParams: true });
 
     router.post(`/:${resourceParam}`, multer.single("file"), async (req: Request, res: Response) => {
@@ -62,7 +63,9 @@ export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTy
 
         res.set("Content-Type", type?.mime);
 
-        return res.send(file);
+        const body = resize ? await resizeCdnImage(file, type?.mime, parseCdnImageSize(req.query.size)) : file;
+
+        return res.send(body);
     });
 
     router.get(`/:${resourceParam}/:hash`, cache, async (req: Request, res: Response) => {
@@ -79,7 +82,9 @@ export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTy
 
         res.set("Content-Type", type?.mime);
 
-        return res.send(file);
+        const body = resize ? await resizeCdnImage(file, type?.mime, parseCdnImageSize(req.query.size)) : file;
+
+        return res.send(body);
     });
 
     router.delete(`/:${resourceParam}/:id`, async (req: Request, res: Response) => {

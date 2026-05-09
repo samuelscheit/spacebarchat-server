@@ -16,9 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Config, Guild } from "@spacebar/util";
+import { Config, Guild, GuildFeature } from "@spacebar/util";
 
-import { route, toRecommendedGuild } from "@spacebar/api";
+import { assertGuildRecommendationsEnabled, route, toRecommendedGuild } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 import { ArrayContains } from "typeorm";
 import { type GuildRecommendationsResponse } from "@spacebar/schemas";
@@ -38,14 +38,16 @@ router.get(
     async (req: Request, res: Response) => {
         // const { limit, personalization_disabled } = req.query;
         const { limit } = req.query;
-        const showAllGuilds = Config.get().guild.discovery.showAllGuilds;
+        const discoveryConfig = Config.get().guild.discovery;
+        assertGuildRecommendationsEnabled(discoveryConfig.useRecommendation);
+        const showAllGuilds = discoveryConfig.showAllGuilds;
 
         const genLoadId = (size: number) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join("");
 
         const guilds = showAllGuilds
             ? await Guild.find({ take: Math.abs(Number(limit || 24)) })
             : await Guild.find({
-                  where: { features: ArrayContains(["DISCOVERABLE"]) },
+                  where: { features: ArrayContains([GuildFeature.Discoverable]) },
                   take: Math.abs(Number(limit || 24)),
               });
         const response = {
