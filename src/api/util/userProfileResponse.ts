@@ -63,6 +63,16 @@ export interface MutualGuildSource {
     nick?: string | null;
 }
 
+export interface PremiumGuildMembershipSource {
+    premium_since?: number | null;
+}
+
+export type ProfileMembershipSource = MutualGuildSource & PremiumGuildMembershipSource;
+
+export interface SelfProfileMembershipSource {
+    guild_id: string;
+}
+
 export function toUserProfileResponse(source: UserProfileSource, options: UserProfileResponseOptions = {}): UserProfileResponseProfile {
     const response: UserProfileResponseProfile = {
         bio: options.hideBio ? null : source.bio,
@@ -82,6 +92,25 @@ export function toGuildMemberProfileResponse(source: GuildMemberProfileSource): 
         bio: source.bio || "",
         guild_id: source.guild_id,
     };
+}
+
+export function earliestPremiumGuildSince(members: PremiumGuildMembershipSource[]): UserProfileResponse["premium_guild_since"] {
+    let earliest: number | null = null;
+
+    for (const member of members) {
+        if (member.premium_since == null) continue;
+        if (earliest == null || member.premium_since < earliest) {
+            earliest = member.premium_since;
+        }
+    }
+
+    return earliest;
+}
+
+export function toMutualGuildResponses(requestedMembers: ProfileMembershipSource[], selfMembers: SelfProfileMembershipSource[]): NonNullable<UserProfileResponse["mutual_guilds"]> {
+    const selfGuildIds = new Set(selfMembers.map((member) => member.guild_id));
+
+    return requestedMembers.filter((member) => selfGuildIds.has(member.guild_id)).map(toMutualGuildResponse);
 }
 
 export function toPartialConnectedAccountResponse(source: VisibleConnectedAccountSource): PartialConnectedAccountResponse {

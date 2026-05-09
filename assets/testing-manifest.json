@@ -11583,7 +11583,7 @@
             "method": "GET",
             "path": "/users/:user_id/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 44,
+            "line": 45,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11624,7 +11624,7 @@
             "method": "PATCH",
             "path": "/users/:user_id/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 156,
+            "line": 144,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
