@@ -61,6 +61,7 @@ import {
     serializePrivateArchivedThreadMember,
 } from "../../../util/utility/PrivateArchivedThreads";
 import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../../../util/ChannelAppliedTagsValidation";
+import { assertMessagePayloadLimits } from "../../../util/utility/MessagePayloadLimits";
 
 const router = Router({ mergeParams: true });
 
@@ -91,6 +92,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { channel_id } = req.params as { [key: string]: string };
         const body = req.body as ThreadCreationSchema;
+        if (body.message) assertMessagePayloadLimits(body.message);
 
         const channel = await Channel.findOneOrFail({
             where: { id: channel_id },
