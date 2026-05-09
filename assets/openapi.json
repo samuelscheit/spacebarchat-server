@@ -6599,16 +6599,6 @@
                     "nonce": {
                         "type": "string"
                     },
-                    "message_reference": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/MessageReference"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
                     "components": {
                         "anyOf": [
                             {
@@ -24401,6 +24391,10 @@
                 ]
             },
             "patch": {
+                "x-fires-event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
                 "security": [
                     {
                         "bearer": []
@@ -25444,6 +25438,10 @@
                 ]
             },
             "patch": {
+                "x-fires-event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
                 "security": [
                     {
                         "bearer": []
@@ -36016,11 +36014,6 @@
         },
         "/beaker/": {
             "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
                 "responses": {
                     "204": {
                         "description": "No description available"
