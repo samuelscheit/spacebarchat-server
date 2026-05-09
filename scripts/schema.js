@@ -307,6 +307,7 @@ async function main() {
     deleteOneOfKindUndefinedRecursive(definitions, "$");
     normalizeGeneratedJsonSchemaTypes(definitions);
     for (const defKey in definitions) {
+        normalizeScalarSchemas(definitions[defKey]);
         filterSchema(definitions[defKey]);
     }
     aliasPublicMessageSchema(definitions);
@@ -365,6 +366,26 @@ function filterSchema(schema) {
         for (const defKey in schema.definitions) {
             filterSchema(schema.definitions[defKey]);
         }
+    }
+}
+
+function normalizeScalarSchemas(schema) {
+    if (!schema || typeof schema !== "object") return;
+
+    // typescript-json-schema can emit TypeScript bigint primitives as a scalar
+    // number schema with empty object-only constraints when noExtraProps is on:
+    // `{ type: "number", properties: {}, additionalProperties: false }`.
+    // AJV strict mode rejects object-only keywords on scalar schemas, and this
+    // project patches AJV to support `type: "bigint"` so gateway bitfields are
+    // still coerced to BigInt at validation time.
+    if ((schema.type === "number" || schema.type === "integer") && schema.properties && Object.keys(schema.properties).length === 0 && schema.additionalProperties === false) {
+        schema.type = "bigint";
+        delete schema.properties;
+        delete schema.additionalProperties;
+    }
+
+    for (const value of Object.values(schema)) {
+        normalizeScalarSchemas(value);
     }
 }
 

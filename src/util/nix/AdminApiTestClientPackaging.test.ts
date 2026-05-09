@@ -110,6 +110,7 @@ describe("Admin API TestClient Nix packaging", () => {
         const deps = JSON.parse(readText(fsckDepsPath)) as Array<{ pname?: string; version?: string; hash?: string }>;
 
         assert.match(sharedBlock, /srcRoot = \.\/Spacebar\.Cdn\.Shared;/);
+        assert.doesNotMatch(sharedBlock, /srcRoot = Spacebar\.Cdn\.Shared;/);
         assert.match(fsckBlock, /projectReferences = \[[\s\S]*proj\.Spacebar-Cdn-Shared[\s\S]*proj\.Spacebar-Interop-Cdn-Abstractions[\s\S]*\];/);
         assert.deepEqual(
             deps.find((dep) => dep.pname === "Magick.NET.Core" && dep.version === "14.12.0"),

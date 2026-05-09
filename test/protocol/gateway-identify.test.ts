@@ -10,7 +10,6 @@ import {
     events,
     generateToken,
     initDatabase,
-    Intents,
     Permissions,
     Snowflake,
     Stream,
@@ -27,7 +26,6 @@ import { makeChannel, makeGuild, makeMember, makeRole } from "../fixtures/entiti
 import { startGateway } from "../server/startGateway";
 
 const coveredManifestIds = ["gateway:opcode:2:Identify"];
-const streamGatewayIntents = Number(Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_VOICE_STATES);
 type GatewayPayload = { op: number; s?: number; t?: string; d?: Record<string, unknown> | boolean };
 type BufferedGatewayClientState = {
     messages: ws.RawData[];
@@ -761,7 +759,7 @@ test(
             }).save();
 
             gateway = await startGateway();
-            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, streamGatewayIntents);
+            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken);
             const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
@@ -813,7 +811,7 @@ test(
             assert.equal(ownerStreamSession.token, ownerServerUpdateData.token);
             assert.equal((await VoiceState.findOneByOrFail({ user_id: owner.id })).self_stream, true);
 
-            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, streamGatewayIntents);
+            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken);
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
             await waitForEventListener(viewer.id);
 
@@ -872,7 +870,7 @@ test(
     },
 );
 
-async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents = 0) {
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
     assert.equal(hello.op, 10);
@@ -882,7 +880,9 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string,
             op: 2,
             d: {
                 token,
-                intents,
+                // Omit `intents` so these protocol flows exercise the gateway's
+                // default subscriptions. Explicit `0` means no guild/channel
+                // events and prevents the stream tests from receiving dispatches.
                 properties: {
                     os: "test",
                     browser: "spacebar-test",
