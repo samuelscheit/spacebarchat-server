@@ -44,8 +44,10 @@ describe("message media permission route integration", () => {
     });
 
     test("normal message create checks media permissions before thread side effects", () => {
-        const source = readSource("src/api/routes/channels/#channel_id/messages/index.ts");
+        const routeSource = readSource("src/api/routes/channels/#channel_id/messages/index.ts");
+        const source = readSource("src/api/util/handlers/ChannelMessageCreateRoute.ts");
 
+        assert.notEqual(indexOf(routeSource, 'router.post("/", ...createMessageRouteHandlers);'), -1);
         assertBefore(source, "assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });", "ThreadMember.create({");
         assertBefore(source, "assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });", 'event: "THREAD_MEMBERS_UPDATE"');
         assertBefore(source, "assertMessagePayloadPermissions(req.permission!, { ...body, attachments, uploadedFileCount: files.length });", "uploadFile(`/attachments/");
@@ -241,13 +243,13 @@ describe("message media permission route integration", () => {
         const permissionSource = readSource("src/api/util/utility/MessagePayloadPermissions.ts");
 
         assert.notEqual(indexOf(permissionSource, "hasMessagePayloadComponentMedia(opts.components)"), -1);
-        assertBefore(messageSource, "const medias = collectMessageComponentMedia(components);", "processMedia(m, messageId");
+        assertBefore(messageSource, "const medias = collectMessageComponentMedia(components);", "processMedia(m, message,");
         assertBefore(
             messageSource,
             "const handle = (!isEdit || opts.process_component_media === true) && opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;",
-            "if (isEdit) await handle?.(message.id, message.author as User, message.channel);",
+            "if (isEdit && handle) {",
         );
         assertBefore(messageSource, "delete messageOptions.process_component_media;", "const message = Message.create({");
-        assertBefore(messageSource, "if (isEdit) await handle?.(message.id, message.author as User, message.channel);", "return message;");
+        assertBefore(messageSource, "if (isEdit && handle) {", "return message;");
     });
 });

@@ -16,21 +16,17 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { assertCanApplyGuildDiscoveryFeatures, route } from "@spacebar/api";
 import {
     Channel,
-    DiscordApiErrors,
     Guild,
     GuildUpdateEvent,
     Member,
     Permissions,
     SpacebarApiErrors,
     emitEvent,
-    getPermission,
-    getRights,
     deleteFile,
     handleFile,
-    Config,
     removeChannelOrderingFromGuildSave,
     canPatchGuildFeature,
     type GuildFeatureValue,
@@ -139,6 +135,7 @@ router.patch(
     route({
         requestBody: "GuildUpdateSchema",
         permission: "MANAGE_GUILD",
+        permissionOrRight: "MANAGE_GUILDS",
         responses: {
             200: {
                 body: "GuildCreateResponse",
@@ -157,11 +154,6 @@ router.patch(
     async (req: Request, res: Response) => {
         const body = req.body as GuildUpdateSchema;
         const { guild_id } = req.params as { [key: string]: string };
-
-        const rights = await getRights(req.user_id);
-        const permission = await getPermission(req.user_id, guild_id);
-
-        if (!rights.has("MANAGE_GUILDS") && !permission.has("MANAGE_GUILD")) throw DiscordApiErrors.MISSING_PERMISSIONS.withParams("MANAGE_GUILDS");
 
         const guild = await Guild.findOneOrFail({
             where: { id: guild_id },
@@ -195,6 +187,8 @@ router.patch(
 
                 throw SpacebarApiErrors.FEATURE_IS_IMMUTABLE.withParams(feature);
             }
+
+            assertCanApplyGuildDiscoveryFeatures(guild, body.features, req.rights);
 
             // for some reason, they don't update in the assign.
             guild.features = requestedFeatures;

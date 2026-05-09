@@ -16,6 +16,7 @@ import {
     initDatabase,
     Member,
     Message,
+    MessageFlags,
     Permissions,
     ReadState,
     Role,
@@ -367,7 +368,10 @@ async function coverThreadRoutes(
     const publicTextThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, publicTextThreadId);
     await assertChannelNotificationCursor(textChannelId, ownerId, publicTextThreadCreatedMessage.id);
 
+    const existingMessageFlags = Number(MessageFlags.FLAGS.SUPPRESS_EMBEDS);
+    const expectedMessageThreadFlags = existingMessageFlags | Number(MessageFlags.FLAGS.HAS_THREAD);
     const messageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter", token);
+    await Message.update({ id: messageId }, { flags: existingMessageFlags });
     const beforeMessageThread = markCapturedEvents(events);
     const createMessageThread = await postJson(`${apiBaseUrl}/channels/${textChannelId}/messages/${messageId}/threads`, { name: "scenario-message-thread" }, token);
     await assertStatus(createMessageThread, 200);
@@ -378,15 +382,17 @@ async function coverThreadRoutes(
         beforeMessageThread,
         (event) => event.event === "THREAD_CREATE" && event.channel_id === textChannelId && event.data.id === messageId && event.data.newly_created === true,
     );
-    await waitForEventAfter(
+    const messageUpdate = await waitForEventAfter(
         events,
         beforeMessageThread,
         (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === textChannelId && event.data.id === messageId && event.data.thread.id === messageId,
     );
+    assert.equal(messageUpdate.data.flags, expectedMessageThreadFlags);
     await assertThreadMember(messageId, ownerMember.index);
     const message = await Message.findOneOrFail({ where: { id: messageId }, relations: { thread: true } });
     assert.ok(message.thread);
     assert.equal(message.thread.id, messageId);
+    assert.equal(message.flags, expectedMessageThreadFlags);
     const messageThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, messageId);
     await assertChannelNotificationCursor(textChannelId, ownerId, messageThreadCreatedMessage.id);
 

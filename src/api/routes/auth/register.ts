@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { isClientFingerprint, route, verifyCaptcha } from "@spacebar/api";
+import { route, verifyCaptcha } from "@spacebar/api";
 import {
     Config,
     DiscordApiErrors,
@@ -40,7 +40,8 @@ import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
-import { isRegistrationInviteUsable, registrationRequiresInvite, validateRegistrationDateOfBirth } from "../../util/handlers/Registration";
+import { isRegistrationInviteUsable, registrationRequiresInvite, validateRegistrationDateOfBirth, validateRegistrationFingerprint } from "../../util/handlers/Registration";
+import { validatePasswordPolicy } from "../../util/utility/passwordStrength";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -134,7 +135,25 @@ router.post(
             }
         }
 
-        const fingerprint = isClientFingerprint(body.fingerprint) ? body.fingerprint : undefined;
+        const fingerprintValidation = validateRegistrationFingerprint(register, body.fingerprint, { regTokenUsed });
+        if (fingerprintValidation.status === "required") {
+            throw FieldErrors({
+                fingerprint: {
+                    code: "BASE_TYPE_REQUIRED",
+                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                },
+            });
+        }
+        if (fingerprintValidation.status === "invalid") {
+            throw FieldErrors({
+                fingerprint: {
+                    code: "BASE_TYPE_INVALID",
+                    message: "Invalid registration fingerprint",
+                },
+            });
+        }
+
+        const fingerprint = fingerprintValidation.status === "valid" ? fingerprintValidation.fingerprint : undefined;
         if (!regTokenUsed && !register.allowMultipleAccounts && fingerprint) {
             const exists = await User.findByFingerprint(fingerprint);
 
@@ -223,7 +242,6 @@ router.post(
         //endregion
 
         // TODO: gift_code_sku_id?
-        // TODO: check password strength
 
         const email = normalizeOptionalEmail(body.email);
         body.email = email;
@@ -270,13 +288,15 @@ router.post(
         }
 
         if (body.password) {
-            const min = register.password.minLength ?? 8;
-
-            if (body.password.length < min) {
+            const passwordPolicyFailure = validatePasswordPolicy(body.password, register.password);
+            if (passwordPolicyFailure) {
                 throw FieldErrors({
                     password: {
-                        code: "PASSWORD_REQUIREMENTS_MIN_LENGTH",
-                        message: req.t("auth:register.PASSWORD_REQUIREMENTS_MIN_LENGTH", { min: min }),
+                        code: passwordPolicyFailure.code,
+                        message: req.t(`auth:register.${passwordPolicyFailure.code}`, {
+                            defaultValue: passwordPolicyFailure.message,
+                            ...passwordPolicyFailure.values,
+                        }),
                     },
                 });
             }

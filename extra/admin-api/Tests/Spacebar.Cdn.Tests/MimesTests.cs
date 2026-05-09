@@ -30,6 +30,15 @@ public class MimesTests {
     }
 
     [Theory]
+    [InlineData(".WebP", MagickFormat.WebP)]
+    [InlineData(" tiff ", MagickFormat.Tiff)]
+    public void GetFormatForExtension_NormalizesCommonExtensionInput(string extension, MagickFormat expectedFormat) {
+        Assert.Equal(expectedFormat, Mimes.GetFormatForExtension(extension));
+        Assert.Equal(expectedFormat, Spacebar.Cdn.Worker.Mimes.GetFormatForExtension(extension));
+        Assert.Equal(expectedFormat, CdnImageFormats.GetFormatForExtension(extension));
+    }
+
+    [Theory]
     [InlineData(MagickFormat.Jpg, "image/jpeg")]
     [InlineData(MagickFormat.Tif, "image/tiff")]
     public void GetMime_HandlesSupportedMagickAliases(MagickFormat format, string expectedMime) {

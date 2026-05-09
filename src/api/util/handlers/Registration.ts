@@ -18,6 +18,7 @@
 
 import { RegisterSchema } from "../../../schemas/uncategorised/RegisterSchema";
 import { DateOfBirthInput, evaluateDateOfBirth } from "../../../util/util/DateOfBirth";
+import { isClientFingerprint } from "../../../util/util/Fingerprint";
 
 export interface RegistrationInviteConfiguration {
     requireInvite: boolean;
@@ -29,11 +30,16 @@ export interface RegistrationDateOfBirthConfiguration {
     minimum?: number;
 }
 
+export interface RegistrationMultiAccountConfiguration {
+    allowMultipleAccounts: boolean;
+}
+
 export interface RegistrationInvite {
     isExpired(): boolean;
 }
 
 export type RegistrationDateOfBirthValidationError = "required" | "invalid" | "underage";
+export type RegistrationFingerprintValidationResult = { status: "valid"; fingerprint: string } | { status: "optional" } | { status: "required" } | { status: "invalid" };
 
 export function registrationRequiresInvite(register: RegistrationInviteConfiguration, body: Pick<RegisterSchema, "email" | "invite">): boolean {
     return !body.invite && (register.requireInvite || (register.guestsRequireInvite && !body.email));
@@ -56,4 +62,18 @@ export function validateRegistrationDateOfBirth(
     if (result.status === "underage") return "underage";
 
     return undefined;
+}
+
+export function validateRegistrationFingerprint(
+    register: RegistrationMultiAccountConfiguration,
+    fingerprint: unknown,
+    { regTokenUsed = false }: { regTokenUsed?: boolean } = {},
+): RegistrationFingerprintValidationResult {
+    if (isClientFingerprint(fingerprint)) return { status: "valid", fingerprint };
+
+    if (regTokenUsed || register.allowMultipleAccounts) return { status: "optional" };
+
+    if (fingerprint === undefined || fingerprint === null || fingerprint === "") return { status: "required" };
+
+    return { status: "invalid" };
 }

@@ -17,11 +17,28 @@
 */
 
 import { HTTPError } from "lambert-server";
-import { BeforeInsert, BeforeUpdate, Column, Entity, EntityManager, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, Not, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import {
+    BeforeInsert,
+    BeforeUpdate,
+    Column,
+    Entity,
+    EntityManager,
+    In,
+    Index,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    Not,
+    PrimaryGeneratedColumn,
+    RelationId,
+} from "typeorm";
 import { Ban, Channel, isReadyGuildThreadChannel, PublicGuildRelations } from ".";
 import { ReadyGuildDTO } from "../dtos";
 import { type Event, GuildCreateEvent, GuildDeleteEvent, GuildMemberAddEvent, GuildMemberRemoveEvent, GuildMemberUpdateEvent, MessageCreateEvent } from "../interfaces";
-import { applyReadyChannelOrdering, Config, emitEvent, DiscordApiErrors } from "../util";
+import { applyReadyChannelOrdering, Config, DiscordApiErrors } from "../util";
+import { bigintNumberTransformer } from "../util/DatabaseTransformers";
+import { emitEvent } from "../util/Event";
 import { BaseClassWithoutId } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Message } from "./Message";
@@ -39,6 +56,11 @@ export interface AddToGuildOptions {
     manager?: EntityManager;
     deferredEvents?: DeferredMemberEvent[];
     joined_by?: string;
+}
+
+export interface RoleMemberBulkUpdate {
+    addMemberIds?: string[];
+    removeMemberIds?: string[];
 }
 
 @Entity({
@@ -86,7 +108,7 @@ export class Member extends BaseClassWithoutId {
     @Column()
     joined_at: Date;
 
-    @Column({ type: "bigint", nullable: true })
+    @Column({ type: "bigint", nullable: true, transformer: bigintNumberTransformer })
     premium_since?: number;
 
     @Column()
@@ -259,6 +281,71 @@ export class Member extends BaseClassWithoutId {
                 guild_id,
             } satisfies GuildMemberUpdateEvent),
         ]);
+    }
+
+    static async updateRoleMembers(guild_id: string, role_id: string, changes: RoleMemberBulkUpdate) {
+        const addMemberIds = changes.addMemberIds ?? [];
+        const addMemberIdsSet = new Set(addMemberIds);
+        const removeMemberIds = (changes.removeMemberIds ?? []).filter((memberId) => !addMemberIdsSet.has(memberId));
+        const affectedMemberIds = [...new Set([...addMemberIds, ...removeMemberIds])];
+        if (affectedMemberIds.length === 0) return;
+
+        const removeMemberIdsSet = new Set(removeMemberIds);
+
+        const events = await Member.getRepository().manager.transaction(async (manager) => {
+            const [members] = await Promise.all([
+                manager.getRepository(Member).find({
+                    where: { id: In(affectedMemberIds), guild_id },
+                    relations: { user: true, roles: true },
+                }),
+                manager.getRepository(Role).findOneOrFail({
+                    where: { id: role_id, guild_id },
+                    select: { id: true },
+                }),
+            ]);
+
+            if (members.length !== affectedMemberIds.length) throw DiscordApiErrors.UNKNOWN_MEMBER;
+
+            const memberIndexesToAdd = members.filter((member) => addMemberIdsSet.has(member.id)).map((member) => member.index);
+            const memberIndexesToRemove = members.filter((member) => removeMemberIdsSet.has(member.id)).map((member) => member.index);
+
+            if (memberIndexesToAdd.length > 0) {
+                await manager
+                    .createQueryBuilder()
+                    .insert()
+                    .into("member_roles")
+                    .values(memberIndexesToAdd.map((index) => ({ index, role_id })))
+                    .orIgnore()
+                    .execute();
+            }
+
+            if (memberIndexesToRemove.length > 0) {
+                await manager
+                    .createQueryBuilder()
+                    .delete()
+                    .from("member_roles")
+                    .where('"index" IN (:...memberIndexes)', { memberIndexes: memberIndexesToRemove })
+                    .andWhere("role_id = :role_id", { role_id })
+                    .execute();
+            }
+
+            return members.map((member) => {
+                const currentRoleIds = member.roles.map((role) => role.id);
+                const nextRoleIds = addMemberIdsSet.has(member.id) ? [...new Set([...currentRoleIds, role_id])] : currentRoleIds.filter((id) => id !== role_id);
+
+                return {
+                    event: "GUILD_MEMBER_UPDATE",
+                    data: {
+                        guild_id,
+                        user: member.user,
+                        roles: nextRoleIds,
+                    },
+                    guild_id,
+                } satisfies GuildMemberUpdateEvent;
+            });
+        });
+
+        await Promise.all(events.map((event) => emitEvent(event)));
     }
 
     static async changeNickname(user_id: string, guild_id: string, nickname: string) {

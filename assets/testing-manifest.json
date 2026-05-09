@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 433,
+        "totalEntries": 435,
         "byService": {
-            "api": 336,
+            "api": 338,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 408,
+            "http-route": 410,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 53,
-            "stateful-domain": 245,
+            "stateful-domain": 247,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -46,8 +46,8 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 297,
-            "hot-path": 28,
+            "route-class": 298,
+            "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
             "protocol-load": 21
@@ -86,7 +86,7 @@
             "method": "GET",
             "path": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 156,
+            "line": 148,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -115,7 +115,7 @@
             "method": "GET",
             "path": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 152,
+            "line": 144,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -144,7 +144,7 @@
             "method": "GET",
             "path": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 160,
+            "line": 152,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -177,8 +177,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -206,8 +204,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -231,7 +227,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 179,
+            "line": 171,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -260,7 +256,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 172,
+            "line": 164,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -530,8 +526,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -564,8 +558,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -599,8 +591,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -633,8 +623,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -668,8 +656,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -703,8 +689,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "BulkApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -815,8 +799,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -849,8 +831,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -884,8 +864,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -918,8 +896,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -953,8 +929,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -988,8 +962,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "BulkApplicationCommandCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -1454,7 +1426,7 @@
             "method": "POST",
             "path": "/auth/login/",
             "sourceFile": "src/api/routes/auth/login.ts",
-            "line": 29,
+            "line": 28,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -1505,7 +1477,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -1619,7 +1590,7 @@
             "method": "POST",
             "path": "/auth/register/",
             "sourceFile": "src/api/routes/auth/register.ts",
-            "line": 56,
+            "line": 57,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -1752,7 +1723,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "SessionsLogoutSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -1786,7 +1756,7 @@
             "method": "POST",
             "path": "/auth/verify/",
             "sourceFile": "src/api/routes/auth/verify/index.ts",
-            "line": 25,
+            "line": 24,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -1946,7 +1916,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -2138,8 +2107,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -2711,7 +2678,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "MessageAcknowledgeSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -3340,13 +3306,12 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/threads.ts",
-            "line": 39,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "CREATE_PUBLIC_THREADS",
                 "requestBody": "MessageThreadCreationSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -3393,7 +3358,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 82,
+            "line": 31,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3444,7 +3409,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 226,
+            "line": 169,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3506,12 +3471,11 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 488,
+            "line": 171,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "AcknowledgeDeleteSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -4096,7 +4060,6 @@
                 "present": true,
                 "permission": "VIEW_CHANNEL",
                 "requestBody": "PostDataSchema",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4196,7 +4159,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     404
@@ -4248,7 +4210,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     201,
                     404
@@ -4452,12 +4413,11 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 158,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4503,12 +4463,11 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 129,
+            "line": 130,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403,
@@ -4551,12 +4510,11 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 155,
+            "line": 156,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4602,12 +4560,11 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 154,
+            "line": 155,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4653,14 +4610,15 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 198,
+            "line": 199,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
+                "requestBody": "ThreadMemberSettingsUpdateSchema",
                 "responseStatuses": [
                     200,
+                    204,
                     403
                 ],
                 "hasQuery": false,
@@ -4703,12 +4661,11 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 98,
+            "line": 99,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "VIEW_CHANNEL",
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     403
@@ -4812,8 +4769,8 @@
                 "present": true,
                 "permission": "VIEW_CHANNEL",
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "ActiveThreadsResponse"
+                    "ActiveThreadsResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -4913,7 +4870,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/public/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads/archived/public.ts",
-            "line": 33,
+            "line": 35,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5023,7 +4980,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "SEND_MESSAGES",
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     403,
@@ -5340,8 +5296,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -5371,8 +5325,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -5403,8 +5355,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConnectionCallbackSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "USER_CONNECTIONS_UPDATE"
@@ -5879,7 +5829,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 109,
+            "line": 105,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5928,7 +5878,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 137,
+            "line": 133,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5989,8 +5939,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -6923,7 +6871,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/discovery-requirements/",
             "sourceFile": "src/api/routes/guilds/#guild_id/discovery-requirements.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7693,7 +7641,6 @@
             "routeMetadata": {
                 "present": true,
                 "permission": "MANAGE_ROLES",
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     403
@@ -7841,8 +7788,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -7941,7 +7886,6 @@
                 "responseBodies": [
                     "GuildProfileResponse"
                 ],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -7986,7 +7930,6 @@
                 "responseBodies": [
                     "GuildPruneResponse"
                 ],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -8288,12 +8231,10 @@
             "method": "GET",
             "path": "/guilds/:guild_id/roles/:role_id/member-ids/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/member-ids.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -8331,7 +8272,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 82,
+            "line": 78,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8344,10 +8285,7 @@
                     204,
                     403
                 ],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "GUILD_MEMBER_UPDATE"
-                ]
+                "hasQuery": false
             },
             "rateLimit": {
                 "group": "guild",
@@ -8384,7 +8322,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 96,
+            "line": 92,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8397,10 +8335,7 @@
                     204,
                     403
                 ],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "GUILD_MEMBER_UPDATE"
-                ]
+                "hasQuery": false
             },
             "rateLimit": {
                 "group": "guild",
@@ -8441,8 +8376,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -8595,8 +8528,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -9198,8 +9129,8 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "ActiveThreadsResponse"
+                    "ActiveThreadsResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -9932,8 +9863,6 @@
                 "present": true,
                 "right": "CREATE_GUILDS",
                 "requestBody": "GuildTemplateCreateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -9964,13 +9893,11 @@
             "method": "GET",
             "path": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 219,
+            "line": 211,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10033,7 +9960,7 @@
             "method": "USE",
             "path": "/imageproxy/:hash/:size/:url",
             "sourceFile": "src/api/Server.ts",
-            "line": 148,
+            "line": 140,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -10062,13 +9989,11 @@
             "method": "POST",
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
-            "line": 48,
+            "line": 49,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "InteractionCallbacksSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "INTERACTION_SUCCESS",
@@ -10104,8 +10029,6 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "InteractionSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "INTERACTION_CREATE",
@@ -10326,7 +10249,7 @@
             "method": "GET",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 52,
+            "line": 53,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10366,7 +10289,7 @@
             "method": "POST",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 159,
+            "line": 147,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10415,8 +10338,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10448,8 +10369,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10474,12 +10393,16 @@
             "method": "GET",
             "path": "/partners/:guild_id/requirements/",
             "sourceFile": "src/api/routes/partners/#guild_id/requirements.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "GuildDiscoveryRequirementsResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "coverage": {
@@ -10746,13 +10669,11 @@
             "method": "GET",
             "path": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 218,
+            "line": 210,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10778,7 +10699,7 @@
             "method": "GET",
             "path": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 29,
+            "line": 211,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10817,8 +10738,8 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "AccountStandingResponse"
+                    "AccountStandingResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -10853,8 +10774,8 @@
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIErrorResponse",
-                    "AccountStandingResponse"
+                    "AccountStandingResponse",
+                    "APIErrorResponse"
                 ],
                 "responseStatuses": [
                     200,
@@ -10888,8 +10809,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -10914,11 +10833,10 @@
             "method": "POST",
             "path": "/science/",
             "sourceFile": "src/api/routes/science.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -11239,8 +11157,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11269,8 +11185,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11299,8 +11213,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11329,8 +11241,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11424,11 +11334,10 @@
             "method": "POST",
             "path": "/track/",
             "sourceFile": "src/api/routes/track.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -11582,7 +11491,7 @@
             "method": "GET",
             "path": "/users/:user_id/messages/",
             "sourceFile": "src/api/routes/users/#user_id/messages.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11616,13 +11525,65 @@
             }
         },
         {
+            "id": "api:http:POST:/users/:user_id/messages/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/:user_id/messages/",
+            "sourceFile": "src/api/routes/users/#user_id/messages.ts",
+            "line": 58,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "right": "SEND_MESSAGES",
+                "requestBody": "MessageCreateSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_CREATE",
+                    "CHANNEL_UPDATE",
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE",
+                    "THREAD_MEMBERS_UPDATE"
+                ]
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/:user_id/profile/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/users/:user_id/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 44,
+            "line": 45,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11663,7 +11624,7 @@
             "method": "PATCH",
             "path": "/users/:user_id/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 156,
+            "line": 144,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11672,9 +11633,11 @@
                     "USER_UPDATE",
                     "GUILD_MEMBER_UPDATE"
                 ],
-                "responseBodies": [],
-                "responseStatuses": [],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE",
+                    "USER_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11830,8 +11793,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11864,8 +11825,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -11898,8 +11857,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12010,8 +11967,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12082,7 +12037,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -12468,12 +12422,10 @@
             "method": "DELETE",
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 65,
+            "line": 64,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false,
                 "emittedEvents": [
                     "USER_CONNECTIONS_UPDATE"
@@ -12505,13 +12457,11 @@
             "method": "PATCH",
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 26,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConnectionUpdateSchema",
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12544,8 +12494,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12578,8 +12526,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12656,8 +12602,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -12769,8 +12713,12 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "UserEntitlementGiftsResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "coverage": {
@@ -12803,7 +12751,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     200,
                     404
@@ -12877,7 +12824,7 @@
             "method": "DELETE",
             "path": "/users/@me/guilds/:guild_id",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 52,
+            "line": 64,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12922,17 +12869,17 @@
             "method": "GET",
             "path": "/users/@me/guilds/",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 26,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [
-                    "APIGuildArray"
+                    "UserGuildsResponse"
                 ],
                 "responseStatuses": [
                     200
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12964,8 +12911,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -13040,8 +12985,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -13112,7 +13055,7 @@
             "method": "POST",
             "path": "/users/@me/mfa/codes/",
             "sourceFile": "src/api/routes/users/@me/mfa/codes.ts",
-            "line": 29,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -13242,7 +13185,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -13274,12 +13216,10 @@
             "method": "GET",
             "path": "/users/@me/mfa/webauthn/credentials/",
             "sourceFile": "src/api/routes/users/@me/mfa/webauthn/credentials/index.ts",
-            "line": 37,
+            "line": 47,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
                 "hasQuery": false
             },
             "coverage": {
@@ -13308,7 +13248,7 @@
             "method": "POST",
             "path": "/users/@me/mfa/webauthn/credentials/",
             "sourceFile": "src/api/routes/users/@me/mfa/webauthn/credentials/index.ts",
-            "line": 52,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -14092,7 +14032,6 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204
                 ],
@@ -14120,7 +14059,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 86,
+            "line": 85,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14215,7 +14154,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 124,
+            "line": 123,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14266,7 +14205,7 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 48,
+            "line": 47,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14282,7 +14221,9 @@
                 "hasQuery": true,
                 "emittedEvents": [
                     "MESSAGE_CREATE",
-                    "MESSAGE_UPDATE"
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE",
+                    "THREAD_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -14335,7 +14276,9 @@
                 "hasQuery": true,
                 "emittedEvents": [
                     "MESSAGE_CREATE",
-                    "MESSAGE_UPDATE"
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE",
+                    "THREAD_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -14376,7 +14319,6 @@
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
                 "responseStatuses": [
                     204,
                     404
@@ -14484,6 +14426,63 @@
                 "hasQuery": true,
                 "emittedEvents": [
                     "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 219
+            },
+            "coverage": {
+                "policyId": "api-webhooks",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "guilds",
+                    "channels",
+                    "webhooks",
+                    "messages"
+                ],
+                "contractChecks": [
+                    "token-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/webhooks/:webhook_id/:token/slack/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/webhooks/:webhook_id/:token/slack/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/slack.ts",
+            "line": 200,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "WebhookExecuteSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "APIPublicMessage"
+                ],
+                "responseStatuses": [
+                    200,
+                    204,
+                    400,
+                    404
+                ],
+                "hasQuery": true,
+                "emittedEvents": [
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE",
+                    "THREAD_CREATE",
+                    "THREAD_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -16498,7 +16497,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id/:hash",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -16529,7 +16528,7 @@
             "method": "DELETE",
             "path": "/role-icons/:role_id/:id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -16560,7 +16559,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -16591,7 +16590,7 @@
             "method": "POST",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -16746,7 +16745,7 @@
             "method": "DELETE",
             "path": "/stickers/:sticker_id/",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 78,
+            "line": 80,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -16777,7 +16776,7 @@
             "method": "GET",
             "path": "/stickers/:sticker_id",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 64,
+            "line": 66,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false

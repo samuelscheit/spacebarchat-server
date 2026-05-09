@@ -8,7 +8,7 @@ import { once } from "node:events";
 import crypto from "node:crypto";
 import express, { NextFunction, Request, Response, Router } from "express";
 import { after, before, describe, mock, test } from "node:test";
-import { Config, ConfigValue } from "@spacebar/util";
+import { CdnConfiguration, Config, ConfigValue } from "@spacebar/util";
 import { initializeStorage } from "@spacebar/cdn";
 import imageSize from "image-size";
 
@@ -17,11 +17,20 @@ const JPEG_IMAGE = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
 const WEBP_IMAGE = Buffer.from("UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA", "base64");
 const GIF_IMAGE = Buffer.from("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", "base64");
 
+function createCdnConfig() {
+    const cdn = new CdnConfiguration();
+    cdn.maxAttachmentSize = 25 * 1024 * 1024;
+    cdn.limits.roleIcon.maxSize = 512;
+    return cdn;
+}
+
 describe("role icon CDN route", () => {
     const requestSignature = "role-icon-test-signature";
     const previousStorageProvider = process.env.STORAGE_PROVIDER;
     const previousStorageLocation = process.env.STORAGE_LOCATION;
     let roleIconMimeTypes: string[] = [];
+    let assertRoleIconUploadSize: typeof import("./role-icons").assertRoleIconUploadSize;
+    let config: ConfigValue;
     let storageRoot = "";
     let server: Server;
     let baseUrl = "";
@@ -31,22 +40,22 @@ describe("role icon CDN route", () => {
         process.env.STORAGE_PROVIDER = "file";
         process.env.STORAGE_LOCATION = storageRoot;
 
-        mock.method(Config, "get", () => {
-            const config = new ConfigValue();
-            config.cdn.endpointPublic = "https://cdn.example.test";
-            config.security.requestSignature = requestSignature;
-            return config;
-        });
+        config = new ConfigValue();
+        config.cdn.endpointPublic = "https://cdn.example.test";
+        config.security.requestSignature = requestSignature;
+        mock.method(Config, "get", () => config);
         initializeStorage();
 
         const roleIconModule = await import("./role-icons.js");
         roleIconMimeTypes = roleIconModule.ROLE_ICON_MIME_TYPES;
+        assertRoleIconUploadSize = roleIconModule.assertRoleIconUploadSize;
         const moduleDefault = roleIconModule.default as unknown as Router & { default?: Router };
         const roleIcons = moduleDefault.default ?? moduleDefault;
         const app = express();
         app.use("/role-icons", roleIcons);
-        app.use((error: Error & { code?: number }, _req: Request, res: Response, _next: NextFunction) => {
-            res.status(error.code ?? 500).json({ message: error.message });
+        app.use((error: Error & { code?: number; httpStatus?: number }, _req: Request, res: Response, _next: NextFunction) => {
+            const status = error.httpStatus ?? (error.code && error.code >= 100 && error.code <= 599 ? error.code : 500);
+            res.status(status).json({ code: error.code, message: error.message });
         });
 
         server = createServer(app);
@@ -77,6 +86,35 @@ describe("role icon CDN route", () => {
         assert.equal(roleIconMimeTypes.includes("image/gif"), false);
         assert.equal(roleIconMimeTypes.includes("image/apng"), false);
         assert.equal(roleIconMimeTypes.includes("image/webp"), false);
+    });
+
+    test("enforces the configured role icon size limit on direct CDN uploads", () => {
+        const cdn = createCdnConfig();
+
+        assert.doesNotThrow(() => assertRoleIconUploadSize("role-id", 512, cdn));
+        assert.throws(() => assertRoleIconUploadSize("role-id", 513, cdn), {
+            code: 50045,
+            message: "File uploaded exceeds the maximum size",
+        });
+    });
+
+    test("rejects oversized direct role icon uploads before storing", async () => {
+        const originalMaxSize = config.cdn.limits.roleIcon.maxSize;
+        config.cdn.limits.roleIcon.maxSize = PNG_IMAGE.length - 1;
+
+        try {
+            const response = await uploadRoleIcon("oversized-role", PNG_IMAGE, "image/png", "icon.png");
+            const body = (await response.json()) as { code: number; message: string };
+
+            assert.equal(response.status, 400);
+            assert.deepEqual(body, {
+                code: 50045,
+                message: "File uploaded exceeds the maximum size",
+            });
+            await assert.rejects(access(join(storageRoot, "role-icons", "oversized-role")));
+        } finally {
+            config.cdn.limits.roleIcon.maxSize = originalMaxSize;
+        }
     });
 
     test("stores uploaded JPEG role icons at extensionless hash paths and serves extension aliases", async () => {

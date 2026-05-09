@@ -3,26 +3,26 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 408,
+        "totalContracts": 410,
         "byService": {
-            "api": 335,
+            "api": 337,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 286,
-        "runtimeMalformedAuthContracts": 286,
-        "runtimeRevokedSessionAuthContracts": 286,
-        "runtimeStaleTokenAuthContracts": 286,
-        "runtimePublicAuthBoundaryContracts": 41,
-        "runtimePublicInvalidBodyContracts": 13,
+        "runtimeAuthBoundaryContracts": 287,
+        "runtimeMalformedAuthContracts": 287,
+        "runtimeRevokedSessionAuthContracts": 287,
+        "runtimeStaleTokenAuthContracts": 287,
+        "runtimePublicAuthBoundaryContracts": 42,
+        "runtimePublicInvalidBodyContracts": 14,
         "runtimeProtectedInvalidBodyContracts": 52,
         "runtimePublicResponseSchemaContracts": 8,
-        "runtimeAuthenticatedResponseSchemaContracts": 19,
-        "runtimeRightOnlyDenialContracts": 7,
+        "runtimeAuthenticatedResponseSchemaContracts": 20,
+        "runtimeRightOnlyDenialContracts": 8,
         "runtimePermissionOnlyDenialContracts": 80,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 152,
+        "runtimeRateLimitHeaderContracts": 153,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -42,7 +42,7 @@
             "path": "/_spacebar/api/openapi.json",
             "samplePath": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 156,
+            "line": 148,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -82,7 +82,7 @@
             "path": "/_spacebar/api/schemas.json",
             "samplePath": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 152,
+            "line": 144,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -122,7 +122,7 @@
             "path": "/_spacebar/api/version",
             "samplePath": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 160,
+            "line": 152,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -226,7 +226,7 @@
             "path": "/.well-known/spacebar/client",
             "samplePath": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 179,
+            "line": 171,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -266,7 +266,7 @@
             "path": "/.well-known/spacebar",
             "samplePath": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 172,
+            "line": 164,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -1810,7 +1810,7 @@
             "path": "/auth/login/",
             "samplePath": "/auth/login/",
             "sourceFile": "src/api/routes/auth/login.ts",
-            "line": 29,
+            "line": 28,
             "authMode": "public",
             "testTier": "auth-scenario",
             "benchmarkClass": "hot-path",
@@ -2008,7 +2008,7 @@
             "path": "/auth/register/",
             "samplePath": "/auth/register/",
             "sourceFile": "src/api/routes/auth/register.ts",
-            "line": 56,
+            "line": 57,
             "authMode": "public",
             "testTier": "auth-scenario",
             "benchmarkClass": "hot-path",
@@ -2220,7 +2220,7 @@
             "path": "/auth/verify/",
             "samplePath": "/auth/verify/",
             "sourceFile": "src/api/routes/auth/verify/index.ts",
-            "line": 25,
+            "line": 24,
             "authMode": "public",
             "testTier": "auth-scenario",
             "benchmarkClass": "hot-path",
@@ -4366,7 +4366,7 @@
             "path": "/channels/:channel_id/messages/:message_id/threads/",
             "samplePath": "/channels/100000000000000002/messages/100000000000000003/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/threads.ts",
-            "line": 39,
+            "line": 40,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4442,7 +4442,7 @@
             "path": "/channels/:channel_id/messages/",
             "samplePath": "/channels/100000000000000002/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 82,
+            "line": 31,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4512,7 +4512,7 @@
             "path": "/channels/:channel_id/messages/",
             "samplePath": "/channels/100000000000000002/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 226,
+            "line": 169,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -4590,7 +4590,7 @@
             "path": "/channels/:channel_id/messages/ack",
             "samplePath": "/channels/100000000000000002/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 488,
+            "line": 171,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5912,7 +5912,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 158,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5986,7 +5986,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 129,
+            "line": 130,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6058,7 +6058,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 155,
+            "line": 156,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6132,7 +6132,7 @@
             "path": "/channels/:channel_id/thread-members/:user_id",
             "samplePath": "/channels/100000000000000002/thread-members/100000000000000004",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 154,
+            "line": 155,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6206,7 +6206,7 @@
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "samplePath": "/channels/100000000000000002/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 198,
+            "line": 199,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6220,8 +6220,9 @@
                 "line": 220
             },
             "routeMetadata": {
+                "requestBody": "ThreadMemberSettingsUpdateSchema",
                 "responses": [],
-                "responseStatuses": [200, 403],
+                "responseStatuses": [200, 204, 403],
                 "permission": "VIEW_CHANNEL",
                 "emittedEvents": ["THREAD_MEMBER_UPDATE"]
             },
@@ -6241,6 +6242,11 @@
                 {
                     "id": "malformed-auth",
                     "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "ThreadMemberSettingsUpdateSchema"
                 },
                 {
                     "id": "authorization-denied",
@@ -6264,10 +6270,6 @@
                     }
                 },
                 {
-                    "id": "policy-schema-validation",
-                    "checks": ["schema-validation"]
-                },
-                {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
                 }
@@ -6280,7 +6282,7 @@
             "path": "/channels/:channel_id/thread-members/",
             "samplePath": "/channels/100000000000000002/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 98,
+            "line": 99,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -6442,7 +6444,7 @@
                 "line": 220
             },
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "ActiveThreadsResponse"],
+                "responses": ["ActiveThreadsResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 400, 403, 404],
                 "permission": "VIEW_CHANNEL"
             },
@@ -6572,7 +6574,7 @@
             "path": "/channels/:channel_id/threads/archived/public/",
             "samplePath": "/channels/100000000000000002/threads/archived/public/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads/archived/public.ts",
-            "line": 33,
+            "line": 35,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -7860,7 +7862,7 @@
             "path": "/guilds/:guild_id/",
             "samplePath": "/guilds/100000000000000001/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 109,
+            "line": 105,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -7930,7 +7932,7 @@
             "path": "/guilds/:guild_id/",
             "samplePath": "/guilds/100000000000000001/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 137,
+            "line": 133,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -9323,7 +9325,7 @@
             "path": "/guilds/:guild_id/discovery-requirements/",
             "samplePath": "/guilds/100000000000000001/discovery-requirements/",
             "sourceFile": "src/api/routes/guilds/#guild_id/discovery-requirements.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11271,7 +11273,7 @@
             "path": "/guilds/:guild_id/roles/:role_id/member-ids/",
             "samplePath": "/guilds/100000000000000001/roles/100000000000000005/member-ids/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/member-ids.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11341,7 +11343,7 @@
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "samplePath": "/guilds/100000000000000001/roles/100000000000000005/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 82,
+            "line": 78,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11358,8 +11360,7 @@
                 "requestBody": "RoleMembersUpdateSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 403],
-                "permission": "MANAGE_ROLES",
-                "emittedEvents": ["GUILD_MEMBER_UPDATE"]
+                "permission": "MANAGE_ROLES"
             },
             "cases": [
                 {
@@ -11389,11 +11390,6 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "event-emission",
-                    "checks": ["events"],
-                    "events": ["GUILD_MEMBER_UPDATE"]
-                },
-                {
                     "id": "rate-limit-headers",
                     "checks": ["rate-limit-headers"],
                     "rateLimit": {
@@ -11407,6 +11403,10 @@
                 {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
                 }
             ]
         },
@@ -11417,7 +11417,7 @@
             "path": "/guilds/:guild_id/roles/:role_id/members/",
             "samplePath": "/guilds/100000000000000001/roles/100000000000000005/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts",
-            "line": 96,
+            "line": 92,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -11434,8 +11434,7 @@
                 "requestBody": "RoleMembersUpdateSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 403],
-                "permission": "MANAGE_ROLES",
-                "emittedEvents": ["GUILD_MEMBER_UPDATE"]
+                "permission": "MANAGE_ROLES"
             },
             "cases": [
                 {
@@ -11465,11 +11464,6 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
-                    "id": "event-emission",
-                    "checks": ["events"],
-                    "events": ["GUILD_MEMBER_UPDATE"]
-                },
-                {
                     "id": "rate-limit-headers",
                     "checks": ["rate-limit-headers"],
                     "rateLimit": {
@@ -11483,6 +11477,10 @@
                 {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
                 }
             ]
         },
@@ -12599,7 +12597,7 @@
                 "line": 218
             },
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "ActiveThreadsResponse"],
+                "responses": ["ActiveThreadsResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 403]
             },
             "cases": [
@@ -13651,7 +13649,7 @@
             "path": "/healthz",
             "samplePath": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 219,
+            "line": 211,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -13737,7 +13735,7 @@
             "path": "/imageproxy/:hash/:size/:url",
             "samplePath": "/imageproxy/abcdef/value/https%3A%2F%2Fexample.invalid%2Ffile.png",
             "sourceFile": "src/api/Server.ts",
-            "line": 148,
+            "line": 140,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -13777,7 +13775,7 @@
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
             "samplePath": "/interactions/100000000000000011/test_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
-            "line": 48,
+            "line": 49,
             "authMode": "public",
             "testTier": "integration",
             "benchmarkClass": "route-class",
@@ -14111,7 +14109,7 @@
             "path": "/oauth2/authorize/",
             "samplePath": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 52,
+            "line": 53,
             "authMode": "bearer",
             "testTier": "integration",
             "benchmarkClass": "route-class",
@@ -14163,7 +14161,7 @@
             "path": "/oauth2/authorize/",
             "samplePath": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 159,
+            "line": 147,
             "authMode": "bearer",
             "testTier": "integration",
             "benchmarkClass": "route-class",
@@ -14319,15 +14317,15 @@
             "path": "/partners/:guild_id/requirements/",
             "samplePath": "/partners/100000000000000001/requirements/",
             "sourceFile": "src/api/routes/partners/#guild_id/requirements.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
             "fixtureRequirements": ["config"],
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": []
+                "responses": ["GuildDiscoveryRequirementsResponse"],
+                "responseStatuses": [200]
             },
             "cases": [
                 {
@@ -14649,7 +14647,7 @@
             "path": "/readyz",
             "samplePath": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 218,
+            "line": 210,
             "authMode": "public-app-route",
             "testTier": "app-smoke",
             "benchmarkClass": "startup-health",
@@ -14689,7 +14687,7 @@
             "path": "/reporting/",
             "samplePath": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 29,
+            "line": 211,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -14740,7 +14738,7 @@
             "fixtureRequirements": ["config"],
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "AccountStandingResponse"],
+                "responses": ["AccountStandingResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 401]
             },
             "cases": [
@@ -14784,7 +14782,7 @@
             "fixtureRequirements": ["config"],
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
-                "responses": ["APIErrorResponse", "AccountStandingResponse"],
+                "responses": ["AccountStandingResponse", "APIErrorResponse"],
                 "responseStatuses": [200, 401]
             },
             "cases": [
@@ -14861,7 +14859,7 @@
             "path": "/science/",
             "samplePath": "/science/",
             "sourceFile": "src/api/routes/science.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -15535,7 +15533,7 @@
             "path": "/track/",
             "samplePath": "/track/",
             "sourceFile": "src/api/routes/track.ts",
-            "line": 24,
+            "line": 25,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -15725,7 +15723,7 @@
             "path": "/users/:user_id/messages/",
             "samplePath": "/users/100000000000000004/messages/",
             "sourceFile": "src/api/routes/users/#user_id/messages.ts",
-            "line": 25,
+            "line": 26,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15767,13 +15765,75 @@
             ]
         },
         {
+            "manifestId": "api:http:POST:/users/:user_id/messages/",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/:user_id/messages/",
+            "samplePath": "/users/100000000000000004/messages/",
+            "sourceFile": "src/api/routes/users/#user_id/messages.ts",
+            "line": 58,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "requestBody": "MessageCreateSchema",
+                "responses": ["APIErrorResponse", "APIPublicMessage"],
+                "responseStatuses": [200, 400, 403, 404],
+                "right": "SEND_MESSAGES",
+                "emittedEvents": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "MessageCreateSchema"
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "right": "SEND_MESSAGES"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/users/:user_id/profile/",
             "service": "api",
             "method": "GET",
             "path": "/users/:user_id/profile/",
             "samplePath": "/users/100000000000000004/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 44,
+            "line": 45,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15821,7 +15881,7 @@
             "path": "/users/:user_id/profile/",
             "samplePath": "/users/100000000000000004/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 156,
+            "line": 144,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15831,7 +15891,8 @@
                 "requestBody": "UserProfileModifySchema",
                 "responses": [],
                 "responseStatuses": [],
-                "event": ["USER_UPDATE", "GUILD_MEMBER_UPDATE"]
+                "event": ["USER_UPDATE", "GUILD_MEMBER_UPDATE"],
+                "emittedEvents": ["GUILD_MEMBER_UPDATE", "USER_UPDATE"]
             },
             "cases": [
                 {
@@ -16853,7 +16914,7 @@
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "samplePath": "/users/@me/connections/github/value/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 65,
+            "line": 64,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -16907,7 +16968,7 @@
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "samplePath": "/users/@me/connections/github/value/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 26,
+            "line": 25,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -17258,8 +17319,8 @@
             "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
             "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
             "routeMetadata": {
-                "responses": [],
-                "responseStatuses": []
+                "responses": ["UserEntitlementGiftsResponse"],
+                "responseStatuses": [200]
             },
             "cases": [
                 {
@@ -17397,7 +17458,7 @@
             "path": "/users/@me/guilds/:guild_id",
             "samplePath": "/users/@me/guilds/100000000000000001",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 52,
+            "line": 64,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -17451,14 +17512,14 @@
             "path": "/users/@me/guilds/",
             "samplePath": "/users/@me/guilds/",
             "sourceFile": "src/api/routes/users/@me/guilds.ts",
-            "line": 26,
+            "line": 27,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
             "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
             "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
             "routeMetadata": {
-                "responses": ["APIGuildArray"],
+                "responses": ["UserGuildsResponse"],
                 "responseStatuses": [200]
             },
             "cases": [
@@ -17701,7 +17762,7 @@
             "path": "/users/@me/mfa/codes/",
             "samplePath": "/users/@me/mfa/codes/",
             "sourceFile": "src/api/routes/users/@me/mfa/codes.ts",
-            "line": 29,
+            "line": 27,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -17899,7 +17960,7 @@
             "path": "/users/@me/mfa/webauthn/credentials/",
             "samplePath": "/users/@me/mfa/webauthn/credentials/",
             "sourceFile": "src/api/routes/users/@me/mfa/webauthn/credentials/index.ts",
-            "line": 37,
+            "line": 47,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -17947,7 +18008,7 @@
             "path": "/users/@me/mfa/webauthn/credentials/",
             "samplePath": "/users/@me/mfa/webauthn/credentials/",
             "sourceFile": "src/api/routes/users/@me/mfa/webauthn/credentials/index.ts",
-            "line": 52,
+            "line": 62,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -18979,7 +19040,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 86,
+            "line": 85,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
@@ -19111,7 +19172,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 124,
+            "line": 123,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
@@ -19179,7 +19240,7 @@
             "path": "/webhooks/:webhook_id/:token/",
             "samplePath": "/webhooks/100000000000000006/test_token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 48,
+            "line": 47,
             "authMode": "public",
             "testTier": "stateful-domain",
             "benchmarkClass": "hot-path",
@@ -19196,7 +19257,7 @@
                 "requestBody": "WebhookExecuteSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 400, 404],
-                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
             },
             "cases": [
                 {
@@ -19219,7 +19280,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -19266,7 +19327,7 @@
                 "requestBody": "WebhookExecuteSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 400, 404],
-                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
             },
             "cases": [
                 {
@@ -19289,7 +19350,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -19494,6 +19555,76 @@
                     "id": "event-emission",
                     "checks": ["events"],
                     "events": ["MESSAGE_UPDATE"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "webhook",
+                        "configPath": "limits.rate.routes.webhook",
+                        "pathPrefix": "/webhooks/:webhook_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 219
+                    }
+                },
+                {
+                    "id": "policy-token-auth-boundary",
+                    "checks": ["token-auth-boundary"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/webhooks/:webhook_id/:token/slack/",
+            "service": "api",
+            "method": "POST",
+            "path": "/webhooks/:webhook_id/:token/slack/",
+            "samplePath": "/webhooks/100000000000000006/test_token/slack/",
+            "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/slack.ts",
+            "line": 200,
+            "authMode": "public",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["guilds", "channels", "webhooks", "messages"],
+            "contractChecks": ["token-auth-boundary", "schema-validation", "response-shape", "db-state", "events"],
+            "rateLimit": {
+                "group": "webhook",
+                "configPath": "limits.rate.routes.webhook",
+                "pathPrefix": "/webhooks/:webhook_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 219
+            },
+            "routeMetadata": {
+                "requestBody": "WebhookExecuteSchema",
+                "responses": ["APIErrorResponse", "APIPublicMessage"],
+                "responseStatuses": [200, 204, 400, 404],
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "WebhookExecuteSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -22409,7 +22540,7 @@
             "path": "/role-icons/:role_id/:hash",
             "samplePath": "/role-icons/100000000000000005/abcdef",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -22453,7 +22584,7 @@
             "path": "/role-icons/:role_id/:id",
             "samplePath": "/role-icons/100000000000000005/value",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -22501,7 +22632,7 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -22545,7 +22676,7 @@
             "path": "/role-icons/:role_id",
             "samplePath": "/role-icons/100000000000000005",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 26,
+            "line": 31,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -22777,7 +22908,7 @@
             "path": "/stickers/:sticker_id/",
             "samplePath": "/stickers/100000000000000010/",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 78,
+            "line": 80,
             "authMode": "request-signature",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",
@@ -22825,7 +22956,7 @@
             "path": "/stickers/:sticker_id",
             "samplePath": "/stickers/100000000000000010",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 64,
+            "line": 66,
             "authMode": "public-cacheable",
             "testTier": "cdn-integration",
             "benchmarkClass": "cdn-hot-path",

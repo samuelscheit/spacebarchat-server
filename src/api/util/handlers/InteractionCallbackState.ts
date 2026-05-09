@@ -17,7 +17,7 @@
 */
 
 interface PendingInteractionCallbackState {
-    timeout: NodeJS.Timeout;
+    timeout?: NodeJS.Timeout;
     userId: string;
     nonce?: string;
 }

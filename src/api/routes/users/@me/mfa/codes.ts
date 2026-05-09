@@ -24,8 +24,6 @@ import { MfaCodesSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
-// TODO: This route is replaced with users/@me/mfa/codes-verification in newer clients
-
 router.post(
     "/",
     route({

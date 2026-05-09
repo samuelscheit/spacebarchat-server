@@ -31,8 +31,9 @@ import {
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
 import {
+    earliestPremiumGuildSince,
     toGuildMemberProfileResponse,
-    toMutualGuildResponse,
+    toMutualGuildResponses,
     toPartialConnectedAccountResponse,
     toProfileBadgeResponse,
     toUserProfileResponse,
@@ -76,33 +77,20 @@ router.get(
             },
         });
 
+        const requested_member = await Member.find({
+            where: { id: user_id },
+            select: { guild_id: true, nick: true, premium_since: true },
+        });
+        const premium_guild_since = earliestPremiumGuildSince(requested_member);
         const mutual_guilds: NonNullable<UserProfileResponse["mutual_guilds"]> = [];
-        let premium_guild_since: UserProfileResponse["premium_guild_since"];
 
         if (with_mutual_guilds == "true") {
-            const requested_member = await Member.find({
-                where: { id: user_id },
-            });
             const self_member = await Member.find({
                 where: { id: req.user_id },
+                select: { guild_id: true },
             });
 
-            for (const rmem of requested_member) {
-                if (rmem.premium_since) {
-                    if (premium_guild_since) {
-                        if (premium_guild_since > rmem.premium_since) {
-                            premium_guild_since = rmem.premium_since;
-                        }
-                    } else {
-                        premium_guild_since = rmem.premium_since;
-                    }
-                }
-                for (const smem of self_member) {
-                    if (smem.guild_id === rmem.guild_id) {
-                        mutual_guilds.push(toMutualGuildResponse(rmem));
-                    }
-                }
-            }
+            mutual_guilds.push(...toMutualGuildResponses(requested_member, self_member));
         }
 
         const guild_member = await getProfileGuildMember(req.user_id, user_id, guildId);
@@ -134,7 +122,7 @@ router.get(
 
         const response = {
             connected_accounts: publicUserConnections,
-            premium_guild_since: premium_guild_since, // TODO
+            premium_guild_since,
             premium_since: user.premium_since,
             mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined,
             mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,

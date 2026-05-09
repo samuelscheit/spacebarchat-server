@@ -10,10 +10,12 @@ function source(path: string) {
 describe("read-state route integrations", () => {
     test("channel message creation routes use the shared channel read-state helper", () => {
         const messageRoute = source("src/api/routes/channels/#channel_id/messages/index.ts");
+        const messageCreateRoute = source("src/api/util/handlers/ChannelMessageCreateRoute.ts");
         const threadRoute = source("src/api/routes/channels/#channel_id/threads.ts");
         const messageThreadRoute = source("src/api/routes/channels/#channel_id/messages/#message_id/threads.ts");
 
-        assert.match(messageRoute, /upsertChannelMessageReadState\(\{\s*user_id:\s*req\.user_id,\s*channel_id\s*\},\s*message\.id\)/);
+        assert.match(messageRoute, /router\.post\("\/", \.\.\.createMessageRouteHandlers\);/);
+        assert.match(messageCreateRoute, /upsertChannelMessageReadState\(\{\s*user_id:\s*req\.user_id,\s*channel_id\s*\},\s*message\.id\)/);
         assert.match(threadRoute, /upsertChannelMessageReadState\(\{\s*user_id:\s*req\.user_id,\s*channel_id:\s*thread\.id\s*\},\s*message\.id\)/);
         assert.match(messageThreadRoute, /upsertChannelMessageReadState\(\{\s*user_id:\s*req\.user_id,\s*channel_id:\s*thread\.id\s*\},\s*starterMessage\.id\)/);
         assert.match(threadRoute, /advanceChannelReadStateNotificationCursor\(\{\s*user_id:\s*req\.user_id,\s*channel_id:\s*channel\.id\s*\},\s*threadCreatedMessage\.id\)/);

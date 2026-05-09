@@ -16,9 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { GeneralConfiguration, LimitsConfiguration } from "../../util/config/types";
-
 import type { ConfigValue } from "../../util/config/Config";
+import type { GeneralConfiguration, LimitsConfiguration } from "@spacebar/util";
 
 export interface PublicInstanceConfigResponse {
     limits_user_maxGuilds: number;

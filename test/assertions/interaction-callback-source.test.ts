@@ -25,6 +25,8 @@ test("UPDATE_MESSAGE interaction callbacks stay implemented", () => {
 
     assert.equal(/todo/i.test(updateMessageCase), false, "implemented UPDATE_MESSAGE branch should not retain a placeholder TODO");
     assert.match(updateMessageCase, /Message\.findOneOrFail\(/);
+    assert.match(updateMessageCase, /attachments: true/);
+    assert.match(updateMessageCase, /channel_id: channelId/);
     assert.match(updateMessageCase, /normalizeMessageEditBodyAttachments\(body\.data, message\.attachments\)/);
     assert.match(updateMessageCase, /buildMessageEditComponentProcessingOptions\(normalizedBody\)/);
     assert.match(updateMessageCase, /await handleMessage\(/);

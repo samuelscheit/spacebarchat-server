@@ -17,7 +17,13 @@
 */
 
 import type { ApplicationCommandCreateSchema } from "../../../schemas/api/bots/ApplicationCommandCreateSchema";
-import type { ApplicationCommandSchema } from "../../../schemas/api/bots/ApplicationCommandSchema";
+import { ApplicationCommandType, type ApplicationCommandSchema } from "../../../schemas/api/bots/ApplicationCommandSchema";
+import type {
+    ApplicationCommandOption,
+    ApplicationCommandOptionChoice,
+    LocalizedApplicationCommandOption,
+    LocalizedApplicationCommandOptionChoice,
+} from "../../../schemas/api/developers/Application";
 import type { ApplicationCommand } from "../../../util/entities/ApplicationCommand";
 import { FieldErrors } from "../../../util/util/FieldError";
 import { Snowflake } from "../../../util/util/Snowflake";
@@ -53,7 +59,6 @@ export function normalizeApplicationCommandName(name: string) {
     const trimmedName = name.trim();
 
     if (trimmedName.length < 1 || trimmedName.length > 32) {
-        // TODO: configurable?
         throw FieldErrors({
             name: {
                 code: "BASE_TYPE_BAD_LENGTH",
@@ -92,7 +97,7 @@ function firstLocaleValue(locale: ApplicationCommandLocaleSource) {
 
 function normalizeApplicationCommandLocale(locale: ApplicationCommandLocaleSource) {
     const trimmedLocale = firstLocaleValue(locale);
-    if (!trimmedLocale) return undefined;
+    if (!trimmedLocale || trimmedLocale === "*") return undefined;
 
     const [language, region] = trimmedLocale.replace(/_/g, "-").split("-");
     if (!region) return language.toLowerCase() === "en" ? "en-US" : language.toLowerCase();
@@ -129,16 +134,30 @@ export function resolveApplicationCommandLocale(sources: ApplicationCommandLocal
     );
 }
 
+function localizationsValueForLocale(localizations: Record<string, string>, locale: string) {
+    const localized = localizations[locale];
+    if (localized !== undefined) return localized;
+
+    const normalizedLocale = normalizeApplicationCommandLocale(locale)?.toLowerCase();
+    if (!normalizedLocale) return undefined;
+
+    return Object.entries(localizations).find(([localizationLocale]) => normalizeApplicationCommandLocale(localizationLocale)?.toLowerCase() === normalizedLocale)?.[1];
+}
+
 export function getApplicationCommandLocalizedText(localizations: Record<string, string> | null | undefined, locale: string | null | undefined) {
     const normalizedLocale = normalizeApplicationCommandLocale(locale);
     if (!localizations || !normalizedLocale) return undefined;
 
     const fallbackLocale = APPLICATION_COMMAND_LOCALE_FALLBACKS[normalizedLocale];
     const baseLocale = normalizedLocale.split("-")[0];
+    const localeCandidates = [normalizedLocale, fallbackLocale, baseLocale === normalizedLocale ? undefined : baseLocale].filter((candidate): candidate is string => !!candidate);
 
-    return (
-        localizations[normalizedLocale] ?? (fallbackLocale ? localizations[fallbackLocale] : undefined) ?? (baseLocale === normalizedLocale ? undefined : localizations[baseLocale])
-    );
+    for (const candidate of localeCandidates) {
+        const localized = localizationsValueForLocale(localizations, candidate);
+        if (localized !== undefined) return localized;
+    }
+
+    return undefined;
 }
 
 export function getApplicationCommandLocalizedFields(command: ApplicationCommandLocalizationSource, locale: string | null | undefined) {
@@ -171,5 +190,47 @@ export function buildApplicationCommand(scope: ApplicationCommandScope, body: Ap
         options: body.options,
         type: body.type,
         version: Snowflake.generate(),
+    };
+}
+
+function serializeApplicationCommandOptionChoice(choice: ApplicationCommandOptionChoice, locale?: string): LocalizedApplicationCommandOptionChoice {
+    const nameLocalized = getApplicationCommandLocalizedText(choice.name_localizations, locale);
+
+    return {
+        ...choice,
+        ...(nameLocalized === undefined ? {} : { name_localized: nameLocalized }),
+    };
+}
+
+function serializeApplicationCommandOption(option: ApplicationCommandOption, locale?: string): LocalizedApplicationCommandOption {
+    return {
+        ...option,
+        ...getApplicationCommandLocalizedFields(option, locale),
+        choices: option.choices?.map((choice) => serializeApplicationCommandOptionChoice(choice, locale)),
+        options: option.options?.map((childOption) => serializeApplicationCommandOption(childOption, locale)),
+    };
+}
+
+export function serializeApplicationCommand(command: ApplicationCommand, locale?: string): ApplicationCommandSchema {
+    return {
+        id: command.id,
+        type: command.type,
+        application_id: command.application_id,
+        guild_id: command.guild_id,
+        name: command.name,
+        name_localizations: command.name_localizations,
+        ...getApplicationCommandLocalizedFields(command, locale),
+        description: command.description,
+        description_localizations: command.description_localizations,
+        options: command.type === ApplicationCommandType.CHAT_INPUT ? command.options?.map((option) => serializeApplicationCommandOption(option, locale)) : undefined,
+        default_member_permissions: command.default_member_permissions,
+        dm_permission: command.dm_permission,
+        permissions: command.permissions,
+        nsfw: command.nsfw,
+        integration_types: command.integration_types,
+        global_popularity_rank: command.global_popularity_rank,
+        contexts: command.contexts,
+        version: command.version,
+        handler: command.handler,
     };
 }

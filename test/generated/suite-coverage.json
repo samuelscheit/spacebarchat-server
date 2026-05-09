@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 386,
+        "totalCoveredManifestEntries": 388,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 364,
-                "totalCoveredManifestEntries": 364,
-                "totalCoveredRequiredManifestEntries": 364,
+                "totalRequiredManifestEntries": 366,
+                "totalCoveredManifestEntries": 366,
+                "totalCoveredRequiredManifestEntries": 366,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 245,
+            "stateful-domain": 247,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 364,
-                "totalCoveredManifestEntries": 364,
-                "totalCoveredRequiredManifestEntries": 364,
+                "totalRequiredManifestEntries": 366,
+                "totalCoveredManifestEntries": 366,
+                "totalCoveredRequiredManifestEntries": 366,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -326,6 +326,7 @@
                 "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                 "api:http:POST:/oauth2/authorize/",
                 "api:http:POST:/users/:user_id/delete/",
+                "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/delete/",
@@ -340,6 +341,7 @@
                 "api:http:POST:/users/@me/relationships/",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
                 "api:http:POST:/webhooks/:webhook_id/:token/github/",
+                "api:http:POST:/webhooks/:webhook_id/:token/slack/",
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
@@ -692,6 +694,7 @@
                 "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                 "api:http:POST:/oauth2/authorize/",
                 "api:http:POST:/users/:user_id/delete/",
+                "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/delete/",
@@ -706,6 +709,7 @@
                 "api:http:POST:/users/@me/relationships/",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
                 "api:http:POST:/webhooks/:webhook_id/:token/github/",
+                "api:http:POST:/webhooks/:webhook_id/:token/slack/",
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
@@ -847,6 +851,7 @@
                         "test/scenarios/users-guild-settings-route.test.ts",
                         "test/scenarios/users-supplemental.test.ts",
                         "test/scenarios/users-delete-route.test.ts",
+                        "test/scenarios/users-entitlements-gifts.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
@@ -908,6 +913,7 @@
                         "api:http:PATCH:/users/@me/settings-proto/2/json",
                         "api:http:PATCH:/users/@me/settings/",
                         "api:http:POST:/users/:user_id/delete/",
+                        "api:http:POST:/users/:user_id/messages/",
                         "api:http:POST:/users/@me/billing/payment-sources/",
                         "api:http:POST:/users/@me/channels/",
                         "api:http:POST:/users/@me/delete/",
@@ -931,6 +937,7 @@
                     "status": "partial-existing-tests",
                     "testFiles": [
                         "test/scenarios/guilds-crud.test.ts",
+                        "test/scenarios/guild-profile-assets.test.ts",
                         "test/scenarios/guilds-members-roles.test.ts",
                         "test/scenarios/guilds-supplemental.test.ts",
                         "test/scenarios/guilds-admin-supplemental.test.ts",
@@ -1137,7 +1144,8 @@
                         "api:http:PATCH:/webhooks/:webhook_id/:token/",
                         "api:http:PATCH:/webhooks/:webhook_id/:token/messages/:message_id/",
                         "api:http:POST:/webhooks/:webhook_id/:token/",
-                        "api:http:POST:/webhooks/:webhook_id/:token/github/"
+                        "api:http:POST:/webhooks/:webhook_id/:token/github/",
+                        "api:http:POST:/webhooks/:webhook_id/:token/slack/"
                     ]
                 },
                 {
@@ -1252,7 +1260,9 @@
                         "test/scenarios/cdn-assets.test.ts",
                         "test/scenarios/cdn-attachments.test.ts",
                         "src/cdn/index.test.ts",
+                        "src/cdn/routes/banners.test.ts",
                         "src/cdn/util/FileStorage.test.ts",
+                        "src/util/util/cdn.test.ts",
                         "src/util/util/CdnRoutes.test.ts"
                     ],
                     "fixtures": ["files", "request-signature", "signed-urls", "attachments", "cloud-attachments"],

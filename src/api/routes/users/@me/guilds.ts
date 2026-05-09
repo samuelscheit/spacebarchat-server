@@ -20,29 +20,41 @@ import { assertCanSelfLeaveGuild, route } from "@spacebar/api";
 import { Config, Guild, Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { countUserGuildOnlinePresences, serializeUserGuilds } from "../../../util/utility/UserGuilds";
 
 const router: Router = Router({ mergeParams: true });
 
 router.get(
     "/",
     route({
+        query: {
+            with_counts: {
+                type: "boolean",
+                required: false,
+                description: "Include approximate guild counts and the current user's guild permission bitfield.",
+            },
+        },
         responses: {
             200: {
-                body: "APIGuildArray",
+                body: "UserGuildsResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
+        const withCounts = req.query.with_counts == "true";
         const members = await Member.find({
-            relations: { guild: true },
+            relations: withCounts ? { guild: true, roles: true, user: true } : { guild: true },
             where: { id: req.user_id },
         });
 
-        let guild = members.map((x) => x.guild);
-
-        if ("with_counts" in req.query && req.query.with_counts == "true") {
-            guild = []; // TODO: Load guilds with user role permissions number
+        if (withCounts) {
+            const presenceCounts = await countUserGuildOnlinePresences(members.map((member) => member.guild_id));
+            members.forEach((member) => {
+                member.guild.presence_count = presenceCounts.get(member.guild_id) ?? 0;
+            });
         }
+
+        const guild = serializeUserGuilds(members, withCounts);
 
         res.json(guild);
     },

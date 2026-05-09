@@ -35,6 +35,7 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const TJS = require("typescript-json-schema");
 const walk = require("./util/walk");
+const { getGeneratedSchemaSources } = require("./util/schemaSources");
 const { normalizeGeneratedJsonSchemaTypes } = require("./util/jsonSchemaTypes");
 const { redBright, yellowBright, bgRedBright, yellow, greenBright, green, cyanBright, blueBright, blue, cyan, bgRed, gray } = require("picocolors");
 const schemaPath = path.join(__dirname, "..", "assets", "schemas.json");
@@ -146,7 +147,8 @@ async function main() {
     const stepSw = Stopwatch.startNew();
 
     process.stdout.write("Loading program... ");
-    const program = TJS.programFromConfig(path.join(__dirname, "..", "tsconfig.json"), walk(path.join(__dirname, "..", "src", "schemas")));
+    const schemaSources = getGeneratedSchemaSources(path.join(__dirname, "..", "src", "schemas"), walk);
+    const program = TJS.programFromConfig(path.join(__dirname, "..", "tsconfig.json"), schemaSources);
     const generator = TJS.buildGenerator(program, settings);
     if (!generator || !program) {
         console.log(redBright("Failed to create schema generator."));
@@ -307,9 +309,11 @@ async function main() {
     deleteOneOfKindUndefinedRecursive(definitions, "$");
     normalizeGeneratedJsonSchemaTypes(definitions);
     for (const defKey in definitions) {
+        normalizeScalarSchemas(definitions[defKey]);
         filterSchema(definitions[defKey]);
     }
     aliasPublicMessageSchema(definitions);
+    applyIdentifyAliasConstraints(definitions);
 
     if (process.env.WRITE_SCHEMA_DIR === "true") {
         await Promise.all(writePromises);
@@ -367,6 +371,26 @@ function filterSchema(schema) {
     }
 }
 
+function normalizeScalarSchemas(schema) {
+    if (!schema || typeof schema !== "object") return;
+
+    // typescript-json-schema can emit TypeScript bigint primitives as a scalar
+    // number schema with empty object-only constraints when noExtraProps is on:
+    // `{ type: "number", properties: {}, additionalProperties: false }`.
+    // AJV strict mode rejects object-only keywords on scalar schemas, and this
+    // project patches AJV to support `type: "bigint"` so gateway bitfields are
+    // still coerced to BigInt at validation time.
+    if ((schema.type === "number" || schema.type === "integer") && schema.properties && Object.keys(schema.properties).length === 0 && schema.additionalProperties === false) {
+        schema.type = "bigint";
+        delete schema.properties;
+        delete schema.additionalProperties;
+    }
+
+    for (const value of Object.values(schema)) {
+        normalizeScalarSchemas(value);
+    }
+}
+
 function aliasPublicMessageSchema(definitions) {
     if (!definitions.PublicMessage) return;
 
@@ -374,6 +398,52 @@ function aliasPublicMessageSchema(definitions) {
     // Several legacy response schemas still pull in the TypeORM Message entity as a
     // nested definition; keep the public API contract tied to PublicMessage instead.
     definitions.Message = structuredClone(definitions.PublicMessage);
+}
+
+function applyIdentifyAliasConstraints(definitions) {
+    const identifySchema = definitions.IdentifySchema;
+    if (!identifySchema) return;
+
+    ensureMutuallyExclusiveProperties(identifySchema, [
+        ["large_threshold", "largeThreshold"],
+        ["client_state", "clientState"],
+    ]);
+
+    for (const propertyName of ["client_state", "clientState"]) {
+        const clientStateSchema = resolvePropertySchema(definitions, identifySchema, propertyName);
+        ensureMutuallyExclusiveProperties(clientStateSchema, [
+            ["guild_hashes", "guildHashes"],
+            ["highest_last_message_id", "highestLastMessageId"],
+            ["read_state_version", "readStateVersion"],
+            ["user_guild_settings_version", "userGuildSettingsVersion"],
+            ["user_settings_version", "userSettingsVersion"],
+            ["useruser_guild_settings_version", "useruserGuildSettingsVersion"],
+            ["private_channels_version", "privateChannelsVersion"],
+            ["guild_versions", "guildVersions"],
+            ["api_code_version", "apiCodeVersion"],
+            ["initial_guild_id", "initialGuildId"],
+        ]);
+    }
+}
+
+function resolvePropertySchema(definitions, schema, propertyName) {
+    const propertySchema = schema?.properties?.[propertyName];
+    const refName = propertySchema?.$ref?.replace("#/definitions/", "");
+    return refName ? definitions[refName] : propertySchema;
+}
+
+function ensureMutuallyExclusiveProperties(schema, propertyPairs) {
+    if (!schema || typeof schema !== "object") return;
+
+    const constraints = propertyPairs.map((required) => ({
+        not: {
+            properties: Object.fromEntries(required.map((propertyName) => [propertyName, {}])),
+            required,
+        },
+    }));
+    const existingConstraints = Array.isArray(schema.allOf) ? schema.allOf : [];
+
+    schema.allOf = [...existingConstraints, ...constraints.filter((constraint) => !existingConstraints.some((existingConstraint) => deepEqual(existingConstraint, constraint)))];
 }
 
 function deepEqual(a, b) {

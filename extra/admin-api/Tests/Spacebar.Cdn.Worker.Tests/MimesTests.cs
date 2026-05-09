@@ -43,6 +43,14 @@ public class MimesTests {
     }
 
     [Theory]
+    [InlineData("x")]
+    [InlineData("mpr")]
+    [InlineData("unknown")]
+    public void GetFormatForExtension_RejectsOtherUnsafeOrUnsupportedOutputAliases(string extension) {
+        Assert.NotNull(Record.Exception(() => Mimes.GetFormatForExtension(extension)));
+    }
+
+    [Theory]
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]

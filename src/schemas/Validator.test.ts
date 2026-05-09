@@ -41,6 +41,45 @@ const ImageDataUriFields = [
     ["WebhookUpdateSchema", "avatar"],
 ] as const;
 
+function schemaTypes(schema: JsonShape | undefined): string[] {
+    assert.ok(schema);
+
+    if (schema.$ref) {
+        const match = /^#\/definitions\/(.+)$/.exec(schema.$ref);
+        assert.ok(match, `unexpected schema ref ${schema.$ref}`);
+        return schemaTypes(Schemas[match[1]]);
+    }
+
+    return (Array.isArray(schema.type) ? schema.type : [schema.type]).filter((type): type is string => typeof type === "string").sort();
+}
+
+describe("IdentifySchema", () => {
+    test("compiles under strict AJV and accepts JSON-safe gateway bitfields", () => {
+        const validate = ajv.getSchema("IdentifySchema");
+        assert.ok(validate);
+
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: 0,
+            shard: [0, "1"],
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors, null, 2));
+        assert.equal(payload.intents, 0);
+        assert.deepEqual(payload.shard, [0, "1"]);
+
+        const identifySchema = Schemas.IdentifySchema as {
+            properties?: {
+                intents?: JsonShape;
+                shard?: { items?: JsonShape };
+            };
+        };
+        assert.deepEqual(schemaTypes(identifySchema.properties?.intents), ["integer", "string"]);
+        assert.deepEqual(schemaTypes(identifySchema.properties?.shard?.items), ["integer", "string"]);
+    });
+});
+
 describe("WebhookExecuteSchema", () => {
     function getWebhookExecuteValidator() {
         const validate = ajv.getSchema("WebhookExecuteSchema");
@@ -108,43 +147,59 @@ describe("WebhookExecuteSchema", () => {
     });
 });
 
+describe("RegisterSchema", () => {
+    test("accepts gift_code_sku_id as a registration compatibility field", () => {
+        const body = {
+            username: "giftuser",
+            password: "correct horse battery staple",
+            consent: true,
+            gift_code_sku_id: "521842865731534868",
+        };
+
+        assert.deepEqual(validateSchema("RegisterSchema", body), body);
+    });
+});
+
 describe("schema validator custom formats", () => {
-    test("normalizes generated gateway bigint schemas for Ajv validation", () => {
-        assert.deepEqual(
-            validateSchema("IdentifySchema", {
-                token: "gateway-token",
-                properties: {},
-                intents: 513,
-                shard: [0, 1],
-            }),
-            {
-                token: "gateway-token",
-                properties: {},
-                intents: 513,
-                shard: [0, 1],
-            },
-        );
+    test("coerces bigint schema fields from JSON-safe numbers and strings", () => {
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: 0,
+            shard: [0, "1"],
+        };
 
-        assert.deepEqual(
-            validateSchema("IdentifySchema", {
-                token: "gateway-token",
-                properties: {},
-                intents: "9007199254740993",
-                shard: ["0", "1"],
-            }),
-            {
-                token: "gateway-token",
-                properties: {},
-                intents: "9007199254740993",
-                shard: ["0", "1"],
-            },
-        );
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 0n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
 
+    test("preserves large bigint strings without precision loss", () => {
+        const payload = {
+            token: "gateway-token",
+            properties: {},
+            intents: "9007199254740993",
+            shard: ["0", "1"],
+        };
+
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 9007199254740993n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
+
+    test("rejects bigint schema fields that cannot be coerced", () => {
         assert.throws(() =>
             validateSchema("IdentifySchema", {
-                token: "gateway-token",
+                token: "auth-token",
                 properties: {},
-                intents: "not-an-integer",
+                intents: 1.5,
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                shard: ["not-an-integer"],
             }),
         );
         assert.throws(() =>
@@ -227,18 +282,6 @@ describe("RoleModifySchema", () => {
 });
 
 describe("generated JSON schemas", () => {
-    function schemaTypes(schema: JsonShape | undefined): string[] {
-        assert.ok(schema);
-
-        if (schema.$ref) {
-            const match = /^#\/definitions\/(.+)$/.exec(schema.$ref);
-            assert.ok(match, `unexpected schema ref ${schema.$ref}`);
-            return schemaTypes(Schemas[match[1]]);
-        }
-
-        return (Array.isArray(schema.type) ? schema.type : [schema.type]).filter((type): type is string => typeof type === "string").sort();
-    }
-
     test("keeps gateway identify bitfields JSON-safe", () => {
         assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.intents), ["integer", "string"]);
         assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.shard?.items), ["integer", "string"]);

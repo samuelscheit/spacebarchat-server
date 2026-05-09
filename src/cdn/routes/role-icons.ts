@@ -16,6 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { assertCdnFileSizeLimit, Config, type CdnConfiguration } from "@spacebar/util";
 import { STATIC_IMAGE_MIME_TYPES } from "../util/ImageRouteHelpers";
 import { createHashImageRouter } from "../util/ImageRoute";
 
@@ -23,10 +24,15 @@ import { createHashImageRouter } from "../util/ImageRoute";
 // formats this route can classify as static from MIME detection alone.
 export const ROLE_ICON_MIME_TYPES = STATIC_IMAGE_MIME_TYPES.filter((mimeType) => mimeType !== "image/webp");
 
+export function assertRoleIconUploadSize(roleId: string, size: number, cdnConfig: CdnConfiguration = Config.get().cdn) {
+    assertCdnFileSizeLimit(`/role-icons/${roleId}`, size, cdnConfig);
+}
+
 export default createHashImageRouter({
     pathPrefix: "role-icons",
     resourceParam: "role_id",
     allowedMimeTypes: ROLE_ICON_MIME_TYPES,
     legacyHashExtensions: ["png", "jpg", "jpeg", "webp", "svg"],
     resize: true,
+    assertUploadSize: assertRoleIconUploadSize,
 });

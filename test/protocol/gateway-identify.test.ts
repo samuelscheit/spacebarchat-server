@@ -27,7 +27,6 @@ import { makeChannel, makeGuild, makeMember, makeRole } from "../fixtures/entiti
 import { startGateway } from "../server/startGateway";
 
 const coveredManifestIds = ["gateway:opcode:2:Identify"];
-const streamGatewayIntents = Number(Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_VOICE_STATES);
 type GatewayPayload = { op: number; s?: number; t?: string; d?: Record<string, unknown> | boolean };
 type BufferedGatewayClientState = {
     messages: ws.RawData[];
@@ -186,8 +185,8 @@ test("Gateway IDENTIFY generated schema validates JSON-safe wire payloads", () =
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0);
-    assert.deepEqual(payload.shard, [0, "1"]);
+    assert.equal(payload.intents as unknown, 0n);
+    assert.deepEqual(payload.shard as unknown, [0n, 1n]);
 });
 
 test("Gateway IDENTIFY generated schema validates camelCase client state aliases", () => {
@@ -212,8 +211,8 @@ test("Gateway IDENTIFY generated schema validates camelCase client state aliases
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0);
-    assert.deepEqual(payload.shard, [0, "1"]);
+    assert.equal(payload.intents as unknown, 0n);
+    assert.deepEqual(payload.shard as unknown, [0n, 1n]);
 });
 
 test("Gateway IDENTIFY generated schema validates presence activities", () => {
@@ -761,7 +760,7 @@ test(
             }).save();
 
             gateway = await startGateway();
-            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, streamGatewayIntents);
+            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, Number(Intents.FLAGS.GUILD_VOICE_STATES));
             const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
@@ -770,6 +769,8 @@ test(
             await waitForEventListener(guild.id);
             await waitForEventListener(voiceChannel.id);
 
+            // READY/READY_SUPPLEMENTAL must not be observable before event
+            // subscriptions are active; send immediately to guard that ordering.
             ownerClient.send(
                 JSON.stringify({
                     op: 18,
@@ -811,10 +812,11 @@ test(
             assert.equal(ownerStreamSession.token, ownerServerUpdateData.token);
             assert.equal((await VoiceState.findOneByOrFail({ user_id: owner.id })).self_stream, true);
 
-            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, streamGatewayIntents);
+            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken);
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
             await waitForEventListener(viewer.id);
 
+            // The watching client should also be subscribed as soon as READY is visible.
             viewerClient.send(
                 JSON.stringify({
                     op: 20,
@@ -869,23 +871,28 @@ test(
     },
 );
 
-async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents = 0) {
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents?: number) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
     assert.equal(hello.op, 10);
 
+    // Omit `intents` by default so these protocol flows exercise the gateway's
+    // default subscriptions. Explicit `0` means no guild/channel events and
+    // prevents the stream tests from receiving dispatches.
+    const identify = {
+        token,
+        ...(intents === undefined ? {} : { intents }),
+        properties: {
+            os: "test",
+            browser: "spacebar-test",
+            device: "spacebar-test",
+        },
+    };
+
     client.send(
         JSON.stringify({
             op: 2,
-            d: {
-                token,
-                intents,
-                properties: {
-                    os: "test",
-                    browser: "spacebar-test",
-                    device: "spacebar-test",
-                },
-            },
+            d: identify,
         }),
     );
 
@@ -922,18 +929,33 @@ function makeReadyRecipient(user: PublicUser) {
 }
 
 async function readUntil(client: ws, predicate: (payload: GatewayPayload) => boolean) {
-    for (let i = 0; i < 10; i++) {
-        const payload = await readJsonMessage(client);
-        if (predicate(payload)) return payload;
-    }
+    const state = getBufferedGatewayClientState(client);
+    const skipped: ws.RawData[] = [];
 
-    assert.fail("Timed out waiting for matching gateway payload");
+    try {
+        for (let i = 0; i < 10; i++) {
+            const raw = await readRawGatewayMessage(client);
+            const payload = JSON.parse(raw.toString()) as GatewayPayload;
+            if (predicate(payload)) return payload;
+
+            skipped.push(raw);
+        }
+
+        assert.fail("Timed out waiting for matching gateway payload");
+    } finally {
+        state.messages.unshift(...skipped);
+    }
 }
 
 async function readJsonMessage(client: ws) {
+    const raw = await readRawGatewayMessage(client);
+    return JSON.parse(raw.toString()) as GatewayPayload;
+}
+
+async function readRawGatewayMessage(client: ws) {
     const state = getBufferedGatewayClientState(client);
     const queued = state.messages.shift();
-    if (queued) return JSON.parse(queued.toString()) as GatewayPayload;
+    if (queued) return queued;
 
     const raw = await new Promise<ws.RawData>((resolve, reject) => {
         const timeout = setTimeout(() => {
@@ -964,7 +986,7 @@ async function readJsonMessage(client: ws) {
         client.once("close", onClose);
     });
 
-    return JSON.parse(raw.toString()) as GatewayPayload;
+    return raw;
 }
 
 function getBufferedGatewayClientState(client: ws) {

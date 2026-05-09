@@ -23,6 +23,29 @@ import type { ActivitySchema } from "../uncategorised/ActivitySchema";
  */
 export type IdentifyBitfield = number | string;
 
+export interface IdentifyClientState {
+    guild_hashes?: unknown;
+    guildHashes?: unknown;
+    highest_last_message_id?: number;
+    highestLastMessageId?: number;
+    read_state_version?: number;
+    readStateVersion?: number;
+    user_guild_settings_version?: number;
+    userGuildSettingsVersion?: number;
+    user_settings_version?: number;
+    userSettingsVersion?: number;
+    useruser_guild_settings_version?: number;
+    useruserGuildSettingsVersion?: number;
+    private_channels_version?: number;
+    privateChannelsVersion?: number;
+    guild_versions?: unknown;
+    guildVersions?: unknown;
+    api_code_version?: number;
+    apiCodeVersion?: number;
+    initial_guild_id?: string;
+    initialGuildId?: string;
+}
+
 export interface IdentifySchema {
     token: string;
     properties: {
@@ -63,30 +86,8 @@ export interface IdentifySchema {
     shard?: IdentifyBitfield[];
     guild_subscriptions?: boolean;
     capabilities?: number;
-    client_state?: {
-        guild_hashes?: unknown;
-        highest_last_message_id?: number;
-        read_state_version?: number;
-        user_guild_settings_version?: number;
-        user_settings_version?: number;
-        useruser_guild_settings_version?: number;
-        private_channels_version?: number;
-        guild_versions?: unknown;
-        api_code_version?: number;
-        initial_guild_id?: string;
-    };
-    clientState?: {
-        guildHashes?: unknown;
-        highestLastMessageId?: number;
-        readStateVersion?: number;
-        userGuildSettingsVersion?: number;
-        userSettingsVersion?: number;
-        useruserGuildSettingsVersion?: number;
-        privateChannelsVersion?: number;
-        guildVersions?: unknown;
-        apiCodeVersion?: number;
-        initialGuildId?: string;
-    };
+    client_state?: IdentifyClientState;
+    clientState?: IdentifyClientState;
     v?: number;
     version?: number;
 }

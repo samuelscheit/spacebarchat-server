@@ -83,6 +83,7 @@ test("UserProfileResponse schema matches route-owned profile fields", () => {
     assert.deepEqual(properties?.mutual_guilds?.items?.properties?.nick?.type, ["null", "string"]);
     assert.equal(properties?.mutual_friends?.type, "array");
     assert.equal(properties?.mutual_friends_count?.type, "integer");
+    assert.deepEqual(properties?.premium_guild_since?.type, ["null", "integer"]);
 
     const connectedAccountProperties = schemas.PartialConnectedAccountResponse.properties;
     assert.deepEqual(Object.keys(connectedAccountProperties ?? {}).sort(), ["id", "metadata", "name", "type", "verified"]);
@@ -110,6 +111,7 @@ test("UserProfileResponse validates visible connected accounts and optional quer
                 metadata: { verified_at: "2026-05-06T00:00:00.000Z" },
             },
         ],
+        premium_guild_since: null,
         premium_since: null,
         user: {
             id: "100",
@@ -147,6 +149,8 @@ test("UserProfileResponse validates visible connected accounts and optional quer
     assert.equal(validate(response), true);
     const { profile_themes_experiment_bucket: _profileThemesExperimentBucket, ...withoutProfileThemesExperimentBucket } = response;
     assert.equal(validate(withoutProfileThemesExperimentBucket), false);
+    assert.equal(validate({ ...response, premium_guild_since: 1000 }), true);
+    assert.equal(validate({ ...response, premium_guild_since: {} }), false);
     assert.equal(validate({ ...response, premium_since: "2026-05-06T00:00:00.000Z" }), true);
     assert.equal(validate({ ...response, premium_since: "not-a-date" }), false);
     assert.equal(validate({ ...response, connected_accounts: response.connected_accounts[0] }), false);

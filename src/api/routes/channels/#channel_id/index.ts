@@ -291,6 +291,8 @@ router.patch(
 
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);
+        if (payload.applied_tags !== undefined) channel.applied_tags = payload.applied_tags;
+        if (payload.permission_overwrites !== undefined) channel.permission_overwrites = payload.permission_overwrites;
 
         if (channel.thread_metadata) {
             if (payload.archived !== undefined) {

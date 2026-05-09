@@ -3,6 +3,8 @@ import http from "node:http";
 import { describe, test } from "node:test";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { BigNumber } from "bignumber.js";
+import { type Permissions } from "@spacebar/util";
+import type {} from "../../types/ExpressRequest";
 import { BodyParser, ErrorHandler } from "../../middlewares";
 import { bigNumberToString, route } from "./route";
 
@@ -245,6 +247,30 @@ describe("bigNumberToString", () => {
 });
 
 describe("route body coercion", () => {
+    test("exposes the shared Express request permission type", () => {
+        type AssertEqual<T, Expected> = [T] extends [Expected] ? ([Expected] extends [T] ? true : never) : never;
+        const permissionTypeIsShared: AssertEqual<Request["permission"], Permissions | undefined> = true;
+
+        assert.equal(permissionTypeIsShared, true);
+    });
+
+    test("allows an instance right to satisfy a route permission before handler execution", async () => {
+        const middleware = route({ permission: "MANAGE_GUILD", permissionOrRight: "MANAGE_GUILDS" });
+        const req = {
+            body: {},
+            rights: {
+                has() {
+                    return true;
+                },
+            },
+        } as unknown as Request;
+        let nextCalled = false;
+
+        await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+        assert.equal(nextCalled, true);
+    });
+
     test("rejects numeric install param permissions without mutating them", async () => {
         const middleware = await getApplicationModifyRoute();
         const req = {

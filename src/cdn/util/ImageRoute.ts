@@ -11,6 +11,7 @@ export interface ImageRouteOptions {
     pathPrefix: string;
     resourceParam: string;
     allowedMimeTypes?: string[];
+    assertUploadSize?: (resourceId: string, size: number) => void;
     legacyHashExtensions?: string[];
     resize?: boolean;
 }
@@ -27,7 +28,14 @@ function isMissingStorageObjectError(error: unknown) {
     return false;
 }
 
-export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTypes = DEFAULT_IMAGE_MIME_TYPES, legacyHashExtensions = [], resize = false }: ImageRouteOptions) {
+export function createHashImageRouter({
+    pathPrefix,
+    resourceParam,
+    allowedMimeTypes = DEFAULT_IMAGE_MIME_TYPES,
+    assertUploadSize,
+    legacyHashExtensions = [],
+    resize = false,
+}: ImageRouteOptions) {
     const router = Router({ mergeParams: true });
 
     router.post(`/:${resourceParam}`, multer.single("file"), async (req: Request, res: Response) => {
@@ -36,6 +44,7 @@ export function createHashImageRouter({ pathPrefix, resourceParam, allowedMimeTy
 
         const { buffer, size } = req.file;
         const resourceId = getRouteParam(req, resourceParam);
+        assertUploadSize?.(resourceId, size);
         const type = await fileTypeFromBuffer(buffer);
 
         if (!isAllowedImageMimeType(type?.mime, allowedMimeTypes)) throw new HTTPError("Invalid file type");

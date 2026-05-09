@@ -33,6 +33,7 @@ const AUTHENTICATED_RESPONSE_SCHEMA_MANIFEST_IDS = new Set([
     "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
     "api:http:GET:/users/@me/channels/",
     "api:http:GET:/users/@me/collectibles-marketing/",
+    "api:http:GET:/users/@me/entitlements/gifts",
     "api:http:GET:/users/@me/guilds/",
     "api:http:GET:/users/@me/relationships/",
     "api:http:GET:/users/@me/settings/",
@@ -658,6 +659,7 @@ const authenticatedResponseSchemaManifestIds = new Set([
     "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
     "api:http:GET:/users/@me/channels/",
     "api:http:GET:/users/@me/collectibles-marketing/",
+    "api:http:GET:/users/@me/entitlements/gifts",
     "api:http:GET:/users/@me/guilds/",
     "api:http:GET:/users/@me/relationships/",
     "api:http:GET:/users/@me/settings/",
@@ -1452,7 +1454,6 @@ function cdnUploadStoragePathForContract(contract: GeneratedHttpContract, body: 
 
     assert.equal(typeof body.id, "string", \`\${contract.manifestId} should return an uploaded CDN object id\`);
     const id = body.id as string;
-    if (contract.manifestId === "cdn:http:POST:/role-icons/:role_id") return \`\${samplePath}/\${id}\`;
     return \`\${samplePath}/\${id}\`;
 }
 

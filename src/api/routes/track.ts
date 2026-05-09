@@ -16,8 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Router, Response, Request } from "express";
+import { Router } from "express";
 import { route } from "@spacebar/api";
+import { acknowledgeClientTelemetry } from "../util/handlers/ClientTelemetry";
 
 const router = Router({ mergeParams: true });
 
@@ -27,11 +28,9 @@ router.post(
         responses: {
             204: {},
         },
-        spacebarOnly: false, // Not part of the public OpenAPI schema
+        spacebarOnly: false,
     }),
-    (req: Request, res: Response) => {
-        res.sendStatus(204);
-    },
+    acknowledgeClientTelemetry,
 );
 
 export default router;

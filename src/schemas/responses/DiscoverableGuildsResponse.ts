@@ -16,8 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Categories } from "@spacebar/util";
-
 export interface DiscoverableGuildWelcomeScreen {
     enabled: boolean;
     description: string;
@@ -136,4 +134,16 @@ export interface DiscoverableGuildsResponse {
     limit: number;
 }
 
-export type APIDiscoveryCategoryArray = Categories[];
+export interface CategoryLocalizations {
+    [locale: string]: string;
+}
+
+export interface APIDiscoveryCategory {
+    id: number;
+    name: string;
+    localizations: CategoryLocalizations;
+    is_primary: boolean;
+    icon?: string;
+}
+
+export type APIDiscoveryCategoryArray = APIDiscoveryCategory[];

@@ -3,6 +3,7 @@ import {
     Attachment,
     Channel,
     Config,
+    ChannelFlags,
     DiscordApiErrors,
     emitEvent,
     FieldErrors,
@@ -10,19 +11,43 @@ import {
     handleFile,
     Message,
     MessageCreateEvent,
+    Rights,
     Snowflake,
+    ThreadCreateEvent,
+    ThreadUpdatEvent,
     toAPIWebhook,
     ValidateWebhookName,
     Webhook,
+    getRights,
 } from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
-import { WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
+import { ChannelType, WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
 import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
+import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../ChannelAppliedTagsValidation";
 import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
 import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
+
+type WebhookPermissionChecker = Awaited<ReturnType<typeof getPermission>>;
+type WebhookSendChannelResolution = {
+    channel: Channel;
+    createdThread: boolean;
+    unarchivedThread: boolean;
+};
+
+function getWebhookExecuteUserId(webhook: Webhook) {
+    return webhook.user_id ?? webhook.application?.bot?.id;
+}
+
+async function webhookCanBypassSendMessageRateLimit(webhook: Webhook) {
+    const userId = getWebhookExecuteUserId(webhook);
+    if (!userId) return false;
+
+    const rights = await getRights(userId);
+    return rights.has(Rights.FLAGS.BYPASS_RATE_LIMITS);
+}
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
@@ -55,9 +80,131 @@ export async function updateWebhookWithToken(req: Request, res: Response) {
     );
 }
 
+function assertWebhookThreadRequest(body: WebhookExecuteSchema, thread_id?: string) {
+    if (thread_id && body.thread_name) {
+        throw FieldErrors({
+            thread_name: {
+                message: "thread_name cannot be used with thread_id",
+            },
+        });
+    }
+}
+
+function assertWebhookThreadTarget(channel: Channel, body: WebhookExecuteSchema, thread_id?: string) {
+    if (thread_id || body.thread_name || !channel.threadOnly()) return;
+
+    throw FieldErrors({
+        thread_name: {
+            message: "thread_id or thread_name is required for forum and media channel webhooks",
+        },
+    });
+}
+
+function assertWebhookThreadTags(channel: Channel, body: WebhookExecuteSchema, permissions: WebhookPermissionChecker) {
+    const appliedTags = body.applied_tags ?? [];
+    const availableTags = new Map((channel.available_tags ?? []).map((tag) => [tag.id, tag]));
+
+    assertRequiredAppliedTagsPresent(body.applied_tags, Boolean(channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)));
+    if (!appliedTags.length) return;
+
+    assertAppliedTagsExist(appliedTags, availableTags.keys());
+
+    if (appliedTags.some((tag) => availableTags.get(tag)?.moderated)) {
+        permissions.hasThrow("MANAGE_THREADS");
+    }
+}
+
+async function resolveWebhookSendChannel(
+    webhook: Webhook,
+    body: WebhookExecuteSchema,
+    messageId: string,
+    thread_id?: string,
+    permissions?: WebhookPermissionChecker,
+): Promise<WebhookSendChannelResolution> {
+    if (thread_id) {
+        const channel = await Channel.findOneOrFail({
+            where: {
+                id: thread_id,
+                parent_id: webhook.channel.id,
+            },
+        });
+
+        if (!channel.isThread()) {
+            throw DiscordApiErrors.UNKNOWN_CHANNEL;
+        }
+
+        if (channel.thread_metadata?.locked) {
+            throw DiscordApiErrors.THREAD_IS_LOCKED;
+        }
+
+        const threadMetadata = channel.thread_metadata;
+        const unarchivedThread = !!threadMetadata?.archived;
+        if (unarchivedThread && threadMetadata) {
+            channel.thread_metadata = {
+                ...threadMetadata,
+                archived: false,
+                archive_timestamp: new Date().toISOString(),
+            };
+        }
+
+        return { channel, createdThread: false, unarchivedThread };
+    }
+
+    assertWebhookThreadTarget(webhook.channel, body, thread_id);
+    if (!body.thread_name) return { channel: webhook.channel, createdThread: false, unarchivedThread: false };
+
+    if (!permissions) {
+        throw new HTTPError("Webhook cannot create a thread without a permission subject", 403);
+    }
+
+    if (!webhook.channel.threadOnly()) {
+        throw FieldErrors({
+            thread_name: {
+                message: "thread_name can only be used in forum or media channels",
+            },
+        });
+    }
+
+    assertWebhookThreadTags(webhook.channel, body, permissions);
+    permissions.hasThrow("CREATE_PUBLIC_THREADS");
+    permissions.hasThrow("SEND_MESSAGES_IN_THREADS");
+
+    const threadOwnerId = getWebhookExecuteUserId(webhook);
+
+    const channel = await Channel.createThreadChannel(
+        {
+            id: messageId,
+            owner: webhook.user,
+            parent: webhook.channel,
+            guild: webhook.guild,
+            name: body.thread_name,
+            parent_id: webhook.channel.id,
+            guild_id: webhook.channel.guild_id,
+            type: webhook.channel.type === ChannelType.GUILD_NEWS ? ChannelType.GUILD_NEWS_THREAD : ChannelType.GUILD_PUBLIC_THREAD,
+            applied_tags: body.applied_tags || [],
+            recipients: [],
+        },
+        {
+            archived: false,
+            auto_archive_duration: webhook.channel.default_auto_archive_duration || 4320,
+            archive_timestamp: new Date().toISOString(),
+            locked: false,
+            create_timestamp: new Date().toISOString(),
+        },
+        threadOwnerId,
+        { keepId: true, skipPermissionCheck: true, skipEventEmit: true },
+    );
+
+    return { channel, createdThread: true, unarchivedThread: false };
+}
+
 type ExecuteWebhookOptions = {
     wait?: boolean;
 };
+
+export function hasWebhookMessageContent(body: Pick<WebhookExecuteSchema, "content" | "embeds" | "components" | "file" | "attachments">) {
+    return !!body.content || !!body.embeds || !!body.components || !!body.file || !!body.attachments;
+}
 
 export const executeWebhook = (req: Request, res: Response) => executeWebhookWithOptions(req, res);
 
@@ -67,7 +214,11 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
 
     const { webhook_id, token } = req.params as { [key: string]: string };
 
-    const webhook = await getWebhookForToken(webhook_id, token, { channel: true, guild: true, application: true });
+    const wait = options.wait ?? req.query.wait === "true";
+    const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
+    assertWebhookThreadRequest(body, thread_id);
+
+    const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: { available_tags: true }, guild: true, application: { bot: true } });
     assertMessagePayloadLimits(body);
 
     if (body.username) {
@@ -75,12 +226,10 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     }
 
     // ensure one of content, embeds, components, or file is present
-    if (!body.content && !body.embeds && !body.components && !body.file && !body.attachments) {
+    if (!hasWebhookMessageContent(body)) {
         throw DiscordApiErrors.CANNOT_SEND_EMPTY_MESSAGE;
     }
 
-    const wait = options.wait ?? req.query.wait === "true";
-    const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
     const acknowledgeNoWait = () => {
         if (!wait && !res.headersSent) {
             res.status(204).send();
@@ -98,9 +247,8 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
         }
     }
 
-    // TODO: creating messages by users checks if the user can bypass rate limits, we cant do that on webhooks, but maybe we could check the application if there is one?
     const limits = Config.get().limits;
-    if (limits.absoluteRate.sendMessage.enabled) {
+    if (limits.absoluteRate.sendMessage.enabled && !(await webhookCanBypassSendMessageRateLimit(webhook))) {
         const count = await Message.count({
             where: {
                 channel_id: webhook.channel_id,
@@ -122,22 +270,24 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
             }
     }
 
-    let sendChannel = webhook.channel;
-    if (thread_id) {
-        sendChannel = await Channel.findOneOrFail({
-            where: {
-                id: thread_id,
-                parent_id: webhook.channel.id,
-            },
-        });
-    }
-
     const files = (req.files as Express.Multer.File[]) ?? [];
-    const permissionSubjectId = webhook.user_id ?? webhook.application_id;
+    const permissionSubjectId = getWebhookExecuteUserId(webhook);
     const messagePayload = { ...body, attachments: body.attachments ?? [], uploadedFileCount: files.length };
+    let sendChannel = webhook.channel;
+    let createdThread = false;
+    let unarchivedThread = false;
     if (permissionSubjectId) {
-        const permissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
+        const permissions = await getPermission(permissionSubjectId, webhook.channel.guild_id, webhook.channel);
         assertMessagePayloadPermissions(permissions, messagePayload);
+        const resolution = await resolveWebhookSendChannel(webhook, body, messageId, thread_id, permissions);
+        sendChannel = resolution.channel;
+        createdThread = resolution.createdThread;
+        if (sendChannel.id !== webhook.channel.id && !resolution.createdThread) {
+            const sendChannelPermissions = await getPermission(permissionSubjectId, sendChannel.guild_id, sendChannel);
+            sendChannelPermissions.hasThrow("SEND_MESSAGES_IN_THREADS");
+            assertMessagePayloadPermissions(sendChannelPermissions, messagePayload);
+        }
+        unarchivedThread = resolution.unarchivedThread;
     } else {
         assertMessagePayloadPermissions(
             {
@@ -147,6 +297,10 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
             },
             messagePayload,
         );
+        const resolution = await resolveWebhookSendChannel(webhook, body, messageId, thread_id);
+        sendChannel = resolution.channel;
+        createdThread = resolution.createdThread;
+        unarchivedThread = resolution.unarchivedThread;
     }
 
     acknowledgeNoWait();
@@ -178,7 +332,6 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
         webhook_id: webhook.id,
         application_id: webhook.application?.id,
         embeds,
-        // TODO: Support thread_id/thread_name once threads are implemented
         channel_id: sendChannel.id,
         attachments: mergeWebhookMessageAttachments(attachments, body.attachments),
         timestamp: new Date(),
@@ -190,9 +343,31 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
 
     sendChannel.last_message_id = message.id;
 
+    const threadUpdateEvent =
+        unarchivedThread && sendChannel.isThread()
+            ? emitEvent({
+                  event: "THREAD_UPDATE",
+                  channel_id: sendChannel.id,
+                  data: sendChannel.toJSON(),
+              } satisfies ThreadUpdatEvent)
+            : Promise.resolve();
+    const threadCreateEvent =
+        createdThread && sendChannel.isThread()
+            ? emitEvent({
+                  event: "THREAD_CREATE",
+                  channel_id: webhook.channel.id,
+                  data: {
+                      ...sendChannel.toJSON(),
+                      newly_created: true,
+                  },
+              } satisfies ThreadCreateEvent)
+            : Promise.resolve();
+
     await Promise.all([
         message.save(),
         sendChannel.save(),
+        threadCreateEvent,
+        threadUpdateEvent,
         emitEvent({
             event: "MESSAGE_CREATE",
             channel_id: sendChannel.id,

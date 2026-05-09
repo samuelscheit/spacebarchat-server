@@ -116,8 +116,8 @@ test(
 
             const suffix = `${process.pid}${Date.now()}`;
             const email = `auth-supplemental-${suffix}@example.com`;
-            const initialPassword = "scenario-password-42";
-            const resetPassword = "scenario-password-84";
+            const initialPassword = "ScenarioPassword42AA";
+            const resetPassword = "ScenarioPassword84AA";
             const username = `authsupp${suffix.slice(-8)}`;
 
             const fingerprintResponse = await fetch(`${api.apiBaseUrl}/auth/fingerprint`, { method: "POST" });
@@ -131,6 +131,36 @@ test(
             assert.equal(location.consent_required, false);
             assert.ok(typeof location.country_code === "string" || location.country_code === null);
             assert.deepEqual(location.promotional_email_opt_in, { required: true, pre_checked: false });
+
+            await assertJsonError(
+                await postJson(
+                    `${api.apiBaseUrl}/auth/register`,
+                    {
+                        username: `nofpauth${suffix.slice(-8)}`,
+                        email: `auth-no-fingerprint-${suffix}@example.com`,
+                        password: initialPassword,
+                        consent: true,
+                        date_of_birth: "2000-04-04",
+                    },
+                    { cookie },
+                ),
+                400,
+            );
+            await assertJsonError(
+                await postJson(
+                    `${api.apiBaseUrl}/auth/register`,
+                    {
+                        username: `badfpauth${suffix.slice(-8)}`,
+                        email: `auth-invalid-fingerprint-${suffix}@example.com`,
+                        password: initialPassword,
+                        consent: true,
+                        date_of_birth: "2000-04-04",
+                        fingerprint: "1234567890.invalid",
+                    },
+                    { cookie },
+                ),
+                400,
+            );
 
             const register = await postJson(
                 `${api.apiBaseUrl}/auth/register`,
@@ -159,7 +189,7 @@ test(
                 {
                     username: `dupeauth${suffix.slice(-8)}`,
                     email: `auth-duplicate-${suffix}@example.com`,
-                    password: "scenario-password-duplicate",
+                    password: "ScenarioPassword24AA",
                     consent: true,
                     date_of_birth: "2000-04-04",
                     fingerprint,
@@ -214,7 +244,7 @@ test(
                 {
                     username: `tokenuser${suffix.slice(-8)}`,
                     email: `auth-token-${suffix}@example.com`,
-                    password: "scenario-password-token",
+                    password: "ScenarioPassword66AA",
                     consent: true,
                     date_of_birth: "2000-04-04",
                     fingerprint: `fingerprint-token-${suffix}`,
@@ -262,6 +292,35 @@ test(
             assert.equal(typeof completeTotpBody.settings, "object");
             assert.equal((await User.findOne({ where: { id: user.id }, select: { id: true, totp_last_ticket: true } }))?.totp_last_ticket, "");
             const mfaBearer = completeTotpBody.token as string;
+
+            const fallbackSecurityKey = await SecurityKey.create({
+                user_id: user.id,
+                key_id: "scenario-totp-fallback-key-id",
+                public_key: "scenario-totp-fallback-public-key",
+                counter: 0,
+                name: "Scenario TOTP fallback key",
+            }).save();
+            await User.update({ id: user.id }, { webauthn_enabled: true });
+
+            const loginWithWebAuthnMfa = await postJson(`${api.apiBaseUrl}/auth/login`, { login: email, password: resetPassword });
+            await assertStatus(loginWithWebAuthnMfa, 200);
+            const loginWithWebAuthnMfaBody = await assertJsonObject(loginWithWebAuthnMfa);
+            assert.equal(loginWithWebAuthnMfaBody.mfa, true);
+            assert.equal(loginWithWebAuthnMfaBody.token, null);
+            assert.equal(typeof loginWithWebAuthnMfaBody.ticket, "string");
+            assert.equal(typeof loginWithWebAuthnMfaBody.webauthn, "string");
+            assert.ok(JSON.parse(loginWithWebAuthnMfaBody.webauthn as string).publicKey);
+            assert.equal((await User.findOne({ where: { id: user.id }, select: { id: true, totp_last_ticket: true } }))?.totp_last_ticket, loginWithWebAuthnMfaBody.ticket);
+
+            const completeWebAuthnTicketWithTotp = await postJson(`${api.apiBaseUrl}/auth/mfa/totp`, {
+                ticket: loginWithWebAuthnMfaBody.ticket,
+                code: await generateFreshTotpToken(secret),
+            });
+            await assertStatus(completeWebAuthnTicketWithTotp, 200);
+            assert.equal(typeof (await assertJsonObject(completeWebAuthnTicketWithTotp)).token, "string");
+            assert.equal((await User.findOne({ where: { id: user.id }, select: { id: true, totp_last_ticket: true } }))?.totp_last_ticket, "");
+            await SecurityKey.delete({ id: fallbackSecurityKey.id });
+            await User.update({ id: user.id }, { webauthn_enabled: false });
 
             const existingCodes = await postJson(`${api.apiBaseUrl}/users/@me/mfa/codes`, { password: resetPassword, regenerate: false }, { token: mfaBearer });
             await assertStatus(existingCodes, 200);

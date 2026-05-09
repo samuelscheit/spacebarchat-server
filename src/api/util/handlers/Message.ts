@@ -53,9 +53,10 @@ import {
     getAttachmentMutationPath,
     getCdnMutationUrl,
     PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT,
+    Snowflake,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { In, Or, Equal, IsNull } from "typeorm";
+import { In, Or, Equal, IsNull, type FindOptionsWhere } from "typeorm";
 import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
 import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 import {
@@ -81,8 +82,6 @@ import {
 import { collectMessageComponentMedia } from "../utility/MessagePayloadPermissions";
 import { findCloudAttachmentForChannel, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
-// TODO: check webhook, application, system author, stickers
-// TODO: embed gifs/videos/images
 
 function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], errors: Record<string, { code?: string; message: string }>, rowIndex: number) {
     if (!row.components) {
@@ -116,19 +115,50 @@ function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], er
         }
     }
 }
-async function processMedia(media: UnfurledMediaItem, messageId: string, batchId: string, user: User, channel: Channel, id: string): Promise<(() => void) | void> {
+type ComponentMediaProcessingOptions = {
+    cloudAttachmentLookupChannelId?: string;
+    cloudAttachmentAllowedChannelIds?: string[];
+    expectedUserId?: string;
+};
+
+function getAttachmentMediaUploadFilename(mediaUrl: string, url: URL): string {
+    if (url.protocol !== "attachment:") throw new HTTPError("invalid media protocol");
+    if (!url.hostname) throw new HTTPError("attachment media URL must include an upload filename");
+
+    const uploadFilename = mediaUrl.match(/^attachment:\/\/([^?#]+)/)?.[1];
+    if (!uploadFilename) throw new HTTPError("attachment media URL must include an upload filename");
+
+    return uploadFilename;
+}
+
+async function processMedia(
+    media: UnfurledMediaItem,
+    message: Message,
+    batchId: string,
+    user: User,
+    channel: Channel,
+    id: string,
+    options: ComponentMediaProcessingOptions = {},
+): Promise<(() => void) | void> {
     if (Object.keys(media).length > 1) throw new HTTPError("Extra keys for media items are not allowed");
     if (!URL.canParse(media.url)) throw new HTTPError("media URL must be a URI");
     const url = new URL(media.url);
     if (!["http:", "https:", "attachment:"].includes(url.protocol)) throw new HTTPError("invalid media protocol");
+    const messageId = message.id;
     let attEnt: CloudAttachment;
     let delWhenDone = false;
-    if (url.protocol === "attachment") {
-        attEnt = await CloudAttachment.findOneOrFail({
-            where: {
-                uploadFilename: url.hostname,
+    if (url.protocol === "attachment:") {
+        const lookupChannelId = options.cloudAttachmentLookupChannelId ?? channel.id;
+        attEnt = await findCloudAttachmentForChannel(
+            {
+                findOne: (findOptions) => CloudAttachment.findOne(findOptions),
             },
-        });
+            getAttachmentMediaUploadFilename(media.url, url),
+            lookupChannelId,
+        );
+
+        const accessError = getCloudAttachmentAccessError(attEnt, options.cloudAttachmentAllowedChannelIds ?? [lookupChannelId], options.expectedUserId);
+        if (accessError) throw new HTTPError(accessError.message, accessError.status);
     } else {
         const res = await fetch(url);
         if (!res.ok) throw new HTTPError("URL did not return OK");
@@ -186,16 +216,16 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
         channel_id: channel.id,
         message_id: messageId,
     });
-    await realAtt.save();
+    message.attachments ??= [];
+    message.attachments.push(realAtt);
 
-    //TODO maybe this needs to be a new DB object? I don't see a reason to do this rn though, though this id *should* technically be different from the id of the attachment
-    media.id = realAtt.id;
+    media.id = Snowflake.generate();
 
     media.height = attEnt.height;
     media.width = attEnt.width;
     media.content_type = attEnt.contentType;
     //TODO flags?
-    media.attachment_id = attEnt.id;
+    media.attachment_id = realAtt.id;
     //TODO preview stuff
 
     if (delWhenDone) {
@@ -285,9 +315,9 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         throw FieldErrors(errors);
     }
     const medias = collectMessageComponentMedia(components);
-    return async (messageId: string, user: User, channel: Channel) => {
+    return async (message: Message, user: User, channel: Channel, processingOptions?: ComponentMediaProcessingOptions) => {
         const batchId = `CLOUD_compUploads_${randomString(128)}`;
-        (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
+        (await Promise.all(medias.map((m, index) => processMedia(m, message, batchId, user, channel, index + "", processingOptions)))).forEach((_) => _?.());
     };
 }
 
@@ -323,6 +353,25 @@ export function isMessageEditOperation(opts: Pick<MessageOptions, "is_edit">): b
 
 export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id" | "webhook_id">): boolean {
     return !!opts.author_id && !opts.webhook_id;
+}
+
+export async function resolveMessageStickers(stickerIds: string[] | null | undefined, channel: Pick<Channel, "guild_id">): Promise<Sticker[] | undefined> {
+    if (!stickerIds?.length) return undefined;
+    if (stickerIds.length > 3) throw DiscordApiErrors.INVALID_STICKER_SENT;
+    if (new Set(stickerIds).size !== stickerIds.length) throw DiscordApiErrors.INVALID_STICKER_SENT;
+
+    const where: FindOptionsWhere<Sticker>[] = [{ id: In(stickerIds), guild_id: IsNull() }];
+    if (channel.guild_id) where.push({ id: In(stickerIds), guild_id: channel.guild_id });
+
+    const stickers = await Sticker.find({
+        where,
+    });
+
+    if (new Set(stickers.map((sticker) => sticker.id)).size !== stickerIds.length) {
+        throw DiscordApiErrors.UNKNOWN_STICKER;
+    }
+
+    return stickers;
 }
 
 type MentionNotificationType = "users" | "roles" | "everyone";
@@ -375,7 +424,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         }
     }
 
-    const stickers = opts.sticker_ids ? await Sticker.find({ where: { id: In(opts.sticker_ids) } }) : undefined;
+    const stickers = await resolveMessageStickers(opts.sticker_ids, channel);
 
     const message = Message.create({
         ...messageOptions,
@@ -522,7 +571,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         }
     }
 
-    // TODO: stickers/activity
+    // TODO: activity
     if (
         !allow_empty &&
         !opts.content &&
@@ -536,6 +585,15 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     ) {
         console.log("[Message] Rejecting empty message:", opts, message);
         throw new HTTPError("Empty messages are not allowed", 50006);
+    }
+
+    if (handle && !isEdit) {
+        const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(channel.id, opts.cloud_attachment_upload_channel_id);
+        await handle(message, message.author as User, channel, {
+            cloudAttachmentLookupChannelId,
+            cloudAttachmentAllowedChannelIds: opts.attachment_channel_ids ?? [cloudAttachmentLookupChannelId],
+            expectedUserId: opts.attachment_user_id,
+        });
     }
 
     let content = opts.content;
@@ -748,12 +806,18 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 
     // TODO: check and put it all in the body
 
-    if (isEdit) await handle?.(message.id, message.author as User, message.channel);
+    if (isEdit && handle) {
+        const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(channel.id, opts.cloud_attachment_upload_channel_id);
+        await handle(message, message.author as User, channel, {
+            cloudAttachmentLookupChannelId,
+            cloudAttachmentAllowedChannelIds: opts.attachment_channel_ids ?? [cloudAttachmentLookupChannelId],
+            expectedUserId: opts.attachment_user_id,
+        });
+    }
 
     return message;
 }
 
-// TODO: cache link result in db
 export async function postHandleMessage(message: Message) {
     message.clean_data();
 
