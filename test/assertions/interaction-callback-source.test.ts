@@ -27,9 +27,9 @@ test("UPDATE_MESSAGE interaction callbacks stay implemented", () => {
     assert.match(updateMessageCase, /Message\.findOneOrFail\(/);
     assert.match(updateMessageCase, /attachments: true/);
     assert.match(updateMessageCase, /channel_id: channelId/);
-    assert.match(updateMessageCase, /await handleMessage\(/);
     assert.match(updateMessageCase, /normalizeMessageEditBodyAttachments\(body\.data, message\.attachments\)/);
     assert.match(updateMessageCase, /buildMessageEditComponentProcessingOptions\(normalizedBody\)/);
+    assert.match(updateMessageCase, /await handleMessage\(/);
     assert.match(updateMessageCase, /buildMessageEditHandleMessageOptions\(message, normalizedBody, channelId, message\.id/);
     assert.match(updateMessageCase, /attachment_user_id: interaction\.applicationId/);
     assert.match(updateMessageCase, /attachment_channel_ids: \[channelId\]/);
@@ -40,6 +40,9 @@ test("UPDATE_MESSAGE interaction callbacks stay implemented", () => {
     assert.match(updateMessageCase, /\.\.\.updatedMessage\.toJSON\(\)/);
     assert.match(updateMessageCase, /nonce: undefined/);
     assert.match(updateMessageCase, /postHandleMessage\(updatedMessage\)/);
+    assert.equal(updateMessageCase.includes("const messageData"), false);
+    assert.equal(updateMessageCase.includes("const existingAttachmentsById"), false);
+    assert.equal(updateMessageCase.includes("message.embeds = body.data.embeds || []"), false);
 
     const caseStart = source.indexOf("case InteractionCallbackType.UPDATE_MESSAGE:");
     const updateEventIndex = source.indexOf('event: "MESSAGE_UPDATE"', caseStart);

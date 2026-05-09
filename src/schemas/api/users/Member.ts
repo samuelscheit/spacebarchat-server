@@ -72,49 +72,6 @@ export interface MuteConfig {
     selected_time_window: number;
 }
 
-export type PublicMemberKeys =
-    | "id"
-    | "guild_id"
-    | "nick"
-    | "roles"
-    | "joined_at"
-    | "pending"
-    | "deaf"
-    | "mute"
-    | "premium_since"
-    | "avatar"
-    | "banner"
-    | "bio"
-    | "theme_colors"
-    | "pronouns"
-    | "communication_disabled_until"
-    | "avatar_decoration_data"
-    | "display_name_styles"
-    | "collectibles"
-    | "flags";
-
-export const PublicMemberProjection: PublicMemberKeys[] = [
-    "id",
-    "guild_id",
-    "nick",
-    "roles",
-    "joined_at",
-    "pending",
-    "deaf",
-    "mute",
-    "premium_since",
-    "avatar",
-    "banner",
-    "bio",
-    "theme_colors",
-    "pronouns",
-    "communication_disabled_until",
-    "avatar_decoration_data",
-    "display_name_styles",
-    "collectibles",
-    "flags",
-];
-
 export interface PublicMember {
     id: Snowflake;
     guild_id: Snowflake;
@@ -137,3 +94,29 @@ export interface PublicMember {
     flags: number;
     user: PublicUser;
 }
+
+export type PublicMemberKeys = Exclude<keyof PublicMember, "user">;
+
+export const PublicMemberProjection = [
+    "id",
+    "guild_id",
+    "nick",
+    "roles",
+    "joined_at",
+    "pending",
+    "deaf",
+    "mute",
+    "premium_since",
+    "avatar",
+    "banner",
+    "bio",
+    "theme_colors",
+    "pronouns",
+    "communication_disabled_until",
+    "avatar_decoration_data",
+    "display_name_styles",
+    "collectibles",
+    "flags",
+] satisfies PublicMemberKeys[];
+
+const _publicMemberProjectionCoversSchema: Exclude<PublicMemberKeys, (typeof PublicMemberProjection)[number]> extends never ? true : never = true;
