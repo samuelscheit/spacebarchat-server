@@ -870,25 +870,28 @@ test(
     },
 );
 
-async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents?: number) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
     assert.equal(hello.op, 10);
 
+    // Omit `intents` by default so these protocol flows exercise the gateway's
+    // default subscriptions. Explicit `0` means no guild/channel events and
+    // prevents the stream tests from receiving dispatches.
+    const identify = {
+        token,
+        ...(intents === undefined ? {} : { intents }),
+        properties: {
+            os: "test",
+            browser: "spacebar-test",
+            device: "spacebar-test",
+        },
+    };
+
     client.send(
         JSON.stringify({
             op: 2,
-            d: {
-                token,
-                // Omit `intents` so these protocol flows exercise the gateway's
-                // default subscriptions. Explicit `0` means no guild/channel
-                // events and prevents the stream tests from receiving dispatches.
-                properties: {
-                    os: "test",
-                    browser: "spacebar-test",
-                    device: "spacebar-test",
-                },
-            },
+            d: identify,
         }),
     );
 

@@ -19194,7 +19194,7 @@
                 "requestBody": "WebhookExecuteSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 400, 404],
-                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
             },
             "cases": [
                 {
@@ -19217,7 +19217,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -19264,7 +19264,7 @@
                 "requestBody": "WebhookExecuteSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 400, 404],
-                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
             },
             "cases": [
                 {
@@ -19287,7 +19287,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
