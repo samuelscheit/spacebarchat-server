@@ -8438,7 +8438,7 @@
             "path": "/guilds/:guild_id/bans/:user_id",
             "samplePath": "/guilds/100000000000000001/bans/100000000000000004",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 250,
+            "line": 217,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -8512,7 +8512,7 @@
             "path": "/guilds/:guild_id/bans/:user_id",
             "samplePath": "/guilds/100000000000000001/bans/100000000000000004",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 140,
+            "line": 116,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -8584,7 +8584,7 @@
             "path": "/guilds/:guild_id/bans/:user_id",
             "samplePath": "/guilds/100000000000000001/bans/100000000000000004",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 183,
+            "line": 150,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -8660,7 +8660,7 @@
             "path": "/guilds/:guild_id/bans/",
             "samplePath": "/guilds/100000000000000001/bans/",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 29,
+            "line": 28,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -8732,7 +8732,7 @@
             "path": "/guilds/:guild_id/bans/search",
             "samplePath": "/guilds/100000000000000001/bans/search",
             "sourceFile": "src/api/routes/guilds/#guild_id/bans.ts",
-            "line": 75,
+            "line": 62,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -15543,7 +15543,7 @@
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
                 "responses": [],
-                "responseStatuses": []
+                "responseStatuses": [204]
             },
             "cases": [
                 {
