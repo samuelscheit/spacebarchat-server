@@ -129,6 +129,7 @@ test(
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
             await Guild.update({ id: guildId }, { features: [GuildFeature.Discoverable] });
+            await grantEveryonePermission(guildId, Permissions.FLAGS.SEND_MESSAGES_IN_THREADS);
             await assertStatus(await putJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, {}, memberToken), 200);
 
             const initialChannels = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, ownerToken);
@@ -142,7 +143,7 @@ test(
             await coverTagMissingErrors(api.apiBaseUrl, forumChannelId, otherForumChannelId, ownerToken, events);
             await coverInvalidForumAppliedTags(api.apiBaseUrl, forumChannelId, tagId, ownerToken);
             await coverRequiredForumTagValidation(api.apiBaseUrl, forumChannelId, ownerToken, events);
-            await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, events);
+            await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, memberToken, events);
             await coverTagDelete(api.apiBaseUrl, forumChannelId, tagId, ownerToken, events);
         } finally {
             if (events) await events.stop();
@@ -326,6 +327,7 @@ async function coverThreadRoutes(
     ownerId: string,
     memberId: string,
     token: string,
+    memberToken: string,
     events: EventCapture,
 ) {
     const ownerMember = await Member.findOneByOrFail({ guild_id: guildId, id: ownerId });
@@ -338,7 +340,7 @@ async function coverThreadRoutes(
     const publicThreadEvents = await captureEvents([publicThreadId, ownerId, memberId]);
     try {
         await coverThreadMemberRoutes(apiBaseUrl, publicThreadId, ownerMember.index, joinedMember.index, memberId, token, publicThreadEvents);
-        await coverImplicitThreadMessageJoin(apiBaseUrl, publicThreadId, ownerMember.index, ownerId, token, publicThreadEvents);
+        await coverImplicitThreadMessageJoin(apiBaseUrl, publicThreadId, joinedMember.index, memberId, token, memberToken, publicThreadEvents);
     } finally {
         await publicThreadEvents.stop();
     }
@@ -613,9 +615,17 @@ async function coverThreadMemberRoutes(
     assert.equal(persistedOwnerMember.flags, ThreadMemberFlags.ONLY_MENTIONS);
 }
 
-async function coverImplicitThreadMessageJoin(apiBaseUrl: string, threadId: string, memberIndex: string, userId: string, token: string, events: EventCapture) {
+async function coverImplicitThreadMessageJoin(
+    apiBaseUrl: string,
+    threadId: string,
+    memberIndex: string,
+    userId: string,
+    deleteToken: string,
+    messageToken: string,
+    events: EventCapture,
+) {
     const beforeDelete = markCapturedEvents(events);
-    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${userId}`, token), 204);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${userId}`, deleteToken), 204);
     const deleteEvent = await waitForEventAfter(
         events,
         beforeDelete,
@@ -628,7 +638,7 @@ async function coverImplicitThreadMessageJoin(apiBaseUrl: string, threadId: stri
     await overwriteThreadMemberCount(threadId, null);
 
     const beforeMessage = markCapturedEvents(events);
-    await assertStatus(await postJson(`${apiBaseUrl}/channels/${threadId}/messages`, { content: "implicit thread join" }, token), 200);
+    await assertStatus(await postJson(`${apiBaseUrl}/channels/${threadId}/messages`, { content: "implicit thread join" }, messageToken), 200);
     const joinEvent = await waitForEventAfter(
         events,
         beforeMessage,
@@ -744,6 +754,12 @@ async function registerUser(username: string, email: string) {
         email,
         password: "not-a-real-login-hash",
     });
+}
+
+async function grantEveryonePermission(guildId: string, permission: bigint) {
+    const everyoneRole = await Role.findOneByOrFail({ id: guildId, guild_id: guildId });
+    everyoneRole.permissions = (BigInt(everyoneRole.permissions) | permission).toString();
+    await everyoneRole.save();
 }
 
 async function getJson(url: string, token: string) {

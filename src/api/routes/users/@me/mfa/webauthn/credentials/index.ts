@@ -28,11 +28,11 @@ import { Config, DiscordApiErrors, FieldErrors, generateWebAuthnTicket, isWebAut
 import bcrypt from "bcrypt";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
-import { CreateWebAuthnCredentialSchema, GenerateWebAuthnCredentialsSchema, WebAuthnPostSchema } from "@spacebar/schemas";
+import { WebAuthnCredentialRegistrationChallengeSchema, WebAuthnCredentialRegistrationCompletionSchema, WebAuthnPostSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
-const isGenerateSchema = (body: WebAuthnPostSchema): body is GenerateWebAuthnCredentialsSchema => "password" in body;
-const isCreateSchema = (body: WebAuthnPostSchema): body is CreateWebAuthnCredentialSchema => "credential" in body;
+const isRegistrationChallengeSchema = (body: WebAuthnPostSchema): body is WebAuthnCredentialRegistrationChallengeSchema => "password" in body;
+const isRegistrationCompletionSchema = (body: WebAuthnPostSchema): body is WebAuthnCredentialRegistrationCompletionSchema => "credential" in body;
 
 router.get("/", route({}), async (req: Request, res: Response) => {
     const securityKeys = await SecurityKey.find({
@@ -76,7 +76,7 @@ router.post(
             relations: { settings: true },
         });
 
-        if (isGenerateSchema(req.body)) {
+        if (isRegistrationChallengeSchema(req.body)) {
             const { password } = req.body;
             const same_password = await bcrypt.compare(password, user.data.hash || "");
             if (!same_password) {
@@ -109,7 +109,7 @@ router.post(
                 ticket: ticket,
                 challenge,
             });
-        } else if (isCreateSchema(req.body)) {
+        } else if (isRegistrationCompletionSchema(req.body)) {
             const { credential, name, ticket } = req.body;
 
             let verified: unknown;

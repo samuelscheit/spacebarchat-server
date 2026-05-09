@@ -8096,7 +8096,7 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "GenerateWebAuthnCredentialsSchema": {
+    "WebAuthnCredentialRegistrationChallengeSchema": {
         "type": "object",
         "properties": {
             "password": {
@@ -8109,7 +8109,7 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "CreateWebAuthnCredentialSchema": {
+    "WebAuthnCredentialRegistrationCompletionSchema": {
         "type": "object",
         "properties": {
             "credential": {
@@ -8133,10 +8133,10 @@
     "WebAuthnPostSchema": {
         "anyOf": [
             {
-                "$ref": "#/definitions/GenerateWebAuthnCredentialsSchema"
+                "$ref": "#/definitions/WebAuthnCredentialRegistrationChallengeSchema"
             },
             {
-                "$ref": "#/definitions/CreateWebAuthnCredentialSchema"
+                "$ref": "#/definitions/WebAuthnCredentialRegistrationCompletionSchema"
             }
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"

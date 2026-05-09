@@ -7715,7 +7715,7 @@
                     "self_mute"
                 ]
             },
-            "GenerateWebAuthnCredentialsSchema": {
+            "WebAuthnCredentialRegistrationChallengeSchema": {
                 "type": "object",
                 "properties": {
                     "password": {
@@ -7726,7 +7726,7 @@
                     "password"
                 ]
             },
-            "CreateWebAuthnCredentialSchema": {
+            "WebAuthnCredentialRegistrationCompletionSchema": {
                 "type": "object",
                 "properties": {
                     "credential": {
@@ -7748,10 +7748,10 @@
             "WebAuthnPostSchema": {
                 "anyOf": [
                     {
-                        "$ref": "#/components/schemas/GenerateWebAuthnCredentialsSchema"
+                        "$ref": "#/components/schemas/WebAuthnCredentialRegistrationChallengeSchema"
                     },
                     {
-                        "$ref": "#/components/schemas/CreateWebAuthnCredentialSchema"
+                        "$ref": "#/components/schemas/WebAuthnCredentialRegistrationCompletionSchema"
                     }
                 ]
             },
@@ -34284,43 +34284,13 @@
                 ]
             },
             "post": {
-                "x-right-required": "SEND_MESSAGES",
+                "x-permission-required": "VIEW_CHANNEL",
                 "security": [
                     {
                         "bearer": []
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/MessageCreateSchema"
-                            }
-                        }
-                    }
-                },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIPublicMessage"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/APIErrorResponse"
-                                }
-                            }
-                        }
-                    },
                     "403": {
                         "description": "No description available"
                     },
