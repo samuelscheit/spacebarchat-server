@@ -4,6 +4,14 @@ export function messageToSearchResult(message: Message) {
     return message.toSearchResult();
 }
 
+export function parseIncludeNsfwSearchParam(includeNsfw: unknown) {
+    return includeNsfw === "true";
+}
+
+export function getSearchChannelNsfwFilter(includeNsfw: unknown) {
+    return parseIncludeNsfwSearchParam(includeNsfw) ? {} : { channel: { nsfw: false } };
+}
+
 const MESSAGE_SEARCH_SORT_BY_CHOICES = ["timestamp"] as const;
 
 export type MessageSearchSortBy = (typeof MESSAGE_SEARCH_SORT_BY_CHOICES)[number];

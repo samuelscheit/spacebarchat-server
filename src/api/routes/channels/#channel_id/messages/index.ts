@@ -16,12 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { getMessageHistoryQueryOrder, route, sortMessagesNewestFirst, toPublicReactions } from "@spacebar/api";
-import { Channel, Config, getPermission, Message, messagePublicWithThreadRelations, NewUrlUserSignatureData, ReadState, Snowflake, User } from "@spacebar/util";
+import { getMessageHistoryQueryOrder, hydrateInteractionMetadataUsers, route, sortMessagesNewestFirst, toPublicReactions } from "@spacebar/api";
+import { Channel, getPermission, Message, messagePublicWithThreadRelations, NewUrlUserSignatureData, ReadState, Snowflake, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
-import { AcknowledgeDeleteSchema, isTextChannel, PartialUser, PublicMessage, ReadStateType, RelationshipType } from "@spacebar/schemas";
+import { AcknowledgeDeleteSchema, isTextChannel, PartialUser, ReadStateType } from "@spacebar/schemas";
 import { createMessageRouteHandlers } from "../../../../util/handlers/ChannelMessageCreateRoute";
 
 const router: Router = Router({ mergeParams: true });
@@ -160,17 +160,7 @@ router.get(
         });
         //console.log(ret);
 
-        type MessageWithInteraction = PublicMessage & {
-            interaction_metadata?: { user?: User; user_id: string };
-            interaction?: { user?: User };
-        };
-        await Promise.all(
-            (ret as MessageWithInteraction[])
-                .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
-                .map(async (x) => {
-                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } });
-                }),
-        );
+        await hydrateInteractionMetadataUsers(ret, (userId) => User.getPublicUser(userId));
 
         return res.json(ret);
     },

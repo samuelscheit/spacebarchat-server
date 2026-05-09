@@ -5,7 +5,7 @@ import { afterEach, describe, test } from "node:test";
 import type { FindManyOptions } from "typeorm";
 
 import type { WebSocket } from "@spacebar/gateway";
-import { EventOpts, Intents } from "@spacebar/util";
+import { EVENTEnum, EventOpts, Intents } from "@spacebar/util";
 import { CLOSECODES, OPCODES } from "../util";
 import { Capabilities } from "../util/Capabilities";
 import {
@@ -13,11 +13,15 @@ import {
     canDispatchEventForIntents,
     canDispatchGuildMemberEvent,
     canDispatchGuildPresenceUpdate,
+    canDispatchGuildUserUpdate,
     canDispatchIntentEvent,
+    canDispatchUserUpdate,
     consumeListenerEvent,
     getIntentGuildIdForEvent,
     getListenerSetupData,
     getRequiredIntentForEvent,
+    handleGuildMemberSubscriptionEvent,
+    handlePresenceUpdate,
     listenerDependencies,
     shouldSubscribeChannelRouteEvents,
     shouldSubscribeDirectMessageEvents,
@@ -25,6 +29,10 @@ import {
     shouldSubscribeGuildEvents,
     shouldSubscribePresenceEvents,
     setupListener,
+    subscribeDirectUserEvent,
+    subscribeGuildMemberEvent,
+    toPublicUserUpdateData,
+    unsubscribeDirectUserEvent,
     type ListenerSetupData,
 } from "./listener";
 import { trackGuildMemberEventId } from "./subscriptions";
@@ -61,6 +69,19 @@ function createDispatchSocket(intents: Intents) {
     });
 
     return socket as unknown as WebSocket & { sentPayloads: unknown[] };
+}
+
+function userUpdateData(id: string) {
+    return {
+        id,
+        username: "visible",
+        discriminator: "0001",
+        email: "private@example.com",
+        mfa_enabled: true,
+        phone: "+15555550123",
+        pronouns: null,
+        settings: { locale: "en-US" },
+    };
 }
 
 describe("canDispatchGuildMemberEvent", () => {
@@ -104,6 +125,198 @@ describe("canDispatchGuildPresenceUpdate", () => {
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", "visible-member"), true);
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", "hidden-member"), false);
         assert.equal(canDispatchGuildPresenceUpdate(guildMemberEventIds, "guild", undefined), false);
+    });
+});
+
+describe("canDispatchGuildUserUpdate", () => {
+    test("allows user updates for users tracked by a lazy member subscription", () => {
+        const guildMemberEventIds: Record<string, Set<string>> = {};
+        const memberEventGuildIds: Record<string, Set<string>> = {};
+        trackGuildMemberEventId(guildMemberEventIds, memberEventGuildIds, "guild", "visible-member");
+
+        assert.equal(canDispatchGuildUserUpdate(memberEventGuildIds, "visible-member"), true);
+        assert.equal(canDispatchGuildUserUpdate(memberEventGuildIds, "hidden-member"), false);
+        assert.equal(canDispatchGuildUserUpdate(memberEventGuildIds, undefined), false);
+    });
+
+    test("allows user updates tracked through any subscribed guild", () => {
+        const guildMemberEventIds: Record<string, Set<string>> = {};
+        const memberEventGuildIds: Record<string, Set<string>> = {};
+        trackGuildMemberEventId(guildMemberEventIds, memberEventGuildIds, "guild-a", "member-a");
+        trackGuildMemberEventId(guildMemberEventIds, memberEventGuildIds, "guild-b", "member-b");
+
+        assert.equal(canDispatchGuildUserUpdate(memberEventGuildIds, "member-b"), true);
+    });
+});
+
+describe("canDispatchUserUpdate", () => {
+    test("allows updates for direct user subscriptions and lazy member subscriptions", () => {
+        const guildMemberEventIds: Record<string, Set<string>> = {};
+        const memberEventGuildIds: Record<string, Set<string>> = {};
+        trackGuildMemberEventId(guildMemberEventIds, memberEventGuildIds, "guild", "visible-member");
+
+        assert.equal(canDispatchUserUpdate({ friend: async () => undefined }, memberEventGuildIds, "friend"), true);
+        assert.equal(canDispatchUserUpdate({}, memberEventGuildIds, "visible-member"), true);
+        assert.equal(canDispatchUserUpdate({}, memberEventGuildIds, "hidden-member"), false);
+        assert.equal(canDispatchUserUpdate({ friend: async () => undefined }, memberEventGuildIds, undefined), false);
+    });
+});
+
+describe("toPublicUserUpdateData", () => {
+    test("strips private fields from non-self user update payloads", () => {
+        const data = toPublicUserUpdateData(userUpdateData("visible-member") as never);
+
+        assert.equal(data.id, "visible-member");
+        assert.equal(data.username, "visible");
+        assert.equal(data.pronouns, "");
+        assert.equal("email" in data, false);
+        assert.equal("phone" in data, false);
+        assert.equal("mfa_enabled" in data, false);
+        assert.equal("settings" in data, false);
+    });
+
+    test("uses entity public serialization when available", () => {
+        const data = toPublicUserUpdateData({
+            id: "visible-member",
+            email: "private@example.com",
+            toPublicUser() {
+                return { id: "visible-member", username: "from-method" };
+            },
+        } as never);
+
+        assert.deepEqual(data, { id: "visible-member", username: "from-method" });
+    });
+});
+
+describe("handlePresenceUpdate USER_UPDATE dispatch", () => {
+    test("sends public user updates to direct user subscriptions", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        socket.events["friend"] = async () => undefined;
+
+        await handlePresenceUpdate.call(socket, {
+            event: EVENTEnum.UserUpdate,
+            user_id: "friend",
+            data: userUpdateData("friend"),
+        } as never);
+
+        assert.equal(socket.sentPayloads.length, 1);
+        const payload = socket.sentPayloads[0] as { op: number; t: string; d: Record<string, unknown>; s: number };
+        assert.equal(payload.op, OPCODES.Dispatch);
+        assert.equal(payload.t, EVENTEnum.UserUpdate);
+        assert.equal(payload.s, 0);
+        assert.equal(payload.d.id, "friend");
+        assert.equal(payload.d.username, "visible");
+        assert.equal(payload.d.pronouns, "");
+        assert.equal("email" in payload.d, false);
+        assert.equal("phone" in payload.d, false);
+        assert.equal("mfa_enabled" in payload.d, false);
+        assert.equal("settings" in payload.d, false);
+        assert.equal(socket.sequence, 1);
+    });
+
+    test("sends user updates for visible lazy member subscriptions without a direct subscription", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        socket.member_events["visible-member"] = async () => undefined;
+        trackGuildMemberEventId(socket.guild_member_event_ids, socket.member_event_guild_ids, "guild", "visible-member");
+
+        await handlePresenceUpdate.call(socket, {
+            event: EVENTEnum.UserUpdate,
+            user_id: "visible-member",
+            data: userUpdateData("visible-member"),
+        } as never);
+
+        assert.equal(socket.sentPayloads.length, 1);
+    });
+
+    test("does not send user updates for hidden lazy member users", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        socket.member_events["visible-member"] = async () => undefined;
+        trackGuildMemberEventId(socket.guild_member_event_ids, socket.member_event_guild_ids, "guild", "visible-member");
+
+        await handlePresenceUpdate.call(socket, {
+            event: EVENTEnum.UserUpdate,
+            user_id: "hidden-member",
+            data: userUpdateData("hidden-member"),
+        } as never);
+
+        assert.deepEqual(socket.sentPayloads, []);
+    });
+
+    test("uses the update payload id when RabbitMQ event metadata has no route id", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        socket.member_events["visible-member"] = async () => undefined;
+        trackGuildMemberEventId(socket.guild_member_event_ids, socket.member_event_guild_ids, "guild", "visible-member");
+
+        await handlePresenceUpdate.call(socket, {
+            event: EVENTEnum.UserUpdate,
+            data: userUpdateData("visible-member"),
+        } as never);
+
+        assert.equal(socket.sentPayloads.length, 1);
+    });
+});
+
+describe("direct and lazy user subscription overlap", () => {
+    test("tracks lazy membership without opening a duplicate listener when direct subscription already exists", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        socket.events["friend"] = async () => undefined;
+
+        assert.equal(await subscribeGuildMemberEvent.call(socket, "guild", "friend"), false);
+
+        assert.deepEqual(socket.guild_member_event_ids, { guild: new Set(["friend"]) });
+        assert.deepEqual(socket.member_event_guild_ids, { friend: new Set(["guild"]) });
+        assert.deepEqual(socket.member_events, {});
+    });
+
+    test("promotes a lazy listener to a direct listener when a relationship is added", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        const unsubscribe = async () => undefined;
+        socket.member_events["friend"] = unsubscribe;
+        trackGuildMemberEventId(socket.guild_member_event_ids, socket.member_event_guild_ids, "guild", "friend");
+
+        await subscribeDirectUserEvent.call(socket, "friend", {});
+
+        assert.deepEqual(socket.member_events, {});
+        assert.equal(socket.events["friend"], unsubscribe);
+        assert.deepEqual(socket.member_event_guild_ids, { friend: new Set(["guild"]) });
+    });
+
+    test("promotes a direct listener back to a lazy listener when a relationship is removed", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        let cancelled = false;
+        const unsubscribe = async () => {
+            cancelled = true;
+        };
+        socket.events["friend"] = unsubscribe;
+        trackGuildMemberEventId(socket.guild_member_event_ids, socket.member_event_guild_ids, "guild", "friend");
+
+        await unsubscribeDirectUserEvent.call(socket, "friend");
+
+        assert.equal(cancelled, false);
+        assert.deepEqual(socket.events, {});
+        assert.equal(socket.member_events["friend"], unsubscribe);
+        assert.deepEqual(socket.member_event_guild_ids, { friend: new Set(["guild"]) });
+
+        await handlePresenceUpdate.call(socket, {
+            event: EVENTEnum.UserUpdate,
+            user_id: "friend",
+            data: userUpdateData("friend"),
+        } as never);
+        assert.equal(socket.sentPayloads.length, 1);
+    });
+
+    test("cancels a direct listener when no lazy membership still needs it", async () => {
+        const socket = createDispatchSocket(new Intents(Intents.FLAGS.GUILD_PRESENCES));
+        let cancelled = false;
+        socket.events["friend"] = async () => {
+            cancelled = true;
+        };
+
+        await unsubscribeDirectUserEvent.call(socket, "friend");
+
+        assert.equal(cancelled, true);
+        assert.deepEqual(socket.events, {});
+        assert.deepEqual(socket.member_events, {});
     });
 });
 
@@ -647,3 +860,43 @@ describe("gateway listener intent filtering", () => {
         assert.equal(Intents.GUILD_INTENT_TO_EVENTS_MAP[1].includes("THREAD_MEMBERS_UPDATE "), false);
     });
 });
+
+describe("handleGuildMemberSubscriptionEvent", () => {
+    test("keeps lazy member subscriptions active after member profile updates", async () => {
+        const socket = createSubscriptionSocket();
+        trackGuildMemberEventId(socket.guild_member_event_ids, socket.member_event_guild_ids, "guild", "visible-member");
+        socket.member_events["visible-member"] = async () => {
+            throw new Error("member update should not unsubscribe");
+        };
+
+        await handleGuildMemberSubscriptionEvent(socket, "GUILD_MEMBER_UPDATE", "guild", "visible-member");
+
+        assert.equal(socket.guild_member_event_ids.guild?.has("visible-member"), true);
+        assert.equal(socket.member_event_guild_ids["visible-member"]?.has("guild"), true);
+        assert.equal("visible-member" in socket.member_events, true);
+    });
+
+    test("removes lazy member subscriptions when a member leaves the guild", async () => {
+        const socket = createSubscriptionSocket();
+        let unsubscribed = false;
+        trackGuildMemberEventId(socket.guild_member_event_ids, socket.member_event_guild_ids, "guild", "departing-member");
+        socket.member_events["departing-member"] = async () => {
+            unsubscribed = true;
+        };
+
+        await handleGuildMemberSubscriptionEvent(socket, "GUILD_MEMBER_REMOVE", "guild", "departing-member");
+
+        assert.equal(unsubscribed, true);
+        assert.equal(socket.guild_member_event_ids.guild, undefined);
+        assert.equal(socket.member_event_guild_ids["departing-member"], undefined);
+        assert.equal(socket.member_events["departing-member"], undefined);
+    });
+});
+
+function createSubscriptionSocket(): WebSocket {
+    return {
+        member_events: {},
+        guild_member_event_ids: {},
+        member_event_guild_ids: {},
+    } as WebSocket;
+}

@@ -517,7 +517,7 @@ export class Channel extends BaseClass {
                     if (channel == null) {
                         channel = ur.channel;
                         creatorRecipient = ur;
-                        if (!ur.closed) needsTx = false;
+                        if (ur.closed === false) needsTx = false;
                     }
                 }
             }
@@ -814,9 +814,10 @@ export class Channel extends BaseClass {
                 user: {
                     ...member,
                     roles: roles.map((r) => r.id),
+                    resolved_roles: roles,
                     flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
                 },
-                guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
+                guild: { id: guild.id, owner_id: guild.owner_id! },
                 channel: this,
             });
         } catch (error) {
@@ -846,11 +847,11 @@ export class Channel extends BaseClass {
             console.error("Channel.canViewChannel: called without user for DM channel.");
             return false;
         }
-        if (this.recipients) return this.recipients.some((r) => r.user_id === userId && !r.closed);
+        if (this.recipients) return this.recipients.some((r) => r.user_id === userId && r.closed === false);
         else {
             // we dont have recipients on hand
             const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: userId } });
-            return recipient == null ? false : !recipient.closed;
+            return recipient == null ? false : recipient.closed === false;
         }
     }
 

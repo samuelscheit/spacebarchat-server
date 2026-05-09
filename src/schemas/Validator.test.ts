@@ -7,12 +7,16 @@ import { ajv, validateSchema } from "./Validator";
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
 type JsonShape = {
+    $ref?: string;
+    maxLength?: number;
+    minLength?: number;
+    pattern?: string;
     type?: string | string[];
     items?: JsonShape;
     properties?: Record<string, JsonShape & { format?: string }>;
 };
 
-const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
+const Schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
 
 const ImageDataUriFields = [
     ["ApplicationModifySchema", "icon"],
@@ -104,6 +108,53 @@ describe("WebhookExecuteSchema", () => {
 });
 
 describe("schema validator custom formats", () => {
+    test("normalizes generated gateway bigint schemas for Ajv validation", () => {
+        assert.deepEqual(
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: 513,
+                shard: [0, 1],
+            }),
+            {
+                token: "gateway-token",
+                properties: {},
+                intents: 513,
+                shard: [0, 1],
+            },
+        );
+
+        assert.deepEqual(
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "9007199254740993",
+                shard: ["0", "1"],
+            }),
+            {
+                token: "gateway-token",
+                properties: {},
+                intents: "9007199254740993",
+                shard: ["0", "1"],
+            },
+        );
+
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "not-an-integer",
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "1.5",
+            }),
+        );
+    });
+
     test("accepts image data URI fields with matching image bytes", () => {
         assert.deepEqual(validateSchema("WebhookCreateSchema", { name: "hook", avatar: PngDataUri }), { name: "hook", avatar: PngDataUri });
         assert.deepEqual(validateSchema("BotModifySchema", { banner: PngDataUri }), { banner: PngDataUri });
@@ -126,6 +177,15 @@ describe("schema validator custom formats", () => {
         });
     });
 
+    test("documents writable guild profile tags", () => {
+        assert.deepEqual(Schemas.GuildUpdateSchema.properties?.profile_tag, {
+            type: ["null", "string"],
+            minLength: 1,
+            maxLength: 4,
+            pattern: "^[A-Za-z0-9]+$",
+        });
+    });
+
     test("keeps upload formats on request fields and off response hash fields", () => {
         for (const [schemaName, field] of ImageDataUriFields) {
             assert.equal(Schemas[schemaName].properties?.[field]?.format, "image-data-uri", `${schemaName}.${field}`);
@@ -140,8 +200,20 @@ describe("schema validator custom formats", () => {
 });
 
 describe("generated JSON schemas", () => {
-    test("normalizes TypeScript bigint fields to JSON number schemas", () => {
-        assert.equal(Schemas.IdentifySchema.properties?.intents?.type, "number");
-        assert.equal(Schemas.IdentifySchema.properties?.shard?.items?.type, "number");
+    function schemaTypes(schema: JsonShape | undefined): string[] {
+        assert.ok(schema);
+
+        if (schema.$ref) {
+            const match = /^#\/definitions\/(.+)$/.exec(schema.$ref);
+            assert.ok(match, `unexpected schema ref ${schema.$ref}`);
+            return schemaTypes(Schemas[match[1]]);
+        }
+
+        return (Array.isArray(schema.type) ? schema.type : [schema.type]).filter((type): type is string => typeof type === "string").sort();
+    }
+
+    test("keeps gateway identify bitfields JSON-safe", () => {
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.intents), ["integer", "string"]);
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.shard?.items), ["integer", "string"]);
     });
 });

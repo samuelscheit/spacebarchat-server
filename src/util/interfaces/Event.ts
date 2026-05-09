@@ -35,11 +35,11 @@ import {
     ThreadMemberPayload,
 } from "@spacebar/util";
 import { JsonValue } from "@protobuf-ts/runtime";
+import type { InteractionCreateSchema } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 import {
     ApplicationCommand,
     GuildCreateResponse,
     GuildScheduledEventResponse,
-    Interaction,
     InteractionFailureReason,
     PartialEmoji,
     PublicChannel,
@@ -67,6 +67,11 @@ export interface Event {
     reconnect_delay?: number;
     origin?: string;
     transaction_id?: string;
+    /**
+     * Internal event bus route. This is consumed by server-side listeners only
+     * and is intentionally not part of Discord gateway payload data.
+     */
+    spacebar_event_id?: string;
 }
 
 // ! Custom Events that shouldn't get sent to the client but processed by the server
@@ -626,7 +631,7 @@ export interface ApplicationCommandDeleteEvent extends Event {
 export interface InteractionCreateEvent extends Event {
     event: "INTERACTION_CREATE";
     data:
-        | Interaction
+        | InteractionCreateSchema
         | {
               id: Snowflake;
               nonce?: string;

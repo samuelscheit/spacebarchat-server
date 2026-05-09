@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { Badge, Config, emitEvent, FieldErrors, handleFile, Member, profilePronouns, Relationship, User, UserUpdateEvent } from "@spacebar/util";
+import { Badge, Config, FieldErrors, handleFile, Member, profilePronouns, Relationship, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { In } from "typeorm";
 import {
@@ -30,7 +30,14 @@ import {
     UserProfileModifySchema,
 } from "@spacebar/schemas";
 import { getProfileGuildMember } from "../../../util/profileGuildMember.js";
-import { toGuildMemberProfileResponse, toPartialConnectedAccountResponse, toProfileBadgeResponse, toUserProfileResponse } from "../../../util/userProfileResponse";
+import {
+    toGuildMemberProfileResponse,
+    toMutualGuildResponse,
+    toPartialConnectedAccountResponse,
+    toProfileBadgeResponse,
+    toUserProfileResponse,
+} from "../../../util/userProfileResponse";
+import { emitUserUpdateEvents } from "../../../util/UserUpdateEvents";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -92,10 +99,7 @@ router.get(
                 }
                 for (const smem of self_member) {
                     if (smem.guild_id === rmem.guild_id) {
-                        mutual_guilds.push({
-                            id: rmem.guild_id,
-                            nick: rmem.nick,
-                        });
+                        mutual_guilds.push(toMutualGuildResponse(rmem));
                     }
                 }
             }
@@ -132,12 +136,12 @@ router.get(
             connected_accounts: publicUserConnections,
             premium_guild_since: premium_guild_since, // TODO
             premium_since: user.premium_since,
-            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined, // TODO {id: "", nick: null} when ?with_mutual_guilds=true
+            mutual_guilds: with_mutual_guilds == "true" ? mutual_guilds : undefined,
             mutual_friends: with_mutual_friends == "true" ? mutual_friends : undefined,
             mutual_friends_count: with_mutual_friends_count == "true" ? mutual_friends_count : undefined,
             user: user.toPublicUser(),
             premium_type: user.premium_type,
-            profile_themes_experiment_bucket: 4, // TODO: This doesn't make it available, for some reason?
+            profile_themes_experiment_bucket: 4,
             user_profile: userProfile,
             guild_member: guild_member ? { ...guild_member.toPublicMember(), user: user.toPublicUser() } : undefined,
             guild_member_profile: guildMemberProfile,
@@ -149,7 +153,7 @@ router.get(
     },
 );
 
-router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req: Request, res: Response) => {
+router.patch("/", route({ requestBody: "UserProfileModifySchema", event: ["USER_UPDATE", "GUILD_MEMBER_UPDATE"] }), async (req: Request, res: Response) => {
     const body = req.body as UserProfileModifySchema;
 
     if (body.banner) body.banner = await handleFile(`/banners/${req.user_id}`, body.banner as string);
@@ -177,12 +181,7 @@ router.patch("/", route({ requestBody: "UserProfileModifySchema" }), async (req:
     // @ts-ignore
     delete user.data;
 
-    // TODO: send update member list event in gateway
-    await emitEvent({
-        event: "USER_UPDATE",
-        user_id: req.user_id,
-        data: user,
-    } satisfies UserUpdateEvent);
+    await emitUserUpdateEvents(user);
 
     res.json({
         accent_color: user.accent_color,

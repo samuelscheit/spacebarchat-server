@@ -38,6 +38,7 @@ import {
     PartialMessage,
     Poll,
     PublicMessage,
+    PublicUser,
     StoredReaction,
     UnfurledMediaItem,
     PartialUser,
@@ -341,6 +342,7 @@ export class Message extends BaseClass {
         id: string;
         type: InteractionType;
         name: string;
+        user?: PublicUser;
     };
 
     @Column({ type: "jsonb", nullable: true })
@@ -352,6 +354,7 @@ export class Message extends BaseClass {
         authorizing_integration_owners: object;
         name: string;
         command_type: ApplicationCommandType;
+        user?: PublicUser;
     };
 
     @Column({ type: "jsonb", nullable: true })

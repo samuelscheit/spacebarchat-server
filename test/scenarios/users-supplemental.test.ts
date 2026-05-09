@@ -10,6 +10,7 @@ import { ChannelType } from "@spacebar/schemas";
 import { assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
+import { withoutSelfLeaveRight } from "../fixtures/rights";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
@@ -193,7 +194,6 @@ test(
             assert.deepEqual(dmMessages, []);
 
             const invalidMessageRecipient = await registerUser(`invaliddm${suffix.slice(-8)}`, `users-invalid-dm-${suffix}@example.com`);
-            await Member.addToGuild(invalidMessageRecipient.id, guildId);
             const invalidDirectMessage = await postJson(
                 `${api.apiBaseUrl}/users/${invalidMessageRecipient.id}/messages`,
                 {
@@ -206,7 +206,6 @@ test(
             assert.equal(await owner.getDmChannelWith(invalidMessageRecipient.id), undefined, "invalid direct-message bodies must not create or reopen a DM");
 
             const noRightSender = await registerUser(`norightdm${suffix.slice(-8)}`, `users-no-right-dm-${suffix}@example.com`);
-            await Member.addToGuild(noRightSender.id, guildId);
             await User.update({ id: noRightSender.id }, { rights: (BigInt(noRightSender.rights) & ~Rights.FLAGS.SEND_MESSAGES).toString() });
             const noRightToken = await generateToken(noRightSender.id);
             assert.ok(noRightToken, "no-right token generation should return a bearer token");
@@ -255,6 +254,14 @@ test(
             assert.equal(persistedMemberSettings.settings.muted, true);
             assert.equal(persistedMemberSettings.settings.mobile_push, false);
 
+            const guildMemberCountBeforeBlockedLeave = await Member.countBy({ guild_id: guildId });
+            await User.update({ id: target.id }, { rights: withoutSelfLeaveRight(target.rights) });
+            const blockedLeaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
+            await assertStatus(blockedLeaveGuild, 403);
+            assert.notEqual(await Member.findOneBy({ id: target.id, guild_id: guildId }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, guildMemberCountBeforeBlockedLeave);
+
+            await Member.update({ id: target.id, guild_id: guildId }, { joined_by: owner.id });
             const guildMemberCountBeforeLeave = await Member.countBy({ guild_id: guildId });
             assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, guildMemberCountBeforeLeave);
             const leaveGuild = await deleteJson(`${api.apiBaseUrl}/users/@me/guilds/${guildId}`, targetToken);
@@ -335,10 +342,15 @@ test(
 
             const selfDeletePassword = "delete-password-42";
             const selfDeleteUser = await registerLoginCapableUser(`selfdelete${suffix.slice(-8)}`, `users-self-delete-${suffix}@example.com`, selfDeletePassword);
+            await Member.addToGuild(selfDeleteUser.id, guildId);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
             const selfDeleteToken = await generateToken(selfDeleteUser.id);
             assert.ok(selfDeleteToken, "self-delete token generation should return a bearer token");
             await assertStatus(await postJson(`${api.apiBaseUrl}/users/@me/delete`, { password: selfDeletePassword }, selfDeleteToken), 204);
+            await guildEvents.waitFor((event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === selfDeleteUser.id, eventTimeoutMs);
             assert.equal(await User.findOneBy({ id: selfDeleteUser.id }), null);
+            assert.equal(await Member.findOneBy({ id: selfDeleteUser.id, guild_id: guildId }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
 
             const admin = await registerUser(`admin${suffix.slice(-8)}`, `users-admin-${suffix}@example.com`);
             await User.update({ id: admin.id }, { rights: "1" });

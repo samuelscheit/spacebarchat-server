@@ -18,6 +18,7 @@
 
 export * from "./ApiConfiguration";
 export * from "./CdnConfiguration";
+export * from "./CorsConfiguration";
 export * from "./DefaultsConfiguration";
 export * from "./EmailConfiguration";
 export * from "./EndpointConfiguration";
