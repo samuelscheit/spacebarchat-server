@@ -757,7 +757,9 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string)
             op: 2,
             d: {
                 token,
-                intents: 0,
+                // Omit `intents` so these protocol flows exercise the gateway's
+                // default subscriptions. Explicit `0` means no guild/channel
+                // events and prevents the stream tests from receiving dispatches.
                 properties: {
                     os: "test",
                     browser: "spacebar-test",
