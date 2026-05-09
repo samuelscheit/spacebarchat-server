@@ -464,8 +464,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         await channel.save();
     }
 
-    // TODO: Removed cloud attachment handling being inline - handle components!
-
     if (opts.application_id) {
         message.application_id = opts.application_id;
         message.application = await Application.findOneOrFail({
