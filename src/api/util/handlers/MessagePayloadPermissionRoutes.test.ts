@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, test } from "node:test";
-import { acknowledgeDeferredMessageUpdateInteraction } from "./InteractionCallbackState.ts";
+import { acknowledgeDeferredMessageUpdateInteraction } from "./InteractionCallbackState.js";
 
 function readSource(path: string): string {
     return readFileSync(join(process.cwd(), path), "utf8");
