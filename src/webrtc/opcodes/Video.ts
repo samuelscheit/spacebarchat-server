@@ -20,6 +20,8 @@ import { mediaServer, Send, VoiceOPCodes, VoicePayload, WebRtcWebSocket } from "
 import type { WebRtcClient } from "@spacebarchat/spacebar-webrtc-types";
 import { validateSchema, VoiceVideoSchema } from "@spacebar/schemas";
 
+import { normalizeVideoStream } from "../util/VideoStream";
+
 export async function onVideo(this: WebRtcWebSocket, payload: VoicePayload) {
     if (!this.webRtcClient) return;
 
@@ -105,10 +107,11 @@ export async function onVideo(this: WebRtcWebSocket, payload: VoicePayload) {
     }
     // check if client has signaled that it will send video
     if (wantsToProduceVideo) {
-        // TODO: fix spacebar-webrtc-types...
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        this.webRtcClient!.videoStream = { ...stream, type: "video" }; // client sends "screen" on go live but expects "video" on response
+        // Client sends "screen" for Go Live but expects "video" on subscriber responses.
+        this.webRtcClient!.videoStream = normalizeVideoStream(stream, {
+            video_ssrc: d.video_ssrc,
+            rtx_ssrc: d.rtx_ssrc,
+        });
         // check if we are already publishing video, if not, publish a new video track for it
         if (!this.webRtcClient!.isProducingVideo()) {
             console.log(`[${this.user_id}] publishing new video track ssrc:${d.video_ssrc}`);
@@ -143,12 +146,12 @@ export async function onVideo(this: WebRtcWebSocket, payload: VoicePayload) {
                     audio_ssrc: ssrcs.audio_ssrc ?? this.webRtcClient!.getIncomingStreamSSRCs().audio_ssrc,
                     video_ssrc: ssrcs.video_ssrc ?? 0,
                     rtx_ssrc: ssrcs.rtx_ssrc ?? 0,
-                    streams: d.streams?.map((x) => ({
-                        ...x,
-                        ssrc: ssrcs.video_ssrc ?? 0,
-                        rtx_ssrc: ssrcs.rtx_ssrc ?? 0,
-                        type: "video",
-                    })),
+                    streams: d.streams?.map((stream) =>
+                        normalizeVideoStream(stream, {
+                            video_ssrc: ssrcs.video_ssrc,
+                            rtx_ssrc: ssrcs.rtx_ssrc,
+                        }),
+                    ),
                 } as VoiceVideoSchema,
             });
         }),
@@ -190,21 +193,16 @@ export async function subscribeToProducers(this: WebRtcWebSocket): Promise<void>
                     video_ssrc: ssrcs.video_ssrc ?? 0,
                     rtx_ssrc: ssrcs.rtx_ssrc ?? 0,
                     streams: [
-                        client.videoStream ?? {
-                            type: "video",
-                            rid: "100",
-                            ssrc: ssrcs.video_ssrc ?? 0,
-                            active: client.isProducingVideo(),
-                            quality: 100,
-                            rtx_ssrc: ssrcs.rtx_ssrc ?? 0,
-                            max_bitrate: 2500000,
-                            max_framerate: 20,
-                            max_resolution: {
-                                type: "fixed",
-                                width: 1280,
-                                height: 720,
+                        normalizeVideoStream(
+                            client.videoStream,
+                            {
+                                video_ssrc: ssrcs.video_ssrc,
+                                rtx_ssrc: ssrcs.rtx_ssrc,
                             },
-                        },
+                            {
+                                active: client.isProducingVideo(),
+                            },
+                        ),
                     ],
                 } as VoiceVideoSchema,
             });

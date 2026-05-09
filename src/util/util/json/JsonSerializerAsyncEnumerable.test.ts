@@ -88,7 +88,31 @@ describe("JsonSerializer async enumerable streams", () => {
         });
         const iterator = JsonSerializer.DeserializeAsyncEnumerable<{ id: number }>(stream)[Symbol.asyncIterator]();
 
-        controller.enqueue(encoder.encode('[{"id":1},'));
+        controller.enqueue(encoder.encode('[{"id":1}'));
+
+        assert.deepEqual(await withTimeout(iterator.next(), "Timed out waiting for first streamed JSON item."), {
+            done: false,
+            value: { id: 1 },
+        });
+
+        controller.enqueue(encoder.encode(',{"id":2}]'));
+        controller.close();
+
+        assert.deepEqual(await iterator.next(), { done: false, value: { id: 2 } });
+        assert.deepEqual(await iterator.next(), { done: true, value: undefined });
+    });
+
+    it("continues validating delimiters after yielding a complete streamed item", async () => {
+        let controller!: ReadableStreamDefaultController<Uint8Array>;
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream<Uint8Array>({
+            start(value) {
+                controller = value;
+            },
+        });
+        const iterator = JsonSerializer.DeserializeAsyncEnumerable<{ id: number }>(stream)[Symbol.asyncIterator]();
+
+        controller.enqueue(encoder.encode('[{"id":1}'));
 
         assert.deepEqual(await withTimeout(iterator.next(), "Timed out waiting for first streamed JSON item."), {
             done: false,
@@ -98,15 +122,17 @@ describe("JsonSerializer async enumerable streams", () => {
         controller.enqueue(encoder.encode('{"id":2}]'));
         controller.close();
 
-        assert.deepEqual(await iterator.next(), { done: false, value: { id: 2 } });
-        assert.deepEqual(await iterator.next(), { done: true, value: undefined });
+        await assert.rejects(() => iterator.next(), {
+            name: "SyntaxError",
+            message: "Expected ',' or ']' after JSON array item.",
+        });
     });
 
     it("cancels web streams when iteration stops before EOF", async () => {
         let canceled = false;
         const stream = new ReadableStream<Uint8Array>({
             start(controller) {
-                controller.enqueue(new TextEncoder().encode('[{"id":1},'));
+                controller.enqueue(new TextEncoder().encode('[{"id":1}'));
             },
             cancel() {
                 canceled = true;

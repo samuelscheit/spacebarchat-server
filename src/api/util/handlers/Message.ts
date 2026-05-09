@@ -56,16 +56,20 @@ import {
 import { HTTPError } from "lambert-server";
 import { In, Or, Equal, IsNull } from "typeorm";
 import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
+import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 import {
+    AllowedMentions,
     ActionRowComponent,
     ButtonStyle,
     ChannelType,
     Embed,
     EmbedType,
     MessageComponentType,
-    MessageCreateAttachment,
+    MessageCreateAttachmentMetadata,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
+    PollCreationSchema,
+    Poll,
     MessageType,
     ReadStateType,
     StoredReaction,
@@ -285,6 +289,33 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
     };
 }
+
+const DEFAULT_POLL_DURATION_HOURS = 24;
+const DEFAULT_POLL_LAYOUT_TYPE = 1;
+
+export function createPollFromMessageOptions(poll: PollCreationSchema | Poll | null | undefined, now = new Date()): Poll | undefined {
+    if (!poll) return undefined;
+
+    if ("expiry" in poll) {
+        return {
+            ...poll,
+            layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
+        };
+    }
+
+    const durationHours = poll.duration ?? DEFAULT_POLL_DURATION_HOURS;
+    return {
+        question: poll.question,
+        answers: poll.answers.map((answer, index) => ({
+            answer_id: index + 1,
+            poll_media: answer.poll_media,
+        })),
+        expiry: new Date(now.getTime() + durationHours * 60 * 60 * 1000),
+        allow_multiselect: poll.allow_multiselect ?? false,
+        layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
+    };
+}
+
 export function isMessageEditOperation(opts: Pick<MessageOptions, "is_edit">): boolean {
     return opts.is_edit === true;
 }
@@ -293,8 +324,27 @@ export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id
     return !!opts.author_id && !opts.webhook_id;
 }
 
+type MentionNotificationType = "users" | "roles" | "everyone";
+
+function shouldNotifyAllowedMention(allowedMentions: AllowedMentions | null | undefined, type: MentionNotificationType, id?: string): boolean {
+    if (!allowedMentions) return true;
+
+    if (allowedMentions.parse?.includes(type)) return true;
+
+    if (type === "users") return !!id && !!allowedMentions.users?.includes(id);
+    if (type === "roles") return !!id && !!allowedMentions.roles?.includes(id);
+
+    return false;
+}
+
+function shouldNotifyReplyMention(allowedMentions: AllowedMentions | null | undefined): boolean {
+    if (!allowedMentions) return true;
+
+    return allowedMentions.replied_user === true;
+}
+
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
-    const conf = Config.get();
+    assertMessagePayloadLimits(opts);
     const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const isEdit = isMessageEditOperation(opts);
     const messageOptions = { ...opts };
@@ -328,7 +378,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     const message = Message.create({
         ...messageOptions,
         message_reference: opts.message_reference ?? undefined,
-        poll: opts.poll,
+        poll: createPollFromMessageOptions(opts.poll),
         sticker_items: stickers,
         guild_id: channel.guild_id,
         channel_id: opts.channel_id,
@@ -364,10 +414,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     }
 
     // TODO: Removed cloud attachment handling being inline - handle components!
-
-    if (message.content && message.content.length > conf.limits.message.maxCharacters) {
-        throw new HTTPError("Content length over max character limit");
-    }
 
     if (opts.application_id) {
         message.application_id = opts.application_id;
@@ -496,7 +542,10 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     //const mention_channel_ids = [] as string[];
     const mention_role_ids = [] as string[];
     const mention_user_ids = [] as string[];
+    const content_mention_user_ids = new Set<string>();
+    const reply_mention_user_ids = new Set<string>();
     let mention_everyone = false;
+    let notify_everyone = false;
 
     if (content) {
         // TODO: explicit-only mentions
@@ -511,6 +560,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 
         for (const [, mention] of content.matchAll(USER_MENTION)) {
             if (!mention_user_ids.includes(mention)) mention_user_ids.push(mention);
+            content_mention_user_ids.add(mention);
         }
 
         await Promise.all(
@@ -526,6 +576,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 
         if (opts.webhook_id || permission?.has("MENTION_EVERYONE")) {
             mention_everyone = !!content.match(EVERYONE_MENTION) || !!content.match(HERE_MENTION);
+            notify_everyone = !!content.match(EVERYONE_MENTION) && shouldNotifyAllowedMention(opts.allowed_mentions, "everyone");
         }
     }
 
@@ -545,6 +596,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
                 // @ts-expect-error it does not like the .toPublicUser() lol
                 (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
             );
+            if (referencedMessage.author_id) reply_mention_user_ids.add(referencedMessage.author_id);
         }
 
         // FORWARD
@@ -594,7 +646,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             }
         }
     } else if (incrementMentionCount) {
-        if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+        if ((notify_everyone && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
             if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
                 if (channel.recipients) {
                     await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
@@ -607,16 +659,23 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
             await repository.increment(condition, "mention_count", 1);
         } else {
+            const mentionRolesAllowedToNotify = message.mention_roles.filter((role) => shouldNotifyAllowedMention(opts.allowed_mentions, "roles", role.id));
             const users = new Set<string>([
-                ...(message.mention_roles.length
+                ...(mentionRolesAllowedToNotify.length
                     ? await Member.find({
-                          where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
+                          where: [...mentionRolesAllowedToNotify.map((role) => ({ roles: { id: role.id } }))],
                       })
                     : []
                 ).map((member) => member.id),
-                ...message.mentions.map((user) => user.id),
+                ...message.mentions
+                    .filter((user) => {
+                        if (content_mention_user_ids.has(user.id) && shouldNotifyAllowedMention(opts.allowed_mentions, "users", user.id)) return true;
+                        if (reply_mention_user_ids.has(user.id) && shouldNotifyReplyMention(opts.allowed_mentions)) return true;
+                        return false;
+                    })
+                    .map((user) => user.id),
             ]);
-            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
+            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE") && shouldNotifyAllowedMention(opts.allowed_mentions, "everyone")) {
                 const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
                 (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
             }
@@ -733,7 +792,7 @@ export async function sendMessage(opts: MessageOptions) {
     return message;
 }
 
-type MessageOptionAttachment = MessageCreateAttachment | MessageCreateCloudAttachment | Attachment;
+type MessageOptionAttachment = MessageCreateAttachmentMetadata | Attachment;
 interface MessageOptions extends MessageCreateSchema {
     id?: string;
     type?: MessageType;
@@ -744,7 +803,7 @@ interface MessageOptions extends MessageCreateSchema {
     embeds?: Embed[] | null;
     reactions?: StoredReaction[];
     channel_id?: string;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
+    attachments?: MessageOptionAttachment[]; // why are we masking this?
     attachment_user_id?: string;
     attachment_channel_ids?: string[];
     cloud_attachment_upload_channel_id?: string;
