@@ -26500,7 +26500,7 @@
         "/track/": {
             "post": {
                 "responses": {
-                    "default": {
+                    "204": {
                         "description": "No description available"
                     }
                 },
@@ -33355,6 +33355,24 @@
                         }
                     }
                 },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to use when selecting localized category names."
+                    },
+                    {
+                        "name": "primary_only",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Only return primary discovery categories."
+                    }
+                ],
                 "tags": [
                     "discovery"
                 ]
