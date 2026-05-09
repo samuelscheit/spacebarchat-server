@@ -94,6 +94,30 @@ async function postMultipartFile(url: string, body: string) {
     return await postMultipartFiles(url, [body]);
 }
 
+function assertNoRouteLocalUploadConfiguration(sourceName: string, source: string) {
+    assert.doesNotMatch(source, /TODO: config max upload size|max upload 50 mb/, `${sourceName} should not keep stale max-upload comments`);
+    assert.doesNotMatch(source, /\bmulter\s*\(/, `${sourceName} should not duplicate multer upload configuration`);
+    assert.doesNotMatch(source, /fileSize:\s*1024\s*\*\s*1024\s*\*\s*100/, `${sourceName} should not hard-code a message upload byte limit`);
+}
+
+function assertSharedMessageCreateHandlerProvidesUploadMiddleware(helperSource: string) {
+    assert.match(helperSource, /\bexport const messageUpload = createMessageUpload\(\);/, "shared message creation handlers should create the config-driven upload middleware");
+    assert.match(helperSource, /\bexport const createMessageUploadHandler = messageUpload\.any\(\);/, "shared message creation handlers should export the upload middleware");
+}
+
+function assertRouteUsesConfigDrivenMessageUpload(routeFile: string, source: string, helperSource: string) {
+    if (/\bcreateMessageUpload\(/.test(source)) return;
+
+    const sharedHandlerExport = ["createMessageRouteHandlers", "createMessageBodyRouteHandlers"].find((handlerName) => new RegExp(`\\.\\.\\.${handlerName}\\b`).test(source));
+
+    assert.ok(sharedHandlerExport, `${routeFile} should use the shared message upload middleware`);
+    assert.match(
+        helperSource,
+        new RegExp(`export const ${sharedHandlerExport}: RequestHandler\\[\\] = \\[[\\s\\S]*createMessageUploadHandler,[\\s\\S]*\\];`),
+        `${routeFile} should mount a shared handler tuple that includes the message upload middleware`,
+    );
+}
+
 describe("message upload middleware", () => {
     test("uses the configured message attachment limit for multipart uploads", async () => {
         stubMessageAttachmentLimit(5);
@@ -160,20 +184,24 @@ describe("message upload middleware", () => {
     });
 
     test("message routes share the config-driven upload middleware", () => {
+        const helperFile = "src/api/util/handlers/ChannelMessageCreateRoute.ts";
+        const helperSource = readFileSync(helperFile, "utf8");
         const routeFiles = [
             "src/api/routes/channels/#channel_id/messages/index.ts",
             "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
+            "src/api/routes/users/#user_id/messages.ts",
             "src/api/routes/webhooks/#webhook_id/#token/index.ts",
             "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
         ];
 
+        assertSharedMessageCreateHandlerProvidesUploadMiddleware(helperSource);
+        assertNoRouteLocalUploadConfiguration(helperFile, helperSource);
+
         for (const routeFile of routeFiles) {
             const source = readFileSync(routeFile, "utf8");
 
-            assert.match(source, /\bcreateMessageUpload\(/, `${routeFile} should use the shared message upload middleware`);
-            assert.doesNotMatch(source, /TODO: config max upload size|max upload 50 mb/, `${routeFile} should not keep stale max-upload comments`);
-            assert.doesNotMatch(source, /\bmulter\s*\(/, `${routeFile} should not duplicate multer upload configuration`);
-            assert.doesNotMatch(source, /fileSize:\s*1024\s*\*\s*1024\s*\*\s*100/, `${routeFile} should not hard-code a message upload byte limit`);
+            assertRouteUsesConfigDrivenMessageUpload(routeFile, source, helperSource);
+            assertNoRouteLocalUploadConfiguration(routeFile, source);
         }
 
         const attachmentBackfillSource = readFileSync("src/api/routes/channels/#channel_id/messages/#message_id/index.ts", "utf8");
