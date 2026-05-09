@@ -31,7 +31,6 @@ import {
     emitEvent,
     getChannelOrderInsertPoint,
     getDatabase,
-    getInvalidThreadChannelOrderFields,
     getPermission,
     handleFile,
     makeObjectErrorContent,
@@ -45,7 +44,7 @@ import { HTTPError } from "lambert-server";
 import { ChannelModifySchema, ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
 import { addInvalidAppliedTagsError } from "../../../util/ChannelModifyAppliedTags";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
-import { assertAppliedTagsExist } from "../../../util/ChannelAppliedTagsValidation";
+import { addThreadChannelModifyFieldErrors, validateThreadAppliedTags } from "../../../util/ChannelModifyThreadValidation";
 import { getAvailableTagsModifyError, replaceForumAvailableTags } from "../../../util/utility/ForumTags";
 
 const router: Router = Router({ mergeParams: true });
@@ -195,20 +194,13 @@ router.patch(
             relations: ["available_tags"],
         });
         const isThread = channel.isThread();
-
-        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
-            throw new FieldError(400, "Invalid form body", {
-                status: makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels"),
-            });
-        }
+        const channelLimits = Config.get().limits.channel;
+        const errors: ErrorList = {};
+        let appliedTagsRequireManageThreads = false;
 
         if (isThread) {
             if (channel.owner_id !== req.user.id) {
                 req.permission!.hasThrow("MANAGE_THREADS");
-            }
-            if (payload.permission_overwrites) {
-                //TODO better error maybe?
-                throw new Error("You can't change permission overwrites for threads");
             }
         } else {
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
@@ -228,7 +220,6 @@ router.patch(
             }
         }
 
-        const errors: ErrorList = {};
         const availableTagsPayload = payload.available_tags;
         if (availableTagsPayload !== undefined) {
             const tagErrors = getAvailableTagsModifyError(channel, availableTagsPayload);
@@ -237,28 +228,24 @@ router.patch(
             delete payload.available_tags;
         }
 
+        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
+            errors["status"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels");
+        }
+
         if (payload.applied_tags !== undefined) {
-            if (channel.isThread()) {
+            if (isThread) {
                 const parent = await Channel.findOneOrFail({
                     where: {
                         id: channel.parent_id as string,
                     },
                     relations: ["available_tags"],
                 });
-                const realTags = new Map((parent.available_tags ?? []).map((tag) => [tag.id, tag]));
-                assertAppliedTagsExist(payload.applied_tags, realTags.keys());
-                const changed = new Set(channel.applied_tags || []).symmetricDifference(new Set(payload.applied_tags));
-                const permsNeeded = [...changed].find((_) => realTags.get(_)?.moderated);
-                if (permsNeeded) {
-                    req.permission?.hasThrow("MANAGE_THREADS");
-                }
-                channel.applied_tags = payload.applied_tags;
+                const appliedTagsValidation = validateThreadAppliedTags(errors, payload.applied_tags, channel.applied_tags, parent.available_tags);
+                appliedTagsRequireManageThreads = appliedTagsValidation.requiresManageThreads;
             } else {
                 addInvalidAppliedTagsError(payload, isThread, errors);
             }
         }
-
-        const channelLimits = Config.get().limits.channel;
 
         let allowUnnamedChannels = false;
         if (payload.name !== undefined && channel.guild_id) {
@@ -274,7 +261,7 @@ router.patch(
             errors["name"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel name must be between 1 and ${channelLimits.maxName} characters`);
         if (payload.topic !== undefined && payload.topic.length > channelLimits.maxTopic)
             errors["topic"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel topic must be less than ${channelLimits.maxTopic} characters`);
-        if (payload.status !== undefined && payload.status !== null && payload.status.length > 500)
+        if (payload.status !== undefined && payload.status !== null && payload.status.length > 500 && errors["status"] === undefined)
             errors["status"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", "Channel status must be 500 characters or fewer");
         if (payload.user_limit !== undefined && payload.user_limit < 0) errors["user_limit"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "User limit must be 0 or higher");
         if (payload.type !== undefined && payload.type !== channel.type) {
@@ -290,12 +277,14 @@ router.patch(
             const typeError = getChannelModifyTypeConversionError(channel.type, payload.type, guildFeatures);
             if (typeError) errors["type"] = typeError;
         }
-        for (const field of getInvalidThreadChannelOrderFields(payload, isThread)) {
-            errors[field] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", `Threads cannot update ${field}`);
-        }
+        addThreadChannelModifyFieldErrors(errors, payload, isThread);
 
         if (Object.keys(errors).length) {
-            throw new FieldError(400, "Invalid form body", errors);
+            throw new FieldError(50035, "Invalid Form Body", errors);
+        }
+
+        if (appliedTagsRequireManageThreads) {
+            req.permission?.hasThrow("MANAGE_THREADS");
         }
 
         if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);

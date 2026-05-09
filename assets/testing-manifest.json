@@ -1974,7 +1974,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 94,
+            "line": 93,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2030,7 +2030,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 70,
+            "line": 69,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2079,7 +2079,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 175,
+            "line": 174,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3819,14 +3819,17 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 93,
+            "line": 95,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "MANAGE_ROLES",
-                "responseBodies": [],
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
                 "responseStatuses": [
                     204,
+                    400,
                     404
                 ],
                 "hasQuery": false,
@@ -3869,7 +3872,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 27,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
