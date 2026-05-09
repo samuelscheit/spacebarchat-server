@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -9,6 +9,7 @@ import { generateSecret, generateToken as generateTotpToken } from "node-2fa";
 import {
     BackupCode,
     closeDatabase,
+    Config,
     EmailActionTokenPurpose,
     generateEmailActionToken,
     generateToken,
@@ -87,8 +88,27 @@ test(
             process.env.DATABASE = database.url;
             process.env.APPLY_DB_MIGRATIONS = "true";
             process.env.LOG_ROUTES = "false";
-            delete process.env.CONFIG_PATH;
+            process.env.CONFIG_PATH = path.join(tempCwd, "config.json");
             delete process.env.DB_SYNC;
+            await writeFile(
+                process.env.CONFIG_PATH,
+                JSON.stringify({
+                    general: { serverName: "localhost", autoCreateBotUsers: false },
+                    api: { endpointPublic: "http://localhost:3001/api/v9" },
+                    cdn: { endpointPublic: "http://localhost:3003", endpointPrivate: "http://127.0.0.1:3003" },
+                    gateway: { endpointPublic: "ws://localhost:3002" },
+                    guild: {
+                        autoJoin: {
+                            enabled: false,
+                            guilds: [],
+                            canLeave: true,
+                            bots: false,
+                        },
+                    },
+                    register: { allowMultipleAccounts: false },
+                }),
+            );
+            await Config.init(true);
 
             await initDatabase();
             WebAuthn.init();
@@ -96,8 +116,8 @@ test(
 
             const suffix = `${process.pid}${Date.now()}`;
             const email = `auth-supplemental-${suffix}@example.com`;
-            const initialPassword = "Scenario-Password-42";
-            const resetPassword = "Scenario-Password-84";
+            const initialPassword = "ScenarioPassword42AA";
+            const resetPassword = "ScenarioPassword84AA";
             const username = `authsupp${suffix.slice(-8)}`;
 
             const fingerprintResponse = await fetch(`${api.apiBaseUrl}/auth/fingerprint`, { method: "POST" });
@@ -111,6 +131,36 @@ test(
             assert.equal(location.consent_required, false);
             assert.ok(typeof location.country_code === "string" || location.country_code === null);
             assert.deepEqual(location.promotional_email_opt_in, { required: true, pre_checked: false });
+
+            await assertJsonError(
+                await postJson(
+                    `${api.apiBaseUrl}/auth/register`,
+                    {
+                        username: `nofpauth${suffix.slice(-8)}`,
+                        email: `auth-no-fingerprint-${suffix}@example.com`,
+                        password: initialPassword,
+                        consent: true,
+                        date_of_birth: "2000-04-04",
+                    },
+                    { cookie },
+                ),
+                400,
+            );
+            await assertJsonError(
+                await postJson(
+                    `${api.apiBaseUrl}/auth/register`,
+                    {
+                        username: `badfpauth${suffix.slice(-8)}`,
+                        email: `auth-invalid-fingerprint-${suffix}@example.com`,
+                        password: initialPassword,
+                        consent: true,
+                        date_of_birth: "2000-04-04",
+                        fingerprint: "1234567890.invalid",
+                    },
+                    { cookie },
+                ),
+                400,
+            );
 
             const register = await postJson(
                 `${api.apiBaseUrl}/auth/register`,
@@ -129,9 +179,24 @@ test(
 
             const user = await User.findOneOrFail({
                 where: { email },
-                select: { id: true, email: true, data: true },
+                select: { id: true, email: true, data: true, fingerprints: true },
             });
             assert.ok(await bcrypt.compare(initialPassword, user.data.hash ?? ""));
+            assert.deepEqual(user.fingerprints, [fingerprint]);
+
+            const duplicateFingerprintRegister = await postJson(
+                `${api.apiBaseUrl}/auth/register`,
+                {
+                    username: `dupeauth${suffix.slice(-8)}`,
+                    email: `auth-duplicate-${suffix}@example.com`,
+                    password: "ScenarioPassword24AA",
+                    consent: true,
+                    date_of_birth: "2000-04-04",
+                    fingerprint,
+                },
+                { cookie },
+            );
+            await assertJsonError(duplicateFingerprintRegister, 400);
 
             await assertStatus(await postJson(`${api.apiBaseUrl}/auth/forgot`, { login: email }, { cookie }), 204);
 
@@ -179,7 +244,7 @@ test(
                 {
                     username: `tokenuser${suffix.slice(-8)}`,
                     email: `auth-token-${suffix}@example.com`,
-                    password: "Scenario-Password-Token-42",
+                    password: "ScenarioPassword66AA",
                     consent: true,
                     date_of_birth: "2000-04-04",
                     fingerprint: `fingerprint-token-${suffix}`,

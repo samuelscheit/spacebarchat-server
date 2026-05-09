@@ -20,6 +20,8 @@
         "src/api/util/utility/OAuthAuthorizeApplication.test.ts",
         "src/api/util/utility/OAuth2Authorization.test.ts",
         "src/api/routes/applications/@me.test.ts",
+        "src/api/util/utility/Experiments.test.ts",
+        "src/api/util/utility/Fingerprint.test.ts",
         "src/api/middlewares/Authentication.test.ts",
         "src/api/middlewares/CORS.test.ts",
         "src/api/middlewares/RateLimit.test.ts",

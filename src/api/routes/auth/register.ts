@@ -40,7 +40,7 @@ import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
-import { isRegistrationInviteUsable, registrationRequiresInvite, validateRegistrationDateOfBirth } from "../../util/handlers/Registration";
+import { isRegistrationInviteUsable, registrationRequiresInvite, validateRegistrationDateOfBirth, validateRegistrationFingerprint } from "../../util/handlers/Registration";
 import { validatePasswordPolicy } from "../../util/utility/passwordStrength";
 
 const router: Router = Router({ mergeParams: true });
@@ -135,12 +135,27 @@ router.post(
             }
         }
 
-        if (!regTokenUsed && !register.allowMultipleAccounts) {
-            // TODO: check if fingerprint was eligible generated
-            const exists = await User.findOne({
-                where: { fingerprints: body.fingerprint },
-                select: { id: true },
+        const fingerprintValidation = validateRegistrationFingerprint(register, body.fingerprint, { regTokenUsed });
+        if (fingerprintValidation.status === "required") {
+            throw FieldErrors({
+                fingerprint: {
+                    code: "BASE_TYPE_REQUIRED",
+                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
+                },
             });
+        }
+        if (fingerprintValidation.status === "invalid") {
+            throw FieldErrors({
+                fingerprint: {
+                    code: "BASE_TYPE_INVALID",
+                    message: "Invalid registration fingerprint",
+                },
+            });
+        }
+
+        const fingerprint = fingerprintValidation.status === "valid" ? fingerprintValidation.fingerprint : undefined;
+        if (!regTokenUsed && !register.allowMultipleAccounts && fingerprint) {
+            const exists = await User.findByFingerprint(fingerprint);
 
             if (exists) {
                 throw FieldErrors({
@@ -349,7 +364,7 @@ router.post(
                     throw DiscordApiErrors.UNKNOWN_INVITE;
                 }
 
-                const newUser = await User.register({ ...body, req, manager, emitSideEffects: false });
+                const newUser = await User.register({ ...body, fingerprint, req, manager, emitSideEffects: false });
                 await assertInviteAcceptanceAllowed({
                     guildId: invite.guild_id,
                     userId: newUser.id,
@@ -370,7 +385,7 @@ router.post(
             );
             await User.runRegistrationSideEffects(user, { email });
         } else {
-            user = await User.register({ ...body, req });
+            user = await User.register({ ...body, fingerprint, req });
         }
 
         return res.json({ token: await generateToken(user.id) });

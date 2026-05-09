@@ -83,6 +83,7 @@ describe("message payload limit route integration", () => {
         const source = readSource("src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts");
 
         assertBefore(source, "assertMessagePayloadLimits(body.data);", "clearTimeout(interaction.timeout);");
+        assertBefore(source, "assertMessagePayloadLimits(body.data);", "await acknowledgeDeferredMessageUpdateInteraction(");
         assertBefore(source, "assertMessagePayloadLimits(body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadLimits(body.data);", "await sendMessage({");
         assertBefore(source, "assertMessagePayloadLimits(body.data);", "const updatedMessage = await handleMessage(");

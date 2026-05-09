@@ -16,16 +16,4 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createHash } from "node:crypto";
-import { Snowflake } from "@spacebar/util";
-
-export const CLIENT_FINGERPRINT_PATTERN = /^\d+\.[A-Za-z0-9+/=]+$/;
-
-export function isClientFingerprint(value: unknown): value is string {
-    return typeof value === "string" && CLIENT_FINGERPRINT_PATTERN.test(value);
-}
-
-export function createClientFingerprint() {
-    const snowflake = Snowflake.generate();
-    return `${snowflake}.${createHash("sha512").update(snowflake).digest("base64")}`;
-}
+export { CLIENT_FINGERPRINT_PATTERN, createClientFingerprint, isClientFingerprint } from "@spacebar/util";

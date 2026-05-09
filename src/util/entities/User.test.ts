@@ -109,6 +109,64 @@ async function registerTestUser(date_of_birth?: Date | string, savedUsers?: User
     });
 }
 
+test("User.findByFingerprint only queries for validated registration fingerprints", async () => {
+    const { createClientFingerprint } = await import("../util/Fingerprint.js");
+    const fingerprint = createClientFingerprint();
+    const findOneCalls: unknown[] = [];
+    const manager = {
+        getRepository(entity: unknown) {
+            assert.equal(entity, User);
+
+            return {
+                async findOne(options: unknown) {
+                    findOneCalls.push(options);
+                    return Object.assign(new User(), { id: "fingerprint-owner" });
+                },
+            };
+        },
+    } as unknown as EntityManager;
+
+    assert.equal(await User.findByFingerprint("1234567890.invalid", manager), null);
+
+    const found = await User.findByFingerprint(fingerprint, manager);
+
+    assert.equal(found?.id, "fingerprint-owner");
+    assert.equal(findOneCalls.length, 1);
+    assert.deepEqual((findOneCalls[0] as { select?: unknown }).select, { id: true });
+    assert.ok((findOneCalls[0] as { where?: { fingerprints?: unknown } }).where?.fingerprints, "fingerprint lookup should constrain the fingerprints array");
+});
+
+test("User.register only persists validated registration fingerprints on new users", async () => {
+    const { createClientFingerprint } = await import("../util/Fingerprint.js");
+    const savedUsers: User[] = [];
+    const fingerprint = createClientFingerprint();
+
+    const user = await User.register({
+        username: "fingerprint-user",
+        password: "hashed-password",
+        fingerprint,
+        id: "registered-user",
+        manager: createRegistrationManager(savedUsers),
+        emitSideEffects: false,
+    });
+
+    assert.equal(savedUsers.length, 1);
+    assert.equal(user.id, "registered-user");
+    assert.deepEqual(user.fingerprints, [fingerprint]);
+
+    const invalidFingerprintUser = await User.register({
+        username: "invalid-fingerprint-user",
+        password: "hashed-password",
+        fingerprint: "1234567890.example",
+        id: "invalid-fingerprint-user",
+        manager: createRegistrationManager(savedUsers),
+        emitSideEffects: false,
+    });
+
+    assert.equal(savedUsers.length, 2);
+    assert.deepEqual(invalidFingerprintUser.fingerprints, []);
+});
+
 test("User.register derives nsfw_allowed from supplied date_of_birth", async () => {
     assert.equal(User.nsfwAllowedAge, 18);
 

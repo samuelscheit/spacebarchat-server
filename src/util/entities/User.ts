@@ -17,7 +17,7 @@
 */
 
 import { Request } from "express";
-import { Column, Entity, EntityManager, Index, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Column, Entity, EntityManager, Index, JoinColumn, OneToMany, OneToOne, Raw } from "typeorm";
 import {
     Channel,
     Config,
@@ -35,6 +35,7 @@ import {
     trimSpecial,
 } from "..";
 import { bigintNumberTransformer, DateOfBirthInput, evaluateDateOfBirth, Random } from "../util";
+import { isClientFingerprint } from "../util/Fingerprint";
 import { profilePronouns } from "../util/UserProfile";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
@@ -313,11 +314,25 @@ export class User extends BaseClass {
         return User.hasReachedAge(dateOfBirth, User.nsfwAllowedAge, now);
     }
 
+    static async findByFingerprint(fingerprint: string, manager?: EntityManager) {
+        if (!isClientFingerprint(fingerprint)) return null;
+
+        const userRepository = manager?.getRepository(User) ?? User.getRepository();
+
+        return userRepository.findOne({
+            where: {
+                fingerprints: Raw((alias) => `:fingerprint = ANY(${alias})`, { fingerprint }),
+            },
+            select: { id: true },
+        });
+    }
+
     static async register({
         email,
         username,
         password,
         date_of_birth,
+        fingerprint,
         id,
         req,
         bot,
@@ -328,6 +343,7 @@ export class User extends BaseClass {
         password?: string;
         email?: string;
         date_of_birth?: DateOfBirthInput | null; // "2000-04-03"
+        fingerprint?: string;
         id?: string;
         req?: Request;
         bot?: boolean;
@@ -383,6 +399,7 @@ export class User extends BaseClass {
                 created_at: new Date(),
                 bot: !!bot,
                 nsfw_allowed: nsfwAllowed,
+                fingerprints: isClientFingerprint(fingerprint) ? [fingerprint] : [],
             });
 
             try {
