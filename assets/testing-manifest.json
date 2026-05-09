@@ -13278,7 +13278,7 @@
             "method": "GET",
             "path": "/users/@me/mfa/webauthn/credentials/",
             "sourceFile": "src/api/routes/users/@me/mfa/webauthn/credentials/index.ts",
-            "line": 37,
+            "line": 47,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -13312,7 +13312,7 @@
             "method": "POST",
             "path": "/users/@me/mfa/webauthn/credentials/",
             "sourceFile": "src/api/routes/users/@me/mfa/webauthn/credentials/index.ts",
-            "line": 52,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

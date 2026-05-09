@@ -195,7 +195,8 @@
         "src/admin/mutations.test.ts",
         "src/cdn/util/AttachmentStorage.test.ts",
         "src/util/entities/ChannelDeleteChannelAttachments.test.ts",
-        "src/api/util/UserUpdateEvents.test.ts"
+        "src/api/util/UserUpdateEvents.test.ts",
+        "src/api/util/utility/WebAuthn.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {
