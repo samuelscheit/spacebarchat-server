@@ -7,6 +7,7 @@ import {
     applyThreadMemberSettingsUpdate,
     assertThreadIsNotArchived,
     DEFAULT_THREAD_MEMBER_LIMIT,
+    MAX_THREAD_MEMBER_COUNT,
     MAX_THREAD_MEMBER_LIMIT,
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
@@ -163,6 +164,30 @@ describe("thread member helpers", () => {
 
         assert.equal(memberCount, 4);
         assert.equal(thread.member_count, 4);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("repairs an undefined thread member count by counting persisted thread members", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: undefined });
+        const countThreadMembers = createThreadMemberCountReader(4);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, 4);
+        assert.equal(thread.member_count, 4);
+        assert.equal(thread.saveCalls, 1);
+        assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
+    });
+
+    test("caps synced thread member counts to Discord's approximate count maximum", async () => {
+        const thread = createCountedThread({ id: "thread-id", member_count: 2 });
+        const countThreadMembers = createThreadMemberCountReader(MAX_THREAD_MEMBER_COUNT + 10);
+
+        const memberCount = await syncThreadMemberCount(thread, countThreadMembers);
+
+        assert.equal(memberCount, MAX_THREAD_MEMBER_COUNT);
+        assert.equal(thread.member_count, MAX_THREAD_MEMBER_COUNT);
         assert.equal(thread.saveCalls, 1);
         assert.deepEqual(countThreadMembers.threadIds, ["thread-id"]);
     });

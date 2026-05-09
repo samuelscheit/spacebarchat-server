@@ -1,5 +1,5 @@
 import type { ThreadMemberSettingsUpdateSchema } from "@spacebar/schemas";
-import { FieldErrors, ThreadMember, ThreadMemberFlags } from "@spacebar/util";
+import { FieldErrors, MAX_THREAD_MEMBER_COUNT, ThreadMember, ThreadMemberFlags } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 
 export const DEFAULT_THREAD_MEMBER_LIMIT = 100;
@@ -11,6 +11,7 @@ export interface ThreadMemberSettingsMutationResult {
     changed: boolean;
     threadMember: ThreadMember;
 }
+export { MAX_THREAD_MEMBER_COUNT };
 
 export function parseThreadMemberLimit(value: string | undefined) {
     if (value === undefined) return DEFAULT_THREAD_MEMBER_LIMIT;
@@ -113,7 +114,7 @@ export interface ThreadMemberCountThread {
 export type ThreadMemberCountReader = (threadId: string) => Promise<number>;
 
 export async function syncThreadMemberCount(thread: ThreadMemberCountThread, countThreadMembers: ThreadMemberCountReader) {
-    thread.member_count = await countThreadMembers(thread.id);
+    thread.member_count = Math.min(await countThreadMembers(thread.id), MAX_THREAD_MEMBER_COUNT);
     await thread.save();
 
     return thread.member_count;
@@ -123,6 +124,10 @@ export const countPersistedThreadMembers: ThreadMemberCountReader = (threadId) =
 
 export async function syncPersistedThreadMemberCount(thread: ThreadMemberCountThread) {
     return await syncThreadMemberCount(thread, countPersistedThreadMembers);
+}
+
+export async function refreshThreadMemberCount(thread: ThreadMemberCountThread) {
+    return await syncPersistedThreadMemberCount(thread);
 }
 
 type QueryParameters = Record<string, unknown>;
