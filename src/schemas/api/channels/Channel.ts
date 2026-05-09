@@ -127,7 +127,6 @@ export interface PublicChannel {
     icon?: string | null;
     managed?: boolean;
     blocked_user_warning_dismissed?: boolean;
-    // safety_warnings?: SafetyWarning[]; // TODO
     application_id?: Snowflake;
     owner_id?: Snowflake;
     owner?: PublicMember | null;
