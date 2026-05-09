@@ -10,6 +10,7 @@
         "src/api/util/utility/ApplicationCommands.test.ts",
         "src/api/util/utility/InteractionMetadata.test.ts",
         "src/api/tests/users/userMessagesResponseSchema.test.ts",
+        "src/api/tests/users/@me/UserModifyRoute.test.ts",
         "src/api/util/userProfileResponse.test.ts",
         "src/api/util/ChannelAppliedTagsValidation.test.ts",
         "src/api/util/ChannelModifyAppliedTags.test.ts",
