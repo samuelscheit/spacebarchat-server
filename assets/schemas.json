@@ -19157,7 +19157,7 @@
                 "$ref": "#/definitions/ThreadMetadata"
             },
             "member": {
-                "$ref": "#/definitions/ThreadMember"
+                "$ref": "#/definitions/PublicThreadMember"
             },
             "default_auto_archive_duration": {
                 "type": [
@@ -19177,7 +19177,7 @@
             "available_tags": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Tag"
+                    "$ref": "#/definitions/ChannelTag"
                 }
             },
             "applied_tags": {
@@ -19347,6 +19347,82 @@
             "pending",
             "roles",
             "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PublicThreadMember": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "join_timestamp": {
+                "type": "string"
+            },
+            "muted": {
+                "type": "boolean"
+            },
+            "mute_config": {
+                "type": "object",
+                "properties": {
+                    "end_time": {
+                        "type": "string"
+                    },
+                    "selected_time_window": {
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "flags": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "flags",
+            "id",
+            "join_timestamp",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ChannelTag": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "moderated": {
+                "type": "boolean"
+            },
+            "emoji_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "emoji_name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "moderated",
+            "name"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

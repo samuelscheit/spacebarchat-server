@@ -1,10 +1,10 @@
-import type { PublicChannel, PublicMember, PublicUser, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
-import type { Channel, Guild, Member, StageInstance, ThreadMember, VoiceState } from "@spacebar/util";
+import type { PublicChannel, PublicMember, PublicThreadMember, PublicUser, PublicVoiceState, StageInstanceResponse } from "@spacebar/schemas";
+import { serializePublicThreadMember, type Channel, type Guild, type Member, type PublicThreadMemberSource, type StageInstance, type VoiceState } from "@spacebar/util";
 
-export type IdentifyReadyThreadMemberPayload = Pick<ThreadMember, "id" | "index" | "member_idx" | "join_timestamp" | "muted" | "mute_config" | "flags">;
+export type IdentifyReadyThreadMemberPayload = PublicThreadMemberSource;
 
 export type IdentifyReadyThreadPayload = Omit<PublicChannel, "member"> & {
-    member?: IdentifyReadyThreadMemberPayload;
+    member?: PublicThreadMember;
 };
 
 type IdentifyGuildCreateGuildData = Omit<
@@ -57,18 +57,9 @@ type IdentifyBotUserSource = {
     toPublicUser(): PublicUser;
 };
 
-export function serializeIdentifyReadyThreadMember(member: IdentifyReadyThreadMemberPayload | undefined): IdentifyReadyThreadMemberPayload | undefined {
+export function serializeIdentifyReadyThreadMember(member: IdentifyReadyThreadMemberPayload | undefined, userId: string): PublicThreadMember | undefined {
     if (!member) return undefined;
-
-    return {
-        id: member.id,
-        index: member.index,
-        member_idx: member.member_idx,
-        join_timestamp: member.join_timestamp,
-        muted: member.muted,
-        mute_config: member.mute_config,
-        flags: member.flags,
-    };
+    return serializePublicThreadMember(member, userId, { includeMuted: true });
 }
 
 export function serializeIdentifyReadyVoiceState(voiceState: Pick<VoiceState, "toPublicVoiceState"> | PublicVoiceState): PublicVoiceState {
@@ -86,12 +77,14 @@ export function buildIdentifyPendingGuildCreateData({
     threads,
     threadMemberMap,
     stageInstances,
+    userId,
 }: {
     guild: IdentifyGuildCreateGuildSource;
     joinedAt: Date;
     threads: IdentifyReadyThreadSource[];
     threadMemberMap: ReadonlyMap<string, IdentifyReadyThreadMemberPayload>;
     stageInstances: IdentifyStageInstanceSource[];
+    userId: string;
 }): IdentifyPendingGuildCreateData {
     const serializedGuild = guild.toJSON();
     const {
@@ -114,7 +107,7 @@ export function buildIdentifyPendingGuildCreateData({
 
             return {
                 ...threadPayload,
-                member: serializeIdentifyReadyThreadMember(threadMemberMap.get(threadPayload.id)),
+                member: serializeIdentifyReadyThreadMember(threadMemberMap.get(threadPayload.id), userId),
             };
         }),
         guild_scheduled_events: [],

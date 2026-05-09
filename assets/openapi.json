@@ -18346,7 +18346,7 @@
                         "$ref": "#/components/schemas/ThreadMetadata"
                     },
                     "member": {
-                        "$ref": "#/components/schemas/ThreadMember"
+                        "$ref": "#/components/schemas/PublicThreadMember"
                     },
                     "default_auto_archive_duration": {
                         "type": [
@@ -18366,7 +18366,7 @@
                     "available_tags": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Tag"
+                            "$ref": "#/components/schemas/ChannelTag"
                         }
                     },
                     "applied_tags": {
@@ -18533,6 +18533,78 @@
                     "pending",
                     "roles",
                     "user"
+                ]
+            },
+            "PublicThreadMember": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "join_timestamp": {
+                        "type": "string"
+                    },
+                    "muted": {
+                        "type": "boolean"
+                    },
+                    "mute_config": {
+                        "type": "object",
+                        "properties": {
+                            "end_time": {
+                                "type": "string"
+                            },
+                            "selected_time_window": {
+                                "type": "integer"
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "flags",
+                    "id",
+                    "join_timestamp",
+                    "user_id"
+                ]
+            },
+            "ChannelTag": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "moderated": {
+                        "type": "boolean"
+                    },
+                    "emoji_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "emoji_name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "moderated",
+                    "name"
                 ]
             },
             "Potion": {
