@@ -3,6 +3,8 @@ import http from "node:http";
 import { describe, test } from "node:test";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { BigNumber } from "bignumber.js";
+import { type Permissions } from "@spacebar/util";
+import type {} from "../../types/ExpressRequest";
 import { BodyParser, ErrorHandler } from "../../middlewares";
 import { bigNumberToString, route } from "./route";
 
@@ -27,6 +29,25 @@ async function startRouteServer() {
     return {
         server,
         url: `http://${address.address}:${address.port}/message`,
+    };
+}
+
+async function startRoleModifyRouteServer() {
+    const app = express();
+    app.use(BodyParser({ inflate: true, limit: "1mb" }));
+    app.post("/roles", route({ requestBody: "RoleModifySchema" }), (req, res) => res.json(req.body));
+    app.use(ErrorHandler);
+
+    const server = http.createServer(app);
+    await new Promise<void>((resolve) => {
+        server.listen(0, "127.0.0.1", resolve);
+    });
+    const address = server.address();
+    assert(address && typeof address === "object");
+
+    return {
+        server,
+        url: `http://${address.address}:${address.port}/roles`,
     };
 }
 
@@ -69,6 +90,15 @@ async function getApplicationModifyRoute() {
     return route({
         requestBody: "ApplicationModifySchema",
         coerceRequestBody: false,
+    });
+}
+
+async function getInteractionCallbackRoute() {
+    process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+
+    return route({
+        stripNulls: true,
+        requestBody: "InteractionCallbacksSchema",
     });
 }
 
@@ -188,9 +218,59 @@ describe("bigNumberToString", () => {
             });
         }
     });
+
+    test("surfaces overlong role names as invalid form-body field errors", async () => {
+        const { server, url } = await startRoleModifyRouteServer();
+        try {
+            const response = await postJson(url, JSON.stringify({ name: "a".repeat(256) }));
+            assert.deepEqual(response.body, {
+                code: 50035,
+                message: "Invalid Form Body",
+                errors: {
+                    name: {
+                        _errors: [
+                            {
+                                code: "BASE_TYPE_BAD_LENGTH",
+                                message: "must NOT have more than 255 characters",
+                            },
+                        ],
+                    },
+                },
+            });
+            assert.equal(response.statusCode, 400);
+        } finally {
+            await new Promise<void>((resolve, reject) => {
+                server.close((error) => (error ? reject(error) : resolve()));
+            });
+        }
+    });
 });
 
 describe("route body coercion", () => {
+    test("exposes the shared Express request permission type", () => {
+        type AssertEqual<T, Expected> = [T] extends [Expected] ? ([Expected] extends [T] ? true : never) : never;
+        const permissionTypeIsShared: AssertEqual<Request["permission"], Permissions | undefined> = true;
+
+        assert.equal(permissionTypeIsShared, true);
+    });
+
+    test("allows an instance right to satisfy a route permission before handler execution", async () => {
+        const middleware = route({ permission: "MANAGE_GUILD", permissionOrRight: "MANAGE_GUILDS" });
+        const req = {
+            body: {},
+            rights: {
+                has() {
+                    return true;
+                },
+            },
+        } as unknown as Request;
+        let nextCalled = false;
+
+        await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+        assert.equal(nextCalled, true);
+    });
+
     test("rejects numeric install param permissions without mutating them", async () => {
         const middleware = await getApplicationModifyRoute();
         const req = {
@@ -264,5 +344,50 @@ describe("route body coercion", () => {
 
             assert.equal(nextCalled, true);
         }
+    });
+
+    test("rejects deprecated interaction channel message callbacks before route handlers run", async () => {
+        const middleware = await getInteractionCallbackRoute();
+        const req = {
+            body: {
+                type: 3,
+                data: { content: "message" },
+            },
+            method: "POST",
+            originalUrl: "/interactions/100000000000000001/token/callback",
+        } as Request;
+        let nextCalled = false;
+
+        await assert.rejects(
+            () => middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction),
+            (error: { code?: number; _ajvErrors?: { instancePath: string; keyword: string; params?: { allowedValue?: number } }[] }) => {
+                assert.equal(error.code, 50035);
+                assert.equal(
+                    error._ajvErrors?.some((ajvError) => ajvError.instancePath === "/type" && ajvError.keyword === "const" && ajvError.params?.allowedValue === 4),
+                    true,
+                );
+                assert.equal(
+                    error._ajvErrors?.some((ajvError) => ajvError.instancePath === "" && ajvError.keyword === "anyOf"),
+                    true,
+                );
+                return true;
+            },
+        );
+        assert.equal(nextCalled, false);
+    });
+
+    test("allows current interaction channel message callbacks", async () => {
+        const middleware = await getInteractionCallbackRoute();
+        const req = {
+            body: {
+                type: 4,
+                data: { content: "message" },
+            },
+        } as Request;
+        let nextCalled = false;
+
+        await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+        assert.equal(nextCalled, true);
     });
 });

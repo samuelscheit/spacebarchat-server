@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import type { MessageEditSchema, StoredReaction } from "@spacebar/schemas";
-import { buildMessageEditHandleMessageOptions, preserveEditedMessageReactions } from "./MessageEdit";
+import { buildMessageEditComponentProcessingOptions, buildMessageEditHandleMessageOptions, preserveEditedMessageReactions } from "./MessageEdit";
 import { ajv } from "../../schemas/Validator";
 
 describe("Message edit helpers", () => {
@@ -43,6 +43,52 @@ describe("Message edit helpers", () => {
         assert.deepEqual(options.message_reference, { message_id: "referenced_message_id" });
     });
 
+    test("tracks whether edit payloads explicitly update components", () => {
+        assert.deepEqual(buildMessageEditComponentProcessingOptions({ content: "after" }), { process_component_media: false });
+        assert.deepEqual(buildMessageEditComponentProcessingOptions({ components: [] }), { process_component_media: true });
+        assert.deepEqual(buildMessageEditComponentProcessingOptions({ components: undefined }), { process_component_media: true });
+    });
+
+    test("builds interaction callback edit options without dropping omitted existing attachments", () => {
+        const editedAt = new Date("2026-01-02T03:04:05.000Z");
+        const existingAttachment = { id: "attachment_id", filename: "before.txt" };
+        const existingComponents = [{ type: 1, components: [] }];
+        const body = { content: "after", embeds: [] };
+
+        const options = buildMessageEditHandleMessageOptions(
+            {
+                attachments: [existingAttachment],
+                author_id: "application_id",
+                channel_id: "channel_id",
+                components: existingComponents,
+                content: "before",
+                reactions: [],
+            },
+            body,
+            "channel_id",
+            "message_id",
+            editedAt,
+            {
+                attachment_user_id: "interaction_user_id",
+                attachment_channel_ids: ["channel_id"],
+                is_edit: true,
+                ...buildMessageEditComponentProcessingOptions(body),
+            },
+        );
+
+        assert.equal(options.id, "message_id");
+        assert.equal(options.author_id, "application_id");
+        assert.equal(options.content, "after");
+        assert.equal(options.components, existingComponents);
+        assert.deepEqual(options.embeds, []);
+        assert.equal(options.attachments?.[0], existingAttachment);
+        assert.deepEqual(options.attachment_channel_ids, ["channel_id"]);
+        assert.equal(options.attachment_user_id, "interaction_user_id");
+        assert.equal(options.edited_timestamp, editedAt);
+        assert.equal(options.is_edit, true);
+        assert.equal(options.process_component_media, false);
+    });
+
     test("does not allow edit payload reactions to replace persisted reactions", () => {
         const persisted: StoredReaction[] = [{ count: 1, emoji: { name: "thumb" }, user_ids: ["user_id"] }];
         const incoming: StoredReaction[] = [{ count: 2, emoji: { name: "fire" }, user_ids: ["user_id", "other_user_id"] }];
@@ -63,6 +109,28 @@ describe("Message edit helpers", () => {
         assert.equal(options.reactions, persisted);
     });
 
+    test("does not allow edit payload message_reference to replace persisted message_reference", () => {
+        const persistedReference = { message_id: "referenced_message_id" };
+        const incomingReference = { message_id: "attacker_reference_id" };
+        const body = { content: "after", message_reference: incomingReference } as MessageEditSchema & {
+            message_reference: typeof incomingReference;
+        };
+
+        const options = buildMessageEditHandleMessageOptions(
+            {
+                author_id: "author_id",
+                content: "before",
+                message_reference: persistedReference,
+                reactions: [],
+            },
+            body,
+            "channel_id",
+            "message_id",
+        );
+
+        assert.deepEqual(options.message_reference, persistedReference);
+    });
+
     test("generated MessageEditSchema rejects client-supplied reactions", () => {
         const validate = ajv.getSchema("MessageEditSchema");
         assert.ok(validate);
@@ -77,5 +145,23 @@ describe("Message edit helpers", () => {
             validate.errors?.some((error) => error.keyword === "additionalProperties" && error.params.additionalProperty === "reactions"),
             "reactions should remain outside the message edit request schema",
         );
+    });
+
+    test("generated MessageEditSchema rejects client-supplied message_reference", () => {
+        const validate = ajv.getSchema("MessageEditSchema");
+        assert.ok(validate);
+
+        for (const message_reference of [{ message_id: "attacker_reference_id" }, null]) {
+            const valid = validate({
+                content: "after",
+                message_reference,
+            });
+
+            assert.equal(valid, false, `message_reference ${JSON.stringify(message_reference)} should be rejected`);
+            assert.ok(
+                validate.errors?.some((error) => error.keyword === "additionalProperties" && error.params.additionalProperty === "message_reference"),
+                "message_reference should remain outside the message edit request schema",
+            );
+        }
     });
 });

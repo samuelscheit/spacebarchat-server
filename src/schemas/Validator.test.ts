@@ -3,13 +3,21 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, test } from "node:test";
 import { ajv, validateSchema } from "./Validator";
+import { ajvErrorsToFieldErrors } from "../api/util/utility/AjvErrorFields";
 
 const PngDataUri = "data:image/png;base64,iVBORw0KGgo=";
 const AssetHash = "0123456789abcdef0123456789abcdef";
-const Schemas = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "assets", "schemas.json"), { encoding: "utf8" })) as Record<
-    string,
-    { properties?: Record<string, { format?: string }> }
->;
+type JsonShape = {
+    $ref?: string;
+    maxLength?: number;
+    minLength?: number;
+    pattern?: string;
+    type?: string | string[];
+    items?: JsonShape;
+    properties?: Record<string, JsonShape & { format?: string }>;
+};
+
+const Schemas = JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "schemas.json"), { encoding: "utf8" })) as Record<string, JsonShape>;
 
 const ImageDataUriFields = [
     ["ApplicationModifySchema", "icon"],
@@ -24,12 +32,53 @@ const ImageDataUriFields = [
     ["MemberChangeProfileSchema", "banner"],
     ["MemberChangeSchema", "avatar"],
     ["RoleModifySchema", "icon"],
+    ["UserAvatarModifySchema", "avatar"],
     ["UserModifySchema", "avatar"],
     ["UserModifySchema", "banner"],
+    ["UserProfileStyleModifySchema", "banner"],
     ["UserProfileModifySchema", "banner"],
     ["WebhookCreateSchema", "avatar"],
     ["WebhookUpdateSchema", "avatar"],
 ] as const;
+
+function schemaTypes(schema: JsonShape | undefined): string[] {
+    assert.ok(schema);
+
+    if (schema.$ref) {
+        const match = /^#\/definitions\/(.+)$/.exec(schema.$ref);
+        assert.ok(match, `unexpected schema ref ${schema.$ref}`);
+        return schemaTypes(Schemas[match[1]]);
+    }
+
+    return (Array.isArray(schema.type) ? schema.type : [schema.type]).filter((type): type is string => typeof type === "string").sort();
+}
+
+describe("IdentifySchema", () => {
+    test("compiles under strict AJV and accepts JSON-safe gateway bitfields", () => {
+        const validate = ajv.getSchema("IdentifySchema");
+        assert.ok(validate);
+
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: 0,
+            shard: [0, "1"],
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors, null, 2));
+        assert.equal(payload.intents, 0);
+        assert.deepEqual(payload.shard, [0, "1"]);
+
+        const identifySchema = Schemas.IdentifySchema as {
+            properties?: {
+                intents?: JsonShape;
+                shard?: { items?: JsonShape };
+            };
+        };
+        assert.deepEqual(schemaTypes(identifySchema.properties?.intents), ["integer", "string"]);
+        assert.deepEqual(schemaTypes(identifySchema.properties?.shard?.items), ["integer", "string"]);
+    });
+});
 
 describe("WebhookExecuteSchema", () => {
     function getWebhookExecuteValidator() {
@@ -98,7 +147,70 @@ describe("WebhookExecuteSchema", () => {
     });
 });
 
+describe("RegisterSchema", () => {
+    test("accepts gift_code_sku_id as a registration compatibility field", () => {
+        const body = {
+            username: "giftuser",
+            password: "correct horse battery staple",
+            consent: true,
+            gift_code_sku_id: "521842865731534868",
+        };
+
+        assert.deepEqual(validateSchema("RegisterSchema", body), body);
+    });
+});
+
 describe("schema validator custom formats", () => {
+    test("coerces bigint schema fields from JSON-safe numbers and strings", () => {
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: 0,
+            shard: [0, "1"],
+        };
+
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 0n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
+
+    test("preserves large bigint strings without precision loss", () => {
+        const payload = {
+            token: "gateway-token",
+            properties: {},
+            intents: "9007199254740993",
+            shard: ["0", "1"],
+        };
+
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 9007199254740993n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
+
+    test("rejects bigint schema fields that cannot be coerced", () => {
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                intents: 1.5,
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                shard: ["not-an-integer"],
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "gateway-token",
+                properties: {},
+                intents: "1.5",
+            }),
+        );
+    });
+
     test("accepts image data URI fields with matching image bytes", () => {
         assert.deepEqual(validateSchema("WebhookCreateSchema", { name: "hook", avatar: PngDataUri }), { name: "hook", avatar: PngDataUri });
         assert.deepEqual(validateSchema("BotModifySchema", { banner: PngDataUri }), { banner: PngDataUri });
@@ -121,6 +233,15 @@ describe("schema validator custom formats", () => {
         });
     });
 
+    test("documents writable guild profile tags", () => {
+        assert.deepEqual(Schemas.GuildUpdateSchema.properties?.profile_tag, {
+            type: ["null", "string"],
+            minLength: 1,
+            maxLength: 4,
+            pattern: "^[A-Za-z0-9]+$",
+        });
+    });
+
     test("keeps upload formats on request fields and off response hash fields", () => {
         for (const [schemaName, field] of ImageDataUriFields) {
             assert.equal(Schemas[schemaName].properties?.[field]?.format, "image-data-uri", `${schemaName}.${field}`);
@@ -131,5 +252,38 @@ describe("schema validator custom formats", () => {
             assert.notEqual(Schemas.APIGuildWithJoinedAt.properties?.[field]?.format, "image-data-uri", `APIGuildWithJoinedAt.${field}`);
             assert.equal(Schemas.GuildUpdateSchema.properties?.[field]?.format, "image-data-uri-or-asset-hash", `GuildUpdateSchema.${field}`);
         }
+    });
+});
+
+describe("RoleModifySchema", () => {
+    test("accepts role names up to 255 characters", () => {
+        const name = "a".repeat(255);
+
+        assert.deepEqual(validateSchema("RoleModifySchema", { name }), { name });
+    });
+
+    test("rejects role names longer than 255 characters as a field length error", () => {
+        const validate = ajv.getSchema("RoleModifySchema");
+        assert.ok(validate);
+
+        assert.equal(Schemas.RoleModifySchema.properties?.name?.maxLength, 255);
+        assert.equal(validate({ name: "a".repeat(256) }), false);
+        assert.deepEqual(ajvErrorsToFieldErrors(validate.errors ?? []), {
+            name: {
+                _errors: [
+                    {
+                        code: "BASE_TYPE_BAD_LENGTH",
+                        message: "must NOT have more than 255 characters",
+                    },
+                ],
+            },
+        });
+    });
+});
+
+describe("generated JSON schemas", () => {
+    test("keeps gateway identify bitfields JSON-safe", () => {
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.intents), ["integer", "string"]);
+        assert.deepEqual(schemaTypes(Schemas.IdentifySchema.properties?.shard?.items), ["integer", "string"]);
     });
 });

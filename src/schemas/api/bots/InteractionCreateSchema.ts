@@ -16,9 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { InteractionContextType, MessageComponentType, PublicMember, PublicMessage, PublicUser, Snowflake } from "@spacebar/schemas";
-// TODO: remove entity imports
-import { Channel } from "@spacebar/util";
+import { InteractionContextType, MessageComponentType, PublicChannel, PublicMember, PublicMessage, PublicUser, ResolvedData, Snowflake } from "@spacebar/schemas";
 
 interface InteractionCreateBase {
     version: 1;
@@ -28,7 +26,7 @@ interface InteractionCreateBase {
     guild?: InteractionGuild;
     guild_id?: Snowflake;
     guild_locale?: string;
-    channel?: Channel;
+    channel?: PublicChannel;
     channel_id?: Snowflake;
     member?: PublicMember;
     user?: PublicUser;
@@ -81,7 +79,7 @@ export interface InteractionApplicationCommandData {
     name: string;
     type: number;
     version?: Snowflake;
-    resolved?: InteractionResolvedData;
+    resolved?: ResolvedData;
     options?: InteractionApplicationCommandDataOption[];
     guild_id?: Snowflake;
     target_id?: Snowflake;
@@ -99,13 +97,13 @@ export interface InteractionMessageComponentData {
     custom_id: string;
     component_type: MessageComponentType;
     values?: string[];
-    resolved?: InteractionResolvedData;
+    resolved?: ResolvedData;
 }
 
 export interface InteractionModalSubmitData {
     custom_id: string;
     components: InteractionModalSubmitTopLevelComponentData[];
-    resolved?: InteractionResolvedData;
+    resolved?: ResolvedData;
     attachments?: object[];
 }
 
@@ -185,19 +183,6 @@ export interface InteractionModalSubmitCheckboxComponentData {
     id?: number;
     custom_id: string;
     value: boolean;
-}
-
-export interface InteractionResolvedData {
-    users?: InteractionResolvedObjectMap;
-    members?: InteractionResolvedObjectMap;
-    roles?: InteractionResolvedObjectMap;
-    channels?: InteractionResolvedObjectMap;
-    messages?: InteractionResolvedObjectMap;
-    attachments?: InteractionResolvedObjectMap;
-}
-
-export interface InteractionResolvedObjectMap {
-    [id: string]: object;
 }
 
 export enum EntitlementType {

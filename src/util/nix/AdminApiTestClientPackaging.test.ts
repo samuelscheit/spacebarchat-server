@@ -6,6 +6,7 @@ import { describe, test } from "node:test";
 const repoRoot = process.cwd();
 const testClientProjectPath = path.join(repoRoot, "extra/admin-api/Utilities/Spacebar.AdminApi.TestClient/Spacebar.AdminApi.TestClient.csproj");
 const testClientDepsPath = path.join(repoRoot, "extra/admin-api/Utilities/Spacebar.AdminApi.TestClient/deps.json");
+const fsckDepsPath = path.join(repoRoot, "extra/admin-api/Utilities/Spacebar.Cdn.Fsck/deps.json");
 const adminApiOutputsPath = path.join(repoRoot, "extra/admin-api/outputs.nix");
 
 const readText = (filePath: string) => readFileSync(filePath, "utf8");
@@ -22,6 +23,15 @@ const getElement = (xml: string, elementName: string, include: string) => {
 
 const assertAttribute = (element: string, attribute: string, expected: string) => {
     assert.match(element, new RegExp(`${attribute}="${expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+};
+
+const getNixPackageBlock = (outputs: string, packageName: string) => {
+    const escapedPackageName = packageName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const packageBlockMatch = outputs.match(new RegExp(`${escapedPackageName} = buildSpacebarDotnetModule \\{[\\s\\S]*?\\n {8}\\};`));
+
+    assert(packageBlockMatch, `Expected ${packageName} package block in outputs.nix`);
+
+    return packageBlockMatch[0];
 };
 
 describe("Admin API TestClient Nix packaging", () => {
@@ -67,11 +77,7 @@ describe("Admin API TestClient Nix packaging", () => {
 
     test("keeps the Nix package wired for Blazor WebAssembly and model package inputs", () => {
         const outputs = readText(adminApiOutputsPath);
-        const packageBlockMatch = outputs.match(/Spacebar-AdminApi-TestClient = buildSpacebarDotnetModule \{[\s\S]*?\n {8}\};/);
-
-        assert(packageBlockMatch, "Expected Spacebar-AdminApi-TestClient package block in outputs.nix");
-
-        const packageBlock = packageBlockMatch[0];
+        const packageBlock = getNixPackageBlock(outputs, "Spacebar-AdminApi-TestClient");
         assert.match(packageBlock, /runtimeId = "browser-wasm";/);
         assert.match(packageBlock, /useAppHost = false;/);
         assert.match(packageBlock, /dontBuild = true;/);
@@ -83,11 +89,7 @@ describe("Admin API TestClient Nix packaging", () => {
 
     test("publishes the static Blazor assets in one MSBuild graph", () => {
         const outputs = readText(adminApiOutputsPath);
-        const packageBlockMatch = outputs.match(/Spacebar-AdminApi-TestClient = buildSpacebarDotnetModule \{[\s\S]*?\n {8}\};/);
-
-        assert(packageBlockMatch, "Expected Spacebar-AdminApi-TestClient package block in outputs.nix");
-
-        const packageBlock = packageBlockMatch[0];
+        const packageBlock = getNixPackageBlock(outputs, "Spacebar-AdminApi-TestClient");
         const installPhaseMatch = packageBlock.match(/installPhase = ''([\s\S]*?)\n {10}'';/);
 
         assert(installPhaseMatch, "Expected custom installPhase in Spacebar-AdminApi-TestClient package block");
@@ -99,5 +101,24 @@ describe("Admin API TestClient Nix packaging", () => {
         assert.match(installPhase, /--output "\$out\/lib\/Spacebar\.AdminApi\.TestClient"/);
         assert.match(installPhase, /cp -r \$out\/lib\/Spacebar\.AdminApi\.TestClient\/wwwroot\/\. \$out\/share\/spacebar-admin-ui\//);
         assert.doesNotMatch(packageBlock, /postInstall =/);
+    });
+
+    test("keeps CDN Fsck restore inputs aligned with transitive CDN package references", () => {
+        const outputs = readText(adminApiOutputsPath);
+        const sharedBlock = getNixPackageBlock(outputs, "Spacebar-Cdn-Shared");
+        const fsckBlock = getNixPackageBlock(outputs, "Spacebar-Cdn-Fsck");
+        const deps = JSON.parse(readText(fsckDepsPath)) as Array<{ pname?: string; version?: string; hash?: string }>;
+
+        assert.match(sharedBlock, /srcRoot = \.\/Spacebar\.Cdn\.Shared;/);
+        assert.doesNotMatch(sharedBlock, /srcRoot = Spacebar\.Cdn\.Shared;/);
+        assert.match(fsckBlock, /projectReferences = \[[\s\S]*proj\.Spacebar-Cdn-Shared[\s\S]*proj\.Spacebar-Interop-Cdn-Abstractions[\s\S]*\];/);
+        assert.deepEqual(
+            deps.find((dep) => dep.pname === "Magick.NET.Core" && dep.version === "14.12.0"),
+            {
+                pname: "Magick.NET.Core",
+                version: "14.12.0",
+                hash: "sha256-mlOAmFcSL8JzBqwMBpFtWt6+48PIdb1qUc++wPqhBHM=",
+            },
+        );
     });
 });

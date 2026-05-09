@@ -17,7 +17,20 @@
 */
 
 import { handleMessage, postHandleMessage } from "@spacebar/api";
-import { Attachment, Channel, DiscordApiErrors, emitEvent, isValidWebhookToken, Message, MessageDeleteEvent, MessageUpdateEvent, uploadFile, Webhook } from "@spacebar/util";
+import {
+    Attachment,
+    buildMessageEditComponentProcessingOptions,
+    buildMessageEditHandleMessageOptions,
+    Channel,
+    DiscordApiErrors,
+    emitEvent,
+    isValidWebhookToken,
+    Message,
+    MessageDeleteEvent,
+    MessageUpdateEvent,
+    uploadFile,
+    Webhook,
+} from "@spacebar/util";
 import { ChannelType, WebhookMessageEditSchema } from "@spacebar/schemas";
 import { FindOptionsRelations, FindOptionsWhere } from "typeorm";
 
@@ -165,16 +178,17 @@ export async function buildWebhookMessageEditBody(
 }
 
 export async function editWebhookMessage(message: Message, body: PreparedWebhookMessageEdit): Promise<Message> {
-    const newMessage = await handleMessage({
-        ...message,
-        message_reference: message.message_reference,
-        ...body,
-        author_id: message.author_id,
-        channel_id: message.channel_id,
-        id: message.id,
-        edited_timestamp: new Date(),
-        is_edit: true,
-    });
+    if (!message.channel_id) {
+        throw DiscordApiErrors.UNKNOWN_MESSAGE;
+    }
+
+    const componentProcessingOptions = buildMessageEditComponentProcessingOptions(body);
+    const newMessage = await handleMessage(
+        buildMessageEditHandleMessageOptions(message, body, message.channel_id, message.id, new Date(), {
+            is_edit: true,
+            ...componentProcessingOptions,
+        }),
+    );
 
     await newMessage.save();
     await emitEvent({

@@ -4,8 +4,14 @@ import { resolve } from "node:path";
 import { describe, test } from "node:test";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity, READY_READ_STATE_SELECT } from "./ReadState";
+import { ReadState } from "../entities/ReadState";
+import { advanceChannelReadStateNotificationCursor } from "./ReadStatePersistence";
 
 describe("read state helpers", () => {
+    const OLDER_SNOWFLAKE = "1456516148545421312";
+    const CURRENT_SNOWFLAKE = "1456516148545421313";
+    const NEWER_SNOWFLAKE = "1456516148545421314";
+
     test("defaults bulk acknowledgements to channel read states", () => {
         assert.deepEqual(
             getReadStateIdentity("user-id", {
@@ -38,19 +44,55 @@ describe("read state helpers", () => {
     test("writes channel bulk acknowledgements to channel read-state fields", () => {
         const channelState = applyAckBulkReadStateUpdate(
             {
-                last_message_id: "old-message-id",
+                last_message_id: OLDER_SNOWFLAKE,
                 last_acked_id: "old-acked-id",
+                notifications_cursor: CURRENT_SNOWFLAKE,
                 mention_count: 4,
                 badge_count: 7,
                 read_state_type: ReadStateType.CHANNEL,
             },
-            { channel_id: "channel-id", message_id: "new-message-id" },
+            { channel_id: "channel-id", message_id: NEWER_SNOWFLAKE },
         );
-        assert.equal(channelState.last_message_id, "new-message-id");
+        assert.equal(channelState.last_message_id, NEWER_SNOWFLAKE);
         assert.equal(channelState.last_acked_id, "old-acked-id");
+        assert.equal(channelState.notifications_cursor, NEWER_SNOWFLAKE);
         assert.equal(channelState.mention_count, 0);
         assert.equal(channelState.badge_count, 7);
         assert.equal(channelState.read_state_type, ReadStateType.CHANNEL);
+    });
+
+    test("does not rewind notification cursor for older channel bulk acknowledgements", () => {
+        const channelState = applyAckBulkReadStateUpdate(
+            {
+                last_message_id: CURRENT_SNOWFLAKE,
+                last_acked_id: null,
+                notifications_cursor: CURRENT_SNOWFLAKE,
+                mention_count: 0,
+                badge_count: 0,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+            { channel_id: "channel-id", message_id: OLDER_SNOWFLAKE },
+        );
+
+        assert.equal(channelState.last_message_id, OLDER_SNOWFLAKE);
+        assert.equal(channelState.notifications_cursor, CURRENT_SNOWFLAKE);
+    });
+
+    test("repairs null channel bulk notification cursors from an existing newer read marker", () => {
+        const channelState = applyAckBulkReadStateUpdate(
+            {
+                last_message_id: CURRENT_SNOWFLAKE,
+                last_acked_id: null,
+                notifications_cursor: null,
+                mention_count: 0,
+                badge_count: 0,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+            { channel_id: "channel-id", message_id: OLDER_SNOWFLAKE },
+        );
+
+        assert.equal(channelState.last_message_id, OLDER_SNOWFLAKE);
+        assert.equal(channelState.notifications_cursor, CURRENT_SNOWFLAKE);
     });
 
     test("writes non-channel bulk acknowledgements to non-channel read-state fields", () => {
@@ -96,6 +138,7 @@ describe("read state helpers", () => {
         assert.equal(READY_READ_STATE_SELECT.last_viewed, true);
         assert.equal(READY_READ_STATE_SELECT.read_state_type, true);
         assert.equal(READY_READ_STATE_SELECT.flags, true);
+        assert.equal(READY_READ_STATE_SELECT.notifications_cursor, true);
     });
 
     test("declares explicit database types for nullable cursor columns", () => {
@@ -103,5 +146,65 @@ describe("read state helpers", () => {
 
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_message_id\?: string \| null;/);
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_acked_id\?: string \| null;/);
+        assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+notifications_cursor\?: string \| null;/);
+    });
+
+    test("advances channel notification cursor without marking the channel read", async (t) => {
+        const setCalls: Record<string, unknown>[] = [];
+        const parameters = new Map<string, unknown>();
+        const queryBuilder = {
+            update(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            set(values: Record<string, unknown>) {
+                setCalls.push(values);
+                return queryBuilder;
+            },
+            where(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            andWhere(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            setParameter(name: string, value: unknown) {
+                parameters.set(name, value);
+                return queryBuilder;
+            },
+            async execute() {
+                return { affected: 1 };
+            },
+        };
+        const insertCalls: unknown[] = [];
+
+        t.mock.method(ReadState, "getRepository", () => ({
+            createQueryBuilder: () => queryBuilder,
+            insert: async (value: unknown) => insertCalls.push(value),
+        }));
+
+        await advanceChannelReadStateNotificationCursor({ user_id: "user-id", channel_id: "channel-id" }, "1001");
+
+        assert.equal(setCalls.length, 1);
+        assert.equal(typeof setCalls[0].notifications_cursor, "function");
+        assert.equal("last_message_id" in setCalls[0], false);
+        assert.equal("mention_count" in setCalls[0], false);
+        assert.equal(parameters.get("notificationCursorMessageId"), "1001");
+        assert.deepEqual(insertCalls, []);
+    });
+
+    test("advances notification cursor atomically against persisted cursor fields", () => {
+        const source = readFileSync(resolve(process.cwd(), "src/util/util/ReadStatePersistence.ts"), "utf8");
+
+        assert.match(source, /GREATEST|CAST\(max/);
+        assert.match(source, /notifications_cursor/);
+        assert.match(source, /last_message_id/);
+        assert.match(source, /notificationCursorMessageId/);
+    });
+
+    test("casts persisted read markers through text before null handling on postgres", () => {
+        const source = readFileSync(resolve(process.cwd(), "src/util/util/ReadStatePersistence.ts"), "utf8");
+
+        assert.match(source, /NULLIF\("notifications_cursor", ''\)::numeric/);
+        assert.match(source, /NULLIF\("last_message_id"::text, ''\)::numeric/);
+        assert.match(source, /:\$\{messageIdParameterName\}::numeric/);
     });
 });

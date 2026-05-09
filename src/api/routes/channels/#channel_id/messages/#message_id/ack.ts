@@ -17,15 +17,14 @@
 */
 
 import { route } from "@spacebar/api";
-import { ReadStateType, type MessageAcknowledgeSchema } from "@spacebar/schemas";
-import { applyMessageAcknowledgeToReadState, emitEvent, getPermission, MessageAckEvent, ReadState } from "@spacebar/util";
+import { type MessageAcknowledgeSchema } from "@spacebar/schemas";
+import { emitEvent, getPermission, MessageAckEvent, upsertChannelMessageReadState } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
+const MESSAGE_ACK_VERSION = 3763;
 
 // TODO: public read receipts & privacy scoping
-// TODO: send read state event to all channel members
-// TODO: advance-only notification cursor
 
 router.post(
     "/",
@@ -43,21 +42,15 @@ router.post(
         const permission = await getPermission(req.user_id, undefined, channel_id);
         permission.hasThrow("VIEW_CHANNEL");
 
-        let read_state = await ReadState.findOne({
-            where: { user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL },
-        });
-        if (!read_state) read_state = ReadState.create({ user_id: req.user_id, channel_id, read_state_type: ReadStateType.CHANNEL });
-        applyMessageAcknowledgeToReadState(read_state, message_id, body);
-
-        await read_state.save();
+        await upsertChannelMessageReadState({ user_id: req.user_id, channel_id }, message_id, body);
 
         await emitEvent({
             event: "MESSAGE_ACK",
-            user_id: req.user_id,
+            channel_id,
             data: {
                 channel_id,
                 message_id,
-                version: 3763, // what is this number?
+                version: MESSAGE_ACK_VERSION,
             },
         } satisfies MessageAckEvent);
 
