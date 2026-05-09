@@ -45,6 +45,7 @@ import {
     upsertChannelMessageReadState,
 } from "@spacebar/util";
 import { MessageCreateCloudAttachment, MessageCreateSchema, normalizeMessageCreateSchema, RelationshipType } from "@spacebar/schemas";
+import { validateMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 import { Request, Response, type RequestHandler } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
@@ -329,7 +330,12 @@ export const createMessageHandler: RequestHandler = async (req: Request, res: Re
     return res.json(messageToResponse(message, req));
 };
 
-export const createMessageBodyRouteHandlers: RequestHandler[] = [createMessageUploadHandler, normalizeMessageCreateRequestBody, createMessageBodyRoute];
+export const createMessageBodyRouteHandlers: RequestHandler[] = [
+    createMessageUploadHandler,
+    normalizeMessageCreateRequestBody,
+    createMessageBodyRoute,
+    validateMessagePayloadLimits,
+];
 export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
 export const createMessageResolvedChannelRouteHandlers: RequestHandler[] = [loadMessageChannelPermissions, createMessageHandler];
 export const createMessageRouteHandlers: RequestHandler[] = [...createMessageBodyRouteHandlers, ...createMessageChannelRouteHandlers];

@@ -34,7 +34,7 @@ describe("user direct-message route", () => {
 
         assert.match(
             helperSource,
-            /export const createMessageBodyRouteHandlers: RequestHandler\[\] = \[createMessageUploadHandler, normalizeMessageCreateRequestBody, createMessageBodyRoute\];/,
+            /export const createMessageBodyRouteHandlers: RequestHandler\[\] = \[[\s\S]*createMessageUploadHandler,[\s\S]*normalizeMessageCreateRequestBody,[\s\S]*createMessageBodyRoute,[\s\S]*validateMessagePayloadLimits,[\s\S]*\];/,
         );
         assert.match(helperSource, /export const loadMessageChannelPermissions: RequestHandler = async/);
         assert.match(helperSource, /export const createMessageChannelRouteHandlers: RequestHandler\[\] = \[createMessagePermissionRoute, createMessageHandler\];/);
