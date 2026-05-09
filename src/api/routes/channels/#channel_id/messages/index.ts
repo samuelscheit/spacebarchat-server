@@ -232,7 +232,6 @@ export const messageUpload = createMessageUpload();
  https://discord.com/developers/docs/resources/channel#create-message
  TODO: text channel slowdown (per-user and across-users)
  Q: trim and replace message content and every embed field A: NO, given this cannot be implemented in E2EE channels
- TODO: only dispatch notifications for mentions denoted in allowed_mentions
 **/
 // Send message
 router.post(
