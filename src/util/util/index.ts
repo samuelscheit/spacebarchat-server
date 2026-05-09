@@ -34,6 +34,7 @@ export * from "./DateBuilder";
 export * from "./DateOfBirth";
 export * from "./DefaultUserRights";
 export * from "./DmPrivacy";
+export * from "./DmRecipientLimits";
 export * from "./EmailAddress";
 export * from "./EmailActionToken";
 export * from "./email";

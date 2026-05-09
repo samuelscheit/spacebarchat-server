@@ -21,4 +21,5 @@ export class ChannelLimits {
     maxTopic: number = 1024;
     maxWebhooks: number = 100;
     maxName: number = 32;
+    maxRecipients: number = 10;
 }

@@ -17,17 +17,21 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, emitEvent, Recipient, User } from "@spacebar/util";
+import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, assertCanAddGroupDmRecipient, emitEvent, Recipient, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-export async function loadAddableGroupDmRecipient(channel: { recipients?: Pick<Recipient, "user_id">[] }, user_id: string) {
+type GroupDmRecipientCarrier = { recipients?: Pick<Recipient, "user_id">[] };
+
+function assertNewGroupDmRecipient(channel: GroupDmRecipientCarrier, user_id: string) {
     if (channel.recipients?.some((recipient) => recipient.user_id === user_id)) {
         throw DiscordApiErrors.INVALID_RECIPIENT;
     }
+}
 
+async function loadGroupDmRecipientUser(user_id: string) {
     const user = await User.findOne({
         where: { id: user_id },
         select: PublicUserProjection,
@@ -35,6 +39,11 @@ export async function loadAddableGroupDmRecipient(channel: { recipients?: Pick<R
     if (!user) throw DiscordApiErrors.INVALID_RECIPIENT;
 
     return user;
+}
+
+export async function loadAddableGroupDmRecipient(channel: GroupDmRecipientCarrier, user_id: string) {
+    assertNewGroupDmRecipient(channel, user_id);
+    return await loadGroupDmRecipientUser(user_id);
 }
 
 export async function putChannelRecipient(req: Request, res: Response) {
@@ -50,7 +59,9 @@ export async function putChannelRecipient(req: Request, res: Response) {
         const new_channel = await Channel.createDMChannel(recipients, req.user_id);
         return res.status(201).json(new_channel);
     } else {
-        const user = await loadAddableGroupDmRecipient(channel, user_id);
+        assertNewGroupDmRecipient(channel, user_id);
+        assertCanAddGroupDmRecipient(channel.recipients, channel.owner_id);
+        const user = await loadGroupDmRecipientUser(user_id);
 
         channel.recipients?.push(Recipient.create({ channel_id: channel_id, user_id: user_id }));
         await channel.save();

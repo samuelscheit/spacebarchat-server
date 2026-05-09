@@ -27,6 +27,7 @@ import { Config } from "../util/Config";
 import { DiscordApiErrors } from "../util/Constants";
 import { getDatabase } from "../util/Database";
 import { canCreateServerDm, shouldCheckServerDmPrivacy } from "../util/DmPrivacy";
+import { normalizeAndAssertCreateDmRecipientsForLimit } from "../util/DmRecipientLimits";
 import { emitEvent } from "../util/Event";
 import { GuildFeature } from "../util/GuildFeatures";
 import { assertExistingGroupDmRecipient } from "../util/GroupDmRecipients";
@@ -479,8 +480,7 @@ export class Channel extends BaseClass {
     }
 
     static async createDMChannel(recipients: string[], creator_user_id: string, name?: string) {
-        recipients = [...new Set(recipients)].filter((x) => x !== creator_user_id);
-        // TODO: check config for max number of recipients
+        recipients = normalizeAndAssertCreateDmRecipientsForLimit(recipients, creator_user_id);
 
         if (recipients.length > 0) {
             const otherRecipientsUsers = await User.find({
