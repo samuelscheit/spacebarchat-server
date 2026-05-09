@@ -22,5 +22,5 @@ export type DmPresenceRecipient = {
 };
 
 export function getOpenDmPresenceRecipientIds(recipients: readonly DmPresenceRecipient[] | undefined, selfUserId: string) {
-    return new Set(recipients?.filter((recipient) => recipient.user_id !== selfUserId && !recipient.closed).map((recipient) => recipient.user_id) ?? []);
+    return new Set(recipients?.filter((recipient) => recipient.user_id !== selfUserId && recipient.closed === false).map((recipient) => recipient.user_id) ?? []);
 }

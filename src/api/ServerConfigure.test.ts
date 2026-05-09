@@ -71,8 +71,9 @@ async function withoutStartupSideEffects<T>(task: () => Promise<T>) {
 async function captureRouteRegistrationErrors<T>(task: () => Promise<T>) {
     const previousError = console.error;
     const routeRegistrationErrors: string[] = [];
+
     console.error = (...args: unknown[]) => {
-        const message = args.map(String).join(" ");
+        const message = args.map(formatConsoleErrorArgument).join(" ");
         if (message.includes("[Server] Failed to register route")) routeRegistrationErrors.push(message);
         previousError(...args);
     };
@@ -84,4 +85,9 @@ async function captureRouteRegistrationErrors<T>(task: () => Promise<T>) {
     }
 
     return routeRegistrationErrors;
+}
+
+function formatConsoleErrorArgument(value: unknown) {
+    if (value instanceof Error) return value.message;
+    return String(value);
 }

@@ -20,7 +20,8 @@ type DeleteOptions = {
 type TransactionManager = {
     findOneOrFail: (entity: unknown, options: FindOneOptions) => Promise<unknown>;
     delete: (entity: unknown, criteria: DeleteOptions) => Promise<{ affected?: number | null }>;
-    decrement: (entity: unknown, criteria: unknown, propertyPath: string, value: number) => Promise<unknown>;
+    count: (entity: unknown, options: unknown) => Promise<number>;
+    update: (entity: unknown, criteria: unknown, values: unknown) => Promise<unknown>;
 };
 
 const GUILD_PUBLIC_THREAD = 11;
@@ -39,7 +40,8 @@ describe("ThreadMember.removeFromThread", () => {
         try {
             const deleteCalls: DeleteOptions[] = [];
             const thread = makeChannel(undefined, { id: "thread-id", guild_id: "guild-id", type: GUILD_PUBLIC_THREAD, member_count: 2 });
-            let decrementCalls = 0;
+            let countCalls = 0;
+            let updateCalls = 0;
             mockDatabase(t, {
                 async findOneOrFail(entity, options) {
                     if (entity === Channel) {
@@ -58,18 +60,25 @@ describe("ThreadMember.removeFromThread", () => {
                     deleteCalls.push(options);
                     return { affected: 1, raw: [] };
                 },
-                async decrement(entity, _criteria, propertyPath, value) {
+                async count(entity, options) {
+                    assert.equal(entity, ThreadMember);
+                    assert.deepEqual(options, { where: { id: "thread-id" } });
+                    countCalls++;
+                    return 1;
+                },
+                async update(entity, criteria, values) {
                     assert.equal(entity, Channel);
-                    assert.equal(propertyPath, "member_count");
-                    assert.equal(value, 1);
-                    decrementCalls++;
-                    thread.member_count = (thread.member_count ?? 0) - 1;
+                    assert.deepEqual(criteria, { id: "thread-id" });
+                    assert.deepEqual(values, { member_count: 1 });
+                    updateCalls++;
+                    thread.member_count = 1;
                 },
             });
 
             await ThreadMember.removeFromThread("user-id", "thread-id");
 
-            assert.equal(decrementCalls, 1);
+            assert.equal(countCalls, 1);
+            assert.equal(updateCalls, 1);
             assert.equal(thread.member_count, 1);
             assert.deepEqual(deleteCalls, [{ id: "thread-id", member_idx: "member-index" }]);
             assert.deepEqual(capture.expectOne("THREAD_MEMBERS_UPDATE") as ThreadMembersUpdateEvent, {
@@ -102,8 +111,11 @@ describe("ThreadMember.removeFromThread", () => {
                     deleteCalled = true;
                     return { affected: 1, raw: [] };
                 },
-                async decrement() {
-                    throw new Error("decrement should not be called");
+                async count() {
+                    throw new Error("count should not be called");
+                },
+                async update() {
+                    throw new Error("update should not be called");
                 },
             });
 
@@ -132,8 +144,11 @@ describe("ThreadMember.removeFromThread", () => {
                     deleteCalled = true;
                     return { affected: 1, raw: [] };
                 },
-                async decrement() {
-                    throw new Error("decrement should not be called");
+                async count() {
+                    throw new Error("count should not be called");
+                },
+                async update() {
+                    throw new Error("update should not be called");
                 },
             });
 
@@ -150,7 +165,8 @@ describe("ThreadMember.removeFromThread", () => {
     test("rejects users that are not thread members before persisting, deleting, or emitting", async (t) => {
         const capture = await captureEvents("thread-id");
         try {
-            let decrementCalled = false;
+            let countCalled = false;
+            let updateCalled = false;
             let deleteCalled = false;
             const thread = makeChannel(undefined, { id: "thread-id", guild_id: "guild-id", type: GUILD_PUBLIC_THREAD, member_count: 2 });
             mockDatabase(t, {
@@ -165,15 +181,20 @@ describe("ThreadMember.removeFromThread", () => {
                     deleteCalled = true;
                     return { affected: 0, raw: [] };
                 },
-                async decrement() {
-                    decrementCalled = true;
+                async count() {
+                    countCalled = true;
+                    return 1;
+                },
+                async update() {
+                    updateCalled = true;
                 },
             });
 
             await assert.rejects(() => ThreadMember.removeFromThread("user-id", "thread-id"), /You are not member of this thread/);
 
             assert.equal(deleteCalled, true);
-            assert.equal(decrementCalled, false);
+            assert.equal(countCalled, false);
+            assert.equal(updateCalled, false);
             assert.deepEqual(capture.events, []);
         } finally {
             await capture.stop();

@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Column, Entity, Index, JoinColumn, ManyToOne, MoreThan, PrimaryGeneratedColumn, RelationId } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
 import type { ThreadMembersUpdateEvent } from "../interfaces";
 import type { ThreadMemberMuteConfig } from "../interfaces/ThreadMember";
 import { emitEvent, getDatabase } from "../util";
@@ -27,6 +27,8 @@ import { HTTPError } from "lambert-server";
 import { Member } from "./Member";
 
 export { ThreadMemberFlags };
+
+export const MAX_THREAD_MEMBER_COUNT = 50;
 
 export interface ThreadMemberPayloadMuteConfig {
     end_time?: string;
@@ -171,15 +173,9 @@ export class ThreadMember extends BaseClassWithoutId {
             });
             if (!deletion.affected) throw new HTTPError("You are not member of this thread", 403);
 
-            if (channel.member_count !== null && channel.member_count !== undefined && channel.member_count > 0) {
-                await entityManager.decrement(Channel, { id: thread_id, member_count: MoreThan(0) }, "member_count", 1);
-
-                return entityManager.findOneOrFail(Channel, {
-                    where: { id: thread_id },
-                    select: { id: true, guild_id: true, member_count: true },
-                });
-            }
-
+            const memberCount = Math.min(await entityManager.count(ThreadMember, { where: { id: thread_id } }), MAX_THREAD_MEMBER_COUNT);
+            await entityManager.update(Channel, { id: thread_id }, { member_count: memberCount });
+            channel.member_count = memberCount;
             return channel;
         });
 

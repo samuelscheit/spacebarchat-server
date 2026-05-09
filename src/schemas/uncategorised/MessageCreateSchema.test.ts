@@ -5,6 +5,7 @@ import { normalizeMessageCreateSchema, type LegacyMessageCreateBody } from "./Me
 import Ajv from "ajv";
 
 const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8"));
+const openapi = JSON.parse(readFileSync("assets/openapi.json", "utf8"));
 
 function compileSchema(name: string, propertyNames: string[]) {
     const schema = schemas[name];
@@ -64,12 +65,14 @@ describe("MessageCreateSchema", () => {
 });
 
 describe("MessageEditSchema", () => {
-    test("does not expose deprecated singular embed", () => {
+    test("does not expose deprecated singular embed or creation-only message_reference", () => {
         const properties = schemas.MessageEditSchema.properties;
 
         assert.equal("embed" in properties, false);
         assert.equal("embeds" in properties, true);
         assert.deepEqual(properties.poll, { $ref: "#/definitions/PollCreationSchema" });
+        assert.equal("message_reference" in properties, false);
+        assert.equal("message_reference" in openapi.components.schemas.MessageEditSchema.properties, false);
     });
 });
 

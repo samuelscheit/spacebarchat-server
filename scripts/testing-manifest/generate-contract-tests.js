@@ -28,6 +28,7 @@ const AUTHENTICATED_RESPONSE_SCHEMA_MANIFEST_IDS = new Set([
     "api:http:GET:/users/:user_id/relationships/",
     "api:http:GET:/users/@me/",
     "api:http:GET:/users/@me/billing/location-info/",
+    "api:http:GET:/users/@me/billing/subscriptions/",
     "api:http:GET:/users/@me/billing/payment-sources/",
     "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
     "api:http:GET:/users/@me/channels/",
@@ -432,8 +433,11 @@ function generatedTestSource() {
 
 const { describe, test } = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const manifest = require("../../assets/testing-manifest.json");
 const matrix = require("./http-contracts.json");
+const schemas = require("../../assets/schemas.json");
 
 const httpRouteIds = new Set(manifest.entries.filter((entry) => entry.type === "http-route").map((entry) => entry.id));
 const contractIds = new Set(matrix.contracts.map((contract) => contract.manifestId));
@@ -512,6 +516,28 @@ describe("generated HTTP contract matrix", () => {
         assert.ok(filenameContract?.cases.some((contractCase) => contractCase.id === "cdn-filename-sanitization" && contractCase.checks.includes("filename-sanitization")));
     });
 });
+
+describe("generated public channel schema contracts", () => {
+    test("PublicChannel uses API DTO definitions instead of persistence entities", () => {
+        assert.equal(schemas.PublicChannel.properties.member.$ref, "#/definitions/PublicThreadMember");
+        assert.equal(schemas.PublicChannel.properties.available_tags.items.$ref, "#/definitions/ChannelTag");
+
+        assert.ok(schemas.PublicThreadMember.properties.user_id, "PublicThreadMember should expose a public user_id");
+        assert.equal(schemas.PublicThreadMember.properties.member_idx, undefined);
+        assert.equal(schemas.PublicThreadMember.properties.member, undefined);
+        assert.equal(schemas.PublicThreadMember.properties.channel, undefined);
+
+        assert.ok(schemas.ChannelTag.properties.id, "ChannelTag should expose the tag id");
+        assert.equal(schemas.ChannelTag.properties.channel_id, undefined);
+        assert.equal(schemas.ChannelTag.properties.channel, undefined);
+    });
+
+    test("channel API schemas do not import util entity types", () => {
+        const source = fs.readFileSync(path.join(__dirname, "..", "..", "src", "schemas", "api", "channels", "Channel.ts"), "utf8");
+
+        assert.equal(/from\\s+["']@spacebar\\/util["']/.test(source), false);
+    });
+});
 `;
 }
 
@@ -521,8 +547,8 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import Ajv, { type AnySchema } from "ajv";
-import addFormats from "ajv-formats";
+import type { AnySchema } from "ajv";
+import { ajv } from "@spacebar/schemas/Validator";
 import {
     Channel,
     closeDatabase,
@@ -627,6 +653,7 @@ const authenticatedResponseSchemaManifestIds = new Set([
     "api:http:GET:/users/:user_id/relationships/",
     "api:http:GET:/users/@me/",
     "api:http:GET:/users/@me/billing/location-info/",
+    "api:http:GET:/users/@me/billing/subscriptions/",
     "api:http:GET:/users/@me/billing/payment-sources/",
     "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
     "api:http:GET:/users/@me/channels/",
@@ -658,18 +685,6 @@ const protectedInvalidBodyContracts = matrix.contracts.filter(
         !ignoredRuntimeRequestBodyValidationSchemas.has(contract.routeMetadata.requestBody),
 );
 const schemas = JSON.parse(JSON.stringify(require("../../../assets/schemas.json")).replaceAll("#/definitions/", "")) as Record<string, AnySchema>;
-const ajv = new Ajv({
-    allErrors: true,
-    parseDate: true,
-    allowDate: true,
-    schemas,
-    coerceTypes: true,
-    messages: true,
-    strict: true,
-    strictRequired: true,
-    allowUnionTypes: true,
-});
-addFormats(ajv);
 const publicResponseSchemaContracts = matrix.contracts.filter(
     (contract) =>
         contract.service === "api" &&

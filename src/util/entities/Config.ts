@@ -28,5 +28,5 @@ export class ConfigEntity extends BaseClassWithoutId {
     key: string;
 
     @Column({ type: "simple-json", nullable: true })
-    value: JsonValue | undefined;
+    value: JsonValue;
 }
