@@ -9,6 +9,7 @@
         "src/api/routes/warp/license.test.ts",
         "src/api/routes/guild-recommendations.test.ts",
         "src/api/util/handlers/Instance.test.ts",
+        "src/api/util/handlers/Voice.test.ts",
         "src/api/util/handlers/VoiceStateModify.test.ts",
         "src/api/util/utility/EmbedHandlers.ts",
         "src/api/util/utility/EmbedHandlers.test.ts",
