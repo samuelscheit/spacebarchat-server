@@ -72,6 +72,7 @@ export * from "./ReplacedCdnAsset";
 export * from "./Reactions";
 export * from "./Rights";
 export * from "./RolePermissions";
+export * from "./ChannelPermissionOverwrites";
 export * from "./RoleIconPolicy";
 export * from "./Snowflake";
 export * from "./Stopwatch";

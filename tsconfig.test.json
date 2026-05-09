@@ -93,6 +93,7 @@
         "src/util/util/Permissions.test.ts",
         "src/util/util/ChannelFlags.test.ts",
         "src/util/util/ChannelThreadChannel.test.ts",
+        "src/util/util/ChannelPermissionOverwrites.test.ts",
         "src/util/util/cdn.test.ts",
         "src/util/util/ChannelName.test.ts",
         "src/util/util/Constants.test.ts",

@@ -1970,7 +1970,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 77,
+            "line": 94,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2025,7 +2025,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 53,
+            "line": 70,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2074,7 +2074,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 158,
+            "line": 175,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3812,7 +3812,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 84,
+            "line": 94,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3862,7 +3862,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 29,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
