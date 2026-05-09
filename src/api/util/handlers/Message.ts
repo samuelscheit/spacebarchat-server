@@ -56,7 +56,7 @@ import {
     Snowflake,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { In, Or, Equal, IsNull } from "typeorm";
+import { In, Or, Equal, IsNull, type FindOptionsWhere } from "typeorm";
 import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
 import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 import {
@@ -82,7 +82,6 @@ import {
 import { collectMessageComponentMedia } from "../utility/MessagePayloadPermissions";
 import { findCloudAttachmentForChannel, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
-// TODO: check webhook, application, system author, stickers
 
 function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], errors: Record<string, { code?: string; message: string }>, rowIndex: number) {
     if (!row.components) {
@@ -356,6 +355,25 @@ export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id
     return !!opts.author_id && !opts.webhook_id;
 }
 
+export async function resolveMessageStickers(stickerIds: string[] | null | undefined, channel: Pick<Channel, "guild_id">): Promise<Sticker[] | undefined> {
+    if (!stickerIds?.length) return undefined;
+    if (stickerIds.length > 3) throw DiscordApiErrors.INVALID_STICKER_SENT;
+    if (new Set(stickerIds).size !== stickerIds.length) throw DiscordApiErrors.INVALID_STICKER_SENT;
+
+    const where: FindOptionsWhere<Sticker>[] = [{ id: In(stickerIds), guild_id: IsNull() }];
+    if (channel.guild_id) where.push({ id: In(stickerIds), guild_id: channel.guild_id });
+
+    const stickers = await Sticker.find({
+        where,
+    });
+
+    if (new Set(stickers.map((sticker) => sticker.id)).size !== stickerIds.length) {
+        throw DiscordApiErrors.UNKNOWN_STICKER;
+    }
+
+    return stickers;
+}
+
 type MentionNotificationType = "users" | "roles" | "everyone";
 
 function shouldNotifyAllowedMention(allowedMentions: AllowedMentions | null | undefined, type: MentionNotificationType, id?: string): boolean {
@@ -406,7 +424,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         }
     }
 
-    const stickers = opts.sticker_ids ? await Sticker.find({ where: { id: In(opts.sticker_ids) } }) : undefined;
+    const stickers = await resolveMessageStickers(opts.sticker_ids, channel);
 
     const message = Message.create({
         ...messageOptions,
@@ -553,7 +571,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         }
     }
 
-    // TODO: stickers/activity
+    // TODO: activity
     if (
         !allow_empty &&
         !opts.content &&

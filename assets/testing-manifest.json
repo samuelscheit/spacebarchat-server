@@ -10058,7 +10058,7 @@
             "method": "POST",
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
-            "line": 48,
+            "line": 49,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

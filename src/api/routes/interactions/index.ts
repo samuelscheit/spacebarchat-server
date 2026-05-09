@@ -32,7 +32,7 @@ import {
     Snowflake,
     messagePublicWithThreadRelations,
 } from "@spacebar/util";
-import { pendingInteractions } from "@spacebar/util/imports/Interactions";
+import { pendingInteractions, type PendingInteraction } from "@spacebar/util/imports/Interactions";
 import { getAuthorizingIntegrationOwners } from "@spacebar/schemas/api/bots/InteractionCreateSchema";
 import { buildBotInteractionCreatePayload, RoutedInteractionCreatePayload } from "../../util/handlers/InteractionCreateRouting";
 
@@ -120,28 +120,8 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
         ).toJSON();
     }
 
-    await emitEvent({
-        event: "INTERACTION_CREATE",
-        user_id: body.application_id,
-        data: buildBotInteractionCreatePayload(interactionData, {
-            interactionId,
-        }),
-    } satisfies InteractionCreateEvent);
-
-    const interactionTimeout = setTimeout(() => {
-        emitEvent({
-            event: "INTERACTION_FAILURE",
-            user_id: req.user_id,
-            data: {
-                id: interactionId,
-                nonce: body.nonce,
-                reason_code: InteractionFailureReason.TIMEOUT,
-            },
-        } satisfies InteractionFailureEvent);
-    }, 3000);
-
-    pendingInteractions.set(interactionId, {
-        timeout: interactionTimeout,
+    const pendingInteraction: PendingInteraction = {
+        token: interactionToken,
         nonce: body.nonce,
         applicationId: body.application_id,
         userId: req.user_id,
@@ -151,7 +131,38 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
         commandType: hasInteractionData(body) && "type" in body.data ? body.data.type : undefined,
         commandName: hasInteractionData(body) && "name" in body.data ? body.data.name : undefined,
         messageId: body.message_id,
-    });
+    };
+
+    pendingInteractions.set(interactionId, pendingInteraction);
+
+    try {
+        await emitEvent({
+            event: "INTERACTION_CREATE",
+            user_id: body.application_id,
+            data: buildBotInteractionCreatePayload(interactionData, {
+                interactionId,
+            }),
+        } satisfies InteractionCreateEvent);
+    } catch (error) {
+        pendingInteractions.delete(interactionId);
+        throw error;
+    }
+
+    if (pendingInteractions.get(interactionId) === pendingInteraction) {
+        pendingInteraction.timeout = setTimeout(() => {
+            if (pendingInteractions.get(interactionId) !== pendingInteraction) return;
+            pendingInteractions.delete(interactionId);
+            void emitEvent({
+                event: "INTERACTION_FAILURE",
+                user_id: req.user_id,
+                data: {
+                    id: interactionId,
+                    nonce: body.nonce,
+                    reason_code: InteractionFailureReason.TIMEOUT,
+                },
+            } satisfies InteractionFailureEvent).catch((error) => console.error("[Interactions] failed to emit timeout failure", error));
+        }, 3000);
+    }
 
     res.sendStatus(204);
 });

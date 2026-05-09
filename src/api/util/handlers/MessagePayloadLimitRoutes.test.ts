@@ -72,6 +72,13 @@ describe("message payload limit route integration", () => {
         assertBefore(source, "assertMessagePayloadLimits(body.data);", 'event: "INTERACTION_SUCCESS"');
         assertBefore(source, "assertMessagePayloadLimits(body.data);", "await sendMessage({");
         assertBefore(source, "assertMessagePayloadLimits(body.data);", "const updatedMessage = await handleMessage(");
+        const updateMessageCase = source.slice(
+            indexOf(source, "case InteractionCallbackType.UPDATE_MESSAGE:"),
+            indexOf(source, "case InteractionCallbackType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT:"),
+        );
+        assertBefore(updateMessageCase, "const updatedMessage = await handleMessage(", 'event: "MESSAGE_UPDATE"');
+        assert.equal(updateMessageCase.includes("// TODO"), false);
+        assert.equal(updateMessageCase.includes("message.embeds = body.data.embeds || []"), false);
     });
 
     test("handleMessage reuses the shared limit assertion before loading channels or creating entities", () => {

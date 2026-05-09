@@ -13775,7 +13775,7 @@
             "path": "/interactions/:interaction_id/:interaction_token/callback/",
             "samplePath": "/interactions/100000000000000011/test_token/callback/",
             "sourceFile": "src/api/routes/interactions/#interaction_id/#interaction_token/callback.ts",
-            "line": 48,
+            "line": 49,
             "authMode": "public",
             "testTier": "integration",
             "benchmarkClass": "route-class",

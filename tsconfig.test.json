@@ -52,6 +52,7 @@
         "src/api/util/WidgetPngCache.test.ts",
         "src/api/util/StickerUpload.test.ts",
         "src/api/util/handlers/Message.test.ts",
+        "src/util/imports/Interactions.test.ts",
         "src/api/util/handlers/MessagePayloadLimitRoutes.test.ts",
         "src/api/util/handlers/MessagePayloadPermissionRoutes.test.ts",
         "src/api/util/handlers/InviteAcceptancePolicy.test.ts",
@@ -192,11 +193,7 @@
         "src/util/entities/ChannelDeleteChannelAttachments.test.ts",
         "src/api/util/UserUpdateEvents.test.ts"
     ],
-    "exclude": [
-        "node_modules",
-        "dist",
-        "dist-test"
-    ],
+    "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {
         "rootDir": ".",
         "noEmit": true,
