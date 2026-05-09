@@ -30,6 +30,61 @@
             }
         },
         "schemas": {
+            "JsonSchema": {
+                "type": "object",
+                "properties": {
+                    "$ref": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "properties": {
+                        "$ref": "#/components/schemas/Record%3Cstring%2CJsonSchema%3E"
+                    },
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonSchema"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonSchema"
+                                }
+                            }
+                        ]
+                    },
+                    "anyOf": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JsonSchema"
+                        }
+                    },
+                    "oneOf": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JsonSchema"
+                        }
+                    },
+                    "allOf": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JsonSchema"
+                        }
+                    }
+                }
+            },
             "CreateFingerprintResponse": {
                 "type": "object",
                 "properties": {
@@ -10272,23 +10327,6 @@
                 "required": [
                     "user_sessions"
                 ]
-            },
-            "JsonSchema": {
-                "type": "object",
-                "properties": {
-                    "$ref": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "items": {
-                        "$ref": "#/components/schemas/JsonSchema"
-                    },
-                    "properties": {
-                        "$ref": "#/components/schemas/Record%3Cstring%2CJsonSchema%3E"
-                    }
-                }
             },
             "ApplicationCommandOption": {
                 "type": "object",

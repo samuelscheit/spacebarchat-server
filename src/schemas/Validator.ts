@@ -23,7 +23,18 @@ import path from "node:path";
 import { ImageDataUriFormat, ImageDataUriOrAssetHashFormat, isImageDataUri, isImageDataUriOrAssetHash } from "./ImageData";
 
 const SchemaPath = path.join(__dirname, "..", "..", "assets", "schemas.json");
-const schemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", ""));
+const sourceSchemas = JSON.parse(fs.readFileSync(SchemaPath, { encoding: "utf8" }).replaceAll("#/definitions/", ""));
+const schemas = normalizeBigIntSchemas(sourceSchemas);
+
+type JsonSchema = {
+    $ref?: string;
+    type?: string | string[];
+    properties?: Record<string, JsonSchema>;
+    items?: JsonSchema | JsonSchema[];
+    anyOf?: JsonSchema[];
+    oneOf?: JsonSchema[];
+    allOf?: JsonSchema[];
+};
 
 // const schemas2 = {...schemas, definitions: {...schemas, }};
 // console.log(schemas);
@@ -45,7 +56,7 @@ function createAjv(coerceTypes: boolean) {
         allErrors: true,
         parseDate: true,
         allowDate: true,
-        schemas: schemas,
+        schemas: schemas as Record<string, object>,
         coerceTypes,
         messages: true,
         strict: true,
@@ -75,5 +86,83 @@ export function validateSchema<G extends object>(schema: string, data: G): G {
         console.log("[Validator] Validation error in ", schema);
         throw ajv.errors;
     }
+    coerceBigIntFields(sourceSchemas[schema], data);
     return data;
+}
+
+function normalizeBigIntSchemas(value: unknown): unknown {
+    if (Array.isArray(value)) return value.map((item) => normalizeBigIntSchemas(item));
+    if (!value || typeof value !== "object") return value;
+
+    const objectValue = value as Record<string, unknown>;
+    const normalized: Record<string, unknown> = {};
+
+    for (const [key, entry] of Object.entries(objectValue)) {
+        normalized[key] = normalizeBigIntSchemas(entry);
+    }
+
+    if (normalized.type === "bigint") {
+        delete normalized.type;
+        normalized.anyOf = [{ type: "integer" }, { type: "string", pattern: "^-?\\d+$" }];
+    } else if (Array.isArray(normalized.type) && normalized.type.includes("bigint")) {
+        const remainingTypes = normalized.type.filter((type) => type !== "bigint");
+        if (remainingTypes.length > 0) normalized.type = remainingTypes;
+        else delete normalized.type;
+        normalized.anyOf = [...((normalized.anyOf as unknown[] | undefined) ?? []), { type: "integer" }, { type: "string", pattern: "^-?\\d+$" }];
+    }
+
+    return normalized;
+}
+
+function coerceBigIntFields(schema: JsonSchema | undefined, value: unknown): unknown {
+    if (!schema) return value;
+
+    const referencedSchema = resolveSchemaReference(schema.$ref);
+    if (referencedSchema) return coerceBigIntFields(referencedSchema, value);
+
+    if (isBigIntSchema(schema)) return coerceBigIntValue(value);
+
+    for (const subSchema of [...(schema.allOf ?? []), ...(schema.anyOf ?? []), ...(schema.oneOf ?? [])]) {
+        coerceBigIntFields(subSchema, value);
+    }
+
+    if (Array.isArray(value)) {
+        if (Array.isArray(schema.items)) {
+            for (const [index, itemSchema] of schema.items.entries()) {
+                value[index] = coerceBigIntFields(itemSchema, value[index]);
+            }
+        } else if (schema.items) {
+            for (const [index, item] of value.entries()) {
+                value[index] = coerceBigIntFields(schema.items, item);
+            }
+        }
+        return value;
+    }
+
+    if (!value || typeof value !== "object" || !schema.properties) return value;
+
+    const objectValue = value as Record<string, unknown>;
+    for (const [key, propertySchema] of Object.entries(schema.properties)) {
+        if (key in objectValue) objectValue[key] = coerceBigIntFields(propertySchema, objectValue[key]);
+    }
+
+    return value;
+}
+
+function resolveSchemaReference(ref: string | undefined): JsonSchema | undefined {
+    if (!ref) return undefined;
+
+    const schemaName = ref.replace(/^#\/definitions\//, "");
+    return sourceSchemas[schemaName] as JsonSchema | undefined;
+}
+
+function isBigIntSchema(schema: JsonSchema) {
+    return schema.type === "bigint" || (Array.isArray(schema.type) && schema.type.includes("bigint"));
+}
+
+function coerceBigIntValue(value: unknown) {
+    if (typeof value === "bigint") return value;
+    if (typeof value === "number" && Number.isSafeInteger(value)) return BigInt(value);
+    if (typeof value === "string" && /^-?\d+$/.test(value)) return BigInt(value);
+    return value;
 }

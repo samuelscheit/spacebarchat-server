@@ -101,6 +101,36 @@ describe("WebhookExecuteSchema", () => {
 });
 
 describe("schema validator custom formats", () => {
+    test("coerces bigint schema fields from JSON-safe numbers and strings", () => {
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: 0,
+            shard: [0, "1"],
+        };
+
+        assert.equal(validateSchema("IdentifySchema", payload), payload);
+        assert.equal(payload.intents, 0n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+    });
+
+    test("rejects bigint schema fields that cannot be coerced", () => {
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                intents: 1.5,
+            }),
+        );
+        assert.throws(() =>
+            validateSchema("IdentifySchema", {
+                token: "auth-token",
+                properties: {},
+                shard: ["not-an-integer"],
+            }),
+        );
+    });
+
     test("accepts image data URI fields with matching image bytes", () => {
         assert.deepEqual(validateSchema("WebhookCreateSchema", { name: "hook", avatar: PngDataUri }), { name: "hook", avatar: PngDataUri });
         assert.deepEqual(validateSchema("BotModifySchema", { banner: PngDataUri }), { banner: PngDataUri });

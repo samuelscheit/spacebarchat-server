@@ -1,4 +1,61 @@
 {
+    "JsonSchema": {
+        "type": "object",
+        "properties": {
+            "$ref": {
+                "type": "string"
+            },
+            "type": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            },
+            "properties": {
+                "$ref": "#/definitions/Record%3Cstring%2CJsonSchema%3E"
+            },
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/JsonSchema"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/JsonSchema"
+                        }
+                    }
+                ]
+            },
+            "anyOf": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonSchema"
+                }
+            },
+            "oneOf": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonSchema"
+                }
+            },
+            "allOf": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonSchema"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CreateFingerprintResponse": {
         "type": "object",
         "properties": {
@@ -10746,25 +10803,6 @@
         "required": [
             "user_sessions"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "JsonSchema": {
-        "type": "object",
-        "properties": {
-            "$ref": {
-                "type": "string"
-            },
-            "type": {
-                "type": "string"
-            },
-            "items": {
-                "$ref": "#/definitions/JsonSchema"
-            },
-            "properties": {
-                "$ref": "#/definitions/Record%3Cstring%2CJsonSchema%3E"
-            }
-        },
-        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ApplicationCommandOption": {

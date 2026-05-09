@@ -9,6 +9,7 @@ import {
     events,
     generateToken,
     initDatabase,
+    Intents,
     Permissions,
     Snowflake,
     Stream,
@@ -31,6 +32,7 @@ type BufferedGatewayClientState = {
 };
 
 const bufferedGatewayClients = new WeakMap<ws, BufferedGatewayClientState>();
+const STREAM_TEST_INTENTS = Number(Intents.FLAGS.GUILDS | Intents.FLAGS.GUILD_VOICE_STATES);
 
 test("Gateway IDENTIFY generated schema validates and coerces wire payloads", () => {
     const payload = {
@@ -639,15 +641,14 @@ test(
             }).save();
 
             gateway = await startGateway();
-            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken);
+            ownerClient = await connectIdentifiedGatewayClient(gateway.url, ownerToken, STREAM_TEST_INTENTS);
             const ownerReady = await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY");
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
             await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
-            await waitForEventListener(owner.id);
-            await waitForEventListener(guild.id);
-            await waitForEventListener(voiceChannel.id);
 
+            // READY/READY_SUPPLEMENTAL must not be observable before event
+            // subscriptions are active; send immediately to guard that ordering.
             ownerClient.send(
                 JSON.stringify({
                     op: 18,
@@ -689,10 +690,10 @@ test(
             assert.equal(ownerStreamSession.token, ownerServerUpdateData.token);
             assert.equal((await VoiceState.findOneByOrFail({ user_id: owner.id })).self_stream, true);
 
-            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken);
+            viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, STREAM_TEST_INTENTS);
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
-            await waitForEventListener(viewer.id);
 
+            // The watching client should also be subscribed as soon as READY is visible.
             viewerClient.send(
                 JSON.stringify({
                     op: 20,
@@ -747,7 +748,7 @@ test(
     },
 );
 
-async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string) {
+async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string, intents = 0) {
     const client = new ws(`${gatewayUrl}/?version=8&encoding=json`, { headers: { "User-Agent": "spacebar-test" } });
     const hello = await readJsonMessage(client);
     assert.equal(hello.op, 10);
@@ -757,7 +758,7 @@ async function connectIdentifiedGatewayClient(gatewayUrl: string, token: string)
             op: 2,
             d: {
                 token,
-                intents: 0,
+                intents,
                 properties: {
                     os: "test",
                     browser: "spacebar-test",
