@@ -145,6 +145,8 @@ test("UserProfileResponse validates visible connected accounts and optional quer
     };
 
     assert.equal(validate(response), true);
+    const { profile_themes_experiment_bucket: _profileThemesExperimentBucket, ...withoutProfileThemesExperimentBucket } = response;
+    assert.equal(validate(withoutProfileThemesExperimentBucket), false);
     assert.equal(validate({ ...response, premium_since: "2026-05-06T00:00:00.000Z" }), true);
     assert.equal(validate({ ...response, premium_since: "not-a-date" }), false);
     assert.equal(validate({ ...response, connected_accounts: response.connected_accounts[0] }), false);
