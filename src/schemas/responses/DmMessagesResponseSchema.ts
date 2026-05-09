@@ -16,6 +16,9 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PartialMessage } from "@spacebar/schemas";
+import type { PartialMessage } from "@spacebar/schemas";
+import type { DmChannelDTO } from "@spacebar/util";
 
 export type DmMessagesResponseSchema = PartialMessage[];
+
+export type APIDMChannelArray = DmChannelDTO[];

@@ -29,7 +29,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "POST /auth/fingerprint",
     "GET /invites/",
     // Routes with a seperate auth system
-    /^(POST|HEAD|GET|PATCH|DELETE) \/webhooks\/(?:\d+|\{webhook_id\})\/(?:[A-Za-z0-9_-]+|\{token\})(?:(?:\/messages\/(?:\d+|\{message_id\}))|\/github)?\/?$/, // no token requires auth
+    /^(POST|HEAD|GET|PATCH|DELETE) \/webhooks\/(?:\d+|\{webhook_id\})\/(?:[A-Za-z0-9_-]+|\{token\})(?:(?:\/messages\/(?:\d+|\{message_id\}))|\/github|\/slack)?\/?$/, // no token requires auth
     /^POST \/interactions\/\d+\/[A-Za-z0-9_-]+\/callback/,
     // Public information endpoints
     "GET /ping",
@@ -43,6 +43,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /-/readyz",
     "GET /-/healthz",
     // Client analytics
+    "POST /beaker",
     "POST /science",
     "POST /track",
     // Public policy pages
@@ -80,7 +81,11 @@ export function isNoAuthorizationRoute(method: string, rawUrl: string): boolean 
         const exactFullRoute = method + " " + exactUrl;
 
         if (method === "HEAD") {
-            const urlPart = x.split(" ").slice(1).join(" ");
+            const [routeMethod, ...routeParts] = x.split(" ");
+            const routeHasMethod = routeParts.length > 0;
+            if (routeHasMethod && routeMethod !== "HEAD" && routeMethod !== "GET") return false;
+
+            const urlPart = routeHasMethod ? routeParts.join(" ") : x;
             if (urlPart.endsWith("/")) {
                 return url.startsWith(urlPart);
             }

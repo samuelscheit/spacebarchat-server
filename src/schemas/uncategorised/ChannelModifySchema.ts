@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { ChannelPermissionOverwriteType, ChannelType, TagCreateSchema } from "@spacebar/schemas";
+import { ChannelPermissionOverwriteType, ChannelType, IconEmoji, TagCreateSchema } from "@spacebar/schemas";
 
 export type ChannelModifyType = ChannelType.GUILD_TEXT | ChannelType.GUILD_NEWS;
 
@@ -45,13 +45,14 @@ export interface ChannelBaseModifySchema {
     rtc_region?: string;
     default_auto_archive_duration?: number;
     default_reaction_emoji?: string | null;
+    icon_emoji?: IconEmoji | null;
     flags?: number;
     default_thread_rate_limit_per_user?: number;
     video_quality_mode?: number;
     auto_archive_duration?: number;
     archived?: boolean;
     locked?: boolean;
-    available_tags?: (TagCreateSchema & { id: string })[];
+    available_tags?: (TagCreateSchema & { id?: string })[];
 }
 
 export interface ChannelModifySchema extends ChannelBaseModifySchema {

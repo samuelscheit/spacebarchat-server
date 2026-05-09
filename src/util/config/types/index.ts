@@ -18,6 +18,7 @@
 
 export * from "./ApiConfiguration";
 export * from "./CdnConfiguration";
+export * from "./CorsConfiguration";
 export * from "./DefaultsConfiguration";
 export * from "./EmailConfiguration";
 export * from "./EndpointConfiguration";
@@ -34,6 +35,7 @@ export * from "./RabbitMQConfiguration";
 export * from "./RegionConfiguration";
 export * from "./RegisterConfiguration";
 export * from "./SecurityConfiguration";
+export * from "./StoreConfiguration";
 export * from "./subconfigurations";
 export * from "./TemplateConfiguration";
 export * from "./UpdateCheckConfiguration";

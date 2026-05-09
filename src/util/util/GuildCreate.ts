@@ -41,6 +41,7 @@ export interface NormalizedGuildCreateRole {
 export interface GuildCreateChannelReferenceInput {
     afk_channel_id?: string | null;
     rules_channel_id?: string | null;
+    safety_alerts_channel_id?: string | null;
     system_channel_id?: string | null;
 }
 
@@ -100,6 +101,7 @@ export function resolveGuildCreateChannelReferences(body: GuildCreateChannelRefe
     return {
         afk_channel_id: resolveGuildCreateChannelReference(body.afk_channel_id, ids),
         rules_channel_id: resolveGuildCreateChannelReference(body.rules_channel_id, ids),
+        safety_alerts_channel_id: resolveGuildCreateChannelReference(body.safety_alerts_channel_id, ids),
         system_channel_id: resolveGuildCreateChannelReference(body.system_channel_id, ids),
     };
 }

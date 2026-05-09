@@ -3,6 +3,7 @@ import { Worker } from "node:worker_threads";
 import { join } from "node:path";
 import os from "node:os";
 import { ReadStream, WriteStream } from "node:fs";
+import { once } from "node:events";
 
 type JsonWorkerMessage = {
     id: number;
@@ -10,7 +11,9 @@ type JsonWorkerMessage = {
     error?: string;
 };
 
-type JsonArrayStreamState = "awaitArrayStart" | "awaitValueOrEnd" | "readValue" | "done";
+type CloneableJsonSerializerOptions = Pick<JsonSerializerOptions, "replacer" | "space">;
+
+type JsonArrayStreamState = "awaitArrayStart" | "awaitValueOrEnd" | "readValue" | "awaitValueDelimiter" | "done";
 type JsonStreamParsedValue<T> = { hasValue: false } | { hasValue: true; value: T };
 
 function isJsonWhitespace(char: string): boolean {
@@ -98,7 +101,17 @@ function getNextWorker(): Worker {
     return worker;
 }
 
-function runWorkerTask(message: { type: "serialize"; value: unknown } | { type: "deserialize"; json: string }) {
+function getCloneableSerializerOptions(opts?: JsonSerializerOptions): CloneableJsonSerializerOptions | undefined {
+    if (!opts) return undefined;
+    if (typeof opts.replacer === "function") return undefined;
+
+    const cloneableOptions: CloneableJsonSerializerOptions = {};
+    if (opts.replacer !== undefined) cloneableOptions.replacer = opts.replacer;
+    if (opts.space !== undefined) cloneableOptions.space = opts.space;
+    return cloneableOptions;
+}
+
+function runWorkerTask(message: { type: "serialize"; value: unknown; opts?: CloneableJsonSerializerOptions } | { type: "deserialize"; json: string }) {
     const id = requestId++;
     const worker = getNextWorker();
 
@@ -119,7 +132,6 @@ function runWorkerTask(message: { type: "serialize"; value: unknown } | { type: 
     });
 }
 
-// noinspection JSUnusedLocalSymbols - TODO: implement options
 export class JsonSerializer {
     public static async ShutdownAsync(): Promise<void> {
         const workers = workerPool.splice(0);
@@ -135,41 +147,49 @@ export class JsonSerializer {
     }
 
     public static Serialize<T>(value: T, opts?: JsonSerializerOptions): string {
-        return JSON.stringify(value);
+        return JSON.stringify(value, opts?.replacer as Parameters<typeof JSON.stringify>[1], opts?.space);
     }
     public static async SerializeAsync<T>(value: T, opts?: JsonSerializerOptions): Promise<string> {
-        return runWorkerTask({ type: "serialize", value });
+        const workerOptions = getCloneableSerializerOptions(opts);
+        if (opts && workerOptions === undefined) return this.Serialize(value, opts);
+
+        return runWorkerTask({ type: "serialize", value, opts: workerOptions });
     }
     public static Deserialize<T>(json: string, opts?: JsonSerializerOptions): T {
-        return JSON.parse(json) as T;
+        return JSON.parse(json, opts?.reviver) as T;
     }
     public static async DeserializeAsync<T>(json: string | ReadableStream | ReadStream, opts?: JsonSerializerOptions): Promise<T> {
         if (json instanceof ReadableStream) return this.DeserializeAsyncReadableStream<T>(json, opts);
         if (json instanceof ReadStream) return this.DeserializeAsyncReadStream<T>(json, opts);
+        if (opts?.reviver) return this.Deserialize<T>(json, opts);
 
-        return JSON.parse(await runWorkerTask({ type: "deserialize", json })) as T;
+        return this.Deserialize<T>(await runWorkerTask({ type: "deserialize", json }), opts);
     }
 
     private static async DeserializeAsyncReadableStream<T>(jsonStream: ReadableStream, opts?: JsonSerializerOptions): Promise<T> {
-        const reader = jsonStream.getReader();
         let jsonData = "";
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            jsonData += new TextDecoder().decode(value);
+        for await (const chunk of this.DecodeJsonStreamChunks(this.ReadReadableStreamChunks(jsonStream))) {
+            jsonData += chunk;
         }
         return this.DeserializeAsync<T>(jsonData, opts);
     }
 
     private static async DeserializeAsyncReadStream<T>(jsonStream: ReadStream, opts?: JsonSerializerOptions): Promise<T> {
         let jsonData = "";
-        for await (const chunk of jsonStream) {
-            jsonData += chunk.toString();
+        for await (const chunk of this.DecodeJsonStreamChunks(jsonStream as AsyncIterable<unknown>)) {
+            jsonData += chunk;
         }
         return this.DeserializeAsync<T>(jsonData, opts);
     }
 
     public static async *DeserializeAsyncEnumerable<T>(json: string | ReadStream | ReadableStream, opts?: JsonSerializerOptions): AsyncGenerator<T, void, unknown> {
+        if (opts?.reviver) {
+            const arr = await this.DeserializeAsync<T[]>(json, opts);
+            for (const item of arr) {
+                yield item;
+            }
+            return;
+        }
         if (json instanceof ReadableStream) return yield* this.DeserializeAsyncEnumerableReadableStream<T>(json, opts);
         if (json instanceof ReadStream) return yield* this.DeserializeAsyncEnumerableReadStream<T>(json, opts);
 
@@ -247,7 +267,6 @@ export class JsonSerializer {
         let depth = 0;
         let inString = false;
         let escaped = false;
-        let valueComplete = false;
         let canEndArray = true;
 
         const noValue = { hasValue: false } as const;
@@ -256,7 +275,6 @@ export class JsonSerializer {
             depth = 0;
             inString = false;
             escaped = false;
-            valueComplete = false;
         };
         const parseValue = () => {
             const json = currentValue.trim();
@@ -268,28 +286,12 @@ export class JsonSerializer {
             resetValue();
             return value;
         };
+        const parseValueAndAwaitDelimiter = (): JsonStreamParsedValue<T> => {
+            const value = parseValue();
+            state = "awaitValueDelimiter";
+            return { hasValue: true, value };
+        };
         const processValueChar = (char: string): JsonStreamParsedValue<T> => {
-            if (valueComplete) {
-                if (isJsonWhitespace(char)) {
-                    return noValue;
-                }
-
-                if (char === ",") {
-                    const value = parseValue();
-                    state = "awaitValueOrEnd";
-                    canEndArray = false;
-                    return { hasValue: true, value };
-                }
-
-                if (char === "]") {
-                    const value = parseValue();
-                    state = "done";
-                    return { hasValue: true, value };
-                }
-
-                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
-            }
-
             if (inString) {
                 currentValue += char;
 
@@ -300,7 +302,7 @@ export class JsonSerializer {
                 } else if (char === '"') {
                     inString = false;
                     if (depth === 0) {
-                        valueComplete = true;
+                        return parseValueAndAwaitDelimiter();
                     }
                 }
 
@@ -324,7 +326,7 @@ export class JsonSerializer {
                     currentValue += char;
                     depth--;
                     if (depth === 0) {
-                        valueComplete = true;
+                        return parseValueAndAwaitDelimiter();
                     }
 
                     return noValue;
@@ -357,8 +359,7 @@ export class JsonSerializer {
                     return noValue;
                 }
 
-                valueComplete = true;
-                return noValue;
+                return parseValueAndAwaitDelimiter();
             }
 
             currentValue += char;
@@ -389,7 +390,30 @@ export class JsonSerializer {
                     continue;
                 }
 
-                if (state === "awaitValueOrEnd") {
+                // processValueChar can complete a value and update state from inside a nested function;
+                // keep the branch check widened so TypeScript does not narrow away that mutation.
+                const currentState = state as JsonArrayStreamState;
+
+                if (currentState === "awaitValueDelimiter") {
+                    if (isJsonWhitespace(char)) {
+                        continue;
+                    }
+
+                    if (char === ",") {
+                        state = "awaitValueOrEnd";
+                        canEndArray = false;
+                        continue;
+                    }
+
+                    if (char === "]") {
+                        state = "done";
+                        continue;
+                    }
+
+                    throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+                }
+
+                if (currentState === "awaitValueOrEnd") {
                     if (isJsonWhitespace(char)) {
                         continue;
                     }
@@ -426,17 +450,19 @@ export class JsonSerializer {
             throw new SyntaxError("Unexpected end of JSON array.");
         }
 
-        if (state === "readValue") {
+        const finalState = state as JsonArrayStreamState;
+
+        if (finalState === "awaitValueDelimiter") {
+            throw new SyntaxError("Expected ',' or ']' after JSON array item.");
+        }
+
+        if (finalState === "readValue") {
             if (inString) {
                 throw new SyntaxError("Unterminated string in JSON array item.");
             }
 
             if (depth > 0) {
                 throw new SyntaxError("Unterminated JSON array item.");
-            }
-
-            if (valueComplete) {
-                throw new SyntaxError("Expected ',' or ']' after JSON array item.");
             }
 
             throw new SyntaxError("Unexpected end of JSON array item.");
@@ -458,7 +484,12 @@ export class JsonSerializer {
         return jsonData;
     }
 
-    public static async SerializeAsyncEnumerableAsync<T>(items: AsyncIterable<T>, stream: WriteStream | WritableStream, opts?: JsonSerializerOptions): Promise<void> {}
+    public static async SerializeAsyncEnumerableAsync<T>(items: AsyncIterable<T>, stream: WriteStream | WritableStream, opts?: JsonSerializerOptions): Promise<void> {
+        if (stream instanceof WritableStream) return this.SerializeAsyncEnumerableToWritableStreamAsync(items, stream, opts);
+        if (stream instanceof WriteStream) return this.SerializeAsyncEnumerableToWriteStreamAsync(items, stream, opts);
+
+        throw new TypeError("JSON output stream must be a WritableStream or WriteStream.");
+    }
 
     private static async SerializeAsyncEnumerableToWritableStreamAsync<T>(items: AsyncIterable<T>, stream: WritableStream, opts?: JsonSerializerOptions): Promise<void> {
         const writer = stream.getWriter();
@@ -479,17 +510,30 @@ export class JsonSerializer {
 
     private static async SerializeAsyncEnumerableToWriteStreamAsync<T>(items: AsyncIterable<T>, stream: WriteStream, opts?: JsonSerializerOptions): Promise<void> {
         let first = true;
-        stream.write("[");
-        for await (const item of items) {
-            if (!first) {
-                stream.write(",");
-            } else {
-                first = false;
+        try {
+            await this.WriteToWriteStreamAsync(stream, "[");
+            for await (const item of items) {
+                if (!first) {
+                    await this.WriteToWriteStreamAsync(stream, ",");
+                } else {
+                    first = false;
+                }
+                const jsonItem = await this.SerializeAsync(item, opts);
+                await this.WriteToWriteStreamAsync(stream, jsonItem);
             }
-            const jsonItem = await this.SerializeAsync(item, opts);
-            stream.write(jsonItem);
+            await this.WriteToWriteStreamAsync(stream, "]");
+            const finished = once(stream, "finish");
+            stream.end();
+            await finished;
+        } catch (error) {
+            stream.destroy(error instanceof Error ? error : new Error(String(error)));
+            throw error;
         }
-        stream.write("]");
-        stream.end();
+    }
+
+    private static async WriteToWriteStreamAsync(stream: WriteStream, chunk: string): Promise<void> {
+        if (stream.write(chunk)) return;
+
+        await once(stream, "drain");
     }
 }

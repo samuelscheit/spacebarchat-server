@@ -3,14 +3,28 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import type { ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";
-import { closeDatabase, Config, ConnectedAccount, ConnectionConfig, ConnectionStore, generateToken, initDatabase, Member, RefreshableConnection, Role, User } from "@spacebar/util";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import type { AvatarDecorationData, ConnectedAccountCommonOAuthTokenResponse, ConnectionCallbackSchema } from "@spacebar/schemas";
+import {
+    closeDatabase,
+    Config,
+    ConnectedAccount,
+    ConnectionConfig,
+    ConnectionStore,
+    DiscordApiErrors,
+    generateToken,
+    initDatabase,
+    Member,
+    RefreshableConnection,
+    Role,
+    User,
+} from "@spacebar/util";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
+    "api:http:GET:/guilds/:guild_id/integrations/",
     "api:http:GET:/oauth2/applications/@me/",
     "api:http:GET:/oauth2/authorize/",
     "api:http:POST:/oauth2/authorize/",
@@ -33,6 +47,7 @@ test(
     },
     async () => {
         assert.deepEqual(coveredManifestIds, [
+            "api:http:GET:/guilds/:guild_id/integrations/",
             "api:http:GET:/oauth2/applications/@me/",
             "api:http:GET:/oauth2/authorize/",
             "api:http:POST:/oauth2/authorize/",
@@ -105,6 +120,44 @@ test(
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
 
+            const missingClientId = "999999999999999999";
+            await assertApiError(await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${missingClientId}`, ownerToken), 404, DiscordApiErrors.UNKNOWN_APPLICATION);
+            await assertApiError(
+                await postJson(
+                    `${api.apiBaseUrl}/oauth2/authorize?client_id=${missingClientId}`,
+                    {
+                        authorize: true,
+                        guild_id: guildId,
+                        permissions: "8",
+                    },
+                    ownerToken,
+                ),
+                404,
+                DiscordApiErrors.UNKNOWN_APPLICATION,
+            );
+
+            const createdBotlessApplication = await postJson(`${api.apiBaseUrl}/applications`, { name: "OAuth Botless Scenario App" }, ownerToken);
+            await assertStatus(createdBotlessApplication, 200);
+            const botlessApplicationId = (await assertJsonObject(createdBotlessApplication)).id as string;
+            await assertApiError(
+                await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${botlessApplicationId}`, ownerToken),
+                400,
+                DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT,
+            );
+            await assertApiError(
+                await postJson(
+                    `${api.apiBaseUrl}/oauth2/authorize?client_id=${botlessApplicationId}`,
+                    {
+                        authorize: true,
+                        guild_id: guildId,
+                        permissions: "8",
+                    },
+                    ownerToken,
+                ),
+                400,
+                DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT,
+            );
+
             const createdApplication = await postJson(`${api.apiBaseUrl}/applications`, { name: "OAuth Scenario App" }, ownerToken);
             await assertStatus(createdApplication, 200);
             const applicationId = (await assertJsonObject(createdApplication)).id as string;
@@ -112,6 +165,12 @@ test(
             await assertStatus(createdBot, 200);
             const botToken = (await assertJsonObject(createdBot)).token as string;
             assert.ok(botToken);
+            const botAvatarDecorationData: AvatarDecorationData = {
+                asset: "scenario-avatar-decoration",
+                sku_id: "123456789012345678",
+                expires_at: null,
+            };
+            await User.update({ id: applicationId }, { avatar_decoration_data: botAvatarDecorationData });
 
             const oauthApplication = await getJson(`${api.apiBaseUrl}/oauth2/applications/@me`, botToken);
             await assertStatus(oauthApplication, 200);
@@ -119,11 +178,30 @@ test(
             assert.equal(oauthApplicationBody.id, applicationId);
             assert.equal((oauthApplicationBody.owner as Record<string, unknown>).id, owner.id);
 
+            const unlinkedAuthorizeInfo = await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${applicationId}`, ownerToken);
+            await assertStatus(unlinkedAuthorizeInfo, 200);
+            const unlinkedAuthorizeInfoBody = await assertJsonObject(unlinkedAuthorizeInfo);
+            assert.equal((unlinkedAuthorizeInfoBody.application as Record<string, unknown>).id, applicationId);
+            assert.equal((unlinkedAuthorizeInfoBody.application as Record<string, unknown>).guild_id, null);
+            assert.equal((unlinkedAuthorizeInfoBody.bot as Record<string, unknown>).id, applicationId);
+            assert.deepEqual(
+                (unlinkedAuthorizeInfoBody.guilds as Array<Record<string, unknown>>).map((guild) => guild.id),
+                [guildId],
+            );
+
+            const linkedApplication = await patchJson(`${api.apiBaseUrl}/applications/${applicationId}`, { guild_id: guildId }, ownerToken);
+            await assertStatus(linkedApplication, 200);
+            assert.equal((await assertJsonObject(linkedApplication)).guild_id, guildId);
+
             const authorizeInfo = await getJson(`${api.apiBaseUrl}/oauth2/authorize?client_id=${applicationId}`, ownerToken);
             await assertStatus(authorizeInfo, 200);
             const authorizeInfoBody = await assertJsonObject(authorizeInfo);
+            const authorizeBot = authorizeInfoBody.bot as Record<string, unknown>;
             assert.equal((authorizeInfoBody.application as Record<string, unknown>).id, applicationId);
-            assert.equal((authorizeInfoBody.bot as Record<string, unknown>).id, applicationId);
+            assert.equal((authorizeInfoBody.application as Record<string, unknown>).guild_id, guildId);
+            assert.equal(authorizeBot.id, applicationId);
+            assert.deepEqual(authorizeBot.avatar_decoration_data, botAvatarDecorationData);
+            assert.equal("avatar_decoration" in authorizeBot, false);
             assert.deepEqual(
                 (authorizeInfoBody.guilds as Array<Record<string, unknown>>).map((guild) => guild.id),
                 [guildId],
@@ -151,6 +229,22 @@ test(
                 ownerMember.roles.some((role) => role.id === managedBotRole.id),
                 false,
             );
+
+            const guildIntegrations = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/integrations`, ownerToken);
+            assert.equal(guildIntegrations.length, 1);
+            const [guildIntegration] = guildIntegrations;
+            assert.equal(guildIntegration.id, applicationId);
+            assert.equal(guildIntegration.name, "OAuth Scenario App");
+            assert.equal(guildIntegration.type, "discord");
+            assert.equal(guildIntegration.enabled, true);
+            assert.deepEqual(guildIntegration.account, { id: applicationId, name: "OAuth Scenario App" });
+            const integrationApplication = guildIntegration.application as Record<string, unknown>;
+            assert.equal(integrationApplication.id, applicationId);
+            assert.equal(integrationApplication.name, "OAuth Scenario App");
+            assert.equal(integrationApplication.bot_public, true);
+            assert.equal(integrationApplication.verify_key, "IMPLEMENTME");
+            assert.equal(Object.hasOwn(integrationApplication, "owner"), false);
+            assert.equal(Object.hasOwn(integrationApplication, "team"), false);
 
             const oauthTokens = await getJson(`${api.apiBaseUrl}/oauth2/tokens`, ownerToken);
             await assertStatus(oauthTokens, 200);
@@ -371,6 +465,12 @@ function installScenarioConnection(connection: ScenarioYoutubeConnection) {
             delete config[connection.id];
         }
     };
+}
+
+async function assertApiError(response: Response, expectedStatus: number, expectedError: { code: number; message: string }) {
+    const body = await assertJsonError(response, expectedStatus);
+    assert.equal(body.code, expectedError.code);
+    assert.equal(body.message, expectedError.message);
 }
 
 async function getJson(url: string, token: string) {

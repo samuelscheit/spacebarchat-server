@@ -16,8 +16,20 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-//TODO: remove entity import
-import { VoiceState } from "@spacebar/util";
+export interface VoiceStateData {
+    user_id: string;
+    suppress: boolean;
+    session_id: string;
+    self_video: boolean;
+    self_mute: boolean;
+    self_deaf: boolean;
+    self_stream?: boolean;
+    request_to_speak_timestamp?: Date;
+    mute: boolean;
+    deaf: boolean;
+    channel_id: string;
+    guild_id: string;
+}
 
 export enum PublicVoiceStateEnum {
     user_id,
@@ -38,4 +50,4 @@ export type PublicVoiceStateKeys = keyof typeof PublicVoiceStateEnum;
 
 export const PublicVoiceStateProjection = Object.values(PublicVoiceStateEnum).filter((x) => typeof x === "string") as PublicVoiceStateKeys[];
 
-export type PublicVoiceState = Pick<VoiceState, PublicVoiceStateKeys>;
+export type PublicVoiceState = Pick<VoiceStateData, PublicVoiceStateKeys>;

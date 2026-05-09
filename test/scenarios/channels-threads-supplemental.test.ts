@@ -2,10 +2,32 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { test } from "node:test";
-import { Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Member, Message, Tag, ThreadMember, ThreadMemberFlags, User } from "@spacebar/util";
-import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import {
+    Channel,
+    ChannelFlags,
+    closeDatabase,
+    Config,
+    DiscordApiErrors,
+    generateToken,
+    Guild,
+    GuildFeature,
+    initDatabase,
+    Member,
+    Message,
+    MessageFlags,
+    Permissions,
+    ReadState,
+    Role,
+    Snowflake,
+    Tag,
+    ThreadMember,
+    ThreadMemberFlags,
+    User,
+} from "@spacebar/util";
+import { ChannelPermissionOverwriteType, ChannelType, MessageType, ReadStateType } from "@spacebar/schemas";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
@@ -23,6 +45,7 @@ const coveredManifestIds = [
     "api:http:GET:/channels/:channel_id/threads/archived/public/",
     "api:http:GET:/channels/:channel_id/threads/search",
     "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
+    "api:http:PATCH:/channels/:channel_id/",
     "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
     "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
     "api:http:POST:/channels/:channel_id/tags/",
@@ -51,6 +74,7 @@ test(
             "api:http:GET:/channels/:channel_id/threads/archived/public/",
             "api:http:GET:/channels/:channel_id/threads/search",
             "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
+            "api:http:PATCH:/channels/:channel_id/",
             "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
             "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
             "api:http:POST:/channels/:channel_id/tags/",
@@ -107,17 +131,22 @@ test(
             const createdGuild = await postJson(`${api.apiBaseUrl}/guilds`, { name: `threads-${suffix.slice(-8)}` }, ownerToken);
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
-            await Guild.update({ id: guildId }, { features: ["DISCOVERABLE"] });
+            await Guild.update({ id: guildId }, { features: [GuildFeature.Discoverable] });
+            await grantEveryonePermission(guildId, Permissions.FLAGS.SEND_MESSAGES_IN_THREADS);
             await assertStatus(await putJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, {}, memberToken), 200);
 
             const initialChannels = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, ownerToken);
             const textChannelId = initialChannels[0].id as string;
             const forumChannelId = await createForumChannel(api.apiBaseUrl, guildId, ownerToken);
-            events = await captureEvents([guildId, textChannelId, forumChannelId, owner.id, member.id]);
+            const otherForumChannelId = await createForumChannel(api.apiBaseUrl, guildId, ownerToken, "scenario-other-forum");
+            events = await captureEvents([guildId, textChannelId, forumChannelId, otherForumChannelId, owner.id, member.id]);
 
-            await coverPermissionOverwriteRoutes(api.apiBaseUrl, textChannelId, guildId, ownerToken, events);
+            await coverPermissionOverwriteRoutes(api.apiBaseUrl, textChannelId, guildId, member.id, ownerToken, memberToken, events);
             const tagId = await coverTagCreateAndUpdate(api.apiBaseUrl, forumChannelId, ownerToken, events);
-            await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, events);
+            await coverTagMissingErrors(api.apiBaseUrl, forumChannelId, otherForumChannelId, ownerToken, events);
+            await coverInvalidForumAppliedTags(api.apiBaseUrl, forumChannelId, tagId, ownerToken);
+            await coverRequiredForumTagValidation(api.apiBaseUrl, forumChannelId, ownerToken, events);
+            await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, memberToken, events);
             await coverTagDelete(api.apiBaseUrl, forumChannelId, tagId, ownerToken, events);
         } finally {
             if (events) await events.stop();
@@ -130,10 +159,22 @@ test(
     },
 );
 
-async function coverPermissionOverwriteRoutes(apiBaseUrl: string, channelId: string, guildId: string, token: string, events: EventCapture) {
+async function coverPermissionOverwriteRoutes(
+    apiBaseUrl: string,
+    channelId: string,
+    guildId: string,
+    memberId: string,
+    ownerToken: string,
+    memberToken: string,
+    events: EventCapture,
+) {
     const beforePut = markCapturedEvents(events);
     await assertStatus(
-        await putJson(`${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`, { id: guildId, type: ChannelPermissionOverwriteType.role, allow: "1024", deny: "2048" }, token),
+        await putJson(
+            `${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`,
+            { id: guildId, type: ChannelPermissionOverwriteType.role, allow: "1024", deny: "2048" },
+            ownerToken,
+        ),
         204,
     );
     await waitForEventAfter(
@@ -145,7 +186,7 @@ async function coverPermissionOverwriteRoutes(apiBaseUrl: string, channelId: str
     assert.ok(channel.permission_overwrites?.some((overwrite) => overwrite.id === guildId));
 
     const beforeDelete = markCapturedEvents(events);
-    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`, token), 204);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${channelId}/permissions/${guildId}`, ownerToken), 204);
     await waitForEventAfter(
         events,
         beforeDelete,
@@ -156,6 +197,62 @@ async function coverPermissionOverwriteRoutes(apiBaseUrl: string, channelId: str
         channel.permission_overwrites?.some((overwrite) => overwrite.id === guildId),
         false,
     );
+
+    await coverPermissionOverwriteDeleteWithoutHierarchy(apiBaseUrl, channelId, guildId, memberId, memberToken, events);
+}
+
+async function coverPermissionOverwriteDeleteWithoutHierarchy(apiBaseUrl: string, channelId: string, guildId: string, memberId: string, token: string, events: EventCapture) {
+    const manageRoles = String(Permissions.FLAGS.VIEW_CHANNEL | Permissions.FLAGS.MANAGE_ROLES);
+    const lowerManagerRole = await createScenarioRole(guildId, "lower-manage-roles", manageRoles, 1);
+    const higherTargetRole = await createScenarioRole(guildId, "higher-overwrite-target", "0", 10);
+    assert.ok(higherTargetRole.position > lowerManagerRole.position);
+
+    await Member.addRole(memberId, guildId, lowerManagerRole.id);
+    const actor = await Member.findOneOrFail({ where: { id: memberId, guild_id: guildId }, relations: { roles: true } });
+    assert.ok(actor.roles.some((role) => role.id === lowerManagerRole.id));
+    assert.equal(actor.id === (await Guild.findOneByOrFail({ id: guildId })).owner_id, false);
+
+    const channel = await Channel.findOneByOrFail({ id: channelId });
+    channel.permission_overwrites = [
+        ...(channel.permission_overwrites ?? []),
+        {
+            id: higherTargetRole.id,
+            type: ChannelPermissionOverwriteType.role,
+            allow: "0",
+            deny: "1024",
+        },
+    ];
+    await channel.save();
+
+    const beforeDelete = markCapturedEvents(events);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${channelId}/permissions/${higherTargetRole.id}`, token), 204);
+    await waitForEventAfter(
+        events,
+        beforeDelete,
+        (event) => event.event === "CHANNEL_UPDATE" && event.channel_id === channelId && !hasOverwrite(event.data.permission_overwrites, higherTargetRole.id),
+    );
+    const updatedChannel = await Channel.findOneByOrFail({ id: channelId });
+    assert.equal(
+        updatedChannel.permission_overwrites?.some((overwrite) => overwrite.id === higherTargetRole.id),
+        false,
+    );
+}
+
+async function createScenarioRole(guildId: string, name: string, permissions: string, position: number) {
+    return await Role.create({
+        id: Snowflake.generate(),
+        guild_id: guildId,
+        name,
+        permissions,
+        position,
+        color: 0,
+        hoist: false,
+        managed: false,
+        mentionable: false,
+        colors: {
+            primary_color: 0,
+        },
+    }).save();
 }
 
 async function coverTagCreateAndUpdate(apiBaseUrl: string, forumChannelId: string, token: string, events: EventCapture) {
@@ -187,6 +284,43 @@ async function coverTagCreateAndUpdate(apiBaseUrl: string, forumChannelId: strin
     return tagId;
 }
 
+async function coverTagMissingErrors(apiBaseUrl: string, forumChannelId: string, otherForumChannelId: string, token: string, events: EventCapture) {
+    const unknownTagId = "999999999999999999";
+    await assertUnknownTag(await putJson(`${apiBaseUrl}/channels/${forumChannelId}/tags/${unknownTagId}`, { name: "missing-tag" }, token));
+    await assertUnknownTag(await deleteJson(`${apiBaseUrl}/channels/${forumChannelId}/tags/${unknownTagId}`, token));
+
+    const beforeOtherCreate = markCapturedEvents(events);
+    const createOtherTag = await postJson(`${apiBaseUrl}/channels/${otherForumChannelId}/tags`, { name: "other-forum-tag", moderated: false }, token);
+    await assertStatus(createOtherTag, 200);
+    const otherTags = (await assertJsonObject(createOtherTag)).available_tags as Array<Record<string, unknown>>;
+    const otherTagId = otherTags.find((tag) => tag.name === "other-forum-tag")?.id as string;
+    assert.ok(otherTagId);
+    await waitForEventAfter(
+        events,
+        beforeOtherCreate,
+        (event) => event.event === "CHANNEL_UPDATE" && event.channel_id === otherForumChannelId && hasTag(event.data.available_tags, otherTagId, "other-forum-tag"),
+    );
+
+    await assertUnknownTag(await putJson(`${apiBaseUrl}/channels/${forumChannelId}/tags/${otherTagId}`, { name: "cross-channel-tag" }, token));
+    assert.equal((await Tag.findOneByOrFail({ id: otherTagId })).name, "other-forum-tag");
+
+    const beforeCrossChannelDelete = markCapturedEvents(events);
+    await assertUnknownTag(await deleteJson(`${apiBaseUrl}/channels/${forumChannelId}/tags/${otherTagId}`, token));
+    await assertNoEventAfter(events, beforeCrossChannelDelete, (event) => event.event === "CHANNEL_UPDATE" && event.channel_id === forumChannelId);
+    assert.equal((await Tag.findOneByOrFail({ id: otherTagId })).name, "other-forum-tag");
+}
+
+async function coverInvalidForumAppliedTags(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string) {
+    const invalidAppliedTags = await patchJson(`${apiBaseUrl}/channels/${forumChannelId}`, { applied_tags: [], available_tags: [] }, token);
+    const invalidAppliedTagsBody = await assertJsonError(invalidAppliedTags, 400);
+    const invalidAppliedTagsErrors = invalidAppliedTagsBody.errors as {
+        applied_tags?: { _errors?: Array<{ code: string; message: string }> };
+    };
+    assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.code, "BASE_TYPE_BAD_VALUE");
+    assert.equal(invalidAppliedTagsErrors.applied_tags?._errors?.[0]?.message, "Applied tags can only be set on threads");
+    assert.notEqual(await Tag.findOneBy({ id: tagId }), null);
+}
+
 async function coverThreadRoutes(
     apiBaseUrl: string,
     guildId: string,
@@ -196,6 +330,7 @@ async function coverThreadRoutes(
     ownerId: string,
     memberId: string,
     token: string,
+    memberToken: string,
     events: EventCapture,
 ) {
     const ownerMember = await Member.findOneByOrFail({ guild_id: guildId, id: ownerId });
@@ -204,9 +339,13 @@ async function coverThreadRoutes(
     const publicThreadId = await createForumThread(apiBaseUrl, forumChannelId, tagId, token, events);
     await assertThreadMember(publicThreadId, ownerMember.index);
     await coverThreadSearch(apiBaseUrl, forumChannelId, publicThreadId, tagId, token);
-    const publicThreadEvents = await captureEvents([publicThreadId, ownerId]);
+    await coverThreadAppliedTagsPatch(apiBaseUrl, publicThreadId, token);
+    const publicThreadEvents = await captureEvents([publicThreadId, ownerId, memberId]);
     try {
+        await assertThreadChannelPatchValidation(apiBaseUrl, publicThreadId, token, publicThreadEvents);
+        await assertThreadPermissionOverwriteRouteValidation(apiBaseUrl, publicThreadId, guildId, token, publicThreadEvents);
         await coverThreadMemberRoutes(apiBaseUrl, publicThreadId, ownerMember.index, joinedMember.index, memberId, token, publicThreadEvents);
+        await coverImplicitThreadMessageJoin(apiBaseUrl, publicThreadId, joinedMember.index, memberId, token, memberToken, publicThreadEvents);
     } finally {
         await publicThreadEvents.stop();
     }
@@ -224,7 +363,15 @@ async function coverThreadRoutes(
     const joinedPrivateArchived = await assertJsonObject(await getJson(`${apiBaseUrl}/channels/${textChannelId}/users/@me/threads/archived/private?limit=10`, token));
     assert.ok((joinedPrivateArchived.threads as Array<Record<string, unknown>>).some((thread) => thread.id === privateThreadId));
 
+    const publicTextThreadId = await createPublicTextThread(apiBaseUrl, textChannelId, token, events);
+    await assertThreadMember(publicTextThreadId, ownerMember.index);
+    const publicTextThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, publicTextThreadId);
+    await assertChannelNotificationCursor(textChannelId, ownerId, publicTextThreadCreatedMessage.id);
+
+    const existingMessageFlags = Number(MessageFlags.FLAGS.SUPPRESS_EMBEDS);
+    const expectedMessageThreadFlags = existingMessageFlags | Number(MessageFlags.FLAGS.HAS_THREAD);
     const messageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter", token);
+    await Message.update({ id: messageId }, { flags: existingMessageFlags });
     const beforeMessageThread = markCapturedEvents(events);
     const createMessageThread = await postJson(`${apiBaseUrl}/channels/${textChannelId}/messages/${messageId}/threads`, { name: "scenario-message-thread" }, token);
     await assertStatus(createMessageThread, 200);
@@ -235,15 +382,75 @@ async function coverThreadRoutes(
         beforeMessageThread,
         (event) => event.event === "THREAD_CREATE" && event.channel_id === textChannelId && event.data.id === messageId && event.data.newly_created === true,
     );
-    await waitForEventAfter(
+    const messageUpdate = await waitForEventAfter(
         events,
         beforeMessageThread,
         (event) => event.event === "MESSAGE_UPDATE" && event.channel_id === textChannelId && event.data.id === messageId && event.data.thread.id === messageId,
     );
+    assert.equal(messageUpdate.data.flags, expectedMessageThreadFlags);
     await assertThreadMember(messageId, ownerMember.index);
     const message = await Message.findOneOrFail({ where: { id: messageId }, relations: { thread: true } });
     assert.ok(message.thread);
     assert.equal(message.thread.id, messageId);
+    assert.equal(message.flags, expectedMessageThreadFlags);
+    const messageThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, messageId);
+    await assertChannelNotificationCursor(textChannelId, ownerId, messageThreadCreatedMessage.id);
+
+    const futureCursor = "9223372036854775807";
+    await ReadState.update({ user_id: ownerId, channel_id: textChannelId, read_state_type: ReadStateType.CHANNEL }, { notifications_cursor: futureCursor });
+    const noRewindMessageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter no rewind", token);
+    const createNoRewindMessageThread = await postJson(
+        `${apiBaseUrl}/channels/${textChannelId}/messages/${noRewindMessageId}/threads`,
+        { name: "scenario-message-thread-no-rewind" },
+        token,
+    );
+    await assertStatus(createNoRewindMessageThread, 200);
+    const noRewindThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, noRewindMessageId);
+    assert.ok(BigInt(noRewindThreadCreatedMessage.id) < BigInt(futureCursor));
+    await assertChannelNotificationCursor(textChannelId, ownerId, futureCursor);
+}
+
+async function coverThreadAppliedTagsPatch(apiBaseUrl: string, threadId: string, token: string) {
+    const updateThread = await patchJson(`${apiBaseUrl}/channels/${threadId}`, { applied_tags: [] }, token);
+    await assertStatus(updateThread, 200);
+    const updateThreadBody = await assertJsonObject(updateThread);
+    assert.deepEqual(updateThreadBody.applied_tags, []);
+    assert.deepEqual((await Channel.findOneByOrFail({ id: threadId })).applied_tags, []);
+}
+
+async function coverRequiredForumTagValidation(apiBaseUrl: string, forumChannelId: string, token: string, events: EventCapture) {
+    await Channel.update({ id: forumChannelId }, { flags: Number(ChannelFlags.FLAGS.REQUIRE_TAG) });
+
+    await assertRequiredTagThreadRejected(apiBaseUrl, forumChannelId, token, events, "scenario-missing-required-tag", {
+        name: "scenario-missing-required-tag",
+        message: { content: "thread starter content" },
+    });
+    await assertRequiredTagThreadRejected(apiBaseUrl, forumChannelId, token, events, "scenario-empty-required-tag", {
+        name: "scenario-empty-required-tag",
+        applied_tags: [],
+        message: { content: "thread starter content" },
+    });
+}
+
+async function assertRequiredTagThreadRejected(apiBaseUrl: string, forumChannelId: string, token: string, events: EventCapture, name: string, body: Record<string, unknown>) {
+    const beforeCreate = markCapturedEvents(events);
+    const createThread = await postJson(`${apiBaseUrl}/channels/${forumChannelId}/threads`, body, token);
+    const error = await assertJsonError(createThread, 400);
+    assert.equal(error.code, 50035);
+    assert.equal(error.message, "Invalid Form Body");
+    assert.deepEqual((error.errors as Record<string, unknown>).applied_tags, {
+        _errors: [
+            {
+                code: "BASE_TYPE_REQUIRED",
+                message: "This field is required",
+            },
+        ],
+    });
+    assert.equal(await Channel.findOneBy({ parent_id: forumChannelId, name }), null);
+    await assert.rejects(
+        () => waitForEventAfter(events, beforeCreate, (event) => event.event === "THREAD_CREATE" && event.channel_id === forumChannelId && event.data.name === name),
+        /Timed out waiting for event/,
+    );
 }
 
 async function createForumThread(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string, events: EventCapture) {
@@ -292,6 +499,46 @@ async function createPrivateThread(apiBaseUrl: string, textChannelId: string, to
     return threadId;
 }
 
+async function createPublicTextThread(apiBaseUrl: string, textChannelId: string, token: string, events: EventCapture) {
+    const beforeCreate = markCapturedEvents(events);
+    const createThread = await postJson(
+        `${apiBaseUrl}/channels/${textChannelId}/threads`,
+        {
+            name: "scenario-public-text-thread",
+            type: ChannelType.GUILD_PUBLIC_THREAD,
+        },
+        token,
+    );
+    await assertStatus(createThread, 200);
+    const thread = await assertJsonObject(createThread);
+    const threadId = thread.id as string;
+    assert.equal(thread.type, ChannelType.GUILD_PUBLIC_THREAD);
+    await waitForEventAfter(
+        events,
+        beforeCreate,
+        (event) => event.event === "THREAD_CREATE" && event.channel_id === textChannelId && event.data.id === threadId && event.data.newly_created === true,
+    );
+    return threadId;
+}
+
+async function findThreadCreatedMessage(parentChannelId: string, threadId: string) {
+    const messages = await Message.find({
+        where: { channel_id: parentChannelId, type: MessageType.THREAD_CREATED },
+    });
+    const message = messages.find((message) => message.message_reference?.channel_id === threadId);
+    assert.ok(message, `expected THREAD_CREATED message for thread ${threadId}`);
+    return message;
+}
+
+async function assertChannelNotificationCursor(channelId: string, userId: string, expectedCursor: string) {
+    const readState = await ReadState.findOneByOrFail({
+        user_id: userId,
+        channel_id: channelId,
+        read_state_type: ReadStateType.CHANNEL,
+    });
+    assert.equal(readState.notifications_cursor, expectedCursor);
+}
+
 async function coverThreadSearch(apiBaseUrl: string, forumChannelId: string, threadId: string, tagId: string, token: string) {
     const search = await assertJsonObject(
         await getJson(`${apiBaseUrl}/channels/${forumChannelId}/threads/search?name=scenario-forum&tag=${tagId}&tag_setting=match_all&archived=false`, token),
@@ -299,6 +546,63 @@ async function coverThreadSearch(apiBaseUrl: string, forumChannelId: string, thr
     assert.equal(search.total_results, 1);
     assert.equal((search.threads as Array<Record<string, unknown>>)[0].id, threadId);
     assert.equal((search.first_messages as Array<Record<string, unknown>>)[0].id, threadId);
+}
+
+async function assertThreadChannelPatchValidation(apiBaseUrl: string, threadId: string, token: string, events: EventCapture) {
+    const before = await Channel.findOneByOrFail({ id: threadId });
+    const previousEvents = markCapturedEvents(events);
+    const patch = await patchJson(
+        `${apiBaseUrl}/channels/${threadId}`,
+        {
+            permission_overwrites: [],
+            position: 0,
+            applied_tags: ["unknown-tag"],
+        },
+        token,
+    );
+
+    await assertStatus(patch, 400);
+    const body = await assertJsonObject(patch);
+    assert.equal(body.code, 50035);
+    assert.equal(body.message, "Invalid Form Body");
+    assertFieldError(body, "permission_overwrites", "Threads cannot update permission_overwrites");
+    assertFieldError(body, "position", "Threads cannot update position");
+    assertFieldError(body, "applied_tags", "Invalid tag unknown-tag");
+
+    const after = await Channel.findOneByOrFail({ id: threadId });
+    assert.deepEqual(after.permission_overwrites ?? [], before.permission_overwrites ?? []);
+    assert.deepEqual(after.applied_tags ?? [], before.applied_tags ?? []);
+    assert.equal(after.position, before.position);
+    assertNoChannelUpdateEventAfter(events, previousEvents, threadId);
+}
+
+async function assertThreadPermissionOverwriteRouteValidation(apiBaseUrl: string, threadId: string, guildId: string, token: string, events: EventCapture) {
+    const before = await Channel.findOneByOrFail({ id: threadId });
+
+    let previousEvents = markCapturedEvents(events);
+    const putResponse = await putJson(
+        `${apiBaseUrl}/channels/${threadId}/permissions/${guildId}`,
+        { id: guildId, type: ChannelPermissionOverwriteType.role, allow: "1024", deny: "2048" },
+        token,
+    );
+    await assertThreadPermissionOverwriteResponse(putResponse);
+    assertNoChannelUpdateEventAfter(events, previousEvents, threadId);
+
+    previousEvents = markCapturedEvents(events);
+    const deleteResponse = await deleteJson(`${apiBaseUrl}/channels/${threadId}/permissions/${guildId}`, token);
+    await assertThreadPermissionOverwriteResponse(deleteResponse);
+    assertNoChannelUpdateEventAfter(events, previousEvents, threadId);
+
+    const after = await Channel.findOneByOrFail({ id: threadId });
+    assert.deepEqual(after.permission_overwrites ?? [], before.permission_overwrites ?? []);
+}
+
+async function assertThreadPermissionOverwriteResponse(response: Response) {
+    await assertStatus(response, 400);
+    const body = await assertJsonObject(response);
+    assert.equal(body.code, 50035);
+    assert.equal(body.message, "Invalid Form Body");
+    assertFieldError(body, "permission_overwrites", "Threads cannot update permission_overwrites");
 }
 
 async function coverThreadMemberRoutes(
@@ -317,9 +621,11 @@ async function coverThreadMemberRoutes(
     assert.equal(ownerThreadMember.id, threadId);
     assert.equal(ownerThreadMember.member_idx, ownerMemberIndex);
 
+    await overwriteThreadMemberCount(threadId, null);
+
     const beforePost = markCapturedEvents(events);
     await assertStatus(await postJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, {}, token), 204);
-    await waitForEventAfter(
+    const postEvent = await waitForEventAfter(
         events,
         beforePost,
         (event) =>
@@ -327,20 +633,28 @@ async function coverThreadMemberRoutes(
             event.channel_id === threadId &&
             event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
     );
+    assert.equal(postEvent.data.member_count, 2);
     await assertThreadMember(threadId, joinedMemberIndex);
+    await assertPersistedThreadMemberCount(threadId, 2);
+
+    await overwriteThreadMemberCount(threadId, 99);
 
     const beforeDelete = markCapturedEvents(events);
     await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, token), 204);
-    await waitForEventAfter(
+    const deleteEvent = await waitForEventAfter(
         events,
         beforeDelete,
         (event) => event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.removed_member_ids?.includes(joinedUserId),
     );
+    assert.equal(deleteEvent.data.member_count, 1);
     assert.equal(await ThreadMember.findOneBy({ id: threadId, member_idx: joinedMemberIndex }), null);
+    await assertPersistedThreadMemberCount(threadId, 1);
+
+    await overwriteThreadMemberCount(threadId, 99);
 
     const beforePut = markCapturedEvents(events);
     await assertStatus(await putJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, {}, token), 204);
-    await waitForEventAfter(
+    const putEvent = await waitForEventAfter(
         events,
         beforePut,
         (event) =>
@@ -348,7 +662,9 @@ async function coverThreadMemberRoutes(
             event.channel_id === threadId &&
             event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
     );
+    assert.equal(putEvent.data.member_count, 2);
     await assertThreadMember(threadId, joinedMemberIndex);
+    await assertPersistedThreadMemberCount(threadId, 2);
 
     const beforeSettings = markCapturedEvents(events);
     const settings = await patchJson(`${apiBaseUrl}/channels/${threadId}/thread-members/@me/settings`, { muted: true, flags: ThreadMemberFlags.ONLY_MENTIONS }, token);
@@ -366,6 +682,61 @@ async function coverThreadMemberRoutes(
     assert.equal(persistedOwnerMember.flags, ThreadMemberFlags.ONLY_MENTIONS);
 }
 
+async function coverImplicitThreadMessageJoin(
+    apiBaseUrl: string,
+    threadId: string,
+    memberIndex: string,
+    userId: string,
+    deleteToken: string,
+    messageToken: string,
+    events: EventCapture,
+) {
+    const beforeDelete = markCapturedEvents(events);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${userId}`, deleteToken), 204);
+    const deleteEvent = await waitForEventAfter(
+        events,
+        beforeDelete,
+        (event) => event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.removed_member_ids?.includes(userId),
+    );
+    assert.equal(deleteEvent.data.member_count, 1);
+    assert.equal(await ThreadMember.findOneBy({ id: threadId, member_idx: memberIndex }), null);
+    await assertPersistedThreadMemberCount(threadId, 1);
+
+    await overwriteThreadMemberCount(threadId, null);
+
+    const beforeMessage = markCapturedEvents(events);
+    await assertStatus(await postJson(`${apiBaseUrl}/channels/${threadId}/messages`, { content: "implicit thread join" }, messageToken), 200);
+    const joinEvent = await waitForEventAfter(
+        events,
+        beforeMessage,
+        (event) =>
+            event.event === "THREAD_MEMBERS_UPDATE" &&
+            event.channel_id === threadId &&
+            event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === userId),
+    );
+    assert.equal(joinEvent.data.member_count, 2);
+    await assertThreadMember(threadId, memberIndex);
+    await assertPersistedThreadMemberCount(threadId, 2);
+}
+
+async function overwriteThreadMemberCount(threadId: string, memberCount: number | null) {
+    if (memberCount === null) {
+        await Channel.createQueryBuilder()
+            .update(Channel)
+            .set({ member_count: () => "NULL" })
+            .where("id = :threadId", { threadId })
+            .execute();
+        return;
+    }
+
+    await Channel.update({ id: threadId }, { member_count: memberCount });
+}
+
+async function assertPersistedThreadMemberCount(threadId: string, expected: number) {
+    const thread = await Channel.findOneByOrFail({ id: threadId });
+    assert.equal(thread.member_count, expected);
+}
+
 async function coverTagDelete(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string, events: EventCapture) {
     const beforeDelete = markCapturedEvents(events);
     const deleteTag = await deleteJson(`${apiBaseUrl}/channels/${forumChannelId}/tags/${tagId}`, token);
@@ -378,11 +749,11 @@ async function coverTagDelete(apiBaseUrl: string, forumChannelId: string, tagId:
     assert.equal(await Tag.findOneBy({ id: tagId }), null);
 }
 
-async function createForumChannel(apiBaseUrl: string, guildId: string, token: string) {
+async function createForumChannel(apiBaseUrl: string, guildId: string, token: string, name = "scenario-forum") {
     const createForum = await postJson(
         `${apiBaseUrl}/guilds/${guildId}/channels`,
         {
-            name: "scenario-forum",
+            name,
             type: ChannelType.GUILD_FORUM,
         },
         token,
@@ -422,6 +793,20 @@ function hasTag(tags: unknown, tagId: string, name: string) {
     return Array.isArray(tags) && tags.some((tag) => tag.id === tagId && tag.name === name);
 }
 
+function assertFieldError(body: Record<string, unknown>, field: string, message: string) {
+    const errors = body.errors as Record<string, { _errors?: Array<{ code?: string; message?: string }> }> | undefined;
+    const fieldError = errors?.[field]?._errors?.[0];
+    assert.equal(fieldError?.code, "BASE_TYPE_BAD_VALUE");
+    assert.equal(fieldError?.message, message);
+}
+
+function assertNoChannelUpdateEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, channelId: string) {
+    assert.equal(
+        capture.events.some((event) => !previousEvents.has(event) && event.event === "CHANNEL_UPDATE" && event.channel_id === channelId),
+        false,
+    );
+}
+
 function markCapturedEvents(capture: EventCapture) {
     return new Set(capture.events);
 }
@@ -430,12 +815,32 @@ async function waitForEventAfter(capture: EventCapture, previousEvents: Set<Capt
     return await capture.waitFor((event) => !previousEvents.has(event) && predicate(event), eventTimeoutMs);
 }
 
+async function assertNoEventAfter(capture: EventCapture, previousEvents: Set<CapturedEvent>, predicate: (event: CapturedEvent) => boolean) {
+    await delay(250);
+    assert.equal(
+        capture.events.some((event) => !previousEvents.has(event) && predicate(event)),
+        false,
+    );
+}
+
+async function assertUnknownTag(response: Response) {
+    const body = await assertJsonError(response, DiscordApiErrors.UNKNOWN_TAG.httpStatus);
+    assert.equal(body.code, DiscordApiErrors.UNKNOWN_TAG.code);
+    assert.equal(body.message, DiscordApiErrors.UNKNOWN_TAG.message);
+}
+
 async function registerUser(username: string, email: string) {
     return await User.register({
         username,
         email,
         password: "not-a-real-login-hash",
     });
+}
+
+async function grantEveryonePermission(guildId: string, permission: bigint) {
+    const everyoneRole = await Role.findOneByOrFail({ id: guildId, guild_id: guildId });
+    everyoneRole.permissions = (BigInt(everyoneRole.permissions) | permission).toString();
+    await everyoneRole.save();
 }
 
 async function getJson(url: string, token: string) {

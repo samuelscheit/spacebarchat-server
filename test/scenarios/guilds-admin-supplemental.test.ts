@@ -3,7 +3,25 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { AutomodRule, Ban, Channel, closeDatabase, Config, generateToken, Guild, initDatabase, Invite, Member, Message, Snowflake, User, VoiceState } from "@spacebar/util";
+import { imageSize } from "image-size";
+import {
+    AutomodRule,
+    Ban,
+    Channel,
+    closeDatabase,
+    Config,
+    generateToken,
+    Guild,
+    GuildFeature,
+    initDatabase,
+    Invite,
+    Member,
+    Message,
+    Rights,
+    Snowflake,
+    User,
+    VoiceState,
+} from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
@@ -25,6 +43,7 @@ const coveredManifestIds = [
     "api:http:GET:/guilds/:guild_id/vanity-url/",
     "api:http:GET:/guilds/:guild_id/widget.png/",
     "api:http:PATCH:/guilds/:guild_id/auto-moderation/rules/:rule_id",
+    "api:http:PATCH:/guilds/:guild_id/discovery-metadata/",
     "api:http:PATCH:/guilds/:guild_id/profile/:member_id",
     "api:http:PATCH:/guilds/:guild_id/vanity-url/",
     "api:http:PATCH:/guilds/:guild_id/voice-states/:user_id/",
@@ -58,6 +77,7 @@ test(
             "api:http:GET:/guilds/:guild_id/vanity-url/",
             "api:http:GET:/guilds/:guild_id/widget.png/",
             "api:http:PATCH:/guilds/:guild_id/auto-moderation/rules/:rule_id",
+            "api:http:PATCH:/guilds/:guild_id/discovery-metadata/",
             "api:http:PATCH:/guilds/:guild_id/profile/:member_id",
             "api:http:PATCH:/guilds/:guild_id/vanity-url/",
             "api:http:PATCH:/guilds/:guild_id/voice-states/:user_id/",
@@ -117,6 +137,7 @@ test(
 
             await coverAutomodRoutes(api.apiBaseUrl, guildId, ownerToken, owner.id);
             await coverGuildReadOnlyAndStubRoutes(api.apiBaseUrl, guildId, ownerToken);
+            await coverDiscoveryMetadataPublishing(api.apiBaseUrl, guildId, ownerToken, owner.id, suffix);
             await coverGuildMessagesSearch(api.apiBaseUrl, guildId, channelId, ownerToken);
             await coverVanityAndInvites(api.apiBaseUrl, guildId, channelId, ownerToken, suffix);
             await coverMemberProfile(api.apiBaseUrl, guildId, ownerToken, owner.id, guildEvents);
@@ -192,7 +213,43 @@ async function coverGuildReadOnlyAndStubRoutes(apiBaseUrl: string, guildId: stri
     assert.ok(regions.length > 0);
 
     await Guild.update({ id: guildId }, { widget_enabled: true });
+    const widgetPng = await getJson(`${apiBaseUrl}/guilds/${guildId}/widget.png?style=banner2`, token);
+    await assertStatus(widgetPng, 200);
+    assert.equal(widgetPng.headers.get("content-type"), "image/png");
+    assert.match(widgetPng.headers.get("cache-control") ?? "", /^public, max-age=\d+, s-maxage=\d+, immutable$/);
+    const widgetPngBody = Buffer.from(await widgetPng.arrayBuffer());
+    assert.deepEqual([...widgetPngBody.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    assert.deepEqual(imageSize(widgetPngBody), { width: 320, height: 76, type: "png" });
     await assertJsonError(await getJson(`${apiBaseUrl}/guilds/${guildId}/widget.png?style=invalid`, token), 400);
+}
+
+async function coverDiscoveryMetadataPublishing(apiBaseUrl: string, guildId: string, ownerToken: string, ownerId: string, suffix: string) {
+    const ownerRights = (await User.findOneByOrFail({ id: ownerId })).rights;
+    await User.update({ id: ownerId }, { rights: "0" });
+    try {
+        await assertJsonError(await patchJson(`${apiBaseUrl}/guilds/${guildId}/discovery-metadata`, { is_published: true }, ownerToken), 403);
+    } finally {
+        await User.update({ id: ownerId }, { rights: ownerRights });
+    }
+
+    const instanceManager = await registerUser(`discmanager${suffix.slice(-8)}`, `discovery-manager-${suffix}@example.com`);
+    await User.update({ id: instanceManager.id }, { rights: Rights.FLAGS.MANAGE_GUILDS.toString() });
+    const instanceManagerToken = await generateToken(instanceManager.id);
+    assert.ok(instanceManagerToken, "instance manager token generation should return a bearer token");
+
+    const published = await patchJson(
+        `${apiBaseUrl}/guilds/${guildId}/discovery-metadata`,
+        {
+            about: "discoverable by instance manager",
+            is_published: true,
+        },
+        instanceManagerToken,
+    );
+    await assertStatus(published, 200);
+    const publishedBody = await assertJsonObject(published);
+    assert.equal(publishedBody.about, "discoverable by instance manager");
+    assert.equal(publishedBody.is_published, true);
+    assert.ok((await Guild.findOneByOrFail({ id: guildId })).features.includes("DISCOVERABLE"));
 }
 
 async function coverGuildMessagesSearch(apiBaseUrl: string, guildId: string, channelId: string, token: string) {
@@ -208,7 +265,7 @@ async function coverGuildMessagesSearch(apiBaseUrl: string, guildId: string, cha
 }
 
 async function coverVanityAndInvites(apiBaseUrl: string, guildId: string, channelId: string, token: string, suffix: string) {
-    await Guild.update({ id: guildId }, { features: ["VANITY_URL"] });
+    await Guild.update({ id: guildId }, { features: [GuildFeature.VanityUrl] });
 
     const emptyVanity = await assertJsonObject(await getJson(`${apiBaseUrl}/guilds/${guildId}/vanity-url`, token));
     assert.equal(emptyVanity.code, null);
@@ -293,10 +350,7 @@ async function coverVoiceState(apiBaseUrl: string, guildId: string, token: strin
         suppress: false,
     }).save();
 
-    await assertStatus(
-        await patchJson(`${apiBaseUrl}/guilds/${guildId}/voice-states/@me`, { channel_id: stageId, self_mute: false, self_deaf: false, suppress: true }, token),
-        204,
-    );
+    await assertStatus(await patchJson(`${apiBaseUrl}/guilds/${guildId}/voice-states/@me`, { channel_id: stageId, suppress: true }, token), 204);
     await events.waitFor(
         (event) => event.event === "VOICE_STATE_UPDATE" && event.guild_id === guildId && event.data.user_id === ownerId && event.data.suppress === true,
         eventTimeoutMs,

@@ -48,7 +48,38 @@ const makeEmbedImage = (url: string | undefined, width: number | undefined, heig
     };
 };
 
+const makeEmbedVideo = (url: string | undefined, width?: number, height?: number): EmbedImage | undefined => {
+    if (!url) return undefined;
+
+    const video: EmbedImage = { url };
+    if (width) video.width = width;
+    if (height) video.height = height;
+    if (width && height) video.proxy_url = getProxyUrl(new URL(url), width, height);
+
+    return video;
+};
+
+const makeDirectVideoEmbed = (url: URL): Embed => ({
+    url: url.href,
+    type: EmbedType.video,
+    video: {
+        url: url.href,
+        proxy_url: url.href,
+    },
+});
+
 let hasWarnedAboutImagor = false;
+
+const getImagorImagePath = (url: URL): string => {
+    const path = `${url.host}${url.pathname}`;
+
+    if (!url.search && url.protocol === "https:") return path;
+
+    // A raw "?" would become the Imagor request query instead of the source image
+    // query. Use Imagor's b64: image URI form when the original URL cannot be
+    // represented safely as the plain default-HTTPS host/path form.
+    return `b64:${Buffer.from(`${url.origin}${url.pathname}${url.search}`).toString("base64url")}`;
+};
 
 export const getProxyUrl = (url: URL, width: number, height: number): string => {
     const { resizeWidthMax, resizeHeightMax, imagorServerUrl } = Config.get().cdn;
@@ -58,7 +89,7 @@ export const getProxyUrl = (url: URL, width: number, height: number): string => 
 
     // Imagor
     if (imagorServerUrl) {
-        const path = `${width}x${height}/${url.host}${url.pathname}`;
+        const path = `${width}x${height}/${getImagorImagePath(url)}`;
 
         const hash = crypto.createHmac("sha1", secret).update(path).digest("base64").replace(/\+/g, "-").replace(/\//g, "_");
 
@@ -89,20 +120,163 @@ const tryParseInt = (str: string | undefined) => {
     }
 };
 
+type YoutubeVideoObject = {
+    "@type"?: unknown;
+    ownerProfileUrl?: unknown;
+    externalChannelId?: unknown;
+};
+
+const youtubeCanonicalOrigin = "https://www.youtube.com";
+const youtubeAuthorHosts = new Set(["youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com"]);
+const youtubeDocumentHosts = new Set([...youtubeAuthorHosts, "youtu.be"]);
+const youtubeChannelIdRegex = /^UC[A-Za-z0-9_-]{22}$/;
+const youtubeHandleRegex = /^@[A-Za-z0-9._-]{3,30}$/;
+const youtubeLegacyProfileSlugRegex = /^[A-Za-z0-9._-]{1,100}$/;
+
+const getNonEmptyString = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    return trimmed.length ? trimmed : undefined;
+};
+
+const tryParseUrl = (value: string, baseUrl: URL): URL | undefined => {
+    try {
+        return new URL(value, baseUrl);
+    } catch (e) {
+        return undefined;
+    }
+};
+
+const getFetchedUrl = (response: Response, fallbackUrl: URL): URL => {
+    const responseUrl = getNonEmptyString((response as { url?: unknown }).url);
+    if (!responseUrl) return fallbackUrl;
+
+    return tryParseUrl(responseUrl, fallbackUrl) ?? fallbackUrl;
+};
+
+const isYoutubeAuthorHost = (hostname: string): boolean => youtubeAuthorHosts.has(hostname.toLowerCase());
+const isYoutubeDocumentHost = (hostname: string): boolean => youtubeDocumentHosts.has(hostname.toLowerCase());
+
+const getDecodedPathSegments = (url: URL): string[] | undefined => {
+    try {
+        return url.pathname
+            .split("/")
+            .filter(Boolean)
+            .map((segment) => decodeURIComponent(segment));
+    } catch (e) {
+        return undefined;
+    }
+};
+
+const getYoutubeChannelUrl = (channelIdValue: unknown): string | undefined => {
+    const channelId = getNonEmptyString(channelIdValue);
+    if (!channelId || !youtubeChannelIdRegex.test(channelId)) return undefined;
+
+    return `${youtubeCanonicalOrigin}/channel/${encodeURIComponent(channelId)}`;
+};
+
+const getYoutubeCanonicalAuthorUrl = (urlValue: unknown, baseUrl: URL): string | undefined => {
+    const rawUrl = getNonEmptyString(urlValue);
+    if (!rawUrl) return undefined;
+
+    const parsedUrl = tryParseUrl(rawUrl, rawUrl.startsWith("/") ? new URL(youtubeCanonicalOrigin) : baseUrl);
+    if (!parsedUrl || (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:")) return undefined;
+    if (!isYoutubeAuthorHost(parsedUrl.hostname)) return undefined;
+
+    const segments = getDecodedPathSegments(parsedUrl);
+    if (!segments) return undefined;
+
+    const [profileType, profileSlug] = segments;
+    if (segments.length === 1 && youtubeHandleRegex.test(profileType)) {
+        return `${youtubeCanonicalOrigin}/${profileType}`;
+    }
+
+    if (segments.length === 2 && profileType === "channel") {
+        return getYoutubeChannelUrl(profileSlug);
+    }
+
+    if (segments.length === 2 && (profileType === "c" || profileType === "user") && youtubeLegacyProfileSlugRegex.test(profileSlug)) {
+        return `${youtubeCanonicalOrigin}/${profileType}/${encodeURIComponent(profileSlug)}`;
+    }
+
+    return undefined;
+};
+
+const isYoutubeVideoObjectType = (type: unknown): boolean => type === "VideoObject" || (Array.isArray(type) && type.includes("VideoObject"));
+
+const findYoutubeVideoObject = (value: unknown): YoutubeVideoObject | undefined => {
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            const videoObject = findYoutubeVideoObject(item);
+            if (videoObject) return videoObject;
+        }
+        return undefined;
+    }
+
+    if (!value || typeof value !== "object") return undefined;
+    const object = value as Record<string, unknown>;
+    if (isYoutubeVideoObjectType(object["@type"])) return object as YoutubeVideoObject;
+    return findYoutubeVideoObject(object["@graph"]);
+};
+
+const getYoutubeAuthorUrl = ($: cheerio.CheerioAPI, baseUrl: URL): string | undefined => {
+    if (!isYoutubeDocumentHost(baseUrl.hostname)) return undefined;
+
+    for (const elem of $('script[type="application/ld+json"]').toArray()) {
+        try {
+            const videoObject = findYoutubeVideoObject(JSON.parse($(elem).text()));
+            if (!videoObject) continue;
+
+            const ownerProfileUrl = getYoutubeCanonicalAuthorUrl(videoObject.ownerProfileUrl, baseUrl);
+            if (ownerProfileUrl) return ownerProfileUrl;
+
+            const channelUrl = getYoutubeChannelUrl(videoObject.externalChannelId);
+            if (channelUrl) return channelUrl;
+        } catch (e) {
+            continue;
+        }
+    }
+
+    const authorUrl = getYoutubeCanonicalAuthorUrl($('[itemprop="author"] [itemprop="url"]').first().attr("href"), baseUrl);
+    if (authorUrl) return authorUrl;
+
+    return getYoutubeChannelUrl($('[itemprop="channelId"]').first().attr("content") || $('[itemprop="channelId"]').first().text());
+};
+
+export const getTwitterStatusId = (url: URL): string | undefined => {
+    const segments = url.pathname.split("/").filter(Boolean);
+    let statusIndex = -1;
+
+    if (segments[0] === "i" && segments[1] === "web" && segments[2] === "status") {
+        statusIndex = 2;
+    } else if (segments[1] === "status" || segments[1] === "statuses") {
+        statusIndex = 1;
+    }
+
+    if (statusIndex < 0) return undefined;
+
+    const id = segments[statusIndex + 1];
+    if (!id || !/^\d+$/.test(id)) return undefined;
+    return id;
+};
+
 export const getMetaDescriptions = (text: string) => {
     const $ = cheerio.load(text);
 
     return {
         type: getMeta($, "og:type"),
-        title: getMeta($, "og:title") || $("title").first().text(),
+        title: getMeta($, "og:title") || getMeta($, "twitter:title") || $("title").first().text(),
         provider_name: getMeta($, "og:site_name"),
         author: getMeta($, "article:author"),
-        description: getMeta($, "og:description") || getMeta($, "description"),
+        description: getMeta($, "og:description") || getMeta($, "twitter:description") || getMeta($, "description"),
         image: getMeta($, "og:image") || getMeta($, "twitter:image"),
         image_fallback: $(`image`).attr("src"),
+        video: getMeta($, "og:video:secure_url") || getMeta($, "og:video:url") || getMeta($, "og:video") || getMeta($, "twitter:player:stream") || getMeta($, "twitter:player"),
         video_fallback: $(`video`).attr("src"),
         width: tryParseInt(getMeta($, "og:image:width")),
         height: tryParseInt(getMeta($, "og:image:height")),
+        video_width: tryParseInt(getMeta($, "og:video:width") || getMeta($, "twitter:player:width")),
+        video_height: tryParseInt(getMeta($, "og:video:height") || getMeta($, "twitter:player:height")),
         url: getMeta($, "og:url"),
         youtube_embed: getMeta($, "og:video:secure_url"),
         site_name: getMeta($, "og:site_name"),
@@ -111,42 +285,131 @@ export const getMetaDescriptions = (text: string) => {
     };
 };
 
-const doFetch = async (url: URL, opts?: RequestInit) => {
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
+const isNonEmptyString = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
+
+const toHttpUrl = (value: unknown): string | undefined => {
+    if (!isNonEmptyString(value)) return undefined;
+
     try {
-        const res = await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
-        if (res.headers.get("content-length")) {
-            const contentLength = parseInt(res.headers.get("content-length")!);
-            if (Config.get().limits.message.maxEmbedDownloadSize && contentLength > Config.get().limits.message.maxEmbedDownloadSize) {
-                return null;
-            }
-        }
-        return res;
+        const url = new URL(value.trim());
+        if (url.protocol !== "http:" && url.protocol !== "https:") return undefined;
+        return url.toString();
+    } catch (e) {
+        return undefined;
+    }
+};
+
+export const getSteamHighlightVideo = ($: cheerio.CheerioAPI): EmbedImage | undefined => {
+    const props = $(".gamehighlight_desktopcarousel").attr("data-props");
+    if (!props) return undefined;
+
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(props);
+    } catch (e) {
+        return undefined;
+    }
+
+    if (!isRecord(parsed)) return undefined;
+
+    const trailers = Array.isArray(parsed.trailers) ? parsed.trailers : [];
+    const manifests = trailers.filter(isRecord).map((trailer) => ({
+        hls: toHttpUrl(trailer.hlsManifest),
+        dash: Array.isArray(trailer.dashManifests) ? trailer.dashManifests.map(toHttpUrl).filter((url): url is string => !!url) : [],
+    }));
+
+    const hlsManifest = manifests.find((manifest) => manifest.hls)?.hls;
+    if (hlsManifest) return { url: hlsManifest };
+
+    const dashManifests = manifests.flatMap((manifest) => manifest.dash);
+    const h264DashManifest = dashManifests.find((manifest) => new URL(manifest).pathname.toLowerCase().endsWith("/dash_h264.mpd"));
+    const dashManifest = h264DashManifest ?? dashManifests[0];
+    if (dashManifest) return { url: dashManifest };
+
+    return undefined;
+};
+
+const fetchResponse = async (url: URL, opts?: RequestInit) => {
+    try {
+        return await fetch(url, OrmUtils.mergeDeep({ ...getDefaultFetchOptions() }, opts ?? {}));
     } catch (e) {
         return null;
     }
 };
 
-const genericImageHandler = async (url: URL): Promise<Embed | null> => {
-    const type = await fetch(url, {
-        ...getDefaultFetchOptions(),
-        method: "HEAD",
-    });
+const exceedsMaxEmbedDownloadSize = (response: Response): boolean => {
+    if (!response.headers.get("content-length")) return false;
 
-    let image;
+    const contentLength = parseInt(response.headers.get("content-length")!);
+    return !!Config.get().limits.message.maxEmbedDownloadSize && contentLength > Config.get().limits.message.maxEmbedDownloadSize;
+};
 
-    if (type.headers.get("content-type")?.indexOf("image") !== -1) {
+const doFetch = async (url: URL, opts?: RequestInit) => {
+    const res = await fetchResponse(url, opts);
+    if (!res) return null;
+    if (exceedsMaxEmbedDownloadSize(res)) return null;
+    return res;
+};
+
+const getMediaContentFamily = (contentType: string | null): "image" | "video" | undefined => {
+    const mimeType = contentType?.split(";", 1)[0].trim().toLowerCase();
+    if (mimeType?.startsWith("image/")) return "image";
+    if (mimeType?.startsWith("video/")) return "video";
+    return undefined;
+};
+
+const makeDirectMediaEmbed = async (url: URL, contentType: string | null): Promise<Embed | null | undefined> => {
+    const mediaFamily = getMediaContentFamily(contentType);
+
+    if (mediaFamily === "image") {
         const result = await probe(url.href);
-        image = makeEmbedImage(url.href, result.width, result.height);
-    } else if (type.headers.get("content-type")?.indexOf("video") !== -1) {
-        // TODO
-        return null;
-    } else {
-        // have to download the page, unfortunately
-        const response = await doFetch(url);
-        if (!response) return null;
-        const metas = getMetaDescriptions(await response.text());
-        image = makeEmbedImage(metas.image || metas.image_fallback, metas.width, metas.height);
+        const image = makeEmbedImage(url.href, result.width, result.height);
+        if (!image) return null;
+
+        return {
+            url: url.href,
+            type: EmbedType.image,
+            thumbnail: image,
+        };
     }
+
+    if (mediaFamily === "video") return makeDirectVideoEmbed(url);
+
+    return undefined;
+};
+
+const makeResponseDirectMediaEmbed = async (url: URL, response: Response | null): Promise<Embed | null | undefined> => {
+    if (!response) return undefined;
+    return await makeDirectMediaEmbed(url, response.headers.get("content-type"));
+};
+
+const cancelResponseBody = async (response: Response): Promise<void> => {
+    try {
+        await response.body?.cancel();
+    } catch (e) {
+        // ignore cleanup failures; the embed decision was already made from headers
+    }
+};
+
+const genericMediaHandler = async (url: URL): Promise<Embed | null> => {
+    const type = await fetchResponse(url, { method: "HEAD" });
+    const directMediaEmbed = await makeResponseDirectMediaEmbed(url, type);
+    if (directMediaEmbed !== undefined) return directMediaEmbed;
+
+    // have to download the page, unfortunately
+    const response = await fetchResponse(url);
+    if (!response) return null;
+    const getDirectMediaEmbed = await makeResponseDirectMediaEmbed(url, response);
+    if (getDirectMediaEmbed !== undefined) {
+        await cancelResponseBody(response);
+        return getDirectMediaEmbed;
+    }
+    if (exceedsMaxEmbedDownloadSize(response)) return null;
+
+    const metas = getMetaDescriptions(await response.text());
+    const image = makeEmbedImage(metas.image || metas.image_fallback, metas.width, metas.height);
 
     if (!image) return null;
 
@@ -162,19 +425,25 @@ export const EmbedHandlers: {
 } = {
     // the url does not have a special handler
     default: async (url: URL) => {
-        const type = await fetch(url, {
-            ...getDefaultFetchOptions(),
-            method: "HEAD",
-        });
-        if (type.headers.get("content-type")?.indexOf("image") !== -1) return await genericImageHandler(url);
+        const type = await fetchResponse(url, { method: "HEAD" });
+        const directMediaEmbed = await makeResponseDirectMediaEmbed(url, type);
+        if (directMediaEmbed !== undefined) return directMediaEmbed;
 
-        const response = await doFetch(url);
+        const response = await fetchResponse(url);
         if (!response) return null;
+        const getDirectMediaEmbed = await makeResponseDirectMediaEmbed(url, response);
+        if (getDirectMediaEmbed !== undefined) {
+            await cancelResponseBody(response);
+            return getDirectMediaEmbed;
+        }
+        if (exceedsMaxEmbedDownloadSize(response)) return null;
 
         const text = await response.text();
         const metas = getMetaDescriptions(text);
 
-        // TODO: handle video
+        if (!metas.video) metas.video = metas.video_fallback;
+        if (metas.video) metas.video = new URL(metas.video, url).toString();
+        const metadataVideo = metas.video && metas.video_width && metas.video_height ? makeEmbedVideo(metas.video, metas.video_width, metas.video_height) : undefined;
 
         if (!metas.image) metas.image = metas.image_fallback;
 
@@ -185,7 +454,7 @@ export const EmbedHandlers: {
             metas.height = result.height;
         }
 
-        if (!metas.image && (!metas.title || !metas.description)) {
+        if (!metas.image && !metadataVideo && (!metas.title || !metas.description)) {
             // we don't have any content to display
             return null;
         }
@@ -194,11 +463,13 @@ export const EmbedHandlers: {
         if (metas.type == "article") embedType = EmbedType.article;
         if (metas.type == "object") embedType = EmbedType.article; // github
         if (metas.type == "rich") embedType = EmbedType.rich;
+        if (metadataVideo) embedType = EmbedType.video;
 
         return {
             url: url.href,
             type: embedType,
             title: metas.title,
+            video: metadataVideo,
             thumbnail: makeEmbedImage(metas.image, metas.width, metas.height),
             description: metas.description,
             provider: metas.site_name
@@ -210,12 +481,12 @@ export const EmbedHandlers: {
         };
     },
 
-    "giphy.com": genericImageHandler,
-    "media4.giphy.com": genericImageHandler,
-    "tenor.com": genericImageHandler,
-    "c.tenor.com": genericImageHandler,
-    "media.tenor.com": genericImageHandler,
-    "media1.tenor.com": genericImageHandler,
+    "giphy.com": genericMediaHandler,
+    "media4.giphy.com": genericMediaHandler,
+    "tenor.com": genericMediaHandler,
+    "c.tenor.com": genericMediaHandler,
+    "media.tenor.com": genericMediaHandler,
+    "media1.tenor.com": genericMediaHandler,
 
     "facebook.com": (url) => EmbedHandlers["www.facebook.com"](url),
     "www.facebook.com": async (url: URL) => {
@@ -233,14 +504,16 @@ export const EmbedHandlers: {
         };
     },
 
+    "mobile.twitter.com": (url) => EmbedHandlers["www.twitter.com"](url),
+    "x.com": (url) => EmbedHandlers["www.twitter.com"](url),
+    "www.x.com": (url) => EmbedHandlers["www.twitter.com"](url),
     "twitter.com": (url) => EmbedHandlers["www.twitter.com"](url),
     "www.twitter.com": async (url: URL) => {
         const token = Config.get().external.twitter;
         if (!token) return null;
 
-        if (!url.href.includes("/status/")) return null; // TODO;
-        const id = url.pathname.split("/")[3]; // super bad lol
-        if (!parseInt(id)) return null;
+        const id = getTwitterStatusId(url);
+        if (!id) return null;
         const endpointUrl =
             `https://api.twitter.com/2/tweets/${id}` +
             `?expansions=author_id,attachments.media_keys` +
@@ -325,23 +598,26 @@ export const EmbedHandlers: {
                 url: media[0].url,
                 proxy_url: getProxyUrl(new URL(media[0].url), media[0].width, media[0].height),
             };
-            media.shift();
+            const additionalMedia = media.slice(1);
+
+            if (additionalMedia.length == 0) return embed;
+
+            return [
+                embed,
+                ...additionalMedia.map((x) => ({
+                    type: EmbedType.rich,
+                    url: `${url.origin}${url.pathname}`,
+                    image: {
+                        width: x.width,
+                        height: x.height,
+                        url: x.url,
+                        proxy_url: getProxyUrl(new URL(x.url), x.width, x.height),
+                    },
+                })),
+            ];
         }
 
         return embed;
-
-        // TODO: Client won't merge these into a single embed, for some reason.
-        // return [embed, ...media.map((x: any) => ({
-        // 	// generate new embeds for each additional attachment
-        // 	type: EmbedType.rich,
-        // 	url: url.href,
-        // 	image: {
-        // 		width: x.width,
-        // 		height: x.height,
-        // 		url: x.url,
-        // 		proxy_url: getProxyUrl(new URL(x.url), x.width, x.height)
-        // 	}
-        // }))];
     },
 
     "open.spotify.com": async (url: URL) => {
@@ -362,7 +638,6 @@ export const EmbedHandlers: {
         };
     },
 
-    // TODO: docs: Pixiv won't work without Imagor
     "pixiv.net": (url) => EmbedHandlers["www.pixiv.net"](url),
     "www.pixiv.net": async (url: URL) => {
         const response = await doFetch(url);
@@ -370,6 +645,22 @@ export const EmbedHandlers: {
         const metas = getMetaDescriptions(await response.text());
 
         if (!metas.image) return null;
+
+        metas.image = new URL(metas.image, url).toString();
+
+        if (!metas.width || !metas.height) {
+            try {
+                const result = await probe(metas.image, {
+                    headers: {
+                        referer: `${url.origin}/`,
+                    },
+                });
+                metas.width = result.width;
+                metas.height = result.height;
+            } catch {
+                return null;
+            }
+        }
 
         return {
             url: url.href,
@@ -422,20 +713,13 @@ export const EmbedHandlers: {
             type: EmbedType.rich,
             title: metas.title,
             description: metas.description,
-            image: {
-                // TODO: meant to be thumbnail.
-                // isn't this standard across all of steam?
-                width: 460,
-                height: 215,
-                url: metas.image,
-                proxy_url: metas.image ? getProxyUrl(new URL(metas.image), 460, 215) : undefined,
-            },
+            thumbnail: makeEmbedImage(metas.image, 460, 215),
             provider: {
                 url: "https://store.steampowered.com",
                 name: "Steam",
             },
             fields,
-            // TODO: Video
+            video: getSteamHighlightVideo(metas.$),
         };
     },
 
@@ -458,7 +742,6 @@ export const EmbedHandlers: {
         const response = await doFetch(url, {
             headers: {
                 cookie: Config.get().embeds.youtube.cookie ?? "CONSENT=PENDING+999; hl=en",
-                // TODO: dynamically obtain current system curl's user agent, ie. via https://ifconfig.me/ua
                 ...(Config.get().embeds.youtube.useCurlUserAgent ? { "user-agent": "curl/8.18.0" } : {}),
                 ...(Config.get().embeds.youtube.userAgent != null
                     ? { "user-agent": Config.get().embeds.youtube.userAgent ?? undefined /* type check fails for some reason otherwise */ }
@@ -466,6 +749,7 @@ export const EmbedHandlers: {
             },
         });
         if (!response) return null;
+        const responseUrl = getFetchedUrl(response, url);
         const metas = getMetaDescriptions(await response.text());
 
         return {
@@ -483,7 +767,7 @@ export const EmbedHandlers: {
             author: metas.author
                 ? {
                       name: metas.author,
-                      // TODO: author channel url
+                      url: getYoutubeAuthorUrl(metas.$, responseUrl),
                   }
                 : undefined,
         };

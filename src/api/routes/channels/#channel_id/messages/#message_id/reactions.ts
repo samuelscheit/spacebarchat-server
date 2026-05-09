@@ -22,6 +22,7 @@ import {
     getReactionUserIds,
     hasReactionUsers,
     parseOptionalReactionTypeParam,
+    parseReactionEmojiParam,
     parseReactionTypeParam,
     reactionEventTypeData,
     reactionRemoveEventUserData,
@@ -48,24 +49,14 @@ import {
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
-import { PartialEmoji, PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
+import { PublicMemberProjection, PublicUserProjection } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
-// TODO: check if emoji is really an unicode emoji or a properly encoded external emoji
 
-function getEmoji(emoji: string): PartialEmoji {
-    emoji = decodeURIComponent(emoji);
-    const parts = emoji.includes(":") && emoji.split(":");
-    if (parts)
-        return {
-            name: parts[0],
-            id: parts[1],
-        };
-
-    return {
-        id: undefined,
-        name: emoji,
-    };
+function getEmoji(emojiParam: string) {
+    const emoji = parseReactionEmojiParam(emojiParam);
+    if (!emoji) throw new HTTPError("Invalid emoji", 400);
+    return emoji;
 }
 
 function parseRouteReactionType(value: string): ReactionType {
