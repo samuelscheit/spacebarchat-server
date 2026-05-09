@@ -8,6 +8,8 @@
         "src/api/util/handlers/VoiceStateModify.test.ts",
         "src/api/ServerConfigure.test.ts",
         "src/api/middlewares/CORS.test.ts",
+        "src/api/util/handlers/WebhookSlackRoute.test.ts",
+        "src/api/middlewares/Authentication.test.ts",
         "src/api/util/utility/ApplicationCommands.test.ts",
         "src/api/util/utility/InteractionMetadata.test.ts",
         "src/api/tests/users/userMessagesResponseSchema.test.ts",
