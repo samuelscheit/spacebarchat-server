@@ -766,6 +766,9 @@ test(
             const ownerReadyData = ownerReady.d as { session_id: string };
             await VoiceState.update({ user_id: owner.id }, { session_id: ownerReadyData.session_id });
             await readUntil(ownerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
+            await waitForEventListener(owner.id);
+            await waitForEventListener(guild.id);
+            await waitForEventListener(voiceChannel.id);
 
             ownerClient.send(
                 JSON.stringify({
@@ -810,6 +813,7 @@ test(
 
             viewerClient = await connectIdentifiedGatewayClient(gateway.url, viewerToken, streamGatewayIntents);
             await readUntil(viewerClient, (payload) => payload.op === 0 && payload.t === "READY_SUPPLEMENTAL");
+            await waitForEventListener(viewer.id);
 
             viewerClient.send(
                 JSON.stringify({

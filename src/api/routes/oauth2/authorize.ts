@@ -16,10 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
-import { Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
+import { requireOAuth2BotAuthorization, route } from "@spacebar/api";
+import { DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+import { requireOAuthAuthorizeApplication } from "../../util/utility/OAuthAuthorizeApplication";
+import { toOAuthAuthorizeBot } from "../../util/utility/OAuthAuthorizeResponse";
 const router = Router({ mergeParams: true });
 
 // TODO: scopes, other oauth types
@@ -43,12 +45,8 @@ export function toOAuthAuthorizeUserPreview(user: OAuthAuthorizeUserPreview) {
     };
 }
 
-export function toOAuthAuthorizeBotPreview(user: OAuthAuthorizeUserPreview) {
-    return {
-        ...toOAuthAuthorizeUserPreview(user),
-        bot: true,
-        approximated_guild_count: 0, // TODO
-    };
+export async function getBotApproximateGuildCount(botId: string) {
+    return Member.count({ where: { id: botId } });
 }
 
 router.get(
@@ -83,18 +81,10 @@ router.get(
             });
         }
 
-        const app = await Application.findOne({
-            where: {
-                id: client_id as string,
-            },
-            relations: { bot: true },
-        });
-
-        if (!app) throw DiscordApiErrors.UNKNOWN_APPLICATION;
-        if (!app.bot) throw DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT;
-
+        const app = await requireOAuthAuthorizeApplication(client_id as string);
         const bot = app.bot;
-        delete app.bot;
+
+        const botApproximateGuildCount = await getBotApproximateGuildCount(bot.id);
 
         const user = await User.findOneOrFail({
             where: {
@@ -157,7 +147,10 @@ router.get(
                 verify_key: app.verify_key,
                 flags: app.flags,
             },
-            bot: toOAuthAuthorizeBotPreview(bot),
+            bot: {
+                ...toOAuthAuthorizeBot(bot),
+                approximated_guild_count: botApproximateGuildCount,
+            },
             authorized: false,
         });
     },
@@ -201,24 +194,10 @@ router.post(
             });
         }
 
-        // TODO: ensure guild_id is not an empty string
         // TODO: captcha verification
-        // TODO: MFA verification
+        await requireOAuth2BotAuthorization({ getPermission, guildId: body.guild_id, mfaCode: body.code, userId: req.user_id });
 
-        const perms = await getPermission(req.user_id, body.guild_id, undefined, { member_relations: ["user"] });
-        // getPermission cache won't exist if we're owner
-        if (Object.keys(perms.cache || {}).length > 0 && perms.cache.member?.user.bot) throw DiscordApiErrors.UNAUTHORIZED;
-        perms.hasThrow("MANAGE_GUILD");
-
-        const app = await Application.findOne({
-            where: {
-                id: client_id as string,
-            },
-            relations: { bot: true },
-        });
-
-        if (!app) throw DiscordApiErrors.UNKNOWN_APPLICATION;
-        if (!app.bot) throw DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT;
+        const app = await requireOAuthAuthorizeApplication(client_id as string);
 
         await Member.addToGuild(app.id, body.guild_id);
         if (body.permissions) {

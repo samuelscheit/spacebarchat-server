@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { toOAuthAuthorizeBotPreview, toOAuthAuthorizeUserPreview } from "./authorize";
+import { toOAuthAuthorizeBot } from "../../util/utility/OAuthAuthorizeResponse";
+import { toOAuthAuthorizeUserPreview } from "./authorize";
 
 test("toOAuthAuthorizeUserPreview returns current avatar decoration response field", () => {
     const response = toOAuthAuthorizeUserPreview({
@@ -45,8 +46,8 @@ test("toOAuthAuthorizeUserPreview preserves null avatar decoration data", () => 
     );
 });
 
-test("toOAuthAuthorizeBotPreview returns current avatar decoration response field", () => {
-    const response = toOAuthAuthorizeBotPreview({
+test("toOAuthAuthorizeBot returns current avatar decoration response field", () => {
+    const response = toOAuthAuthorizeBot({
         id: "bot-id",
         username: "oauth-bot",
         avatar: null,
@@ -71,7 +72,6 @@ test("toOAuthAuthorizeBotPreview returns current avatar decoration response fiel
         discriminator: "0002",
         public_flags: 0,
         bot: true,
-        approximated_guild_count: 0,
     });
     assert.equal("avatar_decoration" in response, false);
 });

@@ -528,6 +528,7 @@
                 "type": "boolean"
             },
             "guild_id": {
+                "minLength": 1,
                 "type": "string"
             },
             "permissions": {
@@ -538,7 +539,7 @@
             },
             "code": {
                 "minLength": 6,
-                "maxLength": 6,
+                "maxLength": 8,
                 "type": "string"
             }
         },

@@ -1,6 +1,6 @@
 /*
 	Spacebar: A FOSS re-implementation and extension of the Discord.com backend.
-	Copyright (C) 2023 Spacebar and Spacebar Contributors
+	Copyright (C) 2026 Spacebar and Spacebar Contributors
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU Affero General Public License as published
@@ -16,17 +16,6 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-export interface ApplicationAuthorizeSchema {
-    authorize: boolean;
-    /**
-     * @minLength 1
-     */
-    guild_id: string;
-    permissions: string;
-    captcha_key?: string;
-    /**
-     * @minLength 6
-     * @maxLength 8
-     */
-    code?: string; // 2fa code
+export async function sleep(ms: number) {
+    return new Promise((resolve) => void setTimeout(resolve, ms));
 }
