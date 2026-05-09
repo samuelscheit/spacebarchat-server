@@ -17,7 +17,7 @@
 */
 
 import { AllowedMentions, BaseMessageComponents, Embed, MessageReference } from "@spacebar/schemas";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, PollCreationSchema } from "./MessageCreateSchema";
+import { MessageCreateAttachmentMetadata, PollCreationSchema } from "./MessageCreateSchema";
 
 export interface WebhookExecuteSchema {
     content?: string;
@@ -29,7 +29,7 @@ export interface WebhookExecuteSchema {
     components?: BaseMessageComponents[] | null;
     file?: { filename: string };
     payload_json?: string;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment)[];
+    attachments?: MessageCreateAttachmentMetadata[];
     flags?: number;
     thread_name?: string;
     applied_tags?: string[];

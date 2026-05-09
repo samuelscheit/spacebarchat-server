@@ -16,22 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { messageToResponse, route } from "@spacebar/api";
-import { Config } from "@spacebar/util";
+import { createMessageUpload, messageToResponse, route } from "@spacebar/api";
 import { WebhookMessageEditSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
-import multer from "multer";
 import { buildWebhookMessageEditBody, deleteWebhookMessage, editWebhookMessage, getWebhookForToken, getWebhookMessage } from "../../../../../../util/handlers/WebhookMessage";
 
 const router = Router({ mergeParams: true });
 
-const messageUpload = multer({
-    limits: {
-        fileSize: Config.get().limits.message.maxAttachmentSize,
-        fields: 10,
-    },
-    storage: multer.memoryStorage(),
-});
+const messageUpload = createMessageUpload();
 
 function getThreadId(req: Request) {
     return typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;

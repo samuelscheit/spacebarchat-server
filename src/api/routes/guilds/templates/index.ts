@@ -48,14 +48,14 @@ router.get(
     },
 );
 
-router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema" }), async (req: Request, res: Response) => {
+router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema", right: "CREATE_GUILDS" }), async (req: Request, res: Response) => {
     const { template_code } = req.params as { [key: string]: string };
     const body = req.body as GuildTemplateCreateSchema;
 
     const { maxGuilds } = Config.get().limits.user;
 
     const guild_count = await Member.count({ where: { id: req.user_id } });
-    if (guild_count >= maxGuilds) throw DiscordApiErrors.MAXIMUM_GUILDS.withParams(maxGuilds);
+    if (guild_count >= maxGuilds && !req.rights.has("MANAGE_GUILDS")) throw DiscordApiErrors.MAXIMUM_GUILDS.withParams(maxGuilds);
 
     const template = (await getTemplate(template_code)) as Template;
 
@@ -65,6 +65,7 @@ router.post("/:template_code", route({ requestBody: "GuildTemplateCreateSchema" 
         ...body,
         owner_id: req.user_id,
         source_guild_id: template.source_guild_id,
+        rights: req.rights,
     });
 
     await Member.addToGuild(req.user_id, guild.id);

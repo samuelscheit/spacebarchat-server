@@ -16,6 +16,10 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { DmChannelDTO } from "../../util/dtos";
+
 import { PartialMessage } from "@spacebar/schemas";
 
 export type DmMessagesResponseSchema = PartialMessage[];
+
+export type APIDMChannelArray = DmChannelDTO[];

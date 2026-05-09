@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { User } from "@spacebar/util";
-import { toAdminUser, toAdminUserListItem } from "./dto";
+import { Guild, User } from "@spacebar/util";
+import { toAdminGuild, toAdminUser, toAdminUserListItem } from "./dto";
 
 process.env.DATABASE ??= "postgres://user:password@localhost:5432/test";
 
@@ -87,4 +87,34 @@ describe("admin DTOs", () => {
         assert.equal("data" in dto, false);
         assert.equal("hash" in dto, false);
     });
+});
+
+test("guild detail DTO exposes the configured stage video channel user limit", () => {
+    const dto = toAdminGuild(
+        {
+            id: "100",
+            name: "Stage Admin Guild",
+            features: [],
+            large: false,
+            max_video_channel_users: 25,
+            max_stage_video_channel_users: 73,
+            unavailable: false,
+            widget_enabled: false,
+            nsfw: false,
+            premium_progress_bar_enabled: false,
+            channel_ordering: [],
+        } as unknown as Guild,
+        {
+            channelCount: 0,
+            roleCount: 0,
+            emojiCount: 0,
+            stickerCount: 0,
+            inviteCount: 0,
+            messageCount: 0,
+            banCount: 0,
+            voiceStateCount: 0,
+        },
+    );
+
+    assert.equal(dto.maxStageVideoChannelUsers, 73);
 });

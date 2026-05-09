@@ -21,14 +21,18 @@ import {
     emitEvent,
     getMostRelevantSession,
     Member,
+    VoiceStateMemberRelations,
+    memberToVoiceStateMember,
     PresenceUpdateEvent,
     Session,
     SessionsReplace,
     User,
+    UserSettings,
     VoiceState,
     VoiceStateUpdateEvent,
     Config,
     distributePresenceUpdate,
+    getDatabase,
     serializePrivateGatewaySessions,
 } from "@spacebar/util";
 import { randomString } from "@spacebar/api";
@@ -41,7 +45,7 @@ export interface CloseSessionRecord {
     client_status: PresenceUpdateEvent["data"]["client_status"];
     status: PresenceUpdateEvent["data"]["status"];
     getPublicStatus(): PresenceUpdateEvent["data"]["status"];
-    toPrivateGatewayDeviceInfo(): SessionsReplace["data"][number];
+    toPrivateGatewayDeviceInfo(showCurrentGame?: boolean | null): SessionsReplace["data"][number];
 }
 
 export interface CloseSessionCleanupDependencies {
@@ -72,16 +76,23 @@ const closeSessionCleanupDependencies: CloseSessionCleanupDependencies = {
     },
     findPublicUser: async (userId) => User.getPublicUser(userId).catch(() => undefined),
     emitSessionsReplace: async (userId, sessions) => {
+        const settings = await UserSettings.getOrDefault(userId);
         await emitEvent({
             event: "SESSIONS_REPLACE",
             user_id: userId,
-            data: serializePrivateGatewaySessions(sessions),
+            data: serializePrivateGatewaySessions(sessions, settings.show_current_game),
         } as SessionsReplace);
     },
     distributePresenceUpdate,
     getMostRelevantSession: (sessions) => getMostRelevantSession(sessions as Session[]),
     createTransactionId: (userId) => `IDENT_${userId}_${randomString()}`,
 };
+
+type CloseSessionCleanupDatabase = { isInitialized: boolean } | null | undefined;
+
+export function shouldRunClosedSessionCleanup(scheduledDatabase: CloseSessionCleanupDatabase, currentDatabase: CloseSessionCleanupDatabase) {
+    return scheduledDatabase !== null && scheduledDatabase !== undefined && scheduledDatabase === currentDatabase && scheduledDatabase.isInitialized;
+}
 
 export async function cleanupClosedSessionPresence(
     userId: string | undefined,
@@ -134,9 +145,14 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
         if (this.user_id && this.session_id) {
             const authSessionId = this.session?.session_id;
             const closedAt = Date.now();
+            const scheduledDatabase = getDatabase();
 
             delayedSessionCleanup = runDelayedGatewayCloseCleanup(async () => {
                 try {
+                    if (!shouldRunClosedSessionCleanup(scheduledDatabase, getDatabase())) {
+                        console.log("Skipping presence update after disconnect because the database connection changed");
+                        return;
+                    }
                     console.log("Handling presence update after disconnect");
                     const updated = await cleanupClosedSessionPresence(this.user_id, authSessionId, closedAt);
                     if (updated) console.log("... done!");
@@ -163,19 +179,22 @@ export async function Close(this: WebSocket, code: number, reason: Buffer) {
                 voiceState.self_video = false;
                 await voiceState.save();
 
-                voiceState.member = await Member.findOneOrFail({
-                    where: {
-                        id: voiceState.user_id,
-                        guild_id: prevGuildId,
-                    },
-                });
+                const member = prevGuildId
+                    ? await Member.findOne({
+                          where: {
+                              id: voiceState.user_id,
+                              guild_id: prevGuildId,
+                          },
+                          relations: VoiceStateMemberRelations,
+                      })
+                    : undefined;
                 // let the users in previous guild/channel know that user disconnected
                 await emitEvent({
                     event: "VOICE_STATE_UPDATE",
                     data: {
                         ...voiceState.toPublicVoiceState(),
                         guild_id: prevGuildId, // have to send the previous guild_id because that's what client expects for disconnect messages
-                        member: voiceState.member.toPublicMember(),
+                        member: member ? memberToVoiceStateMember(member) : undefined,
                     },
                     guild_id: prevGuildId,
                     channel_id: prevChannelId,
