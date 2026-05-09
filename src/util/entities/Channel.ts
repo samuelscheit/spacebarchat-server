@@ -27,9 +27,12 @@ import { Config } from "../util/Config";
 import { DiscordApiErrors } from "../util/Constants";
 import { getDatabase } from "../util/Database";
 import { canCreateServerDm, shouldCheckServerDmPrivacy } from "../util/DmPrivacy";
+import { normalizeAndAssertCreateDmRecipientsForLimit } from "../util/DmRecipientLimits";
+import { serializeChannelRecipients } from "../util/ChannelRecipients";
 import { emitEvent } from "../util/Event";
 import { GuildFeature } from "../util/GuildFeatures";
 import { assertExistingGroupDmRecipient } from "../util/GroupDmRecipients";
+import { isExpectedPermissionMiss } from "../util/PermissionResolution";
 import { getPermission, isGuildOwner, Permissions } from "../util/Permissions";
 import { Snowflake } from "../util/Snowflake";
 import { trimSpecial } from "../util/String";
@@ -46,10 +49,10 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicMember, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports/OrmUtils";
-import { ThreadMember } from "./ThreadMember";
+import { serializeThreadMemberPayload, ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
@@ -347,8 +350,7 @@ export class Channel extends BaseClass {
             // total_message_sent: 0,
         };
 
-        // TODO: figure out why the generic is required here
-        const ret = Channel.create<Channel>(channel);
+        const ret = Channel.getRepository().create(channel);
 
         await Promise.all([
             ret.save(),
@@ -450,13 +452,14 @@ export class Channel extends BaseClass {
         const guildId = thread.guild_id;
         if (!guildId) throw new HTTPError("Thread guild id not set", 500);
         const threadMember = await ThreadMember.createForUser(user_id, thread);
+        thread.thread_members = [threadMember];
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
                 emitEvent({
                     event: "THREAD_CREATE",
                     data: {
-                        ...thread,
+                        ...thread.toJSON(),
                         newly_created: true,
                     },
                     guild_id: guildId,
@@ -467,7 +470,7 @@ export class Channel extends BaseClass {
                         guild_id: guildId,
                         id: thread.id,
                         member_count: thread.member_count ?? 1,
-                        added_members: [{ user_id, ...threadMember.toJSON() }],
+                        added_members: [serializeThreadMemberPayload(threadMember, user_id)],
                         removed_member_ids: [],
                     },
                     guild_id: guildId,
@@ -479,8 +482,7 @@ export class Channel extends BaseClass {
     }
 
     static async createDMChannel(recipients: string[], creator_user_id: string, name?: string) {
-        recipients = [...new Set(recipients)].filter((x) => x !== creator_user_id);
-        // TODO: check config for max number of recipients
+        recipients = normalizeAndAssertCreateDmRecipientsForLimit(recipients, creator_user_id);
 
         if (recipients.length > 0) {
             const otherRecipientsUsers = await User.find({
@@ -763,65 +765,79 @@ export class Channel extends BaseClass {
     }
 
     async getUserPermissions(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<Permissions> {
-        if (this.isDm()) return this.owner_id == (opts.user_id ?? opts.user?.id) ? Permissions.ALL : Permissions.DEFAULT_DM_PERMISSIONS;
-        let guild = opts.guild;
-        if (!guild) {
-            if (this.guild) guild = this.guild;
-            else if (this.guild_id) guild = await Guild.findOneOrFail({ where: { id: this.guild_id } });
-            else {
-                console.error("Channel.getUserPermissions: called without guild for non-DM channel.");
-                return Permissions.NONE;
+        const userId = opts.user_id ?? opts.user?.id ?? opts.member?.id;
+        if (this.isDm()) return await this.getDmUserPermissions(userId);
+
+        try {
+            let guild = opts.guild;
+            if (!guild) {
+                if (this.guild) guild = this.guild;
+                else if (this.guild_id) guild = await Guild.findOneOrFail({ where: { id: this.guild_id } });
+                else {
+                    console.error("Channel.getUserPermissions: called without guild for non-DM channel.");
+                    return Permissions.NONE;
+                }
             }
-        }
 
-        // check if we can resolve here to short-circuit possibly calling the database unnecessarily
-        if (isGuildOwner(guild, opts.user_id, opts.user, opts.member)) return Permissions.ALL;
+            // check if we can resolve here to short-circuit possibly calling the database unnecessarily
+            if (isGuildOwner(guild, opts.user_id, opts.user, opts.member)) return Permissions.ALL;
 
-        let member = opts.member;
-        if (!member) {
-            if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: { roles: true } });
-            else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: { roles: true } });
-            else {
-                console.error("Channel.getUserPermissions: called without user or member for non-DM channel.");
-                return Permissions.NONE;
+            let member = opts.member;
+            if (!member) {
+                if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: { roles: true } });
+                else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: { roles: true } });
+                else {
+                    console.error("Channel.getUserPermissions: called without user or member for non-DM channel.");
+                    return Permissions.NONE;
+                }
             }
-        }
 
-        const roles = (
-            member.roles ||
-            (
-                await Member.findOneOrFail({
-                    where: { guild_id: guild.id, index: member.index },
-                    relations: { roles: true },
-                    select: {
-                        roles: {
-                            id: true,
-                            permissions: true,
-                            position: true,
+            const roles = (
+                member.roles ||
+                (
+                    await Member.findOneOrFail({
+                        where: { guild_id: guild.id, index: member.index },
+                        relations: { roles: true },
+                        select: {
+                            roles: {
+                                id: true,
+                                permissions: true,
+                                position: true,
+                            },
                         },
-                    },
-                    loadEagerRelations: false,
-                })
-            ).roles
-        ).sort((a, b) => a.position - b.position); // ascending by position
+                        loadEagerRelations: false,
+                    })
+                ).roles
+            ).sort((a, b) => a.position - b.position); // ascending by position
 
-        return Permissions.finalPermission({
-            user: {
-                ...member,
-                roles: roles.map((r) => r.id),
-                flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
-            },
-            guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
-            channel: this,
-        });
+            return Permissions.finalPermission({
+                user: {
+                    ...member,
+                    roles: roles.map((r) => r.id),
+                    flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
+                },
+                guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
+                channel: this,
+            });
+        } catch (error) {
+            if (isExpectedPermissionMiss(error)) return Permissions.NONE;
+            throw error;
+        }
     }
 
-    // TODO: should we throw for missing args?
+    // Authorization predicates fail closed when caller context is incomplete.
     async canViewChannel(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<boolean> {
-        if (this.isDm()) return await this.canViewDmChannel(opts.user_id, opts.user);
-
         const userPerms = await this.getUserPermissions(opts);
         return userPerms.has("VIEW_CHANNEL");
+    }
+
+    private async getDmUserPermissions(userId?: string): Promise<Permissions> {
+        if (!userId) {
+            console.error("Channel.getUserPermissions: called without user for DM channel.");
+            return Permissions.NONE;
+        }
+        if (this.owner_id === userId) return Permissions.ALL;
+        return (await this.canViewDmChannel(userId)) ? Permissions.DEFAULT_DM_PERMISSIONS : Permissions.NONE;
     }
 
     private async canViewDmChannel(user_id?: string, user?: User): Promise<boolean> {
@@ -830,29 +846,59 @@ export class Channel extends BaseClass {
             console.error("Channel.canViewChannel: called without user for DM channel.");
             return false;
         }
-        if (!user) return false;
-        if (this.recipients) return this.recipients.some((r) => r.user_id === user.id && !r.closed);
+        if (this.recipients) return this.recipients.some((r) => r.user_id === userId && !r.closed);
         else {
             // we dont have recipients on hand
-            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: user.id } });
+            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: userId } });
             return recipient == null ? false : !recipient.closed;
         }
     }
 
+    private toPublicRecipients(): PublicChannel["recipients"] {
+        return serializeChannelRecipients(this);
+    }
+
+    private loadedThreadMembers(): ThreadMember[] | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.thread_members) return undefined;
+        if (this.thread_members.some((threadMember) => !threadMember.member)) return undefined;
+
+        return this.thread_members;
+    }
+
+    private serializeThreadOwner(): PublicMember | null | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.owner_id) return null;
+
+        const threadMembers = this.loadedThreadMembers();
+        if (!threadMembers) return undefined;
+
+        const ownerMember = threadMembers.find((threadMember) => threadMember.member.id === this.owner_id)?.member;
+        return ownerMember?.toPublicMember() ?? null;
+    }
+
+    private serializeThreadMemberIdsPreview(): string[] | undefined {
+        return this.loadedThreadMembers()?.map((threadMember) => threadMember.member.id);
+    }
+
     toJSON(): PublicChannel {
+        const member_ids_preview = this.serializeThreadMemberIdsPreview();
+        const channel = { ...this };
+        delete channel.thread_members;
+
         return {
-            ...this,
+            ...channel,
             last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
             guild_id: this.guild_id ?? undefined,
-            recipients: undefined, //this.recipients?.map(x=>x.user.toPublicUser()), // TODO: fix me
-            owner: undefined, // TODO: fix me - this is thread owner
+            recipients: this.toPublicRecipients(),
+            owner: this.serializeThreadOwner(),
 
             // these fields are not returned depending on the type of channel
             bitrate: this.bitrate || undefined,
             user_limit: this.user_limit || undefined,
             rate_limit_per_user: this.rate_limit_per_user || undefined,
             owner_id: this.owner_id || undefined,
-            ...(this.isThread() && this.thread_members ? { member_ids_preview: this.thread_members.map((_) => _.member.id) } : {}),
+            ...(member_ids_preview ? { member_ids_preview } : {}),
             default_auto_archive_duration: this.default_auto_archive_duration ?? undefined,
             retention_policy_id: undefined,
             thread_metadata: this.thread_metadata

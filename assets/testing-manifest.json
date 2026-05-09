@@ -1970,7 +1970,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 77,
+            "line": 94,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2025,7 +2025,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 53,
+            "line": 70,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2074,7 +2074,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 158,
+            "line": 175,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2482,7 +2482,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 268,
+            "line": 270,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2534,7 +2534,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 237,
+            "line": 239,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2643,7 +2643,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 134,
+            "line": 135,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2798,7 +2798,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 416,
+            "line": 407,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2852,7 +2852,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 401,
+            "line": 392,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2905,7 +2905,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 281,
+            "line": 272,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2960,7 +2960,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 182,
+            "line": 173,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3012,7 +3012,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 385,
+            "line": 376,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3066,7 +3066,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 370,
+            "line": 361,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3119,7 +3119,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 264,
+            "line": 255,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3174,7 +3174,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 113,
+            "line": 104,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3228,7 +3228,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 156,
+            "line": 147,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3280,7 +3280,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 77,
+            "line": 68,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3387,7 +3387,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 79,
+            "line": 81,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3438,7 +3438,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 245,
+            "line": 235,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3499,7 +3499,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 510,
+            "line": 501,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3812,7 +3812,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 84,
+            "line": 93,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3862,7 +3862,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 29,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4182,7 +4182,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 88,
+            "line": 99,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4233,7 +4233,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 77,
+            "line": 88,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4441,7 +4441,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 160,
+            "line": 161,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4492,7 +4492,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 132,
+            "line": 133,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4540,7 +4540,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 158,
+            "line": 159,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4591,7 +4591,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 158,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4642,7 +4642,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 201,
+            "line": 202,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4692,7 +4692,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 101,
+            "line": 102,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4739,7 +4739,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 70,
+            "line": 71,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4794,7 +4794,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 233,
+            "line": 235,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4846,7 +4846,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 292,
+            "line": 294,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4956,7 +4956,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 359,
+            "line": 361,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -14071,7 +14071,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 95,
+            "line": 86,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14119,7 +14119,7 @@
             "method": "GET",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 9,
+            "line": 8,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14166,7 +14166,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 133,
+            "line": 124,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14217,7 +14217,7 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 57,
+            "line": 48,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14325,7 +14325,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 108,
+            "line": 100,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14373,7 +14373,7 @@
             "method": "GET",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 40,
+            "line": 32,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14420,7 +14420,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 67,
+            "line": 59,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

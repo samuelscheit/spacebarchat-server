@@ -56,6 +56,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,
@@ -168,6 +169,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,
@@ -294,6 +296,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,
@@ -437,6 +440,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,
@@ -512,6 +516,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,
@@ -582,6 +587,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,
@@ -654,6 +660,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,
@@ -729,6 +736,7 @@ describe("executeWebhook", () => {
         t.mock.method(util.Snowflake, "generate", () => "message-id");
         t.mock.method(util.Config, "get", () => ({
             limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
                 absoluteRate: {
                     sendMessage: {
                         enabled: false,

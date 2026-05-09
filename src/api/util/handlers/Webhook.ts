@@ -26,6 +26,7 @@ import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
 import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../ChannelAppliedTagsValidation";
 import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
+import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 
 type WebhookPermissionChecker = Awaited<ReturnType<typeof getPermission>>;
 type WebhookSendChannelResolution = {
@@ -200,6 +201,7 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     assertWebhookThreadRequest(body, thread_id);
 
     const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: { available_tags: true }, guild: true, application: true });
+    assertMessagePayloadLimits(body);
 
     if (body.username) {
         body.username = ValidateWebhookName(body.username);

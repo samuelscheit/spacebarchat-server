@@ -8,7 +8,8 @@ type SnowflakeClass = typeof import("./Snowflake").Snowflake;
 type ChannelClass = typeof import("../entities/Channel").Channel;
 type GuildClass = typeof import("../entities/Guild").Guild;
 type ThreadMemberClass = typeof import("../entities/ThreadMember").ThreadMember;
-type EmittedEvent = { event: string; data: Record<string, unknown>; guild_id?: string };
+type SerializeThreadMemberPayload = typeof import("../entities/ThreadMember").serializeThreadMemberPayload;
+type EmittedEvent = { event: string; data: Record<string, unknown>; guild_id?: string; channel_id?: string };
 
 type FindOneOptionsWithId = {
     where?: {
@@ -139,7 +140,10 @@ for (const [path, moduleExports] of [
 
 const { Channel } = localRequire("../entities/Channel") as { Channel: ChannelClass };
 const { Guild } = localRequire("../entities/Guild") as { Guild: GuildClass };
-const { ThreadMember } = localRequire("../entities/ThreadMember") as { ThreadMember: ThreadMemberClass };
+const { ThreadMember, serializeThreadMemberPayload } = localRequire("../entities/ThreadMember") as {
+    ThreadMember: ThreadMemberClass;
+    serializeThreadMemberPayload: SerializeThreadMemberPayload;
+};
 
 const originals = {
     channelFindOne: Channel.findOne,
@@ -205,8 +209,11 @@ function stubThreadPersistence(findOneCalls: FindOneOptionsWithId[], options: St
         createForUser: async (_userId: string, thread: Pick<ChannelEntity, "id" | "guild_id">) =>
             ({
                 id: thread.id,
+                join_timestamp: new Date("2026-01-01T00:00:00.000Z"),
+                muted: false,
+                flags: 0,
                 toJSON: () => ({ id: thread.id }),
-            }) satisfies { id: string; toJSON: () => { id: string } },
+            }) as unknown,
     });
 }
 
@@ -245,6 +252,49 @@ describe("Channel.createChannel", () => {
 });
 
 describe("Channel.createThreadChannel", () => {
+    test("serializes thread member event payloads without ORM-only fields", () => {
+        const payload = serializeThreadMemberPayload(
+            {
+                id: "thread-id",
+                index: "internal-row-id",
+                member_idx: "internal-member-index",
+                join_timestamp: new Date("2026-01-02T03:04:05.000Z"),
+                muted: true,
+                mute_config: {
+                    end_time: new Date("2026-01-03T04:05:06.000Z"),
+                    selected_time_window: 3600,
+                },
+                flags: 2,
+                member: { id: "user" },
+                channel: { id: "thread-id" },
+                toJSON: () => ({
+                    id: "thread-id",
+                    index: "internal-row-id",
+                    member_idx: "internal-member-index",
+                    member: { id: "user" },
+                    channel: { id: "thread-id" },
+                }),
+            } as Parameters<typeof serializeThreadMemberPayload>[0],
+            "user",
+        );
+
+        assert.deepEqual(payload, {
+            id: "thread-id",
+            user_id: "user",
+            join_timestamp: "2026-01-02T03:04:05.000Z",
+            muted: true,
+            mute_config: {
+                end_time: "2026-01-03T04:05:06.000Z",
+                selected_time_window: 3600,
+            },
+            flags: 2,
+        });
+        assert.equal("index" in payload, false);
+        assert.equal("member_idx" in payload, false);
+        assert.equal("member" in payload, false);
+        assert.equal("channel" in payload, false);
+    });
+
     test("rejects non-thread channel types before persistence", async () => {
         const findOneCalls: FindOneOptionsWithId[] = [];
         stubThreadPersistence(findOneCalls);
@@ -503,6 +553,130 @@ describe("Channel.createThreadChannel", () => {
         assert.equal(orderInsertCalls, 0);
     });
 
+    test("serializes the loaded creator member as thread owner", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        Object.assign(Snowflake, {
+            generate: () => "owned-thread",
+        });
+
+        const publicOwner = {
+            id: "user",
+            guild_id: "guild",
+            roles: ["role"],
+            user: { id: "user", username: "owner" },
+        };
+        Object.assign(ThreadMember, {
+            createForUser: async (userId: string, thread: Pick<ChannelEntity, "id" | "guild_id">) =>
+                ({
+                    id: thread.id,
+                    index: "internal-row-id",
+                    member_idx: "internal-member-index",
+                    join_timestamp: new Date("2026-01-01T00:00:00.000Z"),
+                    muted: false,
+                    flags: 0,
+                    member: {
+                        id: userId,
+                        toPublicMember: () => publicOwner,
+                    },
+                    channel: { id: thread.id },
+                    toJSON: () => ({ id: thread.id }),
+                }) as unknown,
+        });
+
+        const thread = await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "owned-thread",
+                type: GUILD_PRIVATE_THREAD,
+            },
+            {},
+            "user",
+            { skipEventEmit: true, skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        assert.equal(thread.owner_id, "user");
+        assert.equal(thread.thread_members?.length, 1);
+        const json = thread.toJSON();
+        assert.deepEqual(json.owner, publicOwner);
+        assert.deepEqual(json.member_ids_preview, ["user"]);
+        assert.equal((json as { thread_members?: unknown }).thread_members, undefined);
+    });
+
+    test("serializes the loaded creator member as thread owner in the default create event", async () => {
+        const findOneCalls: FindOneOptionsWithId[] = [];
+        stubThreadPersistence(findOneCalls);
+        Object.assign(Snowflake, {
+            generate: () => "event-owned-thread",
+        });
+
+        const publicOwner = {
+            id: "user",
+            guild_id: "guild",
+            roles: ["role"],
+            user: { id: "user", username: "owner" },
+        };
+        Object.assign(ThreadMember, {
+            createForUser: async (userId: string, thread: Pick<ChannelEntity, "id" | "guild_id">) =>
+                ({
+                    id: thread.id,
+                    index: "internal-row-id",
+                    member_idx: "internal-member-index",
+                    join_timestamp: new Date("2026-01-01T00:00:00.000Z"),
+                    muted: false,
+                    flags: 0,
+                    member: {
+                        id: userId,
+                        toPublicMember: () => publicOwner,
+                    },
+                    channel: { id: thread.id },
+                    toJSON: () => ({
+                        id: thread.id,
+                        index: "internal-row-id",
+                        member_idx: "internal-member-index",
+                        flags: 0,
+                        join_timestamp: "2026-01-01T00:00:00.000Z",
+                        member: { id: userId },
+                        channel: { id: thread.id },
+                    }),
+                }) as unknown,
+        });
+
+        await Channel.createThreadChannel(
+            {
+                parent_id: "parent",
+                guild_id: "guild",
+                name: "event-owned-thread",
+                type: GUILD_PRIVATE_THREAD,
+            },
+            {},
+            "user",
+            { skipNameChecks: true, skipPermissionCheck: true },
+        );
+
+        const threadCreate = emittedEvents.find((event) => event.event === "THREAD_CREATE");
+        assert.ok(threadCreate);
+        assert.deepEqual(threadCreate.data?.owner, publicOwner);
+        assert.deepEqual(threadCreate.data?.member_ids_preview, ["user"]);
+        assert.equal(threadCreate.data?.thread_members, undefined);
+
+        const threadMembersUpdate = emittedEvents.find((event) => event.event === "THREAD_MEMBERS_UPDATE");
+        assert.ok(threadMembersUpdate);
+        const addedMember = (threadMembersUpdate.data?.added_members as Record<string, unknown>[] | undefined)?.[0];
+        assert.deepEqual(addedMember, {
+            id: "event-owned-thread",
+            user_id: "user",
+            join_timestamp: "2026-01-01T00:00:00.000Z",
+            muted: false,
+            flags: 0,
+        });
+        assert.equal("index" in (addedMember ?? {}), false);
+        assert.equal("member_idx" in (addedMember ?? {}), false);
+        assert.equal("member" in (addedMember ?? {}), false);
+        assert.equal("channel" in (addedMember ?? {}), false);
+    });
+
     test("emits the creator membership update with the saved thread member count", async () => {
         const findOneCalls: FindOneOptionsWithId[] = [];
         stubThreadPersistence(findOneCalls);
@@ -537,6 +711,62 @@ describe("Channel.createThreadChannel", () => {
         assert.equal(threadMembersUpdate.data.guild_id, "guild");
         assert.equal(threadMembersUpdate.data.member_count, savedMemberCount);
         assert.deepEqual(threadMembersUpdate.data.removed_member_ids, []);
-        assert.deepEqual(threadMembersUpdate.data.added_members, [{ user_id: "user", id: "generated-thread-id" }]);
+        assert.deepEqual(threadMembersUpdate.data.added_members, [
+            {
+                id: "generated-thread-id",
+                user_id: "user",
+                join_timestamp: "2026-01-01T00:00:00.000Z",
+                muted: false,
+                flags: 0,
+            },
+        ]);
+    });
+
+    test("omits thread owner when thread member relations are not loaded", () => {
+        const thread = Object.assign(new Channel(), {
+            id: "thread-without-members",
+            guild_id: "guild",
+            owner_id: "user",
+            type: GUILD_PRIVATE_THREAD,
+            created_at: new Date("2026-01-01T00:00:00.000Z"),
+            nsfw: false,
+        });
+
+        const json = thread.toJSON();
+        assert.equal(json.owner, undefined);
+        assert.equal(json.member_ids_preview, undefined);
+    });
+
+    test("omits thread owner when thread member rows are loaded without member relations", () => {
+        const thread = Object.assign(new Channel(), {
+            id: "thread-without-member-relations",
+            guild_id: "guild",
+            owner_id: "user",
+            type: GUILD_PRIVATE_THREAD,
+            created_at: new Date("2026-01-01T00:00:00.000Z"),
+            nsfw: false,
+            thread_members: [{ id: "thread-without-member-relations", member_idx: "internal-member-row-index" }],
+        });
+
+        const json = thread.toJSON();
+        assert.equal(json.owner, undefined);
+        assert.equal(json.member_ids_preview, undefined);
+        assert.equal((json as { thread_members?: unknown }).thread_members, undefined);
+    });
+
+    test("serializes null thread owner when loaded member relations do not include owner", () => {
+        const thread = Object.assign(new Channel(), {
+            id: "thread-with-missing-owner",
+            guild_id: "guild",
+            owner_id: "user",
+            type: GUILD_PRIVATE_THREAD,
+            created_at: new Date("2026-01-01T00:00:00.000Z"),
+            nsfw: false,
+            thread_members: [{ id: "thread-with-missing-owner", member: { id: "other-user" } }],
+        });
+
+        const json = thread.toJSON();
+        assert.equal(json.owner, null);
+        assert.deepEqual(json.member_ids_preview, ["other-user"]);
     });
 });
