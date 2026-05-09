@@ -70,13 +70,13 @@ router.post(
             user_id: interaction?.userId,
             data: {
                 id: interactionId,
-                nonce: interaction.nonce ?? "", // TODO: did i do this right?
+                nonce: interaction.nonce,
             },
         } satisfies InteractionSuccessEvent);
 
         switch (body.type) {
             case InteractionCallbackType.PONG:
-                // TODO
+                // PONG acknowledges ping interactions without creating or updating messages.
                 break;
             case InteractionCallbackType.ACKNOWLEDGE:
                 // Deprected
