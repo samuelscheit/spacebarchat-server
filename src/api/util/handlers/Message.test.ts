@@ -746,6 +746,28 @@ describe("handleMessage", () => {
         });
     });
 
+    test("rejects legacy manage permissions as channel slowmode bypasses", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            channel: { rate_limit_per_user: 10 },
+            messageFindOneResult: { timestamp: new Date() },
+            permissionHas: (permissionName: string) => permissionName === "MANAGE_MESSAGES" || permissionName === "MANAGE_CHANNELS",
+        });
+
+        await assert.rejects(
+            () =>
+                context.handleMessage({
+                    id: "message_id",
+                    channel_id: "channel_id",
+                    author_id: "author_id",
+                    content: "too soon",
+                }),
+            (error: unknown) => (error as ApiError).code === 20016,
+        );
+
+        assert.equal(context.createMessageMock.mock.callCount(), 0);
+        assert.equal(context.getPermissionMock.mock.callCount(), 1);
+    });
+
     test("allows channel slowmode bypass permissions", async (t) => {
         const context = await setupHandleMessageTest(t, {
             channel: { rate_limit_per_user: 10 },
