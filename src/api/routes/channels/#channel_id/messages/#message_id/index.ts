@@ -37,7 +37,7 @@ import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import multer from "multer";
 import { assertMessagePayloadPermissions, handleMessage, isNewMessagePayloadAttachment, messageToResponse, postHandleMessage, route } from "@spacebar/api";
-import { MessageCreateAttachment, MessageCreateCloudAttachment, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
+import { MessageCreateAttachmentMetadata, MessageCreateSchema, MessageEditSchema, ChannelType, normalizeMessageCreateSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 // TODO: message content/embed string length limit
@@ -92,7 +92,7 @@ router.patch(
         assertMessagePayloadPermissions(permissions, body);
 
         const normalizedBody = { ...body } as MessageEditSchema & {
-            attachments?: (Attachment | MessageCreateAttachment | MessageCreateCloudAttachment)[];
+            attachments?: (Attachment | MessageCreateAttachmentMetadata)[];
         };
         if (body.attachments) {
             const existingAttachmentsById = new Map((message.attachments ?? []).map((attachment) => [attachment.id, attachment]));
@@ -160,7 +160,7 @@ router.put(
     async (req: Request, res: Response) => {
         const { channel_id, message_id } = req.params as { [key: string]: string };
         const body = req.body as MessageCreateSchema;
-        const attachments: (MessageCreateAttachment | MessageCreateCloudAttachment)[] = body.attachments ?? [];
+        const attachments: MessageCreateAttachmentMetadata[] = body.attachments ?? [];
 
         const rights = await getRights(req.user_id);
         rights.hasThrow("SEND_MESSAGES");

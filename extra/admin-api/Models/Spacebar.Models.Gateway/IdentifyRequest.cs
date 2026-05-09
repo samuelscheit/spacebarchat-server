@@ -30,6 +30,24 @@ public class IdentifyRequest {
 
     [JsonPropertyName("client_state")]
     public JsonObject? ClientState { get; set; }
+
+    public bool TryGetShard(out int? shardId, out int? shardCount) {
+        shardId = null;
+        shardCount = null;
+
+        if (Shard is null) return true;
+        if (Shard.Length != 2) return false;
+
+        var candidateShardId = Shard[0];
+        var candidateShardCount = Shard[1];
+        if (candidateShardId < 0 || candidateShardCount <= 0 || candidateShardId >= candidateShardCount) {
+            return false;
+        }
+
+        shardId = candidateShardId;
+        shardCount = candidateShardCount;
+        return true;
+    }
 }
 
 [Flags]

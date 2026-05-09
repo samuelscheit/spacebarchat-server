@@ -4,6 +4,25 @@ import Module from "node:module";
 
 type LoadFunction = (request: string, parent?: NodeJS.Module | null, isMain?: boolean) => unknown;
 
+type MockRegion = { endpoint: string; id: string; name: string };
+
+type MockMember = {
+    deaf: boolean;
+    joined_at: Date;
+    mute: boolean;
+    roles: { id: string }[];
+    user: {
+        toPublicUser(): {
+            avatar: string | null;
+            discriminator: string;
+            id: string;
+            public_flags: number;
+            username: string;
+        };
+    };
+    toPublicMember(): unknown;
+};
+
 type MockChannel = {
     guild_id?: string | null;
     id: string;
@@ -38,10 +57,13 @@ const state: {
     emittedEvents: unknown[];
     generatedTokens: string[];
     memberFindOneCalls: unknown[];
+    memberFindOneResult: MockMember | null | undefined;
     permissionError: Error | undefined;
+    regions: { default: string; available: MockRegion[] };
     permissionCalls: { channelId: string; guildId?: string; permission?: unknown; userId: string }[];
     streamDeleteCalls: unknown[];
     streamFindCalls: unknown[];
+    streamRemoveCalls: unknown[];
     streamSaves: unknown[];
     streamSessionSaves: unknown[];
     voiceCreateCalls: unknown[];
@@ -54,10 +76,13 @@ const state: {
     emittedEvents: [],
     generatedTokens: [],
     memberFindOneCalls: [],
+    memberFindOneResult: undefined,
     permissionError: undefined,
+    regions: { default: "local", available: [{ endpoint: "rtc.local", id: "local", name: "Local" }] },
     permissionCalls: [],
     streamDeleteCalls: [],
     streamFindCalls: [],
+    streamRemoveCalls: [],
     streamSaves: [],
     streamSessionSaves: [],
     voiceCreateCalls: [],
@@ -119,6 +144,29 @@ function defaultChannel(id = "voice", guildId: string | null = "guild"): MockCha
     };
 }
 
+function makeMember(): MockMember {
+    return {
+        deaf: false,
+        joined_at: new Date("2026-01-02T03:04:05.000Z"),
+        mute: false,
+        roles: [{ id: "role-a" }],
+        user: {
+            toPublicUser() {
+                return {
+                    avatar: null,
+                    discriminator: "0001",
+                    id: "viewer",
+                    public_flags: 64,
+                    username: "alice",
+                };
+            },
+        },
+        toPublicMember() {
+            return { user: { id: "viewer" } };
+        },
+    };
+}
+
 const mockUtil = {
     Channel: {
         async findOneOrFail({ where }: { where: { id: string } }) {
@@ -130,10 +178,7 @@ const mockUtil = {
     Config: {
         get() {
             return {
-                regions: {
-                    default: "local",
-                    available: [{ endpoint: "rtc.local", id: "local", name: "Local" }],
-                },
+                regions: state.regions,
             };
         },
     },
@@ -148,19 +193,18 @@ const mockUtil = {
     Member: {
         async findOne(options: unknown) {
             state.memberFindOneCalls.push(options);
-            return {
-                toPublicMember() {
-                    return { user: { id: "viewer" } };
-                },
-            };
+            if ((options as { where?: { guild_id?: string | null } }).where?.guild_id == null) return undefined;
+            if (state.memberFindOneResult !== undefined) return state.memberFindOneResult;
+            return makeMember();
         },
         async findOneOrFail(options: unknown) {
             state.memberFindOneCalls.push(options);
-            return {
-                toPublicMember() {
-                    return { user: { id: "viewer" } };
-                },
-            };
+            if ((options as { where?: { guild_id?: string | null } }).where?.guild_id == null) throw new Error("member not found");
+            if (state.memberFindOneResult !== undefined) {
+                if (state.memberFindOneResult === null) throw new Error("member not found");
+                return state.memberFindOneResult;
+            }
+            return makeMember();
         },
     },
     Snowflake: {
@@ -172,14 +216,19 @@ const mockUtil = {
         async delete(criteria: unknown) {
             state.streamDeleteCalls.push(criteria);
         },
-        async findOne(options: unknown) {
+        async findOne(options: { where?: { channel_id?: string; owner_id?: string } }) {
             state.streamFindCalls.push(options);
+            const channelId = options.where?.channel_id ?? "voice";
+            const ownerId = options.where?.owner_id ?? "owner";
             return {
-                channel: state.channels.voice,
-                channel_id: "voice",
+                channel: state.channels[channelId],
+                channel_id: channelId,
                 endpoint: "rtc.local",
                 id: "stream-id",
-                owner_id: "owner",
+                owner_id: ownerId,
+                async remove() {
+                    state.streamRemoveCalls.push({ ...this });
+                },
             };
         },
         create(props: Record<string, unknown>) {
@@ -226,6 +275,35 @@ const mockUtil = {
     async emitEvent(payload: unknown) {
         state.emittedEvents.push(payload);
     },
+    memberToVoiceStateMember(member: {
+        deaf: boolean;
+        joined_at: Date;
+        mute: boolean;
+        roles: { id: string }[];
+        user: {
+            toPublicUser(): {
+                avatar: string | null;
+                discriminator: string;
+                id: string;
+                username: string;
+            };
+        };
+    }) {
+        const user = member.user.toPublicUser();
+        return {
+            deaf: member.deaf,
+            joined_at: member.joined_at,
+            mute: member.mute,
+            roles: member.roles.map((role) => role.id),
+            user: {
+                avatar: user.avatar,
+                discriminator: user.discriminator,
+                id: user.id,
+                username: user.username,
+            },
+        };
+    },
+    VoiceStateMemberRelations: { roles: true, user: true },
     async getPermission(userId: string, guildId: string | undefined, channelId: string) {
         return {
             cache: {
@@ -276,6 +354,7 @@ moduleLoader._load = (request: string, parent?: NodeJS.Module | null, isMain?: b
         return {
             ChannelType,
             StreamCreateSchema: {},
+            StreamDeleteSchema: {},
             StreamWatchSchema: {},
             VoiceStateUpdateSchema: {},
         };
@@ -294,6 +373,9 @@ const { onStreamCreate } = require("./StreamCreate") as {
 const { onStreamWatch } = require("./StreamWatch") as {
     onStreamWatch(this: MockSocket, payload: { d: unknown }): Promise<void>;
 };
+const { onStreamDelete } = require("./StreamDelete") as {
+    onStreamDelete(this: MockSocket, payload: { d: unknown }): Promise<void>;
+};
 
 after(() => {
     moduleLoader._load = originalLoad;
@@ -304,10 +386,13 @@ beforeEach(() => {
     state.emittedEvents = [];
     state.generatedTokens = [];
     state.memberFindOneCalls = [];
+    state.memberFindOneResult = undefined;
     state.permissionError = undefined;
+    state.regions = { default: "local", available: [{ endpoint: "rtc.local", id: "local", name: "Local" }] };
     state.permissionCalls = [];
     state.streamDeleteCalls = [];
     state.streamFindCalls = [];
+    state.streamRemoveCalls = [];
     state.streamSaves = [];
     state.streamSessionSaves = [];
     state.voiceCreateCalls = [];
@@ -316,6 +401,53 @@ beforeEach(() => {
     state.voiceSaves = [];
     state.voiceState = undefined;
 });
+
+type EmittedEvent = {
+    channel_id?: string;
+    data?: {
+        channel_id?: string | null;
+        guild_id?: string | null;
+        member?: unknown;
+    };
+    event?: string;
+    guild_id?: string | null;
+};
+
+function emittedVoiceStateUpdates() {
+    return state.emittedEvents.filter((event): event is EmittedEvent => typeof event === "object" && event !== null && (event as EmittedEvent).event === "VOICE_STATE_UPDATE");
+}
+
+function assertVoiceStateMemberProjection(member: unknown) {
+    assert.ok(member && typeof member === "object");
+    const projectedMember = member as { roles?: unknown; user?: unknown };
+
+    assert.deepEqual(Object.keys(projectedMember).sort(), ["deaf", "joined_at", "mute", "roles", "user"]);
+    assert.deepEqual(projectedMember.roles, ["role-a"]);
+    assert.ok(projectedMember.user && typeof projectedMember.user === "object");
+    assert.deepEqual(Object.keys(projectedMember.user).sort(), ["avatar", "discriminator", "id", "username"]);
+}
+
+function expectedVoiceStateMemberProjection() {
+    return {
+        deaf: false,
+        joined_at: new Date("2026-01-02T03:04:05.000Z"),
+        mute: false,
+        roles: ["role-a"],
+        user: {
+            avatar: null,
+            discriminator: "0001",
+            id: "viewer",
+            username: "alice",
+        },
+    };
+}
+
+function assertVoiceStateMemberLookup(call: unknown, guildId = "guild") {
+    const options = call as { relations?: unknown; where?: { guild_id?: string; id?: string } };
+
+    assert.deepEqual(options.where, { guild_id: guildId, id: "viewer" });
+    assert.deepEqual(options.relations, mockUtil.VoiceStateMemberRelations);
+}
 
 describe("gateway opcode authorization", () => {
     test("VOICE_STATE_UPDATE checks CONNECT before creating voice state or issuing a token", async () => {
@@ -331,6 +463,29 @@ describe("gateway opcode authorization", () => {
                 },
             }),
             /missing CONNECT/,
+        );
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.equal(state.voiceFindOneOrFailCalls.length, 0);
+        assert.equal(state.voiceCreateCalls.length, 0);
+        assert.equal(state.voiceSaves.length, 0);
+        assert.equal(state.generatedTokens.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("VOICE_STATE_UPDATE checks configured voice server region before creating voice state or issuing a token", async () => {
+        state.regions = { default: "missing", available: [] };
+
+        await assert.rejects(
+            onVoiceStateUpdate.call(makeSocket(), {
+                d: {
+                    channel_id: "voice",
+                    guild_id: "guild",
+                    self_deaf: false,
+                    self_mute: false,
+                },
+            }),
+            /No default region configured/,
         );
 
         assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
@@ -396,6 +551,115 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.voiceSaves.length, 0);
         assert.equal(state.generatedTokens.length, 0);
         assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("VOICE_STATE_UPDATE loads and emits projected guild member when available", async () => {
+        state.memberFindOneResult = makeMember();
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "voice",
+                guild_id: "guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal(state.emittedEvents.length, 2);
+        assert.deepEqual(state.emittedEvents[0], {
+            event: "VOICE_STATE_UPDATE",
+            data: {
+                channel_id: "voice",
+                guild_id: "guild",
+                member: expectedVoiceStateMemberProjection(),
+                session_id: "session",
+                user_id: "viewer",
+            },
+            guild_id: "guild",
+            channel_id: "voice",
+            user_id: "viewer",
+        });
+    });
+
+    test("VOICE_STATE_UPDATE continues without member when guild member lookup misses", async () => {
+        state.memberFindOneResult = null;
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "voice",
+                guild_id: "guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal(state.emittedEvents.length, 2);
+        assert.deepEqual(state.emittedEvents[0], {
+            event: "VOICE_STATE_UPDATE",
+            data: {
+                channel_id: "voice",
+                guild_id: "guild",
+                member: undefined,
+                session_id: "session",
+                user_id: "viewer",
+            },
+            guild_id: "guild",
+            channel_id: "voice",
+            user_id: "viewer",
+        });
+    });
+
+    test("VOICE_STATE_UPDATE includes projected members on explicit leave events", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", user_id: "viewer" });
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: null,
+                guild_id: null,
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        const voiceStateUpdates = emittedVoiceStateUpdates();
+
+        assert.equal(voiceStateUpdates.length, 2);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[1]);
+        assert.deepEqual(voiceStateUpdates[0].data?.channel_id, null);
+        assert.deepEqual(voiceStateUpdates[0].data?.guild_id, null);
+        assert.equal(voiceStateUpdates[0].guild_id, "guild");
+        voiceStateUpdates.forEach((event) => assertVoiceStateMemberProjection(event.data?.member));
+    });
+
+    test("VOICE_STATE_UPDATE includes projected members when moving between guild voice channels", async () => {
+        state.channels["other-voice"] = defaultChannel("other-voice", "other-guild");
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", user_id: "viewer" });
+
+        await onVoiceStateUpdate.call(makeSocket(), {
+            d: {
+                channel_id: "other-voice",
+                guild_id: "other-guild",
+                self_deaf: false,
+                self_mute: false,
+            },
+        });
+
+        const voiceStateUpdates = emittedVoiceStateUpdates();
+
+        assert.equal(voiceStateUpdates.length, 2);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[1], "other-guild");
+        assert.equal(voiceStateUpdates[0].guild_id, "guild");
+        assert.equal(voiceStateUpdates[0].data?.channel_id, null);
+        assert.equal(voiceStateUpdates[1].guild_id, "other-guild");
+        voiceStateUpdates.forEach((event) => assertVoiceStateMemberProjection(event.data?.member));
     });
 
     test("STREAM_CREATE checks STREAM and current voice channel before creating stream state", async () => {
@@ -464,6 +728,41 @@ describe("gateway opcode authorization", () => {
         assert.deepEqual(state.emittedEvents, []);
     });
 
+    test("STREAM_DELETE clears owner stream state and emits member voice state update", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", self_stream: true, user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "voice", owner_id: "viewer" } }]);
+        assert.equal(state.streamRemoveCalls.length, 1);
+        assert.equal(state.voiceFindOneCalls.length, 1);
+        assert.deepEqual(state.voiceFindOneCalls[0], { where: { user_id: "viewer" } });
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal((state.voiceSaves[0] as { self_stream?: boolean }).self_stream, false);
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assert.deepEqual(state.emittedEvents, [
+            {
+                event: "VOICE_STATE_UPDATE",
+                data: {
+                    channel_id: "voice",
+                    guild_id: "guild",
+                    member: expectedVoiceStateMemberProjection(),
+                    session_id: "session",
+                    user_id: "viewer",
+                },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "guild:guild:voice:viewer" },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+        ]);
+    });
+
     test("STREAM_WATCH checks CONNECT before resolving stream and issuing a session token", async () => {
         state.permissionError = new Error("missing CONNECT");
         const socket = makeSocket();
@@ -489,5 +788,134 @@ describe("gateway opcode authorization", () => {
         assert.equal(state.streamSessionSaves.length, 0);
         assert.equal(state.generatedTokens.length, 0);
         assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE checks CONNECT before resolving and removing owner stream", async () => {
+        state.permissionError = new Error("missing CONNECT");
+        const socket = makeSocket();
+
+        await onStreamDelete.call(socket, { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(socket.closed, { code: 4000, reason: "Invalid stream key" });
+        assert.equal(state.streamFindCalls.length, 0);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.equal(state.streamRemoveCalls.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE rejects mismatched stream key guild and channel before stream lookup", async () => {
+        const socket = makeSocket();
+
+        await onStreamDelete.call(socket, { d: { stream_key: "guild:other-guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "other-guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(socket.closed, { code: 4000, reason: "Invalid stream key" });
+        assert.equal(state.streamFindCalls.length, 0);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.equal(state.streamRemoveCalls.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE uses call stream key type to reject guild channels before stream lookup", async () => {
+        const socket = makeSocket();
+
+        await onStreamDelete.call(socket, { d: { stream_key: "call:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: undefined, permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(socket.closed, { code: 4000, reason: "Invalid stream key" });
+        assert.equal(state.streamFindCalls.length, 0);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.equal(state.streamRemoveCalls.length, 0);
+        assert.deepEqual(state.emittedEvents, []);
+    });
+
+    test("STREAM_DELETE removes owner stream after validating stream key type and channel", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "session", user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "voice", owner_id: "viewer" } }]);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.equal(state.streamRemoveCalls.length, 1);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.equal(state.memberFindOneCalls.length, 1);
+        assertVoiceStateMemberLookup(state.memberFindOneCalls[0]);
+        assert.deepEqual(state.emittedEvents, [
+            {
+                event: "VOICE_STATE_UPDATE",
+                data: {
+                    channel_id: "voice",
+                    guild_id: "guild",
+                    member: expectedVoiceStateMemberProjection(),
+                    session_id: "session",
+                    user_id: "viewer",
+                },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "guild:guild:voice:viewer" },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+        ]);
+    });
+
+    test("STREAM_DELETE removes owner call stream without requiring a guild member", async () => {
+        state.channels.call = defaultChannel("call", null);
+        state.voiceState = makeVoiceState({ channel_id: "call", guild_id: null, session_id: "session", user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "call:call:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "call", guildId: undefined, permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "call", owner_id: "viewer" } }]);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.equal(state.streamRemoveCalls.length, 1);
+        assert.equal(state.voiceSaves.length, 1);
+        assert.deepEqual(state.memberFindOneCalls, []);
+        assert.deepEqual(state.emittedEvents, [
+            {
+                event: "VOICE_STATE_UPDATE",
+                data: {
+                    channel_id: "call",
+                    guild_id: null,
+                    member: undefined,
+                    session_id: "session",
+                    user_id: "viewer",
+                },
+                guild_id: undefined,
+                channel_id: "call",
+            },
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "call:call:viewer" },
+                guild_id: undefined,
+                channel_id: "call",
+            },
+        ]);
+    });
+
+    test("STREAM_DELETE does not emit a voice update for another gateway session", async () => {
+        state.voiceState = makeVoiceState({ channel_id: "voice", guild_id: "guild", session_id: "other-session", user_id: "viewer" });
+
+        await onStreamDelete.call(makeSocket(), { d: { stream_key: "guild:guild:voice:viewer" } });
+
+        assert.deepEqual(state.permissionCalls, [{ channelId: "voice", guildId: "guild", permission: "CONNECT", userId: "viewer" }]);
+        assert.deepEqual(state.streamFindCalls, [{ where: { channel_id: "voice", owner_id: "viewer" } }]);
+        assert.equal(state.streamDeleteCalls.length, 0);
+        assert.equal(state.streamRemoveCalls.length, 1);
+        assert.equal(state.voiceSaves.length, 0);
+        assert.deepEqual(state.memberFindOneCalls, []);
+        assert.deepEqual(state.emittedEvents, [
+            {
+                event: "STREAM_DELETE",
+                data: { stream_key: "guild:guild:voice:viewer" },
+                guild_id: "guild",
+                channel_id: "voice",
+            },
+        ]);
     });
 });

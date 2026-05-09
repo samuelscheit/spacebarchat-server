@@ -17,42 +17,109 @@
 */
 
 import { HTTPError } from "lambert-server";
-import { Column, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
-import { DmChannelDTO, getCreateDMChannelResponse, saveGroupDMOwnerAfterRecipientRemoval } from "../dtos";
-import { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces";
-import {
-    Snowflake,
-    emitEvent,
-    getPermission,
-    trimSpecial,
-    Permissions,
-    Config,
-    DiscordApiErrors,
-    getDatabase,
-    handleFile,
-    normalizeChannelName,
-    normalizeThreadName,
-    assertChannelNamePresent,
-    canCreateServerDm,
-    shouldCheckServerDmPrivacy,
-} from "../util";
+import { Column, DataSource, Entity, In, JoinColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
+import { getCreateDMChannelResponse } from "../dtos/DmChannelCreateResponse";
+import { DmChannelDTO } from "../dtos/DmChannelDTO";
+import { saveGroupDMOwnerAfterRecipientRemoval } from "../dtos/DmChannelOwnership";
+import type { ChannelCreateEvent, ChannelRecipientRemoveEvent, ThreadCreateEvent, ThreadMembersUpdateEvent } from "../interfaces/Event";
+import { normalizeChannelName, normalizeThreadName, assertChannelNamePresent } from "../util/ChannelName";
+import { Config } from "../util/Config";
+import { DiscordApiErrors } from "../util/Constants";
+import { getDatabase } from "../util/Database";
+import { canCreateServerDm, shouldCheckServerDmPrivacy } from "../util/DmPrivacy";
+import { normalizeAndAssertCreateDmRecipientsForLimit } from "../util/DmRecipientLimits";
+import { serializeChannelRecipients } from "../util/ChannelRecipients";
+import { emitEvent } from "../util/Event";
+import { GuildFeature } from "../util/GuildFeatures";
+import { assertExistingGroupDmRecipient } from "../util/GroupDmRecipients";
+import { isExpectedPermissionMiss } from "../util/PermissionResolution";
+import { getPermission, isGuildOwner, Permissions } from "../util/Permissions";
+import { Snowflake } from "../util/Snowflake";
+import { trimSpecial } from "../util/String";
+import { deleteFile, handleFile } from "../util/cdn";
+import { getAttachmentMutationPath } from "../util/InternalCdnRoutes";
 import { BaseClass } from "./BaseClass";
 import { Guild } from "./Guild";
 import { Invite } from "./Invite";
 import { Message } from "./Message";
+import { Attachment } from "./Attachment";
 import { Tag } from "./Tag";
 import { Recipient } from "./Recipient";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicMember, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
-import { OrmUtils } from "../imports";
-import { ThreadMember } from "./ThreadMember";
+import { OrmUtils } from "../imports/OrmUtils";
+import { serializeThreadMemberPayload, ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
+import { CloudAttachment } from "./CloudAttachment";
+
+export type ChannelAttachmentDeleteCandidate = Pick<Attachment, "id" | "channel_id" | "message_id" | "filename">;
+export type ChannelCloudAttachmentDeleteCandidate = Pick<CloudAttachment, "uploadFilename">;
+
+export function getChannelAttachmentDeletePath(attachment: ChannelAttachmentDeleteCandidate, fallbackChannelId?: string) {
+    const channelId = attachment.channel_id || fallbackChannelId;
+    if (!channelId || !attachment.message_id || !attachment.filename) return undefined;
+    return `/attachments/${channelId}/${attachment.message_id}/${attachment.filename}`;
+}
+
+export function getChannelAttachmentDeletePathsForAttachment(attachment: ChannelAttachmentDeleteCandidate, fallbackChannelId?: string) {
+    const currentPath = getChannelAttachmentDeletePath(attachment, fallbackChannelId);
+    if (!currentPath) return [];
+
+    const channelId = attachment.channel_id || fallbackChannelId;
+    if (!channelId || !attachment.id || attachment.id === attachment.message_id) return [currentPath];
+
+    return [currentPath, `/attachments/${channelId}/${attachment.id}/${attachment.filename}`];
+}
+
+export function getChannelCloudAttachmentDeletePath(attachment: ChannelCloudAttachmentDeleteCandidate) {
+    if (!attachment.uploadFilename) return undefined;
+    return getAttachmentMutationPath(attachment.uploadFilename);
+}
+
+type ChannelAttachmentDeletePathDatabase = Pick<DataSource, "getRepository">;
+
+export async function getChannelAttachmentDeletePaths(channelId: string, database: ChannelAttachmentDeletePathDatabase | null = getDatabase()) {
+    if (!database) throw new Error("Tried to collect channel attachment CDN paths before the database was initialised");
+
+    const [attachments, cloudAttachments] = await Promise.all([
+        database
+            .getRepository(Attachment)
+            .createQueryBuilder("attachment")
+            .leftJoin("attachment.message", "message")
+            .select("attachment.id", "id")
+            .addSelect("attachment.channel_id", "channel_id")
+            .addSelect("attachment.message_id", "message_id")
+            .addSelect("attachment.filename", "filename")
+            .where("attachment.channel_id = :channelId", { channelId })
+            .orWhere("message.channel_id = :channelId", { channelId })
+            .getRawMany<ChannelAttachmentDeleteCandidate>(),
+        database
+            .getRepository(CloudAttachment)
+            .createQueryBuilder("cloudAttachment")
+            .select("cloudAttachment.uploadFilename", "uploadFilename")
+            .where("cloudAttachment.channelId = :channelId", { channelId })
+            .getRawMany<ChannelCloudAttachmentDeleteCandidate>(),
+    ]);
+
+    return [
+        ...new Set([
+            ...attachments.flatMap((attachment) => getChannelAttachmentDeletePathsForAttachment(attachment, channelId)),
+            ...cloudAttachments.map((attachment) => getChannelCloudAttachmentDeletePath(attachment)).filter((path): path is string => path !== undefined),
+        ]),
+    ];
+}
+
+const THREAD_CHANNEL_TYPES = new Set<ChannelType>([ChannelType.GUILD_NEWS_THREAD, ChannelType.GUILD_PUBLIC_THREAD, ChannelType.GUILD_PRIVATE_THREAD]);
+
+function isThreadChannelType(type: ChannelType | undefined): boolean {
+    return type !== undefined && THREAD_CHANNEL_TYPES.has(type);
+}
 
 @Entity({
     name: "channels",
@@ -201,7 +268,6 @@ export class Channel extends BaseClass {
     /** Must be calculated Channel.calculatePosition */
     position: number;
 
-    // TODO: DM channel
     static async createChannel(
         channel: Partial<Channel>,
         user_id: string = "0",
@@ -214,6 +280,10 @@ export class Channel extends BaseClass {
             skipOrdering?: boolean;
         },
     ): Promise<Channel> {
+        if (isThreadChannelType(channel.type)) {
+            throw new HTTPError("Thread channels must be created with createThreadChannel", 400);
+        }
+
         if (!opts?.skipPermissionCheck) {
             // Always check if user has permission first
             const permissions = await getPermission(user_id, channel.guild_id);
@@ -235,10 +305,6 @@ export class Channel extends BaseClass {
         }
 
         switch (channel.type) {
-            // TODO: should threads even be routed through this function instead of createThreadChannel?
-            case ChannelType.GUILD_PUBLIC_THREAD:
-            case ChannelType.GUILD_PRIVATE_THREAD:
-            case ChannelType.GUILD_NEWS_THREAD:
             case ChannelType.GUILD_TEXT:
             case ChannelType.GUILD_FORUM:
             case ChannelType.GUILD_MEDIA:
@@ -265,7 +331,6 @@ export class Channel extends BaseClass {
         }
 
         if (!channel.permission_overwrites) channel.permission_overwrites = [];
-        // TODO: eagerly auto generate position of all guild channels
 
         const position = (channel.type === ChannelType.UNHANDLED ? 0 : channel.position) || 0;
         const id = opts?.keepId && channel.id ? channel.id : Snowflake.generate();
@@ -285,8 +350,7 @@ export class Channel extends BaseClass {
             // total_message_sent: 0,
         };
 
-        // TODO: figure out why the generic is required here
-        const ret = Channel.create<Channel>(channel);
+        const ret = Channel.getRepository().create(channel);
 
         await Promise.all([
             ret.save(),
@@ -327,28 +391,37 @@ export class Channel extends BaseClass {
             ...channel,
             id: threadId,
             created_at: new Date(),
-            position: 0, // TODO:
+            position: 0,
             message_count: 0,
             member_count: 1,
             total_message_sent: 0,
         };
 
-        const exists = await Channel.findOne({
-            where: {
-                id: channel.id,
-            },
-        });
-
-        const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
-
-        if (!opts?.skipExistsCheck && !guild.features.includes("ALLOW_EXISTING_THREAD_FOR_MESSAGE") && exists) throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
+        if (!isThreadChannelType(channel.type)) {
+            throw new HTTPError("createThreadChannel can only create thread channel types", 400);
+        }
 
         if (!channel.parent_id) throw new HTTPError("Parent id not set", 400);
         const parent = await Channel.findOneOrFail({ where: { id: channel.parent_id } });
+        const parentGuildId = parent.guild_id;
+        if (!parentGuildId) throw new HTTPError("Parent channel guild id not set", 400);
+        if (channel.guild_id && channel.guild_id !== parentGuildId) throw new HTTPError("The thread channel needs to be in the same guild as the parent", 400);
+
+        const [exists, guild] = await Promise.all([
+            Channel.findOne({
+                where: {
+                    id: channel.id,
+                },
+            }),
+            Guild.findOneOrFail({ where: { id: parentGuildId } }),
+        ]);
+
+        if (!opts?.skipExistsCheck && !guild.features.includes(GuildFeature.AllowExistingThreadForMessage) && exists)
+            throw DiscordApiErrors.THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE;
 
         if (!opts?.skipPermissionCheck) {
             // Always check if user has permission first
-            const permissions = await getPermission(user_id, parent.guild_id);
+            const permissions = await getPermission(user_id, parentGuildId);
             permissions.hasThrow(channel.type === ChannelType.GUILD_PRIVATE_THREAD ? "CREATE_PRIVATE_THREADS" : "CREATE_PUBLIC_THREADS");
         }
 
@@ -357,7 +430,7 @@ export class Channel extends BaseClass {
             permission_overwrites: parent.permission_overwrites,
             nsfw: parent.nsfw,
             owner_id: user_id,
-            guild_id: parent.guild_id,
+            guild_id: parentGuildId,
             thread_metadata: {
                 create_timestamp: new Date().toISOString(),
                 archive_timestamp: new Date().toISOString(),
@@ -369,43 +442,38 @@ export class Channel extends BaseClass {
             },
         };
 
-        if (!opts?.skipParentExistsCheck) {
-            if (!parent) throw new HTTPError("Parent channel doesn't exist", 400);
-            if (parent.guild_id !== channel.guild_id) throw new HTTPError("The category channel needs to be in the guild");
-        }
-
         if (!opts?.skipNameChecks) {
-            const guild = await Guild.findOneOrFail({ where: { id: channel.guild_id } });
             channel.name = normalizeThreadName(channel.name, guild.features);
             assertChannelNamePresent(channel.name, guild.features);
         }
 
-        // TODO: eagerly auto generate position of all guild channels
-
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
+        const guildId = thread.guild_id;
+        if (!guildId) throw new HTTPError("Thread guild id not set", 500);
         const threadMember = await ThreadMember.createForUser(user_id, thread);
+        thread.thread_members = [threadMember];
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
                 emitEvent({
                     event: "THREAD_CREATE",
                     data: {
-                        ...thread,
+                        ...thread.toJSON(),
                         newly_created: true,
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadCreateEvent),
                 emitEvent({
                     event: "THREAD_MEMBERS_UPDATE",
                     data: {
-                        guild_id: channel.guild_id!, // TODO: is this the right fix?
+                        guild_id: guildId,
                         id: thread.id,
-                        member_count: channel.member_count ?? 0, //TODO: is this the right fix?
-                        added_members: [{ user_id, ...threadMember.toJSON() }],
+                        member_count: thread.member_count ?? 1,
+                        added_members: [serializeThreadMemberPayload(threadMember, user_id)],
                         removed_member_ids: [],
                     },
-                    guild_id: channel.guild_id,
+                    guild_id: guildId,
                 } satisfies ThreadMembersUpdateEvent),
             ]);
         }
@@ -414,15 +482,19 @@ export class Channel extends BaseClass {
     }
 
     static async createDMChannel(recipients: string[], creator_user_id: string, name?: string) {
-        recipients = [...new Set(recipients)].filter((x) => x !== creator_user_id);
-        // TODO: check config for max number of recipients
-        /** if you want to disallow note to self channels, uncomment the conditional below
+        recipients = normalizeAndAssertCreateDmRecipientsForLimit(recipients, creator_user_id);
 
-		const otherRecipientsUsers = await User.find({ where: recipients.map((x) => ({ id: x })) });
-		if (otherRecipientsUsers.length !== recipients.length) {
-			throw new HTTPError("Recipient/s not found");
-		}
-		**/
+        if (recipients.length > 0) {
+            const otherRecipientsUsers = await User.find({
+                where: { id: In(recipients) },
+                select: { id: true },
+            });
+            const foundRecipientIds = new Set(otherRecipientsUsers.map((user) => user.id));
+
+            if (!recipients.every((recipient) => foundRecipientIds.has(recipient))) {
+                throw DiscordApiErrors.INVALID_RECIPIENT;
+            }
+        }
 
         const type = recipients.length > 1 ? ChannelType.GROUP_DM : ChannelType.DM;
 
@@ -544,7 +616,7 @@ export class Channel extends BaseClass {
             }),
         ]);
 
-        if (!recipient) throw new HTTPError("Recipient/s not found");
+        if (!recipient) throw DiscordApiErrors.INVALID_RECIPIENT;
 
         const isFriend = relationships.some((relationship) => relationship.type === RelationshipType.friends);
         const isBlocked = relationships.some((relationship) => relationship.type === RelationshipType.blocked);
@@ -564,6 +636,8 @@ export class Channel extends BaseClass {
     }
 
     static async removeRecipientFromChannel(channel: Channel, user_id: string) {
+        assertExistingGroupDmRecipient(channel.recipients, user_id);
+
         await Recipient.delete({ channel_id: channel.id, user_id: user_id });
         channel.recipients = channel.recipients?.filter((r) => r.user_id !== user_id);
 
@@ -606,12 +680,12 @@ export class Channel extends BaseClass {
         } satisfies ChannelRecipientRemoveEvent);
     }
 
-    static async deleteChannel(channel: Channel) {
-        // TODO Delete attachments from the CDN for messages in the channel
-        const database = getDatabase();
+    static async deleteChannel(channel: Channel, database: DataSource | null = getDatabase()) {
         if (!database) throw new Error("Tried to delete a channel before the database was initialised");
 
-        const updatedGuilds = await database.transaction(async (entityManager) => {
+        const { attachmentDeletePaths, updatedGuilds } = await database.transaction(async (entityManager) => {
+            const attachmentDeletePaths = await getChannelAttachmentDeletePaths(channel.id, entityManager);
+
             await entityManager.delete(ReadState, { channel_id: channel.id, read_state_type: ReadStateType.CHANNEL });
             await entityManager.delete(Channel, { id: channel.id });
 
@@ -625,13 +699,13 @@ export class Channel extends BaseClass {
                 await entityManager.update(Guild, { id: channel.guild_id }, { channel_ordering: updatedOrdering });
 
                 const updatedGuild = await Invite.syncGuildVanityUrlFeature(channel.guild_id, entityManager);
-                return updatedGuild ? [updatedGuild] : [];
+                return { attachmentDeletePaths, updatedGuilds: updatedGuild ? [updatedGuild] : [] };
             }
 
-            return [];
+            return { attachmentDeletePaths, updatedGuilds: [] };
         });
 
-        await Promise.all(updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild)));
+        await Promise.all([...attachmentDeletePaths.map((path) => deleteFile(path)), ...updatedGuilds.map((guild) => Invite.emitGuildUpdate(guild))]);
     }
 
     static async calculatePosition(channel_id: string, guild_id: string, guild?: Guild) {
@@ -670,7 +744,7 @@ export class Channel extends BaseClass {
     }
 
     isThread() {
-        return this.type === ChannelType.GUILD_NEWS_THREAD || this.type === ChannelType.GUILD_PUBLIC_THREAD || this.type === ChannelType.GUILD_PRIVATE_THREAD;
+        return isThreadChannelType(this.type);
     }
     isForum() {
         return this.type === ChannelType.GUILD_FORUM || this.type === ChannelType.GUILD_MEDIA;
@@ -691,69 +765,79 @@ export class Channel extends BaseClass {
     }
 
     async getUserPermissions(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<Permissions> {
-        if (this.isDm()) return this.owner_id == (opts.user_id ?? opts.user?.id) ? Permissions.ALL : Permissions.DEFAULT_DM_PERMISSIONS;
-        let guild = opts.guild;
-        if (!guild) {
-            if (this.guild) guild = this.guild;
-            else if (this.guild_id) guild = await Guild.findOneOrFail({ where: { id: this.guild_id } });
-            else {
-                console.error("Channel.getUserPermissions: called without guild for non-DM channel.");
-                return Permissions.NONE;
+        const userId = opts.user_id ?? opts.user?.id ?? opts.member?.id;
+        if (this.isDm()) return await this.getDmUserPermissions(userId);
+
+        try {
+            let guild = opts.guild;
+            if (!guild) {
+                if (this.guild) guild = this.guild;
+                else if (this.guild_id) guild = await Guild.findOneOrFail({ where: { id: this.guild_id } });
+                else {
+                    console.error("Channel.getUserPermissions: called without guild for non-DM channel.");
+                    return Permissions.NONE;
+                }
             }
-        }
 
-        // check if we can resolve here to short-circuit possibly calling the database unnecessarily
-        // TODO: do we want to have an instance-wide opt out of this behavior? It would just be an extra if statement here
-        const ownerId = guild?.owner?.id ?? guild?.owner_id;
-        if (!!opts.user_id && ownerId === opts.user_id) return Permissions.ALL;
-        if (!!opts.user?.id && ownerId === opts.user?.id) return Permissions.ALL;
-        if (!!opts.member?.id && ownerId === opts.member?.id) return Permissions.ALL;
+            // check if we can resolve here to short-circuit possibly calling the database unnecessarily
+            if (isGuildOwner(guild, opts.user_id, opts.user, opts.member)) return Permissions.ALL;
 
-        let member = opts.member;
-        if (!member) {
-            if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: { roles: true } });
-            else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: { roles: true } });
-            else {
-                console.error("Channel.getUserPermissions: called without user or member for non-DM channel.");
-                return Permissions.NONE;
+            let member = opts.member;
+            if (!member) {
+                if (opts.user) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user.id }, relations: { roles: true } });
+                else if (opts.user_id) member = await Member.findOneOrFail({ where: { guild_id: guild.id, id: opts.user_id }, relations: { roles: true } });
+                else {
+                    console.error("Channel.getUserPermissions: called without user or member for non-DM channel.");
+                    return Permissions.NONE;
+                }
             }
-        }
 
-        const roles = (
-            member.roles ||
-            (
-                await Member.findOneOrFail({
-                    where: { guild_id: guild.id, index: member.index },
-                    relations: { roles: true },
-                    select: {
-                        roles: {
-                            id: true,
-                            permissions: true,
-                            position: true,
+            const roles = (
+                member.roles ||
+                (
+                    await Member.findOneOrFail({
+                        where: { guild_id: guild.id, index: member.index },
+                        relations: { roles: true },
+                        select: {
+                            roles: {
+                                id: true,
+                                permissions: true,
+                                position: true,
+                            },
                         },
-                    },
-                    loadEagerRelations: false,
-                })
-            ).roles
-        ).sort((a, b) => a.position - b.position); // ascending by position
+                        loadEagerRelations: false,
+                    })
+                ).roles
+            ).sort((a, b) => a.position - b.position); // ascending by position
 
-        return Permissions.finalPermission({
-            user: {
-                ...member,
-                roles: roles.map((r) => r.id),
-                flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
-            },
-            guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
-            channel: this,
-        });
+            return Permissions.finalPermission({
+                user: {
+                    ...member,
+                    roles: roles.map((r) => r.id),
+                    flags: member.user?.flags ?? (await User.findOneOrFail({ where: { id: member.id }, select: { flags: true } })).flags,
+                },
+                guild: { id: guild.id, owner_id: guild.owner_id!, roles }, // We don't care about including *all* guild roles, as not all of them are relevant...
+                channel: this,
+            });
+        } catch (error) {
+            if (isExpectedPermissionMiss(error)) return Permissions.NONE;
+            throw error;
+        }
     }
 
-    // TODO: should we throw for missing args?
+    // Authorization predicates fail closed when caller context is incomplete.
     async canViewChannel(opts: { user_id?: string; user?: User; member?: Member; guild?: Guild }): Promise<boolean> {
-        if (this.isDm()) return await this.canViewDmChannel(opts.user_id, opts.user);
-
         const userPerms = await this.getUserPermissions(opts);
         return userPerms.has("VIEW_CHANNEL");
+    }
+
+    private async getDmUserPermissions(userId?: string): Promise<Permissions> {
+        if (!userId) {
+            console.error("Channel.getUserPermissions: called without user for DM channel.");
+            return Permissions.NONE;
+        }
+        if (this.owner_id === userId) return Permissions.ALL;
+        return (await this.canViewDmChannel(userId)) ? Permissions.DEFAULT_DM_PERMISSIONS : Permissions.NONE;
     }
 
     private async canViewDmChannel(user_id?: string, user?: User): Promise<boolean> {
@@ -762,29 +846,59 @@ export class Channel extends BaseClass {
             console.error("Channel.canViewChannel: called without user for DM channel.");
             return false;
         }
-        if (!user) return false;
-        if (this.recipients) return this.recipients.some((r) => r.user_id === user.id && !r.closed);
+        if (this.recipients) return this.recipients.some((r) => r.user_id === userId && !r.closed);
         else {
             // we dont have recipients on hand
-            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: user.id } });
+            const recipient = await Recipient.findOne({ where: { channel_id: this.id, user_id: userId } });
             return recipient == null ? false : !recipient.closed;
         }
     }
 
+    private toPublicRecipients(): PublicChannel["recipients"] {
+        return serializeChannelRecipients(this);
+    }
+
+    private loadedThreadMembers(): ThreadMember[] | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.thread_members) return undefined;
+        if (this.thread_members.some((threadMember) => !threadMember.member)) return undefined;
+
+        return this.thread_members;
+    }
+
+    private serializeThreadOwner(): PublicMember | null | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.owner_id) return null;
+
+        const threadMembers = this.loadedThreadMembers();
+        if (!threadMembers) return undefined;
+
+        const ownerMember = threadMembers.find((threadMember) => threadMember.member.id === this.owner_id)?.member;
+        return ownerMember?.toPublicMember() ?? null;
+    }
+
+    private serializeThreadMemberIdsPreview(): string[] | undefined {
+        return this.loadedThreadMembers()?.map((threadMember) => threadMember.member.id);
+    }
+
     toJSON(): PublicChannel {
+        const member_ids_preview = this.serializeThreadMemberIdsPreview();
+        const channel = { ...this };
+        delete channel.thread_members;
+
         return {
-            ...this,
+            ...channel,
             last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
             guild_id: this.guild_id ?? undefined,
-            recipients: undefined, //this.recipients?.map(x=>x.user.toPublicUser()), // TODO: fix me
-            owner: undefined, // TODO: fix me - this is thread owner
+            recipients: this.toPublicRecipients(),
+            owner: this.serializeThreadOwner(),
 
             // these fields are not returned depending on the type of channel
             bitrate: this.bitrate || undefined,
             user_limit: this.user_limit || undefined,
             rate_limit_per_user: this.rate_limit_per_user || undefined,
             owner_id: this.owner_id || undefined,
-            ...(this.isThread() && this.thread_members ? { member_ids_preview: this.thread_members.map((_) => _.member.id) } : {}),
+            ...(member_ids_preview ? { member_ids_preview } : {}),
             default_auto_archive_duration: this.default_auto_archive_duration ?? undefined,
             retention_policy_id: undefined,
             thread_metadata: this.thread_metadata

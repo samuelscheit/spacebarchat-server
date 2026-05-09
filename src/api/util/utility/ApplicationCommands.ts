@@ -152,7 +152,9 @@ function localizedApplicationCommandValue(localizations: Record<string, string> 
         if (localized !== undefined) return localized;
 
         const normalizedCandidate = normalizeApplicationCommandLocale(candidate).toLowerCase();
-        const matchingLocalization = Object.entries(localizations).find(([localizationLocale]) => normalizeApplicationCommandLocale(localizationLocale).toLowerCase() === normalizedCandidate);
+        const matchingLocalization = Object.entries(localizations).find(
+            ([localizationLocale]) => normalizeApplicationCommandLocale(localizationLocale).toLowerCase() === normalizedCandidate,
+        );
         if (matchingLocalization) return matchingLocalization[1];
     }
 
@@ -202,5 +204,7 @@ export function serializeApplicationCommand(command: ApplicationCommand, locale?
 }
 
 export function resolveApplicationCommandLocale(localeHeader: LocaleHeader, acceptLanguageHeader: LocaleHeader, userSettingsLocale: string | undefined) {
-    return headerLocaleValue(localeHeader) ?? acceptLanguageLocale(acceptLanguageHeader) ?? (userSettingsLocale ? normalizeApplicationCommandLocale(userSettingsLocale) : undefined);
+    return (
+        headerLocaleValue(localeHeader) ?? acceptLanguageLocale(acceptLanguageHeader) ?? (userSettingsLocale ? normalizeApplicationCommandLocale(userSettingsLocale) : undefined)
+    );
 }

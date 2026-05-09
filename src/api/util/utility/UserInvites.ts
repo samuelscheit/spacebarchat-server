@@ -26,7 +26,7 @@ export interface UserInviteCreateBody {
 }
 
 type InviteRecord = {
-    toJSON?: () => Record<string, unknown>;
+    toJSON?: () => object;
 };
 
 type UnsavedInvite = InviteRecord & {

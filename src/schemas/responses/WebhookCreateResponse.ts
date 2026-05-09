@@ -19,3 +19,5 @@
 import { APIWebhook } from "../api/channels";
 
 export type WebhookCreateResponse = APIWebhook;
+
+export type APIWebhookArray = APIWebhook[];

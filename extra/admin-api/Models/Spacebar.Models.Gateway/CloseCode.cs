@@ -17,3 +17,8 @@ public enum CloseCode {
     InvalidIntent = 4013,
     DisallowedIntent = 4014,
 }
+
+public class GatewayCloseResponse {
+    [System.Text.Json.Serialization.JsonPropertyName("code")]
+    public CloseCode Code { get; set; }
+}

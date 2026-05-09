@@ -190,7 +190,7 @@ export class initial0 implements MigrationInterface {
 			discovery_splash character varying,
 			explicit_content_filter integer,
 			features text NOT NULL,
-			primary_category_id character varying,
+			primary_category_id integer,
 			icon character varying,
 			large boolean NOT NULL,
 			max_members integer,

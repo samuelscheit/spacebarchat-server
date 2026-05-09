@@ -40,7 +40,7 @@ import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
 import { RegisterSchema } from "@spacebar/schemas";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
-import { isRegistrationInviteUsable, registrationRequiresInvite } from "../../util/handlers/Registration";
+import { isRegistrationInviteUsable, registrationRequiresInvite, validateRegistrationDateOfBirth } from "../../util/handlers/Registration";
 
 const router: Router = Router({ mergeParams: true });
 
@@ -246,43 +246,30 @@ router.post(
             });
         }
 
-        if (register.dateOfBirth.required && !body.date_of_birth) {
+        const dateOfBirthError = validateRegistrationDateOfBirth(register.dateOfBirth, body.date_of_birth);
+        if (dateOfBirthError === "required") {
             throw FieldErrors({
                 date_of_birth: {
                     code: "BASE_TYPE_REQUIRED",
                     message: req.t("common:field.BASE_TYPE_REQUIRED"),
                 },
             });
-        } else if (register.dateOfBirth.required && register.dateOfBirth.minimum) {
-            const minimum = new Date();
-            minimum.setFullYear(minimum.getFullYear() - register.dateOfBirth.minimum);
-
-            let parsedDob;
-            try {
-                parsedDob = new Date(body.date_of_birth as Date);
-                if (isNaN(parsedDob.getTime())) {
-                    throw new Error("Invalid date");
-                }
-            } catch (e) {
-                throw FieldErrors({
-                    date_of_birth: {
-                        code: "DATE_OF_BIRTH_INVALID",
-                        message: req.t("auth:register.DATE_OF_BIRTH_INVALID"),
-                    },
-                });
-            }
-
-            // higher is younger
-            if (parsedDob > minimum) {
-                throw FieldErrors({
-                    date_of_birth: {
-                        code: "DATE_OF_BIRTH_UNDERAGE",
-                        message: req.t("auth:register.DATE_OF_BIRTH_UNDERAGE", {
-                            years: register.dateOfBirth.minimum,
-                        }),
-                    },
-                });
-            }
+        } else if (dateOfBirthError === "invalid") {
+            throw FieldErrors({
+                date_of_birth: {
+                    code: "DATE_OF_BIRTH_INVALID",
+                    message: req.t("auth:register.DATE_OF_BIRTH_INVALID"),
+                },
+            });
+        } else if (dateOfBirthError === "underage") {
+            throw FieldErrors({
+                date_of_birth: {
+                    code: "DATE_OF_BIRTH_UNDERAGE",
+                    message: req.t("auth:register.DATE_OF_BIRTH_UNDERAGE", {
+                        years: register.dateOfBirth.minimum,
+                    }),
+                },
+            });
         }
 
         if (body.password) {
