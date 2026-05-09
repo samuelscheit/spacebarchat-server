@@ -21,5 +21,6 @@ export * from "./DmChannelCreateResponse";
 export * from "./DmChannelDTO";
 export * from "./DmChannelOwnership";
 export * from "./ReadyGuildDTO";
+export * from "./ReadyPrivateChannelDTO";
 export * from "./UserDTO";
 export * from "./WebhookDTO";

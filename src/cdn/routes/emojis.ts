@@ -21,18 +21,13 @@ import { Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
-import crypto from "node:crypto";
 import { multer } from "../util/multer";
 import { cache, cacheNotFound } from "../util/cache";
+import { getCdnImagePath, hashImageBuffer, isAllowedImageMimeType } from "../util/ImageRouteHelpers";
 
 // TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
-// TODO: delete old icons
-
-const ANIMATED_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
-const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
-const ALLOWED_MIME_TYPES = [...ANIMATED_MIME_TYPES, ...STATIC_MIME_TYPES];
 
 const router = Router({ mergeParams: true });
 
@@ -43,13 +38,11 @@ router.post("/:emoji_id", multer.single("file"), async (req: Request, res: Respo
     const { buffer, size } = req.file;
     const { emoji_id } = req.params as { [key: string]: string };
 
-    let hash = crypto.createHash("md5").update(buffer).digest("hex");
-
     const type = await fileTypeFromBuffer(buffer);
-    if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
-    if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
+    if (!type || !isAllowedImageMimeType(type.mime)) throw new HTTPError("Invalid file type");
 
-    const path = `${pathPrefix}/${emoji_id}`;
+    const hash = hashImageBuffer(buffer, type.mime);
+    const path = getCdnImagePath(pathPrefix, emoji_id);
     const endpoint = Config.get().cdn.endpointPublic;
 
     await storage.set(path, buffer);
@@ -63,9 +56,8 @@ router.post("/:emoji_id", multer.single("file"), async (req: Request, res: Respo
 });
 
 router.get("/:emoji_id", cache, async (req: Request, res: Response) => {
-    let { emoji_id } = req.params as { [key: string]: string };
-    emoji_id = emoji_id.split(".")[0]; // remove .file extension
-    const path = `${pathPrefix}/${emoji_id}`;
+    const { emoji_id } = req.params as { [key: string]: string };
+    const path = getCdnImagePath(pathPrefix, emoji_id);
 
     const file = await storage.get(path);
     if (!file) return cacheNotFound(req, res);
@@ -79,7 +71,7 @@ router.get("/:emoji_id", cache, async (req: Request, res: Response) => {
 router.delete("/:emoji_id", async (req: Request, res: Response) => {
     if (req.headers.signature !== Config.get().security.requestSignature) throw new HTTPError("Invalid request signature");
     const { emoji_id } = req.params as { [key: string]: string };
-    const path = `${pathPrefix}/${emoji_id}`;
+    const path = getCdnImagePath(pathPrefix, emoji_id);
 
     await storage.delete(path);
 

@@ -16,6 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+export enum ApplicationType {
+    GAME = 1,
+    MUSIC = 2,
+    TICKETED_EVENTS = 3,
+    GUILD_ROLE_SUBSCRIPTIONS = 4,
+}
+
 export interface ApplicationCommand {
     id: string;
     application_id: string;
