@@ -17,9 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { Application, DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
+import { DiscordApiErrors, FieldErrors, Member, Permissions, User, getPermission, Role } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { ApplicationAuthorizeSchema } from "@spacebar/schemas";
+import { requireOAuthAuthorizeApplication } from "../../util/utility/OAuthAuthorizeApplication";
 import { toOAuthAuthorizeBot } from "../../util/utility/OAuthAuthorizeResponse";
 const router = Router({ mergeParams: true });
 
@@ -80,18 +81,8 @@ router.get(
             });
         }
 
-        const app = await Application.findOne({
-            where: {
-                id: client_id as string,
-            },
-            relations: { bot: true },
-        });
-
-        if (!app) throw DiscordApiErrors.UNKNOWN_APPLICATION;
-        if (!app.bot) throw DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT;
-
+        const app = await requireOAuthAuthorizeApplication(client_id as string);
         const bot = app.bot;
-        delete app.bot;
 
         const botApproximateGuildCount = await getBotApproximateGuildCount(bot.id);
 
@@ -211,15 +202,7 @@ router.post(
         if (Object.keys(perms.cache || {}).length > 0 && perms.cache.member?.user.bot) throw DiscordApiErrors.UNAUTHORIZED;
         perms.hasThrow("MANAGE_GUILD");
 
-        const app = await Application.findOne({
-            where: {
-                id: client_id as string,
-            },
-            relations: { bot: true },
-        });
-
-        if (!app) throw DiscordApiErrors.UNKNOWN_APPLICATION;
-        if (!app.bot) throw DiscordApiErrors.OAUTH2_APPLICATION_BOT_ABSENT;
+        const app = await requireOAuthAuthorizeApplication(client_id as string);
 
         await Member.addToGuild(app.id, body.guild_id);
         if (body.permissions) {
