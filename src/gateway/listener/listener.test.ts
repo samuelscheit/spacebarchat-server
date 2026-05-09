@@ -6,7 +6,7 @@ import type { FindManyOptions } from "typeorm";
 
 import type { WebSocket } from "@spacebar/gateway";
 import { EventOpts, Intents } from "@spacebar/util";
-import { CLOSECODES } from "../util";
+import { CLOSECODES, OPCODES } from "../util";
 import { Capabilities } from "../util/Capabilities";
 import {
     canDispatchDebouncedMessageReactions,
@@ -33,6 +33,34 @@ process.env.DATABASE ??= "postgres://user:password@localhost:5432/spacebar";
 
 function eventOpts(event: string, data: Record<string, unknown> = {}, guild_id?: string, channel_id?: string) {
     return { event, data, guild_id, channel_id } as Pick<EventOpts, "channel_id" | "data" | "event" | "guild_id">;
+}
+
+function createDispatchSocket(intents: Intents) {
+    const sentPayloads: unknown[] = [];
+    const socket = Object.assign(new EventEmitter(), {
+        user_id: "listener-user",
+        session_id: "listener-session",
+        events: {},
+        member_events: {},
+        guild_event_ids: {},
+        guild_member_event_ids: {},
+        member_event_guild_ids: {},
+        permissions: {},
+        recentTransactions: [],
+        sequence: 0,
+        intents,
+        encoding: "json",
+        readyState: 1,
+        OPEN: 1,
+        sentPayloads,
+        send(payload: string, callback?: (error?: Error) => void) {
+            sentPayloads.push(JSON.parse(payload));
+            callback?.();
+        },
+        close: () => undefined,
+    });
+
+    return socket as unknown as WebSocket & { sentPayloads: unknown[] };
 }
 
 describe("canDispatchGuildMemberEvent", () => {
@@ -106,6 +134,35 @@ describe("consumeListenerEvent", () => {
         assert.deepEqual(operations, [`acknowledge`, `close:${CLOSECODES.Authentication_failed}:Invalidated Token`]);
         assert.equal(socket.sequence, 7);
     });
+
+    test("filters USER_DELETE dispatches by the identified session intent", async () => {
+        const withoutInstanceUserUpdates = createDispatchSocket(new Intents(0n));
+
+        await consumeListenerEvent.call(withoutInstanceUserUpdates, {
+            event: "USER_DELETE",
+            data: { user_id: "deleted-user" },
+        } as EventOpts);
+
+        assert.deepEqual(withoutInstanceUserUpdates.sentPayloads, []);
+        assert.equal(withoutInstanceUserUpdates.sequence, 0);
+
+        const withInstanceUserUpdates = createDispatchSocket(new Intents(Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES));
+
+        await consumeListenerEvent.call(withInstanceUserUpdates, {
+            event: "USER_DELETE",
+            data: { user_id: "deleted-user" },
+        } as EventOpts);
+
+        assert.deepEqual(withInstanceUserUpdates.sentPayloads, [
+            {
+                op: OPCODES.Dispatch,
+                t: "USER_DELETE",
+                d: { user_id: "deleted-user" },
+                s: 0,
+            },
+        ]);
+        assert.equal(withInstanceUserUpdates.sequence, 1);
+    });
 });
 
 describe("gateway intent dispatch filtering", () => {
@@ -172,6 +229,18 @@ describe("gateway intent dispatch filtering", () => {
         assert.equal(getRequiredIntentForEvent("AUTO_MODERATION_RULE_CREATE", "guild"), Intents.FLAGS.AUTO_MODERATION_CONFIGURATION);
         assert.equal(getRequiredIntentForEvent("AUTO_MODERATION_ACTION_EXECUTION", "guild"), Intents.FLAGS.AUTO_MODERATION_EXECUTION);
         assert.equal(canDispatchEventForIntents(new Intents(0), "AUTO_MODERATION_RULE_CREATE", "guild"), false);
+    });
+
+    test("requires the instance user updates intent for USER_DELETE", () => {
+        const noIntents = new Intents(0n);
+        const instanceUserUpdates = new Intents(Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES);
+
+        assert.equal(getRequiredIntentForEvent("USER_DELETE", undefined), Intents.ERKINALP_FLAGS.INSTANCE_USER_UPDATES);
+        assert.equal(canDispatchEventForIntents(undefined, "USER_DELETE", undefined), false);
+        assert.equal(canDispatchEventForIntents(noIntents, "USER_DELETE", undefined), false);
+        assert.equal(canDispatchEventForIntents(instanceUserUpdates, "USER_DELETE", undefined), true);
+        assert.equal(canDispatchIntentEvent(noIntents, eventOpts("USER_DELETE", { user_id: "deleted-user" })), false);
+        assert.equal(canDispatchIntentEvent(instanceUserUpdates, eventOpts("USER_DELETE", { user_id: "deleted-user" })), true);
     });
 });
 
