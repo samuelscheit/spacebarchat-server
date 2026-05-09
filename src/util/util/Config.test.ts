@@ -33,6 +33,47 @@ function configPair(key: string, value: ConfigEntity["value"]) {
     return pair;
 }
 
+function collectDeleteCriteriaKeys(criteria: unknown): string[] {
+    if (typeof criteria === "string") return [criteria];
+    if (Array.isArray(criteria)) return criteria.filter((key): key is string => typeof key === "string");
+    if (typeof criteria !== "object" || criteria === null) return [];
+
+    if ("key" in criteria) {
+        const keyCriteria = (criteria as { key?: unknown }).key;
+        if (typeof keyCriteria === "object" && keyCriteria !== null && "value" in keyCriteria) {
+            return collectDeleteCriteriaKeys((keyCriteria as { value?: unknown }).value);
+        }
+
+        return collectDeleteCriteriaKeys(keyCriteria);
+    }
+
+    return [];
+}
+
+function patchConfigEntityPersistence(savedPairs: Pick<ConfigEntity, "key" | "value">[], deletedKeys: string[] = [], existingKeys: string[] = []) {
+    const originalSave = ConfigEntity.prototype.save;
+    const originalDelete = ConfigEntity.delete;
+    const originalFind = ConfigEntity.find;
+
+    ConfigEntity.prototype.save = async function (this: ConfigEntity) {
+        savedPairs.push({ key: this.key, value: this.value });
+        return this;
+    };
+
+    ConfigEntity.delete = ((criteria: unknown) => {
+        deletedKeys.push(...collectDeleteCriteriaKeys(criteria));
+        return Promise.resolve({ affected: deletedKeys.length, raw: [] });
+    }) as typeof ConfigEntity.delete;
+
+    ConfigEntity.find = (async () => existingKeys.map((key) => configPair(key, null))) as typeof ConfigEntity.find;
+
+    return () => {
+        ConfigEntity.prototype.save = originalSave;
+        ConfigEntity.delete = originalDelete;
+        ConfigEntity.find = originalFind;
+    };
+}
+
 test("database config pair generation stores arrays as single JSON values", () => {
     const config = validConfig();
     config.register.email.domains = ["blocked.example", "mail.example"];
@@ -46,6 +87,29 @@ test("database config pair generation stores arrays as single JSON values", () =
         pairs.some((pair) => pair.key.startsWith("register_email_domains_")),
         false,
     );
+});
+
+test("database config pair generation skips undefined leaves and rejects unsupported values", () => {
+    const config = validConfig() as ConfigValue & {
+        customConfigPairGeneration?: {
+            persisted: string;
+            skipped?: undefined;
+        };
+    };
+    config.customConfigPairGeneration = { persisted: "yes", skipped: undefined };
+
+    const pairs = generateConfigPairs(config);
+
+    assert.equal(
+        pairs.some((pair) => pair.key === "customConfigPairGeneration_persisted"),
+        true,
+    );
+    assert.equal(
+        pairs.some((pair) => pair.key === "customConfigPairGeneration_skipped"),
+        false,
+    );
+    assert.throws(() => generateConfigPairs({ bad: () => undefined }), /cannot be persisted/);
+    assert.throws(() => generateConfigPairs({ bad: Number.NaN }), /cannot be persisted/);
 });
 
 test("database config pair loading supports JSON array rows and legacy indexed rows", () => {
@@ -75,6 +139,7 @@ test("database config persistence removes stale flattened children when a parent
 afterEach(async () => {
     delete process.env.CONFIG_PATH;
     delete process.env.CONFIG_READONLY;
+    delete process.env.CONFIG_SOURCE;
 
     if (tempDir) await fs.rm(tempDir, { recursive: true, force: true });
     tempDir = undefined;
@@ -147,6 +212,71 @@ test("Config.set replaces array config values instead of leaving stale entries",
 
     const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
     assert.deepEqual(persisted.register.email.domains, ["blocked.example"]);
+});
+
+test("Config.set persists JSON array database pairs and deletes legacy flattened children", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    delete process.env.CONFIG_PATH;
+
+    const deletedKeys: string[] = [];
+    const savedPairs: Pick<ConfigEntity, "key" | "value">[] = [];
+    const restorePersistence = patchConfigEntityPersistence(savedPairs, deletedKeys, ["guild_defaultFeatures_0", "guild_defaultFeatures_1"]);
+
+    try {
+        await Config.set({
+            guild: {
+                ...Config.get().guild,
+                defaultFeatures: ["COMMUNITY", "NEWS"],
+            },
+        });
+    } finally {
+        restorePersistence();
+    }
+
+    const defaultFeaturesPair = savedPairs.find((pair) => pair.key === "guild_defaultFeatures");
+    assert.deepEqual(defaultFeaturesPair?.value, ["COMMUNITY", "NEWS"]);
+    assert.equal(
+        savedPairs.some((pair) => pair.key.startsWith("guild_defaultFeatures_")),
+        false,
+    );
+    assert.deepEqual(deletedKeys, ["guild_defaultFeatures_0", "guild_defaultFeatures_1"]);
+});
+
+test("Config.set does not persist undefined default values as database config pairs", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    delete process.env.CONFIG_PATH;
+
+    const savedPairs: Pick<ConfigEntity, "key" | "value">[] = [];
+    const restorePersistence = patchConfigEntityPersistence(savedPairs);
+
+    try {
+        await Config.set({});
+    } finally {
+        restorePersistence();
+    }
+
+    assert.equal(
+        savedPairs.some((pair) => pair.value === undefined),
+        false,
+    );
+    assert.equal(
+        savedPairs.some((pair) => pair.key === "register_defaultBotRights"),
+        false,
+    );
+    assert.equal(
+        savedPairs.some((pair) => pair.key === "components_mediaGalleryLimit"),
+        false,
+    );
+    assert.equal(
+        savedPairs.some((pair) => pair.key === "components_actionRowLimit"),
+        false,
+    );
 });
 
 test("Config.set rejects unsupported CAPTCHA service updates without mutating current config", async () => {
