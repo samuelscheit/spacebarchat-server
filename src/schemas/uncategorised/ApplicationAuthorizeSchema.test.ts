@@ -20,7 +20,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
-import { ajv } from "@spacebar/schemas/Validator";
+import { ajv, nonCoercingAjv } from "@spacebar/schemas/Validator";
 
 const assetsPath = path.join(process.cwd(), "assets");
 
@@ -28,6 +28,7 @@ interface JsonShape {
     components?: {
         schemas?: Record<string, JsonShape>;
     };
+    maxLength?: number;
     minLength?: number;
     properties?: Record<string, JsonShape>;
     type?: string | string[];
@@ -43,8 +44,10 @@ test("ApplicationAuthorizeSchema requires a non-empty guild_id in generated cont
 
     assert.equal(schemas.ApplicationAuthorizeSchema.properties?.guild_id?.type, "string");
     assert.equal(schemas.ApplicationAuthorizeSchema.properties?.guild_id?.minLength, 1);
+    assert.equal(schemas.ApplicationAuthorizeSchema.properties?.code?.maxLength, 8);
     assert.equal(openapi.components?.schemas?.ApplicationAuthorizeSchema.properties?.guild_id?.type, "string");
     assert.equal(openapi.components?.schemas?.ApplicationAuthorizeSchema.properties?.guild_id?.minLength, 1);
+    assert.equal(openapi.components?.schemas?.ApplicationAuthorizeSchema.properties?.code?.maxLength, 8);
 });
 
 test("ApplicationAuthorizeSchema rejects empty guild_id values", () => {
@@ -56,4 +59,19 @@ test("ApplicationAuthorizeSchema rejects empty guild_id values", () => {
 
     assert.equal(ajv.validate("ApplicationAuthorizeSchema", validBody), true);
     assert.equal(ajv.validate("ApplicationAuthorizeSchema", { ...validBody, guild_id: "" }), false);
+});
+
+const baseAuthorizeBody = {
+    authorize: true,
+    guild_id: "guild",
+    permissions: "0",
+};
+
+test("ApplicationAuthorizeSchema accepts TOTP and MFA backup-code lengths", () => {
+    assert.equal(nonCoercingAjv.validate("ApplicationAuthorizeSchema", { ...baseAuthorizeBody, code: "123456" }), true);
+    assert.equal(nonCoercingAjv.validate("ApplicationAuthorizeSchema", { ...baseAuthorizeBody, code: "deadbeef" }), true);
+});
+
+test("ApplicationAuthorizeSchema rejects MFA code values longer than generated backup codes", () => {
+    assert.equal(nonCoercingAjv.validate("ApplicationAuthorizeSchema", { ...baseAuthorizeBody, code: "too-long9" }), false);
 });
