@@ -42,7 +42,6 @@ router.post(
     }),
     async (req: Request, res: Response) => {
         if (!WebAuthn.fido2) {
-            // TODO: I did this for typescript and I can't use !
             throw new Error("WebAuthn not enabled");
         }
 
