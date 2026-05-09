@@ -69,12 +69,15 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker/"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/beaker?client=desktop"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/science"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/science/?events=1"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/track"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v10/track?source=client"), true);
     });
 
     test("does not treat client analytics sink routes as public prefixes", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker/not-a-route"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/beaker"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/science"), false);
     });
 
     test("does not let HEAD inherit POST-only public sink authorization", () => {
