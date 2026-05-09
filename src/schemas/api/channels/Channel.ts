@@ -95,7 +95,6 @@ export interface PublicThreadMember {
     flags: number;
 }
 
-// TODO: probably more props
 export function isTextChannel(type: ChannelType): boolean {
     switch (type) {
         case ChannelType.GUILD_STORE:
@@ -103,6 +102,13 @@ export function isTextChannel(type: ChannelType): boolean {
         case ChannelType.GUILD_CATEGORY:
         case ChannelType.GUILD_FORUM:
         case ChannelType.GUILD_DIRECTORY:
+        case ChannelType.GUILD_LFG:
+        case ChannelType.LFG_GROUP_DM:
+        case ChannelType.THREAD_ALPHA:
+        case ChannelType.GUILD_MEDIA:
+        case ChannelType.LOBBY:
+        case ChannelType.EPHEMERAL_DM:
+        case ChannelType.UNHANDLED:
             throw new HTTPError("not a text channel", 400);
         case ChannelType.DM:
         case ChannelType.GROUP_DM:
@@ -113,8 +119,10 @@ export function isTextChannel(type: ChannelType): boolean {
         case ChannelType.GUILD_PRIVATE_THREAD:
         case ChannelType.GUILD_TEXT:
             return true;
-        default:
-            throw new HTTPError("unimplemented", 400);
+        default: {
+            const exhaustiveCheck: never = type;
+            throw new HTTPError(`unimplemented channel type ${exhaustiveCheck}`, 400);
+        }
     }
 }
 
