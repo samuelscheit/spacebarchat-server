@@ -16,7 +16,10 @@ type ThreadMemberLike = {
     id: string;
     join_timestamp?: Date | string;
     flags?: number;
-    toJSON?: () => Record<string, unknown>;
+    toJSON?: () => {
+        join_timestamp?: Date | string;
+        flags?: number;
+    };
 };
 
 type PermissionLike = {

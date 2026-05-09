@@ -1,3 +1,4 @@
+import { GuildFeature } from "../../util/util/GuildFeatures";
 import { ObjectErrorContent, makeObjectErrorContent } from "../../util/util/FieldError";
 
 export const CHANNEL_MODIFY_GUILD_TEXT = 0;
@@ -15,7 +16,7 @@ export function getChannelModifyTypeConversionError(currentType: number, request
         return makeObjectErrorContent("BASE_TYPE_CHOICES", "Only text and news channels can be converted");
     }
 
-    if (requestedType === CHANNEL_MODIFY_GUILD_NEWS && !guildFeatures.includes("NEWS")) {
+    if (requestedType === CHANNEL_MODIFY_GUILD_NEWS && !guildFeatures.includes(GuildFeature.News)) {
         return makeObjectErrorContent("BASE_TYPE_CHOICES", "News channels require the NEWS guild feature");
     }
 

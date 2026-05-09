@@ -16,10 +16,14 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PublicMessage } from "../api/messages/Message";
+import type { PublicMessage } from "@spacebar/schemas";
 
 export type PreloadMessageResponse = Omit<PublicMessage, "reactions">;
 
 export type PreloadMessagesResponse = PreloadMessageResponse[];
 
 export type PreloadMessagesResponseSchema = PreloadMessagesResponse;
+
+export type APIPublicMessage = PublicMessage;
+export type APIMessageArray = APIPublicMessage[];
+export type MessageListResponse = APIPublicMessage[];
