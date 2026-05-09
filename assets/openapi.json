@@ -5129,7 +5129,7 @@
                     "stickers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "lobby_id": {
@@ -5228,7 +5228,7 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "poll": {
@@ -15736,13 +15736,13 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "stickers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "poll": {
@@ -16935,7 +16935,7 @@
                             "sticker_items": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/Sticker"
+                                    "$ref": "#/components/schemas/StickerResponse"
                                 }
                             }
                         },
@@ -17279,13 +17279,13 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "stickers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "poll": {
@@ -17659,13 +17659,13 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "stickers": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Sticker"
+                            "$ref": "#/components/schemas/StickerResponse"
                         }
                     },
                     "poll": {
@@ -24743,6 +24743,16 @@
                         "description": "No description available"
                     },
                     "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
                         "description": "",
                         "content": {
                             "application/json": {

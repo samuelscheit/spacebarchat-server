@@ -36,6 +36,26 @@ function collectRefs(value: unknown, refs: string[] = []) {
     return refs;
 }
 
+function assertStickerResponseArray(schema: SchemaObject, resolveSchema: (schema: SchemaObject) => SchemaObject, expectedRef: string) {
+    const stickers = resolveSchema(schema);
+    const sticker = resolveSchema(stickers.items!);
+
+    assert.equal(stickers.type, "array");
+    assert.equal(stickers.items?.$ref, expectedRef);
+    assert.equal(sticker.properties?.id?.type, "string");
+    assert.equal(sticker.properties?.name?.type, "string");
+    assert.equal(sticker.properties?.pack, undefined);
+    assert.equal(sticker.properties?.guild, undefined);
+    assert.equal(sticker.properties?.user_id, undefined);
+}
+
+function assertMessageStickerFields(schema: SchemaObject, resolveSchema: (schema: SchemaObject) => SchemaObject, expectedRef: string) {
+    const message = resolveSchema(schema);
+
+    assertStickerResponseArray(message.properties!.sticker_items!, resolveSchema, expectedRef);
+    assertStickerResponseArray(message.properties!.stickers!, resolveSchema, expectedRef);
+}
+
 describe("public message generated contract", () => {
     test("OpenAPI documents message member roles as role id strings", () => {
         const openapi = readJson("assets/openapi.json");
@@ -75,5 +95,43 @@ describe("public message generated contract", () => {
         assert.equal(apiMessageArray.type, "array");
         assert.equal(apiMessageArray.items?.$ref, "#/definitions/PublicMessage");
         assert.ok(item.properties?.member, "APIMessageArray items should expose the public message schema");
+    });
+
+    test("message sticker fields use the public sticker response contract", () => {
+        const schemas = readJson("assets/schemas.json");
+        const snapshot = resolveAssetSchema(schemas, schemas.MessageSnapshot);
+        const snapshotMessage = resolveAssetSchema(schemas, snapshot.properties!.message!);
+
+        assertMessageStickerFields(schemas.PublicMessage, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
+        assertMessageStickerFields(schemas.PreloadMessageResponse, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
+        assertMessageStickerFields(schemas.GuildMessagesSearchMessage, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
+        assertStickerResponseArray(snapshotMessage.properties!.sticker_items!, (schema) => resolveAssetSchema(schemas, schema), "#/definitions/StickerResponse");
+
+        const messageSchemaRefs = ["PublicMessage", "APIPublicMessage", "PreloadMessageResponse", "GuildMessagesSearchMessage", "MessageSnapshot"].flatMap((name) =>
+            collectRefs(resolveAssetSchema(schemas, schemas[name])),
+        );
+        assert.deepEqual(
+            messageSchemaRefs.filter((ref) => ref === "#/definitions/Sticker"),
+            [],
+        );
+    });
+
+    test("OpenAPI message sticker fields use the public sticker response contract", () => {
+        const openapi = readJson("assets/openapi.json");
+        const snapshot = resolveOpenApi(openapi, openapi.components.schemas.MessageSnapshot);
+        const snapshotMessage = resolveOpenApi(openapi, snapshot.properties!.message!);
+
+        assertMessageStickerFields(openapi.components.schemas.APIPublicMessage, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
+        assertMessageStickerFields(openapi.components.schemas.PreloadMessageResponse, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
+        assertMessageStickerFields(openapi.components.schemas.GuildMessagesSearchMessage, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
+        assertStickerResponseArray(snapshotMessage.properties!.sticker_items!, (schema) => resolveOpenApi(openapi, schema), "#/components/schemas/StickerResponse");
+
+        const messageSchemaRefs = ["PublicMessage", "APIPublicMessage", "PreloadMessageResponse", "GuildMessagesSearchMessage", "MessageSnapshot"].flatMap((name) =>
+            collectRefs(resolveOpenApi(openapi, openapi.components.schemas[name])),
+        );
+        assert.deepEqual(
+            messageSchemaRefs.filter((ref) => ref === "#/components/schemas/Sticker"),
+            [],
+        );
     });
 });

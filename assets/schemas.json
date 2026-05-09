@@ -5345,7 +5345,7 @@
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "lobby_id": {
@@ -5444,7 +5444,7 @@
             "sticker_items": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "poll": {
@@ -16434,13 +16434,13 @@
             "sticker_items": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "poll": {
@@ -17702,7 +17702,7 @@
                     "sticker_items": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/definitions/Sticker"
+                            "$ref": "#/definitions/StickerResponse"
                         }
                     }
                 },
@@ -18057,13 +18057,13 @@
             "sticker_items": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "poll": {
@@ -18450,13 +18450,13 @@
             "sticker_items": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "stickers": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/Sticker"
+                    "$ref": "#/definitions/StickerResponse"
                 }
             },
             "poll": {
