@@ -4,6 +4,8 @@ import { resolve } from "node:path";
 import { describe, test } from "node:test";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity, READY_READ_STATE_SELECT } from "./ReadState";
+import { ReadState } from "../entities/ReadState";
+import { advanceChannelReadStateNotificationCursor } from "./ReadStatePersistence";
 
 describe("read state helpers", () => {
     const OLDER_SNOWFLAKE = "1456516148545421312";
@@ -145,6 +147,48 @@ describe("read state helpers", () => {
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_message_id\?: string \| null;/);
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+last_acked_id\?: string \| null;/);
         assert.match(source, /@Column\(\{\s*type: "varchar",\s*nullable: true\s*\}\)\s+notifications_cursor\?: string \| null;/);
+    });
+
+    test("advances channel notification cursor without marking the channel read", async (t) => {
+        const setCalls: Record<string, unknown>[] = [];
+        const parameters = new Map<string, unknown>();
+        const queryBuilder = {
+            update(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            set(values: Record<string, unknown>) {
+                setCalls.push(values);
+                return queryBuilder;
+            },
+            where(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            andWhere(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            setParameter(name: string, value: unknown) {
+                parameters.set(name, value);
+                return queryBuilder;
+            },
+            async execute() {
+                return { affected: 1 };
+            },
+        };
+        const insertCalls: unknown[] = [];
+
+        t.mock.method(ReadState, "getRepository", () => ({
+            createQueryBuilder: () => queryBuilder,
+            insert: async (value: unknown) => insertCalls.push(value),
+        }));
+
+        await advanceChannelReadStateNotificationCursor({ user_id: "user-id", channel_id: "channel-id" }, "1001");
+
+        assert.equal(setCalls.length, 1);
+        assert.equal(typeof setCalls[0].notifications_cursor, "function");
+        assert.equal("last_message_id" in setCalls[0], false);
+        assert.equal("mention_count" in setCalls[0], false);
+        assert.equal(parameters.get("notificationCursorMessageId"), "1001");
+        assert.deepEqual(insertCalls, []);
     });
 
     test("advances notification cursor atomically against persisted cursor fields", () => {
