@@ -10590,7 +10590,7 @@
                                     }
                                 },
                                 "client_status": {
-                                    "$ref": "#/components/schemas/ClientStatus"
+                                    "$ref": "#/components/schemas/SessionClientStatus"
                                 },
                                 "approx_last_used_time": {
                                     "type": "string"
@@ -23583,6 +23583,26 @@
                     "string",
                     "integer"
                 ]
+            },
+            "SessionClientStatus": {
+                "type": "object",
+                "properties": {
+                    "desktop": {
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "web": {
+                        "type": "string"
+                    },
+                    "embedded": {
+                        "type": "string"
+                    },
+                    "vr": {
+                        "type": "string"
+                    }
+                }
             }
         }
     },
