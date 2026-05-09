@@ -8229,7 +8229,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/:role_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/index.ts",
-            "line": 94,
+            "line": 101,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10323,7 +10323,7 @@
             "method": "GET",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 27,
+            "line": 54,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10361,7 +10361,7 @@
             "method": "POST",
             "path": "/oauth2/authorize/",
             "sourceFile": "src/api/routes/oauth2/authorize.ts",
-            "line": 154,
+            "line": 165,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
