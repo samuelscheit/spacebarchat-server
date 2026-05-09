@@ -16,10 +16,12 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import fs from "node:fs";
+import path from "node:path";
 import { HTTPError } from "lambert-server";
 
-const validWidgetStyles = ["shield", "banner1", "banner2", "banner3", "banner4"] as const;
-export type WidgetImageStyle = (typeof validWidgetStyles)[number];
+export const WIDGET_STYLES = ["shield", "banner1", "banner2", "banner3", "banner4"] as const;
+export type WidgetImageStyle = (typeof WIDGET_STYLES)[number];
 
 type WidgetTemplate = {
     width: number;
@@ -34,53 +36,93 @@ export type WidgetImageData = {
     iconDataUri?: string;
 };
 
-const invalidStyleMessage = "Value must be one of ('shield', 'banner1', 'banner2', 'banner3', 'banner4').";
+type WidgetTextOptions = {
+    x: number;
+    y: number;
+    fontSize: number;
+    fill?: string;
+    fontWeight?: number;
+    maxcharacters?: number;
+    textAnchor?: "start" | "middle";
+};
+
+type WidgetTemplateOptions = {
+    width: number;
+    height: number;
+    icon?: { x: number; y: number; size: number };
+    name?: WidgetTextOptions;
+    presence: WidgetTextOptions;
+};
+
+const WIDGET_TEMPLATE_OPTIONS: Record<WidgetImageStyle, WidgetTemplateOptions> = {
+    shield: {
+        width: 119,
+        height: 20,
+        presence: { x: 79, y: 14, fontSize: 10, textAnchor: "middle" },
+    },
+    banner1: {
+        width: 300,
+        height: 160,
+        icon: { x: 20, y: 27, size: 50 },
+        name: { x: 83, y: 51, maxcharacters: 22, fontSize: 12, fontWeight: 600 },
+        presence: { x: 83, y: 66, fontSize: 10, fill: "#c9d2f0" },
+    },
+    banner2: {
+        width: 320,
+        height: 76,
+        icon: { x: 13, y: 19, size: 36 },
+        name: { x: 62, y: 34, maxcharacters: 15, fontSize: 12, fontWeight: 600 },
+        presence: { x: 62, y: 49, fontSize: 10, fill: "#c9d2f0" },
+    },
+    banner3: {
+        width: 320,
+        height: 140,
+        icon: { x: 20, y: 20, size: 50 },
+        name: { x: 83, y: 44, maxcharacters: 27, fontSize: 12, fontWeight: 600 },
+        presence: { x: 83, y: 58, fontSize: 10, fill: "#c9d2f0" },
+    },
+    banner4: {
+        width: 320,
+        height: 270,
+        icon: { x: 21, y: 136, size: 50 },
+        name: { x: 84, y: 156, maxcharacters: 27, fontSize: 14, fontWeight: 600 },
+        presence: { x: 84, y: 171, fontSize: 12, fill: "#c9d2f0" },
+    },
+};
+
+export const WIDGET_STYLE_ERROR = `Value must be one of (${WIDGET_STYLES.map((style) => `'${style}'`).join(", ")}).`;
+const widgetStyleSet = new Set<string>(WIDGET_STYLES);
+const templateDataUriCache = new Map<WidgetImageStyle, string>();
+
+export function isWidgetImageStyle(style: string): style is WidgetImageStyle {
+    return widgetStyleSet.has(style);
+}
 
 export function parseWidgetImageStyle(style: string): WidgetImageStyle {
-    if (validWidgetStyles.includes(style as WidgetImageStyle)) return style as WidgetImageStyle;
-    throw new HTTPError(invalidStyleMessage, 400);
+    if (isWidgetImageStyle(style)) return style;
+    throw new HTTPError(WIDGET_STYLE_ERROR, 400);
 }
 
 export function renderGuildWidgetSvg(data: WidgetImageData): WidgetTemplate {
-    switch (data.style) {
-        case "shield":
-            return renderShieldTemplate(data);
-        case "banner1":
-            return renderBannerTemplate(data, {
-                width: 170,
-                height: 90,
-                icon: { x: 20, y: 27, size: 50 },
-                name: { x: 83, y: 51, maxcharacters: 22, fontSize: 12 },
-                presence: { x: 83, y: 66, fontSize: 11 },
-            });
-        case "banner2":
-            return renderBannerTemplate(data, {
-                width: 170,
-                height: 70,
-                icon: { x: 13, y: 19, size: 36 },
-                name: { x: 62, y: 34, maxcharacters: 15, fontSize: 12 },
-                presence: { x: 62, y: 49, fontSize: 11 },
-            });
-        case "banner3":
-            return renderBannerTemplate(data, {
-                width: 170,
-                height: 70,
-                icon: { x: 20, y: 20, size: 50 },
-                name: { x: 83, y: 44, maxcharacters: 27, fontSize: 12 },
-                presence: { x: 83, y: 58, fontSize: 11 },
-            });
-        case "banner4":
-            return renderBannerTemplate(data, {
-                width: 170,
-                height: 190,
-                icon: { x: 21, y: 136, size: 50 },
-                name: { x: 84, y: 156, maxcharacters: 27, fontSize: 13 },
-                presence: { x: 84, y: 171, fontSize: 12 },
-                tall: true,
-            });
-        default:
-            return assertNever(data.style);
-    }
+    const options = WIDGET_TEMPLATE_OPTIONS[data.style];
+    const icon = options.icon ? renderIcon(data.iconDataUri, options.icon.x, options.icon.y, options.icon.size) : "";
+    const name = options.name ? renderText(data.name, options.name) : "";
+    const presence = renderText(data.presence, options.presence);
+
+    return {
+        width: options.width,
+        height: options.height,
+        svg: svgDocument(
+            options.width,
+            options.height,
+            `
+                <image href="${escapeSvgAttribute(getWidgetTemplateDataUri(data.style))}" x="0" y="0" width="${options.width}" height="${options.height}" preserveAspectRatio="none"/>
+                ${icon}
+                ${name}
+                ${presence}
+            `,
+        ),
+    };
 }
 
 export async function renderGuildWidgetPng(data: WidgetImageData): Promise<Buffer> {
@@ -91,6 +133,20 @@ export async function renderGuildWidgetPng(data: WidgetImageData): Promise<Buffe
 
 export function getGuildWidgetIconStoragePath(guild_id: string, icon: string) {
     return `icons/${guild_id}/${stripFileExtension(icon)}`;
+}
+
+export function getWidgetAssetsPath() {
+    const candidates = [
+        path.join(process.cwd(), "assets", "widget"),
+        path.join(__dirname, "..", "..", "..", "assets", "widget"),
+        path.join(__dirname, "..", "..", "..", "..", "assets", "widget"),
+    ];
+
+    return candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates[0];
+}
+
+export function getWidgetTemplatePath(style: WidgetImageStyle, assetsPath = getWidgetAssetsPath()) {
+    return path.join(assetsPath, `${style}.png`);
 }
 
 export function imageBufferToDataUri(buffer: Buffer) {
@@ -106,90 +162,19 @@ export function getImageMimeType(buffer: Buffer) {
     return "image/png";
 }
 
-function renderShieldTemplate(data: WidgetImageData): WidgetTemplate {
-    const label = "SPACEBAR";
-    const value = truncateText(data.presence, 0);
-    const labelWidth = 62;
-    const valueWidth = Math.max(76, value.length * 6 + 18);
-    const width = labelWidth + valueWidth;
-    const height = 20;
-    const valueCenter = labelWidth + valueWidth / 2;
+function getWidgetTemplateDataUri(style: WidgetImageStyle) {
+    const cached = templateDataUriCache.get(style);
+    if (cached) return cached;
 
-    return {
-        width,
-        height,
-        svg: svgDocument(
-            width,
-            height,
-            `
-                <linearGradient id="shieldLabel" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0" stop-color="#555"/>
-                    <stop offset="1" stop-color="#333"/>
-                </linearGradient>
-                <linearGradient id="shieldValue" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0" stop-color="#0a97ff"/>
-                    <stop offset="1" stop-color="#0074d9"/>
-                </linearGradient>
-                <clipPath id="shieldClip"><rect width="${width}" height="${height}" rx="3"/></clipPath>
-                <g clip-path="url(#shieldClip)">
-                    <rect width="${labelWidth}" height="${height}" fill="url(#shieldLabel)"/>
-                    <rect x="${labelWidth}" width="${valueWidth}" height="${height}" fill="url(#shieldValue)"/>
-                </g>
-                <text x="31" y="14" text-anchor="middle" fill="#fff" font-family="Verdana,Arial,sans-serif" font-size="10" font-weight="700">${escapeSvgText(label)}</text>
-                <text x="${valueCenter}" y="14" text-anchor="middle" fill="#fff" font-family="Verdana,Arial,sans-serif" font-size="10">${escapeSvgText(value)}</text>
-            `,
-        ),
-    };
+    const dataUri = imageBufferToDataUri(fs.readFileSync(getWidgetTemplatePath(style)));
+    templateDataUriCache.set(style, dataUri);
+    return dataUri;
 }
 
-type BannerOptions = {
-    width: number;
-    height: number;
-    icon: { x: number; y: number; size: number };
-    name: { x: number; y: number; maxcharacters: number; fontSize: number };
-    presence: { x: number; y: number; fontSize: number };
-    tall?: boolean;
-};
-
-function renderBannerTemplate(data: WidgetImageData, options: BannerOptions): WidgetTemplate {
-    const icon = renderIcon(data.iconDataUri, options.icon.x, options.icon.y, options.icon.size);
-    const background = options.tall
-        ? `
-            <linearGradient id="bannerBg" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0" stop-color="#5865f2"/>
-                <stop offset="0.55" stop-color="#404eed"/>
-                <stop offset="1" stop-color="#23272a"/>
-            </linearGradient>
-            <rect width="${options.width}" height="${options.height}" rx="4" fill="url(#bannerBg)"/>
-            <circle cx="135" cy="45" r="52" fill="#ffffff" opacity="0.08"/>
-            <text x="20" y="32" fill="#fff" opacity="0.96" font-family="Verdana,Arial,sans-serif" font-size="15" font-weight="700">SPACEBAR</text>
-            <text x="20" y="51" fill="#c9d2f0" font-family="Verdana,Arial,sans-serif" font-size="11">COMMUNITY</text>
-        `
-        : `
-            <linearGradient id="bannerBg" x1="0" x2="1" y1="0" y2="1">
-                <stop offset="0" stop-color="#5865f2"/>
-                <stop offset="1" stop-color="#23272a"/>
-            </linearGradient>
-            <rect width="${options.width}" height="${options.height}" rx="4" fill="url(#bannerBg)"/>
-            <circle cx="148" cy="10" r="44" fill="#ffffff" opacity="0.07"/>
-        `;
-
-    return {
-        width: options.width,
-        height: options.height,
-        svg: svgDocument(
-            options.width,
-            options.height,
-            `
-                ${background}
-                ${icon}
-                <text x="${options.name.x}" y="${options.name.y}" fill="#fff" font-family="Verdana,Arial,sans-serif" font-size="${options.name.fontSize}" font-weight="600">${escapeSvgText(
-                    truncateText(data.name, options.name.maxcharacters),
-                )}</text>
-                <text x="${options.presence.x}" y="${options.presence.y}" fill="#c9d2f0" font-family="Verdana,Arial,sans-serif" font-size="${options.presence.fontSize}">${escapeSvgText(data.presence)}</text>
-            `,
-        ),
-    };
+function renderText(text: string, options: WidgetTextOptions) {
+    return `<text x="${options.x}" y="${options.y}" text-anchor="${options.textAnchor ?? "start"}" fill="${options.fill ?? "#fff"}" font-family="Verdana,Arial,sans-serif" font-size="${
+        options.fontSize
+    }" font-weight="${options.fontWeight ?? 400}">${escapeSvgText(truncateText(text, options.maxcharacters ?? 0))}</text>`;
 }
 
 function renderIcon(iconDataUri: string | undefined, x: number, y: number, size: number) {
@@ -246,10 +231,6 @@ export function stripInvalidXmlCharacters(value: string) {
 
 function escapeSvgAttribute(value: string) {
     return escapeSvgText(value).replace(/'/g, "&apos;");
-}
-
-function assertNever(value: never): never {
-    throw new Error(`Unhandled widget image style: ${value}`);
 }
 
 function stripFileExtension(value: string) {

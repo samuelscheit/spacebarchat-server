@@ -20,7 +20,14 @@ import { route } from "@spacebar/api";
 import { DiscordApiErrors, Guild } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { storage } from "@spacebar/cdn";
-import { getGuildWidgetIconStoragePath, imageBufferToDataUri, parseWidgetImageStyle, renderGuildWidgetPng, type WidgetImageStyle } from "../../../util/GuildWidgetPngRenderer";
+import {
+    getGuildWidgetIconStoragePath,
+    imageBufferToDataUri,
+    parseWidgetImageStyle,
+    renderGuildWidgetPng,
+    WIDGET_STYLES,
+    type WidgetImageStyle,
+} from "../../../util/GuildWidgetPngRenderer";
 import { getWidgetPngCacheControl, WidgetPngResponseCache } from "../../../util/WidgetPngCache";
 
 const router: Router = Router({ mergeParams: true });
@@ -31,6 +38,14 @@ const pngResponseCache = new WidgetPngResponseCache(expiryTime);
 router.get(
     "/",
     route({
+        query: {
+            style: {
+                type: "string",
+                required: false,
+                description: "Widget image style.",
+                values: [...WIDGET_STYLES],
+            },
+        },
         responses: {
             200: {},
             400: {

@@ -45,13 +45,13 @@ test("guild widget PNG accepts only documented styles", () => {
     );
 });
 
-test("guild widget SVG renderer uses inline templates for every supported style", () => {
+test("guild widget SVG renderer uses template assets for every supported style", () => {
     const expectedSizes = {
-        shield: { width: 138, height: 20 },
-        banner1: { width: 170, height: 90 },
-        banner2: { width: 170, height: 70 },
-        banner3: { width: 170, height: 70 },
-        banner4: { width: 170, height: 190 },
+        shield: { width: 119, height: 20 },
+        banner1: { width: 300, height: 160 },
+        banner2: { width: 320, height: 76 },
+        banner3: { width: 320, height: 140 },
+        banner4: { width: 320, height: 270 },
     } as const;
 
     for (const [style, expected] of Object.entries(expectedSizes)) {
@@ -64,8 +64,9 @@ test("guild widget SVG renderer uses inline templates for every supported style"
         assert.equal(template.width, expected.width);
         assert.equal(template.height, expected.height);
         assert.match(template.svg, /^<svg /);
-        assert.match(template.svg, /SPACEBAR|Spacebar Guild/);
-        assert.doesNotMatch(template.svg, /assets\/widget|createCanvas|canvas/);
+        assert.match(template.svg, /<image href="data:image\/png;base64,/);
+        assert.match(template.svg, style === "shield" ? /12 ONLINE/ : /Spacebar Guild/);
+        assert.doesNotMatch(template.svg, /createCanvas|canvas/);
     }
 });
 
@@ -98,7 +99,7 @@ test("guild widget SVG renderer strips XML-invalid dynamic text", async () => {
 
 test("guild widget SVG renderer embeds icons only when provided", () => {
     const withoutIcon = renderGuildWidgetSvg({ style: "banner1", name: "Guild", presence: "1 ONLINE" });
-    assert.doesNotMatch(withoutIcon.svg, /<image /);
+    assert.doesNotMatch(withoutIcon.svg, /iconClip/);
     assert.match(withoutIcon.svg, />S<\/text>/);
 
     const withIcon = renderGuildWidgetSvg({
@@ -107,7 +108,7 @@ test("guild widget SVG renderer embeds icons only when provided", () => {
         presence: "1 ONLINE",
         iconDataUri: 'data:image/png;base64,abc"def',
     });
-    assert.match(withIcon.svg, /<image /);
+    assert.match(withIcon.svg, /iconClip/);
     assert.match(withIcon.svg, /abc&quot;def/);
 });
 
@@ -125,8 +126,8 @@ test("guild widget PNG renderer rasterizes embedded PNG icon data URIs", async (
     const centerPixelOffset = (37 * info.width + 31) * info.channels;
     const [red, green, blue, alpha] = data.subarray(centerPixelOffset, centerPixelOffset + 4);
 
-    assert.equal(info.width, 170);
-    assert.equal(info.height, 70);
+    assert.equal(info.width, 320);
+    assert.equal(info.height, 76);
     assert.ok(red > 200);
     assert.ok(green < 50);
     assert.ok(blue < 50);
