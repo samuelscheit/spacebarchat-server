@@ -16,6 +16,7 @@ function compileSchema(name: string, propertyNames: string[]) {
         type: "object",
         additionalProperties: schema.additionalProperties,
         properties: Object.fromEntries(propertyNames.filter((property) => properties[property]).map((property) => [property, properties[property]])),
+        definitions: schemas,
     };
 
     for (const requiredKey of ["type", "required"]) {
@@ -47,5 +48,30 @@ describe("message schema validation", () => {
 
         assert.equal(validate({ content: "hello", files: [{ id: "0", filename: "ignored.png" }] }), false, "files must be rejected on message edit");
         assert.equal(validate({ payload_json: '{"content":"hello"}' }), false, "payload_json must be rejected on message edit");
+    });
+
+    test("create rejects client-supplied poll answer ids", () => {
+        const validate = compileSchema("MessageCreateSchema", ["poll"]);
+
+        assert.equal(
+            validate({
+                poll: {
+                    question: { text: "Deploy?" },
+                    answers: [{ poll_media: { text: "Yes" } }],
+                },
+            }),
+            true,
+            JSON.stringify(validate.errors),
+        );
+        assert.equal(
+            validate({
+                poll: {
+                    question: { text: "Deploy?" },
+                    answers: [{ answer_id: 1, poll_media: { text: "Yes" } }],
+                },
+            }),
+            false,
+            "answer_id must be server-owned and rejected in create payloads",
+        );
     });
 });

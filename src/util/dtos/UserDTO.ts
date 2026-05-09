@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { User } from "../entities";
+import type { User } from "../entities/User";
 
 export class MinimalPublicUserDTO {
     avatar?: string | null;

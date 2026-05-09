@@ -26,6 +26,20 @@ export class Email {
     }
 }
 
+function parseSchemaKey(key: string) {
+    const optional = key.startsWith(OPTIONAL_PREFIX);
+    let name = optional ? key.slice(OPTIONAL_PREFIX.length) : key;
+    let aliases: string[] = [];
+
+    if (name.startsWith("[") && name.includes("]")) {
+        const end = name.indexOf("]");
+        aliases = name.slice(1, end).split("|").filter(Boolean);
+        name = aliases[0] ?? name.slice(end + 1);
+    }
+
+    return { optional, name, aliases: aliases.length ? aliases : [name] };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function instanceOf(type: any, value: any, { path = "", optional = false }: { path?: string; optional?: boolean } = {}): boolean {
     if (type == null) return true; // no type was specified
@@ -100,15 +114,18 @@ export function instanceOf(type: any, value: any, { path = "", optional = false 
         }
         if (typeof value !== "object") throw `${path} must be a object`;
 
-        const filterset = new Set(Object.keys(type).map((x) => (x.startsWith(OPTIONAL_PREFIX) ? x.slice(OPTIONAL_PREFIX.length) : x)));
+        const schemaEntries = Object.keys(type).map((key) => ({ key, ...parseSchemaKey(key) }));
+        const filterset = new Set(schemaEntries.flatMap(({ aliases }) => aliases));
         const diff = Object.keys(value).filter((_) => !filterset.has(_));
 
         if (diff.length) throw `Unknown key ${diff}`;
 
-        return Object.keys(type).every((key) => {
-            let newKey = key;
-            const OPTIONAL = key.startsWith(OPTIONAL_PREFIX);
-            if (OPTIONAL) newKey = newKey.slice(OPTIONAL_PREFIX.length);
+        return schemaEntries.every(({ key, name, aliases, optional: OPTIONAL }) => {
+            const matchingKeys = aliases.filter((alias) => Object.prototype.hasOwnProperty.call(value, alias));
+
+            if (matchingKeys.length > 1) throw `${path}.${name} must only use one of ${aliases.join(", ")}`;
+
+            const newKey = matchingKeys[0] ?? name;
 
             return instanceOf(type[key], value[newKey], {
                 path: `${path}.${newKey}`,

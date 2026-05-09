@@ -1,75 +1,224 @@
-import { describe, test } from "node:test";
+import { describe, test, type TestContext } from "node:test";
 import assert from "node:assert/strict";
 import { ApiError } from "../../../util/util/ApiError";
 
 const requireModule = require;
 
+describe("createPollFromMessageOptions", () => {
+    test("converts request poll creation options to stored poll shape", async () => {
+        const { createPollFromMessageOptions } = (await import("./Message.js")) as typeof import("./Message");
+        const now = new Date("2026-05-08T00:00:00.000Z");
+
+        const poll = createPollFromMessageOptions(
+            {
+                question: { text: "Deploy?" },
+                answers: [{ poll_media: { text: "Yes" } }, { poll_media: { text: "No" } }],
+                duration: 2,
+            },
+            now,
+        );
+
+        assert.deepEqual(poll, {
+            question: { text: "Deploy?" },
+            answers: [
+                { answer_id: 1, poll_media: { text: "Yes" } },
+                { answer_id: 2, poll_media: { text: "No" } },
+            ],
+            expiry: new Date("2026-05-08T02:00:00.000Z"),
+            allow_multiselect: false,
+            layout_type: 1,
+        });
+    });
+
+    test("ignores client-supplied answer ids and preserves requested layout", async () => {
+        const { createPollFromMessageOptions } = (await import("./Message.js")) as typeof import("./Message");
+        const now = new Date("2026-05-08T00:00:00.000Z");
+
+        const poll = createPollFromMessageOptions(
+            {
+                question: { text: "Deploy?" },
+                answers: [{ answer_id: 99, poll_media: { text: "Yes" } }],
+                layout_type: 1,
+            } as unknown as Parameters<typeof createPollFromMessageOptions>[0],
+            now,
+        );
+
+        assert.deepEqual(poll?.answers, [{ answer_id: 1, poll_media: { text: "Yes" } }]);
+        assert.equal(poll?.layout_type, 1);
+        assert.equal(poll?.expiry.getTime(), new Date("2026-05-09T00:00:00.000Z").getTime());
+    });
+
+    test("preserves stored poll objects", async () => {
+        const { createPollFromMessageOptions } = (await import("./Message.js")) as typeof import("./Message");
+        const storedPoll = {
+            question: { text: "Deploy?" },
+            answers: [{ answer_id: 1, poll_media: { text: "Yes" } }],
+            expiry: new Date("2026-05-09T00:00:00.000Z"),
+            allow_multiselect: true,
+            layout_type: 1,
+        };
+
+        assert.deepEqual(createPollFromMessageOptions(storedPoll), storedPoll);
+    });
+});
+
+type MockUser = {
+    id: string;
+    clean_data?: () => void;
+    toPublicUser?: () => { id: string };
+};
+
+type MockChannel = {
+    id: string;
+    guild_id: string | null;
+    type: number;
+    rate_limit_per_user: number;
+    recipients: { user_id: string }[];
+    save: () => Promise<void>;
+};
+
+type HandleMessageTestOptions = {
+    channel?: Partial<MockChannel>;
+    permissionHas?: (name: string) => boolean;
+    users?: MockUser[];
+    memberFindResult?: { id: string }[];
+    sessionFindResult?: { user_id: string }[];
+    referencedMessage?: { id: string; author_id: string; channel_id: string; guild_id?: string | null };
+};
+
+type HandleMessageTestContext = Awaited<ReturnType<typeof setupHandleMessageTest>>;
+
+async function setupHandleMessageTest(t: TestContext, options: HandleMessageTestOptions = {}) {
+    process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
+
+    const path = requireModule("node:path") as typeof import("node:path");
+    const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
+    const utilRoot = path.dirname(requireModule.resolve("@spacebar/util"));
+    const permissionsModule = requireModule(path.join(utilRoot, "util", "Permissions.js")) as typeof import("../../../util/util/Permissions");
+    const rightsModule = requireModule(path.join(utilRoot, "util", "Rights.js")) as typeof import("../../../util/util/Rights");
+
+    const channel: MockChannel = {
+        id: "channel_id",
+        guild_id: "guild_id",
+        type: 0,
+        rate_limit_per_user: 0,
+        recipients: [],
+        save: async () => undefined,
+        ...options.channel,
+    };
+    const permission = {
+        cache: {},
+        has: options.permissionHas ?? ((name: string) => name === "MENTION_EVERYONE" || name === "MANAGE_ROLES"),
+        hasThrow: () => undefined,
+    };
+    const defaultUsers: MockUser[] = [
+        { id: "author_id", clean_data: () => undefined },
+        { id: "111" },
+        { id: "222" },
+        { id: "333" },
+        { id: "reply_author", toPublicUser: () => ({ id: "reply_author" }) },
+    ];
+    const users = new Map([...defaultUsers, ...(options.users ?? [])].map((user) => [user.id, user]));
+    const incrementCalls: unknown[][] = [];
+    const updateCalls: unknown[][] = [];
+    const findByCalls: unknown[][] = [];
+    const memberFindCalls: unknown[][] = [];
+    const createdReadStates: Record<string, unknown>[] = [];
+
+    t.mock.method(spacebarUtil.Config, "get", () => ({
+        limits: {
+            message: {
+                maxCharacters: 2000,
+            },
+        },
+    }));
+    t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
+    const createMessageMock = t.mock.method(spacebarUtil.Message, "create", (input: Record<string, unknown>) => ({
+        ...input,
+        flags: (input.flags as number | undefined) ?? 0,
+        attachments: (input.attachments as unknown[] | undefined) ?? [],
+        embeds: (input.embeds as unknown[] | undefined) ?? [],
+        mentions: (input.mentions as unknown[] | undefined) ?? [],
+        mention_roles: [],
+        save: async () => undefined,
+    }));
+    t.mock.method(spacebarUtil.Message, "findOneOrFail", async () =>
+        options.referencedMessage
+            ? {
+                  ...options.referencedMessage,
+              }
+            : { id: "referenced_message_id", channel_id: channel.id, guild_id: channel.guild_id },
+    );
+    t.mock.method(spacebarUtil.Message, "findOne", async () => (options.referencedMessage ? { ...options.referencedMessage } : null));
+    t.mock.method(spacebarUtil.Guild, "findOneOrFail", async () => ({ id: channel.guild_id }));
+    t.mock.method(spacebarUtil.User, "findOneOrFail", async ({ where }: { where?: { id?: string } } = {}) => {
+        const id = where?.id ?? "author_id";
+        return users.get(id) ?? { id, clean_data: () => undefined };
+    });
+    t.mock.method(spacebarUtil.User, "findOne", async ({ where }: { where: { id: string } }) => users.get(where.id) ?? null);
+    t.mock.method(spacebarUtil.Role, "findOneOrFail", async ({ where }: { where: { id: string; guild_id?: string | null } }) => ({
+        id: where.id,
+        guild_id: where.guild_id ?? channel.guild_id,
+        mentionable: true,
+    }));
+    t.mock.method(spacebarUtil.Role, "findOne", async ({ where }: { where: { id: string; guild_id?: string | null } }) => ({
+        id: where.id,
+        guild_id: where.guild_id ?? channel.guild_id,
+        mentionable: true,
+    }));
+    t.mock.method(spacebarUtil.Member, "find", async (...args: unknown[]) => {
+        memberFindCalls.push(args);
+        return options.memberFindResult ?? [{ id: "role_member_id" }];
+    });
+    t.mock.method(spacebarUtil.Session, "find", async () => options.sessionFindResult ?? []);
+    t.mock.method(spacebarUtil.ReadState, "findBy", async (...args: unknown[]) => {
+        findByCalls.push(args);
+        return [];
+    });
+    t.mock.method(spacebarUtil.ReadState, "create", (value: Record<string, unknown>) => ({
+        ...value,
+        save: async () => {
+            createdReadStates.push(value);
+            return value;
+        },
+    }));
+    t.mock.method(spacebarUtil.ReadState, "getRepository", () => ({
+        update: async (...args: unknown[]) => {
+            updateCalls.push(args);
+        },
+        increment: async (...args: unknown[]) => {
+            incrementCalls.push(args);
+        },
+    }));
+    t.mock.method(permissionsModule, "getPermission", async () => permission);
+    t.mock.method(rightsModule, "getRights", async () => ({ hasThrow: () => undefined }));
+
+    const { handleMessage } = (await import("./Message.js")) as typeof import("./Message");
+
+    return {
+        channel,
+        createMessageMock,
+        createdReadStates,
+        findByCalls,
+        handleMessage,
+        incrementCalls,
+        memberFindCalls,
+        updateCalls,
+    };
+}
+
+function incrementCondition(context: HandleMessageTestContext, index = 0) {
+    return JSON.stringify(context.incrementCalls[index]?.[0] ?? {});
+}
+
 describe("handleMessage", () => {
     test("preserves supplied reactions when reconstructing an edited message", async (t) => {
-        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost/spacebar_test";
-
-        const spacebarUtil = requireModule("@spacebar/util") as typeof import("@spacebar/util");
-        const permissionsModule = requireModule("../../../util/util/Permissions") as typeof import("../../../util/util/Permissions");
-        const rightsModule = requireModule("../../../util/util/Rights") as typeof import("../../../util/util/Rights");
-
-        const channel = {
-            id: "channel_id",
-            guild_id: "guild_id",
-            type: 0,
-            rate_limit_per_user: 0,
-            recipients: [],
-            save: async () => undefined,
-        };
-        const permission = {
-            cache: {},
-            has: () => false,
-            hasThrow: () => undefined,
-        };
-        const rights = {
-            hasThrow: () => undefined,
-        };
-
-        t.mock.method(spacebarUtil.Config, "get", () => ({
-            limits: {
-                message: {
-                    maxCharacters: 2000,
-                },
-            },
-        }));
-        t.mock.method(spacebarUtil.Channel, "findOneOrFail", async () => channel);
-        const createMessageMock = t.mock.method(spacebarUtil.Message, "create", (input: Record<string, unknown>) => ({
-            ...input,
-            flags: (input.flags as number | undefined) ?? 0,
-            attachments: (input.attachments as unknown[] | undefined) ?? [],
-            embeds: (input.embeds as unknown[] | undefined) ?? [],
-            mentions: (input.mentions as unknown[] | undefined) ?? [],
-            mention_roles: [],
-            save: async () => undefined,
-        }));
-        t.mock.method(spacebarUtil.User, "findOneOrFail", async () => ({
-            id: "author_id",
-            clean_data: () => undefined,
-        }));
-        t.mock.method(spacebarUtil.User, "findOne", async () => null);
-        t.mock.method(spacebarUtil.Role, "findOne", async () => null);
-        t.mock.method(spacebarUtil.Member, "find", async () => []);
-        t.mock.method(spacebarUtil.Session, "find", async () => []);
-        t.mock.method(spacebarUtil.ReadState, "findBy", async () => []);
-        t.mock.method(spacebarUtil.ReadState, "create", (value: Record<string, unknown>) => ({
-            ...value,
-            save: async () => value,
-        }));
-        t.mock.method(spacebarUtil.ReadState, "getRepository", () => ({
-            update: async () => undefined,
-            increment: async () => undefined,
-        }));
-        t.mock.method(permissionsModule, "getPermission", async () => permission);
-        t.mock.method(rightsModule, "getRights", async () => rights);
-
-        const { handleMessage } = (await import("./Message.js")) as typeof import("./Message");
+        const context = await setupHandleMessageTest(t, {
+            permissionHas: () => false,
+        });
         const reactions = [{ count: 1, emoji: { name: "thumb" }, user_ids: ["user_id"] }];
 
-        const message = await handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -78,7 +227,218 @@ describe("handleMessage", () => {
         });
 
         assert.equal(message.reactions, reactions);
-        assert.equal((createMessageMock.mock.calls[0].arguments[0] as Record<string, unknown>).reactions, reactions);
+        assert.equal((context.createMessageMock.mock.calls[0].arguments[0] as Record<string, unknown>).reactions, reactions);
+    });
+
+    test("allowed_mentions controls mention-count notification targets", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@222> <@&444>",
+            allowed_mentions: { parse: [], users: ["222"], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.findByCalls.length, 1);
+        assert.equal(context.memberFindCalls.length, 0);
+        assert.match(incrementCondition(context), /222/);
+        assert.doesNotMatch(incrementCondition(context), /111|role_member_id/);
+    });
+
+    test("parse users allows all content user mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@222> <@&444>",
+            allowed_mentions: { parse: ["users"], users: [], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.memberFindCalls.length, 0);
+        assert.match(incrementCondition(context), /111/);
+        assert.match(incrementCondition(context), /222/);
+        assert.doesNotMatch(incrementCondition(context), /role_member_id/);
+    });
+
+    test("parse roles allows role mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@&444>",
+            allowed_mentions: { parse: ["roles"], users: [], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.memberFindCalls.length, 1);
+        assert.match(JSON.stringify(context.memberFindCalls), /444/);
+        assert.match(incrementCondition(context), /role_member_id/);
+        assert.doesNotMatch(incrementCondition(context), /111/);
+    });
+
+    test("explicit allowed role ids limit role mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@&444> <@&555>",
+            allowed_mentions: { parse: [], users: [], roles: ["444"] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.memberFindCalls.length, 1);
+        assert.match(JSON.stringify(context.memberFindCalls), /444/);
+        assert.doesNotMatch(JSON.stringify(context.memberFindCalls), /555/);
+        assert.match(incrementCondition(context), /role_member_id/);
+    });
+
+    test("allowed_mentions suppresses user, role, everyone, and reply notifications when parse is empty", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            referencedMessage: { id: "referenced_message_id", author_id: "reply_author", channel_id: "channel_id", guild_id: "guild_id" },
+            sessionFindResult: [{ user_id: "online_here_member" }],
+        });
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello @everyone @here <@111> <@&444>",
+            message_reference: { message_id: "referenced_message_id" },
+            allowed_mentions: { parse: [], users: [], roles: [], replied_user: false },
+        });
+
+        assert.equal(context.incrementCalls.length, 0);
+    });
+
+    test("absent allowed_mentions keeps legacy mention notification behavior", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            permissionHas: (name: string) => name === "MANAGE_ROLES",
+        });
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@&444>",
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.match(incrementCondition(context), /111/);
+        assert.match(incrementCondition(context), /role_member_id/);
+    });
+
+    test("edits recalculate mentions without incrementing mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "edited hello <@111> <@&444> @everyone",
+            allowed_mentions: { parse: ["users", "roles", "everyone"], replied_user: true },
+            is_edit: true,
+        });
+
+        assert.equal(context.incrementCalls.length, 0);
+    });
+
+    test("replied_user true allows reply mention-count notifications", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            referencedMessage: { id: "referenced_message_id", author_id: "reply_author", channel_id: "channel_id", guild_id: "guild_id" },
+        });
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "replying",
+            message_reference: { message_id: "referenced_message_id" },
+            allowed_mentions: { parse: [], users: [], roles: [], replied_user: true },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.match(incrementCondition(context), /reply_author/);
+    });
+
+    test("parse everyone allows here mention-count notifications for online members", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            memberFindResult: [{ id: "online_here_member" }, { id: "offline_member" }],
+            sessionFindResult: [{ user_id: "online_here_member" }],
+        });
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello @here",
+            allowed_mentions: { parse: ["everyone"], users: [], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.match(incrementCondition(context), /online_here_member/);
+    });
+
+    test("parse everyone allows everyone mention-count notifications for all guild members", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            memberFindResult: [{ id: "guild_member_1" }, { id: "guild_member_2" }],
+        });
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello @everyone",
+            allowed_mentions: { parse: ["everyone"], users: [], roles: [] },
+        });
+
+        assert.equal(context.incrementCalls.length, 1);
+        assert.equal(context.updateCalls.length, 1);
+        assert.deepEqual(context.createdReadStates.map((state) => state.user_id).sort(), ["guild_member_1", "guild_member_2"]);
+        assert.doesNotMatch(incrementCondition(context), /user_id/);
+    });
+
+    test("passes stored poll shape to Message.create", async (t) => {
+        const context = await setupHandleMessageTest(t);
+        const start = Date.now();
+
+        await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            poll: {
+                question: { text: "Deploy?" },
+                answers: [{ poll_media: { text: "Yes" } }],
+                duration: 2,
+            },
+        });
+
+        const end = Date.now();
+        const poll = (context.createMessageMock.mock.calls[0].arguments[0] as Record<string, unknown>).poll as {
+            question: unknown;
+            answers: unknown;
+            expiry: Date;
+            allow_multiselect: boolean;
+            layout_type: number;
+            duration?: number;
+        };
+
+        assert.deepEqual(poll.question, { text: "Deploy?" });
+        assert.deepEqual(poll.answers, [{ answer_id: 1, poll_media: { text: "Yes" } }]);
+        assert.equal(poll.allow_multiselect, false);
+        assert.equal(poll.layout_type, 1);
+        assert.equal("duration" in poll, false);
+        assert.ok(poll.expiry.getTime() >= start + 2 * 60 * 60 * 1000);
+        assert.ok(poll.expiry.getTime() <= end + 2 * 60 * 60 * 1000);
     });
 
     test("rejects a new user message inside channel slowmode", async (t) => {
