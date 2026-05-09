@@ -9,4 +9,3 @@ export function toIdentifyIntents(intents: IdentifySchema["intents"]): bigint {
 export function toIdentifyShard(shard: NonNullable<IdentifySchema["shard"]>): [bigint, bigint] {
     return [BigInt(shard[0]), BigInt(shard[1])];
 }
-
