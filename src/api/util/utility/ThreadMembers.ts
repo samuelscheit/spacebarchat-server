@@ -87,10 +87,7 @@ export function applyThreadMemberSettingsUpdate(threadMember: ThreadMember, body
     return { changed, threadMember };
 }
 
-export function serializePublicThreadMember(
-    threadMember: Pick<ThreadMember, "id" | "join_timestamp" | "flags" | "muted" | "mute_config">,
-    userId: string,
-): PublicThreadMember {
+export function serializePublicThreadMember(threadMember: Pick<ThreadMember, "id" | "join_timestamp" | "flags" | "muted" | "mute_config">, userId: string): PublicThreadMember {
     return {
         id: threadMember.id,
         user_id: userId,
