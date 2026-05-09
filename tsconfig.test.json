@@ -72,6 +72,7 @@
         "src/gateway/util/Utils.test.ts",
         "src/gateway/util/SessionIntents.test.ts",
         "src/schemas/Validator.test.ts",
+        "src/schemas/responses/UserProfileResponse.test.ts",
         "src/schemas/responses/DiscoverableGuildsResponse.test.ts",
         "src/schemas/responses/GuildScheduledEventResponse.test.ts",
         "src/schemas/responses/GuildRecommendationsResponse.test.ts",
