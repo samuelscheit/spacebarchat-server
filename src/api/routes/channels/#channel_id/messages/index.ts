@@ -54,6 +54,7 @@ import {
     ThreadMemberFlags,
     ThreadMembersUpdateEvent,
     ThreadCreateEvent,
+    serializeThreadMemberPayload,
     upsertChannelMessageReadState,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
@@ -318,7 +319,7 @@ router.post(
                             guild_id: channel.guild_id!,
                             id: channel.id,
                             member_count: channel.member_count ?? 0, // TODO: is this the right fix?
-                            added_members: [{ user_id: req.user_id, ...threadMember.toJSON() }],
+                            added_members: [serializeThreadMemberPayload(threadMember, req.user_id)],
                         },
                         channel_id: channel.id,
                     } satisfies ThreadMembersUpdateEvent);

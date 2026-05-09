@@ -32,6 +32,7 @@ import {
     GuildOrUnavailable,
     Snowflake,
     ThreadMember,
+    ThreadMemberPayload,
 } from "@spacebar/util";
 import { JsonValue } from "@protobuf-ts/runtime";
 import {
@@ -756,7 +757,7 @@ export interface ThreadMembersUpdateEvent extends Event {
         id: string;
         guild_id: string;
         member_count: number;
-        added_members?: (SerializedThreadMember & { user_id: string })[];
+        added_members?: ThreadMemberPayload[];
         removed_member_ids?: string[];
     };
 }

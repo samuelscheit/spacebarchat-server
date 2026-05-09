@@ -28,6 +28,11 @@ import { Member } from "./Member";
 
 export { ThreadMemberFlags };
 
+export interface ThreadMemberPayloadMuteConfig {
+    end_time?: string;
+    selected_time_window?: number;
+}
+
 export interface SerializedThreadMember {
     index?: string;
     id: string;
@@ -37,6 +42,44 @@ export interface SerializedThreadMember {
     muted: boolean;
     mute_config?: ThreadMemberMuteConfig;
     flags: ThreadMemberFlags;
+}
+
+export interface ThreadMemberPayload {
+    id: string;
+    user_id: string;
+    join_timestamp: string;
+    muted: boolean;
+    mute_config?: ThreadMemberPayloadMuteConfig;
+    flags: ThreadMemberFlags;
+}
+
+type ThreadMemberPayloadSource = Pick<ThreadMember, "id" | "join_timestamp" | "muted" | "mute_config" | "flags">;
+
+function toIsoString(value: Date | string | undefined): string | undefined {
+    if (value === undefined) return undefined;
+    return value instanceof Date ? value.toISOString() : value;
+}
+
+function serializeThreadMemberMuteConfig(muteConfig: ThreadMemberMuteConfig | undefined): ThreadMemberPayloadMuteConfig | undefined {
+    if (!muteConfig) return undefined;
+
+    return {
+        ...muteConfig,
+        end_time: toIsoString(muteConfig.end_time),
+    };
+}
+
+export function serializeThreadMemberPayload(threadMember: ThreadMemberPayloadSource, user_id: string): ThreadMemberPayload {
+    const mute_config = serializeThreadMemberMuteConfig(threadMember.mute_config);
+
+    return {
+        id: threadMember.id,
+        user_id,
+        join_timestamp: toIsoString(threadMember.join_timestamp) as string,
+        muted: threadMember.muted,
+        ...(mute_config ? { mute_config } : {}),
+        flags: threadMember.flags,
+    };
 }
 
 @Entity("thread_members")
@@ -86,16 +129,18 @@ export class ThreadMember extends BaseClassWithoutId {
 
         const member = await Member.findOneOrFail({
             where: { id: user_id, guild_id: thread.guild_id },
-            select: { index: true },
+            relations: { user: true, roles: true },
         });
 
-        return Object.assign(new ThreadMember(), {
+        const threadMember = await Object.assign(new ThreadMember(), {
             id: thread.id,
             member_idx: member.index,
             join_timestamp: new Date(),
             muted: false,
             flags,
         }).save();
+        threadMember.member = member;
+        return threadMember;
     }
 
     static async IsInThreadOrFail(member_id: string, thread_id: string) {

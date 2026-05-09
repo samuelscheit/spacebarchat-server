@@ -49,10 +49,10 @@ import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
 import { Member } from "./Member";
-import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
+import { ChannelPermissionOverwrite, ChannelType, PublicChannel, PublicMember, PublicUserProjection, RelationshipType, ThreadMetadata } from "@spacebar/schemas";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { OrmUtils } from "../imports/OrmUtils";
-import { ThreadMember } from "./ThreadMember";
+import { serializeThreadMemberPayload, ThreadMember } from "./ThreadMember";
 import { ReadState } from "./ReadState";
 import { getGuildChannelOrdering } from "../util/GuildChannelOrdering";
 import { Relationship } from "./Relationship";
@@ -452,13 +452,14 @@ export class Channel extends BaseClass {
         const guildId = thread.guild_id;
         if (!guildId) throw new HTTPError("Thread guild id not set", 500);
         const threadMember = await ThreadMember.createForUser(user_id, thread);
+        thread.thread_members = [threadMember];
 
         if (!opts?.skipEventEmit) {
             await Promise.all([
                 emitEvent({
                     event: "THREAD_CREATE",
                     data: {
-                        ...thread,
+                        ...thread.toJSON(),
                         newly_created: true,
                     },
                     guild_id: guildId,
@@ -469,7 +470,7 @@ export class Channel extends BaseClass {
                         guild_id: guildId,
                         id: thread.id,
                         member_count: thread.member_count ?? 1,
-                        added_members: [{ user_id, ...threadMember.toJSON() }],
+                        added_members: [serializeThreadMemberPayload(threadMember, user_id)],
                         removed_member_ids: [],
                     },
                     guild_id: guildId,
@@ -857,20 +858,47 @@ export class Channel extends BaseClass {
         return serializeChannelRecipients(this);
     }
 
+    private loadedThreadMembers(): ThreadMember[] | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.thread_members) return undefined;
+        if (this.thread_members.some((threadMember) => !threadMember.member)) return undefined;
+
+        return this.thread_members;
+    }
+
+    private serializeThreadOwner(): PublicMember | null | undefined {
+        if (!this.isThread()) return undefined;
+        if (!this.owner_id) return null;
+
+        const threadMembers = this.loadedThreadMembers();
+        if (!threadMembers) return undefined;
+
+        const ownerMember = threadMembers.find((threadMember) => threadMember.member.id === this.owner_id)?.member;
+        return ownerMember?.toPublicMember() ?? null;
+    }
+
+    private serializeThreadMemberIdsPreview(): string[] | undefined {
+        return this.loadedThreadMembers()?.map((threadMember) => threadMember.member.id);
+    }
+
     toJSON(): PublicChannel {
+        const member_ids_preview = this.serializeThreadMemberIdsPreview();
+        const channel = { ...this };
+        delete channel.thread_members;
+
         return {
-            ...this,
+            ...channel,
             last_pin_timestamp: this.last_pin_timestamp?.toISOString(),
             guild_id: this.guild_id ?? undefined,
             recipients: this.toPublicRecipients(),
-            owner: undefined, // TODO: fix me - this is thread owner
+            owner: this.serializeThreadOwner(),
 
             // these fields are not returned depending on the type of channel
             bitrate: this.bitrate || undefined,
             user_limit: this.user_limit || undefined,
             rate_limit_per_user: this.rate_limit_per_user || undefined,
             owner_id: this.owner_id || undefined,
-            ...(this.isThread() && this.thread_members ? { member_ids_preview: this.thread_members.map((_) => _.member.id) } : {}),
+            ...(member_ids_preview ? { member_ids_preview } : {}),
             default_auto_archive_duration: this.default_auto_archive_duration ?? undefined,
             retention_policy_id: undefined,
             thread_metadata: this.thread_metadata
