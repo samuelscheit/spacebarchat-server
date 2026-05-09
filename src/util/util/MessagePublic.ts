@@ -16,11 +16,91 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PartialUser, PublicMessage, StoredReaction } from "@spacebar/schemas";
+import type { IntegrationApplication, PartialPublicChannel, PartialUser, PublicMessage, PublicUser, StoredReaction } from "@spacebar/schemas";
 import { serializePublicMember, type PublicMemberLike } from "./MemberRoles";
-import { serializeMessageMentions } from "./MessageMentions";
+import { serializeMessageMentions, toMessageMentionUser } from "./MessageMentions";
 import { serializeMessageRoleMentions, type SerializableRoleMention } from "./MessageRoleMentions";
 import { toPublicReactions } from "./Reactions";
+
+type MessageInteractionMetadata = NonNullable<PublicMessage["interaction_metadata"]>;
+
+type PublicUserLike = Partial<PublicUser> & {
+    toPublicUser?: () => unknown;
+};
+
+type MessageInteractionMetadataSource = Omit<MessageInteractionMetadata, "triggering_interaction_metadata" | "target_user" | "user"> & {
+    target_user?: unknown;
+    triggering_interaction_metadata?: unknown;
+    user?: unknown;
+};
+
+const publicUserKeys = [
+    "id",
+    "username",
+    "discriminator",
+    "public_flags",
+    "avatar",
+    "accent_color",
+    "banner",
+    "bio",
+    "bot",
+    "premium_since",
+    "premium_type",
+    "theme_colors",
+    "pronouns",
+    "badge_ids",
+    "avatar_decoration_data",
+    "display_name_styles",
+    "collectibles",
+    "primary_guild",
+] satisfies (keyof PublicUser)[];
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return !!value && typeof value === "object";
+}
+
+function serializePublicUserLike(user: unknown): PublicUser | undefined {
+    if (!isRecord(user)) return undefined;
+
+    const source = typeof (user as PublicUserLike).toPublicUser === "function" ? (user as PublicUserLike).toPublicUser!() : user;
+    if (!isRecord(source)) return undefined;
+
+    for (const requiredKey of ["id", "username", "discriminator", "public_flags", "bio", "bot", "premium_type"] satisfies (keyof PublicUser)[]) {
+        if (source[requiredKey] === undefined) return undefined;
+    }
+
+    return Object.fromEntries(publicUserKeys.filter((key) => source[key] !== undefined).map((key) => [key, source[key]])) as PublicUser;
+}
+
+function serializeInteractionMetadata(metadata: PublicMessageSource["interaction_metadata"]): PublicMessage["interaction_metadata"] {
+    if (!metadata) return undefined;
+
+    const source = metadata as MessageInteractionMetadataSource;
+    for (const requiredKey of ["id", "type", "user_id", "authorizing_integration_owners", "name", "command_type"] satisfies (keyof MessageInteractionMetadataSource)[]) {
+        if (source[requiredKey] === undefined) return undefined;
+    }
+
+    const serialized: MessageInteractionMetadata = {
+        id: source.id,
+        type: source.type,
+        user_id: source.user_id,
+        authorizing_integration_owners: source.authorizing_integration_owners,
+        name: source.name,
+        command_type: source.command_type,
+    };
+    if (source.ephemerality_reason !== undefined) serialized.ephemerality_reason = source.ephemerality_reason;
+    const user = serializePublicUserLike(source.user);
+    if (user) serialized.user = user;
+    if (source.original_response_message_id !== undefined) serialized.original_response_message_id = source.original_response_message_id;
+    if (source.interacted_message_id !== undefined) serialized.interacted_message_id = source.interacted_message_id;
+    const triggeringInteractionMetadata = serializeInteractionMetadata(source.triggering_interaction_metadata as PublicMessageSource["interaction_metadata"]);
+    if (triggeringInteractionMetadata) serialized.triggering_interaction_metadata = triggeringInteractionMetadata;
+    const targetUser = serializePublicUserLike(source.target_user);
+    if (targetUser) serialized.target_user = targetUser;
+    if (source.target_message_id !== undefined) serialized.target_message_id = source.target_message_id;
+
+    return serialized;
+}
 
 interface PublicUserSource {
     avatar?: string | null;
@@ -28,8 +108,28 @@ interface PublicUserSource {
     username?: string | null;
 }
 
+interface PublicMentionChannelSource {
+    id: string;
+    guild_id?: string | null;
+    type: PartialPublicChannel["type"];
+    name?: string | null;
+}
+
+interface PublicMessageInteractionSource {
+    id: string;
+    type: NonNullable<PublicMessage["interaction"]>["type"];
+    name: string;
+    user?: object;
+}
+
+function serializeInteractionUser(user: PublicMessageInteractionSource["user"]): PartialUser | undefined {
+    if (!user) return undefined;
+    return toMessageMentionUser(user);
+}
+
 interface PublicMessageSource {
     activity?: PublicMessage["activity"];
+    application?: PublicMessageApplicationSource | null;
     application_id?: string | null;
     attachments?: { toJSON: () => unknown }[];
     author?: PublicUserSource;
@@ -42,24 +142,69 @@ interface PublicMessageSource {
     embeds?: PublicMessage["embeds"];
     flags: number;
     id: string;
+    interaction?: PublicMessageInteractionSource | null;
     member?: PublicMemberLike | null;
-    mention_channels?: { toJSON: () => unknown }[];
+    mention_channels?: PublicMentionChannelSource[];
     mention_everyone?: boolean | null;
     mention_roles?: SerializableRoleMention[];
     mentions?: object[] | null;
     message_reference?: PublicMessage["message_reference"];
+    interaction_metadata?: PublicMessage["interaction_metadata"];
     message_snapshots?: PublicMessage["message_snapshots"];
     nonce?: string | null;
     pinned: boolean;
     poll?: PublicMessage["poll"];
     reactions?: StoredReaction[];
     referenced_message?: { toJSON: (shallow?: boolean) => PublicMessage } | null;
+    resolved?: PublicMessage["resolved"];
     thread?: { toJSON: () => PublicMessage["thread"] } | PublicMessage["thread"];
     timestamp: Date;
     tts?: boolean | null;
     type: number;
     username?: string | null;
     webhook_id?: string | null;
+}
+
+function requireChannelMentionField(value: string | null | undefined, field: "guild_id" | "name", channelId: string): string {
+    if (!value) throw new Error(`Cannot serialize message channel mention ${channelId} without ${field}`);
+    return value;
+}
+
+function toPartialPublicChannel(channel: PublicMentionChannelSource): PartialPublicChannel {
+    return {
+        id: channel.id,
+        guild_id: requireChannelMentionField(channel.guild_id, "guild_id", channel.id),
+        type: channel.type,
+        name: requireChannelMentionField(channel.name, "name", channel.id),
+    };
+}
+
+type PublicMessageApplicationSource = Partial<IntegrationApplication> & {
+    id?: string | null;
+    name?: string | null;
+    description?: string | null;
+};
+
+export function serializeMessageApplication(application: PublicMessageApplicationSource | null | undefined): IntegrationApplication | undefined {
+    if (!application?.id || !application.name) return undefined;
+
+    const publicApplication: IntegrationApplication = {
+        id: application.id,
+        name: application.name,
+        description: application.description ?? "",
+    };
+
+    if ("icon" in application) {
+        publicApplication.icon = application.icon ?? null;
+    }
+    if (application.cover_image != null) {
+        publicApplication.cover_image = application.cover_image;
+    }
+    if (typeof application.flags === "number") {
+        publicApplication.flags = application.flags;
+    }
+
+    return publicApplication;
 }
 
 export function messageToPublicMessage(message: PublicMessageSource, shallow = false): PublicMessage {
@@ -70,7 +215,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         avatar: message.avatar ?? message.author?.avatar ?? null,
     } as PartialUser;
 
-    return {
+    const publicMessage: PublicMessage = {
         id: message.id,
         channel_id: message.channel_id ?? message.channel!.id,
 
@@ -83,7 +228,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         mentions: serializeMessageMentions(message.mentions) as PartialUser[],
 
         mention_roles: serializeMessageRoleMentions(message.mention_roles),
-        mention_channels: (message.mention_channels?.map((ch) => ch.toJSON()) ?? []) as NonNullable<PublicMessage["mention_channels"]>,
+        mention_channels: message.mention_channels?.map(toPartialPublicChannel) ?? [],
         attachments: (message.attachments?.map((att) => att.toJSON()) ?? []) as PublicMessage["attachments"],
 
         nonce: message.nonce ?? undefined,
@@ -98,10 +243,27 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         pinned: message.pinned,
         type: message.type,
         activity: message.activity ?? undefined,
+        interaction: message.interaction
+            ? {
+                  id: message.interaction.id,
+                  type: message.interaction.type,
+                  name: message.interaction.name,
+                  ...(message.interaction.user ? { user: serializeInteractionUser(message.interaction.user) } : {}),
+              }
+            : undefined,
         components: message.components ?? [],
         message_snapshots: message.message_snapshots ?? undefined,
+        interaction_metadata: serializeInteractionMetadata(message.interaction_metadata),
         poll: message.poll ?? undefined,
         thread: message.thread && "toJSON" in message.thread ? message.thread.toJSON() : message.thread,
         referenced_message: message.referenced_message && !shallow ? message.referenced_message.toJSON(true) : undefined,
+        resolved: message.resolved ?? undefined,
     };
+
+    const application = serializeMessageApplication(message.application);
+    if (application) {
+        publicMessage.application = application;
+    }
+
+    return publicMessage;
 }

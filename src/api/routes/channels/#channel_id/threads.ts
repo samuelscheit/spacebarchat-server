@@ -46,6 +46,7 @@ import {
     Snowflake,
     messagePublicRelations,
     upsertChannelMessageReadState,
+    advanceChannelReadStateNotificationCursor,
 } from "@spacebar/util";
 import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachmentMetadata, type ThreadSearchResponse } from "@spacebar/schemas";
 
@@ -152,8 +153,8 @@ router.post(
                 },
             }),
         ]);
-        if (shouldSendThreadCreatedMessage(threadType, channel))
-            await sendMessage({
+        if (shouldSendThreadCreatedMessage(threadType, channel)) {
+            const threadCreatedMessage = await sendMessage({
                 channel_id: channel.id,
                 type: MessageType.THREAD_CREATED,
                 content: thread.name,
@@ -163,6 +164,8 @@ router.post(
                 },
                 author_id: user.id,
             });
+            await advanceChannelReadStateNotificationCursor({ user_id: req.user_id, channel_id: channel.id }, threadCreatedMessage.id);
+        }
         if (body.message) {
             const attachments = messageAttachments;
 

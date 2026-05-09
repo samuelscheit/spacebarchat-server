@@ -17,6 +17,7 @@ import {
     Member,
     Message,
     Permissions,
+    ReadState,
     Role,
     Snowflake,
     Tag,
@@ -24,7 +25,7 @@ import {
     ThreadMemberFlags,
     User,
 } from "@spacebar/util";
-import { ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
+import { ChannelPermissionOverwriteType, ChannelType, MessageType, ReadStateType } from "@spacebar/schemas";
 import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
@@ -128,6 +129,7 @@ test(
             await assertStatus(createdGuild, 201);
             const guildId = (await assertJsonObject(createdGuild)).id as string;
             await Guild.update({ id: guildId }, { features: [GuildFeature.Discoverable] });
+            await grantEveryonePermission(guildId, Permissions.FLAGS.SEND_MESSAGES_IN_THREADS);
             await assertStatus(await putJson(`${api.apiBaseUrl}/guilds/${guildId}/members/@me`, {}, memberToken), 200);
 
             const initialChannels = await getJsonArray(`${api.apiBaseUrl}/guilds/${guildId}/channels`, ownerToken);
@@ -141,7 +143,7 @@ test(
             await coverTagMissingErrors(api.apiBaseUrl, forumChannelId, otherForumChannelId, ownerToken, events);
             await coverInvalidForumAppliedTags(api.apiBaseUrl, forumChannelId, tagId, ownerToken);
             await coverRequiredForumTagValidation(api.apiBaseUrl, forumChannelId, ownerToken, events);
-            await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, events);
+            await coverThreadRoutes(api.apiBaseUrl, guildId, textChannelId, forumChannelId, tagId, owner.id, member.id, ownerToken, memberToken, events);
             await coverTagDelete(api.apiBaseUrl, forumChannelId, tagId, ownerToken, events);
         } finally {
             if (events) await events.stop();
@@ -325,6 +327,7 @@ async function coverThreadRoutes(
     ownerId: string,
     memberId: string,
     token: string,
+    memberToken: string,
     events: EventCapture,
 ) {
     const ownerMember = await Member.findOneByOrFail({ guild_id: guildId, id: ownerId });
@@ -334,9 +337,10 @@ async function coverThreadRoutes(
     await assertThreadMember(publicThreadId, ownerMember.index);
     await coverThreadSearch(apiBaseUrl, forumChannelId, publicThreadId, tagId, token);
     await coverThreadAppliedTagsPatch(apiBaseUrl, publicThreadId, token);
-    const publicThreadEvents = await captureEvents([publicThreadId, ownerId]);
+    const publicThreadEvents = await captureEvents([publicThreadId, ownerId, memberId]);
     try {
         await coverThreadMemberRoutes(apiBaseUrl, publicThreadId, ownerMember.index, joinedMember.index, memberId, token, publicThreadEvents);
+        await coverImplicitThreadMessageJoin(apiBaseUrl, publicThreadId, joinedMember.index, memberId, token, memberToken, publicThreadEvents);
     } finally {
         await publicThreadEvents.stop();
     }
@@ -353,6 +357,11 @@ async function coverThreadRoutes(
     assert.ok((privateArchived.threads as Array<Record<string, unknown>>).some((thread) => thread.id === privateThreadId));
     const joinedPrivateArchived = await assertJsonObject(await getJson(`${apiBaseUrl}/channels/${textChannelId}/users/@me/threads/archived/private?limit=10`, token));
     assert.ok((joinedPrivateArchived.threads as Array<Record<string, unknown>>).some((thread) => thread.id === privateThreadId));
+
+    const publicTextThreadId = await createPublicTextThread(apiBaseUrl, textChannelId, token, events);
+    await assertThreadMember(publicTextThreadId, ownerMember.index);
+    const publicTextThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, publicTextThreadId);
+    await assertChannelNotificationCursor(textChannelId, ownerId, publicTextThreadCreatedMessage.id);
 
     const messageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter", token);
     const beforeMessageThread = markCapturedEvents(events);
@@ -374,6 +383,21 @@ async function coverThreadRoutes(
     const message = await Message.findOneOrFail({ where: { id: messageId }, relations: { thread: true } });
     assert.ok(message.thread);
     assert.equal(message.thread.id, messageId);
+    const messageThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, messageId);
+    await assertChannelNotificationCursor(textChannelId, ownerId, messageThreadCreatedMessage.id);
+
+    const futureCursor = "9223372036854775807";
+    await ReadState.update({ user_id: ownerId, channel_id: textChannelId, read_state_type: ReadStateType.CHANNEL }, { notifications_cursor: futureCursor });
+    const noRewindMessageId = await createMessage(apiBaseUrl, textChannelId, "message thread starter no rewind", token);
+    const createNoRewindMessageThread = await postJson(
+        `${apiBaseUrl}/channels/${textChannelId}/messages/${noRewindMessageId}/threads`,
+        { name: "scenario-message-thread-no-rewind" },
+        token,
+    );
+    await assertStatus(createNoRewindMessageThread, 200);
+    const noRewindThreadCreatedMessage = await findThreadCreatedMessage(textChannelId, noRewindMessageId);
+    assert.ok(BigInt(noRewindThreadCreatedMessage.id) < BigInt(futureCursor));
+    await assertChannelNotificationCursor(textChannelId, ownerId, futureCursor);
 }
 
 async function coverThreadAppliedTagsPatch(apiBaseUrl: string, threadId: string, token: string) {
@@ -465,6 +489,46 @@ async function createPrivateThread(apiBaseUrl: string, textChannelId: string, to
     return threadId;
 }
 
+async function createPublicTextThread(apiBaseUrl: string, textChannelId: string, token: string, events: EventCapture) {
+    const beforeCreate = markCapturedEvents(events);
+    const createThread = await postJson(
+        `${apiBaseUrl}/channels/${textChannelId}/threads`,
+        {
+            name: "scenario-public-text-thread",
+            type: ChannelType.GUILD_PUBLIC_THREAD,
+        },
+        token,
+    );
+    await assertStatus(createThread, 200);
+    const thread = await assertJsonObject(createThread);
+    const threadId = thread.id as string;
+    assert.equal(thread.type, ChannelType.GUILD_PUBLIC_THREAD);
+    await waitForEventAfter(
+        events,
+        beforeCreate,
+        (event) => event.event === "THREAD_CREATE" && event.channel_id === textChannelId && event.data.id === threadId && event.data.newly_created === true,
+    );
+    return threadId;
+}
+
+async function findThreadCreatedMessage(parentChannelId: string, threadId: string) {
+    const messages = await Message.find({
+        where: { channel_id: parentChannelId, type: MessageType.THREAD_CREATED },
+    });
+    const message = messages.find((message) => message.message_reference?.channel_id === threadId);
+    assert.ok(message, `expected THREAD_CREATED message for thread ${threadId}`);
+    return message;
+}
+
+async function assertChannelNotificationCursor(channelId: string, userId: string, expectedCursor: string) {
+    const readState = await ReadState.findOneByOrFail({
+        user_id: userId,
+        channel_id: channelId,
+        read_state_type: ReadStateType.CHANNEL,
+    });
+    assert.equal(readState.notifications_cursor, expectedCursor);
+}
+
 async function coverThreadSearch(apiBaseUrl: string, forumChannelId: string, threadId: string, tagId: string, token: string) {
     const search = await assertJsonObject(
         await getJson(`${apiBaseUrl}/channels/${forumChannelId}/threads/search?name=scenario-forum&tag=${tagId}&tag_setting=match_all&archived=false`, token),
@@ -490,9 +554,11 @@ async function coverThreadMemberRoutes(
     assert.equal(ownerThreadMember.id, threadId);
     assert.equal(ownerThreadMember.member_idx, ownerMemberIndex);
 
+    await overwriteThreadMemberCount(threadId, null);
+
     const beforePost = markCapturedEvents(events);
     await assertStatus(await postJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, {}, token), 204);
-    await waitForEventAfter(
+    const postEvent = await waitForEventAfter(
         events,
         beforePost,
         (event) =>
@@ -500,20 +566,28 @@ async function coverThreadMemberRoutes(
             event.channel_id === threadId &&
             event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
     );
+    assert.equal(postEvent.data.member_count, 2);
     await assertThreadMember(threadId, joinedMemberIndex);
+    await assertPersistedThreadMemberCount(threadId, 2);
+
+    await overwriteThreadMemberCount(threadId, 99);
 
     const beforeDelete = markCapturedEvents(events);
     await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, token), 204);
-    await waitForEventAfter(
+    const deleteEvent = await waitForEventAfter(
         events,
         beforeDelete,
         (event) => event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.removed_member_ids?.includes(joinedUserId),
     );
+    assert.equal(deleteEvent.data.member_count, 1);
     assert.equal(await ThreadMember.findOneBy({ id: threadId, member_idx: joinedMemberIndex }), null);
+    await assertPersistedThreadMemberCount(threadId, 1);
+
+    await overwriteThreadMemberCount(threadId, 99);
 
     const beforePut = markCapturedEvents(events);
     await assertStatus(await putJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${joinedUserId}`, {}, token), 204);
-    await waitForEventAfter(
+    const putEvent = await waitForEventAfter(
         events,
         beforePut,
         (event) =>
@@ -521,7 +595,9 @@ async function coverThreadMemberRoutes(
             event.channel_id === threadId &&
             event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
     );
+    assert.equal(putEvent.data.member_count, 2);
     await assertThreadMember(threadId, joinedMemberIndex);
+    await assertPersistedThreadMemberCount(threadId, 2);
 
     const beforeSettings = markCapturedEvents(events);
     const settings = await patchJson(`${apiBaseUrl}/channels/${threadId}/thread-members/@me/settings`, { muted: true, flags: ThreadMemberFlags.ONLY_MENTIONS }, token);
@@ -537,6 +613,61 @@ async function coverThreadMemberRoutes(
     const persistedOwnerMember = await ThreadMember.findOneByOrFail({ id: threadId, member_idx: ownerMemberIndex });
     assert.equal(persistedOwnerMember.muted, true);
     assert.equal(persistedOwnerMember.flags, ThreadMemberFlags.ONLY_MENTIONS);
+}
+
+async function coverImplicitThreadMessageJoin(
+    apiBaseUrl: string,
+    threadId: string,
+    memberIndex: string,
+    userId: string,
+    deleteToken: string,
+    messageToken: string,
+    events: EventCapture,
+) {
+    const beforeDelete = markCapturedEvents(events);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/${userId}`, deleteToken), 204);
+    const deleteEvent = await waitForEventAfter(
+        events,
+        beforeDelete,
+        (event) => event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.removed_member_ids?.includes(userId),
+    );
+    assert.equal(deleteEvent.data.member_count, 1);
+    assert.equal(await ThreadMember.findOneBy({ id: threadId, member_idx: memberIndex }), null);
+    await assertPersistedThreadMemberCount(threadId, 1);
+
+    await overwriteThreadMemberCount(threadId, null);
+
+    const beforeMessage = markCapturedEvents(events);
+    await assertStatus(await postJson(`${apiBaseUrl}/channels/${threadId}/messages`, { content: "implicit thread join" }, messageToken), 200);
+    const joinEvent = await waitForEventAfter(
+        events,
+        beforeMessage,
+        (event) =>
+            event.event === "THREAD_MEMBERS_UPDATE" &&
+            event.channel_id === threadId &&
+            event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === userId),
+    );
+    assert.equal(joinEvent.data.member_count, 2);
+    await assertThreadMember(threadId, memberIndex);
+    await assertPersistedThreadMemberCount(threadId, 2);
+}
+
+async function overwriteThreadMemberCount(threadId: string, memberCount: number | null) {
+    if (memberCount === null) {
+        await Channel.createQueryBuilder()
+            .update(Channel)
+            .set({ member_count: () => "NULL" })
+            .where("id = :threadId", { threadId })
+            .execute();
+        return;
+    }
+
+    await Channel.update({ id: threadId }, { member_count: memberCount });
+}
+
+async function assertPersistedThreadMemberCount(threadId: string, expected: number) {
+    const thread = await Channel.findOneByOrFail({ id: threadId });
+    assert.equal(thread.member_count, expected);
 }
 
 async function coverTagDelete(apiBaseUrl: string, forumChannelId: string, tagId: string, token: string, events: EventCapture) {
@@ -623,6 +754,12 @@ async function registerUser(username: string, email: string) {
         email,
         password: "not-a-real-login-hash",
     });
+}
+
+async function grantEveryonePermission(guildId: string, permission: bigint) {
+    const everyoneRole = await Role.findOneByOrFail({ id: guildId, guild_id: guildId });
+    everyoneRole.permissions = (BigInt(everyoneRole.permissions) | permission).toString();
+    await everyoneRole.save();
 }
 
 async function getJson(url: string, token: string) {

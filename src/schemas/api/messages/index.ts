@@ -19,5 +19,6 @@
 export * from "./Components";
 export * from "./Embeds";
 export * from "./Attachments";
+export * from "./ResolvedData";
 export * from "./Message";
 export * from "./Polls";

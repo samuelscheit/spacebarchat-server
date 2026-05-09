@@ -3,16 +3,35 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import Ajv from "ajv";
+import type { ResolvedData } from "@spacebar/schemas";
 import { getAuthorizingIntegrationOwners } from "./InteractionCreateSchema";
 
 const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, unknown>;
+const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
+    components?: {
+        schemas?: Record<string, { properties?: Record<string, { $ref?: string }> }>;
+    };
+};
 const interactionCreateSchema = {
     ...(schemas.InteractionCreateSchema as Record<string, unknown>),
     definitions: schemas,
 };
+const interactionCreateVariantSchemaNames = [
+    "PingInteractionCreateSchema",
+    "ApplicationCommandInteractionCreateSchema",
+    "ApplicationCommandAutocompleteInteractionCreateSchema",
+    "MessageComponentInteractionCreateSchema",
+    "ModalSubmitInteractionCreateSchema",
+] as const;
+
+function interactionCreateVariantSchema(name: (typeof interactionCreateVariantSchemaNames)[number]) {
+    return schemas[name] as { properties?: Record<string, { $ref?: string }> };
+}
 
 function compileInteractionCreateSchema() {
-    return new Ajv({ strict: false, validateFormats: false }).compile(interactionCreateSchema);
+    // The injected generated definitions include unrelated schemas that Ajv cannot meta-validate.
+    // Payload assertions below still validate against the generated InteractionCreateSchema contract.
+    return new Ajv({ strict: false, validateFormats: false, validateSchema: false }).compile(interactionCreateSchema);
 }
 
 function baseInteractionPayload() {
@@ -72,7 +91,7 @@ function applicationCommandInteractionPayload() {
                         avatar: null,
                     },
                 },
-            },
+            } as ResolvedData,
         },
     };
 }
@@ -82,6 +101,53 @@ describe("InteractionCreateSchema", () => {
         const validate = compileInteractionCreateSchema();
 
         assert.equal(validate(applicationCommandInteractionPayload()), true, JSON.stringify(validate.errors));
+    });
+
+    test("accepts partial resolved members with permissions", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = applicationCommandInteractionPayload();
+        payload.data.resolved = {
+            users: {
+                "100000000000000008": {
+                    id: "100000000000000008",
+                    username: "tester",
+                    discriminator: "0001",
+                    avatar: null,
+                },
+            },
+            members: {
+                "100000000000000008": {
+                    roles: ["100000000000000014"],
+                    joined_at: "2026-01-01T00:00:00.000Z",
+                    pending: false,
+                    permissions: "1024",
+                },
+            },
+        } as unknown as ResolvedData;
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
+    });
+
+    test("accepts public channel objects without entity-only fields", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = {
+            ...applicationCommandInteractionPayload(),
+            channel_id: "100000000000000011",
+            channel: {
+                id: "100000000000000011",
+                type: 0,
+                name: "general",
+            },
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
+    });
+
+    test("uses public channel refs for every generated interaction channel schema", () => {
+        for (const schemaName of interactionCreateVariantSchemaNames) {
+            assert.equal(interactionCreateVariantSchema(schemaName).properties?.channel?.$ref, "#/definitions/PublicChannel", `assets/schemas.json ${schemaName}.channel`);
+            assert.equal(openapi.components?.schemas?.[schemaName]?.properties?.channel?.$ref, "#/components/schemas/PublicChannel", `assets/openapi.json ${schemaName}.channel`);
+        }
     });
 
     test("accepts Discord-compatible message component interactions", () => {
@@ -99,6 +165,16 @@ describe("InteractionCreateSchema", () => {
                             id: "100000000000000011",
                             name: "general",
                             type: 0,
+                            permissions: "1024",
+                            last_message_id: "100000000000000012",
+                            last_pin_timestamp: null,
+                            nsfw: false,
+                            parent_id: "100000000000000013",
+                            guild_id: "100000000000000003",
+                            flags: 0,
+                            rate_limit_per_user: 2,
+                            topic: "resolved channel",
+                            position: 1,
                         },
                     },
                 },
@@ -142,6 +218,9 @@ describe("InteractionCreateSchema", () => {
                         "100000000000000012": {
                             id: "100000000000000012",
                             filename: "bug.png",
+                            size: 12,
+                            url: "https://cdn.example.test/bug.png",
+                            proxy_url: "https://proxy.example.test/bug.png",
                         },
                     },
                 },
@@ -157,6 +236,51 @@ describe("InteractionCreateSchema", () => {
         assert.equal(validate({ ...baseInteractionPayload(), type: 1 }), true, JSON.stringify(validate.errors));
     });
 
+    test("rejects obsolete top-level member_id fields", () => {
+        const validate = compileInteractionCreateSchema();
+
+        assert.equal(validate({ ...applicationCommandInteractionPayload(), member_id: "100000000000000008" }), false);
+    });
+
+    test("accepts guild interactions with a member object", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = {
+            ...applicationCommandInteractionPayload(),
+            guild_id: "100000000000000003",
+            guild: {
+                id: "100000000000000003",
+                features: [],
+                locale: "en-US",
+            },
+            guild_locale: "en-US",
+            member: {
+                user: {
+                    id: "100000000000000008",
+                    username: "tester",
+                    discriminator: "0001",
+                    avatar: "",
+                    public_flags: 0,
+                    bot: false,
+                    bio: "",
+                    premium_type: 0,
+                },
+                id: "100000000000000008",
+                guild_id: "100000000000000003",
+                roles: [],
+                joined_at: "2026-01-01T00:00:00.000Z",
+                pending: false,
+                deaf: false,
+                mute: false,
+                flags: 0,
+                banner: "",
+                bio: "",
+                communication_disabled_until: null,
+            },
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
+    });
+
     test("rejects interactions outside the typed contract", () => {
         const validate = compileInteractionCreateSchema();
 
@@ -167,6 +291,23 @@ describe("InteractionCreateSchema", () => {
         assert.equal(validate({ ...applicationCommandInteractionPayload(), type: 3, data: { custom_id: "select" } }), false);
         assert.equal(validate({ ...applicationCommandInteractionPayload(), type: 5, data: { custom_id: "modal" } }), false);
         assert.equal(validate({ ...applicationCommandInteractionPayload(), entitlements: [{ id: "100000000000000006" }] }), false);
+        assert.equal(
+            validate({
+                ...applicationCommandInteractionPayload(),
+                data: {
+                    ...applicationCommandInteractionPayload().data,
+                    resolved: {
+                        attachments: {
+                            "100000000000000012": {
+                                id: "100000000000000012",
+                                filename: "bug.png",
+                            },
+                        },
+                    },
+                },
+            }),
+            false,
+        );
     });
 
     test("computes authorizing integration owners from the interaction source", () => {
