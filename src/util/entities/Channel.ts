@@ -445,8 +445,6 @@ export class Channel extends BaseClass {
             assertChannelNamePresent(channel.name, guild.features);
         }
 
-        // TODO: eagerly auto generate position of all guild channels
-
         const thread = await OrmUtils.mergeDeep(new Channel(), channel).save();
 
         const guildId = thread.guild_id;
