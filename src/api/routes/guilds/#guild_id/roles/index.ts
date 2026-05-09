@@ -74,9 +74,6 @@ router.post(
 
         if (role_count > maxRoles) throw DiscordApiErrors.MAXIMUM_ROLES.withParams(maxRoles);
 
-        // TODO: proper field error
-        if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
-
         const [everyoneRole, guild] = await Promise.all([Role.findOne({ where: { id: guild_id } }), Guild.findOneOrFail({ where: { id: guild_id }, select: { features: true } })]);
         const id = Snowflake.generate();
 
