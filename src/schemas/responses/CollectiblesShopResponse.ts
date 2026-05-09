@@ -68,3 +68,4 @@ export interface ItemCollectionShopBlock extends BaseShopBlock {
 export type ApplicationDetectableResponse = unknown[];
 export type ApplicationEntitlementsResponse = unknown[];
 export type ApplicationSkusResponse = unknown[];
+export type UserEntitlementGiftsResponse = unknown[];

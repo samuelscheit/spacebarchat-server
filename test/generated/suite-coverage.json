@@ -847,6 +847,7 @@
                         "test/scenarios/users-guild-settings-route.test.ts",
                         "test/scenarios/users-supplemental.test.ts",
                         "test/scenarios/users-delete-route.test.ts",
+                        "test/scenarios/users-entitlements-gifts.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
