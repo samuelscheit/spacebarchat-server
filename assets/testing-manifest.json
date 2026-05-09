@@ -1276,7 +1276,7 @@
                 "configPath": "limits.rate.routes.attachmentRefresh",
                 "pathPrefix": "/attachments/refresh-urls",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 208
+                "line": 203
             },
             "coverage": {
                 "policyId": "api-attachments",
@@ -1474,7 +1474,7 @@
                 "configPath": "limits.rate.routes.auth.login",
                 "pathPrefix": "/auth/login",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 209
+                "line": 204
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1632,14 +1632,18 @@
                     200,
                     400
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_UPDATE",
+                    "INVITE_DELETE"
+                ]
             },
             "rateLimit": {
                 "group": "auth.register",
                 "configPath": "limits.rate.routes.auth.register",
                 "pathPrefix": "/auth/register",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 210
+                "line": 205
             },
             "coverage": {
                 "policyId": "api-auth",
@@ -1939,7 +1943,7 @@
             "path": "/beaker/",
             "sourceFile": "src/api/routes/beaker.ts",
             "line": 25,
-            "authMode": "bearer",
+            "authMode": "public",
             "routeMetadata": {
                 "present": true,
                 "responseBodies": [],
@@ -1987,6 +1991,7 @@
                     "CHANNEL_DELETE",
                     "CHANNEL_RECIPIENT_REMOVE",
                     "CHANNEL_UPDATE",
+                    "GUILD_UPDATE",
                     "THREAD_DELETE"
                 ]
             },
@@ -1995,7 +2000,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2044,7 +2049,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2099,7 +2104,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2142,7 +2147,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2193,7 +2198,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2242,7 +2247,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2291,7 +2296,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2346,7 +2351,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2395,7 +2400,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2452,7 +2457,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2482,7 +2487,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 270,
+            "line": 262,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2504,7 +2509,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2534,7 +2539,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 239,
+            "line": 231,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2556,7 +2561,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2586,7 +2591,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 54,
+            "line": 46,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2613,7 +2618,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2643,7 +2648,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/index.ts",
-            "line": 135,
+            "line": 127,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2662,7 +2667,8 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
-                    "MESSAGE_CREATE"
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -2670,7 +2676,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2720,7 +2726,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2768,7 +2774,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2822,7 +2828,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2875,7 +2881,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2930,7 +2936,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -2982,7 +2988,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3036,7 +3042,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3089,7 +3095,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3144,7 +3150,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3198,7 +3204,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3250,7 +3256,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3304,7 +3310,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3334,7 +3340,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/threads.ts",
-            "line": 30,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3357,7 +3363,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3387,7 +3393,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 81,
+            "line": 82,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3408,7 +3414,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3438,7 +3444,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 236,
+            "line": 226,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3460,6 +3466,7 @@
                     "CHANNEL_CREATE",
                     "CHANNEL_UPDATE",
                     "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE",
                     "THREAD_CREATE",
                     "THREAD_MEMBERS_UPDATE"
                 ]
@@ -3469,7 +3476,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3499,7 +3506,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 502,
+            "line": 488,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3515,7 +3522,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3569,7 +3576,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3624,7 +3631,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3680,7 +3687,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3732,7 +3739,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3782,7 +3789,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3832,7 +3839,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3887,7 +3894,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3942,7 +3949,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -3998,7 +4005,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4050,7 +4057,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4098,7 +4105,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4152,7 +4159,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4195,7 +4202,8 @@
                 "emittedEvents": [
                     "CHANNEL_DELETE",
                     "CHANNEL_RECIPIENT_REMOVE",
-                    "CHANNEL_UPDATE"
+                    "CHANNEL_UPDATE",
+                    "GUILD_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -4203,7 +4211,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4253,7 +4261,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4305,7 +4313,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4358,7 +4366,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4411,7 +4419,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4441,7 +4449,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 161,
+            "line": 157,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4462,7 +4470,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4492,7 +4500,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 133,
+            "line": 129,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4510,7 +4518,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4540,7 +4548,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 159,
+            "line": 155,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4561,7 +4569,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4591,7 +4599,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 158,
+            "line": 154,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4612,7 +4620,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4642,7 +4650,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 202,
+            "line": 198,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4662,7 +4670,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4692,7 +4700,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 102,
+            "line": 98,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4709,7 +4717,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4739,7 +4747,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 71,
+            "line": 72,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4756,6 +4764,7 @@
                 "hasQuery": false,
                 "emittedEvents": [
                     "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE",
                     "THREAD_CREATE"
                 ]
             },
@@ -4764,7 +4773,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4794,7 +4803,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 235,
+            "line": 238,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4816,7 +4825,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4846,7 +4855,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 294,
+            "line": 297,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4871,7 +4880,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4926,7 +4935,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -4956,7 +4965,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 361,
+            "line": 364,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4976,7 +4985,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -5027,7 +5036,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -5081,7 +5090,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -5129,7 +5138,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -5159,7 +5168,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/webhooks/",
             "sourceFile": "src/api/routes/channels/#channel_id/webhooks.ts",
-            "line": 58,
+            "line": 57,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5181,7 +5190,7 @@
                 "configPath": "limits.rate.routes.channel",
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 207
+                "line": 202
             },
             "coverage": {
                 "policyId": "api-channel-state",
@@ -5867,7 +5876,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 102,
+            "line": 109,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5886,7 +5895,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5916,7 +5925,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 130,
+            "line": 137,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5943,7 +5952,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -5986,7 +5995,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6033,7 +6042,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6085,7 +6094,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6139,7 +6148,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6191,7 +6200,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6245,7 +6254,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6298,7 +6307,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6349,7 +6358,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6405,7 +6414,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6455,7 +6464,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6505,7 +6514,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6565,7 +6574,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6615,7 +6624,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6669,7 +6678,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6725,7 +6734,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6779,7 +6788,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6829,7 +6838,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6881,7 +6890,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6928,7 +6937,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -6980,7 +6989,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7030,7 +7039,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7081,7 +7090,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7130,7 +7139,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7185,7 +7194,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7215,12 +7224,17 @@
             "method": "GET",
             "path": "/guilds/:guild_id/integrations/",
             "sourceFile": "src/api/routes/guilds/#guild_id/integrations.ts",
-            "line": 24,
+            "line": 23,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "permission": "MANAGE_GUILD",
+                "responseBodies": [
+                    "APIGuildIntegrationArray"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "rateLimit": {
@@ -7228,7 +7242,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7271,6 +7285,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
             },
@@ -7279,7 +7294,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7326,7 +7341,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7356,7 +7371,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 231,
+            "line": 198,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7378,7 +7393,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7408,7 +7423,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 41,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7428,7 +7443,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7458,7 +7473,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 83,
+            "line": 69,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7483,7 +7498,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7513,7 +7528,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 174,
+            "line": 160,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7523,17 +7538,18 @@
                 ],
                 "responseStatuses": [
                     200,
+                    204,
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "rateLimit": {
                 "group": "guild",
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7587,7 +7603,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7639,7 +7655,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7689,7 +7705,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7719,7 +7735,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/members/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/index.ts",
-            "line": 31,
+            "line": 30,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7738,7 +7754,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7788,7 +7804,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7831,7 +7847,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7885,7 +7901,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7930,7 +7946,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -7975,7 +7991,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8030,7 +8046,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8079,7 +8095,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8133,7 +8149,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8183,7 +8199,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8239,7 +8255,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8282,7 +8298,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8325,14 +8341,17 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8375,14 +8394,17 @@
                     204,
                     403
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "guild",
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8425,7 +8447,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8480,7 +8502,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8536,7 +8558,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8579,7 +8601,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8627,7 +8649,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8679,7 +8701,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8728,7 +8750,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8783,7 +8805,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8832,7 +8854,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8887,7 +8909,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8937,7 +8959,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -8988,7 +9010,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9038,7 +9060,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9085,7 +9107,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9138,7 +9160,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9187,7 +9209,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9233,6 +9255,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
             },
@@ -9241,7 +9264,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9296,7 +9319,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9326,11 +9349,12 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/voice-states/:user_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/voice-states/#user_id/index.ts",
-            "line": 37,
+            "line": 25,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "requestBody": "VoiceStateUpdateSchema",
+                "requestBody": "VoiceStateModifySchema",
+                "event": "VOICE_STATE_UPDATE",
                 "responseBodies": [
                     "APIErrorResponse"
                 ],
@@ -9340,17 +9364,14 @@
                     403,
                     404
                 ],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "VOICE_STATE_UPDATE"
-                ]
+                "hasQuery": false
             },
             "rateLimit": {
                 "group": "guild",
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9398,7 +9419,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9447,7 +9468,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9499,7 +9520,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9529,7 +9550,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/widget.json/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.json.ts",
-            "line": 37,
+            "line": 42,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -9548,7 +9569,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9578,7 +9599,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/widget.png/",
             "sourceFile": "src/api/routes/guilds/#guild_id/widget.png.ts",
-            "line": 35,
+            "line": 38,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -9590,14 +9611,14 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": true
             },
             "rateLimit": {
                 "group": "guild",
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9646,7 +9667,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9698,7 +9719,7 @@
                 "configPath": "limits.rate.routes.guild",
                 "pathPrefix": "/guilds/:guild_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 205
+                "line": 200
             },
             "coverage": {
                 "policyId": "api-guild-state",
@@ -9728,7 +9749,7 @@
             "method": "POST",
             "path": "/guilds/",
             "sourceFile": "src/api/routes/guilds/index.ts",
-            "line": 28,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -9816,7 +9837,7 @@
             "method": "POST",
             "path": "/guilds/automations/email-domain-lookup/verify-code",
             "sourceFile": "src/api/routes/guilds/automations/email-domain-lookup.ts",
-            "line": 63,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10076,7 +10097,7 @@
             "method": "POST",
             "path": "/interactions/",
             "sourceFile": "src/api/routes/interactions/index.ts",
-            "line": 48,
+            "line": 45,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -10126,6 +10147,7 @@
                 ],
                 "hasQuery": false,
                 "emittedEvents": [
+                    "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
             },
@@ -10199,7 +10221,11 @@
                     403,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_UPDATE",
+                    "INVITE_DELETE"
+                ]
             },
             "coverage": {
                 "policyId": "api-public-contract",
@@ -11265,7 +11291,7 @@
             "method": "GET",
             "path": "/store/published-listings/skus/:sku_id/subscription-plans/",
             "sourceFile": "src/api/routes/store/published-listings/skus/#sku_id/subscription-plans.ts",
-            "line": 319,
+            "line": 327,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11520,6 +11546,7 @@
                     "CHANNEL_UPDATE",
                     "GUILD_DELETE",
                     "GUILD_MEMBER_REMOVE",
+                    "GUILD_UPDATE",
                     "USER_DELETE"
                 ]
             },
@@ -11589,7 +11616,7 @@
             "method": "GET",
             "path": "/users/:user_id/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 37,
+            "line": 44,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11630,17 +11657,18 @@
             "method": "PATCH",
             "path": "/users/:user_id/profile/",
             "sourceFile": "src/api/routes/users/#user_id/profile.ts",
-            "line": 167,
+            "line": 156,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "UserProfileModifySchema",
+                "event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
                 "responseBodies": [],
                 "responseStatuses": [],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "USER_UPDATE"
-                ]
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -11708,7 +11736,7 @@
             "method": "GET",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 43,
+            "line": 41,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11746,11 +11774,15 @@
             "method": "PATCH",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 62,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "UserModifySchema",
+                "event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
                 "responseBodies": [
                     "APIErrorResponse",
                     "UserUpdateResponse"
@@ -11760,10 +11792,7 @@
                     400,
                     404
                 ],
-                "hasQuery": false,
-                "emittedEvents": [
-                    "USER_UPDATE"
-                ]
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -12231,8 +12260,12 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "BillingSubscriptionsResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
                 "hasQuery": false
             },
             "coverage": {
@@ -12565,7 +12598,7 @@
             "method": "POST",
             "path": "/users/@me/delete/",
             "sourceFile": "src/api/routes/users/@me/delete.ts",
-            "line": 27,
+            "line": 51,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12683,12 +12716,17 @@
             "method": "GET",
             "path": "/users/@me/email-settings/",
             "sourceFile": "src/api/routes/users/@me/email-settings.ts",
-            "line": 24,
+            "line": 46,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "responseBodies": [],
-                "responseStatuses": [],
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
                 "hasQuery": false
             },
             "coverage": {
@@ -12751,7 +12789,7 @@
             "method": "GET",
             "path": "/users/@me/guilds/:guild_id/settings/",
             "sourceFile": "src/api/routes/users/@me/guilds/#guild_id/settings.ts",
-            "line": 27,
+            "line": 43,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12788,7 +12826,7 @@
             "method": "PATCH",
             "path": "/users/@me/guilds/:guild_id/settings/",
             "sourceFile": "src/api/routes/users/@me/guilds/#guild_id/settings.ts",
-            "line": 44,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12839,6 +12877,7 @@
                 "responseStatuses": [
                     204,
                     400,
+                    403,
                     404
                 ],
                 "hasQuery": false,
@@ -14090,7 +14129,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14137,7 +14176,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14188,7 +14227,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14232,7 +14271,8 @@
                 ],
                 "hasQuery": true,
                 "emittedEvents": [
-                    "MESSAGE_CREATE"
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -14240,7 +14280,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14284,7 +14324,8 @@
                 ],
                 "hasQuery": true,
                 "emittedEvents": [
-                    "MESSAGE_CREATE"
+                    "MESSAGE_CREATE",
+                    "MESSAGE_UPDATE"
                 ]
             },
             "rateLimit": {
@@ -14292,7 +14333,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14340,7 +14381,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14387,7 +14428,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14440,7 +14481,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14491,7 +14532,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14538,7 +14579,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",
@@ -14589,7 +14630,7 @@
                 "configPath": "limits.rate.routes.webhook",
                 "pathPrefix": "/webhooks/:webhook_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
-                "line": 206
+                "line": 201
             },
             "coverage": {
                 "policyId": "api-webhooks",

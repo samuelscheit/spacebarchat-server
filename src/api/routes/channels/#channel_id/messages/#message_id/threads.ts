@@ -17,7 +17,17 @@
 */
 
 import { route, sendMessage } from "@spacebar/api";
-import { Message, Channel, emitEvent, User, MessageUpdateEvent, messagePublicRelations, upsertChannelMessageReadState, withThreadMessageFlag } from "@spacebar/util";
+import {
+    Message,
+    Channel,
+    emitEvent,
+    User,
+    MessageUpdateEvent,
+    messagePublicRelations,
+    upsertChannelMessageReadState,
+    advanceChannelReadStateNotificationCursor,
+    withThreadMessageFlag,
+} from "@spacebar/util";
 import { MessageThreadCreationSchema, ChannelType, MessageType } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
@@ -88,7 +98,7 @@ router.post(
             },
             author_id: user.id,
         });
-        await sendMessage({
+        const threadCreatedMessage = await sendMessage({
             channel_id: channel.id,
             type: MessageType.THREAD_CREATED,
             content: thread.name,
@@ -100,6 +110,7 @@ router.post(
         });
         await Promise.all([
             upsertChannelMessageReadState({ user_id: req.user_id, channel_id: thread.id }, starterMessage.id),
+            advanceChannelReadStateNotificationCursor({ user_id: req.user_id, channel_id }, threadCreatedMessage.id),
             emitEvent({
                 event: "THREAD_CREATE",
                 channel_id,

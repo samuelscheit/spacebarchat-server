@@ -21,18 +21,43 @@ import { route } from "@spacebar/api";
 
 const router = Router({ mergeParams: true });
 
-router.get("/", route({}), (req: Request, res: Response) => {
-    // TODO:
-    res.json({
-        categories: {
-            social: true,
-            communication: true,
-            tips: false,
-            updates_and_announcements: false,
-            recommendations_and_events: false,
-        },
-        initialized: false,
-    }).status(200);
+export interface EmailSettingsResponse {
+    categories: {
+        social: boolean;
+        communication: boolean;
+        tips: boolean;
+        updates_and_announcements: boolean;
+        recommendations_and_events: boolean;
+    };
+    initialized: boolean;
+}
+
+export const DefaultEmailSettingsResponse: EmailSettingsResponse = Object.freeze({
+    categories: Object.freeze({
+        social: true,
+        communication: true,
+        tips: false,
+        updates_and_announcements: false,
+        recommendations_and_events: false,
+    }),
+    initialized: false,
 });
+
+router.get(
+    "/",
+    route({
+        responses: {
+            200: {},
+            401: {
+                body: "APIErrorResponse",
+            },
+        },
+        summary: "Get Email Settings",
+        description: "Returns the server's default email notification preferences for Discord client compatibility.",
+    }),
+    (req: Request, res: Response) => {
+        res.status(200).json(DefaultEmailSettingsResponse);
+    },
+);
 
 export default router;

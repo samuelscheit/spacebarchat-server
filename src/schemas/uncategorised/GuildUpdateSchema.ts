@@ -37,11 +37,17 @@ export interface GuildUpdateSchema extends Omit<GuildCreateSchema, "channels" | 
     default_message_notifications?: number;
     system_channel_flags?: number;
     explicit_content_filter?: number;
-    public_updates_channel_id?: string;
+    public_updates_channel_id?: string | null;
     afk_timeout?: number;
-    afk_channel_id?: string;
+    afk_channel_id?: string | null;
     preferred_locale?: string;
     premium_progress_bar_enabled?: boolean;
+    /**
+     * @minLength 1
+     * @maxLength 4
+     * @pattern ^[A-Za-z0-9]+$
+     */
+    profile_tag?: string | null;
     /**
      * @TJS-format image-data-uri-or-asset-hash
      */

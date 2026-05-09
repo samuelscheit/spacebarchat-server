@@ -16,11 +16,23 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: remove entity import
-import type { Sticker } from "@spacebar/util";
-import { Embed, MessageActivity, MessageComponent, PartialUser, Poll, PublicChannel, Snowflake } from "@spacebar/schemas";
+import {
+    ApplicationCommandType,
+    Embed,
+    InteractionType,
+    MessageActivity,
+    MessageComponent,
+    PartialPublicChannel,
+    PartialUser,
+    Poll,
+    PublicChannel,
+    PublicUser,
+    Snowflake,
+    StickerResponse,
+} from "@spacebar/schemas";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
+import type { ResolvedData } from "./ResolvedData";
 
 export enum MessageType {
     DEFAULT = 0,
@@ -93,19 +105,6 @@ export enum MessageType {
 /**
  * https://docs.discord.food/resources/message#partial-message-structure
  */
-/*
-export type PartialMessage = Pick<Message, "id">
-	// & Pick<Message, "lobby_id">
-	& Pick<Message, "channel_id">
-	& Pick<Message, "type">
-	& Pick<Message, "content">
-	& Pick<Message, "author">
-	& Pick<Message, "flags">
-	& Pick<Message, "application_id">
-	& { channel?: Channel }
-	;
- */
-
 export interface PartialMessage {
     id: Snowflake;
     channel_id: string;
@@ -173,7 +172,7 @@ export interface MessageSnapshot {
         flags: number;
         components?: MessageComponent[];
         resolved?: object[];
-        sticker_items?: Sticker[];
+        sticker_items?: StickerResponse[];
         // soundboard_sounds?: object[]; // TODO: when soundboard is done
     };
 }
@@ -181,6 +180,22 @@ export interface MessageSnapshot {
 export type PublicMessageMember = Omit<PublicMember, "user"> & {
     user?: PublicMember["user"];
 };
+
+export interface IntegrationApplication {
+    id: Snowflake;
+    name: string;
+    icon?: string | null;
+    description: string;
+    cover_image?: string | null;
+    flags?: number;
+}
+
+export interface PartialMessageInteraction {
+    id: Snowflake;
+    type: InteractionType;
+    name: string;
+    user?: PartialUser;
+}
 
 export interface PublicMessage {
     id: Snowflake;
@@ -195,7 +210,7 @@ export interface PublicMessage {
     mention_everyone: boolean;
     mentions: PartialUser[];
     mention_roles: Snowflake[];
-    mention_channels?: PublicChannel[]; // TODO: PartialPublicChannel
+    mention_channels?: PartialPublicChannel[];
     attachments: PublicAttachment[];
     embeds: Embed[];
     reactions?: Reaction[];
@@ -204,28 +219,44 @@ export interface PublicMessage {
     webhook_id?: Snowflake;
     type: number;
     activity?: MessageActivity;
-    // application?: IntegrationApplication; // TODO
+    application?: IntegrationApplication;
     application_id?: Snowflake;
     flags: number;
     message_reference?: MessageReference;
     referenced_message?: PublicMessage | null;
     message_snapshots?: MessageSnapshot[];
     // call?: MessageCall;
-    // interaction?: PartialMessageInteraction; // TODO
-    // interaction_metadata?: MessageInteraction; // TODO
-    // resolved?: ResolvedData; // TODO
+    interaction?: PartialMessageInteraction;
+    interaction_metadata?: MessageInteractionMetadata;
+    resolved?: ResolvedData;
     thread?: PublicChannel;
     // role_subscription_data?: MessageRoleSubscription;
     // purchase_notification?: MessagePurchaseNotification;
     // gift_info?: MessageGiftInfo;
     components: MessageComponent[];
-    sticker_items?: Sticker[];
-    stickers?: Sticker[]; // TODO: dont use db entity
+    sticker_items?: StickerResponse[];
+    stickers?: StickerResponse[];
     poll?: Poll;
     changelog_id?: Snowflake;
     // soundboard_sounds?: SoundboardSound[];
     potions?: Potion[];
     shared_client_theme?: SharedClientTheme;
+}
+
+export interface MessageInteractionMetadata {
+    id: Snowflake;
+    type: InteractionType;
+    user_id: Snowflake;
+    authorizing_integration_owners: object;
+    name: string;
+    command_type: ApplicationCommandType;
+    ephemerality_reason?: number;
+    user?: PublicUser;
+    original_response_message_id?: Snowflake;
+    interacted_message_id?: Snowflake;
+    triggering_interaction_metadata?: MessageInteractionMetadata;
+    target_user?: PublicUser;
+    target_message_id?: Snowflake;
 }
 
 export interface SharedClientTheme {

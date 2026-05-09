@@ -26,6 +26,8 @@ describe("IDENTIFY privileged intent validation", () => {
 
     it("preserves an explicit zero intents request instead of applying the default mask", () => {
         assert.equal(getRequestedIdentifyIntents(0n).bitfield, 0n);
+        assert.equal(getRequestedIdentifyIntents(0).bitfield, 0n);
+        assert.equal(getRequestedIdentifyIntents("0").bitfield, 0n);
         assert.equal(getRequestedIdentifyIntents(undefined).bitfield, DEFAULT_IDENTIFY_INTENTS);
         assert.equal(getRequestedIdentifyIntents(null).bitfield, DEFAULT_IDENTIFY_INTENTS);
     });

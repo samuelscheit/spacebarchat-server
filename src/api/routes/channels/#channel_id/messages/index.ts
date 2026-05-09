@@ -21,12 +21,14 @@ import {
     createMessageUpload,
     getMessageHistoryQueryOrder,
     handleMessage,
+    hydrateInteractionMetadataUsers,
     messageToResponse,
     postHandleMessage,
     route,
     sortMessagesNewestFirst,
     toPublicReactions,
 } from "@spacebar/api";
+import { syncPersistedThreadMemberCount } from "../../../../util/utility/ThreadMembers";
 import {
     Attachment,
     Channel,
@@ -68,7 +70,6 @@ import {
     MessageCreateSchema,
     normalizeMessageCreateSchema,
     PartialUser,
-    PublicMessage,
     ReadStateType,
     RelationshipType,
 } from "@spacebar/schemas";
@@ -210,17 +211,7 @@ router.get(
         });
         //console.log(ret);
 
-        type MessageWithInteraction = PublicMessage & {
-            interaction_metadata?: { user?: User; user_id: string };
-            interaction?: { user?: User };
-        };
-        await Promise.all(
-            (ret as MessageWithInteraction[])
-                .filter((x) => x.interaction_metadata && !x.interaction_metadata.user)
-                .map(async (x) => {
-                    x.interaction_metadata!.user = x.interaction!.user = await User.findOneOrFail({ where: { id: x.interaction_metadata!.user_id } });
-                }),
-        );
+        await hydrateInteractionMetadataUsers(ret, (userId) => User.getPublicUser(userId));
 
         return res.json(ret);
     },
@@ -229,7 +220,6 @@ router.get(
 export const messageUpload = createMessageUpload();
 /**
  https://discord.com/developers/docs/resources/channel#create-message
- TODO: text channel slowdown (per-user and across-users)
  Q: trim and replace message content and every embed field A: NO, given this cannot be implemented in E2EE channels
 **/
 // Send message
@@ -298,18 +288,14 @@ router.post(
                     });
                     await threadMember.save();
 
-                    // increment member count
-                    if (channel.member_count !== null && channel.member_count !== undefined) {
-                        channel.member_count++;
-                        await channel.save();
-                    }
+                    const memberCount = await syncPersistedThreadMemberCount(channel);
 
                     await emitEvent({
                         event: "THREAD_MEMBERS_UPDATE",
                         data: {
                             guild_id: channel.guild_id!,
                             id: channel.id,
-                            member_count: channel.member_count ?? 0, // TODO: is this the right fix?
+                            member_count: memberCount,
                             added_members: [serializeThreadMemberPayload(threadMember, req.user_id)],
                         },
                         channel_id: channel.id,

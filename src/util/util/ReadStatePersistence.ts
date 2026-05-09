@@ -42,6 +42,17 @@ function channelReadStateValues(identity: ChannelMessageReadStateIdentity, messa
     return values;
 }
 
+function channelNotificationCursorValues(identity: ChannelMessageReadStateIdentity, messageId: string) {
+    const values: QueryDeepPartialEntity<ReadState> = {
+        user_id: identity.user_id,
+        channel_id: identity.channel_id,
+        read_state_type: ReadStateType.CHANNEL,
+        notifications_cursor: messageId,
+    };
+
+    return values;
+}
+
 async function updateExistingChannelMessageReadState(identity: ChannelMessageReadStateIdentity, messageId: string, options: ChannelMessageReadStateOptions = {}) {
     const values = channelReadStateValues(identity, messageId, options);
     delete values.user_id;
@@ -60,6 +71,20 @@ async function updateExistingChannelMessageReadState(identity: ChannelMessageRea
         .execute();
 }
 
+async function updateExistingChannelNotificationCursor(identity: ChannelMessageReadStateIdentity, messageId: string) {
+    return ReadState.getRepository()
+        .createQueryBuilder()
+        .update(ReadState)
+        .set({
+            notifications_cursor: () => advanceNotificationCursorSql(),
+        })
+        .where('"user_id" = :userId', { userId: identity.user_id })
+        .andWhere('"channel_id" = :channelId', { channelId: identity.channel_id })
+        .andWhere('"read_state_type" = :readStateType', { readStateType: ReadStateType.CHANNEL })
+        .setParameter("notificationCursorMessageId", messageId)
+        .execute();
+}
+
 export async function upsertChannelMessageReadState(identity: ChannelMessageReadStateIdentity, messageId: string, options: ChannelMessageReadStateOptions = {}) {
     const updateResult = await updateExistingChannelMessageReadState(identity, messageId, options);
     if ((updateResult.affected ?? 0) > 0) return;
@@ -69,6 +94,18 @@ export async function upsertChannelMessageReadState(identity: ChannelMessageRead
     } catch (error) {
         if (!isUniqueConstraintError(error)) throw error;
         await updateExistingChannelMessageReadState(identity, messageId, options);
+    }
+}
+
+export async function advanceChannelReadStateNotificationCursor(identity: ChannelMessageReadStateIdentity, messageId: string) {
+    const updateResult = await updateExistingChannelNotificationCursor(identity, messageId);
+    if ((updateResult.affected ?? 0) > 0) return;
+
+    try {
+        await ReadState.getRepository().insert(ReadState.create(channelNotificationCursorValues(identity, messageId) as Partial<ReadState>) as ReadState);
+    } catch (error) {
+        if (!isUniqueConstraintError(error)) throw error;
+        await updateExistingChannelNotificationCursor(identity, messageId);
     }
 }
 

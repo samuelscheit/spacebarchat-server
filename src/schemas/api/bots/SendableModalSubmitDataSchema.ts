@@ -18,7 +18,7 @@
 
 import { Snowflake } from "../../Identifiers";
 import { UploadAttachmentRequestSchema } from "../../uncategorised";
-import { MessageComponentType } from "../messages";
+import { MessageComponentType, ResolvedData } from "../messages";
 
 export interface ModalSubmitTextInputComponentData {
     type: MessageComponentType.TextInput;
@@ -95,19 +95,10 @@ export interface ModalSubmitTextDisplayComponentData {
 
 export type ModalSubmitTopLevelComponentData = ModalSubmitActionRowComponentData | ModalSubmitLabelComponentData | ModalSubmitTextDisplayComponentData;
 
-export interface ModalSubmitResolvedData {
-    users?: { [id: string]: object };
-    members?: { [id: string]: object };
-    roles?: { [id: string]: object };
-    channels?: { [id: string]: object };
-    messages?: { [id: string]: object };
-    attachments?: { [id: string]: object };
-}
-
 export interface SendableModalSubmitDataSchema {
     id?: Snowflake;
     custom_id: string;
     components: ModalSubmitTopLevelComponentData[];
-    resolved?: ModalSubmitResolvedData;
+    resolved?: ResolvedData;
     attachments?: UploadAttachmentRequestSchema[];
 }

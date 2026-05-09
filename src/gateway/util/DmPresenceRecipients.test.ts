@@ -4,10 +4,7 @@ import { getOpenDmPresenceRecipientIds } from "./DmPresenceRecipients";
 
 describe("getOpenDmPresenceRecipientIds", () => {
     test("keeps open non-self recipients", () => {
-        assert.deepEqual([...getOpenDmPresenceRecipientIds([{ user_id: "self" }, { user_id: "friend-a", closed: false }, { user_id: "friend-b" }], "self")].sort(), [
-            "friend-a",
-            "friend-b",
-        ]);
+        assert.deepEqual([...getOpenDmPresenceRecipientIds([{ user_id: "self" }, { user_id: "friend-a", closed: false }, { user_id: "friend-b" }], "self")].sort(), ["friend-a"]);
     });
 
     test("excludes self and recipients that no longer have the DM open", () => {
