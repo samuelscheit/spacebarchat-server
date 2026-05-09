@@ -801,7 +801,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     return message;
 }
 
-// TODO: cache link result in db
 export async function postHandleMessage(message: Message) {
     message.clean_data();
 
