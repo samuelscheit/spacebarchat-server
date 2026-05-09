@@ -102,6 +102,7 @@ function getIntentEventAllowance(intents: Intents, event: string, map: IntentEve
 const GUILD_CHANNEL_ROUTE_INTENT_BITS = new Set<number>([
     0, // GUILDS: channel/thread/stage lifecycle events can be emitted on channel routes.
     5, // GUILD_WEBHOOKS
+    7, // GUILD_VOICE_STATES: voice and stream state updates are emitted on channel routes.
     9, // GUILD_MESSAGES
     10, // GUILD_MESSAGE_REACTIONS
     11, // GUILD_MESSAGE_TYPING

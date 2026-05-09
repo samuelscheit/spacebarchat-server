@@ -62,7 +62,6 @@ for (const type of Object.values(ReportMenuTypeNames)) {
         },
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/menu/${type} registered (reports).`);
-    // noinspection JSUnusedLocalSymbols - TODO: implement
     router.post(
         `/${type}`,
         route({
@@ -76,7 +75,7 @@ for (const type of Object.values(ReportMenuTypeNames)) {
             },
             spacebarOnly: false, // Maps to /reporting/:id
         }),
-        (req: Request, res: Response) => {
+        (req: Request) => {
             // TODO: implement
             const body = req.body as CreateReportSchema;
             if (body.name !== type)
