@@ -3,8 +3,13 @@ import { readFileSync } from "node:fs";
 import { describe, test } from "node:test";
 import { ajv } from "../Validator";
 
-const RegistrationSchemaNames = ["StartWebAuthnCredentialRegistrationSchema", "FinishWebAuthnCredentialRegistrationSchema"];
-const ObsoleteRegistrationSchemaNames = ["GenerateWebAuthnCredentialsSchema", "CreateWebAuthnCredentialSchema"];
+const RegistrationSchemaNames = ["WebAuthnCredentialRegistrationChallengeSchema", "WebAuthnCredentialRegistrationCompletionSchema"];
+const ObsoleteRegistrationSchemaNames = [
+    "GenerateWebAuthnCredentialsSchema",
+    "CreateWebAuthnCredentialSchema",
+    "StartWebAuthnCredentialRegistrationSchema",
+    "FinishWebAuthnCredentialRegistrationSchema",
+];
 
 type SchemaWithUnion = {
     anyOf?: Array<{ $ref?: string }>;
@@ -34,7 +39,7 @@ function registeredSchemaRefNames(schemaName: string) {
 }
 
 describe("WebAuthn credential registration schemas", () => {
-    test("names both registration payloads by their protocol phases", () => {
+    test("names both registration payloads by their protocol roles", () => {
         for (const schemaName of RegistrationSchemaNames) {
             assert.ok(ajv.getSchema(schemaName), `${schemaName} must be registered`);
         }
@@ -46,7 +51,7 @@ describe("WebAuthn credential registration schemas", () => {
         assert.deepEqual(registeredSchemaRefNames("WebAuthnPostSchema"), RegistrationSchemaNames);
     });
 
-    test("publishes the phase-specific registration names in generated schema assets", () => {
+    test("publishes the purpose-specific registration names in generated schema assets", () => {
         const schemas = readJson<SchemaMap>("assets/schemas.json");
 
         for (const schemaName of RegistrationSchemaNames) {
@@ -61,7 +66,7 @@ describe("WebAuthn credential registration schemas", () => {
         assert.deepEqual(schemaRefNamesFrom(schemas.WebAuthnPostSchema, "#/definitions/"), RegistrationSchemaNames);
     });
 
-    test("publishes the phase-specific registration names in OpenAPI", () => {
+    test("publishes the purpose-specific registration names in OpenAPI", () => {
         const schemas = readJson<OpenApiDocument>("assets/openapi.json").components?.schemas ?? {};
 
         for (const schemaName of RegistrationSchemaNames) {
@@ -76,7 +81,7 @@ describe("WebAuthn credential registration schemas", () => {
         assert.deepEqual(schemaRefNamesFrom(schemas.WebAuthnPostSchema, "#/components/schemas/"), RegistrationSchemaNames);
     });
 
-    test("validates both WebAuthn credential registration phases", () => {
+    test("validates both WebAuthn credential registration payloads", () => {
         assert.equal(ajv.validate("WebAuthnPostSchema", { password: "correct horse battery staple" }), true);
         assert.equal(
             ajv.validate("WebAuthnPostSchema", {
@@ -90,7 +95,7 @@ describe("WebAuthn credential registration schemas", () => {
 
     test("rejects incomplete registration completion payloads", () => {
         assert.equal(
-            ajv.validate("FinishWebAuthnCredentialRegistrationSchema", {
+            ajv.validate("WebAuthnCredentialRegistrationCompletionSchema", {
                 credential: JSON.stringify({ id: "credential-id" }),
                 ticket: "registration-ticket",
             }),
