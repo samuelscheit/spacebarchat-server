@@ -113,7 +113,10 @@
         "src/util/util/RoleIconPolicy.test.ts",
         "src/util/util/TraverseDirectory.test.ts",
         "src/util/entities/User.test.ts",
-        "src/api/util/handlers/Registration.test.ts"
+        "src/api/util/handlers/Registration.test.ts",
+        "src/admin/mutations.test.ts",
+        "src/cdn/util/AttachmentStorage.test.ts",
+        "src/util/entities/ChannelDeleteChannelAttachments.test.ts"
     ],
     "exclude": ["node_modules", "dist", "dist-test"],
     "compilerOptions": {

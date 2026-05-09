@@ -50,7 +50,7 @@ export async function deleteAdminChannel(channelId: string, emitter: AdminEventE
     assertAdminChannelDeletionSupported(channel);
 
     if (channel.isThread()) {
-        await Channel.delete({ id: channel.id });
+        await Channel.deleteChannel(channel);
         await emitter(createAdminThreadDeleteEvent(channel));
 
         return {
