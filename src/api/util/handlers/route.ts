@@ -24,16 +24,6 @@ import { BigNumber } from "bignumber.js";
 import { normalizeEmbedPayloadForSchema } from "../utility/EmbedPayload";
 import { ajvErrorsToFieldErrors } from "../utility/AjvErrorFields";
 
-declare global {
-    // TODO: fix this
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace Express {
-        interface Request {
-            permission?: Permissions;
-        }
-    }
-}
-
 export type RouteResponse = {
     status?: number;
     body?: `${string}Response`;
