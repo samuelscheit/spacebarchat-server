@@ -33,6 +33,7 @@
         "src/api/util/handlers/MessagePayloadLimitRoutes.test.ts",
         "src/api/util/handlers/MessagePayloadPermissionRoutes.test.ts",
         "src/api/util/handlers/InviteAcceptancePolicy.test.ts",
+        "src/api/util/handlers/GuildMemberJoin.test.ts",
         "src/api/util/utility/DiscoverableGuildCategories.test.ts",
         "src/api/util/utility/GuildDiscoveryMetadata.test.ts",
         "src/api/util/utility/GuildIntegrations.test.ts",
