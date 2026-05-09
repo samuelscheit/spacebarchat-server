@@ -228,6 +228,35 @@ test(
             assert.equal((await User.findOne({ where: { id: user.id }, select: { id: true, totp_last_ticket: true } }))?.totp_last_ticket, "");
             const mfaBearer = completeTotpBody.token as string;
 
+            const fallbackSecurityKey = await SecurityKey.create({
+                user_id: user.id,
+                key_id: "scenario-totp-fallback-key-id",
+                public_key: "scenario-totp-fallback-public-key",
+                counter: 0,
+                name: "Scenario TOTP fallback key",
+            }).save();
+            await User.update({ id: user.id }, { webauthn_enabled: true });
+
+            const loginWithWebAuthnMfa = await postJson(`${api.apiBaseUrl}/auth/login`, { login: email, password: resetPassword });
+            await assertStatus(loginWithWebAuthnMfa, 200);
+            const loginWithWebAuthnMfaBody = await assertJsonObject(loginWithWebAuthnMfa);
+            assert.equal(loginWithWebAuthnMfaBody.mfa, true);
+            assert.equal(loginWithWebAuthnMfaBody.token, null);
+            assert.equal(typeof loginWithWebAuthnMfaBody.ticket, "string");
+            assert.equal(typeof loginWithWebAuthnMfaBody.webauthn, "string");
+            assert.ok(JSON.parse(loginWithWebAuthnMfaBody.webauthn as string).publicKey);
+            assert.equal((await User.findOne({ where: { id: user.id }, select: { id: true, totp_last_ticket: true } }))?.totp_last_ticket, loginWithWebAuthnMfaBody.ticket);
+
+            const completeWebAuthnTicketWithTotp = await postJson(`${api.apiBaseUrl}/auth/mfa/totp`, {
+                ticket: loginWithWebAuthnMfaBody.ticket,
+                code: await generateFreshTotpToken(secret),
+            });
+            await assertStatus(completeWebAuthnTicketWithTotp, 200);
+            assert.equal(typeof (await assertJsonObject(completeWebAuthnTicketWithTotp)).token, "string");
+            assert.equal((await User.findOne({ where: { id: user.id }, select: { id: true, totp_last_ticket: true } }))?.totp_last_ticket, "");
+            await SecurityKey.delete({ id: fallbackSecurityKey.id });
+            await User.update({ id: user.id }, { webauthn_enabled: false });
+
             const existingCodes = await postJson(`${api.apiBaseUrl}/users/@me/mfa/codes`, { password: resetPassword, regenerate: false }, { token: mfaBearer });
             await assertStatus(existingCodes, 200);
             assert.equal(((await assertJsonObject(existingCodes)).backup_codes as unknown[]).length, 10);

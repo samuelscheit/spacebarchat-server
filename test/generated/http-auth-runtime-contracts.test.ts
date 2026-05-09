@@ -3,8 +3,8 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import Ajv, { type AnySchema } from "ajv";
-import addFormats from "ajv-formats";
+import type { AnySchema } from "ajv";
+import { ajv } from "@spacebar/schemas/Validator";
 import {
     Channel,
     closeDatabase,
@@ -109,10 +109,12 @@ const authenticatedResponseSchemaManifestIds = new Set([
     "api:http:GET:/users/:user_id/relationships/",
     "api:http:GET:/users/@me/",
     "api:http:GET:/users/@me/billing/location-info/",
+    "api:http:GET:/users/@me/billing/subscriptions/",
     "api:http:GET:/users/@me/billing/payment-sources/",
     "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
     "api:http:GET:/users/@me/channels/",
     "api:http:GET:/users/@me/collectibles-marketing/",
+    "api:http:GET:/users/@me/entitlements/gifts",
     "api:http:GET:/users/@me/guilds/",
     "api:http:GET:/users/@me/relationships/",
     "api:http:GET:/users/@me/settings/",
@@ -140,18 +142,6 @@ const protectedInvalidBodyContracts = matrix.contracts.filter(
         !ignoredRuntimeRequestBodyValidationSchemas.has(contract.routeMetadata.requestBody),
 );
 const schemas = JSON.parse(JSON.stringify(require("../../../assets/schemas.json")).replaceAll("#/definitions/", "")) as Record<string, AnySchema>;
-const ajv = new Ajv({
-    allErrors: true,
-    parseDate: true,
-    allowDate: true,
-    schemas,
-    coerceTypes: true,
-    messages: true,
-    strict: true,
-    strictRequired: true,
-    allowUnionTypes: true,
-});
-addFormats(ajv);
 const publicResponseSchemaContracts = matrix.contracts.filter(
     (contract) =>
         contract.service === "api" &&
@@ -874,7 +864,8 @@ async function assertCdnDeleteResponse(contract: GeneratedHttpContract, response
     assert.match(response.headers.get("content-type") ?? "", /application\/json/, `${contract.manifestId} should return a JSON delete response`);
 
     const body = (await response.json()) as Record<string, unknown>;
-    assert.deepEqual(body, { success: true }, `${contract.manifestId} should return the CDN delete success body`);
+    const expectedBody = contract.path.startsWith("/_spacebar/cdn/attachments/") ? { success: true, deleted: true } : { success: true };
+    assert.deepEqual(body, expectedBody, `${contract.manifestId} should return the CDN delete success body`);
 }
 
 async function postGeneratedCdnMultipart(url: string, filename = "generated.png") {
@@ -923,7 +914,6 @@ function cdnUploadStoragePathForContract(contract: GeneratedHttpContract, body: 
 
     assert.equal(typeof body.id, "string", `${contract.manifestId} should return an uploaded CDN object id`);
     const id = body.id as string;
-    if (contract.manifestId === "cdn:http:POST:/role-icons/:role_id") return `${samplePath}/${id}.png`;
     return `${samplePath}/${id}`;
 }
 

@@ -26,25 +26,44 @@ import {
     ErrorList,
     FieldError,
     Guild,
+    GuildFeature,
     Recipient,
     emitEvent,
     getChannelOrderInsertPoint,
-    getInvalidThreadChannelOrderFields,
+    getDatabase,
+    getPermission,
     handleFile,
     makeObjectErrorContent,
+    Member,
     normalizeChannelName,
+    resolveChannelPermissionOverwrites,
+    Role,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { ChannelModifySchema, ChannelType } from "@spacebar/schemas";
+import { HTTPError } from "lambert-server";
+import { ChannelModifySchema, ChannelPermissionOverwriteType, ChannelType } from "@spacebar/schemas";
+import { addInvalidAppliedTagsError } from "../../../util/ChannelModifyAppliedTags";
 import { getChannelModifyTypeConversionError, isChannelModifyConvertibleType } from "../../../util/ChannelModifyTypeConversion";
+import { addThreadChannelModifyFieldErrors, validateThreadAppliedTags } from "../../../util/ChannelModifyThreadValidation";
+import { getAvailableTagsModifyError, replaceForumAvailableTags } from "../../../util/utility/ForumTags";
 
 const router: Router = Router({ mergeParams: true });
-// TODO: delete channel
-// TODO: Get channel
 
 function isStatusOnlyUpdate(payload: ChannelModifySchema) {
     const fields = Object.keys(payload) as (keyof ChannelModifySchema)[];
     return fields.length === 1 && fields[0] === "status";
+}
+
+async function assertPermissionOverwriteTargetsInGuild(guild_id: string, overwrites: NonNullable<ChannelModifySchema["permission_overwrites"]>) {
+    await Promise.all(
+        overwrites.map(async ({ id, type }) => {
+            if (type === ChannelPermissionOverwriteType.role) {
+                if (!(await Role.count({ where: { id, guild_id } }))) throw new HTTPError("role not found", 404);
+            } else if (type === ChannelPermissionOverwriteType.member) {
+                if (!(await Member.count({ where: { id, guild_id } }))) throw new HTTPError("user not found", 404);
+            } else throw new HTTPError("type not supported", 501);
+        }),
+    );
 }
 
 router.get(
@@ -175,72 +194,66 @@ router.patch(
             relations: ["available_tags"],
         });
         const isThread = channel.isThread();
-
-        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
-            throw new FieldError(400, "Invalid form body", {
-                status: makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels"),
-            });
-        }
+        const channelLimits = Config.get().limits.channel;
+        const errors: ErrorList = {};
+        let appliedTagsRequireManageThreads = false;
 
         if (isThread) {
             if (channel.owner_id !== req.user.id) {
                 req.permission!.hasThrow("MANAGE_THREADS");
             }
-            if (payload.permission_overwrites) {
-                //TODO better error maybe?
-                throw new Error("You can't change permission overwrites for threads");
-            }
         } else {
             req.permission!.hasThrow(isStatusOnlyUpdate(payload) ? "SET_VOICE_CHANNEL_STATUS" : "MANAGE_CHANNELS");
-        }
+            if (payload.permission_overwrites) {
+                if (!channel.guild_id) throw new HTTPError("Channel not found", 404);
 
-        if (payload.available_tags) {
-            if (channel.isForum() && channel.available_tags) {
-                //TODO maybe error if this fails, and maybe handle creating tags?
-                const filter = new Set(payload.available_tags.map(({ id }) => id));
-                const tags = channel.available_tags.filter((_) => !filter.has(_.id));
-                tags.forEach((_) => _.remove());
-                channel.available_tags = channel.available_tags.filter((_) => filter.has(_.id));
+                req.permission!.hasThrow("MANAGE_ROLES");
+                await assertPermissionOverwriteTargetsInGuild(channel.guild_id, payload.permission_overwrites);
+                const actorOverwritePermissions = await getPermission(req.user_id, channel.guild_id, channel.parent_id ?? undefined);
+                payload.permission_overwrites = resolveChannelPermissionOverwrites({
+                    requestedOverwrites: payload.permission_overwrites,
+                    existingOverwrites: channel.permission_overwrites ?? [],
+                    actorPermissions: actorOverwritePermissions,
+                    actorChannelPermissions: req.permission,
+                    channelOverwrites: channel.permission_overwrites,
+                });
             }
         }
 
-        if (payload.applied_tags) {
-            if (channel.isThread()) {
+        const availableTagsPayload = payload.available_tags;
+        if (availableTagsPayload !== undefined) {
+            const tagErrors = getAvailableTagsModifyError(channel, availableTagsPayload);
+            if (tagErrors) Object.assign(errors, tagErrors);
+
+            delete payload.available_tags;
+        }
+
+        if (payload.status !== undefined && channel.type !== ChannelType.GUILD_VOICE) {
+            errors["status"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "Status can only be set on voice channels");
+        }
+
+        if (payload.applied_tags !== undefined) {
+            if (isThread) {
                 const parent = await Channel.findOneOrFail({
                     where: {
                         id: channel.parent_id as string,
                     },
                     relations: ["available_tags"],
                 });
-                if (!parent.available_tags) throw new Error("shoot, internetal error");
-                const realTags = new Map(parent.available_tags.map((tag) => [tag.id, tag]));
-                const bad = payload.applied_tags.find((tag) => !realTags.has(tag));
-                //TODO better error
-                if (bad) throw new Error("Invalid tag " + bad);
-                const changed = new Set(channel.applied_tags || []).symmetricDifference(new Set(payload.applied_tags));
-                const permsNeeded = [...changed].find((_) => realTags.get(_)?.moderated);
-                if (permsNeeded) {
-                    req.permission?.hasThrow("MANAGE_THREADS");
-                }
-                channel.applied_tags = payload.applied_tags;
+                const appliedTagsValidation = validateThreadAppliedTags(errors, payload.applied_tags, channel.applied_tags, parent.available_tags);
+                appliedTagsRequireManageThreads = appliedTagsValidation.requiresManageThreads;
             } else {
-                //TODO maybe error instead?
-                payload.applied_tags = undefined;
+                addInvalidAppliedTagsError(payload, isThread, errors);
             }
         }
 
-        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
-
-        const channelLimits = Config.get().limits.channel;
-
-        const errors: ErrorList = {};
         let allowUnnamedChannels = false;
         if (payload.name !== undefined && channel.guild_id) {
             const guild = await Guild.findOneOrFail({
                 where: { id: channel.guild_id },
                 select: { features: true },
             });
-            allowUnnamedChannels = guild.features.includes("ALLOW_UNNAMED_CHANNELS");
+            allowUnnamedChannels = guild.features.includes(GuildFeature.AllowUnnamedChannels);
             payload.name = normalizeChannelName(payload.name, payload.type ?? channel.type, guild.features);
             assertChannelNamePresent(payload.name, guild.features);
         }
@@ -248,7 +261,7 @@ router.patch(
             errors["name"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel name must be between 1 and ${channelLimits.maxName} characters`);
         if (payload.topic !== undefined && payload.topic.length > channelLimits.maxTopic)
             errors["topic"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", `Channel topic must be less than ${channelLimits.maxTopic} characters`);
-        if (payload.status !== undefined && payload.status !== null && payload.status.length > 500)
+        if (payload.status !== undefined && payload.status !== null && payload.status.length > 500 && errors["status"] === undefined)
             errors["status"] = makeObjectErrorContent("BASE_TYPE_BAD_LENGTH", "Channel status must be 500 characters or fewer");
         if (payload.user_limit !== undefined && payload.user_limit < 0) errors["user_limit"] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", "User limit must be 0 or higher");
         if (payload.type !== undefined && payload.type !== channel.type) {
@@ -264,16 +277,22 @@ router.patch(
             const typeError = getChannelModifyTypeConversionError(channel.type, payload.type, guildFeatures);
             if (typeError) errors["type"] = typeError;
         }
-        for (const field of getInvalidThreadChannelOrderFields(payload, isThread)) {
-            errors[field] = makeObjectErrorContent("BASE_TYPE_BAD_VALUE", `Threads cannot update ${field}`);
-        }
+        addThreadChannelModifyFieldErrors(errors, payload, isThread);
 
         if (Object.keys(errors).length) {
-            throw new FieldError(400, "Invalid form body", errors);
+            throw new FieldError(50035, "Invalid Form Body", errors);
         }
+
+        if (appliedTagsRequireManageThreads) {
+            req.permission?.hasThrow("MANAGE_THREADS");
+        }
+
+        if (payload.icon) payload.icon = await handleFile(`/channel-icons/${channel_id}`, payload.icon);
 
         const orderInsertPoint = getChannelOrderInsertPoint(payload, isThread);
         channel.assign(payload);
+        if (payload.applied_tags !== undefined) channel.applied_tags = payload.applied_tags;
+        if (payload.permission_overwrites !== undefined) channel.permission_overwrites = payload.permission_overwrites;
 
         if (channel.thread_metadata) {
             if (payload.archived !== undefined) {
@@ -289,7 +308,18 @@ router.patch(
             }
         }
 
-        await channel.save();
+        if (availableTagsPayload !== undefined) {
+            const database = getDatabase();
+            if (!database) throw new Error("Database is not initialized");
+
+            await database.transaction(async (manager) => {
+                await replaceForumAvailableTags(channel, availableTagsPayload, manager);
+                await manager.save(channel);
+            });
+        } else {
+            await channel.save();
+        }
+
         if (channel.guild_id && orderInsertPoint !== undefined) {
             channel.position = await Guild.insertChannelInOrder(channel.guild_id, channel.id, orderInsertPoint);
         }

@@ -23,8 +23,6 @@ import { GuildCreateSchema } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
 
-//TODO: create default channel
-
 router.post(
     "/",
     route({
@@ -56,6 +54,7 @@ router.post(
             ...body,
             owner_id: req.user_id,
             source_guild_id: null,
+            rights,
         });
 
         const { autoJoin } = Config.get().guild;

@@ -22,7 +22,6 @@ import { Request, Response, Router } from "express";
 import { ConnectionUpdateSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
-// TODO: connection update schema
 router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: Request, res: Response) => {
     const { connection_name, connection_id } = req.params as { [key: string]: string };
     const body = req.body as ConnectionUpdateSchema;
@@ -36,8 +35,8 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: 
         select: getConnectedAccountDTOSelect(),
     });
 
-    if (!connection) return DiscordApiErrors.UNKNOWN_CONNECTION;
-    // TODO: do we need to do anything if the connection is revoked?
+    if (!connection) throw DiscordApiErrors.UNKNOWN_CONNECTION;
+    if (connection.revoked) throw DiscordApiErrors.CONNECTION_REVOKED;
 
     if (typeof body.visibility === "boolean")
         //@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?

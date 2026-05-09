@@ -17,27 +17,29 @@
 */
 
 import fs from "node:fs/promises";
-import { OrmUtils } from "..";
 import {
     DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS,
     DEFAULT_GATEWAY_HEARTBEAT_TIMEOUT,
     GATEWAY_HEARTBEAT_INTERVAL,
     ConfigValue,
+    isValidCaptchaService,
     isValidGatewayDisconnectedSessionCleanupDelay,
     isValidGatewayHeartbeatTimeout,
+    isValidGuildSyncMemberMode,
 } from "../config";
-import { ConfigEntity } from "../entities";
+import { ConfigEntity } from "../entities/Config";
 import { JsonValue } from "@protobuf-ts/runtime";
 import { bold, red, redBright } from "picocolors";
+import { In } from "typeorm";
 import { mergeConfigDefaults, normalizeConfig } from "./ConfigDefaults";
 import { applyEnvConfigOverrides } from "./EnvConfig";
 import { readJsonConfigFile } from "./JsonConfigFile";
 
-// TODO: yaml instead of json
 let config: ConfigValue;
 let pairs: ConfigEntity[];
 
-// TODO: use events to inform about config updates
+// Config.set only updates local memory and persistence. Cluster-wide reloads are
+// sent explicitly with the SB_RELOAD_CONFIG event after operator-triggered changes.
 // Config keys are separated with _
 
 export class Config {
@@ -58,7 +60,7 @@ export class Config {
         } else {
             console.log(`[Config] Using CONFIG_PATH rather than database:`, process.env.CONFIG_PATH);
             config = (await readJsonConfigFile(process.env.CONFIG_PATH)) as Partial<ConfigValue> as ConfigValue;
-            pairs = generatePairs(config);
+            pairs = generateConfigPairs(config);
         }
 
         // If a config doesn't exist, create it.
@@ -83,7 +85,7 @@ export class Config {
         if (process.env.IPDATA_API_KEY_PATH) config.security.ipdataApiKey = await Config.readSecret("IPDATA_API_KEY_PATH");
         if (process.env.REQUEST_SIGNATURE_PATH) config.security.requestSignature = await Config.readSecret("REQUEST_SIGNATURE_PATH");
 
-        await this.set(config);
+        await this.set(config, { validate: false });
         await applyEnvConfigOverrides(config as unknown as Record<string, unknown>);
         validateFinalConfig(config);
         return config;
@@ -109,24 +111,39 @@ export class Config {
 
         return config;
     }
-    public static set(val: Partial<ConfigValue>) {
+    public static set(val: Partial<ConfigValue>, options: { validate?: boolean } = {}) {
         if (!config || !val) return;
-        config = OrmUtils.mergeDeep(config, val);
+        const next = mergeConfigDefaults(options.validate === false ? config : structuredClone(config), val);
+
+        if (options.validate !== false) validateFinalConfig(next);
+        generateConfigPairs(next);
+        config = next;
 
         return applyConfig(config);
     }
 }
 
-// TODO: better types
-const generatePairs = (obj: object | null, key = ""): ConfigEntity[] => {
-    if (typeof obj == "object" && obj != null) {
-        return Object.keys(obj)
-            .map((k) =>
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                generatePairs((obj as any)[k], key ? `${key}_${k}` : k),
-            )
-            .flat();
-    }
+type ConfigRecord = Record<string, unknown>;
+
+function isConfigRecord(value: unknown): value is ConfigRecord {
+    return typeof value === "object" && value !== null && !Array.isArray(value) && Object.prototype.toString.call(value) === "[object Object]";
+}
+
+function isJsonConfigValue(value: unknown): value is JsonValue {
+    if (value === null) return true;
+    if (typeof value === "string" || typeof value === "boolean") return true;
+    if (typeof value === "number") return Number.isFinite(value);
+    if (Array.isArray(value)) return value.every((item) => isJsonConfigValue(item));
+    if (isConfigRecord(value)) return Object.values(value).every((item) => isJsonConfigValue(item));
+    return false;
+}
+
+export const generateConfigPairs = (obj: unknown, key = ""): ConfigEntity[] => {
+    if (obj === undefined) return [];
+
+    if (isConfigRecord(obj)) return Object.entries(obj).flatMap(([k, value]) => generateConfigPairs(value, key ? `${key}_${k}` : k));
+
+    if (!isJsonConfigValue(obj)) throw new TypeError(`Config value '${key}' cannot be persisted as a database config entry`);
 
     const ret = new ConfigEntity();
     ret.key = key;
@@ -134,43 +151,100 @@ const generatePairs = (obj: object | null, key = ""): ConfigEntity[] => {
     return [ret];
 };
 
+export function findStaleConfigKeys(existingKeys: string[], generatedKeys: string[]) {
+    return existingKeys.filter((existingKey) => generatedKeys.some((generatedKey) => existingKey.startsWith(`${generatedKey}_`)));
+}
+
+function findRemovedConfigKeys(existingKeys: string[], generatedKeys: string[], previousKeys: string[]) {
+    const generatedKeySet = new Set(generatedKeys);
+    const previousKeySet = new Set(previousKeys);
+
+    return existingKeys.filter((existingKey) => previousKeySet.has(existingKey) && !generatedKeySet.has(existingKey));
+}
+
+function hasConfigPairAncestor(key: string, keys: Set<string>) {
+    let parent = "";
+
+    for (const segment of key.split("_").slice(0, -1)) {
+        parent = parent ? `${parent}_${segment}` : segment;
+        if (keys.has(parent)) return true;
+    }
+
+    return false;
+}
+
 async function applyConfig(val: ConfigValue) {
     const configPath = process.env.CONFIG_PATH;
-    if (configPath)
+    const generatedPairs = generateConfigPairs(val);
+    if (configPath) {
         if (!process.env.CONFIG_READONLY) await fs.writeFile(configPath, JSON.stringify(val, null, 4));
         else console.log("[WARNING] JSON config file in use, and writing is disabled! Programmatic config changes will not be persisted, and your config will not get updated!");
-    else {
-        const pairs = generatePairs(val);
+        pairs = generatedPairs;
+    } else {
+        const generatedKeys = generatedPairs.map((pair) => pair.key);
+        const previousKeys = pairs?.map((pair) => pair.key) ?? [];
+        const existingKeys = (await ConfigEntity.find({ select: { key: true } })).map((pair) => pair.key);
+        const staleKeys = [...new Set([...findRemovedConfigKeys(existingKeys, generatedKeys, previousKeys), ...findStaleConfigKeys(existingKeys, generatedKeys)])];
+
         // keys are sorted to try to influence database order...
-        await Promise.all(pairs.sort((x, y) => (x.key > y.key ? 1 : -1)).map((pair) => pair.save()));
+        await Promise.all(generatedPairs.sort((x, y) => (x.key > y.key ? 1 : -1)).map((pair) => pair.save()));
+        if (staleKeys.length > 0) await ConfigEntity.delete({ key: In(staleKeys) });
+        pairs = generatedPairs;
     }
     return val;
 }
 
-function pairsToConfig(pairs: ConfigEntity[]) {
-    // TODO: typings
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value: any = {};
+type ReconstructedConfigLeaf = ConfigEntity["value"];
+type ReconstructedConfigValue = ReconstructedConfigLeaf | ReconstructedConfigObject | ReconstructedConfigValue[];
+type ReconstructedConfigObject = { [key: string]: ReconstructedConfigValue };
+type ReconstructedConfigContainer = ReconstructedConfigObject | ReconstructedConfigValue[];
+
+function isArrayIndex(key: string) {
+    return /^\d+$/.test(key);
+}
+
+function getReconstructedConfigValue(container: ReconstructedConfigContainer, key: string) {
+    if (Array.isArray(container) && isArrayIndex(key)) return container[Number(key)];
+    return (container as ReconstructedConfigObject)[key];
+}
+
+function setReconstructedConfigValue(container: ReconstructedConfigContainer, key: string, value: ReconstructedConfigValue) {
+    if (Array.isArray(container) && isArrayIndex(key)) container[Number(key)] = value;
+    else (container as ReconstructedConfigObject)[key] = value;
+}
+
+function hasTruthyLength(value: ReconstructedConfigValue | undefined) {
+    return Boolean((value as { length?: unknown } | undefined)?.length);
+}
+
+export function pairsToConfig(pairs: ConfigEntity[]) {
+    const value: ReconstructedConfigObject = {};
+    const pairKeys = new Set(pairs.map((pair) => pair.key));
 
     pairs.forEach((p) => {
+        if (hasConfigPairAncestor(p.key, pairKeys)) return;
+
         const keys = p.key.split("_");
-        let obj = value;
+        let obj: ReconstructedConfigContainer = value;
         let prev = "";
-        let prevObj = obj;
+        let prevObj: ReconstructedConfigContainer = obj;
         let i = 0;
 
         for (const key of keys) {
-            if (!isNaN(Number(key)) && !prevObj[prev]?.length) prevObj[prev] = obj = [];
-            if (i++ === keys.length - 1) obj[key] = p.value;
-            else if (!obj[key]) obj[key] = {};
+            if (isArrayIndex(key) && !hasTruthyLength(getReconstructedConfigValue(prevObj, prev))) {
+                obj = [];
+                setReconstructedConfigValue(prevObj, prev, obj);
+            }
+            if (i++ === keys.length - 1) setReconstructedConfigValue(obj, key, p.value);
+            else if (!getReconstructedConfigValue(obj, key)) setReconstructedConfigValue(obj, key, {});
 
             prev = key;
             prevObj = obj;
-            obj = obj[key];
+            obj = getReconstructedConfigValue(obj, key) as ReconstructedConfigContainer;
         }
     });
 
-    return value as ConfigValue;
+    return value as unknown as ConfigValue;
 }
 
 const validateConfig = async () => {
@@ -243,6 +317,13 @@ function validateFinalConfig(config: ConfigValue) {
         isValidGatewayDisconnectedSessionCleanupDelay,
         `${DEFAULT_GATEWAY_DISCONNECTED_SESSION_CLEANUP_DELAY_MS} (must be a non-negative millisecond delay)`,
     );
+    assertConfig("gateway_guildSyncMemberMode", isValidGuildSyncMemberMode, '"all" or "online"');
+    assertConfig("security_captcha_service", (v) => v === null || isValidCaptchaService(v), "null, recaptcha, or hcaptcha");
+    if (config.security.captcha.enabled) {
+        assertConfig("security_captcha_service", isValidCaptchaService, "recaptcha or hcaptcha when CAPTCHA is enabled");
+        assertConfig("security_captcha_sitekey", isNonEmptyString, "a CAPTCHA site key when CAPTCHA is enabled");
+        assertConfig("security_captcha_secret", isNonEmptyString, "a CAPTCHA secret when CAPTCHA is enabled");
+    }
 
     if (hasErrors) {
         const message = "[Config] Your config has invalid values. Fix them first https://docs.spacebar.chat/setup/server/configuration";
@@ -250,4 +331,8 @@ function validateFinalConfig(config: ConfigValue) {
         console.error("[Config] Hint: if you're just testing with bundle (`npm run start`), you can set all endpoint URLs to [proto]://localhost:3001");
         throw new Error(message);
     } else console.log("[Config] Configuration validated successfully.");
+}
+
+function isNonEmptyString(value: JsonValue) {
+    return typeof value === "string" && value.trim().length > 0;
 }

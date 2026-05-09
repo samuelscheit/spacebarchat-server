@@ -20,7 +20,7 @@ describe("database transformers", () => {
 
     test("applies bigint number conversion to hydrated user flag columns", async () => {
         process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
-        const { User } = await import("../entities/User.js");
+        const { User } = require("../entities/User") as typeof import("../entities/User");
         const userColumns = getMetadataArgsStorage().columns.filter((column) => column.target === User);
 
         for (const propertyName of ["flags", "public_flags", "purchased_flags"]) {
@@ -29,5 +29,15 @@ describe("database transformers", () => {
             assert.equal(column?.options.type, "bigint");
             assert.equal(column?.options.transformer, bigintNumberTransformer);
         }
+    });
+
+    test("applies bigint number conversion to hydrated member premium timestamps", async () => {
+        process.env.DATABASE ??= "postgres://user:password@localhost:5432/database";
+        const { Member } = require("../entities/Member") as typeof import("../entities/Member");
+        const memberColumns = getMetadataArgsStorage().columns.filter((column) => column.target === Member);
+        const column = memberColumns.find((column) => column.propertyName === "premium_since");
+
+        assert.equal(column?.options.type, "bigint");
+        assert.equal(column?.options.transformer, bigintNumberTransformer);
     });
 });

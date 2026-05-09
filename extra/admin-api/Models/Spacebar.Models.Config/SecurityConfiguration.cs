@@ -55,6 +55,9 @@ public class SecurityConfiguration {
 
     [JsonPropertyName("cdnSignatureIncludeUserAgent")]
     public bool CdnSignatureIncludeUserAgent { get; set; } = true;
+
+    [JsonPropertyName("contentSecurityPolicy")]
+    public string? ContentSecurityPolicy { get; set; } = null;
 }
 
 public class CaptchaConfiguration {
@@ -65,7 +68,7 @@ public class CaptchaConfiguration {
     /// One of: null, recaptcha, hcaptcha
     /// </summary>
     [JsonPropertyName("service")]
-    public string Service { get; set; } = "none";
+    public string? Service { get; set; } = null;
 
     [JsonPropertyName("sitekey")]
     public string? SiteKey { get; set; } = null;
