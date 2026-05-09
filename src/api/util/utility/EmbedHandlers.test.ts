@@ -5,6 +5,7 @@ import type { Message } from "@spacebar/util";
 import { mergeGeneratedUrlEmbeds } from "./EmbedMerge";
 
 type UtilModule = typeof import("@spacebar/util");
+type EmbedHandlersModule = typeof import("./EmbedHandlers.js");
 
 process.env.DATABASE ??= "postgres://test:test@localhost:5432/test";
 delete process.env.EVENT_TRANSMISSION;
@@ -12,9 +13,18 @@ delete process.env.EVENT_TRANSMISSION;
 const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
 
+function runtimeModuleExtension() {
+    return __filename.endsWith(".ts") ? ".ts" : ".js";
+}
+
+function loadRuntimeModule<T>(path: string): T {
+    return require(path) as T;
+}
+
 async function loadEmbedModules() {
-    const util = require("@spacebar/util") as UtilModule;
-    const handlers = await import("./EmbedHandlers.js");
+    const extension = runtimeModuleExtension();
+    const util = loadRuntimeModule<UtilModule>("@spacebar/util");
+    const handlers = loadRuntimeModule<EmbedHandlersModule>(`./EmbedHandlers${extension}`);
 
     return {
         util,
@@ -122,7 +132,7 @@ function rejectUnexpectedPersistence(t: TestContext, Message: UtilModule["Messag
 async function captureYoutubeRequestHeaders(
     t: TestContext,
     Config: UtilModule["Config"],
-    EmbedHandlers: (typeof import("./EmbedHandlers.js"))["EmbedHandlers"],
+    EmbedHandlers: EmbedHandlersModule["EmbedHandlers"],
     youtubeConfig: Partial<ReturnType<typeof Config.get>["embeds"]["youtube"]>,
 ) {
     const config = Config.get();
@@ -143,6 +153,47 @@ async function captureYoutubeRequestHeaders(
     assert.equal(fetchCalls.length, 1);
     return fetchCalls[0].init?.headers;
 }
+
+function mockYoutubeConfig(t: TestContext, Config: UtilModule["Config"]) {
+    const config = Config.get();
+    config.embeds.youtube.cookie = null;
+    config.embeds.youtube.useCurlUserAgent = false;
+    config.embeds.youtube.userAgent = null;
+    t.mock.method(Config, "get", () => config);
+}
+
+function mockFetchHtml(t: TestContext, html: string, responseUrl?: string) {
+    t.mock.method(
+        globalThis,
+        "fetch",
+        async () =>
+            ({
+                url: responseUrl,
+                headers: {
+                    get: () => null,
+                },
+                text: async () => html,
+            }) as unknown as Response,
+    );
+}
+
+const youtubeHtml = (authorMarkup: string) => `
+    <html>
+        <head>
+            <meta property="og:title" content="Example video">
+            <meta property="article:author" content="Example Channel">
+            <meta property="og:description" content="Example description">
+            <meta property="og:image" content="https://i.ytimg.com/vi/example/maxresdefault.jpg">
+            <meta property="og:image:width" content="1280">
+            <meta property="og:image:height" content="720">
+            <meta property="og:video:secure_url" content="https://www.youtube.com/embed/example">
+            ${authorMarkup}
+        </head>
+    </html>
+`;
+
+const jsonLdChannelId = "UC1234567890123456789012";
+const fallbackChannelId = "UCabcdefghijklmnopqrstuv";
 
 function mockEmbedCacheCleanup(t: TestContext, EmbedCache: UtilModule["EmbedCache"]) {
     t.mock.method(EmbedCache, "delete", async () => ({ affected: 0, raw: [] }));
@@ -389,6 +440,194 @@ describe("getOrUpdateEmbedCache", () => {
         assert.equal(entries.length, 1);
         assert.equal(entries[0].url, savedEntry.url);
         assert.deepEqual(entries[0].embeds, [generatedEmbed]);
+    });
+});
+
+describe("EmbedHandlers YouTube", () => {
+    test("uses the video page JSON-LD owner profile URL when present", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <script type="application/ld+json">
+                    {"@context":"https://schema.org","@type":"VideoObject","ownerProfileUrl":"http://www.youtube.com/@JsonLdChannel","externalChannelId":"${jsonLdChannelId}"}
+                </script>
+                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    <link itemprop="url" href="https://www.youtube.com/@MicrodataChannel">
+                </span>
+            `),
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, "https://www.youtube.com/@JsonLdChannel");
+    });
+
+    test("falls back to the video page JSON-LD external channel ID", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <script type="application/ld+json">
+                    {"@context":"https://schema.org","@type":["VideoObject"],"externalChannelId":"${jsonLdChannelId}"}
+                </script>
+            `),
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, `https://www.youtube.com/channel/${jsonLdChannelId}`);
+    });
+
+    test("falls back to the video page JSON-LD external channel ID when owner URL is unsafe", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <script type="application/ld+json">
+                    {"@context":"https://schema.org","@type":"VideoObject","ownerProfileUrl":"javascript:alert(1)","externalChannelId":"${jsonLdChannelId}"}
+                </script>
+            `),
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, `https://www.youtube.com/channel/${jsonLdChannelId}`);
+    });
+
+    test("uses the video page author channel URL when present", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    <link itemprop="url" href="/@ExampleChannel">
+                </span>
+            `),
+            "https://www.youtube.com/watch?v=example",
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, "https://www.youtube.com/@ExampleChannel");
+    });
+
+    test("falls back to the channelId metadata when no author URL is present", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(t, youtubeHtml(`<meta itemprop="channelId" content="${fallbackChannelId}">`));
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, `https://www.youtube.com/channel/${fallbackChannelId}`);
+    });
+
+    test("uses a canonical youtube.com channel URL for youtu.be channelId metadata", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(t, youtubeHtml(`<meta itemprop="channelId" content="${fallbackChannelId}">`));
+
+        const embed = (await EmbedHandlers["youtu.be"](new URL("https://youtu.be/example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, `https://www.youtube.com/channel/${fallbackChannelId}`);
+    });
+
+    test("does not trust author metadata from a non-YouTube final response URL", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <script type="application/ld+json">
+                    {"@context":"https://schema.org","@type":"VideoObject","ownerProfileUrl":"https://www.youtube.com/@ForgedChannel","externalChannelId":"${jsonLdChannelId}"}
+                </script>
+                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    <link itemprop="url" href="/@ForgedMicrodata">
+                </span>
+                <meta itemprop="channelId" content="${fallbackChannelId}">
+            `),
+            "https://evil.example/redirected",
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, undefined);
+    });
+
+    test("ignores external author URLs and falls back to the channelId metadata", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    <link itemprop="url" href="https://evil.example/@ExampleChannel">
+                </span>
+                <meta itemprop="channelId" content="${fallbackChannelId}">
+            `),
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, `https://www.youtube.com/channel/${fallbackChannelId}`);
+    });
+
+    test("ignores malformed author URLs and falls back to the channelId metadata", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+                    <link itemprop="url" href="http://[">
+                </span>
+                <meta itemprop="channelId" content="${fallbackChannelId}">
+            `),
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, `https://www.youtube.com/channel/${fallbackChannelId}`);
+    });
+
+    test("omits author URL when channelId metadata is not a valid YouTube channel ID", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(t, youtubeHtml(`<meta itemprop="channelId" content="../@escaped">`));
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, undefined);
+    });
+
+    test("ignores malformed JSON-LD and omits author URL when no reliable channel metadata exists", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockYoutubeConfig(t, Config);
+        mockFetchHtml(
+            t,
+            youtubeHtml(`
+                <script type="application/ld+json">{not json</script>
+            `),
+        );
+
+        const embed = (await EmbedHandlers["www.youtube.com"](new URL("https://www.youtube.com/watch?v=example"))) as Embed;
+
+        assert.equal(embed.author?.name, "Example Channel");
+        assert.equal(embed.author?.url, undefined);
     });
 });
 

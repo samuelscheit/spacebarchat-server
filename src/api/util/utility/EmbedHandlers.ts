@@ -89,6 +89,129 @@ const tryParseInt = (str: string | undefined) => {
     }
 };
 
+type YoutubeVideoObject = {
+    "@type"?: unknown;
+    ownerProfileUrl?: unknown;
+    externalChannelId?: unknown;
+};
+
+const youtubeCanonicalOrigin = "https://www.youtube.com";
+const youtubeAuthorHosts = new Set(["youtube.com", "www.youtube.com", "m.youtube.com", "music.youtube.com"]);
+const youtubeDocumentHosts = new Set([...youtubeAuthorHosts, "youtu.be"]);
+const youtubeChannelIdRegex = /^UC[A-Za-z0-9_-]{22}$/;
+const youtubeHandleRegex = /^@[A-Za-z0-9._-]{3,30}$/;
+const youtubeLegacyProfileSlugRegex = /^[A-Za-z0-9._-]{1,100}$/;
+
+const getNonEmptyString = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    return trimmed.length ? trimmed : undefined;
+};
+
+const tryParseUrl = (value: string, baseUrl: URL): URL | undefined => {
+    try {
+        return new URL(value, baseUrl);
+    } catch (e) {
+        return undefined;
+    }
+};
+
+const getFetchedUrl = (response: Response, fallbackUrl: URL): URL => {
+    const responseUrl = getNonEmptyString((response as { url?: unknown }).url);
+    if (!responseUrl) return fallbackUrl;
+
+    return tryParseUrl(responseUrl, fallbackUrl) ?? fallbackUrl;
+};
+
+const isYoutubeAuthorHost = (hostname: string): boolean => youtubeAuthorHosts.has(hostname.toLowerCase());
+const isYoutubeDocumentHost = (hostname: string): boolean => youtubeDocumentHosts.has(hostname.toLowerCase());
+
+const getDecodedPathSegments = (url: URL): string[] | undefined => {
+    try {
+        return url.pathname
+            .split("/")
+            .filter(Boolean)
+            .map((segment) => decodeURIComponent(segment));
+    } catch (e) {
+        return undefined;
+    }
+};
+
+const getYoutubeChannelUrl = (channelIdValue: unknown): string | undefined => {
+    const channelId = getNonEmptyString(channelIdValue);
+    if (!channelId || !youtubeChannelIdRegex.test(channelId)) return undefined;
+
+    return `${youtubeCanonicalOrigin}/channel/${encodeURIComponent(channelId)}`;
+};
+
+const getYoutubeCanonicalAuthorUrl = (urlValue: unknown, baseUrl: URL): string | undefined => {
+    const rawUrl = getNonEmptyString(urlValue);
+    if (!rawUrl) return undefined;
+
+    const parsedUrl = tryParseUrl(rawUrl, rawUrl.startsWith("/") ? new URL(youtubeCanonicalOrigin) : baseUrl);
+    if (!parsedUrl || (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:")) return undefined;
+    if (!isYoutubeAuthorHost(parsedUrl.hostname)) return undefined;
+
+    const segments = getDecodedPathSegments(parsedUrl);
+    if (!segments) return undefined;
+
+    const [profileType, profileSlug] = segments;
+    if (segments.length === 1 && youtubeHandleRegex.test(profileType)) {
+        return `${youtubeCanonicalOrigin}/${profileType}`;
+    }
+
+    if (segments.length === 2 && profileType === "channel") {
+        return getYoutubeChannelUrl(profileSlug);
+    }
+
+    if (segments.length === 2 && (profileType === "c" || profileType === "user") && youtubeLegacyProfileSlugRegex.test(profileSlug)) {
+        return `${youtubeCanonicalOrigin}/${profileType}/${encodeURIComponent(profileSlug)}`;
+    }
+
+    return undefined;
+};
+
+const isYoutubeVideoObjectType = (type: unknown): boolean => type === "VideoObject" || (Array.isArray(type) && type.includes("VideoObject"));
+
+const findYoutubeVideoObject = (value: unknown): YoutubeVideoObject | undefined => {
+    if (Array.isArray(value)) {
+        for (const item of value) {
+            const videoObject = findYoutubeVideoObject(item);
+            if (videoObject) return videoObject;
+        }
+        return undefined;
+    }
+
+    if (!value || typeof value !== "object") return undefined;
+    const object = value as Record<string, unknown>;
+    if (isYoutubeVideoObjectType(object["@type"])) return object as YoutubeVideoObject;
+    return findYoutubeVideoObject(object["@graph"]);
+};
+
+const getYoutubeAuthorUrl = ($: cheerio.CheerioAPI, baseUrl: URL): string | undefined => {
+    if (!isYoutubeDocumentHost(baseUrl.hostname)) return undefined;
+
+    for (const elem of $('script[type="application/ld+json"]').toArray()) {
+        try {
+            const videoObject = findYoutubeVideoObject(JSON.parse($(elem).text()));
+            if (!videoObject) continue;
+
+            const ownerProfileUrl = getYoutubeCanonicalAuthorUrl(videoObject.ownerProfileUrl, baseUrl);
+            if (ownerProfileUrl) return ownerProfileUrl;
+
+            const channelUrl = getYoutubeChannelUrl(videoObject.externalChannelId);
+            if (channelUrl) return channelUrl;
+        } catch (e) {
+            continue;
+        }
+    }
+
+    const authorUrl = getYoutubeCanonicalAuthorUrl($('[itemprop="author"] [itemprop="url"]').first().attr("href"), baseUrl);
+    if (authorUrl) return authorUrl;
+
+    return getYoutubeChannelUrl($('[itemprop="channelId"]').first().attr("content") || $('[itemprop="channelId"]').first().text());
+};
+
 export const getTwitterStatusId = (url: URL): string | undefined => {
     const segments = url.pathname.split("/").filter(Boolean);
     let statusIndex = -1;
@@ -484,6 +607,7 @@ export const EmbedHandlers: {
             },
         });
         if (!response) return null;
+        const responseUrl = getFetchedUrl(response, url);
         const metas = getMetaDescriptions(await response.text());
 
         return {
@@ -501,7 +625,7 @@ export const EmbedHandlers: {
             author: metas.author
                 ? {
                       name: metas.author,
-                      // TODO: author channel url
+                      url: getYoutubeAuthorUrl(metas.$, responseUrl),
                   }
                 : undefined,
         };
