@@ -3352,7 +3352,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 80,
+            "line": 31,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3403,7 +3403,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 521,
+            "line": 179,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3464,7 +3464,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 523,
+            "line": 181,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

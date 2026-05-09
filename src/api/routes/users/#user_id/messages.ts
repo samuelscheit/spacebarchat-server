@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { createMessageBodyRouteHandlers, createMessageResolvedChannelRouteHandlers } from "../../channels/#channel_id/messages/index";
+import { createMessageBodyRouteHandlers, createMessageResolvedChannelRouteHandlers } from "../../../util/handlers/ChannelMessageCreateRoute";
 import { Channel, Config, Message, User } from "@spacebar/util";
 import { ChannelType, DmMessagesResponseSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";

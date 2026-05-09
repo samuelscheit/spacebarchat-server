@@ -21,7 +21,7 @@ import { Channel, Member, Message, messagePublicWithThreadRelations, ThreadMembe
 import { PostDataSchema, PublicMessage } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
-import { messageUpload } from "./messages";
+import { messageUpload } from "../../../util/handlers/ChannelMessageCreateRoute";
 import { In } from "typeorm";
 import {
     createPostDataOwnerMemberWhere,

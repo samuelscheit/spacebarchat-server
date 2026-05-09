@@ -50,7 +50,7 @@ import {
 import { ChannelType, MessageType, ThreadCreationSchema, MessageCreateAttachmentMetadata, type ThreadSearchResponse } from "@spacebar/schemas";
 
 import { Request, Response, Router } from "express";
-import { messageUpload } from "./messages";
+import { messageUpload } from "../../../util/handlers/ChannelMessageCreateRoute";
 import { HTTPError } from "#util/util/lambert-server";
 import { FindManyOptions, FindOptionsOrder, In, Like, ArrayContains, ArrayOverlap, JsonContains } from "typeorm";
 import {
