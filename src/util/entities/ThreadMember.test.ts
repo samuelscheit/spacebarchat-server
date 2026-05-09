@@ -11,7 +11,8 @@ type ThreadMembersUpdateEvent = import("../interfaces").ThreadMembersUpdateEvent
 type TransactionManager = {
     findOneOrFail: (entity: unknown, options: unknown) => Promise<unknown>;
     delete: (entity: unknown, criteria: unknown) => Promise<{ affected?: number | null }>;
-    decrement: (entity: unknown, criteria: unknown, propertyPath: string, value: number) => Promise<unknown>;
+    count: (entity: unknown, options: unknown) => Promise<number>;
+    update: (entity: unknown, criteria: unknown, values: unknown) => Promise<unknown>;
 };
 
 const fallbackSchemaValue = new Proxy(Object.create(null), {
@@ -124,7 +125,15 @@ afterEach(() => {
     emittedEvents.length = 0;
 });
 
-function stubRemoval({ deleteAffected = 1, memberCount = 2 }: { deleteAffected?: number; memberCount?: number | null | undefined } = {}) {
+function stubRemoval({
+    deleteAffected = 1,
+    memberCount = 2,
+    persistedMemberCount = 1,
+}: {
+    deleteAffected?: number;
+    memberCount?: number | null | undefined;
+    persistedMemberCount?: number;
+} = {}) {
     const calls: unknown[][] = [];
     const channel = Object.assign(new Channel(), {
         id: "thread-id",
@@ -152,12 +161,15 @@ function stubRemoval({ deleteAffected = 1, memberCount = 2 }: { deleteAffected?:
             calls.push(["delete", "ThreadMember", criteria]);
             return { affected: deleteAffected };
         },
-        decrement: async (entity: unknown, criteria: unknown, propertyPath: string, value: number) => {
+        count: async (entity: unknown, options: unknown) => {
+            assert.equal(entity, ThreadMember);
+            calls.push(["count", "ThreadMember", options]);
+            return persistedMemberCount;
+        },
+        update: async (entity: unknown, criteria: unknown, values: unknown) => {
             assert.equal(entity, Channel);
-            calls.push(["decrement", "Channel", criteria, propertyPath, value]);
-            if (channel.member_count !== null && channel.member_count !== undefined && channel.member_count > 0) {
-                channel.member_count -= value;
-            }
+            calls.push(["update", "Channel", criteria, values]);
+            Object.assign(channel, values);
         },
     };
 
@@ -165,8 +177,8 @@ function stubRemoval({ deleteAffected = 1, memberCount = 2 }: { deleteAffected?:
 }
 
 describe("ThreadMember.removeFromThread", () => {
-    test("resolves the guild member index before deleting and emitting the removed user id", async () => {
-        const { calls } = stubRemoval({ memberCount: 2 });
+    test("resolves the guild member index before deleting and syncing the emitted member count", async () => {
+        const { calls } = stubRemoval({ memberCount: 99, persistedMemberCount: 1 });
 
         await ThreadMember.removeFromThread("user-id", "thread-id");
 
@@ -190,18 +202,8 @@ describe("ThreadMember.removeFromThread", () => {
             ],
             ["delete", "ThreadMember", { id: "thread-id", member_idx: "member-index" }],
         ]);
-        assert.equal(calls[3][0], "decrement");
-        assert.equal(calls[3][3], "member_count");
-        assert.equal(calls[3][4], 1);
-        assertMoreThanZero((calls[3][2] as { member_count?: unknown }).member_count);
-        assert.deepEqual(calls[4], [
-            "findOneOrFail",
-            "Channel",
-            {
-                where: { id: "thread-id" },
-                select: { id: true, guild_id: true, member_count: true },
-            },
-        ]);
+        assert.deepEqual(calls[3], ["count", "ThreadMember", { where: { id: "thread-id" } }]);
+        assert.deepEqual(calls[4], ["update", "Channel", { id: "thread-id" }, { member_count: 1 }]);
         assert.equal(emittedEvents.length, 1);
         assert.deepEqual(emittedEvents[0].data, {
             guild_id: "guild-id",
@@ -212,15 +214,13 @@ describe("ThreadMember.removeFromThread", () => {
         assert.equal(emittedEvents[0].channel_id, "thread-id");
     });
 
-    test("does not decrement below zero when removing a thread member", async () => {
-        const { calls } = stubRemoval({ memberCount: 0 });
+    test("syncs zero when removing the last thread member", async () => {
+        const { calls } = stubRemoval({ memberCount: 99, persistedMemberCount: 0 });
 
         await ThreadMember.removeFromThread("user-id", "thread-id");
 
-        assert.equal(
-            calls.some(([method]) => method === "decrement"),
-            false,
-        );
+        assert.deepEqual(calls[3], ["count", "ThreadMember", { where: { id: "thread-id" } }]);
+        assert.deepEqual(calls[4], ["update", "Channel", { id: "thread-id" }, { member_count: 0 }]);
         assert.deepEqual(
             emittedEvents.map((event) => event.data.member_count),
             [0],
@@ -255,15 +255,9 @@ describe("ThreadMember.removeFromThread", () => {
             ["delete", "ThreadMember", { id: "thread-id", member_idx: "member-index" }],
         ]);
         assert.equal(
-            calls.some(([method]) => method === "decrement"),
+            calls.some(([method]) => method === "count" || method === "update"),
             false,
         );
         assert.deepEqual(emittedEvents, []);
     });
 });
-
-function assertMoreThanZero(value: unknown) {
-    const operator = value as { type?: string; value?: unknown };
-    assert.equal(operator.type, "moreThan");
-    assert.equal(operator.value, 0);
-}

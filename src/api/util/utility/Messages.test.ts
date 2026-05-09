@@ -21,12 +21,7 @@ import test from "node:test";
 import type { PartialUser, PublicMessage, PublicUser } from "@spacebar/schemas";
 import { ajv } from "../../../schemas/Validator";
 import { messageToPublicMessage } from "../../../util/util/MessagePublic";
-import {
-    buildMessageDeleteBulkEvent,
-    deleteMessagesAndEmitBulkEvents,
-    hydrateInteractionMetadataUsers,
-    toPreloadMessageResponse,
-} from "./Messages";
+import { buildMessageDeleteBulkEvent, deleteMessagesAndEmitBulkEvents, hydrateInteractionMetadataUsers, toPreloadMessageResponse } from "./Messages";
 
 function makePublicUser(): PartialUser {
     return {
