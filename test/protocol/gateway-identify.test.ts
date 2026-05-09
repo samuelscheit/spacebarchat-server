@@ -65,8 +65,8 @@ test("Gateway IDENTIFY generated schema validates and coerces wire payloads", ()
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0n);
-    assert.deepEqual(payload.shard, [0n, 1n]);
+    assert.equal(payload.intents, 0);
+    assert.deepEqual(payload.shard, [0, 1]);
 });
 
 test("Gateway IDENTIFY generated schema validates camelCase client state aliases", () => {
@@ -91,8 +91,8 @@ test("Gateway IDENTIFY generated schema validates camelCase client state aliases
     };
 
     assert.equal(validateSchema("IdentifySchema", payload), payload);
-    assert.equal(payload.intents, 0n);
-    assert.deepEqual(payload.shard, [0n, 1n]);
+    assert.equal(payload.intents, 0);
+    assert.deepEqual(payload.shard, [0, 1]);
 });
 
 test("Gateway IDENTIFY generated schema validates presence activities", () => {

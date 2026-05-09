@@ -51,7 +51,7 @@ export function getConfiguredPrivilegedIntents(configValue: PrivilegedIntentsCon
     return new Intents(configValue);
 }
 
-export function getRequestedIdentifyIntents(requestedIntents: bigint | null | undefined): Intents {
+export function getRequestedIdentifyIntents(requestedIntents: number | bigint | string | null | undefined): Intents {
     return new Intents(Intents.resolveGatewayIdentifyIntents(requestedIntents));
 }
 
