@@ -9575,9 +9575,6 @@
                 "$ref": "#/definitions/AckCallback"
             },
             {
-                "$ref": "#/definitions/MessageCallback"
-            },
-            {
                 "$ref": "#/definitions/MessageWSourceCallback"
             },
             {
@@ -23176,26 +23173,6 @@
     "InteractionCallbackType.ACKNOWLEDGE": {
         "type": "number",
         "const": 2,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "MessageCallback": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "$ref": "#/definitions/InteractionCallbackType.CHANNEL_MESSAGE"
-            },
-            "data": {}
-        },
-        "additionalProperties": false,
-        "required": [
-            "data",
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "InteractionCallbackType.CHANNEL_MESSAGE": {
-        "type": "number",
-        "const": 3,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "MessageWSourceCallback": {

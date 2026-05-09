@@ -30,9 +30,6 @@ export interface PongCallback extends InteractionCallbackSchema {
 export interface AckCallback extends InteractionCallbackSchema {
     type: InteractionCallbackType.ACKNOWLEDGE;
 }
-export interface MessageCallback extends InteractionCallbackSchema {
-    type: InteractionCallbackType.CHANNEL_MESSAGE;
-}
 export interface MessageWSourceCallback extends InteractionCallbackSchema {
     type: InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE;
     data: InteractionMessage;
@@ -49,14 +46,7 @@ export interface MessageDUpdateCallback extends InteractionCallbackSchema {
     type: InteractionCallbackType.DEFERRED_UPDATE_MESSAGE;
     data: InteractionMessage;
 }
-export type InteractionCallbacksSchema =
-    | PongCallback
-    | AckCallback
-    | MessageCallback
-    | MessageWSourceCallback
-    | MessageDWSourceCallback
-    | MessageUpdateCallback
-    | MessageDUpdateCallback;
+export type InteractionCallbacksSchema = PongCallback | AckCallback | MessageWSourceCallback | MessageDWSourceCallback | MessageUpdateCallback | MessageDUpdateCallback;
 
 export interface InteractionMessage {
     content?: string;
