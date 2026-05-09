@@ -104,6 +104,7 @@
         "src/util/migration/postgres/__tests__/1778247700000-MessageSlowmodeIndexes.test.ts",
         "src/util/config/types/GatewayConfiguration.test.ts",
         "src/util/interfaces/Event.test.ts",
+        "src/util/util/Event.test.ts",
         "src/util/entities/ChannelPermissions.test.ts",
         "src/util/util/Permissions.test.ts",
         "src/util/util/ChannelFlags.test.ts",
