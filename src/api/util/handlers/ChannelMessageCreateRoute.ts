@@ -46,6 +46,7 @@ import {
 } from "@spacebar/util";
 import { MessageCreateCloudAttachment, MessageCreateSchema, normalizeMessageCreateSchema, RelationshipType } from "@spacebar/schemas";
 import { validateMessagePayloadLimits } from "../utility/MessagePayloadLimits";
+import { syncPersistedThreadMemberCount } from "../utility/ThreadMembers";
 import { Request, Response, type RequestHandler } from "express";
 import { HTTPError } from "lambert-server";
 import { MoreThan } from "typeorm";
@@ -130,18 +131,14 @@ export const createMessageHandler: RequestHandler = async (req: Request, res: Re
                 });
                 await threadMember.save();
 
-                // increment member count
-                if (channel.member_count !== null && channel.member_count !== undefined) {
-                    channel.member_count++;
-                    await channel.save();
-                }
+                const memberCount = await syncPersistedThreadMemberCount(channel);
 
                 await emitEvent({
                     event: "THREAD_MEMBERS_UPDATE",
                     data: {
                         guild_id: channel.guild_id!,
                         id: channel.id,
-                        member_count: channel.member_count ?? 0, // TODO: is this the right fix?
+                        member_count: memberCount,
                         added_members: [serializeThreadMemberPayload(threadMember, req.user_id)],
                     },
                     channel_id: channel.id,
