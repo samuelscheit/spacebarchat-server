@@ -301,10 +301,70 @@ describe("handleMessage", () => {
         assert.equal((context.createMessageMock.mock.calls[0].arguments[0] as Record<string, unknown>).reactions, reactions);
     });
 
+    test("allowed_mentions stores only explicitly allowed user mentions when user parsing is omitted", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        const message = await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@222>",
+            allowed_mentions: { users: ["222"] },
+        });
+
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["222"],
+        );
+        assert.equal(context.incrementCalls.length, 1);
+        assert.match(incrementCondition(context), /222/);
+        assert.doesNotMatch(incrementCondition(context), /111/);
+    });
+
+    test("allowed_mentions parse users stores all content user mentions", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        const message = await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@111> <@222>",
+            allowed_mentions: { parse: ["users"], users: ["222"] },
+        });
+
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["111", "222"],
+        );
+        assert.equal(context.incrementCalls.length, 1);
+        assert.match(incrementCondition(context), /111/);
+        assert.match(incrementCondition(context), /222/);
+    });
+
+    test("allowed_mentions stores only explicitly allowed role mentions when role parsing is omitted", async (t) => {
+        const context = await setupHandleMessageTest(t);
+
+        const message = await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "hello <@&444> <@&555>",
+            allowed_mentions: { roles: ["444"] },
+        });
+
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
+        assert.equal(context.memberFindCalls.length, 1);
+        assert.match(JSON.stringify(context.memberFindCalls), /444/);
+        assert.doesNotMatch(JSON.stringify(context.memberFindCalls), /555/);
+    });
+
     test("allowed_mentions controls mention-count notification targets", async (t) => {
         const context = await setupHandleMessageTest(t);
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -312,6 +372,11 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: [], users: ["222"], roles: [] },
         });
 
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["222"],
+        );
+        assert.deepEqual(message.mention_roles, []);
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.findByCalls.length, 1);
         assert.equal(context.memberFindCalls.length, 0);
@@ -322,7 +387,7 @@ describe("handleMessage", () => {
     test("parse users allows all content user mention-count notifications", async (t) => {
         const context = await setupHandleMessageTest(t);
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -330,6 +395,11 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: ["users"], users: [], roles: [] },
         });
 
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["111", "222"],
+        );
+        assert.deepEqual(message.mention_roles, []);
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.memberFindCalls.length, 0);
         assert.match(incrementCondition(context), /111/);
@@ -340,7 +410,7 @@ describe("handleMessage", () => {
     test("parse roles allows role mention-count notifications", async (t) => {
         const context = await setupHandleMessageTest(t);
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -348,6 +418,11 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: ["roles"], users: [], roles: [] },
         });
 
+        assert.deepEqual(message.mentions, []);
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.memberFindCalls.length, 1);
         assert.match(JSON.stringify(context.memberFindCalls), /444/);
@@ -358,7 +433,7 @@ describe("handleMessage", () => {
     test("explicit allowed role ids limit role mention-count notifications", async (t) => {
         const context = await setupHandleMessageTest(t);
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -366,6 +441,10 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: [], users: [], roles: ["444"] },
         });
 
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.memberFindCalls.length, 1);
         assert.match(JSON.stringify(context.memberFindCalls), /444/);
@@ -379,7 +458,7 @@ describe("handleMessage", () => {
             sessionFindResult: [{ user_id: "online_here_member" }],
         });
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -388,6 +467,9 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: [], users: [], roles: [], replied_user: false },
         });
 
+        assert.deepEqual(message.mentions, []);
+        assert.deepEqual(message.mention_roles, []);
+        assert.equal(message.mention_everyone, false);
         assert.equal(context.incrementCalls.length, 0);
     });
 
@@ -411,7 +493,7 @@ describe("handleMessage", () => {
     test("edits recalculate mentions without incrementing mention-count notifications", async (t) => {
         const context = await setupHandleMessageTest(t);
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -420,6 +502,15 @@ describe("handleMessage", () => {
             is_edit: true,
         });
 
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["111"],
+        );
+        assert.deepEqual(
+            message.mention_roles.map((role) => role.id),
+            ["444"],
+        );
+        assert.equal(message.mention_everyone, true);
         assert.equal(context.incrementCalls.length, 0);
     });
 
@@ -428,7 +519,7 @@ describe("handleMessage", () => {
             referencedMessage: { id: "referenced_message_id", author_id: "reply_author", channel_id: "channel_id", guild_id: "guild_id" },
         });
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -437,6 +528,10 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: [], users: [], roles: [], replied_user: true },
         });
 
+        assert.deepEqual(
+            message.mentions.map((user) => user.id),
+            ["reply_author"],
+        );
         assert.equal(context.incrementCalls.length, 1);
         assert.match(incrementCondition(context), /reply_author/);
     });
@@ -447,7 +542,7 @@ describe("handleMessage", () => {
             sessionFindResult: [{ user_id: "online_here_member" }],
         });
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -455,6 +550,7 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: ["everyone"], users: [], roles: [] },
         });
 
+        assert.equal(message.mention_everyone, true);
         assert.equal(context.incrementCalls.length, 1);
         assert.match(incrementCondition(context), /online_here_member/);
     });
@@ -464,7 +560,7 @@ describe("handleMessage", () => {
             memberFindResult: [{ id: "guild_member_1" }, { id: "guild_member_2" }],
         });
 
-        await context.handleMessage({
+        const message = await context.handleMessage({
             id: "message_id",
             channel_id: "channel_id",
             author_id: "author_id",
@@ -472,6 +568,7 @@ describe("handleMessage", () => {
             allowed_mentions: { parse: ["everyone"], users: [], roles: [] },
         });
 
+        assert.equal(message.mention_everyone, true);
         assert.equal(context.incrementCalls.length, 1);
         assert.equal(context.updateCalls.length, 1);
         assert.deepEqual(context.createdReadStates.map((state) => state.user_id).sort(), ["guild_member_1", "guild_member_2"]);
