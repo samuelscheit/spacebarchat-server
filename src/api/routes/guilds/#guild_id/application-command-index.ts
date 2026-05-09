@@ -16,11 +16,11 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { resolveApplicationCommandLocale, route, serializeApplicationCommand } from "@spacebar/api";
 import { Request, Response, Router } from "express";
-import { Application, ApplicationCommand, Member, Snowflake } from "@spacebar/util";
+import { Application, ApplicationCommand, Member, Snowflake, UserSettings } from "@spacebar/util";
 import { IsNull } from "typeorm";
-import { ApplicationCommandSchema, ApplicationCommandType } from "@spacebar/schemas";
+import { ApplicationCommandSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
 
@@ -54,30 +54,14 @@ router.get("/", route({}), async (req: Request, res: Response) => {
     }
 
     const applicationCommandsSendable: ApplicationCommandSchema[] = [];
+    let userLocale = resolveApplicationCommandLocale({
+        discordLocale: req.get("X-Discord-Locale"),
+        acceptLanguage: req.get("Accept-Language"),
+    });
+    userLocale ??= resolveApplicationCommandLocale({ userSettingsLocale: (await UserSettings.getOrDefault(req.user_id)).locale });
 
     for (const command of applicationCommands.flat()) {
-        applicationCommandsSendable.push({
-            id: command.id,
-            type: command.type,
-            application_id: command.application_id,
-            guild_id: command.guild_id,
-            name: command.name,
-            name_localizations: command.name_localizations,
-            // name_localized: // TODO: make this work
-            description: command.description,
-            description_localizations: command.description_localizations,
-            // description_localized: // TODO: make this work
-            options: command.type === ApplicationCommandType.CHAT_INPUT ? command.options : undefined,
-            default_member_permissions: command.default_member_permissions,
-            dm_permission: command.dm_permission,
-            permissions: command.permissions,
-            nsfw: command.nsfw,
-            integration_types: command.integration_types,
-            global_popularity_rank: command.global_popularity_rank,
-            contexts: command.contexts,
-            version: command.version,
-            handler: command.handler,
-        });
+        applicationCommandsSendable.push(serializeApplicationCommand(command, userLocale));
     }
 
     res.send({

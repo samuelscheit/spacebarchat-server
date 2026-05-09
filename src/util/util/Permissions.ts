@@ -2,11 +2,12 @@
 // Apache License Version 2.0 Copyright 2015 - 2021 Amish Shah
 // @fc-license-skip
 
-import type { Channel, Guild, Member, Role } from "../entities";
+import type { Channel, Guild, Member, Recipient, Role } from "../entities";
 import { BitField, BitFieldResolvable, BitFlag } from "./BitField";
 import { HTTPError } from "lambert-server";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
-import { FindOneOptions } from "typeorm";
+import { PublicMemberProjection } from "../../schemas/api/users/Member";
+import { FindOneOptions, FindOptionsSelect } from "typeorm";
 
 export type PermissionResolvable = bigint | number | Permissions | PermissionResolvable[] | PermissionString;
 
@@ -16,6 +17,24 @@ const CHANNEL_PERMISSION_OVERWRITE_ROLE = 0;
 const CHANNEL_PERMISSION_OVERWRITE_MEMBER = 1;
 const GUILD_PRIVATE_THREAD = 12;
 const USER_FLAG_QUARANTINED = 1n << 44n;
+
+type GuildOwnerIdentity = {
+    owner_id?: string | null;
+    owner?: { id?: string | null } | null;
+};
+
+type UserIdentity = string | { id?: string | null } | null | undefined;
+type PermissionRecipient = Pick<Recipient, "user_id"> & Partial<Pick<Recipient, "closed">>;
+
+export function isGuildOwner(guild: GuildOwnerIdentity | null | undefined, ...users: UserIdentity[]) {
+    const ownerId = guild?.owner?.id ?? guild?.owner_id;
+    if (!ownerId) return false;
+
+    return users.some((user) => {
+        const userId = typeof user === "string" ? user : user?.id;
+        return ownerId === userId;
+    });
+}
 
 // BigInt doesn't have a bit limit (https://stackoverflow.com/questions/53335545/whats-the-biggest-bigint-value-in-js-as-per-spec)
 // const CUSTOM_PERMISSION_OFFSET = BigInt(1) << BigInt(64); // 27 permission bits left for discord to add new ones
@@ -156,19 +175,18 @@ export class Permissions extends BitField {
         guild,
         channel,
     }: {
-        user: { id: string; roles: string[]; communication_disabled_until: Date | null; flags: number };
-        guild: { id: string; owner_id: string; roles: Role[] };
+        user: { id: string; roles: string[]; resolved_roles: Role[]; communication_disabled_until: Date | null; flags: number };
+        guild: { id: string; owner_id: string };
         channel?: {
             overwrites?: ChannelPermissionOverwrite[];
-            recipient_ids?: string[] | null;
+            recipients?: PermissionRecipient[] | null;
             owner_id?: string;
         };
     }) {
         if (user.id === "0") return new Permissions("ADMINISTRATOR"); // system user id
-        if (guild?.owner_id === user.id) return new Permissions(Permissions.ALL);
+        if (isGuildOwner(guild, user)) return new Permissions(Permissions.ALL);
 
-        const roles = guild.roles.filter((x) => user.roles.includes(x.id));
-        let permission = Permissions.rolePermission(roles);
+        let permission = Permissions.rolePermission(user.resolved_roles);
 
         if (channel?.overwrites) {
             const overwrites = channel.overwrites.filter((x) => {
@@ -179,25 +197,9 @@ export class Permissions extends BitField {
             permission = Permissions.channelPermission(overwrites, permission);
         }
 
-        if (channel?.recipient_ids) {
+        if (channel?.recipients) {
             if (channel?.owner_id === user.id) return new Permissions("ADMINISTRATOR");
-            if (channel.recipient_ids.includes(user.id)) {
-                // Default dm permissions
-                return new Permissions([
-                    "VIEW_CHANNEL",
-                    "SEND_MESSAGES",
-                    "STREAM",
-                    "ADD_REACTIONS",
-                    "EMBED_LINKS",
-                    "ATTACH_FILES",
-                    "READ_MESSAGE_HISTORY",
-                    "MENTION_EVERYONE",
-                    "USE_EXTERNAL_EMOJIS",
-                    "CONNECT",
-                    "SPEAK",
-                    "MANAGE_CHANNELS",
-                ]);
-            }
+            if (channel.recipients.some((recipient) => recipient.user_id === user.id && recipient.closed === false)) return new Permissions(Permissions.DEFAULT_DM_PERMISSIONS);
 
             return new Permissions();
         }
@@ -248,19 +250,40 @@ export type PermissionCache = {
     user_id?: string;
 };
 
-export async function getPermission(
-    user_id?: string,
-    guild_id?: string | Guild,
-    channel_id?: string | Channel,
-    opts: {
-        guild_select?: (keyof Guild)[];
-        guild_relations?: string[];
-        channel_select?: (keyof Channel)[];
-        channel_relations?: string[];
-        member_select?: (keyof Member)[];
-        member_relations?: string[];
-    } = {},
-) {
+type GetPermissionOptions = {
+    guild_select?: (keyof Guild)[];
+    guild_relations?: string[];
+    channel_select?: (keyof Channel)[];
+    channel_relations?: string[];
+    member_select?: (keyof Member)[];
+    member_relations?: string[];
+};
+
+export const PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT = [...PublicMemberProjection] as (keyof Member)[];
+
+export function getPermissionMemberQueryOptions(guild_id: string, user_id: string, opts: GetPermissionOptions = {}): FindOneOptions<Member> {
+    const select: FindOptionsSelect<Member> = {
+        roles: {
+            id: true,
+            guild_id: true,
+            permissions: true,
+        },
+    };
+    const scalarSelect = select as Record<string, unknown>;
+    const relationSelectKeys = new Set(["guild", "roles", "user"]);
+    for (const key of ["index", "id", "guild_id", "communication_disabled_until", ...(opts.member_select || [])]) {
+        if (typeof key !== "string" || relationSelectKeys.has(key)) continue;
+        scalarSelect[key] = true;
+    }
+
+    return {
+        where: { guild_id, id: user_id },
+        relations: [...new Set(["roles", ...(opts.member_relations || [])])],
+        select,
+    };
+}
+
+export async function getPermission(user_id?: string, guild_id?: string | Guild, channel_id?: string | Channel, opts: GetPermissionOptions = {}) {
     const [{ User }, { Channel }, { Guild }, { Member }] = await Promise.all([
         import("../entities/User.js"),
         import("../entities/Channel.js"),
@@ -311,40 +334,27 @@ export async function getPermission(
         } else {
             guild = guild_id;
         }
-        if (guild.owner_id === user_id) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
+        if (isGuildOwner(guild, user_id)) return new Permissions(Permissions.FLAGS.ADMINISTRATOR);
 
-        member = await Member.findOneOrFail({
-            where: { guild_id: guild.id, id: user_id },
-            relations: ["roles", ...(opts.member_relations || [])],
-            // select: [
-            // "id",		// TODO: Bug in typeorm? adding these selects breaks the query.
-            // "roles",
-            // "communication_disabled_until",
-            // ...(opts.member_select || []),
-            // ],
-        });
+        member = await Member.findOneOrFail(getPermissionMemberQueryOptions(guild.id, user_id, opts));
     }
 
-    let recipient_ids = channel?.recipients?.map((x) => x.user_id);
-    if (!recipient_ids?.length) recipient_ids = undefined;
-
-    // TODO: remove guild.roles and convert recipient_ids to recipients
     const permission = Permissions.finalPermission({
         user: {
             id: user_id,
             roles: member?.roles.map((x) => x.id) || [],
+            resolved_roles: member?.roles || [],
             communication_disabled_until: member?.communication_disabled_until ?? null,
             flags: user.flags,
         },
         guild: {
             id: guild?.id || "",
             owner_id: guild?.owner_id || "",
-            roles: member?.roles || [],
         },
         channel: {
             overwrites: channel?.permission_overwrites,
             owner_id: channel?.owner_id,
-            recipient_ids,
+            recipients: channel?.recipients?.length ? channel.recipients : undefined,
         },
     });
 

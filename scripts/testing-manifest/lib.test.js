@@ -2,15 +2,20 @@
 
 const { describe, test } = require("node:test");
 const assert = require("node:assert/strict");
+const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = require("node:fs");
+const { tmpdir } = require("node:os");
 const path = require("node:path");
 const {
+    collectExternalHelperEventMap,
     combineRoutePaths,
     extractApiRateLimitRulesFromSource,
     extractNoAuthorizationRulesFromSource,
     extractSourceHelperEventMap,
+    extractSourceHelperRouteMetadataMap,
     parseRegexLiteral,
     parseRouteOptions,
     routePathFromFile,
+    scanHashImageRouterCalls,
     scanRouterCalls,
     splitTopLevelArguments,
     stripComments,
@@ -59,6 +64,32 @@ describe("testing manifest route helpers", () => {
 
         assert.deepEqual(options.permission, ["VIEW_CHANNEL", "SEND_MESSAGES"]);
         assert.deepEqual(options.event, ["EVENT.MESSAGE_CREATE", "EVENT.MESSAGE_UPDATE"]);
+    });
+
+    test("expands shared CDN image routers without executing route modules", () => {
+        const source = `
+            export default createHashImageRouter({
+                pathPrefix: "role-icons",
+                resourceParam: "role_id",
+                allowedMimeTypes: STATIC_IMAGE_MIME_TYPES,
+            });
+        `;
+
+        const calls = scanHashImageRouterCalls(source);
+
+        assert.deepEqual(
+            calls.map((call) => [call.method, call.localPath]),
+            [
+                ["POST", "/:role_id"],
+                ["GET", "/:role_id"],
+                ["GET", "/:role_id/:hash"],
+                ["DELETE", "/:role_id/:id"],
+            ],
+        );
+        assert.deepEqual(
+            calls.map((call) => call.routeMetadata),
+            [{ present: false }, { present: false }, { present: false }, { present: false }],
+        );
     });
 
     test("extracts direct emitted events from route handlers", () => {
@@ -143,6 +174,129 @@ describe("testing manifest route helpers", () => {
         const calls = scanRouterCalls(source, extractSourceHelperEventMap(helpers));
 
         assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["GUILD_MEMBER_UPDATE", "MESSAGE_CREATE"]);
+    });
+
+    test("extracts route metadata and emitted events from spread handler tuples", () => {
+        const source = `
+            const upload = multer.any();
+            const createMessageBodyRoute = route({
+                right: "SEND_MESSAGES",
+                requestBody: "MessageCreateSchema",
+                responses: { 200: { body: "MessageResponse" }, 400: { body: "APIErrorResponse" } },
+            });
+            const createMessagePermissionRoute = route({ permission: "VIEW_CHANNEL", responses: { 403: {}, 404: {} } });
+            const createMessageHandler: RequestHandler = async (_req: Request, res: Response) => {
+                await emitEvent({ event: "MESSAGE_CREATE", data: {} });
+                return res.json({});
+            };
+            export const createMessageBodyRouteHandlers: RequestHandler[] = [upload, createMessageBodyRoute];
+            export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
+            export const createMessageRouteHandlers: RequestHandler[] = [...createMessageBodyRouteHandlers, ...createMessageChannelRouteHandlers];
+            router.post("/", ...createMessageRouteHandlers);
+        `;
+
+        const calls = scanRouterCalls(source);
+
+        assert.equal(calls[0].routeMetadata.permission, "VIEW_CHANNEL");
+        assert.equal(calls[0].routeMetadata.right, "SEND_MESSAGES");
+        assert.equal(calls[0].routeMetadata.requestBody, "MessageCreateSchema");
+        assert.deepEqual(calls[0].routeMetadata.responseBodies, ["APIErrorResponse", "MessageResponse"]);
+        assert.deepEqual(calls[0].routeMetadata.responseStatuses, [200, 400, 403, 404]);
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["MESSAGE_CREATE"]);
+    });
+
+    test("extracts metadata and events from imported spread handler tuples", () => {
+        const helpers = `
+            const createMessageBodyRoute = route({
+                right: "SEND_MESSAGES",
+                requestBody: "MessageCreateSchema",
+                responses: { 200: { body: "MessageResponse" } },
+            });
+            const createMessagePermissionRoute = route({ permission: "VIEW_CHANNEL", responses: { 403: {} } });
+            const createMessageHandler: RequestHandler = async (_req: Request, res: Response) => {
+                await emitEvent({ event: "CHANNEL_CREATE", data: {} });
+                await emitEvent({ event: "MESSAGE_CREATE", data: {} });
+                return res.json({});
+            };
+            export const createMessageBodyRouteHandlers: RequestHandler[] = [createMessageBodyRoute];
+            export const createMessageChannelRouteHandlers: RequestHandler[] = [createMessagePermissionRoute, createMessageHandler];
+        `;
+        const source = `
+            router.post(
+                "/",
+                ...createMessageBodyRouteHandlers,
+                async (_req, _res, next) => next(),
+                ...createMessageChannelRouteHandlers,
+            );
+        `;
+
+        const calls = scanRouterCalls(source, extractSourceHelperEventMap(helpers), extractSourceHelperRouteMetadataMap(helpers));
+
+        assert.equal(calls[0].routeMetadata.permission, "VIEW_CHANNEL");
+        assert.equal(calls[0].routeMetadata.right, "SEND_MESSAGES");
+        assert.equal(calls[0].routeMetadata.requestBody, "MessageCreateSchema");
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["CHANNEL_CREATE", "MESSAGE_CREATE"]);
+    });
+
+    test("collects emitted events from imported utility helpers", () => {
+        const repoRoot = mkdtempSync(path.join(tmpdir(), "spacebar-manifest-helpers-"));
+        try {
+            const utilityDir = path.join(repoRoot, "src", "api", "util", "utility");
+            mkdirSync(utilityDir, { recursive: true });
+            writeFileSync(
+                path.join(utilityDir, "Messages.ts"),
+                `
+                    export function buildMessageDeleteBulkEvent() {
+                        return {
+                            event: "MESSAGE_DELETE_BULK",
+                            data: {},
+                        };
+                    }
+
+                    export async function deleteMessagesAndEmitBulkEvents() {
+                        const emit = emitEvent;
+                        await emit(buildMessageDeleteBulkEvent());
+                    }
+                `,
+            );
+
+            assert.deepEqual(collectExternalHelperEventMap(repoRoot).get("deleteMessagesAndEmitBulkEvents"), ["MESSAGE_DELETE_BULK"]);
+        } finally {
+            rmSync(repoRoot, { recursive: true, force: true });
+        }
+    });
+
+    test("extracts imported helper events through named route handlers", () => {
+        const entityHelpers = `
+            export class Member {
+                static async removeFromGuild() {
+                    await emitEvent({ event: "GUILD_DELETE", data: {} });
+                    await emitEvent({ event: "GUILD_MEMBER_REMOVE", data: {} });
+                }
+            }
+        `;
+        const accountHelpers = `
+            export async function deleteSelfUserAccount(userId) {
+                await Member.removeFromGuild(userId, "guild-id");
+            }
+        `;
+        const source = `
+            export async function deleteSelfUserAccountRoute(req, res) {
+                await deleteSelfUserAccount(req.user_id);
+                return res.sendStatus(204);
+            }
+
+            router.post(
+                "/",
+                route({ responses: { 204: {} } }),
+                deleteSelfUserAccountRoute,
+            );
+        `;
+        const entityEvents = extractSourceHelperEventMap(entityHelpers);
+        const accountEvents = extractSourceHelperEventMap(accountHelpers, entityEvents);
+        const calls = scanRouterCalls(source, accountEvents);
+
+        assert.deepEqual(calls[0].routeMetadata.emittedEvents, ["GUILD_DELETE", "GUILD_MEMBER_REMOVE"]);
     });
 
     test("skips imported helper events when route call disables helper event emission", () => {

@@ -1,4 +1,4 @@
-import { Application, Channel, Guild, Member, Message, Role, Session, User, Webhook } from "@spacebar/util";
+import { Application, Channel, Guild, Member, Message, Role, Session, Snowflake, User, Webhook } from "@spacebar/util";
 
 let sequence = 0;
 
@@ -9,7 +9,7 @@ export function nextFixtureId(prefix = "test") {
 
 export function makeUser(overrides: Partial<User> = {}): User {
     return assignEntity(new User(), {
-        id: nextFixtureId("user"),
+        id: Snowflake.generate(),
         username: "fixture-user",
         discriminator: "0001",
         desktop: false,
@@ -59,7 +59,7 @@ export function makeSession(user: User = makeUser(), overrides: Partial<Session>
 
 export function makeGuild(owner: User = makeUser(), overrides: Partial<Guild> = {}): Guild {
     return assignEntity(new Guild(), {
-        id: nextFixtureId("guild"),
+        id: Snowflake.generate(),
         name: "Fixture Guild",
         owner,
         owner_id: owner.id,
@@ -89,7 +89,7 @@ export function makeGuild(owner: User = makeUser(), overrides: Partial<Guild> = 
 
 export function makeRole(guild: Guild = makeGuild(), overrides: Partial<Role> = {}): Role {
     return assignEntity(new Role(), {
-        id: nextFixtureId("role"),
+        id: Snowflake.generate(),
         guild,
         guild_id: guild.id,
         color: 0,
@@ -107,7 +107,7 @@ export function makeRole(guild: Guild = makeGuild(), overrides: Partial<Role> = 
 
 export function makeChannel(guild: Guild = makeGuild(), overrides: Partial<Channel> = {}): Channel {
     return assignEntity(new Channel(), {
-        id: nextFixtureId("channel"),
+        id: Snowflake.generate(),
         created_at: new Date(),
         name: "fixture-channel",
         type: 0,
@@ -146,7 +146,7 @@ export function makeMember(user: User = makeUser(), guild: Guild = makeGuild(use
 
 export function makeMessage(channel: Channel = makeChannel(), author: User = makeUser(), overrides: Partial<Message> = {}): Message {
     return assignEntity(new Message(), {
-        id: nextFixtureId("message"),
+        id: Snowflake.generate(),
         channel,
         channel_id: channel.id,
         guild: channel.guild,
@@ -174,7 +174,7 @@ export function makeMessage(channel: Channel = makeChannel(), author: User = mak
 export function makeWebhook(channel: Channel = makeChannel(), overrides: Partial<Webhook> = {}): Webhook {
     const user = makeUser();
     return assignEntity(new Webhook(), {
-        id: nextFixtureId("webhook"),
+        id: Snowflake.generate(),
         type: 1,
         name: "fixture-webhook",
         avatar: "",
@@ -191,7 +191,7 @@ export function makeWebhook(channel: Channel = makeChannel(), overrides: Partial
 
 export function makeApplication(owner: User = makeUser(), overrides: Partial<Application> = {}): Application {
     return assignEntity(new Application(), {
-        id: nextFixtureId("app"),
+        id: Snowflake.generate(),
         name: "Fixture Application",
         description: "",
         summary: "",

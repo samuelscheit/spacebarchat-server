@@ -37,6 +37,7 @@ export interface RegisterSchema {
      * @TJS-type string
      */
     date_of_birth?: Date; // "2000-04-03"
+    // Accepted for Discord client compatibility; registration currently ignores it.
     gift_code_sku_id?: string;
     captcha_key?: string;
 

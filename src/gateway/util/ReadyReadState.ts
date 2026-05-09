@@ -8,6 +8,7 @@ export interface ReadyReadStateInput {
     badge_count?: number;
     last_message_id?: string | null;
     last_acked_id?: string | null;
+    notifications_cursor?: string | null;
     last_pin_timestamp?: Date | string | null;
     last_viewed?: number | null;
     read_state_type?: number;
@@ -19,6 +20,7 @@ export interface ReadyChannelReadStatePayload {
     mention_count: number;
     last_viewed: number;
     last_message_id?: string | null;
+    notifications_cursor?: string | null;
     last_pin_timestamp: Date | string;
     flags: number;
 }
@@ -63,6 +65,7 @@ export function serializeReadyReadState(readStates: ReadyReadStateInput[], inclu
         };
 
         if (readState.last_message_id !== null && readState.last_message_id !== undefined) payload.last_message_id = readState.last_message_id;
+        if (readState.notifications_cursor !== null && readState.notifications_cursor !== undefined) payload.notifications_cursor = readState.notifications_cursor;
 
         payloads.push(payload);
     }

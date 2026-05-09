@@ -17,7 +17,7 @@
 */
 
 import { Router, Response, Request } from "express";
-import { Config } from "@spacebar/util";
+import { assertCdnAnimatedImagePolicy, assertCdnFileSizeLimit, Config } from "@spacebar/util";
 import { storage } from "@spacebar/cdn";
 import { fileTypeFromBuffer } from "file-type";
 import { HTTPError } from "lambert-server";
@@ -25,10 +25,8 @@ import crypto from "node:crypto";
 import { multer } from "../util/multer";
 import { cache, cacheNotFound } from "../util/cache";
 
-// TODO: check premium and animated pfp are allowed in the config
 // TODO: generate different sizes of icon
 // TODO: generate different image types of icon
-// TODO: delete old icons
 
 const ANIMATED_MIME_TYPES = ["image/apng", "image/gif", "image/gifv"];
 const STATIC_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/svg"];
@@ -42,11 +40,14 @@ router.post("/:sticker_id", multer.single("file"), async (req: Request, res: Res
     if (!req.file) throw new HTTPError("Missing file");
     const { buffer, size } = req.file;
     const { sticker_id } = req.params as { [key: string]: string };
+    const uploadPath = `/stickers/${sticker_id}`;
+    assertCdnFileSizeLimit(uploadPath, size, Config.get().cdn);
 
     let hash = crypto.createHash("md5").update(buffer).digest("hex");
 
     const type = await fileTypeFromBuffer(buffer);
     if (!type || !ALLOWED_MIME_TYPES.includes(type.mime)) throw new HTTPError("Invalid file type");
+    assertCdnAnimatedImagePolicy(uploadPath, type.mime, Config.get().cdn);
     if (ANIMATED_MIME_TYPES.includes(type.mime)) hash = `a_${hash}`; // animated icons have a_ infront of the hash
 
     const path = `${pathPrefix}/${sticker_id}`;

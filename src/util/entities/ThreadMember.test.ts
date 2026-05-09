@@ -1,0 +1,276 @@
+import assert from "node:assert/strict";
+import { afterEach, describe, test } from "node:test";
+import { createRequire } from "node:module";
+
+const localRequire = createRequire(__filename);
+
+type ChannelEntity = import("./Channel").Channel;
+type MemberEntity = import("./Member").Member;
+type ThreadMemberClass = typeof import("./ThreadMember").ThreadMember;
+type ThreadMembersUpdateEvent = import("../interfaces").ThreadMembersUpdateEvent;
+type TransactionManager = {
+    findOneOrFail: (entity: unknown, options: unknown) => Promise<unknown>;
+    delete: (entity: unknown, criteria: unknown) => Promise<{ affected?: number | null }>;
+    count: (entity: unknown, options: unknown) => Promise<number>;
+    update: (entity: unknown, criteria: unknown, values: unknown) => Promise<unknown>;
+};
+
+const fallbackSchemaValue = new Proxy(Object.create(null), {
+    get: (_target, property) => {
+        if (property === Symbol.toPrimitive) return () => 0;
+        if (property === "then") return undefined;
+        if (property === "toString") return () => "0";
+        if (property === "valueOf") return () => 0;
+        return fallbackSchemaValue;
+    },
+});
+
+const schemasPath = localRequire.resolve("@spacebar/schemas");
+(localRequire.cache as Record<string, { exports: unknown } | undefined>)[schemasPath] = {
+    exports: new Proxy(
+        {
+            ChannelType: {
+                DM: 1,
+                GROUP_DM: 3,
+                GUILD_NEWS_THREAD: 10,
+                GUILD_PUBLIC_THREAD: 11,
+                GUILD_PRIVATE_THREAD: 12,
+                GUILD_FORUM: 15,
+                GUILD_MEDIA: 16,
+            },
+            PublicMemberProjection: {},
+            PublicUserProjection: {},
+            PublicVoiceStateProjection: {},
+            RelationshipType: { FRIEND: 1 },
+            ReadStateFlags: {
+                IS_GUILD_CHANNEL: 1,
+                IS_THREAD: 2,
+                IS_MENTION_LOW_IMPORTANCE: 4,
+            },
+            ReadStateType: { CHANNEL: 0 },
+        },
+        {
+            get: (target, property) => {
+                if (property in target) return target[property as keyof typeof target];
+                return fallbackSchemaValue;
+            },
+        },
+    ),
+};
+
+const emittedEvents: ThreadMembersUpdateEvent[] = [];
+let transactionManager: TransactionManager | undefined;
+let transactionCount = 0;
+
+const permissionMock = {
+    has: () => false,
+    hasThrow: () => undefined,
+};
+
+const utilMock = {
+    Config: {
+        get: () => ({
+            guild: {
+                publicThreadsInvitable: false,
+            },
+        }),
+    },
+    DiscordApiErrors: {
+        CANNOT_MESSAGE_USER: new Error("CANNOT_MESSAGE_USER"),
+        THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE: new Error("THREAD_ALREADY_CREATED_FOR_THIS_MESSAGE"),
+    },
+    Permissions: {
+        ALL: permissionMock,
+        DEFAULT_DM_PERMISSIONS: permissionMock,
+        FLAGS: {},
+        NONE: permissionMock,
+        finalPermission: () => permissionMock,
+    },
+    Snowflake: {
+        generate: () => "snowflake",
+    },
+    assertChannelNamePresent: () => undefined,
+    canCreateServerDm: () => true,
+    emitEvent: async (event: ThreadMembersUpdateEvent) => {
+        emittedEvents.push(event);
+    },
+    getDatabase: () => ({
+        transaction: async <T>(callback: (manager: TransactionManager) => Promise<T>) => {
+            assert.ok(transactionManager);
+            transactionCount++;
+            return callback(transactionManager);
+        },
+    }),
+    getPermission: async () => permissionMock,
+    handleFile: async () => undefined,
+    normalizeChannelName: (value?: string) => value,
+    normalizeThreadName: (value?: string) => value,
+    shouldCheckServerDmPrivacy: () => false,
+    trimSpecial: (value?: string) => value,
+};
+
+for (const path of [localRequire.resolve("../util"), localRequire.resolve("../util/index")]) {
+    (localRequire.cache as Record<string, { exports: unknown } | undefined>)[path] = {
+        exports: utilMock,
+    };
+}
+
+const { Channel } = localRequire("./Channel") as { Channel: typeof import("./Channel").Channel };
+const { Member } = localRequire("./Member") as { Member: typeof import("./Member").Member };
+const { MAX_THREAD_MEMBER_COUNT, ThreadMember } = localRequire("./ThreadMember") as { MAX_THREAD_MEMBER_COUNT: number; ThreadMember: ThreadMemberClass };
+
+afterEach(() => {
+    transactionManager = undefined;
+    transactionCount = 0;
+    emittedEvents.length = 0;
+});
+
+function stubRemoval({
+    deleteAffected = 1,
+    memberCount = 2,
+    persistedMemberCount = 1,
+}: {
+    deleteAffected?: number;
+    memberCount?: number | null | undefined;
+    persistedMemberCount?: number;
+} = {}) {
+    const calls: unknown[][] = [];
+    const channel = Object.assign(new Channel(), {
+        id: "thread-id",
+        guild_id: "guild-id",
+        member_count: memberCount,
+        type: 11,
+    }) as ChannelEntity;
+    const member = { index: "member-index" } satisfies Partial<MemberEntity>;
+
+    transactionManager = {
+        findOneOrFail: async (entity: unknown, options: unknown) => {
+            if (entity === Channel) {
+                calls.push(["findOneOrFail", "Channel", options]);
+                return channel;
+            }
+            if (entity === Member) {
+                calls.push(["findOneOrFail", "Member", options]);
+                return member;
+            }
+
+            throw new Error("Unexpected findOneOrFail entity");
+        },
+        delete: async (entity: unknown, criteria: unknown) => {
+            assert.equal(entity, ThreadMember);
+            calls.push(["delete", "ThreadMember", criteria]);
+            return { affected: deleteAffected };
+        },
+        count: async (entity: unknown, options: unknown) => {
+            assert.equal(entity, ThreadMember);
+            calls.push(["count", "ThreadMember", options]);
+            return persistedMemberCount;
+        },
+        update: async (entity: unknown, criteria: unknown, values: unknown) => {
+            assert.equal(entity, Channel);
+            calls.push(["update", "Channel", criteria, values]);
+            Object.assign(channel, values);
+        },
+    };
+
+    return { calls, channel };
+}
+
+describe("ThreadMember.removeFromThread", () => {
+    test("resolves the guild member index before deleting and syncing the emitted member count", async () => {
+        const { calls } = stubRemoval({ memberCount: 99, persistedMemberCount: 1 });
+
+        await ThreadMember.removeFromThread("user-id", "thread-id");
+
+        assert.equal(transactionCount, 1);
+        assert.deepEqual(calls.slice(0, 3), [
+            [
+                "findOneOrFail",
+                "Channel",
+                {
+                    where: { id: "thread-id" },
+                    select: { id: true, guild_id: true, member_count: true, type: true },
+                },
+            ],
+            [
+                "findOneOrFail",
+                "Member",
+                {
+                    where: { id: "user-id", guild_id: "guild-id" },
+                    select: { index: true },
+                },
+            ],
+            ["delete", "ThreadMember", { id: "thread-id", member_idx: "member-index" }],
+        ]);
+        assert.deepEqual(calls[3], ["count", "ThreadMember", { where: { id: "thread-id" } }]);
+        assert.deepEqual(calls[4], ["update", "Channel", { id: "thread-id" }, { member_count: 1 }]);
+        assert.equal(emittedEvents.length, 1);
+        assert.deepEqual(emittedEvents[0].data, {
+            guild_id: "guild-id",
+            id: "thread-id",
+            member_count: 1,
+            removed_member_ids: ["user-id"],
+        });
+        assert.equal(emittedEvents[0].channel_id, "thread-id");
+    });
+
+    test("syncs zero when removing the last thread member", async () => {
+        const { calls } = stubRemoval({ memberCount: 99, persistedMemberCount: 0 });
+
+        await ThreadMember.removeFromThread("user-id", "thread-id");
+
+        assert.deepEqual(calls[3], ["count", "ThreadMember", { where: { id: "thread-id" } }]);
+        assert.deepEqual(calls[4], ["update", "Channel", { id: "thread-id" }, { member_count: 0 }]);
+        assert.deepEqual(
+            emittedEvents.map((event) => event.data.member_count),
+            [0],
+        );
+    });
+
+    test("caps the synced thread member count before persisting and emitting", async () => {
+        const { calls } = stubRemoval({ memberCount: 99, persistedMemberCount: MAX_THREAD_MEMBER_COUNT + 10 });
+
+        await ThreadMember.removeFromThread("user-id", "thread-id");
+
+        assert.deepEqual(calls[3], ["count", "ThreadMember", { where: { id: "thread-id" } }]);
+        assert.deepEqual(calls[4], ["update", "Channel", { id: "thread-id" }, { member_count: MAX_THREAD_MEMBER_COUNT }]);
+        assert.deepEqual(
+            emittedEvents.map((event) => event.data.member_count),
+            [MAX_THREAD_MEMBER_COUNT],
+        );
+    });
+
+    test("uses the delete result as the membership authority before decrementing or emitting", async () => {
+        const { calls } = stubRemoval({ deleteAffected: 0, memberCount: 2 });
+
+        await assert.rejects(
+            () => ThreadMember.removeFromThread("user-id", "thread-id"),
+            (error) => (error as { code?: number }).code === 403,
+        );
+
+        assert.deepEqual(calls.slice(0, 3), [
+            [
+                "findOneOrFail",
+                "Channel",
+                {
+                    where: { id: "thread-id" },
+                    select: { id: true, guild_id: true, member_count: true, type: true },
+                },
+            ],
+            [
+                "findOneOrFail",
+                "Member",
+                {
+                    where: { id: "user-id", guild_id: "guild-id" },
+                    select: { index: true },
+                },
+            ],
+            ["delete", "ThreadMember", { id: "thread-id", member_idx: "member-index" }],
+        ]);
+        assert.equal(
+            calls.some(([method]) => method === "count" || method === "update"),
+            false,
+        );
+        assert.deepEqual(emittedEvents, []);
+    });
+});

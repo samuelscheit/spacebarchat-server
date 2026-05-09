@@ -52,20 +52,26 @@ import {
     getCloudAttachmentAccessError,
     getAttachmentMutationPath,
     getCdnMutationUrl,
+    PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT,
+    Snowflake,
 } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
-import { In, Or, Equal, IsNull } from "typeorm";
+import { In, Or, Equal, IsNull, type FindOptionsWhere } from "typeorm";
 import { MessageNotificationOptions, shouldIncrementMentionCount } from "../utility/MessageNotifications";
+import { assertMessagePayloadLimits } from "../utility/MessagePayloadLimits";
 import {
+    AllowedMentions,
     ActionRowComponent,
     ButtonStyle,
     ChannelType,
     Embed,
     EmbedType,
     MessageComponentType,
-    MessageCreateAttachment,
+    MessageCreateAttachmentMetadata,
     MessageCreateCloudAttachment,
     MessageCreateSchema,
+    PollCreationSchema,
+    Poll,
     MessageType,
     ReadStateType,
     StoredReaction,
@@ -76,8 +82,6 @@ import {
 import { collectMessageComponentMedia } from "../utility/MessagePayloadPermissions";
 import { findCloudAttachmentForChannel, getCloudAttachmentCloneUrl, getCloudAttachmentLookupChannelId } from "./CloudAttachmentLookup";
 const allow_empty = false;
-// TODO: check webhook, application, system author, stickers
-// TODO: embed gifs/videos/images
 
 function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], errors: Record<string, { code?: string; message: string }>, rowIndex: number) {
     if (!row.components) {
@@ -111,19 +115,50 @@ function checkActionRow(row: ActionRowComponent, knownComponentIds: string[], er
         }
     }
 }
-async function processMedia(media: UnfurledMediaItem, messageId: string, batchId: string, user: User, channel: Channel, id: string): Promise<(() => void) | void> {
+type ComponentMediaProcessingOptions = {
+    cloudAttachmentLookupChannelId?: string;
+    cloudAttachmentAllowedChannelIds?: string[];
+    expectedUserId?: string;
+};
+
+function getAttachmentMediaUploadFilename(mediaUrl: string, url: URL): string {
+    if (url.protocol !== "attachment:") throw new HTTPError("invalid media protocol");
+    if (!url.hostname) throw new HTTPError("attachment media URL must include an upload filename");
+
+    const uploadFilename = mediaUrl.match(/^attachment:\/\/([^?#]+)/)?.[1];
+    if (!uploadFilename) throw new HTTPError("attachment media URL must include an upload filename");
+
+    return uploadFilename;
+}
+
+async function processMedia(
+    media: UnfurledMediaItem,
+    message: Message,
+    batchId: string,
+    user: User,
+    channel: Channel,
+    id: string,
+    options: ComponentMediaProcessingOptions = {},
+): Promise<(() => void) | void> {
     if (Object.keys(media).length > 1) throw new HTTPError("Extra keys for media items are not allowed");
     if (!URL.canParse(media.url)) throw new HTTPError("media URL must be a URI");
     const url = new URL(media.url);
     if (!["http:", "https:", "attachment:"].includes(url.protocol)) throw new HTTPError("invalid media protocol");
+    const messageId = message.id;
     let attEnt: CloudAttachment;
     let delWhenDone = false;
-    if (url.protocol === "attachment") {
-        attEnt = await CloudAttachment.findOneOrFail({
-            where: {
-                uploadFilename: url.hostname,
+    if (url.protocol === "attachment:") {
+        const lookupChannelId = options.cloudAttachmentLookupChannelId ?? channel.id;
+        attEnt = await findCloudAttachmentForChannel(
+            {
+                findOne: (findOptions) => CloudAttachment.findOne(findOptions),
             },
-        });
+            getAttachmentMediaUploadFilename(media.url, url),
+            lookupChannelId,
+        );
+
+        const accessError = getCloudAttachmentAccessError(attEnt, options.cloudAttachmentAllowedChannelIds ?? [lookupChannelId], options.expectedUserId);
+        if (accessError) throw new HTTPError(accessError.message, accessError.status);
     } else {
         const res = await fetch(url);
         if (!res.ok) throw new HTTPError("URL did not return OK");
@@ -181,16 +216,16 @@ async function processMedia(media: UnfurledMediaItem, messageId: string, batchId
         channel_id: channel.id,
         message_id: messageId,
     });
-    await realAtt.save();
+    message.attachments ??= [];
+    message.attachments.push(realAtt);
 
-    //TODO maybe this needs to be a new DB object? I don't see a reason to do this rn though, though this id *should* technically be different from the id of the attachment
-    media.id = realAtt.id;
+    media.id = Snowflake.generate();
 
     media.height = attEnt.height;
     media.width = attEnt.width;
     media.content_type = attEnt.contentType;
     //TODO flags?
-    media.attachment_id = attEnt.id;
+    media.attachment_id = realAtt.id;
     //TODO preview stuff
 
     if (delWhenDone) {
@@ -280,11 +315,38 @@ export function handleComps(components: BaseMessageComponents[], flags: number) 
         throw FieldErrors(errors);
     }
     const medias = collectMessageComponentMedia(components);
-    return async (messageId: string, user: User, channel: Channel) => {
+    return async (message: Message, user: User, channel: Channel, processingOptions?: ComponentMediaProcessingOptions) => {
         const batchId = `CLOUD_compUploads_${randomString(128)}`;
-        (await Promise.all(medias.map((m, index) => processMedia(m, messageId, batchId, user, channel, index + "")))).forEach((_) => _?.());
+        (await Promise.all(medias.map((m, index) => processMedia(m, message, batchId, user, channel, index + "", processingOptions)))).forEach((_) => _?.());
     };
 }
+
+const DEFAULT_POLL_DURATION_HOURS = 24;
+const DEFAULT_POLL_LAYOUT_TYPE = 1;
+
+export function createPollFromMessageOptions(poll: PollCreationSchema | Poll | null | undefined, now = new Date()): Poll | undefined {
+    if (!poll) return undefined;
+
+    if ("expiry" in poll) {
+        return {
+            ...poll,
+            layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
+        };
+    }
+
+    const durationHours = poll.duration ?? DEFAULT_POLL_DURATION_HOURS;
+    return {
+        question: poll.question,
+        answers: poll.answers.map((answer, index) => ({
+            answer_id: index + 1,
+            poll_media: answer.poll_media,
+        })),
+        expiry: new Date(now.getTime() + durationHours * 60 * 60 * 1000),
+        allow_multiselect: poll.allow_multiselect ?? false,
+        layout_type: poll.layout_type ?? DEFAULT_POLL_LAYOUT_TYPE,
+    };
+}
+
 export function isMessageEditOperation(opts: Pick<MessageOptions, "is_edit">): boolean {
     return opts.is_edit === true;
 }
@@ -293,14 +355,53 @@ export function shouldResolveMessageAuthor(opts: Pick<MessageOptions, "author_id
     return !!opts.author_id && !opts.webhook_id;
 }
 
+export async function resolveMessageStickers(stickerIds: string[] | null | undefined, channel: Pick<Channel, "guild_id">): Promise<Sticker[] | undefined> {
+    if (!stickerIds?.length) return undefined;
+    if (stickerIds.length > 3) throw DiscordApiErrors.INVALID_STICKER_SENT;
+    if (new Set(stickerIds).size !== stickerIds.length) throw DiscordApiErrors.INVALID_STICKER_SENT;
+
+    const where: FindOptionsWhere<Sticker>[] = [{ id: In(stickerIds), guild_id: IsNull() }];
+    if (channel.guild_id) where.push({ id: In(stickerIds), guild_id: channel.guild_id });
+
+    const stickers = await Sticker.find({
+        where,
+    });
+
+    if (new Set(stickers.map((sticker) => sticker.id)).size !== stickerIds.length) {
+        throw DiscordApiErrors.UNKNOWN_STICKER;
+    }
+
+    return stickers;
+}
+
+type MentionNotificationType = "users" | "roles" | "everyone";
+
+function shouldNotifyAllowedMention(allowedMentions: AllowedMentions | null | undefined, type: MentionNotificationType, id?: string): boolean {
+    if (!allowedMentions) return true;
+
+    if (allowedMentions.parse?.includes(type)) return true;
+
+    if (type === "users") return !!id && !!allowedMentions.users?.includes(id);
+    if (type === "roles") return !!id && !!allowedMentions.roles?.includes(id);
+
+    return false;
+}
+
+function shouldNotifyReplyMention(allowedMentions: AllowedMentions | null | undefined): boolean {
+    if (!allowedMentions) return true;
+
+    return allowedMentions.replied_user === true;
+}
+
 export async function handleMessage(opts: MessageOptions, notificationOptions: MessageNotificationOptions = {}): Promise<Message> {
-    const conf = Config.get();
-    const handle = opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
+    assertMessagePayloadLimits(opts);
     const isEdit = isMessageEditOperation(opts);
+    const handle = (!isEdit || opts.process_component_media === true) && opts.components ? handleComps(opts.components, opts.flags || 0) : undefined;
     const messageOptions = { ...opts };
     delete messageOptions.attachment_channel_ids;
     delete messageOptions.attachment_user_id;
     delete messageOptions.cloud_attachment_upload_channel_id;
+    delete messageOptions.process_component_media;
 
     const channel = await Channel.findOneOrFail({
         where: { id: opts.channel_id },
@@ -315,7 +416,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         const lastMsgTime = (await Message.findOne({ where: { channel_id: channel.id, author_id: opts.author_id }, select: { timestamp: true }, order: { timestamp: "DESC" } }))
             ?.timestamp;
         if (lastMsgTime && Date.now() - limit * 1000 < +lastMsgTime) {
-            permission = await getPermission(opts.author_id, channel.guild_id, channel);
+            permission = await getPermission(opts.author_id, channel.guild_id, channel, { member_select: PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT });
             //FIXME MANAGE_MESSAGES and MANAGE_CHANNELS will need to be removed once they're gone as checks
             if (!permission.has("MANAGE_MESSAGES") && !permission.has("MANAGE_CHANNELS") && !permission.has("BYPASS_SLOWMODE")) {
                 throw DiscordApiErrors.SLOWMODE_RATE_LIMIT;
@@ -323,12 +424,12 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         }
     }
 
-    const stickers = opts.sticker_ids ? await Sticker.find({ where: { id: In(opts.sticker_ids) } }) : undefined;
+    const stickers = await resolveMessageStickers(opts.sticker_ids, channel);
 
     const message = Message.create({
         ...messageOptions,
         message_reference: opts.message_reference ?? undefined,
-        poll: opts.poll,
+        poll: createPollFromMessageOptions(opts.poll),
         sticker_items: stickers,
         guild_id: channel.guild_id,
         channel_id: opts.channel_id,
@@ -364,10 +465,6 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     }
 
     // TODO: Removed cloud attachment handling being inline - handle components!
-
-    if (message.content && message.content.length > conf.limits.message.maxCharacters) {
-        throw new HTTPError("Content length over max character limit");
-    }
 
     if (opts.application_id) {
         message.application_id = opts.application_id;
@@ -421,7 +518,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             message.author.avatar = message.avatar;
         }
     } else {
-        permission ||= await getPermission(opts.author_id, channel.guild_id, channel);
+        permission ||= await getPermission(opts.author_id, channel.guild_id, channel, { member_select: PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT });
         if (permission === null) throw new HTTPError("permission was null after getPermission", 500);
         permission.hasThrow("SEND_MESSAGES");
         if (permission.cache.member) {
@@ -474,7 +571,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         }
     }
 
-    // TODO: stickers/activity
+    // TODO: activity
     if (
         !allow_empty &&
         !opts.content &&
@@ -490,13 +587,25 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
         throw new HTTPError("Empty messages are not allowed", 50006);
     }
 
+    if (handle && !isEdit) {
+        const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(channel.id, opts.cloud_attachment_upload_channel_id);
+        await handle(message, message.author as User, channel, {
+            cloudAttachmentLookupChannelId,
+            cloudAttachmentAllowedChannelIds: opts.attachment_channel_ids ?? [cloudAttachmentLookupChannelId],
+            expectedUserId: opts.attachment_user_id,
+        });
+    }
+
     let content = opts.content;
 
     // root@Rory - 20/02/2023 - This breaks channel mentions in test client. We're not sure this was used in older clients.
     //const mention_channel_ids = [] as string[];
     const mention_role_ids = [] as string[];
     const mention_user_ids = [] as string[];
+    const content_mention_user_ids = new Set<string>();
+    const reply_mention_user_ids = new Set<string>();
     let mention_everyone = false;
+    let notify_everyone = false;
 
     if (content) {
         // TODO: explicit-only mentions
@@ -511,6 +620,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 
         for (const [, mention] of content.matchAll(USER_MENTION)) {
             if (!mention_user_ids.includes(mention)) mention_user_ids.push(mention);
+            content_mention_user_ids.add(mention);
         }
 
         await Promise.all(
@@ -526,6 +636,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
 
         if (opts.webhook_id || permission?.has("MENTION_EVERYONE")) {
             mention_everyone = !!content.match(EVERYONE_MENTION) || !!content.match(HERE_MENTION);
+            notify_everyone = !!content.match(EVERYONE_MENTION) && shouldNotifyAllowedMention(opts.allowed_mentions, "everyone");
         }
     }
 
@@ -545,6 +656,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
                 // @ts-expect-error it does not like the .toPublicUser() lol
                 (await User.findOne({ where: { id: referencedMessage.author_id } }))!.toPublicUser(),
             );
+            if (referencedMessage.author_id) reply_mention_user_ids.add(referencedMessage.author_id);
         }
 
         // FORWARD
@@ -594,7 +706,7 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             }
         }
     } else if (incrementMentionCount) {
-        if ((!!message.content?.match(EVERYONE_MENTION) && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
+        if ((notify_everyone && permission?.has("MENTION_EVERYONE")) || channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
             if (channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM) {
                 if (channel.recipients) {
                     await fillInMissingIDs(channel.recipients.map(({ user_id }) => user_id));
@@ -607,16 +719,23 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
             await repository.update({ ...condition, mention_count: IsNull() }, { mention_count: 0 });
             await repository.increment(condition, "mention_count", 1);
         } else {
+            const mentionRolesAllowedToNotify = message.mention_roles.filter((role) => shouldNotifyAllowedMention(opts.allowed_mentions, "roles", role.id));
             const users = new Set<string>([
-                ...(message.mention_roles.length
+                ...(mentionRolesAllowedToNotify.length
                     ? await Member.find({
-                          where: [...message.mention_roles.map((role) => ({ roles: { id: role.id } }))],
+                          where: [...mentionRolesAllowedToNotify.map((role) => ({ roles: { id: role.id } }))],
                       })
                     : []
                 ).map((member) => member.id),
-                ...message.mentions.map((user) => user.id),
+                ...message.mentions
+                    .filter((user) => {
+                        if (content_mention_user_ids.has(user.id) && shouldNotifyAllowedMention(opts.allowed_mentions, "users", user.id)) return true;
+                        if (reply_mention_user_ids.has(user.id) && shouldNotifyReplyMention(opts.allowed_mentions)) return true;
+                        return false;
+                    })
+                    .map((user) => user.id),
             ]);
-            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE")) {
+            if (!!message.content?.match(HERE_MENTION) && permission?.has("MENTION_EVERYONE") && shouldNotifyAllowedMention(opts.allowed_mentions, "everyone")) {
                 const ids = (await Member.find({ where: { guild_id: channel.guild_id } })).map(({ id }) => id);
                 (await Session.find({ where: { user_id: Or(...ids.map((id) => Equal(id))) } })).forEach(({ user_id }) => users.add(user_id));
             }
@@ -685,10 +804,18 @@ export async function handleMessage(opts: MessageOptions, notificationOptions: M
     }
     message.attachments = message.attachments?.filter((_, index) => !attachmentsToRemove.has(index));
 
+    if (isEdit && handle) {
+        const cloudAttachmentLookupChannelId = getCloudAttachmentLookupChannelId(channel.id, opts.cloud_attachment_upload_channel_id);
+        await handle(message, message.author as User, channel, {
+            cloudAttachmentLookupChannelId,
+            cloudAttachmentAllowedChannelIds: opts.attachment_channel_ids ?? [cloudAttachmentLookupChannelId],
+            expectedUserId: opts.attachment_user_id,
+        });
+    }
+
     return message;
 }
 
-// TODO: cache link result in db
 export async function postHandleMessage(message: Message) {
     message.clean_data();
 
@@ -731,7 +858,7 @@ export async function sendMessage(opts: MessageOptions) {
     return message;
 }
 
-type MessageOptionAttachment = MessageCreateAttachment | MessageCreateCloudAttachment | Attachment;
+type MessageOptionAttachment = MessageCreateAttachmentMetadata | Attachment;
 interface MessageOptions extends MessageCreateSchema {
     id?: string;
     type?: MessageType;
@@ -742,10 +869,11 @@ interface MessageOptions extends MessageCreateSchema {
     embeds?: Embed[] | null;
     reactions?: StoredReaction[];
     channel_id?: string;
-    attachments?: (MessageCreateAttachment | MessageCreateCloudAttachment | Attachment)[]; // why are we masking this?
+    attachments?: MessageOptionAttachment[]; // why are we masking this?
     attachment_user_id?: string;
     attachment_channel_ids?: string[];
     cloud_attachment_upload_channel_id?: string;
+    process_component_media?: boolean;
     edited_timestamp?: Date;
     timestamp?: Date;
     username?: string;

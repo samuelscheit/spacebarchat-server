@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { BitField } from "./BitField";
+import { BitField, type BitFieldResolvable } from "./BitField";
 
 export class Intents extends BitField {
     static FLAGS = {
@@ -54,14 +54,22 @@ export class Intents extends BitField {
 
     static PRIVILEGED_FLAGS: BitField = new Intents(Intents.FLAGS.GUILD_PRESENCES | Intents.FLAGS.GUILD_MEMBERS | Intents.FLAGS.GUILD_MESSAGES_CONTENT);
 
+    /**
+     * Default intents used for clients that omit the identify intent mask.
+     *
+     * This preserves Spacebar's legacy gateway behavior: subscribe to every
+     * Discord-defined intent bit in the contiguous 0..34 range, but do not
+     * implicitly enable Spacebar's bit-32 LIVE_MESSAGE_COMPOSITION extension.
+     */
+    static DEFAULT_GATEWAY_IDENTIFY_INTENTS: bigint = ((BigInt(1) << BigInt(35)) - BigInt(1)) & ~Intents.ERKINALP_FLAGS.LIVE_MESSAGE_COMPOSITION;
+
+    static resolveGatewayIdentifyIntents(intents?: BitFieldResolvable | null): bigint {
+        return intents == null ? Intents.DEFAULT_GATEWAY_IDENTIFY_INTENTS : Intents.resolve(intents);
+    }
+
     static INTENT_TO_EVENTS_MAP = {
         // MESSAGE_CONTENT
         15: [],
-        // TODO: aren't these guild specific?
-        // AUTO_MODERATION_CONFIGURATION
-        20: ["AUTO_MODERATION_RULE_CREATE", "AUTO_MODERATION_RULE_UPDATE", "AUTO_MODERATION_RULE_DELETE"],
-        // AUTO_MODERATION_EXECUTION
-        21: ["AUTO_MODERATION_ACTION_EXECUTION"],
     };
 
     static GUILD_INTENT_TO_EVENTS_MAP = {
@@ -82,7 +90,6 @@ export class Intents extends BitField {
             "THREAD_DELETE",
             "THREAD_LIST_SYNC",
             "THREAD_MEMBER_UPDATE",
-            "THREAD_MEMBERS_UPDATE", // *
             "STAGE_INSTANCE_CREATE",
             "STAGE_INSTANCE_UPDATE",
             "STAGE_INSTANCE_DELETE",
@@ -92,7 +99,7 @@ export class Intents extends BitField {
             "GUILD_MEMBER_ADD",
             "GUILD_MEMBER_UPDATE",
             "GUILD_MEMBER_REMOVE",
-            "THREAD_MEMBERS_UPDATE ", // *
+            "THREAD_MEMBERS_UPDATE", // *
         ],
         // GUILD_BANS
         2: ["GUILD_AUDIT_LOG_ENTRY_CREATE", "GUILD_BAN_ADD", "GUILD_BAN_REMOVE"],
@@ -111,7 +118,7 @@ export class Intents extends BitField {
         // GUILD_WEBHOOKS
         5: ["WEBHOOKS_UPDATE"],
         // GUILD_INVITES
-        6: ["GUILD_INVITE_CREATE", "GUILD_INVITE_DELETE"],
+        6: ["INVITE_CREATE", "INVITE_DELETE"],
         // GUILD_VOICE_STATES
         7: ["VOICE_CHANNEL_EFFECT_SEND", "VOICE_STATE_UPDATE"],
         // GUILD_PRESENCES
@@ -119,19 +126,33 @@ export class Intents extends BitField {
         // GUILD_MESSAGES
         9: ["MESSAGE_CREATE", "MESSAGE_UPDATE", "MESSAGE_DELETE", "MESSAGE_DELETE_BULK"],
         // GUILD_MESSAGE_REACTIONS
-        10: ["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE", "MESSAGE_REACTION_REMOVE_ALL", "MESSAGE_REACTION_REMOVE_EMOJI"],
+        10: ["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_ADD_MANY", "MESSAGE_REACTION_REMOVE", "MESSAGE_REACTION_REMOVE_ALL", "MESSAGE_REACTION_REMOVE_EMOJI"],
         // GUILD_MESSAGE_TYPING
         11: ["TYPING_START"],
         // GUILD_SCHEDULED_EVENTS
         16: ["GUILD_SCHEDULED_EVENT_CREATE", "GUILD_SCHEDULED_EVENT_UPDATE", "GUILD_SCHEDULED_EVENT_DELETE", "GUILD_SCHEDULED_EVENT_USER_ADD", "GUILD_SCHEDULED_EVENT_USER_REMOVE"],
+        // AUTO_MODERATION_CONFIGURATION
+        20: ["AUTO_MODERATION_RULE_CREATE", "AUTO_MODERATION_RULE_UPDATE", "AUTO_MODERATION_RULE_DELETE"],
+        // AUTO_MODERATION_EXECUTION
+        21: ["AUTO_MODERATION_ACTION_EXECUTION"],
         // GUILD_MESSAGE_POLLS
         24: ["MESSAGE_POLL_VOTE_ADD", "MESSAGE_POLL_VOTE_REMOVE"],
     };
     static DM_INTENT_TO_EVENTS_MAP = {
         // DIRECT_MESSAGES
-        12: ["MESSAGE_CREATE", "MESSAGE_UPDATE", "MESSAGE_DELETE", "CHANNEL_PINS_UPDATE"],
+        12: [
+            "CHANNEL_CREATE",
+            "CHANNEL_UPDATE",
+            "CHANNEL_DELETE",
+            "CHANNEL_RECIPIENT_ADD",
+            "CHANNEL_RECIPIENT_REMOVE",
+            "MESSAGE_CREATE",
+            "MESSAGE_UPDATE",
+            "MESSAGE_DELETE",
+            "CHANNEL_PINS_UPDATE",
+        ],
         // DIRECT_MESSAGE_REACTIONS
-        13: ["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_REMOVE", "MESSAGE_REACTION_REMOVE_ALL", "MESSAGE_REACTION_REMOVE_EMOJI"],
+        13: ["MESSAGE_REACTION_ADD", "MESSAGE_REACTION_ADD_MANY", "MESSAGE_REACTION_REMOVE", "MESSAGE_REACTION_REMOVE_ALL", "MESSAGE_REACTION_REMOVE_EMOJI"],
         // DIRECT_MESSAGE_TYPING
         14: ["TYPING_START"],
         // DIRECT_MESSAGE_POLLS

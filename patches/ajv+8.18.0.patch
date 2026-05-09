@@ -56,7 +56,7 @@ index 82a591f..1ebd8fe 100644
          all: {},
          keywords: {},
 diff --git a/node_modules/ajv/dist/compile/validate/dataType.js b/node_modules/ajv/dist/compile/validate/dataType.js
-index 6d03e0d..a35a428 100644
+index 6d03e0d..f19021f 100644
 --- a/node_modules/ajv/dist/compile/validate/dataType.js
 +++ b/node_modules/ajv/dist/compile/validate/dataType.js
 @@ -53,7 +53,7 @@ function coerceAndCheckDataType(it, types) {
@@ -68,7 +68,7 @@ index 6d03e0d..a35a428 100644
  function coerceToTypes(types, coerceTypes) {
      return coerceTypes
          ? types.filter((t) => COERCIBLE.has(t) || (coerceTypes === "array" && t === "array"))
-@@ -84,6 +84,14 @@ function coerceData(it, types, coerceTo) {
+@@ -84,6 +84,15 @@ function coerceData(it, types, coerceTo) {
      });
      function coerceSpecificType(t) {
          switch (t) {
@@ -76,6 +76,7 @@ index 6d03e0d..a35a428 100644
 +				gen
 +				.elseIf(
 +					codegen_1._`${dataType} == "boolean" || ${data} === null
++					|| (${dataType} == "number" && Number.isInteger(${data}))
 +					|| (${dataType} == "string" && ${data} && ${data} == BigInt(${data}))`
 +				)
 +				.assign(coerced, codegen_1._`BigInt(${data})`)
@@ -83,12 +84,12 @@ index 6d03e0d..a35a428 100644
              case "string":
                  gen
                      .elseIf((0, codegen_1._) `${dataType} == "number" || ${dataType} == "boolean"`)
-@@ -144,6 +152,9 @@ function checkDataType(dataType, data, strictNums, correct = DataType.Correct) {
+@@ -144,6 +153,9 @@ function checkDataType(dataType, data, strictNums, correct = DataType.Correct) {
          case "number":
              cond = numCond();
              break;
 +		 case "bigint":
-+			cond = codegen_1._`typeof ${data} == "bigint" && isFinite(${data})`
++			cond = codegen_1._`typeof ${data} == "bigint"`
 +			break
          default:
              return (0, codegen_1._) `typeof ${data} ${EQ} ${dataType}`;

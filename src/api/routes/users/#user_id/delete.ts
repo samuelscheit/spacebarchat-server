@@ -195,7 +195,6 @@ router.post(
         await UserSettingsProtos.delete({ user_id: req.params.user_id as string });
         await User.delete({ id: req.params.user_id as string });
 
-        // TODO: respect intents as USER_DELETE has potential to cause privacy issues
         await emitEvent({
             event: "USER_DELETE",
             user_id: req.user_id,
