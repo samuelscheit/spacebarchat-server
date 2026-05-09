@@ -35,6 +35,7 @@
         "src/api/util/utility/ReactionTypes.test.ts",
         "src/api/util/utility/ReadStateRoutes.test.ts",
         "src/api/util/utility/ThreadCreationPermissions.test.ts",
+        "src/api/util/utility/ThreadMembers.test.ts",
         "src/cdn/ServerConfigure.test.ts",
         "src/cdn/routes/banners.test.ts",
         "src/cdn/routes/role-icons.test.ts",

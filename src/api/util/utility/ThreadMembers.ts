@@ -1,3 +1,4 @@
+import { ThreadMember } from "@spacebar/util";
 import { HTTPError } from "lambert-server";
 
 export const DEFAULT_THREAD_MEMBER_LIMIT = 100;
@@ -24,6 +25,27 @@ export function resolveThreadMemberUserId(value: string, currentUserId: string) 
 
 export function assertThreadIsNotArchived(thread: { thread_metadata?: { archived?: boolean } }) {
     if (thread.thread_metadata?.archived) throw new RangeError("Cannot modify archived thread members");
+}
+
+export interface ThreadMemberCountThread {
+    id: string;
+    member_count?: number | null;
+    save(): Promise<unknown>;
+}
+
+export type ThreadMemberCountReader = (threadId: string) => Promise<number>;
+
+export async function syncThreadMemberCount(thread: ThreadMemberCountThread, countThreadMembers: ThreadMemberCountReader) {
+    thread.member_count = await countThreadMembers(thread.id);
+    await thread.save();
+
+    return thread.member_count;
+}
+
+export const countPersistedThreadMembers: ThreadMemberCountReader = (threadId) => ThreadMember.countBy({ id: threadId });
+
+export async function syncPersistedThreadMemberCount(thread: ThreadMemberCountThread) {
+    return await syncThreadMemberCount(thread, countPersistedThreadMembers);
 }
 
 type QueryParameters = Record<string, unknown>;
