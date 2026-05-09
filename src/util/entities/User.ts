@@ -17,7 +17,7 @@
 */
 
 import { Request } from "express";
-import { Column, Entity, EntityManager, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { Column, Entity, EntityManager, Index, JoinColumn, OneToMany, OneToOne } from "typeorm";
 import {
     Channel,
     Config,
@@ -26,11 +26,15 @@ import {
     FieldErrors,
     getDefaultUserRights,
     isNormalizedEmailUniqueViolation,
+    chooseAvailableDiscriminator,
+    chooseIncrementingDiscriminator,
+    retryOnUserTagUniqueViolation,
+    USER_TAG_REGISTRATION_ATTEMPTS,
     normalizeOptionalEmail,
     Snowflake,
     trimSpecial,
 } from "..";
-import { bigintNumberTransformer, Random } from "../util";
+import { bigintNumberTransformer, DateOfBirthInput, evaluateDateOfBirth, Random } from "../util";
 import { profilePronouns } from "../util/UserProfile";
 import { BaseClass } from "./BaseClass";
 import { ConnectedAccount } from "./ConnectedAccount";
@@ -53,10 +57,13 @@ import {
 } from "@spacebar/schemas";
 import { JsonNumber } from "../util/Decorators";
 
+@Index("users_username_discriminator_idx", ["username", "discriminator"], { unique: true })
 @Entity({
     name: "users",
 })
 export class User extends BaseClass {
+    static readonly nsfwAllowedAge = 18;
+
     @Column()
     username: string; // username max length 32, min 2 (should be configurable)
 
@@ -105,7 +112,7 @@ export class User extends BaseClass {
     system: boolean = false; // shouldn't be used, the api sends this field type true, if the generated message comes from a system generated author
 
     @Column({ select: false })
-    nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands) // TODO: depending on age
+    nsfw_allowed: boolean = true; // if the user can do age-restricted actions (NSFW channels/guilds/commands)
 
     @Column({ select: false })
     mfa_enabled: boolean = false; // if multi factor authentication is enabled
@@ -139,7 +146,7 @@ export class User extends BaseClass {
 
     @Column({ type: "bigint", transformer: bigintNumberTransformer })
     @JsonNumber
-    flags: number = 0; // UserFlags // TODO: generate
+    flags: number = 0; // Discord-compatible user flag bitfield; see UserFlags in @spacebar/schemas.
 
     @Column({ type: "bigint", transformer: bigintNumberTransformer })
     @JsonNumber
@@ -211,20 +218,17 @@ export class User extends BaseClass {
     @Column({ type: "jsonb", nullable: true })
     primary_guild?: PrimaryGuild;
 
-    // TODO: I don't like this method?
-    validate() {
-        if (this.discriminator) {
-            const discrim = Number(this.discriminator);
-            if (isNaN(discrim) || !Number.isInteger(discrim) || discrim <= 0 || discrim >= 10000)
-                throw FieldErrors({
-                    discriminator: {
-                        message: "Discriminator must be a number.",
-                        code: "DISCRIMINATOR_INVALID",
-                    },
-                });
+    static normalizeDiscriminator(discriminator: string): string {
+        const discrim = /^\d{1,4}$/.test(discriminator) ? Number(discriminator) : NaN;
+        if (Number.isNaN(discrim) || discrim <= 0 || discrim >= 10000)
+            throw FieldErrors({
+                discriminator: {
+                    message: "Discriminator must be a number.",
+                    code: "DISCRIMINATOR_INVALID",
+                },
+            });
 
-            this.discriminator = discrim.toString().padStart(4, "0");
-        }
+        return discrim.toString().padStart(4, "0");
     }
 
     toPublicUser() {
@@ -265,32 +269,26 @@ export class User extends BaseClass {
             // discriminator will be incrementally generated
 
             // First we need to figure out the currently highest discrimnator for the given username and then increment it
-            const users = await userRepository.find({
-                where: { username },
-                select: { discriminator: true },
-            });
-            const highestDiscriminator = Math.max(0, ...users.map((u) => Number(u.discriminator)));
+            const takenDiscriminators = (
+                await userRepository.find({
+                    where: { username },
+                    select: { discriminator: true },
+                })
+            ).map((x) => x.discriminator);
 
-            const discriminator = highestDiscriminator + 1;
-            if (discriminator >= 10000) {
-                return undefined;
-            }
-
-            return discriminator.toString().padStart(4, "0");
+            // Preserve the normal incrementing sequence, but scan the namespace once
+            // after the current maximum so a high-water mark at 9999 cannot falsely
+            // fail while earlier discriminator gaps are still available.
+            return chooseIncrementingDiscriminator(takenDiscriminators);
         } else {
             // discriminator will be randomly generated
 
-            // randomly generates a discriminator between 1 and 9999 and checks max five times if it already exists
-            // TODO: is there any better way to generate a random discriminator only once, without checking if it already exists in the database?
             const takenDiscriminators = (await userRepository.find({ where: { username }, select: { discriminator: true } })).map((x) => x.discriminator);
-            if (takenDiscriminators.length >= 9999) return undefined;
 
-            for (let tries = 0; tries < 15; tries++) {
-                const discriminator = Random.nextInt(1, 9999).toString().padStart(4, "0");
-                if (!takenDiscriminators.includes(discriminator)) return discriminator;
-            }
-
-            return undefined;
+            // Pick a random starting point, then scan the fixed discriminator namespace once.
+            // This preserves random placement for sparse usernames but cannot falsely fail
+            // after repeated collisions while an unused discriminator still exists.
+            return chooseAvailableDiscriminator(takenDiscriminators, Random.nextInt(1, 10000));
         }
     }
 
@@ -301,10 +299,25 @@ export class User extends BaseClass {
         return uniqueUsernames ? this.username : `${this.username}#${this.discriminator}`;
     }
 
+    static isValidDateOfBirth(dateOfBirth: DateOfBirthInput) {
+        return evaluateDateOfBirth(dateOfBirth, undefined).status === "allowed";
+    }
+
+    static hasReachedAge(dateOfBirth: DateOfBirthInput, age: number, now = new Date()) {
+        if (!Number.isFinite(age) || age < 0 || Number.isNaN(now.getTime())) return false;
+
+        return evaluateDateOfBirth(dateOfBirth, age, now).status === "allowed";
+    }
+
+    static isAdult(dateOfBirth: DateOfBirthInput, now = new Date()) {
+        return User.hasReachedAge(dateOfBirth, User.nsfwAllowedAge, now);
+    }
+
     static async register({
         email,
         username,
         password,
+        date_of_birth,
         id,
         req,
         bot,
@@ -314,7 +327,7 @@ export class User extends BaseClass {
         username: string;
         password?: string;
         email?: string;
-        date_of_birth?: Date; // "2000-04-03"
+        date_of_birth?: DateOfBirthInput | null; // "2000-04-03"
         id?: string;
         req?: Request;
         bot?: boolean;
@@ -328,61 +341,73 @@ export class User extends BaseClass {
         const userRepository = manager?.getRepository(User) ?? User.getRepository();
         const settingsRepository = manager?.getRepository(UserSettings) ?? UserSettings.getRepository();
 
-        const discriminator = await User.generateDiscriminator(username, manager);
-        if (!discriminator) {
-            // We've failed to generate a valid and unused discriminator
+        const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
+        const throwTooManyUsers = (): never => {
             throw FieldErrors({
                 username: {
                     code: "USERNAME_TOO_MANY_USERS",
                     message: req?.t("auth:register.USERNAME_TOO_MANY_USERS") || "",
                 },
             });
-        }
+        };
 
-        // TODO: save date_of_birth
-        // apparently discord doesn't save the date of birth and just calculate if nsfw is allowed
-        // if nsfw_allowed is null/undefined it'll require date_of_birth to set it to true/false
-        const language = req?.language === "en" ? "en-US" : req?.language || "en-US";
-
-        const settings = settingsRepository.create({
-            locale: language,
-        });
-
-        const user = userRepository.create({
-            username: username,
-            discriminator,
-            id: id || Snowflake.generate(),
-            email: email,
-            data: {
-                hash: password,
-                valid_tokens_since: new Date(),
-            },
-            settings: settings,
-
-            premium_since: Config.get().defaults.user.premium ? new Date() : undefined,
-            rights: getDefaultUserRights(bot, Config.get().register),
-            premium: Config.get().defaults.user.premium ?? false,
-            premium_type: Config.get().defaults.user.premiumType ?? 0,
-            verified: Config.get().defaults.user.verified ?? true,
-            created_at: new Date(),
-            bot: !!bot,
-        });
-
-        user.validate();
-        try {
-            await userRepository.save(user);
-        } catch (error) {
-            if (isNormalizedEmailUniqueViolation(error)) {
-                throw emailAlreadyRegisteredFieldError(req?.t("auth:register.EMAIL_ALREADY_REGISTERED"));
+        const user = await retryOnUserTagUniqueViolation(async () => {
+            const discriminator = await User.generateDiscriminator(username, manager);
+            if (!discriminator) {
+                // We've failed to generate a valid and unused discriminator
+                throwTooManyUsers();
             }
-            throw error;
-        }
 
+            const normalizedDiscriminator = User.normalizeDiscriminator(discriminator ?? throwTooManyUsers());
+            const nsfwAllowed = User.calculateNsfwAllowed(date_of_birth);
+            const settings = settingsRepository.create({
+                locale: language,
+            });
+
+            const user = userRepository.create({
+                username: username,
+                discriminator: normalizedDiscriminator,
+                id: id || Snowflake.generate(),
+                email: email,
+                data: {
+                    hash: password,
+                    valid_tokens_since: new Date(),
+                },
+                settings: settings,
+
+                premium_since: Config.get().defaults.user.premium ? new Date() : undefined,
+                rights: getDefaultUserRights(bot, Config.get().register),
+                premium: Config.get().defaults.user.premium ?? false,
+                premium_type: Config.get().defaults.user.premiumType ?? 0,
+                verified: Config.get().defaults.user.verified ?? true,
+                created_at: new Date(),
+                bot: !!bot,
+                nsfw_allowed: nsfwAllowed,
+            });
+
+            try {
+                await userRepository.save(user);
+                return user;
+            } catch (error) {
+                if (isNormalizedEmailUniqueViolation(error)) {
+                    throw emailAlreadyRegisteredFieldError(req?.t("auth:register.EMAIL_ALREADY_REGISTERED"));
+                }
+                throw error;
+            }
+        }, USER_TAG_REGISTRATION_ATTEMPTS);
+
+        const createdUser = user ?? throwTooManyUsers();
         if (emitSideEffects) {
-            await User.runRegistrationSideEffects(user, { email, bot });
+            await User.runRegistrationSideEffects(createdUser, { email, bot });
         }
 
-        return user;
+        return createdUser;
+    }
+
+    static calculateNsfwAllowed(date_of_birth?: DateOfBirthInput | null): boolean {
+        const result = evaluateDateOfBirth(date_of_birth, User.nsfwAllowedAge);
+
+        return result.status === "missing" || result.status === "allowed";
     }
 
     static async runRegistrationSideEffects(user: User, options: { email?: string; bot?: boolean }) {

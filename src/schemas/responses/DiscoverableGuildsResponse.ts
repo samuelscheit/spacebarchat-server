@@ -16,6 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { Categories } from "@spacebar/util";
+
 export interface DiscoverableGuildWelcomeScreen {
     enabled: boolean;
     description: string;
@@ -46,6 +48,7 @@ export interface DiscoverableGuild {
     max_members?: number;
     max_presences?: number;
     max_video_channel_users?: number;
+    max_stage_video_channel_users?: number;
     owner_id?: string;
     premium_tier?: number;
     region?: string;
@@ -96,6 +99,7 @@ export function toDiscoverableGuild(guild: DiscoverableGuildSource): Discoverabl
         max_members: guild.max_members,
         max_presences: guild.max_presences,
         max_video_channel_users: guild.max_video_channel_users,
+        max_stage_video_channel_users: guild.max_stage_video_channel_users,
         owner_id: guild.owner_id,
         premium_tier: guild.premium_tier,
         region: guild.region,
@@ -131,3 +135,5 @@ export interface DiscoverableGuildsResponse {
     offset: number;
     limit: number;
 }
+
+export type APIDiscoveryCategoryArray = Categories[];

@@ -23,10 +23,12 @@ import {
     emitEvent,
     GuildRoleCreateEvent,
     GuildRoleUpdateEvent,
+    Guild,
     handleFile,
     Member,
     Role,
     Snowflake,
+    assertRoleIconPolicy,
     resolveCreatedRolePermissions,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
@@ -50,6 +52,7 @@ router.post(
     route({
         requestBody: "RoleModifySchema",
         permission: "MANAGE_ROLES",
+        right: "CREATE_ROLES",
         responses: {
             200: {
                 body: "Role",
@@ -74,8 +77,10 @@ router.post(
         // TODO: proper field error
         if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
 
-        const everyoneRole = await Role.findOne({ where: { id: guild_id } });
+        const [everyoneRole, guild] = await Promise.all([Role.findOne({ where: { id: guild_id } }), Guild.findOneOrFail({ where: { id: guild_id }, select: { features: true } })]);
         const id = Snowflake.generate();
+
+        assertRoleIconPolicy({ guildFeatures: guild.features, body, creating: true, rights: req.rights });
 
         if (body.icon?.length) body.icon = await handleFile(`/role-icons/${id}`, body.icon as string);
 
@@ -94,7 +99,6 @@ router.post(
                 actor: req.permission?.bitfield,
             }),
             tags: undefined,
-            unicode_emoji: undefined,
             id,
             colors: {
                 primary_color: body.colors?.primary_color || body.color || 0,

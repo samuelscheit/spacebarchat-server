@@ -16,6 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { JsonValue } from "@protobuf-ts/runtime";
 import { Column, Entity, PrimaryColumn } from "typeorm";
 import { BaseClassWithoutId } from "./BaseClass";
 
@@ -27,5 +28,5 @@ export class ConfigEntity extends BaseClassWithoutId {
     key: string;
 
     @Column({ type: "simple-json", nullable: true })
-    value: number | boolean | null | string | undefined;
+    value: JsonValue | undefined;
 }
