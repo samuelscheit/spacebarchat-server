@@ -5,6 +5,7 @@
     "sources": [
         "src/api/routes",
         "src/api/util/handlers",
+        "src/api/util/utility",
         "src/api/Server.ts",
         "src/api/middlewares/RateLimit.ts",
         "src/api/middlewares/NoAuthorizationRoutes.ts",
@@ -16,18 +17,18 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 402,
+        "totalEntries": 434,
         "byService": {
             "api": 337,
             "benchmarks": 1,
-            "cdn": 41,
+            "cdn": 73,
             "gateway": 15,
             "server": 2,
             "webrtc": 6
         },
         "byType": {
             "feature": 4,
-            "http-route": 377,
+            "http-route": 409,
             "opcode": 21
         },
         "byTestTier": {
@@ -35,7 +36,7 @@
             "app-smoke": 10,
             "contract": 53,
             "stateful-domain": 246,
-            "cdn-integration": 42,
+            "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
             "tooling-contract": 1,
@@ -48,7 +49,7 @@
             "route-class": 298,
             "hot-path": 28,
             "none": 1,
-            "cdn-hot-path": 41,
+            "cdn-hot-path": 73,
             "protocol-load": 21
         }
     },
@@ -85,7 +86,7 @@
             "method": "GET",
             "path": "/_spacebar/api/openapi.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 155,
+            "line": 156,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -114,7 +115,7 @@
             "method": "GET",
             "path": "/_spacebar/api/schemas.json",
             "sourceFile": "src/api/Server.ts",
-            "line": 151,
+            "line": 152,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -143,7 +144,7 @@
             "method": "GET",
             "path": "/_spacebar/api/version",
             "sourceFile": "src/api/Server.ts",
-            "line": 159,
+            "line": 160,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -226,7 +227,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar/client",
             "sourceFile": "src/api/Server.ts",
-            "line": 178,
+            "line": 179,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -255,7 +256,7 @@
             "method": "GET",
             "path": "/.well-known/spacebar",
             "sourceFile": "src/api/Server.ts",
-            "line": 171,
+            "line": 172,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -1938,7 +1939,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 74,
+            "line": 94,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -1993,7 +1994,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 50,
+            "line": 70,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2042,7 +2043,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/index.ts",
-            "line": 155,
+            "line": 175,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2666,7 +2667,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/ack/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/ack.ts",
-            "line": 30,
+            "line": 29,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2763,7 +2764,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 416,
+            "line": 407,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2817,7 +2818,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 401,
+            "line": 392,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2870,7 +2871,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 281,
+            "line": 272,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2925,7 +2926,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 182,
+            "line": 173,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2977,7 +2978,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 385,
+            "line": 376,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3031,7 +3032,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 370,
+            "line": 361,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3084,7 +3085,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 264,
+            "line": 255,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3139,7 +3140,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 113,
+            "line": 104,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3193,7 +3194,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/:message_id/reactions/:emoji",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 156,
+            "line": 147,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3245,7 +3246,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/:message_id/reactions/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts",
-            "line": 77,
+            "line": 68,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3299,7 +3300,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/:message_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/threads.ts",
-            "line": 31,
+            "line": 30,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3351,7 +3352,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 78,
+            "line": 80,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3402,7 +3403,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 535,
+            "line": 521,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3463,7 +3464,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 537,
+            "line": 523,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3775,7 +3776,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 84,
+            "line": 93,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3824,7 +3825,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/permissions/:overwrite_id",
             "sourceFile": "src/api/routes/channels/#channel_id/permissions.ts",
-            "line": 29,
+            "line": 27,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4042,7 +4043,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/post-data/",
             "sourceFile": "src/api/routes/channels/#channel_id/post-data.ts",
-            "line": 33,
+            "line": 36,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4089,7 +4090,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/purge/",
             "sourceFile": "src/api/routes/channels/#channel_id/purge.ts",
-            "line": 33,
+            "line": 31,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4143,7 +4144,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 79,
+            "line": 99,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4193,7 +4194,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 26,
+            "line": 88,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4242,7 +4243,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/tags/:tag_id",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 113,
+            "line": 110,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4294,7 +4295,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/tags/:tag_id",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 72,
+            "line": 71,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4347,7 +4348,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/tags/",
             "sourceFile": "src/api/routes/channels/#channel_id/tags.ts",
-            "line": 27,
+            "line": 26,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4400,7 +4401,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 160,
+            "line": 161,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4450,7 +4451,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 132,
+            "line": 133,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4497,7 +4498,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 158,
+            "line": 159,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4547,7 +4548,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/thread-members/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 157,
+            "line": 158,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4597,7 +4598,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/thread-members/@me/settings",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 220,
+            "line": 202,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4646,7 +4647,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/thread-members/",
             "sourceFile": "src/api/routes/channels/#channel_id/thread-members.ts",
-            "line": 101,
+            "line": 102,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4692,14 +4693,18 @@
             "method": "POST",
             "path": "/channels/:channel_id/threads/",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 67,
+            "line": 70,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
-                "permission": "CREATE_PUBLIC_THREADS",
+                "permission": "VIEW_CHANNEL",
                 "requestBody": "ThreadCreationSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
                 "responseStatuses": [
                     200,
+                    400,
                     403
                 ],
                 "hasQuery": false,
@@ -4743,7 +4748,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/active",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 238,
+            "line": 233,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4795,7 +4800,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/archived/private",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 297,
+            "line": 292,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4905,7 +4910,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/threads/search",
             "sourceFile": "src/api/routes/channels/#channel_id/threads.ts",
-            "line": 364,
+            "line": 359,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5809,7 +5814,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 47,
+            "line": 102,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5858,7 +5863,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/index.ts",
-            "line": 75,
+            "line": 130,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7294,7 +7299,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 212,
+            "line": 231,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7346,7 +7351,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 26,
+            "line": 41,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7396,7 +7401,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 68,
+            "line": 83,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7451,7 +7456,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/members/:member_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/#member_id/index.ts",
-            "line": 155,
+            "line": 174,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8343,7 +8348,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 38,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8384,7 +8389,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 131,
+            "line": 135,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8439,11 +8444,12 @@
             "method": "POST",
             "path": "/guilds/:guild_id/roles/",
             "sourceFile": "src/api/routes/guilds/#guild_id/roles/index.ts",
-            "line": 48,
+            "line": 50,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "permission": "MANAGE_ROLES",
+                "right": "CREATE_ROLES",
                 "requestBody": "RoleModifySchema",
                 "responseBodies": [
                     "APIErrorResponse",
@@ -8583,7 +8589,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 189,
+            "line": 177,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8635,7 +8641,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 122,
+            "line": 110,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8684,7 +8690,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/stickers/:sticker_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 146,
+            "line": 134,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8739,7 +8745,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/stickers/",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 27,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8788,7 +8794,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/stickers/",
             "sourceFile": "src/api/routes/guilds/#guild_id/stickers.ts",
-            "line": 56,
+            "line": 57,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8843,7 +8849,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/templates/:code",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 118,
+            "line": 119,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8893,7 +8899,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/templates/:code",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 167,
+            "line": 168,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8944,7 +8950,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/templates/:code",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 139,
+            "line": 140,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8994,7 +9000,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/templates/",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 52,
+            "line": 53,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -9041,7 +9047,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/templates/",
             "sourceFile": "src/api/routes/guilds/#guild_id/templates.ts",
-            "line": 72,
+            "line": 73,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -9252,7 +9258,7 @@
             "method": "PATCH",
             "path": "/guilds/:guild_id/voice-states/:user_id/",
             "sourceFile": "src/api/routes/guilds/#guild_id/voice-states/#user_id/index.ts",
-            "line": 27,
+            "line": 37,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -9832,6 +9838,7 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "right": "CREATE_GUILDS",
                 "requestBody": "GuildTemplateCreateSchema",
                 "hasQuery": false
             },
@@ -9863,7 +9870,7 @@
             "method": "GET",
             "path": "/healthz",
             "sourceFile": "src/api/Server.ts",
-            "line": 218,
+            "line": 219,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -9930,7 +9937,7 @@
             "method": "USE",
             "path": "/imageproxy/:hash/:size/:url",
             "sourceFile": "src/api/Server.ts",
-            "line": 147,
+            "line": 148,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -10627,7 +10634,7 @@
             "method": "GET",
             "path": "/readyz",
             "sourceFile": "src/api/Server.ts",
-            "line": 217,
+            "line": 218,
             "mountedVia": "api-app",
             "authMode": "public-app-route",
             "routeMetadata": {
@@ -11485,7 +11492,7 @@
             "method": "POST",
             "path": "/users/:user_id/messages/",
             "sourceFile": "src/api/routes/users/#user_id/messages.ts",
-            "line": 56,
+            "line": 58,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11653,7 +11660,7 @@
             "method": "GET",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 41,
+            "line": 43,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11691,7 +11698,7 @@
             "method": "PATCH",
             "path": "/users/@me/",
             "sourceFile": "src/api/routes/users/@me/index.ts",
-            "line": 60,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -13393,7 +13400,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -13474,7 +13485,11 @@
                     400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": false,
+                "emittedEvents": [
+                    "RELATIONSHIP_ADD",
+                    "RELATIONSHIP_REMOVE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",
@@ -13972,7 +13987,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 95,
+            "line": 86,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14020,7 +14035,7 @@
             "method": "GET",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 9,
+            "line": 8,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14067,7 +14082,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 133,
+            "line": 124,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14118,7 +14133,7 @@
             "method": "POST",
             "path": "/webhooks/:webhook_id/:token/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/index.ts",
-            "line": 57,
+            "line": 48,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14222,7 +14237,7 @@
             "method": "DELETE",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 108,
+            "line": 100,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14269,7 +14284,7 @@
             "method": "GET",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 40,
+            "line": 32,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14316,7 +14331,7 @@
             "method": "PATCH",
             "path": "/webhooks/:webhook_id/:token/messages/:message_id/",
             "sourceFile": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts",
-            "line": 67,
+            "line": 59,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -14541,7 +14556,7 @@
             "method": "POST",
             "path": "/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename/clone_to_message/:message_id",
             "sourceFile": "src/cdn/routes/_spacebar/cdn/attachments.ts",
-            "line": 150,
+            "line": 148,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14690,6 +14705,254 @@
             }
         },
         {
+            "id": "cdn:http:GET:/app-assets/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/app-assets/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-assets/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/app-assets/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-assets/:guild_id",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/app-assets/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-assets/:guild_id",
+            "sourceFile": "src/cdn/routes/app-assets.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/app-icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/app-icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/app-icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/app-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/app-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/app-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/app-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/app-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
             "id": "cdn:http:GET:/attachments/:channel_id/:message_id/:filename",
             "type": "http-route",
             "service": "cdn",
@@ -14758,7 +15021,7 @@
             "method": "GET",
             "path": "/avatars/:user_id/:hash",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 94,
+            "line": 98,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14789,7 +15052,7 @@
             "method": "DELETE",
             "path": "/avatars/:user_id/:id",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 96,
+            "line": 100,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -14820,7 +15083,7 @@
             "method": "GET",
             "path": "/avatars/:user_id",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 65,
+            "line": 69,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -14851,7 +15114,7 @@
             "method": "POST",
             "path": "/avatars/:user_id",
             "sourceFile": "src/cdn/routes/avatars.ts",
-            "line": 39,
+            "line": 38,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15006,7 +15269,379 @@
             "method": "POST",
             "path": "/banners/:guild_id",
             "sourceFile": "src/cdn/routes/banners.ts",
-            "line": 40,
+            "line": 38,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/channel-icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/channel-icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/channel-icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/channel-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/channel-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/channel-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/channel-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/channel-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discover-splashes/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/discover-splashes/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discover-splashes/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discover-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discover-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/discover-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discover-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discover-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discovery-splashes/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/discovery-splashes/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/discovery-splashes/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/discovery-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/discovery-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/discovery-splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/discovery-splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/discovery-splashes.ts",
+            "line": 3,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15099,7 +15734,7 @@
             "method": "DELETE",
             "path": "/emojis/:emoji_id",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 79,
+            "line": 71,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15130,7 +15765,7 @@
             "method": "GET",
             "path": "/emojis/:emoji_id",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 65,
+            "line": 58,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15161,7 +15796,7 @@
             "method": "POST",
             "path": "/emojis/:emoji_id",
             "sourceFile": "src/cdn/routes/emojis.ts",
-            "line": 40,
+            "line": 35,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15192,7 +15827,7 @@
             "method": "GET",
             "path": "/guild-profiles/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 85,
+            "line": 83,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15223,7 +15858,7 @@
             "method": "DELETE",
             "path": "/guild-profiles/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 99,
+            "line": 97,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15254,7 +15889,7 @@
             "method": "GET",
             "path": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 73,
+            "line": 71,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15285,7 +15920,7 @@
             "method": "POST",
             "path": "/guild-profiles/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 43,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15316,7 +15951,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 85,
+            "line": 83,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15348,7 +15983,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/avatars/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 99,
+            "line": 97,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -15380,7 +16015,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 73,
+            "line": 71,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15412,7 +16047,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/users/:user_id/avatars/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 43,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -15444,7 +16079,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/:hash",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 85,
+            "line": 83,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15476,7 +16111,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/users/:user_id/banners/:id",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 99,
+            "line": 97,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "request-signature",
             "routeMetadata": {
@@ -15508,7 +16143,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 73,
+            "line": 71,
             "mountedVia": "src/cdn/Server.ts",
             "authMode": "public-cacheable",
             "routeMetadata": {
@@ -15540,8 +16175,132 @@
             "method": "POST",
             "path": "/guilds/:guild_id/users/:user_id/banners/",
             "sourceFile": "src/cdn/routes/guild-profiles.ts",
-            "line": 48,
+            "line": 43,
             "mountedVia": "src/cdn/Server.ts",
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/icons/:guild_id",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/icons/:guild_id",
+            "sourceFile": "src/cdn/routes/icons.ts",
+            "line": 21,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15603,7 +16362,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id/:hash",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 77,
+            "line": 26,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15634,7 +16393,7 @@
             "method": "DELETE",
             "path": "/role-icons/:role_id/:id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 99,
+            "line": 26,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15665,7 +16424,7 @@
             "method": "GET",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 63,
+            "line": 26,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15696,7 +16455,131 @@
             "method": "POST",
             "path": "/role-icons/:role_id",
             "sourceFile": "src/cdn/routes/role-icons.ts",
-            "line": 39,
+            "line": 26,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/splashes/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/splashes/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/splashes/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/splashes/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/splashes/:guild_id",
+            "sourceFile": "src/cdn/routes/splashes.ts",
+            "line": 3,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15727,7 +16610,7 @@
             "method": "DELETE",
             "path": "/stickers/:sticker_id/",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 79,
+            "line": 78,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false
@@ -15758,7 +16641,7 @@
             "method": "GET",
             "path": "/stickers/:sticker_id",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 65,
+            "line": 64,
             "authMode": "public-cacheable",
             "routeMetadata": {
                 "present": false
@@ -15789,7 +16672,131 @@
             "method": "POST",
             "path": "/stickers/:sticker_id",
             "sourceFile": "src/cdn/routes/stickers.ts",
-            "line": 40,
+            "line": 38,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/team-icons/:guild_id/:hash",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id/:hash",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:DELETE:/team-icons/:guild_id/:id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "DELETE",
+            "path": "/team-icons/:guild_id/:id",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "request-signature",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:GET:/team-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "GET",
+            "path": "/team-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
+            "authMode": "public-cacheable",
+            "routeMetadata": {
+                "present": false
+            },
+            "coverage": {
+                "policyId": "cdn-route-contract",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "cdn-hot-path",
+                "fixtureRequirements": [
+                    "files",
+                    "request-signature",
+                    "signed-urls"
+                ],
+                "contractChecks": [
+                    "upload-download-delete",
+                    "cache-headers",
+                    "mime",
+                    "missing-file",
+                    "oversized-upload"
+                ],
+                "allowMissingRouteMetadata": true
+            }
+        },
+        {
+            "id": "cdn:http:POST:/team-icons/:guild_id",
+            "type": "http-route",
+            "service": "cdn",
+            "method": "POST",
+            "path": "/team-icons/:guild_id",
+            "sourceFile": "src/cdn/routes/team-icons.ts",
+            "line": 3,
             "authMode": "request-signature",
             "routeMetadata": {
                 "present": false

@@ -35,6 +35,18 @@ export type LegacyAttachmentMoveOptions = {
     log?: (message: string) => void;
 };
 
+export const deleteStoragePathIfExists = async (storage: Storage, path: string) => {
+    if (!(await storage.exists(path))) return false;
+
+    try {
+        await storage.delete(path);
+        return true;
+    } catch (error) {
+        if (error && typeof error === "object" && "code" in error && String(error.code) === "ENOENT") return false;
+        throw error;
+    }
+};
+
 export const moveLegacyAttachmentFile = async ({ storage, legacyPath, currentPath, log }: LegacyAttachmentMoveOptions) => {
     if (await storage.exists(currentPath)) return true;
 

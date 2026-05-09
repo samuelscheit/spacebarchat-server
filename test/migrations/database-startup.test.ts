@@ -173,9 +173,12 @@ async function runCdnStorageStartup(storageRoot: string) {
     const script = `
 const assert = require("node:assert/strict");
 const path = require("node:path");
-const { CDNServer, storage } = require("./dist/cdn");
+const { CDNServer, initializeStorage, storage } = require("./dist/cdn");
 
 (async () => {
+    await assert.rejects(storage.exists("."), /CDN storage has not been initialized/);
+
+    initializeStorage();
     assert.equal(process.env.STORAGE_LOCATION, path.resolve(${JSON.stringify(storageRoot)}));
     assert.equal(await storage.exists("."), true);
 

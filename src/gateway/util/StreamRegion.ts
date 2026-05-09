@@ -1,17 +1,21 @@
 import type { Region } from "@spacebar/schemas";
 
-type StreamRegionConfiguration = {
+type GatewayRegionConfiguration = {
     default: string;
     available: Region[];
 };
 
-export function selectStreamRegion(regions: StreamRegionConfiguration, preferredRegion?: string): Region {
-    const preferred = preferredRegion ? regions.available.find((region) => region.id === preferredRegion) : undefined;
+export function selectConfiguredRegion(regions: GatewayRegionConfiguration, requestedRegion?: string): Region {
+    const requested = requestedRegion ? regions.available.find((region) => region.id === requestedRegion) : undefined;
     const fallback = regions.available.find((region) => region.id === regions.default);
 
-    if (!preferred && !fallback) {
+    if (!requested && !fallback) {
         throw new Error("No default region configured");
     }
 
-    return preferred ?? fallback!;
+    return requested ?? fallback!;
+}
+
+export function selectStreamRegion(regions: GatewayRegionConfiguration, preferredRegion?: string): Region {
+    return selectConfiguredRegion(regions, preferredRegion);
 }

@@ -6,6 +6,11 @@
 
 export type BitFieldResolvable = number | bigint | BitField | string | BitFieldResolvable[];
 
+type BitFieldConstructor<T extends BitField = BitField> = {
+    new (bits?: BitFieldResolvable): T;
+    FLAGS: Record<string, bigint>;
+};
+
 /**
  * Data structure that makes it easy to interact with a bitfield.
  */
@@ -44,15 +49,15 @@ export class BitField {
     /**
      * Gets all given bits that are missing from the bitfield.
      */
-    missing(bits: BitFieldResolvable) {
-        if (!Array.isArray(bits)) bits = new BitField(bits).toArray();
-        return bits.filter((p) => !this.has(p));
+    missing(bits: BitFieldResolvable): BitFieldResolvable[] {
+        const resolvedBits = Array.isArray(bits) ? bits : new (this.constructor as BitFieldConstructor<this>)(bits).toArray();
+        return resolvedBits.filter((p) => !this.has(p));
     }
 
     /**
      * Freezes these bits, making them immutable.
      */
-    freeze(): Readonly<BitField> {
+    freeze(): Readonly<this> {
         return Object.freeze(this);
     }
 
@@ -61,12 +66,12 @@ export class BitField {
      * @param {...BitFieldResolvable} [bits] Bits to add
      * @returns {BitField} These bits or new BitField if the instance is frozen.
      */
-    add(...bits: BitFieldResolvable[]): BitField {
+    add(...bits: BitFieldResolvable[]): this {
         let total = BigInt(0);
         for (const bit of bits) {
             total |= BitField.resolve.call(this, bit);
         }
-        if (Object.isFrozen(this)) return new BitField(this.bitfield | total);
+        if (Object.isFrozen(this)) return new (this.constructor as BitFieldConstructor<this>)(this.bitfield | total);
         this.bitfield |= total;
         return this;
     }
@@ -75,12 +80,12 @@ export class BitField {
      * Removes bits from these.
      * @param {...BitFieldResolvable} [bits] Bits to remove
      */
-    remove(...bits: BitFieldResolvable[]) {
+    remove(...bits: BitFieldResolvable[]): this {
         let total = BigInt(0);
         for (const bit of bits) {
             total |= BitField.resolve.call(this, bit);
         }
-        if (Object.isFrozen(this)) return new BitField(this.bitfield & ~total);
+        if (Object.isFrozen(this)) return new (this.constructor as BitFieldConstructor<this>)(this.bitfield & ~total);
         this.bitfield &= ~total;
         return this;
     }
@@ -91,7 +96,7 @@ export class BitField {
      */
     serialize() {
         const serialized: Record<string, boolean> = {};
-        for (const [flag, bit] of Object.entries(BitField.FLAGS)) serialized[flag] = this.has(bit);
+        for (const [flag, bit] of Object.entries((this.constructor as BitFieldConstructor).FLAGS)) serialized[flag] = this.has(bit);
         return serialized;
     }
 
@@ -99,7 +104,7 @@ export class BitField {
      * Gets an {@link Array} of bitfield names based on the bits available.
      */
     toArray(): string[] {
-        return Object.keys(BitField.FLAGS).filter((bit) => this.has(bit));
+        return Object.keys((this.constructor as BitFieldConstructor).FLAGS).filter((bit) => this.has(bit));
     }
 
     toJSON() {

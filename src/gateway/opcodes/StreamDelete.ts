@@ -1,7 +1,12 @@
 import { parseStreamKey, Payload, WebSocket } from "@spacebar/gateway";
-import { emitEvent, Member, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
+import { emitEvent, Member, VoiceStateMemberRelations, memberToVoiceStateMember, Stream, StreamDeleteEvent, VoiceState, VoiceStateUpdateEvent } from "@spacebar/util";
 import { check } from "./instanceOf";
 import { StreamDeleteSchema } from "@spacebar/schemas";
+import { assertCallStreamKeyMatchesChannel, assertGatewayChannelAccess, assertGatewayVoiceChannel, assertGuildStreamKeyMatchesChannel } from "../util/Authorization";
+
+function voiceStateMatchesStream(voiceState: VoiceState, channelId: string, guildId: string | undefined, sessionId: string) {
+    return voiceState.channel_id === channelId && (voiceState.guild_id ?? undefined) === guildId && voiceState.session_id === sessionId;
+}
 
 export async function onStreamDelete(this: WebSocket, data: Payload) {
     const startTime = Date.now();
@@ -21,8 +26,23 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
         return this.close(4000, "Invalid stream key");
     }
 
-    // noinspection JSUnusedLocalSymbols - TODO: what is type here?
     const { userId, channelId, guildId, type } = parsedKey;
+
+    let channel;
+    try {
+        ({ channel } = await assertGatewayChannelAccess({
+            userId: this.user_id,
+            guildId,
+            channelId,
+            permission: "CONNECT",
+        }));
+        assertGatewayVoiceChannel(channel);
+
+        if (type === "guild") assertGuildStreamKeyMatchesChannel(guildId, channel);
+        else assertCallStreamKeyMatchesChannel(channel);
+    } catch {
+        return this.close(4000, "Invalid stream key");
+    }
 
     // when a user selects to stop watching another user stream, this event gets triggered
     // just disconnect user without actually deleting stream
@@ -47,24 +67,27 @@ export async function onStreamDelete(this: WebSocket, data: Payload) {
 
     const voiceState = await VoiceState.findOne({
         where: { user_id: this.user_id },
-        // relations: { member: true }, // TODO: actually add the relation
     });
 
-    if (voiceState) {
+    if (voiceState && voiceStateMatchesStream(voiceState, channelId, guildId, this.session_id)) {
         voiceState.self_stream = false;
         await voiceState.save();
-        voiceState.member = await Member.findOneOrFail({
-            where: {
-                id: voiceState.user_id,
-                guild_id: voiceState.guild_id,
-            },
-        });
+
+        const member = voiceState.guild_id
+            ? await Member.findOne({
+                  where: {
+                      id: voiceState.user_id,
+                      guild_id: voiceState.guild_id,
+                  },
+                  relations: VoiceStateMemberRelations,
+              })
+            : undefined;
 
         await emitEvent({
             event: "VOICE_STATE_UPDATE",
             data: {
                 ...voiceState.toPublicVoiceState(),
-                member: voiceState.member.toPublicMember(),
+                member: member ? memberToVoiceStateMember(member) : undefined,
             },
             guild_id: guildId,
             channel_id: channelId,

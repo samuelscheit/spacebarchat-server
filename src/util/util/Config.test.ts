@@ -4,7 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, test } from "node:test";
 import { ConfigValue } from "../config";
-import { Config } from "./Config";
+import { ConfigEntity } from "../entities/Config";
+import { Config, findStaleConfigKeys, generateConfigPairs, pairsToConfig } from "./Config";
 
 let tempDir: string | undefined;
 
@@ -18,12 +19,58 @@ function validConfig() {
     return config;
 }
 
-async function writeConfigFile() {
+async function writeConfigFile(config = validConfig()) {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "spacebar-config-test-"));
     const configPath = path.join(tempDir, "config.json");
-    await fs.writeFile(configPath, JSON.stringify(validConfig(), null, 4));
+    await fs.writeFile(configPath, JSON.stringify(config, null, 4));
     return configPath;
 }
+
+function configPair(key: string, value: ConfigEntity["value"]) {
+    const pair = new ConfigEntity();
+    pair.key = key;
+    pair.value = value;
+    return pair;
+}
+
+test("database config pair generation stores arrays as single JSON values", () => {
+    const config = validConfig();
+    config.register.email.domains = ["blocked.example", "mail.example"];
+
+    const pairs = generateConfigPairs(config);
+    const domainsPair = pairs.find((pair) => pair.key === "register_email_domains");
+
+    assert.ok(domainsPair);
+    assert.deepEqual(domainsPair.value, ["blocked.example", "mail.example"]);
+    assert.equal(
+        pairs.some((pair) => pair.key.startsWith("register_email_domains_")),
+        false,
+    );
+});
+
+test("database config pair loading supports JSON array rows and legacy indexed rows", () => {
+    const jsonArrayConfig = pairsToConfig([configPair("register_email_domains", ["blocked.example", "mail.example"])]);
+    assert.deepEqual(jsonArrayConfig.register.email.domains, ["blocked.example", "mail.example"]);
+
+    const legacyIndexedConfig = pairsToConfig([configPair("register_email_domains_0", "blocked.example"), configPair("register_email_domains_1", "mail.example")]);
+    assert.deepEqual(legacyIndexedConfig.register.email.domains, ["blocked.example", "mail.example"]);
+});
+
+test("database config pair loading prefers JSON parent rows over stale indexed children", () => {
+    const config = pairsToConfig([configPair("register_email_domains", ["blocked.example"]), configPair("register_email_domains_0", "stale.example")]);
+
+    assert.deepEqual(config.register.email.domains, ["blocked.example"]);
+});
+
+test("database config persistence removes stale flattened children when a parent is saved as JSON", () => {
+    assert.deepEqual(
+        findStaleConfigKeys(
+            ["register_email_domains_0", "register_email_domains_1", "register_email_domains", "general_serverName", "custom_unknown_key"],
+            ["register_email_domains", "general_serverName"],
+        ),
+        ["register_email_domains_0", "register_email_domains_1"],
+    );
+});
 
 afterEach(async () => {
     delete process.env.CONFIG_PATH;
@@ -70,4 +117,92 @@ test("Config.set writes to the current CONFIG_PATH even when the module was impo
 
     const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
     assert.equal(persisted.updates.lastNotifiedCommit, "current-path");
+});
+
+test("Config.set replaces array config values instead of leaving stale entries", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    await Config.set({
+        register: {
+            ...Config.get().register,
+            email: {
+                ...Config.get().register.email,
+                domains: ["blocked.example", "mail.example"],
+            },
+        },
+    });
+    await Config.set({
+        register: {
+            ...Config.get().register,
+            email: {
+                ...Config.get().register.email,
+                domains: ["blocked.example"],
+            },
+        },
+    });
+
+    assert.deepEqual(Config.get().register.email.domains, ["blocked.example"]);
+
+    const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
+    assert.deepEqual(persisted.register.email.domains, ["blocked.example"]);
+});
+
+test("Config.set rejects unsupported CAPTCHA service updates without mutating current config", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    await assert.rejects(async () => {
+        await Config.set({
+            security: {
+                captcha: {
+                    enabled: true,
+                    service: "turnstile",
+                    sitekey: "turnstile-sitekey",
+                    secret: "turnstile-secret",
+                },
+            },
+        } as unknown as Partial<ConfigValue>);
+    }, /Your config has invalid values/);
+
+    assert.equal(Config.get().security.captcha.enabled, false);
+    assert.equal(Config.get().security.captcha.service, null);
+    const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
+    assert.equal(persisted.security.captcha.enabled, false);
+    assert.equal(persisted.security.captcha.service, null);
+});
+
+test("Config.init rejects unsupported CAPTCHA services", async () => {
+    const config = validConfig();
+    (config.security.captcha as { service: string }).service = "turnstile";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await assert.rejects(() => Config.init(true), /Your config has invalid values/);
+});
+
+test("Config.init rejects enabled CAPTCHA without complete provider settings", async () => {
+    const config = validConfig();
+    config.security.captcha.enabled = true;
+    config.security.captcha.service = "hcaptcha";
+    config.security.captcha.secret = "hcaptcha-secret";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await assert.rejects(() => Config.init(true), /Your config has invalid values/);
+});
+
+test("Config.init accepts enabled CAPTCHA with hCaptcha provider settings", async () => {
+    const config = validConfig();
+    config.security.captcha.enabled = true;
+    config.security.captcha.service = "hcaptcha";
+    config.security.captcha.sitekey = "hcaptcha-sitekey";
+    config.security.captcha.secret = "hcaptcha-secret";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await Config.init(true);
+
+    assert.equal(Config.get().security.captcha.service, "hcaptcha");
+    assert.equal(Config.get().security.captcha.sitekey, "hcaptcha-sitekey");
+    assert.equal(Config.get().security.captcha.secret, "hcaptcha-secret");
 });

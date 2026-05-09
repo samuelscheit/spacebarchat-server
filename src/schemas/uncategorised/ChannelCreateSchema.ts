@@ -19,6 +19,16 @@
 import { ChannelType } from "@spacebar/schemas";
 import { ChannelBaseModifySchema } from "./ChannelModifySchema";
 
+type GuildChannelCreateType =
+    | ChannelType.GUILD_TEXT
+    | ChannelType.GUILD_VOICE
+    | ChannelType.GUILD_CATEGORY
+    | ChannelType.GUILD_NEWS
+    | ChannelType.GUILD_STAGE_VOICE
+    | ChannelType.GUILD_FORUM
+    | ChannelType.GUILD_MEDIA
+    | ChannelType.UNHANDLED;
+
 export interface ChannelCreateSchema extends Omit<ChannelBaseModifySchema, "available_tags" | "status"> {
-    type?: ChannelType;
+    type?: GuildChannelCreateType;
 }
