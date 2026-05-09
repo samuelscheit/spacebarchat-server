@@ -10,6 +10,7 @@
         "src/api/routes/guild-recommendations.test.ts",
         "src/api/util/handlers/Instance.test.ts",
         "src/api/util/handlers/VoiceStateModify.test.ts",
+        "src/api/util/utility/EmbedHandlers.ts",
         "src/api/util/utility/EmbedHandlers.test.ts",
         "src/api/util/utility/LinkEmbeds.test.ts",
         "src/api/ServerConfigure.test.ts",

@@ -16,6 +16,7 @@ delete process.env.EVENT_TRANSMISSION;
 
 const richEmbedType = "rich" as Embed["type"];
 const linkEmbedType = "link" as Embed["type"];
+const videoEmbedType = "video" as Embed["type"];
 const imagorServerUrl = "https://imagor.example.com";
 const imagorSecret = "test-secret";
 
@@ -172,6 +173,7 @@ function mockEmbedConfig(t: TestContext, Config: UtilModule["Config"], maxLinkEm
     const config = Config.get();
     config.embeds.maxLinkEmbeds = maxLinkEmbeds;
     config.limits.message.maxEmbeds = maxEmbeds;
+    config.limits.message.maxEmbedDownloadSize = 0;
     config.cdn.endpointPublic = "https://cdn.example.com";
 
     t.mock.method(Config, "get", () => config);
@@ -1140,6 +1142,123 @@ describe("getSteamHighlightVideo", () => {
         assert.deepEqual(embed.video, {
             url: "https://video.fastly.steamstatic.com/store_trailers/570/116737/dash_h264.mpd",
         });
+    });
+});
+
+describe("EmbedHandlers.default", () => {
+    const expectedVideoEmbed = {
+        url: "https://example.com/video.mp4",
+        type: videoEmbedType,
+        video: {
+            url: "https://example.com/video.mp4",
+            proxy_url: "https://example.com/video.mp4",
+        },
+    };
+
+    test("creates a video embed for direct video content after one content-type probe", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+        Config.get().limits.message.maxEmbedDownloadSize = 1;
+
+        const requestedMethods: (string | undefined)[] = [];
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            requestedMethods.push(init?.method);
+            return new Response(null, {
+                headers: {
+                    "content-length": "104857600",
+                    "content-type": "Video/MP4; codecs=avc1",
+                },
+            });
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.com/video.mp4"));
+
+        assert.deepEqual(embed, expectedVideoEmbed);
+        assert.deepEqual(requestedMethods, ["HEAD"]);
+    });
+
+    test("creates a video embed when only the GET response exposes direct video content", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+        Config.get().limits.message.maxEmbedDownloadSize = 1;
+
+        const requestedMethods: (string | undefined)[] = [];
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            requestedMethods.push(init?.method);
+            if (init?.method == "HEAD") {
+                return new Response(null, {
+                    status: 405,
+                });
+            }
+
+            return new Response(null, {
+                headers: {
+                    "content-length": "104857600",
+                    "content-type": "video/mp4",
+                },
+            });
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.com/video.mp4"));
+
+        assert.deepEqual(embed, expectedVideoEmbed);
+        assert.deepEqual(requestedMethods, ["HEAD", "GET"]);
+    });
+
+    test("does not treat non-media content-types containing video as direct video", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+
+        const requestedMethods: (string | undefined)[] = [];
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            requestedMethods.push(init?.method);
+            if (init?.method == "HEAD") {
+                return new Response(null, {
+                    headers: {
+                        "content-type": "application/x-video-metadata",
+                    },
+                });
+            }
+
+            return new Response("", {
+                headers: {
+                    "content-type": "text/html",
+                },
+            });
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.com/video-metadata"));
+
+        assert.equal(embed, null);
+        assert.deepEqual(requestedMethods, ["HEAD", "GET"]);
+    });
+
+    test("still rejects oversized non-media GET responses after probing their content-type", async (t) => {
+        const { Config, EmbedHandlers } = await loadEmbedModules();
+        mockEmbedConfig(t, Config, 5, 10);
+        Config.get().limits.message.maxEmbedDownloadSize = 1;
+
+        const requestedMethods: (string | undefined)[] = [];
+        t.mock.method(globalThis, "fetch", async (_input: string | URL | Request, init?: RequestInit) => {
+            requestedMethods.push(init?.method);
+            if (init?.method == "HEAD") {
+                return new Response(null, {
+                    status: 405,
+                });
+            }
+
+            return new Response("<title>too large</title>", {
+                headers: {
+                    "content-length": "1024",
+                    "content-type": "text/html",
+                },
+            });
+        });
+
+        const embed = await EmbedHandlers.default(new URL("https://example.com/large-page"));
+
+        assert.equal(embed, null);
+        assert.deepEqual(requestedMethods, ["HEAD", "GET"]);
     });
 });
 
