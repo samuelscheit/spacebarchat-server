@@ -9,6 +9,7 @@
         "src/api/util/ChannelAppliedTagsValidation.test.ts",
         "src/api/util/ChannelModifyAppliedTags.test.ts",
         "src/api/util/ChannelModifyTypeConversion.test.ts",
+        "src/api/util/utility/captcha.test.ts",
         "src/api/util/utility/PostData.test.ts",
         "src/api/util/utility/MessageUpload.test.ts",
         "src/api/util/utility/ActiveThreads.test.ts",

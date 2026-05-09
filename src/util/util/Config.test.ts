@@ -19,10 +19,10 @@ function validConfig() {
     return config;
 }
 
-async function writeConfigFile() {
+async function writeConfigFile(config = validConfig()) {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "spacebar-config-test-"));
     const configPath = path.join(tempDir, "config.json");
-    await fs.writeFile(configPath, JSON.stringify(validConfig(), null, 4));
+    await fs.writeFile(configPath, JSON.stringify(config, null, 4));
     return configPath;
 }
 
@@ -147,4 +147,62 @@ test("Config.set replaces array config values instead of leaving stale entries",
 
     const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
     assert.deepEqual(persisted.register.email.domains, ["blocked.example"]);
+});
+
+test("Config.set rejects unsupported CAPTCHA service updates without mutating current config", async () => {
+    const configPath = await writeConfigFile();
+    process.env.CONFIG_PATH = configPath;
+
+    await Config.init(true);
+    await assert.rejects(async () => {
+        await Config.set({
+            security: {
+                captcha: {
+                    enabled: true,
+                    service: "turnstile",
+                    sitekey: "turnstile-sitekey",
+                    secret: "turnstile-secret",
+                },
+            },
+        } as unknown as Partial<ConfigValue>);
+    }, /Your config has invalid values/);
+
+    assert.equal(Config.get().security.captcha.enabled, false);
+    assert.equal(Config.get().security.captcha.service, null);
+    const persisted = JSON.parse(await fs.readFile(configPath, "utf8")) as ConfigValue;
+    assert.equal(persisted.security.captcha.enabled, false);
+    assert.equal(persisted.security.captcha.service, null);
+});
+
+test("Config.init rejects unsupported CAPTCHA services", async () => {
+    const config = validConfig();
+    (config.security.captcha as { service: string }).service = "turnstile";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await assert.rejects(() => Config.init(true), /Your config has invalid values/);
+});
+
+test("Config.init rejects enabled CAPTCHA without complete provider settings", async () => {
+    const config = validConfig();
+    config.security.captcha.enabled = true;
+    config.security.captcha.service = "hcaptcha";
+    config.security.captcha.secret = "hcaptcha-secret";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await assert.rejects(() => Config.init(true), /Your config has invalid values/);
+});
+
+test("Config.init accepts enabled CAPTCHA with hCaptcha provider settings", async () => {
+    const config = validConfig();
+    config.security.captcha.enabled = true;
+    config.security.captcha.service = "hcaptcha";
+    config.security.captcha.sitekey = "hcaptcha-sitekey";
+    config.security.captcha.secret = "hcaptcha-secret";
+    process.env.CONFIG_PATH = await writeConfigFile(config);
+
+    await Config.init(true);
+
+    assert.equal(Config.get().security.captcha.service, "hcaptcha");
+    assert.equal(Config.get().security.captcha.sitekey, "hcaptcha-sitekey");
+    assert.equal(Config.get().security.captcha.secret, "hcaptcha-secret");
 });
