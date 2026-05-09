@@ -152,6 +152,9 @@
                     "version"
                 ]
             },
+            "InstanceUserDeleteSchema": {
+                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
+            },
             "CreateDMChannelResponse": {
                 "type": "object",
                 "properties": {
@@ -276,9 +279,6 @@
                     "errors",
                     "message"
                 ]
-            },
-            "InstanceUserDeleteSchema": {
-                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
             "UserSettingsUpdateSchema": {
                 "type": "object",
@@ -10690,6 +10690,17 @@
                     2
                 ]
             },
+            "InstanceUserDeleteSchemaContent": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string"
+                    },
+                    "persistInstanceBan": {
+                        "type": "boolean"
+                    }
+                }
+            },
             "ErrorList": {
                 "type": "object",
                 "additionalProperties": {
@@ -10737,17 +10748,6 @@
                                 "message"
                             ]
                         }
-                    }
-                }
-            },
-            "InstanceUserDeleteSchemaContent": {
-                "type": "object",
-                "properties": {
-                    "reason": {
-                        "type": "string"
-                    },
-                    "persistInstanceBan": {
-                        "type": "boolean"
                     }
                 }
             },
@@ -26500,7 +26500,7 @@
         "/track/": {
             "post": {
                 "responses": {
-                    "default": {
+                    "204": {
                         "description": "No description available"
                     }
                 },
@@ -33355,6 +33355,24 @@
                         }
                     }
                 },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to use when selecting localized category names."
+                    },
+                    {
+                        "name": "primary_only",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Only return primary discovery categories."
+                    }
+                ],
                 "tags": [
                     "discovery"
                 ]
