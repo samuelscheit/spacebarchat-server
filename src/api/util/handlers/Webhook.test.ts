@@ -694,6 +694,81 @@ describe("executeWebhook", () => {
         assert.equal(createThreadCalled, false);
         assert.equal(handleMessageCalled, false);
     });
+
+    test("rejects webhook thread creation before side effects when an applied tag is unknown", async (t) => {
+        const schemas = require("@spacebar/schemas") as typeof import("../../../schemas");
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const permissionUtil = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
+
+        const parentChannel = {
+            id: "forum-channel-id",
+            type: schemas.ChannelType.GUILD_FORUM,
+            guild_id: "guild-id",
+            guild: { id: "guild-id" },
+            flags: 0,
+            available_tags: [{ id: "tag-id", moderated: false }],
+            threadOnly: () => true,
+            isWritable: () => true,
+        };
+        const webhook = {
+            id: "webhook-id",
+            token: "webhook-token",
+            name: "webhook-name",
+            avatar: null,
+            channel_id: parentChannel.id,
+            user_id: "webhook-user-id",
+            user: { id: "webhook-user-id" },
+            channel: parentChannel,
+            guild: parentChannel.guild,
+            application: undefined,
+        };
+        let createThreadCalled = false;
+        let handleMessageCalled = false;
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(util.Config, "get", () => ({
+            limits: {
+                absoluteRate: {
+                    sendMessage: {
+                        enabled: false,
+                        window: 1000,
+                        limit: 10,
+                    },
+                },
+            },
+        }));
+        t.mock.method(util.Webhook, "findOne", async () => webhook);
+        t.mock.method(util.Channel, "createThreadChannel", async () => {
+            createThreadCalled = true;
+            throw new Error("createThreadChannel should not be called");
+        });
+        t.mock.method(permissionUtil, "getPermission", async () => ({ hasThrow: () => undefined }));
+        t.mock.method(messageHandlers, "handleMessage", async () => {
+            handleMessageCalled = true;
+            throw new Error("handleMessage should not be called");
+        });
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+        const req = {
+            body: { content: "hello new thread", thread_name: "Webhook thread", applied_tags: ["missing-tag"] },
+            files: [],
+            params: { webhook_id: webhook.id, token: webhook.token },
+            query: { wait: "true" },
+            t: (key: string) => key,
+        };
+
+        await assert.rejects(
+            () => executeWebhook(req as never, {} as never),
+            (error: { code?: number; errors?: Record<string, unknown> }) => {
+                assert.equal(error.code, 50035);
+                assert.ok(error.errors?.applied_tags);
+                return true;
+            },
+        );
+        assert.equal(createThreadCalled, false);
+        assert.equal(handleMessageCalled, false);
+    });
 });
 
 describe("PATCH /webhooks/:webhook_id/:token", () => {

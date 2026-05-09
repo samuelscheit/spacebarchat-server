@@ -24,6 +24,7 @@ import { MoreThan } from "typeorm";
 import { ChannelType, WebhookExecuteSchema, WebhookTokenUpdateSchema } from "@spacebar/schemas";
 import { mergeWebhookMessageAttachments } from "./WebhookAttachments";
 import { getWebhookForToken, uploadWebhookMessageFiles } from "./WebhookMessage";
+import { assertAppliedTagsExist, assertRequiredAppliedTagsPresent } from "../ChannelAppliedTagsValidation";
 import { buildWebhooksUpdateEvent } from "../utility/WebhookEvents";
 
 type WebhookPermissionChecker = Awaited<ReturnType<typeof getPermission>>;
@@ -86,28 +87,12 @@ function assertWebhookThreadTarget(channel: Channel, body: WebhookExecuteSchema,
 
 function assertWebhookThreadTags(channel: Channel, body: WebhookExecuteSchema, permissions: WebhookPermissionChecker) {
     const appliedTags = body.applied_tags ?? [];
-
-    if (!appliedTags.length) {
-        if (channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)) {
-            throw FieldErrors({
-                applied_tags: {
-                    code: "BASE_TYPE_REQUIRED",
-                    message: "Tag is required for this channel",
-                },
-            });
-        }
-        return;
-    }
-
     const availableTags = new Map((channel.available_tags ?? []).map((tag) => [tag.id, tag]));
-    const badTag = appliedTags.find((tag) => !availableTags.has(tag));
-    if (badTag) {
-        throw FieldErrors({
-            applied_tags: {
-                message: `Invalid tag ${badTag}`,
-            },
-        });
-    }
+
+    assertRequiredAppliedTagsPresent(body.applied_tags, Boolean(channel.flags & Number(ChannelFlags.FLAGS.REQUIRE_TAG)));
+    if (!appliedTags.length) return;
+
+    assertAppliedTagsExist(appliedTags, availableTags.keys());
 
     if (appliedTags.some((tag) => availableTags.get(tag)?.moderated)) {
         permissions.hasThrow("MANAGE_THREADS");
