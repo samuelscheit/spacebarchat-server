@@ -12789,7 +12789,7 @@
             "method": "GET",
             "path": "/users/@me/guilds/:guild_id/settings/",
             "sourceFile": "src/api/routes/users/@me/guilds/#guild_id/settings.ts",
-            "line": 27,
+            "line": 43,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12826,7 +12826,7 @@
             "method": "PATCH",
             "path": "/users/@me/guilds/:guild_id/settings/",
             "sourceFile": "src/api/routes/users/@me/guilds/#guild_id/settings.ts",
-            "line": 44,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
