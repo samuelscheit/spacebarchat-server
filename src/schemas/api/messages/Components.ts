@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { PartialEmoji } from "@spacebar/schemas";
+import { JsonValue, PartialEmoji } from "@spacebar/schemas";
 
 export interface MessageComponent {
     type: MessageComponentType;
@@ -43,7 +43,7 @@ export interface UnfurledMediaItem {
     width?: number;
     flags?: number;
     content_type?: string;
-    content_scan_metadata?: unknown; //TODO deal with this lol
+    content_scan_metadata?: JsonValue;
     placeholder_version?: number;
     placeholder?: string;
     loading_state?: number;

@@ -63,8 +63,18 @@ export const MUTABLE_GUILD_FEATURES: readonly GuildFeatureValue[] = Object.freez
     GuildFeature.InvitesDisabled,
     GuildFeature.RaidAlertsDisabled,
 ]);
+const MUTABLE_GUILD_FEATURE_SET = new Set<GuildFeatureValue>(MUTABLE_GUILD_FEATURES);
+
+export function canPatchGuildFeature(feature: GuildFeatureValue): boolean {
+    return MUTABLE_GUILD_FEATURE_SET.has(feature);
+}
 
 export const VANITY_URL_FEATURE: KnownGuildFeature = GuildFeature.VanityUrl;
+export const VIP_REGIONS_FEATURE: KnownGuildFeature = GuildFeature.VipRegions;
+
+export function hasGuildFeature(features: readonly GuildFeatureValue[] | null | undefined, feature: KnownGuildFeature): boolean {
+    return features?.includes(feature) ?? false;
+}
 
 export function setVanityUrlFeature(features: readonly GuildFeatureValue[] | null | undefined, hasVanityUrl: boolean): GuildFeatureValue[] {
     const filteredFeatures = (features ?? []).filter((feature) => feature !== VANITY_URL_FEATURE);

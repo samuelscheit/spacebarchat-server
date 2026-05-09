@@ -31,10 +31,9 @@ export function buildMessageEditHandleMessageOptions<T extends MessageEditSource
 ): MessageEditHandleMessageOptions<T, B, E> {
     return {
         ...message,
-        // TODO: should message_reference be overridable?
-        message_reference: message.message_reference,
         ...body,
         ...(extraOptions ?? ({} as E)),
+        message_reference: message.message_reference,
         author_id: message.author_id,
         channel_id: channelId,
         id: messageId,

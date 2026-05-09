@@ -1,5 +1,6 @@
 import { describe, test, type TestContext } from "node:test";
 import assert from "node:assert/strict";
+import type { ApiError } from "../../../util/util/ApiError";
 
 const requireModule = require;
 
@@ -80,10 +81,13 @@ type MessageLimitMock = {
     maxCharacters: number;
     maxTTSCharacters: number;
     maxEmbeds: number;
+    maxEmbedDescription?: number;
+    maxEmbedCharacters?: number;
 };
 
 type HandleMessageTestOptions = {
     channel?: Partial<MockChannel>;
+    messageFindOneResult?: unknown;
     messageLimits?: number | MessageLimitMock;
     permissionHas?: (name: string) => boolean;
     users?: MockUser[];
@@ -157,7 +161,9 @@ async function setupHandleMessageTest(t: TestContext, options: HandleMessageTest
               }
             : { id: "referenced_message_id", channel_id: channel.id, guild_id: channel.guild_id },
     );
-    t.mock.method(spacebarUtil.Message, "findOne", async () => (options.referencedMessage ? { ...options.referencedMessage } : null));
+    const findOneMock = t.mock.method(spacebarUtil.Message, "findOne", async () =>
+        options.messageFindOneResult !== undefined ? options.messageFindOneResult : options.referencedMessage ? { ...options.referencedMessage } : null,
+    );
     t.mock.method(spacebarUtil.Guild, "findOneOrFail", async () => ({ id: channel.guild_id }));
     t.mock.method(spacebarUtil.User, "findOneOrFail", async ({ where }: { where?: { id?: string } } = {}) => {
         const id = where?.id ?? "author_id";
@@ -198,7 +204,7 @@ async function setupHandleMessageTest(t: TestContext, options: HandleMessageTest
             incrementCalls.push(args);
         },
     }));
-    t.mock.method(permissionsModule, "getPermission", async () => permission);
+    const getPermissionMock = t.mock.method(permissionsModule, "getPermission", async () => permission);
     t.mock.method(rightsModule, "getRights", async () => ({ hasThrow: () => undefined }));
 
     const { handleMessage } = (await import("./Message.js")) as typeof import("./Message");
@@ -208,7 +214,9 @@ async function setupHandleMessageTest(t: TestContext, options: HandleMessageTest
         createMessageMock,
         createdReadStates,
         findChannelMock,
+        findOneMock,
         findByCalls,
+        getPermissionMock,
         handleMessage,
         incrementCalls,
         memberFindCalls,
@@ -569,5 +577,92 @@ describe("handleMessage", () => {
         );
         assert.equal(context.findChannelMock.mock.callCount(), 0);
         assert.equal(context.createMessageMock.mock.callCount(), 0);
+    });
+
+    test("rejects embed text over configured limits before side effects", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            messageLimits: { maxCharacters: 100, maxTTSCharacters: 100, maxEmbeds: 1, maxEmbedDescription: 5, maxEmbedCharacters: 5 },
+        });
+
+        await assert.rejects(
+            () =>
+                context.handleMessage({
+                    id: "message_id",
+                    channel_id: "channel_id",
+                    author_id: "author_id",
+                    embeds: [{ description: "123456" }],
+                }),
+            (error: unknown) => {
+                assert.equal((error as { code?: unknown }).code, 50035);
+                assert.ok((error as { errors?: Record<string, unknown> }).errors?.["embeds[0].description"]);
+                return true;
+            },
+        );
+        assert.equal(context.findChannelMock.mock.callCount(), 0);
+        assert.equal(context.createMessageMock.mock.callCount(), 0);
+    });
+
+    test("rejects a new user message inside channel slowmode", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            channel: { rate_limit_per_user: 10 },
+            messageFindOneResult: { timestamp: new Date() },
+            permissionHas: () => false,
+        });
+
+        await assert.rejects(
+            () =>
+                context.handleMessage({
+                    id: "message_id",
+                    channel_id: "channel_id",
+                    author_id: "author_id",
+                    content: "too soon",
+                }),
+            (error: unknown) => (error as ApiError).code === 20016,
+        );
+
+        assert.equal(context.createMessageMock.mock.callCount(), 0);
+        assert.equal(context.getPermissionMock.mock.callCount(), 1);
+        assert.deepEqual(context.findOneMock.mock.calls[0].arguments[0], {
+            where: { channel_id: context.channel.id, author_id: "author_id" },
+            select: { timestamp: true },
+            order: { timestamp: "DESC" },
+        });
+    });
+
+    test("allows channel slowmode bypass permissions", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            channel: { rate_limit_per_user: 10 },
+            messageFindOneResult: { timestamp: new Date() },
+            permissionHas: (permissionName: string) => permissionName === "BYPASS_SLOWMODE",
+        });
+
+        const message = await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "allowed by bypass",
+        });
+
+        assert.equal(message.content, "allowed by bypass");
+        assert.equal(context.createMessageMock.mock.callCount(), 1);
+    });
+
+    test("does not apply channel slowmode to message edits", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            channel: { rate_limit_per_user: 10 },
+            messageFindOneResult: { timestamp: new Date() },
+            permissionHas: () => false,
+        });
+
+        const message = await context.handleMessage({
+            id: "message_id",
+            channel_id: "channel_id",
+            author_id: "author_id",
+            content: "edited content",
+            is_edit: true,
+        });
+
+        assert.equal(message.content, "edited content");
+        assert.equal(context.findOneMock.mock.callCount(), 0);
     });
 });
