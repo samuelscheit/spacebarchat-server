@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import { getUserRecentAvatars } from "@spacebar/api/util";
+import { deleteUserRecentAvatar, getUserRecentAvatars } from "@spacebar/api/util";
 import { User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -44,6 +44,23 @@ router.get(
         res.json({
             avatars: await getUserRecentAvatars(req.user_id, user.avatar),
         });
+    },
+);
+
+router.delete(
+    "/:avatar_id",
+    route({
+        responses: {
+            204: {},
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { avatar_id } = req.params as { avatar_id: string };
+        await deleteUserRecentAvatar(req.user_id, avatar_id);
+        res.sendStatus(204);
     },
 );
 

@@ -346,7 +346,7 @@
 		"request_schema_ref": "PasswordResetSchema",
 		"response_schema_refs": [
 			"APIErrorOrCaptchaResponse",
-			"TokenOnlyResponse"
+			"TokenResponse"
 		],
 		"route": "/auth/reset",
 		"route_name": "POST_AUTH_RESET",
@@ -373,8 +373,7 @@
 		"method": "POST",
 		"request_schema_ref": "VerifyEmailSchema",
 		"response_schema_refs": [
-			"APIErrorOrCaptchaResponse",
-			"TokenResponse"
+			"APIErrorOrCaptchaResponse"
 		],
 		"route": "/auth/verify",
 		"route_name": "POST_AUTH_VERIFY",
@@ -487,7 +486,7 @@
 		"request_schema_ref": "GreetRequestSchema",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"Message"
+			"APIPublicMessage"
 		],
 		"route": "/channels/{channel_id}/greet",
 		"route_name": "POST_CHANNELS_CHANNEL_ID_GREET",
@@ -525,11 +524,7 @@
 	},
 	{
 		"method": "POST",
-		"request_schema_ref": "MessageCreateSchema",
-		"response_schema_refs": [
-			"APIErrorResponse",
-			"Message"
-		],
+		"response_schema_refs": [],
 		"route": "/channels/{channel_id}/messages",
 		"route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES",
 		"source": "src/api/routes/channels/#channel_id/messages/index.ts"
@@ -547,7 +542,7 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"Message"
+			"APIPublicMessage"
 		],
 		"route": "/channels/{channel_id}/messages/{message_id}",
 		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
@@ -558,7 +553,7 @@
 		"request_schema_ref": "MessageEditSchema",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"Message"
+			"APIPublicMessage"
 		],
 		"route": "/channels/{channel_id}/messages/{message_id}",
 		"route_name": "PATCH_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
@@ -569,7 +564,7 @@
 		"request_schema_ref": "MessageCreateSchema",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"Message"
+			"APIPublicMessage"
 		],
 		"route": "/channels/{channel_id}/messages/{message_id}",
 		"route_name": "PUT_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID",
@@ -586,7 +581,7 @@
 	{
 		"method": "POST",
 		"response_schema_refs": [
-			"Message"
+			"APIPublicMessage"
 		],
 		"route": "/channels/{channel_id}/messages/{message_id}/crosspost",
 		"route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_CROSSPOST",
@@ -621,12 +616,40 @@
 		"source": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"PublicUser"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_TYPE",
+		"source": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"
 		],
-		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{burst}/{user_id}",
-		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_BURST_USER_ID",
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}/{user_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_TYPE_USER_ID",
+		"source": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}/@me",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_TYPE__ME",
+		"source": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{type}/@me",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_REACTIONS_EMOJI_TYPE__ME",
 		"source": "src/api/routes/channels/#channel_id/messages/#message_id/reactions.ts"
 	},
 	{
@@ -686,7 +709,7 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"APIMessageArray"
+			"PinnedMessagesResponse"
 		],
 		"route": "/channels/{channel_id}/messages/pins",
 		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_PINS",
@@ -722,7 +745,9 @@
 	},
 	{
 		"method": "DELETE",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
 		"route": "/channels/{channel_id}/permissions/{overwrite_id}",
 		"route_name": "DELETE_CHANNELS_CHANNEL_ID_PERMISSIONS_OVERWRITE_ID",
 		"source": "src/api/routes/channels/#channel_id/permissions.ts"
@@ -863,6 +888,7 @@
 	},
 	{
 		"method": "PATCH",
+		"request_schema_ref": "ThreadMemberSettingsUpdateSchema",
 		"response_schema_refs": [],
 		"route": "/channels/{channel_id}/thread-members/@me/settings",
 		"route_name": "PATCH_CHANNELS_CHANNEL_ID_THREAD_MEMBERS__ME_SETTINGS",
@@ -871,9 +897,21 @@
 	{
 		"method": "POST",
 		"request_schema_ref": "ThreadCreationSchema",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
 		"route": "/channels/{channel_id}/threads",
 		"route_name": "POST_CHANNELS_CHANNEL_ID_THREADS",
+		"source": "src/api/routes/channels/#channel_id/threads.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ActiveThreadsResponse"
+		],
+		"route": "/channels/{channel_id}/threads/active",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_THREADS_ACTIVE",
 		"source": "src/api/routes/channels/#channel_id/threads.ts"
 	},
 	{
@@ -899,7 +937,7 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"GuildMessagesSearchResponse"
+			"ThreadSearchResponse"
 		],
 		"route": "/channels/{channel_id}/threads/search",
 		"route_name": "GET_CHANNELS_CHANNEL_ID_THREADS_SEARCH",
@@ -1151,7 +1189,9 @@
 	},
 	{
 		"method": "GET",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"AuditLogResponse"
+		],
 		"route": "/guilds/{guild_id}/audit-logs",
 		"route_name": "GET_GUILDS_GUILD_ID_AUDIT_LOGS",
 		"source": "src/api/routes/guilds/#guild_id/audit-logs.ts"
@@ -1260,7 +1300,8 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
-			"APIChannelArray"
+			"APIChannelArray",
+			"APIErrorResponse"
 		],
 		"route": "/guilds/{guild_id}/channels",
 		"route_name": "GET_GUILDS_GUILD_ID_CHANNELS",
@@ -1295,6 +1336,27 @@
 		"route": "/guilds/{guild_id}/delete",
 		"route_name": "POST_GUILDS_GUILD_ID_DELETE",
 		"source": "src/api/routes/guilds/#guild_id/delete.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildDiscoveryMetadataResponse"
+		],
+		"route": "/guilds/{guild_id}/discovery-metadata",
+		"route_name": "GET_GUILDS_GUILD_ID_DISCOVERY_METADATA",
+		"source": "src/api/routes/guilds/#guild_id/discovery-metadata.ts"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "GuildDiscoveryMetadataUpdateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildDiscoveryMetadataResponse"
+		],
+		"route": "/guilds/{guild_id}/discovery-metadata",
+		"route_name": "PATCH_GUILDS_GUILD_ID_DISCOVERY_METADATA",
+		"source": "src/api/routes/guilds/#guild_id/discovery-metadata.ts"
 	},
 	{
 		"method": "GET",
@@ -1358,7 +1420,9 @@
 	},
 	{
 		"method": "GET",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"APIGuildIntegrationArray"
+		],
 		"route": "/guilds/{guild_id}/integrations",
 		"route_name": "GET_GUILDS_GUILD_ID_INTEGRATIONS",
 		"source": "src/api/routes/guilds/#guild_id/integrations.ts"
@@ -1592,9 +1656,22 @@
 	},
 	{
 		"method": "PATCH",
-		"response_schema_refs": [],
+		"request_schema_ref": "RoleMembersUpdateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
 		"route": "/guilds/{guild_id}/roles/{role_id}/members",
 		"route_name": "PATCH_GUILDS_GUILD_ID_ROLES_ROLE_ID_MEMBERS",
+		"source": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "RoleMembersUpdateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/roles/{role_id}/members",
+		"route_name": "PUT_GUILDS_GUILD_ID_ROLES_ROLE_ID_MEMBERS",
 		"source": "src/api/routes/guilds/#guild_id/roles/#role_id/members.ts"
 	},
 	{
@@ -1719,6 +1796,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ActiveThreadsResponse"
+		],
+		"route": "/guilds/{guild_id}/threads/active",
+		"route_name": "GET_GUILDS_GUILD_ID_THREADS_ACTIVE",
+		"source": "src/api/routes/guilds/#guild_id/threads/active.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildVanityUrlResponse"
 		],
 		"route": "/guilds/{guild_id}/vanity-url",
@@ -1738,7 +1825,7 @@
 	},
 	{
 		"method": "PATCH",
-		"request_schema_ref": "VoiceStateUpdateSchema",
+		"request_schema_ref": "VoiceStateModifySchema",
 		"response_schema_refs": [
 			"APIErrorResponse"
 		],
@@ -1769,7 +1856,8 @@
 		"method": "PATCH",
 		"request_schema_ref": "GuildUpdateWelcomeScreenSchema",
 		"response_schema_refs": [
-			"APIErrorResponse"
+			"APIErrorResponse",
+			"GuildWelcomeScreen"
 		],
 		"route": "/guilds/{guild_id}/welcome-screen",
 		"route_name": "PATCH_GUILDS_GUILD_ID_WELCOME_SCREEN",
@@ -1868,6 +1956,7 @@
 	},
 	{
 		"method": "POST",
+		"request_schema_ref": "InteractionSchema",
 		"response_schema_refs": [],
 		"route": "/interactions",
 		"route_name": "POST_INTERACTIONS",
@@ -1895,7 +1984,7 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"Invite"
+			"InviteResponse"
 		],
 		"route": "/invites/{invite_code}",
 		"route_name": "GET_INVITES_INVITE_CODE",
@@ -1905,11 +1994,22 @@
 		"method": "POST",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"Invite"
+			"InviteResponse"
 		],
 		"route": "/invites/{invite_code}",
 		"route_name": "POST_INVITES_INVITE_CODE",
 		"source": "src/api/routes/invites/index.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "MfaFinishSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"TokenOnlyResponse"
+		],
+		"route": "/mfa/finish",
+		"route_name": "POST_MFA_FINISH",
+		"source": "src/api/routes/mfa/finish.ts"
 	},
 	{
 		"method": "GET",
@@ -1923,7 +2023,8 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
-			"APIErrorResponse"
+			"APIErrorResponse",
+			"OAuthAuthorizeInfoResponse"
 		],
 		"route": "/oauth2/authorize",
 		"route_name": "GET_OAUTH2_AUTHORIZE",
@@ -1956,7 +2057,9 @@
 	},
 	{
 		"method": "GET",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"GuildDiscoveryRequirementsResponse"
+		],
 		"route": "/partners/{guild_id}/requirements",
 		"route_name": "GET_PARTNERS_GUILD_ID_REQUIREMENTS",
 		"source": "src/api/routes/partners/#guild_id/requirements.ts"
@@ -1982,7 +2085,7 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
-			"Object"
+			"InstanceConfigResponse"
 		],
 		"route": "/policies/instance/config",
 		"route_name": "GET_POLICIES_INSTANCE_CONFIG",
@@ -2072,11 +2175,45 @@
 		"source": "src/api/routes/science.ts"
 	},
 	{
-		"method": "GET",
-		"response_schema_refs": [],
+		"method": "POST",
+		"request_schema_ref": "StageInstanceCreateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"StageInstanceResponse"
+		],
 		"route": "/stage-instances",
-		"route_name": "GET_STAGE_INSTANCES",
-		"source": "src/api/routes/stage-instances.ts"
+		"route_name": "POST_STAGE_INSTANCES",
+		"source": "src/api/routes/stage-instances/index.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/stage-instances/{channel_id}",
+		"route_name": "DELETE_STAGE_INSTANCES_CHANNEL_ID",
+		"source": "src/api/routes/stage-instances/#channel_id/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"StageInstanceResponse"
+		],
+		"route": "/stage-instances/{channel_id}",
+		"route_name": "GET_STAGE_INSTANCES_CHANNEL_ID",
+		"source": "src/api/routes/stage-instances/#channel_id/index.ts"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "StageInstanceModifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"StageInstanceResponse"
+		],
+		"route": "/stage-instances/{channel_id}",
+		"route_name": "PATCH_STAGE_INSTANCES_CHANNEL_ID",
+		"source": "src/api/routes/stage-instances/#channel_id/index.ts"
 	},
 	{
 		"method": "GET",
@@ -2208,8 +2345,16 @@
 		"source": "src/api/routes/users/#user_id/messages.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/users/{user_id}/messages",
+		"route_name": "POST_USERS_USER_ID_MESSAGES",
+		"source": "src/api/routes/users/#user_id/messages.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserProfileResponse"
 		],
 		"route": "/users/{user_id}/profile",
@@ -2277,10 +2422,31 @@
 	},
 	{
 		"method": "GET",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"ApplicationEntitlementsResponse"
+		],
 		"route": "/users/@me/applications/{application_id}/entitlements",
 		"route_name": "GET_USERS__ME_APPLICATIONS_APPLICATION_ID_ENTITLEMENTS",
 		"source": "src/api/routes/users/@me/applications/#application_id/entitlements.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"RecentAvatarsResponse"
+		],
+		"route": "/users/@me/avatars",
+		"route_name": "GET_USERS__ME_AVATARS",
+		"source": "src/api/routes/users/@me/avatars.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/avatars/{avatar_id}",
+		"route_name": "DELETE_USERS__ME_AVATARS_AVATAR_ID",
+		"source": "src/api/routes/users/@me/avatars.ts"
 	},
 	{
 		"method": "GET",
@@ -2343,7 +2509,9 @@
 	},
 	{
 		"method": "GET",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"BillingSubscriptionsResponse"
+		],
 		"route": "/users/@me/billing/subscriptions",
 		"route_name": "GET_USERS__ME_BILLING_SUBSCRIPTIONS",
 		"source": "src/api/routes/users/@me/billing/subscriptions.ts"
@@ -2443,14 +2611,18 @@
 	},
 	{
 		"method": "GET",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
 		"route": "/users/@me/email-settings",
 		"route_name": "GET_USERS__ME_EMAIL_SETTINGS",
 		"source": "src/api/routes/users/@me/email-settings.ts"
 	},
 	{
 		"method": "GET",
-		"response_schema_refs": [],
+		"response_schema_refs": [
+			"UserEntitlementGiftsResponse"
+		],
 		"route": "/users/@me/entitlements/gifts",
 		"route_name": "GET_USERS__ME_ENTITLEMENTS_GIFTS",
 		"source": "src/api/routes/users/@me/entitlements.ts"
@@ -2458,7 +2630,7 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
-			"APIGuildArray"
+			"UserGuildsResponse"
 		],
 		"route": "/users/@me/guilds",
 		"route_name": "GET_USERS__ME_GUILDS",
@@ -2498,6 +2670,17 @@
 		"source": "src/api/routes/users/@me/guilds/premium/subscription-slots.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "UserInviteCreateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserInviteResponse"
+		],
+		"route": "/users/@me/invites",
+		"route_name": "POST_USERS__ME_INVITES",
+		"source": "src/api/routes/users/@me/invites.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/library",
@@ -2508,7 +2691,7 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
-			"MessageListResponse"
+			"APIMessageArray"
 		],
 		"route": "/users/@me/mentions",
 		"route_name": "GET_USERS__ME_MENTIONS",
@@ -2552,6 +2735,7 @@
 		"request_schema_ref": "TotpEnableSchema",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"MfaRequiredResponse",
 			"TokenWithBackupCodesResponse"
 		],
 		"route": "/users/@me/mfa/totp/enable",
@@ -2814,7 +2998,7 @@
 	},
 	{
 		"method": "PATCH",
-		"request_schema_ref": "WebhookUpdateSchema",
+		"request_schema_ref": "WebhookTokenUpdateSchema",
 		"response_schema_refs": [
 			"APIErrorResponse",
 			"WebhookCreateResponse"
@@ -2842,5 +3026,43 @@
 		"route": "/webhooks/{webhook_id}/{token}/github",
 		"route_name": "POST_WEBHOOKS_WEBHOOK_ID_TOKEN_GITHUB",
 		"source": "src/api/routes/webhooks/#webhook_id/#token/github.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/webhooks/{webhook_id}/{token}/messages/{message_id}",
+		"route_name": "DELETE_WEBHOOKS_WEBHOOK_ID_TOKEN_MESSAGES_MESSAGE_ID",
+		"source": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIPublicMessage"
+		],
+		"route": "/webhooks/{webhook_id}/{token}/messages/{message_id}",
+		"route_name": "GET_WEBHOOKS_WEBHOOK_ID_TOKEN_MESSAGES_MESSAGE_ID",
+		"source": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "WebhookMessageEditSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"APIPublicMessage"
+		],
+		"route": "/webhooks/{webhook_id}/{token}/messages/{message_id}",
+		"route_name": "PATCH_WEBHOOKS_WEBHOOK_ID_TOKEN_MESSAGES_MESSAGE_ID",
+		"source": "src/api/routes/webhooks/#webhook_id/#token/messages/#message_id/index.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "WebhookExecuteSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"APIPublicMessage"
+		],
+		"route": "/webhooks/{webhook_id}/{token}/slack",
+		"route_name": "POST_WEBHOOKS_WEBHOOK_ID_TOKEN_SLACK",
+		"source": "src/api/routes/webhooks/#webhook_id/#token/slack.ts"
 	}
 ]

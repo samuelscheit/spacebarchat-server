@@ -129,7 +129,7 @@ export async function pruneUserRecentAvatars(userId: string, limit: number = REC
         id: In(idsToPrune),
     });
 
-    await Promise.all(storageHashesToDelete.map((storageHash) => deletePrunedUserAvatar(userId, storageHash)));
+    await Promise.all(storageHashesToDelete.map((storageHash) => deleteUserAvatarBlob(userId, storageHash, "pruned")));
 }
 
 async function getCurrentUserAvatarHash(userId: string): Promise<string | null | undefined> {
@@ -142,13 +142,54 @@ async function getCurrentUserAvatarHash(userId: string): Promise<string | null |
     return user?.avatar;
 }
 
-async function deletePrunedUserAvatar(userId: string, storageHash: string): Promise<void> {
+async function deleteUserAvatarBlob(userId: string, storageHash: string, action: string): Promise<void> {
     try {
         const deleteFile = getDeleteFile();
         await deleteFile(`/avatars/${userId}/${storageHash}`);
     } catch (error) {
-        console.warn(`[API] Failed to delete pruned recent avatar ${storageHash} for user ${userId}.`, error);
+        console.warn(`[API] Failed to delete ${action} recent avatar ${storageHash} for user ${userId}.`, error);
     }
+}
+
+export async function deleteUserRecentAvatar(userId: string, avatarId: string): Promise<void> {
+    const UserRecentAvatar = getUserRecentAvatarEntity();
+    const avatar = await UserRecentAvatar.findOne({
+        where: {
+            id: avatarId,
+            user_id: userId,
+        },
+        select: {
+            id: true,
+            storage_hash: true,
+        },
+    });
+
+    if (!avatar) throw new HTTPError("Unknown avatar", 404);
+
+    const deletion = await UserRecentAvatar.delete({
+        user_id: userId,
+        id: avatarId,
+    });
+
+    if (deletion.affected === 0) throw new HTTPError("Unknown avatar", 404);
+    if (await isUserAvatarBlobStillReferenced(userId, avatar.storage_hash)) return;
+
+    await deleteUserAvatarBlob(userId, avatar.storage_hash, "deleted");
+}
+
+async function isUserAvatarBlobStillReferenced(userId: string, storageHash: string): Promise<boolean> {
+    const currentAvatarHash = await getCurrentUserAvatarHash(userId);
+    if (currentAvatarHash === storageHash) return true;
+
+    const UserRecentAvatar = getUserRecentAvatarEntity();
+    const matchingRecentAvatars = await UserRecentAvatar.count({
+        where: {
+            user_id: userId,
+            storage_hash: storageHash,
+        },
+    });
+
+    return matchingRecentAvatars > 0;
 }
 
 export async function getUserRecentAvatarHash(userId: string, avatarId: string): Promise<string> {

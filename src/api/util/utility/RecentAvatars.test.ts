@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { describe, test } from "node:test";
+import type express from "express";
 import type { Router } from "express";
 import { createUserRouteApp, mockCurrentUserLookup, requestJson } from "../../tests/helpers/UserRouteTestHelpers";
 import {
+    deleteUserRecentAvatar,
     getRecentAvatarIdsToPrune,
     getRecentAvatarStorageHashesToDelete,
     getUserRecentAvatarHash,
@@ -108,6 +111,83 @@ describe("recent avatars", () => {
                     },
                 ],
             });
+        } finally {
+            delete require.cache[routeModulePath];
+        }
+    });
+
+    test("recent avatar route deletes a persisted avatar and returns no content", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const routeModulePath = require.resolve("@spacebar/api/routes/users/@me/avatars");
+        delete require.cache[routeModulePath];
+
+        let deletedCriteria: Record<string, unknown> | undefined;
+        const deletedFiles: string[] = [];
+
+        t.mock.method(UserRecentAvatar, "findOne", async (options: { where: { id: string; user_id: string }; select: { id: boolean; storage_hash: boolean } }) => {
+            assert.deepEqual(options, {
+                where: {
+                    id: "recent-avatar-id",
+                    user_id: "user-id",
+                },
+                select: {
+                    id: true,
+                    storage_hash: true,
+                },
+            });
+
+            return {
+                id: "recent-avatar-id",
+                storage_hash: "deleted-hash",
+            };
+        });
+        t.mock.method(UserRecentAvatar, "delete", async (criteria: Record<string, unknown>) => {
+            deletedCriteria = criteria;
+            return { affected: 1 };
+        });
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
+        t.mock.method(UserRecentAvatar, "count", async () => 0);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
+            return { success: true };
+        });
+
+        try {
+            const router = require(routeModulePath).default as Router;
+            const app = createUserRouteApp(router, "/users/@me/avatars");
+            const response = await requestRaw(app, "/users/@me/avatars/recent-avatar-id", { method: "DELETE" });
+
+            assert.equal(response.status, 204);
+            assert.equal(response.body, "");
+            assert.deepEqual(deletedCriteria, {
+                user_id: "user-id",
+                id: "recent-avatar-id",
+            });
+            assert.deepEqual(deletedFiles, ["/avatars/user-id/deleted-hash"]);
+        } finally {
+            delete require.cache[routeModulePath];
+        }
+    });
+
+    test("recent avatar route returns not found for an unknown avatar id", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const { UserRecentAvatar } = require("@spacebar/util") as typeof import("@spacebar/util");
+        const routeModulePath = require.resolve("@spacebar/api/routes/users/@me/avatars");
+        delete require.cache[routeModulePath];
+
+        t.mock.method(UserRecentAvatar, "findOne", async () => null);
+
+        try {
+            const router = require(routeModulePath).default as Router;
+            const app = createUserRouteApp(router, "/users/@me/avatars");
+            attachTestErrorHandler(app);
+            const response = await requestRaw(app, "/users/@me/avatars/missing-avatar-id", { method: "DELETE" });
+
+            assert.equal(response.status, 404);
         } finally {
             delete require.cache[routeModulePath];
         }
@@ -224,6 +304,164 @@ describe("recent avatars", () => {
         });
 
         await assert.rejects(getUserRecentAvatarHash("user-id", "other-avatar-id"), { code: 404 });
+    });
+
+    test("deletes a recent avatar row and its unreferenced blob", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        let deleteCriteria: Record<string, unknown> | undefined;
+        const deletedFiles: string[] = [];
+
+        t.mock.method(UserRecentAvatar, "findOne", async (options: { where: { id: string; user_id: string }; select: { id: boolean; storage_hash: boolean } }) => {
+            assert.deepEqual(options, {
+                where: {
+                    id: "recent-avatar-id",
+                    user_id: "user-id",
+                },
+                select: {
+                    id: true,
+                    storage_hash: true,
+                },
+            });
+
+            return {
+                id: "recent-avatar-id",
+                storage_hash: "orphaned-hash",
+            };
+        });
+        t.mock.method(UserRecentAvatar, "delete", async (criteria: Record<string, unknown>) => {
+            deleteCriteria = criteria;
+            return { affected: 1 };
+        });
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
+        t.mock.method(UserRecentAvatar, "count", async (options: { where: { user_id: string; storage_hash: string } }) => {
+            assert.deepEqual(options.where, {
+                user_id: "user-id",
+                storage_hash: "orphaned-hash",
+            });
+            return 0;
+        });
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
+            return { success: true };
+        });
+
+        await deleteUserRecentAvatar("user-id", "recent-avatar-id");
+
+        assert.deepEqual(deleteCriteria, {
+            user_id: "user-id",
+            id: "recent-avatar-id",
+        });
+        assert.deepEqual(deletedFiles, ["/avatars/user-id/orphaned-hash"]);
+    });
+
+    test("rejects deleting an unknown or other-user recent avatar id", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const { UserRecentAvatar } = require("@spacebar/util") as typeof import("@spacebar/util");
+        let deleteCalled = false;
+
+        t.mock.method(UserRecentAvatar, "findOne", async (options: { where: { id: string; user_id: string } }) => {
+            assert.deepEqual(options.where, {
+                id: "other-avatar-id",
+                user_id: "user-id",
+            });
+            return null;
+        });
+        t.mock.method(UserRecentAvatar, "delete", async () => {
+            deleteCalled = true;
+            return { affected: 0 };
+        });
+
+        await assert.rejects(deleteUserRecentAvatar("user-id", "other-avatar-id"), { code: 404 });
+        assert.equal(deleteCalled, false);
+    });
+
+    test("does not delete a deleted avatar blob still referenced by another recent avatar row", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const deletedFiles: string[] = [];
+
+        t.mock.method(UserRecentAvatar, "findOne", async () => ({
+            id: "recent-avatar-id",
+            storage_hash: "shared-hash",
+        }));
+        t.mock.method(UserRecentAvatar, "delete", async () => ({ affected: 1 }));
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
+        t.mock.method(UserRecentAvatar, "count", async () => 1);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
+            return { success: true };
+        });
+
+        await deleteUserRecentAvatar("user-id", "recent-avatar-id");
+
+        assert.deepEqual(deletedFiles, []);
+    });
+
+    test("does not delete a deleted avatar blob still used as the current avatar", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const deletedFiles: string[] = [];
+        let countCalled = false;
+
+        t.mock.method(UserRecentAvatar, "findOne", async () => ({
+            id: "recent-avatar-id",
+            storage_hash: "current-avatar-hash",
+        }));
+        t.mock.method(UserRecentAvatar, "delete", async () => ({ affected: 1 }));
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
+        t.mock.method(UserRecentAvatar, "count", async () => {
+            countCalled = true;
+            return 0;
+        });
+        t.mock.method(getCdnUtilModule(), "deleteFile", async (filePath: string) => {
+            deletedFiles.push(filePath);
+            return { success: true };
+        });
+
+        await deleteUserRecentAvatar("user-id", "recent-avatar-id");
+
+        assert.equal(countCalled, false);
+        assert.deepEqual(deletedFiles, []);
+    });
+
+    test("continues deleting a recent avatar row when deleting its orphaned blob fails", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
+
+        const util = require("@spacebar/util") as typeof import("@spacebar/util");
+        const { User, UserRecentAvatar } = util;
+        const warnings: unknown[][] = [];
+        let deleteCalled = false;
+
+        t.mock.method(UserRecentAvatar, "findOne", async () => ({
+            id: "recent-avatar-id",
+            storage_hash: "orphaned-hash",
+        }));
+        t.mock.method(UserRecentAvatar, "delete", async () => {
+            deleteCalled = true;
+            return { affected: 1 };
+        });
+        t.mock.method(User, "findOne", async () => ({ avatar: "current-avatar-hash" }));
+        t.mock.method(UserRecentAvatar, "count", async () => 0);
+        t.mock.method(getCdnUtilModule(), "deleteFile", async () => {
+            throw new Error("cdn delete failed");
+        });
+        t.mock.method(console, "warn", (...args: unknown[]) => {
+            warnings.push(args);
+        });
+
+        await assert.doesNotReject(deleteUserRecentAvatar("user-id", "recent-avatar-id"));
+
+        assert.equal(deleteCalled, true);
+        assert.equal(warnings.length, 1);
+        assert.match(String(warnings[0]?.[0]), /Failed to delete deleted recent avatar orphaned-hash/);
     });
 
     test("prunes stored avatars beyond the recent avatar limit and deletes orphaned blobs", async (t) => {
@@ -364,4 +602,32 @@ describe("recent avatars", () => {
 
 function getCdnUtilModule(): typeof import("../../../util/util/cdn") {
     return require(path.join(path.dirname(require.resolve("@spacebar/util")), "util", "cdn"));
+}
+
+async function requestRaw(app: express.Express, routePath: string, options: { method?: string; body?: unknown } = {}) {
+    const server = app.listen(0);
+    try {
+        const address = server.address() as AddressInfo;
+        const response = await fetch(`http://127.0.0.1:${address.port}${routePath}`, {
+            method: options.method,
+            body: options.body == undefined ? undefined : JSON.stringify(options.body),
+            headers: options.body == undefined ? undefined : { "content-type": "application/json" },
+        });
+
+        return {
+            status: response.status,
+            body: await response.text(),
+        };
+    } finally {
+        server.close();
+    }
+}
+
+function attachTestErrorHandler(app: express.Express) {
+    app.use((error: { code?: number; message?: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+        res.status(error.code ?? 500).json({
+            message: error.message,
+            code: error.code,
+        });
+    });
 }
