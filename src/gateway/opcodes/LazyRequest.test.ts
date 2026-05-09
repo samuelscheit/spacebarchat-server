@@ -149,8 +149,8 @@ const mockUtil = {
             channel,
         }: {
             channel: { overwrites?: { allow: string; deny: string; id: string }[] };
-            guild: { owner_id: string; roles: { id: string; permissions?: string }[] };
-            user: { id: string; roles: string[] };
+            guild: { owner_id: string };
+            user: { id: string; roles: string[]; resolved_roles: { id: string; permissions?: string }[] };
         }) {
             if (guild.owner_id === user.id) {
                 return {
@@ -160,7 +160,7 @@ const mockUtil = {
                 };
             }
 
-            let bitfield = guild.roles.filter((role) => user.roles.includes(role.id)).reduce((permissions, role) => permissions | BigInt(role.permissions ?? "0"), 0n);
+            let bitfield = user.resolved_roles.reduce((permissions, role) => permissions | BigInt(role.permissions ?? "0"), 0n);
             for (const overwrite of channel.overwrites ?? []) {
                 if (user.roles.includes(overwrite.id)) bitfield = (bitfield & ~BigInt(overwrite.deny)) | BigInt(overwrite.allow);
             }
