@@ -11,12 +11,14 @@ import {
     handleFile,
     Message,
     MessageCreateEvent,
+    Rights,
     Snowflake,
     ThreadCreateEvent,
     ThreadUpdatEvent,
     toAPIWebhook,
     ValidateWebhookName,
     Webhook,
+    getRights,
 } from "@spacebar/util";
 import { Request, Response } from "express";
 import { HTTPError } from "lambert-server";
@@ -34,6 +36,18 @@ type WebhookSendChannelResolution = {
     createdThread: boolean;
     unarchivedThread: boolean;
 };
+
+function getWebhookExecuteUserId(webhook: Webhook) {
+    return webhook.user_id ?? webhook.application?.bot?.id;
+}
+
+async function webhookCanBypassSendMessageRateLimit(webhook: Webhook) {
+    const userId = getWebhookExecuteUserId(webhook);
+    if (!userId) return false;
+
+    const rights = await getRights(userId);
+    return rights.has(Rights.FLAGS.BYPASS_RATE_LIMITS);
+}
 
 export async function updateWebhookWithToken(req: Request, res: Response) {
     const { webhook_id, token } = req.params as { [key: string]: string };
@@ -155,7 +169,7 @@ async function resolveWebhookSendChannel(
     permissions.hasThrow("CREATE_PUBLIC_THREADS");
     permissions.hasThrow("SEND_MESSAGES_IN_THREADS");
 
-    const threadOwnerId = webhook.user_id ?? webhook.application_id;
+    const threadOwnerId = getWebhookExecuteUserId(webhook);
 
     const channel = await Channel.createThreadChannel(
         {
@@ -200,7 +214,7 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     const thread_id = typeof req.query.thread_id === "string" ? req.query.thread_id : undefined;
     assertWebhookThreadRequest(body, thread_id);
 
-    const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: { available_tags: true }, guild: true, application: true });
+    const webhook = await getWebhookForToken(webhook_id, token, { user: true, channel: { available_tags: true }, guild: true, application: { bot: true } });
     assertMessagePayloadLimits(body);
 
     if (body.username) {
@@ -229,9 +243,8 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
         }
     }
 
-    // TODO: creating messages by users checks if the user can bypass rate limits, we cant do that on webhooks, but maybe we could check the application if there is one?
     const limits = Config.get().limits;
-    if (limits.absoluteRate.sendMessage.enabled) {
+    if (limits.absoluteRate.sendMessage.enabled && !(await webhookCanBypassSendMessageRateLimit(webhook))) {
         const count = await Message.count({
             where: {
                 channel_id: webhook.channel_id,
@@ -254,7 +267,7 @@ export const executeWebhookWithOptions = async (req: Request, res: Response, opt
     }
 
     const files = (req.files as Express.Multer.File[]) ?? [];
-    const permissionSubjectId = webhook.user_id ?? webhook.application_id;
+    const permissionSubjectId = getWebhookExecuteUserId(webhook);
     const messagePayload = { ...body, attachments: body.attachments ?? [], uploadedFileCount: files.length };
     let sendChannel = webhook.channel;
     let createdThread = false;

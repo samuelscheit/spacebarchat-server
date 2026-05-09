@@ -2,6 +2,217 @@ import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 
 describe("executeWebhook", () => {
+    test("loads the application bot relation for rate-limit bypass decisions", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+
+        const util = require("@spacebar/util") as typeof import("../../../util");
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(util.Config, "get", () => ({
+            limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
+                absoluteRate: {
+                    sendMessage: {
+                        enabled: true,
+                        window: 1000,
+                        limit: 1,
+                    },
+                },
+            },
+        }));
+        t.mock.method(util.Webhook, "findOne", async (options: unknown) => {
+            assert.deepEqual(options, {
+                where: { id: "webhook-id" },
+                relations: { user: true, channel: { available_tags: true }, guild: true, application: { bot: true } },
+            });
+
+            return null;
+        });
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+
+        await assert.rejects(
+            () =>
+                executeWebhook(
+                    {
+                        body: { content: "hello" },
+                        files: [],
+                        params: { webhook_id: "webhook-id", token: "webhook-token" },
+                        query: { wait: "true" },
+                        t: (key: string) => key,
+                    } as never,
+                    {} as never,
+                ),
+            (error) => {
+                assert.equal(error, util.DiscordApiErrors.UNKNOWN_WEBHOOK);
+                return true;
+            },
+        );
+    });
+
+    test("applies the absolute send-message rate limit when the webhook owner cannot bypass rate limits", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const rightsModule = require("@spacebar/util/util/Rights") as typeof import("../../../util/util/Rights");
+
+        const channel = {
+            id: "channel-id",
+            type: 0,
+            guild_id: "guild-id",
+            threadOnly: () => false,
+            isWritable: () => true,
+        };
+        const webhook = {
+            id: "webhook-id",
+            token: "webhook-token",
+            channel_id: channel.id,
+            channel,
+            user_id: "owner-user-id",
+            application: undefined,
+        };
+        let countCalled = false;
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(util.Config, "get", () => ({
+            limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
+                absoluteRate: {
+                    sendMessage: {
+                        enabled: true,
+                        window: 1000,
+                        limit: 1,
+                    },
+                },
+            },
+        }));
+        t.mock.method(util.Webhook, "findOne", async () => webhook);
+        t.mock.method(rightsModule, "getRights", async (userId: string) => {
+            assert.equal(userId, "owner-user-id");
+            return { has: () => false };
+        });
+        t.mock.method(util.Message, "count", async () => {
+            countCalled = true;
+            return 1;
+        });
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+
+        await assert.rejects(
+            () =>
+                executeWebhook(
+                    {
+                        body: { content: "hello" },
+                        files: [],
+                        params: { webhook_id: webhook.id, token: webhook.token },
+                        query: { wait: "true" },
+                        t: (key: string) => key,
+                    } as never,
+                    {} as never,
+                ),
+            (error) => {
+                assert.equal((error as { errors?: { channel_id?: { _errors?: { code: string }[] } } }).errors?.channel_id?._errors?.[0]?.code, "TOO_MANY_MESSAGES");
+                return true;
+            },
+        );
+        assert.equal(countCalled, true);
+    });
+
+    test("skips the absolute send-message rate limit for application bot users with bypass rights", async (t) => {
+        process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
+
+        const util = require("@spacebar/util") as typeof import("../../../util");
+        const eventUtil = require("@spacebar/util/util/Event") as typeof import("../../../util/util/Event");
+        const messageHandlers = require("@spacebar/api/util/handlers/Message") as typeof import("./Message");
+        const messageResponse = require("@spacebar/api/util/utility/MessageResponse") as typeof import("../utility/MessageResponse");
+        const permissionsModule = require("@spacebar/util/util/Permissions") as typeof import("../../../util/util/Permissions");
+        const rightsModule = require("@spacebar/util/util/Rights") as typeof import("../../../util/util/Rights");
+
+        const channel = {
+            id: "channel-id",
+            type: 0,
+            guild_id: "guild-id",
+            last_message_id: undefined as string | undefined,
+            threadOnly: () => false,
+            isWritable: () => true,
+            save: async () => undefined,
+        };
+        const webhook = {
+            id: "webhook-id",
+            token: "webhook-token",
+            name: "webhook-name",
+            avatar: null,
+            channel_id: channel.id,
+            channel,
+            application_id: "application-id",
+            application: { id: "application-id", bot: { id: "bot-user-id" } },
+        };
+        const message = {
+            id: "message-id",
+            edited_timestamp: new Date(),
+            save: async () => undefined,
+            toJSON: () => ({ id: "message-id" }),
+        };
+
+        t.mock.method(util.Snowflake, "generate", () => "message-id");
+        t.mock.method(util.Config, "get", () => ({
+            limits: {
+                message: { maxCharacters: 2000, maxTTSCharacters: 160, maxEmbeds: 20 },
+                absoluteRate: {
+                    sendMessage: {
+                        enabled: true,
+                        window: 1000,
+                        limit: 1,
+                    },
+                },
+            },
+        }));
+        t.mock.method(util.Webhook, "findOne", async () => webhook);
+        t.mock.method(rightsModule, "getRights", async (userId: string) => {
+            assert.equal(userId, "bot-user-id");
+            return { has: (right: bigint) => right === util.Rights.FLAGS.BYPASS_RATE_LIMITS };
+        });
+        t.mock.method(util.Message, "count", async () => {
+            throw new Error("rate-limit count should be skipped for bypassing webhook principals");
+        });
+        t.mock.method(permissionsModule, "getPermission", async (userId: string, guildId: string | undefined, checkedChannel: unknown) => {
+            assert.equal(userId, "bot-user-id");
+            assert.notEqual(userId, webhook.application_id);
+            assert.equal(guildId, "guild-id");
+            assert.equal(checkedChannel, channel);
+            return { hasThrow: () => true };
+        });
+        t.mock.method(messageHandlers, "handleMessage", async () => message);
+        t.mock.method(messageHandlers, "postHandleMessage", () => Promise.resolve());
+        t.mock.method(messageResponse, "messageToResponse", () => ({ id: "message-id" }));
+        t.mock.method(eventUtil, "emitEvent", async () => undefined);
+
+        const { executeWebhook } = require("./Webhook") as typeof import("./Webhook");
+        const res = {
+            body: undefined as unknown,
+            json(body: unknown) {
+                this.body = body;
+                return this;
+            },
+        };
+
+        await executeWebhook(
+            {
+                body: { content: "hello" },
+                files: [],
+                params: { webhook_id: webhook.id, token: webhook.token },
+                query: { wait: "true" },
+                ip: "203.0.113.10",
+                headers: { "user-agent": "test-agent" },
+                t: (key: string) => key,
+            } as never,
+            res as never,
+        );
+
+        assert.equal(channel.last_message_id, "message-id");
+        assert.deepEqual(res.body, { id: "message-id" });
+    });
+
     test("uses the signed message response for wait=true responses", async (t) => {
         process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar";
 
