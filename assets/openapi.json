@@ -175,6 +175,108 @@
                     "recipients"
                 ]
             },
+            "MessageAcknowledgeSchema": {
+                "type": "object",
+                "properties": {
+                    "manual": {
+                        "type": "boolean"
+                    },
+                    "mention_count": {
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    "last_viewed": {
+                        "type": "integer"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AckBulkSchema": {
+                "type": "object",
+                "properties": {
+                    "read_states": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "channel_id": {
+                                    "type": "string"
+                                },
+                                "message_id": {
+                                    "type": "string"
+                                },
+                                "read_state_type": {
+                                    "enum": [
+                                        0,
+                                        1,
+                                        2,
+                                        3,
+                                        4,
+                                        5
+                                    ],
+                                    "type": "number"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "channel_id",
+                                "message_id"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "read_states"
+                ]
+            },
+            "AcknowledgeDeleteSchema": {
+                "type": "object",
+                "properties": {
+                    "read_state_type": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5
+                        ],
+                        "type": "number"
+                    },
+                    "version": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "FieldErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "$ref": "#/components/schemas/ErrorList"
+                    }
+                },
+                "required": [
+                    "code",
+                    "errors",
+                    "message"
+                ]
+            },
             "InstanceUserDeleteSchema": {
                 "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
@@ -473,108 +575,6 @@
                     "theme",
                     "timezone_offset",
                     "view_nsfw_guilds"
-                ]
-            },
-            "MessageAcknowledgeSchema": {
-                "type": "object",
-                "properties": {
-                    "manual": {
-                        "type": "boolean"
-                    },
-                    "mention_count": {
-                        "type": "integer"
-                    },
-                    "flags": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            4
-                        ],
-                        "type": "number"
-                    },
-                    "last_viewed": {
-                        "type": "integer"
-                    },
-                    "token": {
-                        "type": "string"
-                    }
-                }
-            },
-            "AckBulkSchema": {
-                "type": "object",
-                "properties": {
-                    "read_states": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "channel_id": {
-                                    "type": "string"
-                                },
-                                "message_id": {
-                                    "type": "string"
-                                },
-                                "read_state_type": {
-                                    "enum": [
-                                        0,
-                                        1,
-                                        2,
-                                        3,
-                                        4,
-                                        5
-                                    ],
-                                    "type": "number"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "channel_id",
-                                "message_id"
-                            ]
-                        }
-                    }
-                },
-                "required": [
-                    "read_states"
-                ]
-            },
-            "AcknowledgeDeleteSchema": {
-                "type": "object",
-                "properties": {
-                    "read_state_type": {
-                        "enum": [
-                            0,
-                            1,
-                            2,
-                            3,
-                            4,
-                            5
-                        ],
-                        "type": "number"
-                    },
-                    "version": {
-                        "type": "integer"
-                    }
-                }
-            },
-            "FieldErrorResponse": {
-                "type": "object",
-                "properties": {
-                    "code": {
-                        "type": "integer"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "errors": {
-                        "$ref": "#/components/schemas/ErrorList"
-                    }
-                },
-                "required": [
-                    "code",
-                    "errors",
-                    "message"
                 ]
             },
             "ActivitySchema": {
@@ -5222,6 +5222,9 @@
                             "$ref": "#/components/schemas/MessageSnapshot"
                         }
                     },
+                    "resolved": {
+                        "$ref": "#/components/schemas/ResolvedData"
+                    },
                     "thread": {
                         "$ref": "#/components/schemas/PublicChannel"
                     },
@@ -6868,14 +6871,14 @@
                     "flags": {
                         "type": "integer"
                     },
+                    "channel_id": {
+                        "type": "string"
+                    },
                     "applied_tags": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
-                    },
-                    "channel_id": {
-                        "type": "string"
                     },
                     "interaction_metadata": {
                         "$ref": "#/components/schemas/MessageInteractionSchema"
@@ -8543,22 +8546,6 @@
                     "flags": {
                         "type": "integer"
                     },
-                    "icon": {
-                        "format": "image-data-uri",
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "parent_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "default_auto_archive_duration": {
-                        "type": "integer"
-                    },
                     "permission_overwrites": {
                         "type": "array",
                         "items": {
@@ -8585,6 +8572,22 @@
                                 "type"
                             ]
                         }
+                    },
+                    "icon": {
+                        "format": "image-data-uri",
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "parent_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "default_auto_archive_duration": {
+                        "type": "integer"
                     },
                     "video_quality_mode": {
                         "type": "integer"
@@ -8773,7 +8776,7 @@
                         }
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/ModalSubmitResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     },
                     "attachments": {
                         "type": "array",
@@ -10653,6 +10656,56 @@
                     2
                 ]
             },
+            "ErrorList": {
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/components/schemas/ErrorList"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "message": {
+                                        "type": "string"
+                                    }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                    "code",
+                                    "message"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "properties": {
+                    "_errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "code": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "code",
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
             "InstanceUserDeleteSchemaContent": {
                 "type": "object",
                 "properties": {
@@ -10723,56 +10776,6 @@
                 "required": [
                     "guild_ids"
                 ]
-            },
-            "ErrorList": {
-                "type": "object",
-                "additionalProperties": {
-                    "anyOf": [
-                        {
-                            "$ref": "#/components/schemas/ErrorList"
-                        },
-                        {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "code": {
-                                        "type": "string"
-                                    },
-                                    "message": {
-                                        "type": "string"
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": [
-                                    "code",
-                                    "message"
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "properties": {
-                    "_errors": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "code": {
-                                    "type": "string"
-                                },
-                                "message": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "code",
-                                "message"
-                            ]
-                        }
-                    }
-                }
             },
             "Status": {
                 "enum": [
@@ -15736,6 +15739,9 @@
                     "interaction_metadata": {
                         "$ref": "#/components/schemas/MessageInteractionMetadata"
                     },
+                    "resolved": {
+                        "$ref": "#/components/schemas/ResolvedData"
+                    },
                     "thread": {
                         "$ref": "#/components/schemas/PublicChannel"
                     },
@@ -17285,6 +17291,9 @@
                     "interaction_metadata": {
                         "$ref": "#/components/schemas/MessageInteractionMetadata"
                     },
+                    "resolved": {
+                        "$ref": "#/components/schemas/ResolvedData"
+                    },
                     "thread": {
                         "$ref": "#/components/schemas/PublicChannel"
                     },
@@ -17706,6 +17715,9 @@
                     "interaction_metadata": {
                         "$ref": "#/components/schemas/MessageInteractionMetadata"
                     },
+                    "resolved": {
+                        "$ref": "#/components/schemas/ResolvedData"
+                    },
                     "thread": {
                         "$ref": "#/components/schemas/PublicChannel"
                     },
@@ -17820,6 +17832,271 @@
                     "name",
                     "type",
                     "user_id"
+                ]
+            },
+            "ResolvedData": {
+                "type": "object",
+                "properties": {
+                    "users": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PartialUser"
+                        }
+                    },
+                    "members": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ResolvedGuildMember"
+                        }
+                    },
+                    "roles": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PublicRole"
+                        }
+                    },
+                    "channels": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ResolvedChannel"
+                        }
+                    },
+                    "messages": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PartialMessage"
+                        }
+                    },
+                    "attachments": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/PublicAttachment"
+                        }
+                    }
+                }
+            },
+            "ResolvedGuildMember": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "nick": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "joined_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "pending": {
+                        "type": "boolean"
+                    },
+                    "premium_since": {
+                        "type": "integer"
+                    },
+                    "avatar": {
+                        "type": "string"
+                    },
+                    "banner": {
+                        "type": "string"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "theme_colors": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "pronouns": {
+                        "type": "string"
+                    },
+                    "communication_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "avatar_decoration_data": {
+                        "$ref": "#/components/schemas/AvatarDecorationData"
+                    },
+                    "display_name_styles": {
+                        "$ref": "#/components/schemas/DisplayNameStyle"
+                    },
+                    "collectibles": {
+                        "$ref": "#/components/schemas/Collectibles"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "permissions": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PublicRole": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "color": {
+                        "type": "integer"
+                    },
+                    "hoist": {
+                        "type": "boolean"
+                    },
+                    "managed": {
+                        "type": "boolean"
+                    },
+                    "mentionable": {
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "permissions": {
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "unicode_emoji": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "tags": {
+                        "$ref": "#/components/schemas/PublicRoleTags"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "colors": {
+                        "$ref": "#/components/schemas/RoleColors"
+                    }
+                },
+                "required": [
+                    "color",
+                    "colors",
+                    "flags",
+                    "hoist",
+                    "id",
+                    "managed",
+                    "mentionable",
+                    "name",
+                    "permissions",
+                    "position"
+                ]
+            },
+            "PublicRoleTags": {
+                "type": "object",
+                "properties": {
+                    "bot_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "integration_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "premium_subscriber": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ResolvedChannel": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ChannelType"
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "permissions": {
+                        "type": "string"
+                    },
+                    "last_message_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "last_pin_timestamp": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "nsfw": {
+                        "type": "boolean"
+                    },
+                    "parent_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "rate_limit_per_user": {
+                        "type": "integer"
+                    },
+                    "topic": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "thread_metadata": {
+                        "$ref": "#/components/schemas/ThreadMetadata"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type"
                 ]
             },
             "PublicChannel": {
@@ -21574,59 +21851,6 @@
                     "type"
                 ]
             },
-            "ModalSubmitResolvedData": {
-                "type": "object",
-                "properties": {
-                    "users": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "members": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "roles": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "channels": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "messages": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "attachments": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            },
             "InteractionCallbackType": {
                 "type": "number",
                 "enum": [
@@ -22031,7 +22255,7 @@
                         "type": "string"
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/InteractionResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     },
                     "options": {
                         "type": "array",
@@ -22053,37 +22277,6 @@
                     "name",
                     "type"
                 ]
-            },
-            "InteractionResolvedData": {
-                "type": "object",
-                "properties": {
-                    "users": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "members": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "roles": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "channels": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "messages": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    },
-                    "attachments": {
-                        "$ref": "#/components/schemas/InteractionResolvedObjectMap"
-                    }
-                }
-            },
-            "InteractionResolvedObjectMap": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "object",
-                    "properties": {},
-                    "additionalProperties": true
-                }
             },
             "InteractionApplicationCommandDataOption": {
                 "type": "object",
@@ -22132,7 +22325,7 @@
                         }
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/InteractionResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     }
                 },
                 "required": [
@@ -22153,7 +22346,7 @@
                         }
                     },
                     "resolved": {
-                        "$ref": "#/components/schemas/InteractionResolvedData"
+                        "$ref": "#/components/schemas/ResolvedData"
                     },
                     "attachments": {
                         "type": "array",

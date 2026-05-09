@@ -143,6 +143,7 @@ interface PublicMessageSource {
     poll?: PublicMessage["poll"];
     reactions?: StoredReaction[];
     referenced_message?: { toJSON: (shallow?: boolean) => PublicMessage } | null;
+    resolved?: PublicMessage["resolved"];
     thread?: { toJSON: () => PublicMessage["thread"] } | PublicMessage["thread"];
     timestamp: Date;
     tts?: boolean | null;
@@ -235,6 +236,7 @@ export function messageToPublicMessage(message: PublicMessageSource, shallow = f
         poll: message.poll ?? undefined,
         thread: message.thread && "toJSON" in message.thread ? message.thread.toJSON() : message.thread,
         referenced_message: message.referenced_message && !shallow ? message.referenced_message.toJSON(true) : undefined,
+        resolved: message.resolved ?? undefined,
     };
 
     const application = serializeMessageApplication(message.application);

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import Ajv from "ajv";
+import type { ResolvedData } from "@spacebar/schemas";
 import { getAuthorizingIntegrationOwners } from "./InteractionCreateSchema";
 
 const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, unknown>;
@@ -74,7 +75,7 @@ function applicationCommandInteractionPayload() {
                         avatar: null,
                     },
                 },
-            },
+            } as ResolvedData,
         },
     };
 }
@@ -84,6 +85,31 @@ describe("InteractionCreateSchema", () => {
         const validate = compileInteractionCreateSchema();
 
         assert.equal(validate(applicationCommandInteractionPayload()), true, JSON.stringify(validate.errors));
+    });
+
+    test("accepts partial resolved members with permissions", () => {
+        const validate = compileInteractionCreateSchema();
+        const payload = applicationCommandInteractionPayload();
+        payload.data.resolved = {
+            users: {
+                "100000000000000008": {
+                    id: "100000000000000008",
+                    username: "tester",
+                    discriminator: "0001",
+                    avatar: null,
+                },
+            },
+            members: {
+                "100000000000000008": {
+                    roles: ["100000000000000014"],
+                    joined_at: "2026-01-01T00:00:00.000Z",
+                    pending: false,
+                    permissions: "1024",
+                },
+            },
+        } as unknown as ResolvedData;
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors));
     });
 
     test("accepts Discord-compatible message component interactions", () => {
@@ -101,6 +127,16 @@ describe("InteractionCreateSchema", () => {
                             id: "100000000000000011",
                             name: "general",
                             type: 0,
+                            permissions: "1024",
+                            last_message_id: "100000000000000012",
+                            last_pin_timestamp: null,
+                            nsfw: false,
+                            parent_id: "100000000000000013",
+                            guild_id: "100000000000000003",
+                            flags: 0,
+                            rate_limit_per_user: 2,
+                            topic: "resolved channel",
+                            position: 1,
                         },
                     },
                 },
@@ -144,6 +180,9 @@ describe("InteractionCreateSchema", () => {
                         "100000000000000012": {
                             id: "100000000000000012",
                             filename: "bug.png",
+                            size: 12,
+                            url: "https://cdn.example.test/bug.png",
+                            proxy_url: "https://proxy.example.test/bug.png",
                         },
                     },
                 },
@@ -214,6 +253,23 @@ describe("InteractionCreateSchema", () => {
         assert.equal(validate({ ...applicationCommandInteractionPayload(), type: 3, data: { custom_id: "select" } }), false);
         assert.equal(validate({ ...applicationCommandInteractionPayload(), type: 5, data: { custom_id: "modal" } }), false);
         assert.equal(validate({ ...applicationCommandInteractionPayload(), entitlements: [{ id: "100000000000000006" }] }), false);
+        assert.equal(
+            validate({
+                ...applicationCommandInteractionPayload(),
+                data: {
+                    ...applicationCommandInteractionPayload().data,
+                    resolved: {
+                        attachments: {
+                            "100000000000000012": {
+                                id: "100000000000000012",
+                                filename: "bug.png",
+                            },
+                        },
+                    },
+                },
+            }),
+            false,
+        );
     });
 
     test("computes authorizing integration owners from the interaction source", () => {

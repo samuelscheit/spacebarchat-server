@@ -32,6 +32,7 @@ import {
 } from "@spacebar/schemas";
 import { PublicMember } from "../users/Member";
 import { PublicAttachment } from "./Attachments";
+import type { ResolvedData } from "./ResolvedData";
 
 export enum MessageType {
     DEFAULT = 0,
@@ -220,7 +221,7 @@ export interface PublicMessage {
     // call?: MessageCall;
     // interaction?: PartialMessageInteraction; // TODO
     interaction_metadata?: MessageInteractionMetadata;
-    // resolved?: ResolvedData; // TODO
+    resolved?: ResolvedData;
     thread?: PublicChannel;
     // role_subscription_data?: MessageRoleSubscription;
     // purchase_notification?: MessagePurchaseNotification;

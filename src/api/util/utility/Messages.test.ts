@@ -53,6 +53,44 @@ function jsonRoundTrip<T>(value: T): T {
     return JSON.parse(JSON.stringify(value)) as T;
 }
 
+function makeResolvedData(): NonNullable<PublicMessage["resolved"]> {
+    return {
+        users: {
+            "300": makePublicUser(),
+        },
+        attachments: {
+            "900": { id: "900", filename: "document.txt", size: 1024, url: "https://cdn.example.test/document.txt", proxy_url: "https://proxy.example.test/document.txt" },
+        },
+    };
+}
+
+test("messageToPublicMessage preserves optional resolved interaction data", () => {
+    const resolved = makeResolvedData();
+    const publicMessage = messageToPublicMessage({
+        id: "200",
+        channel_id: "100",
+        content: "hello",
+        timestamp: new Date("2026-05-06T00:00:00.000Z"),
+        edited_timestamp: null,
+        mentions: [],
+        mention_roles: [],
+        mention_channels: [],
+        attachments: [],
+        embeds: [],
+        pinned: false,
+        type: 0,
+        flags: 0,
+        components: [],
+        author: {
+            ...makePublicUser(),
+            toPublicUser: makePublicUser,
+        },
+        resolved,
+    });
+
+    assert.deepEqual(publicMessage.resolved, resolved);
+});
+
 function makeEntityMessage(overrides: Record<string, unknown> = {}): Parameters<typeof messageToPublicMessage>[0] & Record<string, unknown> {
     return {
         id: "200",
@@ -92,6 +130,7 @@ function makeEntityMessage(overrides: Record<string, unknown> = {}): Parameters<
         sticker_items: [{ id: "800" }],
         interaction: { id: "900", type: 2, name: "command" },
         interaction_metadata: makeInteractionMetadata(),
+        resolved: makeResolvedData(),
         author: {
             ...makePublicUser(),
             toPublicUser: makePublicUser,
@@ -106,7 +145,9 @@ test("toPreloadMessageResponse returns a schema-compliant DTO without entity-onl
     const dto = toPreloadMessageResponse({ toJSON: () => publicMessage } as never);
 
     assert.deepEqual(publicMessage.interaction_metadata, entityMessage.interaction_metadata);
+    assert.deepEqual(publicMessage.resolved, entityMessage.resolved);
     assert.deepEqual(dto.interaction_metadata, entityMessage.interaction_metadata);
+    assert.deepEqual(dto.resolved, entityMessage.resolved);
     assert.equal("interaction" in publicMessage, false);
     assert.equal("reactions" in dto, false);
     for (const field of ["guild_id", "thread_id", "pinned_at", "username", "avatar", "author_id", "member_id", "channel", "guild", "webhook", "sticker_items", "interaction"]) {

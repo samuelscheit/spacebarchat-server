@@ -82,6 +82,8 @@
         "src/gateway/util/Utils.test.ts",
         "src/gateway/util/SessionIntents.test.ts",
         "src/schemas/Validator.test.ts",
+        "src/schemas/api/bots/InteractionCreateSchema.test.ts",
+        "src/schemas/api/bots/SendableModalSubmitDataSchema.test.ts",
         "src/schemas/api/messages/PublicMessageContract.test.ts",
         "src/schemas/gateway/IdentifySchema.test.ts",
         "src/schemas/responses/UserProfileResponse.test.ts",
