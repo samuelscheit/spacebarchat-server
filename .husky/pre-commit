@@ -22,4 +22,4 @@ else
   echo "Nix flake lock was updated less than 7 days ago. Skipping update."
 fi
 
-npx -y lint-staged
+npx -y lint-staged --concurrent false

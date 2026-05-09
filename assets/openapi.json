@@ -7800,6 +7800,9 @@
                             }
                         ]
                     },
+                    "activity": {
+                        "$ref": "#/components/schemas/MessageActivity"
+                    },
                     "components": {
                         "anyOf": [
                             {
@@ -7971,6 +7974,9 @@
                     },
                     "nonce": {
                         "type": "string"
+                    },
+                    "activity": {
+                        "$ref": "#/components/schemas/MessageActivity"
                     },
                     "interaction": {
                         "$ref": "#/components/schemas/MessageInteractionSchema"
