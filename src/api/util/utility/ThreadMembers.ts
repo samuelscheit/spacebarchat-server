@@ -36,7 +36,7 @@ export function assertThreadIsNotArchived(thread: { thread_metadata?: { archived
 }
 
 export function assertValidThreadMemberSettingsFlags(flags: number) {
-    if (!Number.isInteger(flags) || flags < 0 || (flags & ~VALID_THREAD_MEMBER_FLAGS) !== 0) {
+    if (!Number.isSafeInteger(flags) || flags < 0 || flags > VALID_THREAD_MEMBER_FLAGS || (flags & ~VALID_THREAD_MEMBER_FLAGS) !== 0) {
         throw FieldErrors({ flags: { message: "Value must be a valid thread member flags bitfield" } });
     }
 

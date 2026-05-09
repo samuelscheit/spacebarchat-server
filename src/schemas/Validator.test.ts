@@ -165,4 +165,17 @@ describe("schema validator bigint fields", () => {
         assert.equal(payload.intents, 1n);
         assert.deepEqual(payload.shard, [0n, 1n]);
     });
+
+    test("rejects invalid bigint strings without leaking raw coercion errors", () => {
+        assert.throws(
+            () =>
+                validateSchema("IdentifySchema", {
+                    token: "auth-token",
+                    properties: {},
+                    intents: "not-a-bigint",
+                    shard: [0, "1"],
+                }),
+            (error) => Array.isArray(error),
+        );
+    });
 });

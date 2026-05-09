@@ -52,7 +52,7 @@ index 82a591f..5ed3a58 100644
          all: {},
          keywords: {},
 diff --git a/node_modules/ajv/dist/compile/validate/dataType.js b/node_modules/ajv/dist/compile/validate/dataType.js
-index 6d03e0d..33b43d3 100644
+index 6d03e0d..ddc71bc 100644
 --- a/node_modules/ajv/dist/compile/validate/dataType.js
 +++ b/node_modules/ajv/dist/compile/validate/dataType.js
 @@ -53,7 +53,7 @@ function coerceAndCheckDataType(it, types) {
@@ -72,7 +72,7 @@ index 6d03e0d..33b43d3 100644
 +                gen
 +                    .elseIf(codegen_1._ `${dataType} == "boolean" || ${data} === null
 +              || (${dataType} == "number" && Number.isInteger(${data}))
-+              || (${dataType} == "string" && ${data} && ${data} == BigInt(${data}))`)
++              || (${dataType} == "string" && /^-?\\d+$/.test(${data}))`)
 +                    .assign(coerced, codegen_1._ `BigInt(${data})`);
 +                return;
              case "string":
@@ -281,7 +281,7 @@ index 7dbf7ab..55ca70e 100644
      all: {},
      keywords: {},
 diff --git a/node_modules/ajv/lib/compile/validate/dataType.ts b/node_modules/ajv/lib/compile/validate/dataType.ts
-index d8142b3..309c33b 100644
+index d8142b3..a571c10 100644
 --- a/node_modules/ajv/lib/compile/validate/dataType.ts
 +++ b/node_modules/ajv/lib/compile/validate/dataType.ts
 @@ -53,7 +53,7 @@ export function coerceAndCheckDataType(it: SchemaObjCxt, types: JSONType[]): boo
@@ -302,7 +302,7 @@ index d8142b3..309c33b 100644
 +          .elseIf(
 +            _`${dataType} == "boolean" || ${data} === null
 +              || (${dataType} == "number" && Number.isInteger(${data}))
-+              || (${dataType} == "string" && ${data} && ${data} == BigInt(${data}))`
++              || (${dataType} == "string" && /^-?\\d+$/.test(${data}))`
 +          )
 +          .assign(coerced, _`BigInt(${data})`)
 +        return

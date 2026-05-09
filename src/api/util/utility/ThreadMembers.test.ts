@@ -118,6 +118,7 @@ describe("thread member helpers", () => {
     test("rejects client-managed thread member flags", () => {
         assertInvalidThreadMemberSettingsFlags(ThreadMemberFlags.HAS_INTERACTED);
         assertInvalidThreadMemberSettingsFlags(1 << 9);
+        assertInvalidThreadMemberSettingsFlags(2 ** 32);
     });
 
     test("serializes public thread member update payload with the shared serializer", () => {
