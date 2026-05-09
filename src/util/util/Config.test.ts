@@ -206,3 +206,37 @@ test("Config.init accepts enabled CAPTCHA with hCaptcha provider settings", asyn
     assert.equal(Config.get().security.captcha.sitekey, "hcaptcha-sitekey");
     assert.equal(Config.get().security.captcha.secret, "hcaptcha-secret");
 });
+
+test("pairsToConfig reconstructs nested config objects from database pairs", () => {
+    const config = pairsToConfig([
+        configPair("general_serverName", "localhost"),
+        configPair("api_endpointPublic", "http://localhost:3001/api/v9"),
+        configPair("register_allowNewRegistration", false),
+        configPair("limits_user_maxGuilds", 100),
+        configPair("email_smtp_password", null),
+    ]);
+
+    assert.equal(config.general.serverName, "localhost");
+    assert.equal(config.api.endpointPublic, "http://localhost:3001/api/v9");
+    assert.equal(config.register.allowNewRegistration, false);
+    assert.equal(config.limits.user.maxGuilds, 100);
+    assert.equal(config.email.smtp.password, null);
+});
+
+test("pairsToConfig reconstructs arrays from numeric database path segments", () => {
+    const config = pairsToConfig([
+        configPair("regions_available_0_id", "spacebar"),
+        configPair("regions_available_0_name", "Spacebar"),
+        configPair("regions_available_0_endpoint", "127.0.0.1:3004"),
+        configPair("regions_available_0_vip", false),
+        configPair("regions_available_1_id", "backup"),
+        configPair("regions_available_1_name", "Backup"),
+        configPair("regions_available_1_endpoint", "127.0.0.1:3005"),
+        configPair("regions_available_1_vip", true),
+    ]);
+
+    assert.deepEqual(config.regions.available, [
+        { id: "spacebar", name: "Spacebar", endpoint: "127.0.0.1:3004", vip: false },
+        { id: "backup", name: "Backup", endpoint: "127.0.0.1:3005", vip: true },
+    ]);
+});
