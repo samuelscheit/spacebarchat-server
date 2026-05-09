@@ -4291,6 +4291,9 @@
             "security": {
                 "$ref": "#/definitions/SecurityConfiguration"
             },
+            "store": {
+                "$ref": "#/definitions/StoreConfiguration"
+            },
             "login": {
                 "$ref": "#/definitions/LoginConfiguration"
             },
@@ -4365,6 +4368,7 @@
             "regions",
             "register",
             "security",
+            "store",
             "templates",
             "updates",
             "user",
@@ -20050,6 +20054,91 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StoreConfiguration": {
+        "type": "object",
+        "properties": {
+            "customSubscriptionPlans": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StoreSubscriptionPlanConfiguration"
+                },
+                "default": []
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "customSubscriptionPlans"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StoreSubscriptionPlanConfiguration": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "interval": {
+                "type": "integer",
+                "default": 1
+            },
+            "interval_count": {
+                "type": "integer",
+                "default": 1
+            },
+            "tax_inclusive": {
+                "type": "boolean",
+                "default": true
+            },
+            "sku_id": {
+                "type": "string"
+            },
+            "currency": {
+                "type": "string",
+                "default": "usd"
+            },
+            "price": {
+                "type": "integer",
+                "default": 0
+            },
+            "price_tier": {
+                "type": [
+                    "null",
+                    "integer"
+                ],
+                "default": null
+            },
+            "discount_price": {
+                "type": "integer"
+            },
+            "fallback_price": {
+                "type": "integer"
+            },
+            "fallback_currency": {
+                "type": "string"
+            },
+            "prices": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "currency",
+            "id",
+            "interval",
+            "interval_count",
+            "name",
+            "price",
+            "price_tier",
+            "sku_id",
+            "tax_inclusive"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "LoginConfiguration": {
         "type": "object",
         "properties": {
@@ -21082,6 +21171,9 @@
             "security": {
                 "$ref": "#/definitions/SecurityConfiguration"
             },
+            "store": {
+                "$ref": "#/definitions/StoreConfiguration"
+            },
             "login": {
                 "$ref": "#/definitions/LoginConfiguration"
             },
@@ -21156,6 +21248,7 @@
             "regions",
             "register",
             "security",
+            "store",
             "templates",
             "updates",
             "user",
