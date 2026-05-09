@@ -5551,6 +5551,171 @@
                     "user_profile"
                 ]
             },
+            "UserGuildResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "afk_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "afk_timeout": {
+                        "type": "integer"
+                    },
+                    "banner": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "default_message_notifications": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "discovery_splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "explicit_content_filter": {
+                        "type": "integer"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "large": {
+                        "type": "boolean"
+                    },
+                    "max_members": {
+                        "type": "integer"
+                    },
+                    "max_presences": {
+                        "type": "integer"
+                    },
+                    "max_video_channel_users": {
+                        "type": "integer"
+                    },
+                    "member_count": {
+                        "type": "integer"
+                    },
+                    "mfa_level": {
+                        "type": "integer"
+                    },
+                    "owner_id": {
+                        "type": "string"
+                    },
+                    "preferred_locale": {
+                        "type": "string"
+                    },
+                    "premium_progress_bar_enabled": {
+                        "type": "boolean"
+                    },
+                    "premium_subscription_count": {
+                        "type": "integer"
+                    },
+                    "premium_tier": {
+                        "type": "integer"
+                    },
+                    "public_updates_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "region": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "rules_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "system_channel_flags": {
+                        "type": "integer"
+                    },
+                    "system_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "unavailable": {
+                        "type": "boolean"
+                    },
+                    "verification_level": {
+                        "type": "integer"
+                    },
+                    "welcome_screen": {
+                        "$ref": "#/components/schemas/GuildWelcomeScreen"
+                    },
+                    "widget_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "widget_enabled": {
+                        "type": "boolean"
+                    },
+                    "nsfw_level": {
+                        "type": "integer"
+                    },
+                    "nsfw": {
+                        "type": "boolean"
+                    },
+                    "approximate_member_count": {
+                        "type": "integer"
+                    },
+                    "approximate_presence_count": {
+                        "type": "integer"
+                    },
+                    "permissions": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "UserGuildsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/UserGuildResponse"
+                }
+            },
             "UserRelationResponse": {
                 "type": "object",
                 "properties": {
@@ -24295,12 +24460,23 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/APIGuildArray"
+                                    "$ref": "#/components/schemas/UserGuildsResponse"
                                 }
                             }
                         }
                     }
                 },
+                "parameters": [
+                    {
+                        "name": "with_counts",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Include approximate guild counts and the current user's guild permission bitfield."
+                    }
+                ],
                 "tags": [
                     "users"
                 ]

@@ -33,6 +33,33 @@ const ImageDataUriFields = [
     ["WebhookUpdateSchema", "avatar"],
 ] as const;
 
+describe("IdentifySchema", () => {
+    test("compiles under strict AJV and coerces gateway bitfields to bigint", () => {
+        const validate = ajv.getSchema("IdentifySchema");
+        assert.ok(validate);
+
+        const payload = {
+            token: "auth-token",
+            properties: {},
+            intents: 0,
+            shard: [0, "1"],
+        };
+
+        assert.equal(validate(payload), true, JSON.stringify(validate.errors, null, 2));
+        assert.equal(payload.intents, 0n);
+        assert.deepEqual(payload.shard, [0n, 1n]);
+
+        const identifySchema = Schemas.IdentifySchema as {
+            properties?: {
+                intents?: Record<string, unknown>;
+                shard?: { items?: Record<string, unknown> };
+            };
+        };
+        assert.deepEqual(identifySchema.properties?.intents, { type: "bigint" });
+        assert.deepEqual(identifySchema.properties?.shard?.items, { type: "bigint" });
+    });
+});
+
 describe("WebhookExecuteSchema", () => {
     function getWebhookExecuteValidator() {
         const validate = ajv.getSchema("WebhookExecuteSchema");

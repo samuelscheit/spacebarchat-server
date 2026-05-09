@@ -25,6 +25,15 @@ const assertAttribute = (element: string, attribute: string, expected: string) =
 };
 
 describe("Admin API TestClient Nix packaging", () => {
+    test("keeps the shared CDN package source as a relative path", () => {
+        const outputs = readText(adminApiOutputsPath);
+        const packageBlockMatch = outputs.match(/Spacebar-Cdn-Shared = buildSpacebarDotnetModule \{[\s\S]*?\n {8}\};/);
+
+        assert(packageBlockMatch, "Expected Spacebar-Cdn-Shared package block in outputs.nix");
+        assert.match(packageBlockMatch[0], /srcRoot = \.\/Spacebar\.Cdn\.Shared;/);
+        assert.doesNotMatch(packageBlockMatch[0], /srcRoot = Spacebar\.Cdn\.Shared;/);
+    });
+
     test("uses CI package references instead of unreachable project references", () => {
         const project = readText(testClientProjectPath);
 
