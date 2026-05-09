@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { PublicVoiceState, VoiceStateModifySchema } from "@spacebar/schemas";
+import type { PublicVoiceState, Region, VoiceStateModifySchema } from "@spacebar/schemas";
 import {
     Channel,
     Config,
@@ -34,6 +34,32 @@ import {
 } from "@spacebar/util";
 import { distanceBetweenLocations } from "../utility/ipAddress";
 
+type RegionLocation = NonNullable<Region["location"]>;
+
+function serializeVoiceRegions(availableRegions: Region[], optimalId: string) {
+    return availableRegions.map((ar) => ({
+        id: ar.id,
+        name: ar.name,
+        custom: ar.custom,
+        deprecated: ar.deprecated,
+        optimal: ar.id === optimalId,
+    }));
+}
+
+async function resolveRegionLocation(region: Region): Promise<RegionLocation | undefined> {
+    if (region.location) return region.location;
+
+    const endpointLocation = await IpDataClient.getIpInfo(region.endpoint);
+    if (!endpointLocation) return undefined;
+
+    region.location = {
+        latitude: endpointLocation.latitude,
+        longitude: endpointLocation.longitude,
+    };
+
+    return region.location;
+}
+
 export async function getVoiceRegions(ipAddress: string, vip: boolean) {
     const regions = Config.get().regions;
     const availableRegions = regions.available.filter((ar) => (vip ? true : !ar.vip));
@@ -42,26 +68,28 @@ export async function getVoiceRegions(ipAddress: string, vip: boolean) {
     if (!regions.useDefaultAsOptimal) {
         const clientIpAnalysis = await IpDataClient.getIpInfo(ipAddress);
 
-        let min = Number.POSITIVE_INFINITY;
+        if (!clientIpAnalysis) return serializeVoiceRegions(availableRegions, optimalId);
 
+        let min = Number.POSITIVE_INFINITY;
+        let shouldPersistRegions = false;
         for (const ar of availableRegions) {
-            //TODO the endpoint location should be saved in the database if not already present to prevent IPAnalysis call
-            const dist = distanceBetweenLocations(clientIpAnalysis!, ar.location || (await IpDataClient.getIpInfo(ar.endpoint))!);
+            const hadLocation = Boolean(ar.location);
+            const regionLocation = await resolveRegionLocation(ar);
+            if (!regionLocation) continue;
+
+            shouldPersistRegions ||= !hadLocation;
+            const dist = distanceBetweenLocations(clientIpAnalysis, regionLocation);
 
             if (dist < min) {
                 min = dist;
                 optimalId = ar.id;
             }
         }
+
+        if (shouldPersistRegions) await Config.set({ regions });
     }
 
-    return availableRegions.map((ar) => ({
-        id: ar.id,
-        name: ar.name,
-        custom: ar.custom,
-        deprecated: ar.deprecated,
-        optimal: ar.id === optimalId,
-    }));
+    return serializeVoiceRegions(availableRegions, optimalId);
 }
 
 const GUILD_STAGE_VOICE = 13;
