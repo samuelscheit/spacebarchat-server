@@ -30,16 +30,81 @@
             }
         },
         "schemas": {
-            "CreateFingerprintResponse": {
+            "ApplicationCommandCreateSchema": {
                 "type": "object",
                 "properties": {
-                    "fingerprint": {
+                    "type": {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    "name": {
                         "type": "string"
+                    },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "description_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommandOption"
+                        }
+                    },
+                    "default_member_permissions": {
+                        "type": "string"
+                    },
+                    "dm_permission": {
+                        "type": "boolean"
+                    },
+                    "nsfw": {
+                        "type": "boolean"
+                    },
+                    "integration_types": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationIntegrationType"
+                        }
+                    },
+                    "contexts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/InteractionContextType"
+                        }
+                    },
+                    "handler": {
+                        "enum": [
+                            1,
+                            2,
+                            3
+                        ],
+                        "type": "number"
                     }
                 },
                 "required": [
-                    "fingerprint"
+                    "name"
                 ]
+            },
+            "BulkApplicationCommandCreateSchema": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationCommandCreateSchema"
+                }
             },
             "ApplicationCommandSchema": {
                 "type": "object",
@@ -151,6 +216,9 @@
                     "name",
                     "version"
                 ]
+            },
+            "InstanceUserDeleteSchema": {
+                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
             "CreateDMChannelResponse": {
                 "type": "object",
@@ -276,9 +344,6 @@
                     "errors",
                     "message"
                 ]
-            },
-            "InstanceUserDeleteSchema": {
-                "$ref": "#/components/schemas/InstanceUserDeleteSchemaContent"
             },
             "UserSettingsUpdateSchema": {
                 "type": "object",
@@ -1687,6 +1752,7 @@
                         "type": "integer"
                     },
                     "name": {
+                        "maxLength": 255,
                         "type": "string"
                     },
                     "permissions": {
@@ -2768,9 +2834,6 @@
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": "string"
                     },
@@ -2800,6 +2863,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -7292,6 +7358,7 @@
                 "type": "object",
                 "properties": {
                     "name": {
+                        "maxLength": 255,
                         "type": "string"
                     },
                     "permissions": {
@@ -7668,14 +7735,14 @@
                     "version": {
                         "type": "integer"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": [
                             "null",
                             "string"
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "message_notifications": {
                         "type": "integer"
@@ -10399,81 +10466,16 @@
                     "video_ssrc"
                 ]
             },
-            "ApplicationCommandCreateSchema": {
+            "CreateFingerprintResponse": {
                 "type": "object",
                 "properties": {
-                    "type": {
-                        "enum": [
-                            1,
-                            2,
-                            3,
-                            4
-                        ],
-                        "type": "number"
-                    },
-                    "name": {
+                    "fingerprint": {
                         "type": "string"
-                    },
-                    "name_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "description_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "options": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationCommandOption"
-                        }
-                    },
-                    "default_member_permissions": {
-                        "type": "string"
-                    },
-                    "dm_permission": {
-                        "type": "boolean"
-                    },
-                    "nsfw": {
-                        "type": "boolean"
-                    },
-                    "integration_types": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationIntegrationType"
-                        }
-                    },
-                    "contexts": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/InteractionContextType"
-                        }
-                    },
-                    "handler": {
-                        "enum": [
-                            1,
-                            2,
-                            3
-                        ],
-                        "type": "number"
                     }
                 },
                 "required": [
-                    "name"
+                    "fingerprint"
                 ]
-            },
-            "BulkApplicationCommandCreateSchema": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/ApplicationCommandCreateSchema"
-                }
             },
             "SessionsLogoutSchema": {
                 "type": "object",
@@ -10661,20 +10663,6 @@
                     "value"
                 ]
             },
-            "ApplicationCommandIndexPermissions": {
-                "type": "object",
-                "properties": {
-                    "user": {
-                        "type": "boolean"
-                    },
-                    "roles": {
-                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
-                    },
-                    "channels": {
-                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
-                    }
-                }
-            },
             "ApplicationIntegrationType": {
                 "type": "number",
                 "enum": [
@@ -10689,6 +10677,31 @@
                     1,
                     2
                 ]
+            },
+            "ApplicationCommandIndexPermissions": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "type": "boolean"
+                    },
+                    "roles": {
+                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
+                    },
+                    "channels": {
+                        "$ref": "#/components/schemas/Record%3Cstring%2Cboolean%3E"
+                    }
+                }
+            },
+            "InstanceUserDeleteSchemaContent": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "string"
+                    },
+                    "persistInstanceBan": {
+                        "type": "boolean"
+                    }
+                }
             },
             "ErrorList": {
                 "type": "object",
@@ -10737,17 +10750,6 @@
                                 "message"
                             ]
                         }
-                    }
-                }
-            },
-            "InstanceUserDeleteSchemaContent": {
-                "type": "object",
-                "properties": {
-                    "reason": {
-                        "type": "string"
-                    },
-                    "persistInstanceBan": {
-                        "type": "boolean"
                     }
                 }
             },
@@ -17481,9 +17483,6 @@
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": "string"
                     },
@@ -17519,6 +17518,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -18481,9 +18483,6 @@
                     "collectibles": {
                         "$ref": "#/components/schemas/Collectibles"
                     },
-                    "flags": {
-                        "type": "integer"
-                    },
                     "guild_id": {
                         "type": "string"
                     },
@@ -18513,6 +18512,9 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "flags": {
+                        "type": "integer"
                     },
                     "user": {
                         "$ref": "#/components/schemas/PublicUser"
@@ -26500,7 +26502,7 @@
         "/track/": {
             "post": {
                 "responses": {
-                    "default": {
+                    "204": {
                         "description": "No description available"
                     }
                 },
@@ -33355,6 +33357,24 @@
                         }
                     }
                 },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to use when selecting localized category names."
+                    },
+                    {
+                        "name": "primary_only",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Only return primary discovery categories."
+                    }
+                ],
                 "tags": [
                     "discovery"
                 ]

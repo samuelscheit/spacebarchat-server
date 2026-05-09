@@ -127,8 +127,6 @@ router.patch(
         if (body.icon && body.icon.length) body.icon = await handleFile(`/role-icons/${role_id}`, body.icon as string);
         else body.icon = undefined;
 
-        // TODO: proper field error
-        if (body.name && body.name.length > 255) throw new Error("Role name must not exceed 255 characters");
         role.assign({
             ...body,
             permissions: String((req.permission?.bitfield || 0n) & BigInt(body.permissions || "0")),
