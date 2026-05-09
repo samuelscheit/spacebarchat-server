@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { HTTPError } from "lambert-server";
-import { FieldError, ThreadMemberFlags } from "@spacebar/util";
+import { FieldError, serializeThreadMemberPayload, ThreadMemberFlags } from "@spacebar/util";
 import {
     applyThreadMemberListQuery,
     applyThreadMemberSettingsUpdate,
@@ -11,7 +11,6 @@ import {
     parseThreadMemberLimit,
     parseThreadMemberWithMember,
     resolveThreadMemberUserId,
-    serializePublicThreadMember,
 } from "./ThreadMembers";
 
 describe("thread member helpers", () => {
@@ -111,8 +110,8 @@ describe("thread member helpers", () => {
         assertInvalidThreadMemberSettingsFlags(1 << 9);
     });
 
-    test("serializes public thread member update payload", () => {
-        const serialized = serializePublicThreadMember(
+    test("serializes public thread member update payload with the shared serializer", () => {
+        const serialized = serializeThreadMemberPayload(
             createThreadMember({
                 id: "thread-id",
                 join_timestamp: new Date("2026-01-02T03:04:05.000Z"),

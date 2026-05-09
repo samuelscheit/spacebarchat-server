@@ -1,4 +1,4 @@
-import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Event, Guild, Member, Role, Snowflake, emitEvent, User } from "@spacebar/util";
+import { Channel, ChannelDeleteEvent, ChannelUpdateEvent, Event, Guild, GuildFeature, Member, Role, Snowflake, emitEvent, User } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { HTTPError } from "lambert-server";
 import { AdminDiscoveryGuild, toAdminDiscoveryGuild } from "./dto";
@@ -28,7 +28,7 @@ function notFound(entity: string): never {
 
 export async function updateAdminDiscoveryGuild(guildId: string, body: unknown, includeExcluded: boolean): Promise<AdminDiscoveryGuild> {
     const update = parseAdminDiscoveryGuildUpdate(body);
-    const qb = Guild.createQueryBuilder("guild").where("guild.id = :guildId", { guildId }).andWhere(":feature = ANY(guild.features)", { feature: "DISCOVERABLE" });
+    const qb = Guild.createQueryBuilder("guild").where("guild.id = :guildId", { guildId }).andWhere(":feature = ANY(guild.features)", { feature: GuildFeature.Discoverable });
 
     if (!includeExcluded) qb.andWhere("guild.discovery_excluded = false");
 
@@ -50,7 +50,7 @@ export async function deleteAdminChannel(channelId: string, emitter: AdminEventE
     assertAdminChannelDeletionSupported(channel);
 
     if (channel.isThread()) {
-        await Channel.delete({ id: channel.id });
+        await Channel.deleteChannel(channel);
         await emitter(createAdminThreadDeleteEvent(channel));
 
         return {

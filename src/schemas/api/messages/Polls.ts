@@ -23,6 +23,7 @@ export interface Poll {
     answers: PollAnswer[];
     expiry: Date;
     allow_multiselect: boolean;
+    layout_type: number;
     results?: PollResult;
 }
 
@@ -32,7 +33,7 @@ export interface PollMedia {
 }
 
 export interface PollAnswer {
-    answer_id?: string;
+    answer_id: number;
     poll_media: PollMedia;
 }
 
@@ -42,7 +43,7 @@ export interface PollResult {
 }
 
 export interface PollAnswerCount {
-    id: string;
+    id: number;
     count: number;
     me_voted: boolean;
 }

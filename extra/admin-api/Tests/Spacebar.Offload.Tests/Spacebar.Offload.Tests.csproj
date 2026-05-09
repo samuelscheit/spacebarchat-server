@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Spacebar.Offload\Spacebar.Offload.csproj" />
+    <ProjectReference Include="..\..\Models\Spacebar.Models.Db\Spacebar.Models.Db.csproj" />
   </ItemGroup>
 
   <ItemGroup>

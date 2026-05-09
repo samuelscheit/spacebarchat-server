@@ -7,20 +7,6 @@ export const MAX_THREAD_MEMBER_LIMIT = 100;
 export const MUTABLE_THREAD_MEMBER_FLAGS = ThreadMemberFlags.ALL_MESSAGES | ThreadMemberFlags.ONLY_MENTIONS | ThreadMemberFlags.NO_MESSAGES;
 export const VALID_THREAD_MEMBER_FLAGS = ThreadMemberFlags.HAS_INTERACTED | MUTABLE_THREAD_MEMBER_FLAGS;
 
-export interface PublicThreadMemberMuteConfig {
-    end_time?: string;
-    selected_time_window?: number;
-}
-
-export interface PublicThreadMember {
-    id: string;
-    user_id: string;
-    join_timestamp: string;
-    flags: number;
-    muted?: boolean;
-    mute_config?: PublicThreadMemberMuteConfig;
-}
-
 export interface ThreadMemberSettingsMutationResult {
     changed: boolean;
     threadMember: ThreadMember;
@@ -87,17 +73,6 @@ export function applyThreadMemberSettingsUpdate(threadMember: ThreadMember, body
     return { changed, threadMember };
 }
 
-export function serializePublicThreadMember(threadMember: Pick<ThreadMember, "id" | "join_timestamp" | "flags" | "muted" | "mute_config">, userId: string): PublicThreadMember {
-    return {
-        id: threadMember.id,
-        user_id: userId,
-        join_timestamp: toIsoString(threadMember.join_timestamp) as string,
-        flags: threadMember.flags,
-        muted: threadMember.muted,
-        mute_config: serializeThreadMemberMuteConfig(threadMember.mute_config),
-    };
-}
-
 function normalizeThreadMemberMuteConfig(muteConfig: ThreadMemberSettingsUpdateSchema["mute_config"]): ThreadMember["mute_config"] {
     if (!muteConfig) return undefined;
 
@@ -107,7 +82,7 @@ function normalizeThreadMemberMuteConfig(muteConfig: ThreadMemberSettingsUpdateS
     };
 }
 
-function serializeThreadMemberMuteConfig(muteConfig: ThreadMember["mute_config"]): PublicThreadMemberMuteConfig | undefined {
+function serializeThreadMemberMuteConfig(muteConfig: ThreadMember["mute_config"]) {
     if (!muteConfig) return undefined;
 
     return {
