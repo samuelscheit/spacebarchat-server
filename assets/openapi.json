@@ -5013,6 +5013,36 @@
                     "mfa"
                 ]
             },
+            "OAuthAuthorizeInfoResponse": {
+                "type": "object",
+                "properties": {
+                    "guilds": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OAuthAuthorizeInfoGuild"
+                        }
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/OAuthAuthorizeInfoUser"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/OAuthAuthorizeInfoApplication"
+                    },
+                    "bot": {
+                        "$ref": "#/components/schemas/OAuthAuthorizeInfoBot"
+                    },
+                    "authorized": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "application",
+                    "authorized",
+                    "bot",
+                    "guilds",
+                    "user"
+                ]
+            },
             "OAuthAuthorizeResponse": {
                 "type": "object",
                 "properties": {
@@ -21267,6 +21297,199 @@
                     "webhook"
                 ]
             },
+            "OAuthAuthorizeInfoGuild": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "mfa_level": {
+                        "type": "integer"
+                    },
+                    "permissions": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "icon",
+                    "id",
+                    "mfa_level",
+                    "name",
+                    "permissions"
+                ]
+            },
+            "OAuthAuthorizeInfoUser": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "avatar": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "avatar_decoration_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AvatarDecorationData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "discriminator": {
+                        "type": "string"
+                    },
+                    "public_flags": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "avatar",
+                    "avatar_decoration_data",
+                    "discriminator",
+                    "id",
+                    "public_flags",
+                    "username"
+                ]
+            },
+            "OAuthAuthorizeInfoApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "hook": {
+                        "type": "boolean"
+                    },
+                    "guild_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "verify_key": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "bot_public",
+                    "bot_require_code_grant",
+                    "description",
+                    "flags",
+                    "guild_id",
+                    "hook",
+                    "icon",
+                    "id",
+                    "name",
+                    "summary",
+                    "verify_key"
+                ]
+            },
+            "OAuthAuthorizeInfoBot": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "avatar": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "avatar_decoration_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AvatarDecorationData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "discriminator": {
+                        "type": "string"
+                    },
+                    "public_flags": {
+                        "type": "integer"
+                    },
+                    "bot": {
+                        "type": "boolean"
+                    },
+                    "approximated_guild_count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "approximated_guild_count",
+                    "avatar",
+                    "avatar_decoration_data",
+                    "bot",
+                    "discriminator",
+                    "id",
+                    "public_flags",
+                    "username"
+                ]
+            },
             "PinnedMessageItem": {
                 "type": "object",
                 "properties": {
@@ -28181,7 +28404,14 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No description available"
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthAuthorizeInfoResponse"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "",
