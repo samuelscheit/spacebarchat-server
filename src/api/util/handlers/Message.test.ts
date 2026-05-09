@@ -81,6 +81,8 @@ type MessageLimitMock = {
     maxCharacters: number;
     maxTTSCharacters: number;
     maxEmbeds: number;
+    maxEmbedDescription?: number;
+    maxEmbedCharacters?: number;
 };
 
 type HandleMessageTestOptions = {
@@ -519,6 +521,29 @@ describe("handleMessage", () => {
                 assert.deepEqual((error as { errors?: Record<string, unknown> }).errors?.embeds, {
                     _errors: [{ code: "BASE_TYPE_MAX_ITEMS", message: "Must contain 1 or fewer items." }],
                 });
+                return true;
+            },
+        );
+        assert.equal(context.findChannelMock.mock.callCount(), 0);
+        assert.equal(context.createMessageMock.mock.callCount(), 0);
+    });
+
+    test("rejects embed text over configured limits before side effects", async (t) => {
+        const context = await setupHandleMessageTest(t, {
+            messageLimits: { maxCharacters: 100, maxTTSCharacters: 100, maxEmbeds: 1, maxEmbedDescription: 5, maxEmbedCharacters: 5 },
+        });
+
+        await assert.rejects(
+            () =>
+                context.handleMessage({
+                    id: "message_id",
+                    channel_id: "channel_id",
+                    author_id: "author_id",
+                    embeds: [{ description: "123456" }],
+                }),
+            (error: unknown) => {
+                assert.equal((error as { code?: unknown }).code, 50035);
+                assert.ok((error as { errors?: Record<string, unknown> }).errors?.["embeds[0].description"]);
                 return true;
             },
         );
