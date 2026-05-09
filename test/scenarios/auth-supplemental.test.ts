@@ -96,8 +96,8 @@ test(
 
             const suffix = `${process.pid}${Date.now()}`;
             const email = `auth-supplemental-${suffix}@example.com`;
-            const initialPassword = "scenario-password-42";
-            const resetPassword = "scenario-password-84";
+            const initialPassword = "Scenario-Password-42";
+            const resetPassword = "Scenario-Password-84";
             const username = `authsupp${suffix.slice(-8)}`;
 
             const fingerprintResponse = await fetch(`${api.apiBaseUrl}/auth/fingerprint`, { method: "POST" });
@@ -179,7 +179,7 @@ test(
                 {
                     username: `tokenuser${suffix.slice(-8)}`,
                     email: `auth-token-${suffix}@example.com`,
-                    password: "scenario-password-token",
+                    password: "Scenario-Password-Token-42",
                     consent: true,
                     date_of_birth: "2000-04-04",
                     fingerprint: `fingerprint-token-${suffix}`,
