@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { describe, test } from "node:test";
+import { generateWebAuthnTicket } from "@spacebar/util";
 import {
     createMfaRequiredResponse,
     createRecentMfaCookie,
@@ -12,6 +16,7 @@ import {
     signMfaTicket,
     type MfaTokenContext,
     verifyLoginMfaTicket,
+    verifyLoginMfaTicketFromRequest,
     verifyMfaTicket,
     verifyRecentMfaToken,
 } from "./Mfa";
@@ -124,4 +129,50 @@ describe("modern MFA utilities", () => {
         assert.equal(verifyLoginMfaTicket(sessionTicket, "user-1", "secret", now + 299_000), undefined);
         assert.equal(verifyLoginMfaTicket(recentToken, "user-1", "secret", now + 299_000), undefined);
     });
+
+    test("accepts WebAuthn login MFA tickets for TOTP fallback", async () => {
+        await withTempCwd(async () => {
+            const ticket = await generateWebAuthnTicket({
+                challenge: "server-challenge",
+                origin: "https://spacebar.example",
+                rpId: "spacebar.example",
+                user_id: "user-1",
+                purpose: MFA_ACTION_LOGIN,
+                allowCredentialIds: ["credential-1"],
+            });
+
+            const payload = await verifyLoginMfaTicketFromRequest(ticket, "user-1");
+
+            assert.ok(payload);
+            assert.equal((payload as { user_id?: string }).user_id, "user-1");
+        });
+    });
+
+    test("rejects WebAuthn login MFA tickets for the wrong user", async () => {
+        await withTempCwd(async () => {
+            const ticket = await generateWebAuthnTicket({
+                challenge: "server-challenge",
+                origin: "https://spacebar.example",
+                rpId: "spacebar.example",
+                user_id: "user-1",
+                purpose: MFA_ACTION_LOGIN,
+                allowCredentialIds: ["credential-1"],
+            });
+
+            assert.equal(await verifyLoginMfaTicketFromRequest(ticket, "user-2"), undefined);
+        });
+    });
 });
+
+async function withTempCwd(callback: () => Promise<void>) {
+    const previous = process.cwd();
+    const testDir = await fs.mkdtemp(path.join(os.tmpdir(), "spacebar-mfa-test-"));
+
+    try {
+        process.chdir(testDir);
+        await callback();
+    } finally {
+        process.chdir(previous);
+        await fs.rm(testDir, { recursive: true, force: true });
+    }
+}
