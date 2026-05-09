@@ -16,6 +16,8 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { StringStringDictionary } from "../../HelperTypes";
+
 export enum ApplicationType {
     GAME = 1,
     MUSIC = 2,
@@ -34,7 +36,9 @@ export interface ApplicationCommand {
 export interface ApplicationCommandOption {
     type: ApplicationCommandOptionType;
     name: string;
+    name_localizations?: StringStringDictionary;
     description: string;
+    description_localizations?: StringStringDictionary;
     required?: boolean;
     choices?: ApplicationCommandOptionChoice[];
     options?: ApplicationCommandOption[];
@@ -42,7 +46,19 @@ export interface ApplicationCommandOption {
 
 export interface ApplicationCommandOptionChoice {
     name: string;
+    name_localizations?: StringStringDictionary;
     value: string | number;
+}
+
+export interface LocalizedApplicationCommandOption extends Omit<ApplicationCommandOption, "choices" | "options"> {
+    name_localized?: string | null;
+    description_localized?: string | null;
+    choices?: LocalizedApplicationCommandOptionChoice[];
+    options?: LocalizedApplicationCommandOption[];
+}
+
+export interface LocalizedApplicationCommandOptionChoice extends ApplicationCommandOptionChoice {
+    name_localized?: string | null;
 }
 
 export enum ApplicationCommandOptionType {

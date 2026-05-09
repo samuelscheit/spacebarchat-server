@@ -163,7 +163,7 @@
                     "options": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ApplicationCommandOption"
+                            "$ref": "#/components/schemas/LocalizedApplicationCommandOption"
                         }
                     },
                     "default_member_permissions": {
@@ -3117,6 +3117,12 @@
                     "region": {
                         "type": "string"
                     },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
                     "id": {
                         "type": "string"
                     },
@@ -3257,12 +3263,6 @@
                         "items": {
                             "$ref": "#/components/schemas/Ban"
                         }
-                    },
-                    "description": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
                     },
                     "discovery_splash": {
                         "type": "string"
@@ -10845,8 +10845,20 @@
                     "name": {
                         "type": "string"
                     },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
                     "description": {
                         "type": "string"
+                    },
+                    "description_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
                     },
                     "required": {
                         "type": "boolean"
@@ -10889,6 +10901,12 @@
                     "name": {
                         "type": "string"
                     },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
                     "value": {
                         "type": [
                             "string",
@@ -10914,6 +10932,94 @@
                     0,
                     1,
                     2
+                ]
+            },
+            "LocalizedApplicationCommandOption": {
+                "type": "object",
+                "properties": {
+                    "name_localized": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description_localized": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "choices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LocalizedApplicationCommandOptionChoice"
+                        }
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LocalizedApplicationCommandOption"
+                        }
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ApplicationCommandOptionType"
+                    },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "description_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "required": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "description",
+                    "name",
+                    "type"
+                ]
+            },
+            "LocalizedApplicationCommandOptionChoice": {
+                "type": "object",
+                "properties": {
+                    "name_localized": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "value": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "value"
                 ]
             },
             "ApplicationCommandIndexPermissions": {
@@ -27897,7 +28003,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for guild reports.",
+                "description": "Submit a guild report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -27909,16 +28015,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -27974,7 +28070,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for guild_discovery reports.",
+                "description": "Submit a guild_discovery report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -27986,16 +28082,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28051,7 +28137,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for guild_directory_entry reports.",
+                "description": "Submit a guild_directory_entry report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28063,16 +28149,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28128,7 +28204,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for guild_scheduled_event reports.",
+                "description": "Submit a guild_scheduled_event report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28140,16 +28216,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28205,7 +28271,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for message reports.",
+                "description": "Submit a message report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28217,16 +28283,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28282,7 +28338,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for stage_channel reports.",
+                "description": "Submit a stage_channel report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28294,16 +28350,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28359,7 +28405,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for first_dm reports.",
+                "description": "Submit a first_dm report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28371,16 +28417,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28436,7 +28472,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for user reports.",
+                "description": "Submit a user report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28448,16 +28484,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28513,7 +28539,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for application reports.",
+                "description": "Submit a application report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28525,16 +28551,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28590,7 +28606,7 @@
                         "bearer": []
                     }
                 ],
-                "description": "Get reporting menu options for widget reports.",
+                "description": "Submit a widget report.",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -28602,16 +28618,6 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
                     "204": {
                         "description": "No description available"
                     }
@@ -28826,8 +28832,15 @@
                     }
                 ],
                 "responses": {
-                    "default": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildDiscoveryRequirementsResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

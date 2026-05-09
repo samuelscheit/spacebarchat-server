@@ -135,7 +135,7 @@
             "options": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/ApplicationCommandOption"
+                    "$ref": "#/definitions/LocalizedApplicationCommandOption"
                 }
             },
             "default_member_permissions": {
@@ -3257,6 +3257,12 @@
             "region": {
                 "type": "string"
             },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
             "id": {
                 "type": "string"
             },
@@ -3397,12 +3403,6 @@
                 "items": {
                     "$ref": "#/definitions/Ban"
                 }
-            },
-            "description": {
-                "type": [
-                    "null",
-                    "string"
-                ]
             },
             "discovery_splash": {
                 "type": "string"
@@ -11340,8 +11340,20 @@
             "name": {
                 "type": "string"
             },
+            "name_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
             "description": {
                 "type": "string"
+            },
+            "description_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
             },
             "required": {
                 "type": "boolean"
@@ -11387,6 +11399,12 @@
             "name": {
                 "type": "string"
             },
+            "name_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
             "value": {
                 "type": [
                     "string",
@@ -11415,6 +11433,98 @@
             0,
             1,
             2
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "LocalizedApplicationCommandOption": {
+        "type": "object",
+        "properties": {
+            "name_localized": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description_localized": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "choices": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/LocalizedApplicationCommandOptionChoice"
+                }
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/LocalizedApplicationCommandOption"
+                }
+            },
+            "name": {
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ApplicationCommandOptionType"
+            },
+            "name_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "description": {
+                "type": "string"
+            },
+            "description_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "required": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "LocalizedApplicationCommandOptionChoice": {
+        "type": "object",
+        "properties": {
+            "name_localized": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "name": {
+                "type": "string"
+            },
+            "name_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "value": {
+                "type": [
+                    "string",
+                    "integer"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "value"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

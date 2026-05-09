@@ -136,6 +136,8 @@ const assert = require("node:assert/strict");
 const { initDatabase, closeDatabase } = require("./dist/util/util/Database.js");
 const { DEFAULT_DISCOVERY_CATEGORIES } = require("./dist/util");
 
+const applicationCommandColumnTypeQuery = "select column_name, data_type from information_schema.columns where table_schema = 'public' and table_name = 'application_commands' and column_name in ('name_localizations', 'description_localizations') order by column_name";
+
 (async () => {
     const database = await initDatabase();
     const [tables] = await database.query("select to_regclass('public.config') as config, to_regclass('public.migrations') as migrations, to_regclass('public.users') as users");
@@ -151,6 +153,11 @@ const { DEFAULT_DISCOVERY_CATEGORIES } = require("./dist/util");
         localizations: DEFAULT_DISCOVERY_CATEGORIES[0].localizations,
         is_primary: DEFAULT_DISCOVERY_CATEGORIES[0].is_primary,
     });
+
+    assert.deepEqual(await database.query(applicationCommandColumnTypeQuery), [
+        { column_name: "description_localizations", data_type: "jsonb" },
+        { column_name: "name_localizations", data_type: "jsonb" },
+    ]);
     await closeDatabase();
 })().catch((error) => {
     console.error(error);
