@@ -293,10 +293,15 @@ test(
 
             const selfDeletePassword = "delete-password-42";
             const selfDeleteUser = await registerLoginCapableUser(`selfdelete${suffix.slice(-8)}`, `users-self-delete-${suffix}@example.com`, selfDeletePassword);
+            await Member.addToGuild(selfDeleteUser.id, guildId);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 2);
             const selfDeleteToken = await generateToken(selfDeleteUser.id);
             assert.ok(selfDeleteToken, "self-delete token generation should return a bearer token");
             await assertStatus(await postJson(`${api.apiBaseUrl}/users/@me/delete`, { password: selfDeletePassword }, selfDeleteToken), 204);
+            await guildEvents.waitFor((event) => event.event === "GUILD_MEMBER_REMOVE" && event.guild_id === guildId && event.data.user.id === selfDeleteUser.id, eventTimeoutMs);
             assert.equal(await User.findOneBy({ id: selfDeleteUser.id }), null);
+            assert.equal(await Member.findOneBy({ id: selfDeleteUser.id, guild_id: guildId }), null);
+            assert.equal((await Guild.findOneByOrFail({ id: guildId })).member_count, 1);
 
             const admin = await registerUser(`admin${suffix.slice(-8)}`, `users-admin-${suffix}@example.com`);
             await User.update({ id: admin.id }, { rights: "1" });

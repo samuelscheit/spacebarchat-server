@@ -2024,7 +2024,8 @@
             "routeMetadata": {
                 "requestBody": "RegisterSchema",
                 "responses": ["APIErrorOrCaptchaResponse", "TokenOnlyResponse"],
-                "responseStatuses": [200, 400]
+                "responseStatuses": [200, 400],
+                "emittedEvents": ["GUILD_UPDATE", "INVITE_DELETE"]
             },
             "cases": [
                 {
@@ -2043,6 +2044,11 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "RegisterSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_UPDATE", "INVITE_DELETE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -2465,7 +2471,7 @@
                 "responses": ["Channel"],
                 "responseStatuses": [200, 404],
                 "permission": "MANAGE_CHANNELS",
-                "emittedEvents": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "THREAD_DELETE"]
+                "emittedEvents": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_UPDATE", "THREAD_DELETE"]
             },
             "cases": [
                 {
@@ -2492,7 +2498,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "THREAD_DELETE"]
+                    "events": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_UPDATE", "THREAD_DELETE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -3419,7 +3425,7 @@
                 "responseStatuses": [200, 400, 403, 404],
                 "permission": "SEND_MESSAGES",
                 "right": "SEND_BACKDATED_EVENTS",
-                "emittedEvents": ["MESSAGE_CREATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
             },
             "cases": [
                 {
@@ -3452,7 +3458,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -4525,7 +4531,7 @@
                 "responseStatuses": [200, 400, 403, 404],
                 "permission": "VIEW_CHANNEL",
                 "right": "SEND_MESSAGES",
-                "emittedEvents": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
+                "emittedEvents": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
             },
             "cases": [
                 {
@@ -4558,7 +4564,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
+                    "events": ["CHANNEL_CREATE", "CHANNEL_UPDATE", "MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE", "THREAD_MEMBERS_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -5552,7 +5558,7 @@
             "routeMetadata": {
                 "responses": [],
                 "responseStatuses": [204, 404],
-                "emittedEvents": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE"]
+                "emittedEvents": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_UPDATE"]
             },
             "cases": [
                 {
@@ -5574,7 +5580,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE"]
+                    "events": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -6364,7 +6370,7 @@
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [200, 400, 403],
                 "permission": "VIEW_CHANNEL",
-                "emittedEvents": ["MESSAGE_CREATE", "THREAD_CREATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE"]
             },
             "cases": [
                 {
@@ -6396,7 +6402,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE", "THREAD_CREATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE", "THREAD_CREATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -9838,7 +9844,7 @@
                 "responses": ["APIInviteArray"],
                 "responseStatuses": [200],
                 "permission": "MANAGE_GUILD",
-                "emittedEvents": ["INVITE_DELETE"]
+                "emittedEvents": ["GUILD_UPDATE", "INVITE_DELETE"]
             },
             "cases": [
                 {
@@ -9865,7 +9871,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["INVITE_DELETE"]
+                    "events": ["GUILD_UPDATE", "INVITE_DELETE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -11350,7 +11356,8 @@
                 "requestBody": "RoleMembersUpdateSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 403],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": ["GUILD_MEMBER_UPDATE"]
             },
             "cases": [
                 {
@@ -11380,6 +11387,11 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_MEMBER_UPDATE"]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": ["rate-limit-headers"],
                     "rateLimit": {
@@ -11393,10 +11405,6 @@
                 {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": ["events"]
                 }
             ]
         },
@@ -11424,7 +11432,8 @@
                 "requestBody": "RoleMembersUpdateSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 403],
-                "permission": "MANAGE_ROLES"
+                "permission": "MANAGE_ROLES",
+                "emittedEvents": ["GUILD_MEMBER_UPDATE"]
             },
             "cases": [
                 {
@@ -11454,6 +11463,11 @@
                     "permission": "MANAGE_ROLES"
                 },
                 {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_MEMBER_UPDATE"]
+                },
+                {
                     "id": "rate-limit-headers",
                     "checks": ["rate-limit-headers"],
                     "rateLimit": {
@@ -11467,10 +11481,6 @@
                 {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
-                },
-                {
-                    "id": "policy-events",
-                    "checks": ["events"]
                 }
             ]
         },
@@ -12660,7 +12670,7 @@
                 "responses": ["APIErrorResponse", "GuildVanityUrlResponse"],
                 "responseStatuses": [200, 403, 404],
                 "permission": "MANAGE_GUILD",
-                "emittedEvents": ["INVITE_DELETE"]
+                "emittedEvents": ["GUILD_UPDATE", "INVITE_DELETE"]
             },
             "cases": [
                 {
@@ -12687,7 +12697,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["INVITE_DELETE"]
+                    "events": ["GUILD_UPDATE", "INVITE_DELETE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -13874,7 +13884,7 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "Invite"],
                 "responseStatuses": [401, 404],
-                "emittedEvents": ["INVITE_DELETE"]
+                "emittedEvents": ["GUILD_UPDATE", "INVITE_DELETE"]
             },
             "cases": [
                 {
@@ -13896,7 +13906,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["INVITE_DELETE"]
+                    "events": ["GUILD_UPDATE", "INVITE_DELETE"]
                 },
                 {
                     "id": "policy-auth-boundary",
@@ -13963,7 +13973,8 @@
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "InviteResponse"],
-                "responseStatuses": [401, 403, 404]
+                "responseStatuses": [401, 403, 404],
+                "emittedEvents": ["GUILD_UPDATE", "INVITE_DELETE"]
             },
             "cases": [
                 {
@@ -13981,6 +13992,11 @@
                 {
                     "id": "malformed-auth",
                     "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_UPDATE", "INVITE_DELETE"]
                 },
                 {
                     "id": "policy-auth-boundary",
@@ -15656,7 +15672,7 @@
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 403, 404],
                 "right": "MANAGE_USERS",
-                "emittedEvents": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_DELETE", "GUILD_MEMBER_REMOVE", "USER_DELETE"]
+                "emittedEvents": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_DELETE", "GUILD_MEMBER_REMOVE", "GUILD_UPDATE", "USER_DELETE"]
             },
             "cases": [
                 {
@@ -15688,7 +15704,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_DELETE", "GUILD_MEMBER_REMOVE", "USER_DELETE"]
+                    "events": ["CHANNEL_DELETE", "CHANNEL_RECIPIENT_REMOVE", "CHANNEL_UPDATE", "GUILD_DELETE", "GUILD_MEMBER_REMOVE", "GUILD_UPDATE", "USER_DELETE"]
                 },
                 {
                     "id": "policy-ownership-boundary",
@@ -17035,7 +17051,7 @@
             "path": "/users/@me/delete/",
             "samplePath": "/users/@me/delete/",
             "sourceFile": "src/api/routes/users/@me/delete.ts",
-            "line": 27,
+            "line": 51,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -19178,7 +19194,7 @@
                 "requestBody": "WebhookExecuteSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 400, 404],
-                "emittedEvents": ["MESSAGE_CREATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
             },
             "cases": [
                 {
@@ -19201,7 +19217,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
@@ -19248,7 +19264,7 @@
                 "requestBody": "WebhookExecuteSchema",
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 400, 404],
-                "emittedEvents": ["MESSAGE_CREATE"]
+                "emittedEvents": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
             },
             "cases": [
                 {
@@ -19271,7 +19287,7 @@
                 {
                     "id": "event-emission",
                     "checks": ["events"],
-                    "events": ["MESSAGE_CREATE"]
+                    "events": ["MESSAGE_CREATE", "MESSAGE_UPDATE"]
                 },
                 {
                     "id": "rate-limit-headers",
