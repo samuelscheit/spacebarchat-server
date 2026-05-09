@@ -20736,6 +20736,12 @@
             "bot": {
                 "type": "integer"
             },
+            "GET": {
+                "type": "integer"
+            },
+            "MODIFY": {
+                "type": "integer"
+            },
             "count": {
                 "type": "integer"
             },
@@ -20926,6 +20932,13 @@
             "cdnSignatureIncludeUserAgent": {
                 "type": "boolean",
                 "default": true
+            },
+            "contentSecurityPolicy": {
+                "type": [
+                    "null",
+                    "string"
+                ],
+                "default": null
             }
         },
         "additionalProperties": false,
@@ -20939,6 +20952,7 @@
             "cdnSignatureIncludeIp",
             "cdnSignatureIncludeUserAgent",
             "cdnSignatureKey",
+            "contentSecurityPolicy",
             "defaultRegistrationTokenExpiration",
             "forwardedFor",
             "ipdataApiKey",

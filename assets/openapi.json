@@ -19851,6 +19851,12 @@
                     "bot": {
                         "type": "integer"
                     },
+                    "GET": {
+                        "type": "integer"
+                    },
+                    "MODIFY": {
+                        "type": "integer"
+                    },
                     "count": {
                         "type": "integer"
                     },
@@ -20031,6 +20037,13 @@
                     "cdnSignatureIncludeUserAgent": {
                         "type": "boolean",
                         "default": true
+                    },
+                    "contentSecurityPolicy": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "default": null
                     }
                 },
                 "required": [
@@ -20043,6 +20056,7 @@
                     "cdnSignatureIncludeIp",
                     "cdnSignatureIncludeUserAgent",
                     "cdnSignatureKey",
+                    "contentSecurityPolicy",
                     "defaultRegistrationTokenExpiration",
                     "forwardedFor",
                     "ipdataApiKey",
@@ -26054,8 +26068,15 @@
                     }
                 ],
                 "responses": {
-                    "default": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationEntitlementsResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

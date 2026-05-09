@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import type { ChannelPermissionOverwrite } from "@spacebar/schemas";
-import type { Role } from "../entities";
-import { getPermission, isGuildOwner, Permissions } from "./Permissions";
+import { PublicMemberProjection } from "../../schemas/api/users/Member";
+import type { Member, Role } from "../entities";
+import { getPermission, getPermissionMemberQueryOptions, isGuildOwner, Permissions, PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT } from "./Permissions";
 
 const CHANNEL_PERMISSION_OVERWRITE_ROLE = 0;
 const CHANNEL_PERMISSION_OVERWRITE_MEMBER = 1;
@@ -329,5 +330,41 @@ describe("Permissions", () => {
 
         assert.equal(permissions.bitfield, Permissions.ALL.bitfield);
         assert.equal(memberLookups, 0);
+    });
+
+    test("member permission query selects join owner key for role hydration", () => {
+        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_relations: ["roles", "user"], member_select: ["flags", "roles", "user"] });
+
+        assert.deepEqual(query.where, { guild_id: "guild_id", id: "user_id" });
+        assert.deepEqual(query.relations, ["roles", "user"]);
+        assert.deepEqual(query.select, {
+            index: true,
+            id: true,
+            guild_id: true,
+            communication_disabled_until: true,
+            flags: true,
+            roles: {
+                id: true,
+                guild_id: true,
+                permissions: true,
+            },
+        });
+    });
+
+    test("member permission query can hydrate public message members without selecting full member rows", () => {
+        assert.deepEqual(PUBLIC_MESSAGE_PERMISSION_MEMBER_SELECT, PublicMemberProjection);
+
+        const query = getPermissionMemberQueryOptions("guild_id", "user_id", { member_select: PublicMemberProjection as (keyof Member)[] });
+        const select = query.select as Record<string, unknown>;
+
+        for (const key of PublicMemberProjection) {
+            if (key === "roles") continue;
+            assert.equal(select[key], true, `${key} should be selected`);
+        }
+        assert.deepEqual(select.roles, {
+            id: true,
+            guild_id: true,
+            permissions: true,
+        });
     });
 });
