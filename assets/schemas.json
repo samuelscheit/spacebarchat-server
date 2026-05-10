@@ -7449,6 +7449,125 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "QuestTaskHeartbeatResponse": {
+        "type": "object",
+        "properties": {
+            "last_beat_at": {
+                "type": "string"
+            },
+            "expires_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "expires_at",
+            "last_beat_at"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "QuestTaskProgressResponse": {
+        "type": "object",
+        "properties": {
+            "event_name": {
+                "type": "string"
+            },
+            "value": {
+                "type": "integer"
+            },
+            "updated_at": {
+                "type": "string"
+            },
+            "completed_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "heartbeat": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/QuestTaskHeartbeatResponse"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "completed_at",
+            "event_name",
+            "updated_at",
+            "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "QuestUserStatusResponse": {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "quest_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "enrolled_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "completed_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "claimed_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "claimed_tier": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "last_stream_heartbeat_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "stream_progress_seconds": {
+                "type": "integer"
+            },
+            "dismissed_quest_content": {
+                "type": "integer"
+            },
+            "progress": {
+                "$ref": "#/definitions/QuestTaskProgressMap"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "claimed_at",
+            "completed_at",
+            "enrolled_at",
+            "progress",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "RecentAvatarResponse": {
         "type": "object",
         "properties": {
@@ -24796,6 +24915,13 @@
             "message",
             "pinned_at"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "QuestTaskProgressMap": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/QuestTaskProgressResponse"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "RefreshedUrl": {

@@ -3,21 +3,21 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 448,
+        "totalContracts": 449,
         "byService": {
-            "api": 375,
+            "api": 376,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 320,
-        "runtimeMalformedAuthContracts": 320,
-        "runtimeRevokedSessionAuthContracts": 320,
-        "runtimeStaleTokenAuthContracts": 320,
+        "runtimeAuthBoundaryContracts": 321,
+        "runtimeMalformedAuthContracts": 321,
+        "runtimeRevokedSessionAuthContracts": 321,
+        "runtimeStaleTokenAuthContracts": 321,
         "runtimePublicAuthBoundaryContracts": 47,
         "runtimePublicInvalidBodyContracts": 15,
         "runtimeProtectedInvalidBodyContracts": 56,
         "runtimePublicResponseSchemaContracts": 9,
         "runtimeAuthenticatedResponseSchemaContracts": 20,
-        "runtimeRightOnlyDenialContracts": 8,
+        "runtimeRightOnlyDenialContracts": 9,
         "runtimePermissionOnlyDenialContracts": 84,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
@@ -16157,6 +16157,56 @@
                 {
                     "id": "response-shape",
                     "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:DELETE:/quests/:quest_id/preview/status/",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/quests/:quest_id/preview/status/",
+            "samplePath": "/quests/value/preview/status/",
+            "sourceFile": "src/api/routes/quests/#quest_id/preview/status.ts",
+            "line": 43,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "QuestUserStatusResponse"],
+                "responseStatuses": [200, 400, 401, 403],
+                "right": "OPERATOR"
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "right": "OPERATOR"
                 },
                 {
                     "id": "policy-auth-boundary",

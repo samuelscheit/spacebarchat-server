@@ -2435,6 +2435,16 @@
 		"source": "src/api/routes/policies/stats.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"QuestUserStatusResponse"
+		],
+		"route": "/quests/{quest_id}/preview/status",
+		"route_name": "DELETE_QUESTS_QUEST_ID_PREVIEW_STATUS",
+		"source": "src/api/routes/quests/#quest_id/preview/status.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "AckBulkSchema",
 		"response_schema_refs": [

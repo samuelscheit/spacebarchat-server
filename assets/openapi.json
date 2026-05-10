@@ -7142,6 +7142,119 @@
                     "$ref": "#/components/schemas/PublicMessage"
                 }
             },
+            "QuestTaskHeartbeatResponse": {
+                "type": "object",
+                "properties": {
+                    "last_beat_at": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "expires_at",
+                    "last_beat_at"
+                ]
+            },
+            "QuestTaskProgressResponse": {
+                "type": "object",
+                "properties": {
+                    "event_name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "integer"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "completed_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "heartbeat": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/QuestTaskHeartbeatResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "completed_at",
+                    "event_name",
+                    "updated_at",
+                    "value"
+                ]
+            },
+            "QuestUserStatusResponse": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "quest_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "enrolled_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "completed_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "claimed_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "claimed_tier": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "last_stream_heartbeat_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "stream_progress_seconds": {
+                        "type": "integer"
+                    },
+                    "dismissed_quest_content": {
+                        "type": "integer"
+                    },
+                    "progress": {
+                        "$ref": "#/components/schemas/QuestTaskProgressMap"
+                    }
+                },
+                "required": [
+                    "claimed_at",
+                    "completed_at",
+                    "enrolled_at",
+                    "progress",
+                    "user_id"
+                ]
+            },
             "RecentAvatarResponse": {
                 "type": "object",
                 "properties": {
@@ -23696,6 +23809,12 @@
                     "pinned_at"
                 ]
             },
+            "QuestTaskProgressMap": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/QuestTaskProgressResponse"
+                }
+            },
             "RefreshedUrl": {
                 "type": "object",
                 "properties": {
@@ -26297,6 +26416,9 @@
         },
         {
             "name": "policies"
+        },
+        {
+            "name": "quests"
         },
         {
             "name": "read-states"
@@ -31225,6 +31347,74 @@
                 },
                 "tags": [
                     "read-states"
+                ]
+            }
+        },
+        "/quests/{quest_id}/preview/status/": {
+            "delete": {
+                "x-right-required": "OPERATOR",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Resets the current user's preview quest status. Spacebar does not persist Discord quest preview state yet, so this returns a conservative empty Quest User Status response without fabricating progress.",
+                "summary": "Reset Quest",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestUserStatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "quest_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "quest_id"
+                    }
+                ],
+                "tags": [
+                    "quests"
                 ]
             }
         },
