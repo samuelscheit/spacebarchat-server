@@ -1,6 +1,6 @@
 {
-    "missing": 829,
-    "spacebar": 351,
+    "missing": 828,
+    "spacebar": 352,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -144,7 +144,6 @@
         "/checkpoint",
         "/checkpoint/loot",
         "/collectibles-categories/v2",
-        "/collectibles-products/{param}",
         "/companies",
         "/connections/{param}/callback",
         "/connections/{param}/callback/session-handoff",
@@ -1790,14 +1789,6 @@
             "route_name": "GET_COLLECTIBLES_CATEGORIES_V2",
             "sources": ["userdoccers:resources/collectibles.mdx"],
             "summaries": ["Get Collectibles Categories V2"]
-        },
-        {
-            "method": "GET",
-            "route": "/collectibles-products/{param}",
-            "route_name": "GET_COLLECTIBLES_PRODUCTS_SKU_ID",
-            "sources": ["userdoccers:resources/collectibles.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/collectibles-products/{sku_id}"],
-            "summaries": ["Get Collectibles Product"]
         },
         { "method": "GET", "route": "/companies", "route_name": "GET_COMPANIES", "sources": ["userdoccers:resources/team.mdx"], "summaries": ["Search Companies"] },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },

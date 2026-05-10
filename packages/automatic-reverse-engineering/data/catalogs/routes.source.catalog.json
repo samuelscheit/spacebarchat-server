@@ -1061,6 +1061,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"CollectiblesProductResponse"
+		],
+		"route": "/collectibles-products/{sku_id}",
+		"route_name": "GET_COLLECTIBLES_PRODUCTS_SKU_ID",
+		"source": "src/api/routes/collectibles-products/#sku_id/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"CollectiblesShopResponse"
 		],
 		"route": "/collectibles-shop",

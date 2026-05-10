@@ -20,6 +20,8 @@ import type { StringStringDictionary } from "../HelperTypes";
 
 export type CollectiblesCategoriesResponse = CollectiblesCategory[];
 
+export type CollectiblesProductResponse = CollectiblesCategoryProduct | CollectiblesProductVariant;
+
 export interface CollectiblesCategoryStyle {
     background_colors: number[];
     button_colors: number[];

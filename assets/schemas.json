@@ -2529,6 +2529,17 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CollectiblesProductResponse": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/CollectiblesCategoryProduct"
+            },
+            {
+                "$ref": "#/definitions/CollectiblesProductVariant"
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CollectiblesMarketingResponse": {
         "type": "object",
         "properties": {
