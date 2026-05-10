@@ -1,6 +1,6 @@
 {
-    "missing": 838,
-    "spacebar": 342,
+    "missing": 837,
+    "spacebar": 343,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -498,7 +498,6 @@
         "/tutorial/indicators/{param}",
         "/unfurler/embed-urls",
         "/unfurler/unfurl",
-        "/unique-username/username-attempt-unauthed",
         "/unverified-applications",
         "/unverified-applications/icons",
         "/updates/distributions/app/manifests/latest",
@@ -5337,13 +5336,6 @@
             "summaries": ["Unfurl Embeds"]
         },
         { "method": "POST", "route": "/unfurler/unfurl", "route_name": "POST_UNFURLER_UNFURL", "sources": ["userdoccers:resources/message.mdx"], "summaries": ["Unfurl Embed"] },
-        {
-            "method": "POST",
-            "route": "/unique-username/username-attempt-unauthed",
-            "route_name": "POST_UNIQUE_USERNAME_USERNAME_ATTEMPT_UNAUTHED",
-            "sources": ["userdoccers:authentication.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Unique Username Eligibility"]
-        },
         {
             "method": "POST",
             "route": "/unverified-applications",

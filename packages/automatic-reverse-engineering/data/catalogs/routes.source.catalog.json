@@ -2385,6 +2385,17 @@
 		"source": "src/api/routes/track.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "UniqueUsernameAttemptUnauthedSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"UniqueUsernameAttemptResponse"
+		],
+		"route": "/unique-username/username-attempt-unauthed",
+		"route_name": "POST_UNIQUE_USERNAME_USERNAME_ATTEMPT_UNAUTHED",
+		"source": "src/api/routes/unique-username/username-attempt-unauthed.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"UniqueUsernameSuggestionResponse"

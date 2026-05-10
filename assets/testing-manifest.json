@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 447,
+        "totalEntries": 448,
         "byService": {
-            "api": 350,
+            "api": 351,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 422,
+            "http-route": 423,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 55,
+            "contract": 56,
             "stateful-domain": 257,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 310,
+            "route-class": 311,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -11722,6 +11722,43 @@
                 "present": true,
                 "responseStatuses": [
                     204
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/unique-username/username-attempt-unauthed/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/unique-username/username-attempt-unauthed/",
+            "sourceFile": "src/api/routes/unique-username/username-attempt-unauthed.ts",
+            "line": 79,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "UniqueUsernameAttemptUnauthedSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UniqueUsernameAttemptResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400
                 ],
                 "hasQuery": false
             },

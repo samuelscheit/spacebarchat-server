@@ -7310,6 +7310,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UniqueUsernameAttemptResponse": {
+        "type": "object",
+        "properties": {
+            "taken": {
+                "type": [
+                    "null",
+                    "boolean"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "taken"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UniqueUsernameSuggestionResponse": {
         "type": "object",
         "properties": {
@@ -9380,6 +9396,19 @@
         "additionalProperties": false,
         "required": [
             "files"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UniqueUsernameAttemptUnauthedSchema": {
+        "type": "object",
+        "properties": {
+            "username": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "username"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

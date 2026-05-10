@@ -7002,6 +7002,20 @@
                     "upload_url"
                 ]
             },
+            "UniqueUsernameAttemptResponse": {
+                "type": "object",
+                "properties": {
+                    "taken": {
+                        "type": [
+                            "null",
+                            "boolean"
+                        ]
+                    }
+                },
+                "required": [
+                    "taken"
+                ]
+            },
             "UniqueUsernameSuggestionResponse": {
                 "type": "object",
                 "properties": {
@@ -8967,6 +8981,17 @@
                 },
                 "required": [
                     "files"
+                ]
+            },
+            "UniqueUsernameAttemptUnauthedSchema": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "username"
                 ]
             },
             "UserDeleteSchema": {
@@ -28686,6 +28711,46 @@
                         "description": "The display name to base the username suggestion on."
                     }
                 ],
+                "tags": [
+                    "unique-username"
+                ]
+            }
+        },
+        "/unique-username/username-attempt-unauthed/": {
+            "post": {
+                "summary": "Get Unique Username Eligibility",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UniqueUsernameAttemptUnauthedSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UniqueUsernameAttemptResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "unique-username"
                 ]

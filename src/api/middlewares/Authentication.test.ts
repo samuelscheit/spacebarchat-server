@@ -71,6 +71,14 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/unique-username/username-suggestions-unauthed"), false);
     });
 
+    test("allows unauthenticated unique username registration attempts", () => {
+        assert.equal(isNoAuthorizationRoute("POST", "/unique-username/username-attempt-unauthed"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/unique-username/username-attempt-unauthed"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/unique-username/username-attempt-unauthed/"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/unique-username/username-attempt-unauthed"), false);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/unique-username/username-attempt-unauthed"), false);
+    });
+
     test("allows client analytics sink routes without authorization", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker/"), true);

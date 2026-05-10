@@ -3,17 +3,17 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 422,
+        "totalContracts": 423,
         "byService": {
-            "api": 349,
+            "api": 350,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 298,
         "runtimeMalformedAuthContracts": 298,
         "runtimeRevokedSessionAuthContracts": 298,
         "runtimeStaleTokenAuthContracts": 298,
-        "runtimePublicAuthBoundaryContracts": 43,
-        "runtimePublicInvalidBodyContracts": 14,
+        "runtimePublicAuthBoundaryContracts": 44,
+        "runtimePublicInvalidBodyContracts": 15,
         "runtimeProtectedInvalidBodyContracts": 52,
         "runtimePublicResponseSchemaContracts": 9,
         "runtimeAuthenticatedResponseSchemaContracts": 20,
@@ -16059,6 +16059,48 @@
                 {
                     "id": "policy-schema-validation",
                     "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/unique-username/username-attempt-unauthed/",
+            "service": "api",
+            "method": "POST",
+            "path": "/unique-username/username-attempt-unauthed/",
+            "samplePath": "/unique-username/username-attempt-unauthed/",
+            "sourceFile": "src/api/routes/unique-username/username-attempt-unauthed.ts",
+            "line": 79,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "requestBody": "UniqueUsernameAttemptUnauthedSchema",
+                "responses": ["APIErrorResponse", "UniqueUsernameAttemptResponse"],
+                "responseStatuses": [200, 400]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "UniqueUsernameAttemptUnauthedSchema"
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
                 }
             ]
         },
