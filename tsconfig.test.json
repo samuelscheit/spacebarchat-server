@@ -29,6 +29,7 @@
         "src/api/middlewares/RateLimit.test.ts",
         "src/api/util/handlers/WebhookSlackRoute.test.ts",
         "src/api/util/utility/ApplicationCommands.test.ts",
+        "src/api/util/utility/ApplicationAuthorization.test.ts",
         "src/api/util/utility/DiscoveryCategories.test.ts",
         "src/schemas/api/bots/ApplicationCommandSchema.test.ts",
         "src/api/util/utility/InteractionMetadata.test.ts",

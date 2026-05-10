@@ -60,6 +60,17 @@ export function canManageApplicationCommands(application: ApplicationCommandAuth
     );
 }
 
+export function canAccessApplicationGiftCodeBatches(application: ApplicationCommandAuthorizationTarget, userId: string) {
+    if (application.owner?.id === userId) return true;
+
+    const team = application.team;
+    if (!team) return false;
+
+    if (team.owner_user_id === userId) return true;
+
+    return team.members?.some((member) => member.user_id === userId && member.membership_state === TeamMemberState.ACCEPTED) ?? false;
+}
+
 export async function requireApplicationCommandManagement(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
     const applicationRepository = repository ?? (await getApplicationCommandAuthorizationRepository());
     const application = await applicationRepository.findOne({
@@ -75,6 +86,24 @@ export async function requireApplicationCommandManagement(applicationId: string,
 
     if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
     if (!canManageApplicationCommands(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
+
+    return application;
+}
+
+export async function requireApplicationGiftCodeBatchAccess(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
+    const applicationRepository = repository ?? (await getApplicationCommandAuthorizationRepository());
+    const application = await applicationRepository.findOne({
+        where: { id: applicationId },
+        relations: {
+            owner: true,
+            team: {
+                members: true,
+            },
+        },
+    });
+
+    if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+    if (!canAccessApplicationGiftCodeBatches(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
     return application;
 }

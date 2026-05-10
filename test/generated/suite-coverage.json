@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 392,
+        "totalCoveredManifestEntries": 393,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 370,
-                "totalCoveredManifestEntries": 370,
-                "totalCoveredRequiredManifestEntries": 370,
+                "totalRequiredManifestEntries": 371,
+                "totalCoveredManifestEntries": 371,
+                "totalCoveredRequiredManifestEntries": 371,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 251,
+            "stateful-domain": 252,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 370,
-                "totalCoveredManifestEntries": 370,
-                "totalCoveredRequiredManifestEntries": 370,
+                "totalRequiredManifestEntries": 371,
+                "totalCoveredManifestEntries": 371,
+                "totalCoveredRequiredManifestEntries": 371,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -110,6 +110,7 @@
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
+                "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/skus/",
@@ -482,6 +483,7 @@
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
+                "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/skus/",
@@ -1180,6 +1182,7 @@
                         "api:http:GET:/applications/:application_id/commands/",
                         "api:http:GET:/applications/:application_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/entitlements/",
+                        "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/skus/",

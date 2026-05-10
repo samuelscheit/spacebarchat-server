@@ -38,6 +38,8 @@ export * from "./EmbedCache";
 export * from "./Emoji";
 export * from "./Encryption";
 export * from "./Guild";
+export * from "./GiftCode";
+export * from "./GiftCodeBatch";
 export * from "./InstanceBan";
 export * from "./Invite";
 export * from "./Member";

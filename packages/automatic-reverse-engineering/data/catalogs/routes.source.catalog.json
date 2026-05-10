@@ -160,6 +160,15 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/gift-code-batches/{gift_code_batch_id}",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_GIFT_CODE_BATCHES_GIFT_CODE_BATCH_ID",
+		"source": "src/api/routes/applications/#application_id/gift-code-batches/#gift_code_batch_id.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/applications/{application_id}/guilds/{guild_id}/commands",
 		"route_name": "GET_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS",

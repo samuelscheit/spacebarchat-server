@@ -1,6 +1,6 @@
 {
-    "missing": 846,
-    "spacebar": 334,
+    "missing": 845,
+    "spacebar": 335,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -53,7 +53,6 @@
         "/applications/{param}/game-claims",
         "/applications/{param}/game-claims/{param}",
         "/applications/{param}/gift-code-batches",
-        "/applications/{param}/gift-code-batches/{param}",
         "/applications/{param}/guilds/{param}/commands/permissions",
         "/applications/{param}/guilds/{param}/commands/{param}/permissions",
         "/applications/{param}/managed-links",
@@ -1545,14 +1544,6 @@
             "sources": ["userdoccers:resources/entitlement.mdx"],
             "source_routes": ["/applications/{application_id}/gift-code-batches"],
             "summaries": ["Get Application Gift Code Batches"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/gift-code-batches/{param}",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_GIFT_CODE_BATCHES_GIFT_CODE_BATCH_ID",
-            "sources": ["userdoccers:resources/entitlement.mdx"],
-            "source_routes": ["/applications/{application_id}/gift-code-batches/{gift_code_batch_id}"],
-            "summaries": ["Get Application Gift Code Batch"]
         },
         {
             "method": "GET",

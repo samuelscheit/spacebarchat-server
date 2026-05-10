@@ -2,7 +2,12 @@ import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { TeamMemberRole, TeamMemberState } from "../../../schemas/api/developers/Team";
 import { DiscordApiErrors } from "../../../util/util/Constants";
-import { canManageApplicationCommands, requireApplicationCommandManagement } from "./ApplicationAuthorization";
+import {
+    canAccessApplicationGiftCodeBatches,
+    canManageApplicationCommands,
+    requireApplicationCommandManagement,
+    requireApplicationGiftCodeBatchAccess,
+} from "./ApplicationAuthorization";
 
 describe("application command authorization", () => {
     test("allows the application owner", () => {
@@ -167,6 +172,110 @@ describe("application command authorization", () => {
         await assert.rejects(
             () => requireApplicationCommandManagement("missing-app", "user", repository),
             (error) => error === DiscordApiErrors.UNKNOWN_APPLICATION,
+        );
+    });
+});
+
+describe("application gift code batch authorization", () => {
+    test("allows the application owner", () => {
+        assert.equal(canAccessApplicationGiftCodeBatches({ owner: { id: "owner" } }, "owner"), true);
+    });
+
+    test("allows accepted team members with any team role", () => {
+        for (const role of [TeamMemberRole.ADMIN, TeamMemberRole.DEVELOPER, TeamMemberRole.READ_ONLY]) {
+            assert.equal(
+                canAccessApplicationGiftCodeBatches(
+                    {
+                        owner: { id: "owner" },
+                        team: {
+                            members: [
+                                {
+                                    user_id: "member",
+                                    membership_state: TeamMemberState.ACCEPTED,
+                                    role,
+                                },
+                            ],
+                        },
+                    },
+                    "member",
+                ),
+                true,
+            );
+        }
+    });
+
+    test("allows the owning team owner", () => {
+        assert.equal(
+            canAccessApplicationGiftCodeBatches(
+                {
+                    owner: { id: "owner" },
+                    team: {
+                        owner_user_id: "team-owner",
+                        members: [],
+                    },
+                },
+                "team-owner",
+            ),
+            true,
+        );
+    });
+
+    test("does not allow the application bot user or invited team members", () => {
+        const application = {
+            owner: { id: "owner" },
+            bot: { id: "application" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                ],
+            },
+        };
+
+        assert.equal(canAccessApplicationGiftCodeBatches(application, "application"), false);
+        assert.equal(canAccessApplicationGiftCodeBatches(application, "invited"), false);
+    });
+
+    test("loads owner and team members before allowing batch access", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({
+                owner: { id: "owner" },
+                team: {
+                    members: [
+                        {
+                            user_id: "read-only",
+                            membership_state: TeamMemberState.ACCEPTED,
+                            role: TeamMemberRole.READ_ONLY,
+                        },
+                    ],
+                },
+            })),
+        };
+
+        await requireApplicationGiftCodeBatchAccess("app", "read-only", repository);
+
+        assert.deepEqual(repository.findOne.mock.calls[0].arguments[0], {
+            where: { id: "app" },
+            relations: {
+                owner: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+    });
+
+    test("throws the application authorization error for unauthorized callers", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({ owner: { id: "owner" } })),
+        };
+
+        await assert.rejects(
+            () => requireApplicationGiftCodeBatchAccess("app", "attacker", repository),
+            (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
         );
     });
 });
