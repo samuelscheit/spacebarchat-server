@@ -6,7 +6,7 @@ import { test } from "node:test";
 import { closeDatabase, Config, generateToken, initDatabase, Message, ReadState, User } from "@spacebar/util";
 import { ChannelType } from "@spacebar/schemas";
 import { assertNoEvent } from "../assertions/events";
-import { assertJsonObject, assertStatus } from "../assertions/http";
+import { assertJsonError, assertJsonObject, assertStatus } from "../assertions/http";
 import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtures/database";
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
@@ -21,6 +21,7 @@ const coveredManifestIds = [
     "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:user_id",
     "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
     "api:http:GET:/channels/:channel_id/directory-entries/",
+    "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
     "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
     "api:http:GET:/channels/:channel_id/messages/search/",
     "api:http:POST:/channels/:channel_id/messages/:message_id/ack/",
@@ -47,6 +48,7 @@ test(
             "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:user_id",
             "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
             "api:http:GET:/channels/:channel_id/directory-entries/",
+            "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
             "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
             "api:http:GET:/channels/:channel_id/messages/search/",
             "api:http:POST:/channels/:channel_id/messages/:message_id/ack/",
@@ -110,7 +112,7 @@ test(
             const messageId = await createMessage(api.apiBaseUrl, channelId, "channel supplemental searchable marker", token);
             const newsMessageId = await createMessage(api.apiBaseUrl, newsChannelId, "channel supplemental crosspost marker", token);
             await coverReactionRoutes(api.apiBaseUrl, channelId, messageId, token, owner.id, events);
-            await coverAckSearchPreloadAndStubs(api.apiBaseUrl, channelId, messageId, newsChannelId, newsMessageId, token, owner.id, events);
+            await coverAckSearchPreloadAndStubs(api.apiBaseUrl, channelId, messageId, guildId, newsChannelId, newsMessageId, token, owner.id, events);
             await coverBulkDelete(api.apiBaseUrl, channelId, token, events);
         } finally {
             if (events) await events.stop();
@@ -164,6 +166,7 @@ async function coverAckSearchPreloadAndStubs(
     apiBaseUrl: string,
     channelId: string,
     messageId: string,
+    guildId: string,
     newsChannelId: string,
     newsMessageId: string,
     token: string,
@@ -171,6 +174,8 @@ async function coverAckSearchPreloadAndStubs(
     events: EventCapture,
 ) {
     assert.deepEqual(await getJsonArray(`${apiBaseUrl}/channels/${channelId}/directory-entries`, token), []);
+    const missingDirectoryEntry = await assertJsonError(await getJson(`${apiBaseUrl}/channels/${channelId}/directory-entry/${guildId}`, token), 404);
+    assert.equal(missingDirectoryEntry.message, "Directory entry not found");
 
     const beforeAck = markCapturedEvents(events);
     const ack = await postJson(`${apiBaseUrl}/channels/${channelId}/messages/${messageId}/ack`, { manual: true, mention_count: 2, last_viewed: 42, flags: 1 }, token);

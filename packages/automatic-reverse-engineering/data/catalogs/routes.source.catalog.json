@@ -473,6 +473,16 @@
 		"source": "src/api/routes/channels/#channel_id/directory-entries.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"HubDirectoryEntry"
+		],
+		"route": "/channels/{channel_id}/directory-entry/{entity_id}",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRY_ENTITY_ID",
+		"source": "src/api/routes/channels/#channel_id/directory-entry.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"APIErrorResponse"

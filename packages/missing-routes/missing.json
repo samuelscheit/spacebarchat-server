@@ -1,6 +1,6 @@
 {
-    "missing": 847,
-    "spacebar": 333,
+    "missing": 846,
+    "spacebar": 334,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -1744,14 +1744,6 @@
             "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/directory-entries/search"],
             "summaries": ["Search Directory Entries"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/directory-entry/{param}",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRY_ENTITY_ID",
-            "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/directory-entry/{entity_id}", "/channels/{channel_id}/directory-entry/{param}"],
-            "summaries": ["Get Directory Entry"]
         },
         {
             "method": "GET",

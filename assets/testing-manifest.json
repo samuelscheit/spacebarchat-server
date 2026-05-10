@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 438,
+        "totalEntries": 439,
         "byService": {
-            "api": 341,
+            "api": 342,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 413,
+            "http-route": 414,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 53,
-            "stateful-domain": 250,
+            "stateful-domain": 251,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 301,
+            "route-class": 302,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2206,6 +2206,57 @@
                 "responseStatuses": [
                     200,
                     400
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/directory-entry/:entity_id",
+            "sourceFile": "src/api/routes/channels/#channel_id/directory-entry.ts",
+            "line": 27,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "HubDirectoryEntry"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
                 ],
                 "hasQuery": false
             },
