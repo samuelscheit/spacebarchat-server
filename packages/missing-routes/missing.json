@@ -1,6 +1,6 @@
 {
-    "missing": 733,
-    "spacebar": 447,
+    "missing": 732,
+    "spacebar": 448,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -266,7 +266,6 @@
         "/guilds/{param}/top-games",
         "/guilds/{param}/top-read-channels",
         "/guilds/{param}/voice-states/@me",
-        "/guilds/{param}/voice-states/{param}",
         "/initiate-prompts",
         "/integrations/{param}/join",
         "/integrations/{param}/search",
@@ -1998,14 +1997,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/top-read-channels"],
             "summaries": ["Get Guild Top Read Channels"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/voice-states/{param}",
-            "route_name": "GET_GUILDS_GUILD_ID_VOICE_STATES_USER_ID",
-            "sources": ["userdoccers:resources/voice.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/voice-states/{user_id}", "/guilds/{guild_id}/voice-states/{param}"],
-            "summaries": ["Get User Voice State"]
         },
         {
             "method": "GET",

@@ -135,6 +135,7 @@ export * from "./UserInviteResponse";
 export * from "./UserGuildsResponse";
 export * from "./UserRelationsResponse";
 export * from "./UserRelationshipsResponse";
+export * from "./VoiceStateResponse";
 export * from "./WebAuthnCreateResponse";
 export * from "./WebhookCreateResponse";
 export * from "./WhoAmIResponse";

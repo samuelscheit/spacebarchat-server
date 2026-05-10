@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 450,
+        "totalCoveredManifestEntries": 451,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 428,
-                "totalCoveredManifestEntries": 428,
-                "totalCoveredRequiredManifestEntries": 428,
+                "totalRequiredManifestEntries": 429,
+                "totalCoveredManifestEntries": 429,
+                "totalCoveredRequiredManifestEntries": 429,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 297,
+            "stateful-domain": 298,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 428,
-                "totalCoveredManifestEntries": 428,
-                "totalCoveredRequiredManifestEntries": 428,
+                "totalRequiredManifestEntries": 429,
+                "totalCoveredManifestEntries": 429,
+                "totalCoveredRequiredManifestEntries": 429,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -219,6 +219,7 @@
                 "api:http:GET:/guilds/:guild_id/templates/",
                 "api:http:GET:/guilds/:guild_id/threads/active/",
                 "api:http:GET:/guilds/:guild_id/vanity-url/",
+                "api:http:GET:/guilds/:guild_id/voice-states/:user_id/",
                 "api:http:GET:/guilds/:guild_id/webhooks/",
                 "api:http:GET:/guilds/:guild_id/welcome-screen/",
                 "api:http:GET:/guilds/:guild_id/widget.json/",
@@ -649,6 +650,7 @@
                 "api:http:GET:/guilds/:guild_id/templates/",
                 "api:http:GET:/guilds/:guild_id/threads/active/",
                 "api:http:GET:/guilds/:guild_id/vanity-url/",
+                "api:http:GET:/guilds/:guild_id/voice-states/:user_id/",
                 "api:http:GET:/guilds/:guild_id/webhooks/",
                 "api:http:GET:/guilds/:guild_id/welcome-screen/",
                 "api:http:GET:/guilds/:guild_id/widget.json/",
@@ -1130,6 +1132,7 @@
                         "api:http:GET:/guilds/:guild_id/templates/",
                         "api:http:GET:/guilds/:guild_id/threads/active/",
                         "api:http:GET:/guilds/:guild_id/vanity-url/",
+                        "api:http:GET:/guilds/:guild_id/voice-states/:user_id/",
                         "api:http:GET:/guilds/:guild_id/webhooks/",
                         "api:http:GET:/guilds/:guild_id/welcome-screen/",
                         "api:http:GET:/guilds/:guild_id/widget.json/",

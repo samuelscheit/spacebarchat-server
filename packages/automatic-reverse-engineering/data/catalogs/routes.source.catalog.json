@@ -2663,6 +2663,16 @@
 		"source": "src/api/routes/guilds/#guild_id/vanity-url.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"VoiceStateResponse"
+		],
+		"route": "/guilds/{guild_id}/voice-states/{user_id}",
+		"route_name": "GET_GUILDS_GUILD_ID_VOICE_STATES_USER_ID",
+		"source": "src/api/routes/guilds/#guild_id/voice-states/#user_id/index.ts"
+	},
+	{
 		"method": "PATCH",
 		"request_schema_ref": "VoiceStateModifySchema",
 		"response_schema_refs": [
