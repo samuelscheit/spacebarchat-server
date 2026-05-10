@@ -3039,6 +3039,10 @@
                 "type": "array",
                 "items": {}
             },
+            "ContentInventoryOutboxResponse": {
+                "type": "array",
+                "items": {}
+            },
             "ConsoleDeviceResponse": {
                 "type": "object",
                 "properties": {
@@ -28541,6 +28545,9 @@
             "name": "consoles"
         },
         {
+            "name": "content-inventory"
+        },
+        {
             "name": "discoverable-guilds"
         },
         {
@@ -40790,6 +40797,62 @@
                 ],
                 "tags": [
                     "discoverable-guilds"
+                ]
+            }
+        },
+        "/content-inventory/users/{user_id}/outbox/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Content Inventory Outbox",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContentInventoryOutboxResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "user_id"
+                    }
+                ],
+                "tags": [
+                    "content-inventory"
                 ]
             }
         },

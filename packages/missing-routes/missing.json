@@ -1,6 +1,6 @@
 {
-    "missing": 764,
-    "spacebar": 416,
+    "missing": 763,
+    "spacebar": 417,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -128,7 +128,6 @@
         "/content-inventory/users/@me/similar-games/{param}",
         "/content-inventory/users/@me/spotify",
         "/content-inventory/users/@me?refresh_token={param}",
-        "/content-inventory/users/{param}/outbox",
         "/debug-logs/multi/{param}",
         "/debug-logs/{param}/{param}",
         "/dev-portal-csat-survey-response",
@@ -1537,13 +1536,6 @@
         { "method": "GET", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback/session-handoff", "route_name": "CONNECTIONS_SESSION_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/content-inventory/users/{param}/outbox",
-            "route_name": "CONTENT_INVENTORY_OUTBOX",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/content-inventory/users/{user_id}/outbox"]
-        },
         {
             "method": "GET",
             "route": "/content-inventory/users/@me?refresh_token={param}",

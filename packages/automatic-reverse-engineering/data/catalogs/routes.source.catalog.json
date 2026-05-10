@@ -1487,6 +1487,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ContentInventoryOutboxResponse"
+		],
+		"route": "/content-inventory/users/{user_id}/outbox",
+		"route_name": "GET_CONTENT_INVENTORY_USERS_USER_ID_OUTBOX",
+		"source": "src/api/routes/content-inventory/users/#user_id/outbox.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"DiscoverableGuildsResponse"
 		],
 		"route": "/discoverable-guilds",
