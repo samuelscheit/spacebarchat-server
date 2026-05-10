@@ -3,17 +3,17 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 479,
+        "totalContracts": 480,
         "byService": {
-            "api": 406,
+            "api": 407,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 349,
         "runtimeMalformedAuthContracts": 349,
         "runtimeRevokedSessionAuthContracts": 349,
         "runtimeStaleTokenAuthContracts": 349,
-        "runtimePublicAuthBoundaryContracts": 49,
-        "runtimePublicInvalidBodyContracts": 15,
+        "runtimePublicAuthBoundaryContracts": 50,
+        "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 63,
         "runtimePublicResponseSchemaContracts": 11,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
@@ -2614,6 +2614,48 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "WebAuthnTotpSchema"
+                },
+                {
+                    "id": "policy-session-state",
+                    "checks": ["session-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/auth/password/validate/",
+            "service": "api",
+            "method": "POST",
+            "path": "/auth/password/validate/",
+            "samplePath": "/auth/password/validate/",
+            "sourceFile": "src/api/routes/auth/password/validate.ts",
+            "line": 44,
+            "authMode": "public",
+            "testTier": "auth-scenario",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["users", "sessions", "tokens"],
+            "contractChecks": ["public-auth-boundary", "schema-validation", "response-shape", "session-state"],
+            "routeMetadata": {
+                "requestBody": "PasswordValidateSchema",
+                "responses": ["APIErrorResponse", "PasswordValidateResponse"],
+                "responseStatuses": [200, 400]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "PasswordValidateSchema"
                 },
                 {
                     "id": "policy-session-state",

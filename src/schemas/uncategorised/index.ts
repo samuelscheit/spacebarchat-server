@@ -72,6 +72,7 @@ export * from "./MfaCodeSchema";
 export * from "./MfaFinishSchema";
 export * from "./ModifyGuildStickerSchema";
 export * from "./PasswordResetSchema";
+export * from "./PasswordValidateSchema";
 export * from "./PreloadMessagesRequestSchema";
 export * from "./PruneSchema";
 export * from "./PurgeSchema";

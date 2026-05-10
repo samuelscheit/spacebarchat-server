@@ -7411,6 +7411,23 @@
                     "scopes"
                 ]
             },
+            "PasswordValidateResponse": {
+                "type": "object",
+                "properties": {
+                    "valid": {
+                        "type": "boolean"
+                    },
+                    "password_strength": {
+                        "minimum": 0,
+                        "maximum": 4,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "password_strength",
+                    "valid"
+                ]
+            },
             "PinnedMessagesResponse": {
                 "type": "object",
                 "properties": {
@@ -9971,6 +9988,18 @@
                 "required": [
                     "password",
                     "token"
+                ]
+            },
+            "PasswordValidateSchema": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "maxLength": 72,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "password"
                 ]
             },
             "PreloadMessagesRequestSchema": {
@@ -45399,6 +45428,46 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/APIErrorOrCaptchaResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/password/validate/": {
+            "post": {
+                "summary": "Get Password Strength",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordValidateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PasswordValidateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

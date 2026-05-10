@@ -1,6 +1,6 @@
 {
-    "missing": 781,
-    "spacebar": 399,
+    "missing": 780,
+    "spacebar": 400,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -77,7 +77,6 @@
         "/auth/mfa/sms/send",
         "/auth/mfa/{param}",
         "/auth/one-time-login",
-        "/auth/password/validate",
         "/auth/passwordless/start",
         "/auth/register/phone",
         "/auth/revert",
@@ -3981,13 +3980,6 @@
             "route_name": "POST_AUTH_ONE_TIME_LOGIN",
             "sources": ["userdoccers:authentication.mdx"],
             "summaries": ["One-Time Login"]
-        },
-        {
-            "method": "POST",
-            "route": "/auth/password/validate",
-            "route_name": "POST_AUTH_PASSWORD_VALIDATE",
-            "sources": ["userdoccers:authentication.mdx"],
-            "summaries": ["Get Password Strength"]
         },
         { "method": "POST", "route": "/auth/passwordless/start", "route_name": "WEBAUTHN_PASSWORDLESS_CHALLENGE", "sources": ["xhyrom:data/client/routes.json"] },
         {

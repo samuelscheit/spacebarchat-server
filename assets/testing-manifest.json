@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 504,
+        "totalEntries": 505,
         "byService": {
-            "api": 407,
+            "api": 408,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 479,
+            "http-route": 480,
             "opcode": 21
         },
         "byTestTier": {
@@ -37,7 +37,7 @@
             "contract": 89,
             "stateful-domain": 276,
             "cdn-integration": 76,
-            "auth-scenario": 16,
+            "auth-scenario": 17,
             "integration": 13,
             "tooling-contract": 1,
             "protocol-integration": 21,
@@ -47,7 +47,7 @@
             "micro": 2,
             "startup-health": 11,
             "route-class": 365,
-            "hot-path": 31,
+            "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
             "protocol-load": 21
@@ -2075,6 +2075,46 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "TokenResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-auth",
+                "testTier": "auth-scenario",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "tokens"
+                ],
+                "contractChecks": [
+                    "public-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "session-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/auth/password/validate/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/auth/password/validate/",
+            "sourceFile": "src/api/routes/auth/password/validate.ts",
+            "line": 44,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "PasswordValidateSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PasswordValidateResponse"
                 ],
                 "responseStatuses": [
                     200,

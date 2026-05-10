@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 424,
+        "totalCoveredManifestEntries": 425,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 402,
-                "totalCoveredManifestEntries": 402,
-                "totalCoveredRequiredManifestEntries": 402,
+                "totalRequiredManifestEntries": 403,
+                "totalCoveredManifestEntries": 403,
+                "totalCoveredRequiredManifestEntries": 403,
                 "totalSuites": 12
             },
             "protocol": {
@@ -32,7 +32,7 @@
             "cdn-integration": 76,
             "integration": 13,
             "contract": 20,
-            "auth-scenario": 16,
+            "auth-scenario": 17,
             "middleware-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 402,
-                "totalCoveredManifestEntries": 402,
-                "totalCoveredRequiredManifestEntries": 402,
+                "totalRequiredManifestEntries": 403,
+                "totalCoveredManifestEntries": 403,
+                "totalCoveredRequiredManifestEntries": 403,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -318,6 +318,7 @@
                 "api:http:POST:/auth/logout/",
                 "api:http:POST:/auth/mfa/totp/",
                 "api:http:POST:/auth/mfa/webauthn/",
+                "api:http:POST:/auth/password/validate/",
                 "api:http:POST:/auth/register/",
                 "api:http:POST:/auth/reset/",
                 "api:http:POST:/auth/sessions/logout",
@@ -722,6 +723,7 @@
                 "api:http:POST:/auth/logout/",
                 "api:http:POST:/auth/mfa/totp/",
                 "api:http:POST:/auth/mfa/webauthn/",
+                "api:http:POST:/auth/password/validate/",
                 "api:http:POST:/auth/register/",
                 "api:http:POST:/auth/reset/",
                 "api:http:POST:/auth/sessions/logout",
@@ -906,6 +908,7 @@
                         "api:http:POST:/auth/logout/",
                         "api:http:POST:/auth/mfa/totp/",
                         "api:http:POST:/auth/mfa/webauthn/",
+                        "api:http:POST:/auth/password/validate/",
                         "api:http:POST:/auth/register/",
                         "api:http:POST:/auth/reset/",
                         "api:http:POST:/auth/sessions/logout",

@@ -61,6 +61,7 @@ describe("unauthenticated route matching", () => {
 
     test("allows generated trailing slashes for exact no-auth routes", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/auth/login/"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/auth/password/validate/"), true);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/ping/"), true);
     });
 

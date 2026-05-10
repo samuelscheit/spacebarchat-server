@@ -7738,6 +7738,25 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PasswordValidateResponse": {
+        "type": "object",
+        "properties": {
+            "valid": {
+                "type": "boolean"
+            },
+            "password_strength": {
+                "minimum": 0,
+                "maximum": 4,
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "password_strength",
+            "valid"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PinnedMessagesResponse": {
         "type": "object",
         "properties": {
@@ -10433,6 +10452,20 @@
         "required": [
             "password",
             "token"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PasswordValidateSchema": {
+        "type": "object",
+        "properties": {
+            "password": {
+                "maxLength": 72,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "password"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

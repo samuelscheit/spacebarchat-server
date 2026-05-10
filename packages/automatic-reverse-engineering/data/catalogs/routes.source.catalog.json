@@ -458,6 +458,17 @@
 	},
 	{
 		"method": "POST",
+		"request_schema_ref": "PasswordValidateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"PasswordValidateResponse"
+		],
+		"route": "/auth/password/validate",
+		"route_name": "POST_AUTH_PASSWORD_VALIDATE",
+		"source": "src/api/routes/auth/password/validate.ts"
+	},
+	{
+		"method": "POST",
 		"request_schema_ref": "RegisterSchema",
 		"response_schema_refs": [
 			"APIErrorOrCaptchaResponse",

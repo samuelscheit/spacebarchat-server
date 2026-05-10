@@ -85,6 +85,7 @@ export * from "./NotificationCenterItemsResponse";
 export * from "./OAuthAuthorizeInfoResponse";
 export * from "./OAuthAuthorizeResponse";
 export * from "./OAuthAuthorizationResponse";
+export * from "./PasswordValidateResponse";
 export * from "./PinnedMessagesResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PaymentSourceResponse";
