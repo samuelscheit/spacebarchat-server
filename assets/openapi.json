@@ -9122,6 +9122,650 @@
                     "user_id"
                 ]
             },
+            "QuestApplicationResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "link": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "link",
+                    "name"
+                ]
+            },
+            "QuestAssetsResponse": {
+                "type": "object",
+                "properties": {
+                    "hero": {
+                        "type": "string"
+                    },
+                    "hero_video": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "quest_bar_hero": {
+                        "type": "string"
+                    },
+                    "quest_bar_hero_video": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "game_tile": {
+                        "type": "string"
+                    },
+                    "logotype": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "game_tile",
+                    "hero",
+                    "hero_video",
+                    "logotype",
+                    "quest_bar_hero",
+                    "quest_bar_hero_video"
+                ]
+            },
+            "QuestGradientResponse": {
+                "type": "object",
+                "properties": {
+                    "primary": {
+                        "type": "string"
+                    },
+                    "secondary": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "primary",
+                    "secondary"
+                ]
+            },
+            "QuestMessagesResponse": {
+                "type": "object",
+                "properties": {
+                    "quest_name": {
+                        "type": "string"
+                    },
+                    "game_title": {
+                        "type": "string"
+                    },
+                    "game_publisher": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "game_publisher",
+                    "game_title",
+                    "quest_name"
+                ]
+            },
+            "QuestTaskResponse": {
+                "type": "object",
+                "properties": {
+                    "event_name": {
+                        "type": "string"
+                    },
+                    "target": {
+                        "type": "integer"
+                    },
+                    "external_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "event_name",
+                    "target"
+                ]
+            },
+            "QuestTaskMapResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/QuestTaskResponse"
+                }
+            },
+            "QuestTaskConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "join_operator": {
+                        "enum": [
+                            "and",
+                            "or"
+                        ],
+                        "type": "string"
+                    },
+                    "tasks": {
+                        "$ref": "#/components/schemas/QuestTaskMapResponse"
+                    },
+                    "enrollment_url": {
+                        "type": "string"
+                    },
+                    "developer_application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "join_operator",
+                    "tasks",
+                    "type"
+                ]
+            },
+            "QuestRewardMessagesResponse": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_with_article": {
+                        "type": "string"
+                    },
+                    "redemption_instructions_by_platform": {
+                        "$ref": "#/components/schemas/QuestRewardRedemptionInstructionsByPlatformResponse"
+                    }
+                },
+                "required": [
+                    "name",
+                    "name_with_article"
+                ]
+            },
+            "QuestRewardRedemptionInstructionsByPlatformResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "QuestRewardResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "sku_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "asset": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "asset_video": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "messages": {
+                        "$ref": "#/components/schemas/QuestRewardMessagesResponse"
+                    },
+                    "approximate_count": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "redemption_link": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "expires_at_premium": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "expiration_mode": {
+                        "type": "integer"
+                    },
+                    "orb_quantity": {
+                        "type": "integer"
+                    },
+                    "quantity": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "messages",
+                    "sku_id",
+                    "type"
+                ]
+            },
+            "QuestRewardsConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "assignment_method": {
+                        "type": "integer"
+                    },
+                    "rewards": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuestRewardResponse"
+                        }
+                    },
+                    "rewards_expire_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "platforms": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "assignment_method",
+                    "platforms",
+                    "rewards",
+                    "rewards_expire_at"
+                ]
+            },
+            "QuestVideoMessagesResponse": {
+                "type": "object",
+                "properties": {
+                    "video_title": {
+                        "type": "string"
+                    },
+                    "video_end_cta_title": {
+                        "type": "string"
+                    },
+                    "video_end_cta_subtitle": {
+                        "type": "string"
+                    },
+                    "video_end_cta_button_label": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "video_end_cta_button_label",
+                    "video_end_cta_subtitle",
+                    "video_end_cta_title",
+                    "video_title"
+                ]
+            },
+            "QuestVideoAssetsResponse": {
+                "type": "object",
+                "properties": {
+                    "video_player_video_hls": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "video_player_video": {
+                        "type": "string"
+                    },
+                    "video_player_thumbnail": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "video_player_video_low_res": {
+                        "type": "string"
+                    },
+                    "video_player_caption": {
+                        "type": "string"
+                    },
+                    "video_player_transcript": {
+                        "type": "string"
+                    },
+                    "quest_bar_preview_video": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "quest_bar_preview_thumbnail": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "quest_home_video": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "quest_bar_preview_thumbnail",
+                    "quest_bar_preview_video",
+                    "quest_home_video",
+                    "video_player_caption",
+                    "video_player_thumbnail",
+                    "video_player_transcript",
+                    "video_player_video",
+                    "video_player_video_hls",
+                    "video_player_video_low_res"
+                ]
+            },
+            "QuestVideoMetadataResponse": {
+                "type": "object",
+                "properties": {
+                    "messages": {
+                        "$ref": "#/components/schemas/QuestVideoMessagesResponse"
+                    },
+                    "assets": {
+                        "$ref": "#/components/schemas/QuestVideoAssetsResponse"
+                    }
+                },
+                "required": [
+                    "assets",
+                    "messages"
+                ]
+            },
+            "QuestCosponsorMetadataResponse": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "logotype": {
+                        "type": "string"
+                    },
+                    "redemption_instructions": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "logotype",
+                    "name",
+                    "redemption_instructions"
+                ]
+            },
+            "QuestExperimentsResponse": {
+                "type": "object",
+                "properties": {
+                    "rollout": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "targeting": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "preview": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
+            },
+            "QuestConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "config_version": {
+                        "type": "integer"
+                    },
+                    "starts_at": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": "string"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/QuestApplicationResponse"
+                    },
+                    "assets": {
+                        "$ref": "#/components/schemas/QuestAssetsResponse"
+                    },
+                    "colors": {
+                        "$ref": "#/components/schemas/QuestGradientResponse"
+                    },
+                    "messages": {
+                        "$ref": "#/components/schemas/QuestMessagesResponse"
+                    },
+                    "task_config": {
+                        "$ref": "#/components/schemas/QuestTaskConfigResponse"
+                    },
+                    "rewards_config": {
+                        "$ref": "#/components/schemas/QuestRewardsConfigResponse"
+                    },
+                    "video_metadata": {
+                        "$ref": "#/components/schemas/QuestVideoMetadataResponse"
+                    },
+                    "cosponsor_metadata": {
+                        "$ref": "#/components/schemas/QuestCosponsorMetadataResponse"
+                    },
+                    "experiments": {
+                        "$ref": "#/components/schemas/QuestExperimentsResponse"
+                    }
+                },
+                "required": [
+                    "application",
+                    "assets",
+                    "colors",
+                    "config_version",
+                    "expires_at",
+                    "features",
+                    "id",
+                    "messages",
+                    "rewards_config",
+                    "starts_at",
+                    "task_config"
+                ]
+            },
+            "QuestResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/QuestConfigResponse"
+                    },
+                    "user_status": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/QuestUserStatusResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "targeted_content": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "integer"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "preview": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "config",
+                    "id",
+                    "preview",
+                    "targeted_content",
+                    "user_status"
+                ]
+            },
+            "QuestAdIdentifiersResponse": {
+                "type": "object",
+                "properties": {
+                    "campaign_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "ad_set_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "ad_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "creative_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "creative_type": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "ad_id",
+                    "ad_set_id",
+                    "campaign_id",
+                    "creative_id",
+                    "creative_type"
+                ]
+            },
+            "QuestAdContextResponse": {
+                "type": "object",
+                "properties": {
+                    "is_campaign_ias_enabled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "is_campaign_ias_enabled"
+                ]
+            },
+            "QuestDecisionResponse": {
+                "type": "object",
+                "properties": {
+                    "request_id": {
+                        "type": "string"
+                    },
+                    "quest": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/QuestResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "ad_identifiers": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/QuestAdIdentifiersResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "ad_context": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/QuestAdContextResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "metadata_raw": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "metadata_sealed": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "traffic_metadata_raw": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "traffic_metadata_sealed": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "creative": {
+                        "type": "null"
+                    },
+                    "response_ttl_seconds": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "ad_context",
+                    "ad_identifiers",
+                    "creative",
+                    "metadata_raw",
+                    "metadata_sealed",
+                    "quest",
+                    "request_id",
+                    "response_ttl_seconds",
+                    "traffic_metadata_raw",
+                    "traffic_metadata_sealed"
+                ]
+            },
             "RecentAvatarResponse": {
                 "type": "object",
                 "properties": {
@@ -36475,6 +37119,71 @@
                 },
                 "tags": [
                     "read-states"
+                ]
+            }
+        },
+        "/quests/decision/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the sponsored quest that should be shown to the current user in a specific placement. Spacebar does not persist durable quest decision or advertisement delivery state yet, so this compatibility endpoint returns no quest and no ad metadata.",
+                "summary": "Get Quest Placement",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestDecisionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "placement",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Quest placement area to get the quest for: 1 for desktop account panel, 2 for mobile home dock."
+                    },
+                    {
+                        "name": "client_heartbeat_session_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Client-generated UUID representing the current persisted analytics heartbeat."
+                    }
+                ],
+                "tags": [
+                    "quests"
                 ]
             }
         },

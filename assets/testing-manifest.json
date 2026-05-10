@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 563,
+        "totalEntries": 564,
         "byService": {
-            "api": 466,
+            "api": 467,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 538,
+            "http-route": 539,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 118,
+            "contract": 119,
             "stateful-domain": 301,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 421,
+            "route-class": 422,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -14985,6 +14985,43 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/quests/decision/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/quests/decision/",
+            "sourceFile": "src/api/routes/quests/decision.ts",
+            "line": 93,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "QuestDecisionResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

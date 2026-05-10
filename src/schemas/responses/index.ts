@@ -116,6 +116,7 @@ export * from "./ProfileWidgetsSuggestedGamesResponse";
 export * from "./PromotionResponse";
 export * from "./PremiumReferralResponse";
 export * from "./PublicApplicationResponse";
+export * from "./QuestDecisionResponse";
 export * from "./QuestUserStatusResponse";
 export * from "./RecentAvatarsResponse";
 export * from "./RefreshUrlsResponse";

@@ -1,6 +1,6 @@
 {
-    "missing": 722,
-    "spacebar": 458,
+    "missing": 721,
+    "spacebar": 459,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -327,7 +327,6 @@
         "/private/bug-reports",
         "/quests/@me",
         "/quests/@me/claimed",
-        "/quests/decision",
         "/quests/decision?placement={param}&client_heartbeat_session_id={param}",
         "/quests/{param}",
         "/quests/{param}/claim-reward",
@@ -2158,13 +2157,6 @@
             "route_name": "GET_QUESTS__ME_CLAIMED",
             "sources": ["userdoccers:resources/quests.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Claimed Quests"]
-        },
-        {
-            "method": "GET",
-            "route": "/quests/decision",
-            "route_name": "GET_QUESTS_DECISION",
-            "sources": ["userdoccers:resources/quests.mdx"],
-            "summaries": ["Get Quest Placement"]
         },
         {
             "method": "GET",
