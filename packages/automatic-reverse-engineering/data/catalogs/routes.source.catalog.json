@@ -1448,6 +1448,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GravityRecommendedGuildsResponse"
+		],
+		"route": "/gravity-recommended-guilds",
+		"route_name": "GET_GRAVITY_RECOMMENDED_GUILDS",
+		"source": "src/api/routes/gravity-recommended-guilds.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"GuildRecommendationsResponse"
 		],
 		"route": "/guild-recommendations",

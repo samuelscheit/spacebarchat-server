@@ -1,6 +1,6 @@
 {
-    "missing": 806,
-    "spacebar": 374,
+    "missing": 805,
+    "spacebar": 375,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -177,7 +177,6 @@
         "/google-play/verify-purchase-token",
         "/gravity-content",
         "/gravity-custom-guild-score",
-        "/gravity-recommended-guilds",
         "/gravity-topic-guilds",
         "/guilds/automations/email-domain-lookup/verify",
         "/guilds/gravity-join",
@@ -1795,7 +1794,6 @@
             "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Suggested GIF Search Terms"]
         },
-        { "method": "GET", "route": "/gravity-recommended-guilds", "route_name": "GRAVITY_RECOMMENDED_GUILDS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/guilds/{param}/active-channels",

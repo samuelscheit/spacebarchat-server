@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 479,
+        "totalEntries": 480,
         "byService": {
-            "api": 382,
+            "api": 383,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 454,
+            "http-route": 455,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 77,
+            "contract": 78,
             "stateful-domain": 265,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 342,
+            "route-class": 343,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7058,6 +7058,42 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "GravityCustomChannelScoresResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/gravity-recommended-guilds/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/gravity-recommended-guilds/",
+            "sourceFile": "src/api/routes/gravity-recommended-guilds.ts",
+            "line": 25,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GravityRecommendedGuildsResponse"
                 ],
                 "responseStatuses": [
                     200,

@@ -4919,6 +4919,38 @@
                     "$ref": "#/components/schemas/GravityCustomChannelScore"
                 }
             },
+            "GuildRecommendationsResponse": {
+                "type": "object",
+                "properties": {
+                    "recommended_guilds": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RecommendedGuild"
+                        }
+                    },
+                    "load_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "load_id",
+                    "recommended_guilds"
+                ]
+            },
+            "GravityRecommendedGuildsResponse": {
+                "type": "object",
+                "properties": {
+                    "guilds": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GravityRecommendedGuild"
+                        }
+                    }
+                },
+                "required": [
+                    "guilds"
+                ]
+            },
             "ApplicationModifySchema": {
                 "type": "object",
                 "properties": {
@@ -5250,24 +5282,6 @@
                 },
                 "required": [
                     "purged"
-                ]
-            },
-            "GuildRecommendationsResponse": {
-                "type": "object",
-                "properties": {
-                    "recommended_guilds": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/RecommendedGuild"
-                        }
-                    },
-                    "load_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "load_id",
-                    "recommended_guilds"
                 ]
             },
             "GuildScheduledEventExceptionResponse": {
@@ -15703,6 +15717,202 @@
                     "type": "integer"
                 }
             },
+            "RecommendedGuild": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "banner": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "preferred_locale": {
+                        "type": "string"
+                    },
+                    "premium_subscription_count": {
+                        "type": "integer"
+                    },
+                    "member_count": {
+                        "type": "integer"
+                    },
+                    "verification_level": {
+                        "type": "integer"
+                    },
+                    "default_message_notifications": {
+                        "type": "integer"
+                    },
+                    "explicit_content_filter": {
+                        "type": "integer"
+                    },
+                    "mfa_level": {
+                        "type": "integer"
+                    },
+                    "large": {
+                        "type": "boolean"
+                    },
+                    "max_members": {
+                        "type": "integer"
+                    },
+                    "max_presences": {
+                        "type": "integer"
+                    },
+                    "max_video_channel_users": {
+                        "type": "integer"
+                    },
+                    "max_stage_video_channel_users": {
+                        "type": "integer"
+                    },
+                    "owner_id": {
+                        "type": "string"
+                    },
+                    "premium_tier": {
+                        "type": "integer"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "system_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "rules_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "public_updates_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "afk_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "afk_timeout": {
+                        "type": "integer"
+                    },
+                    "system_channel_flags": {
+                        "type": "integer"
+                    },
+                    "widget_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "widget_enabled": {
+                        "type": "boolean"
+                    },
+                    "welcome_screen": {
+                        "$ref": "#/components/schemas/RecommendedGuildWelcomeScreen"
+                    },
+                    "nsfw_level": {
+                        "type": "integer"
+                    },
+                    "premium_progress_bar_enabled": {
+                        "type": "boolean"
+                    },
+                    "unavailable": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "features",
+                    "id",
+                    "name",
+                    "welcome_screen",
+                    "widget_enabled"
+                ]
+            },
+            "RecommendedGuildWelcomeScreen": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "welcome_channels": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "description": {
+                                    "type": "string"
+                                },
+                                "emoji_id": {
+                                    "type": "string"
+                                },
+                                "emoji_name": {
+                                    "type": "string"
+                                },
+                                "channel_id": {
+                                    "type": "string"
+                                }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                                "channel_id",
+                                "description"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "description",
+                    "enabled",
+                    "welcome_channels"
+                ]
+            },
+            "GravityRecommendedGuild": {
+                "type": "object",
+                "properties": {
+                    "guild": {
+                        "$ref": "#/components/schemas/RecommendedGuild"
+                    }
+                },
+                "required": [
+                    "guild"
+                ]
+            },
             "ApplicationInstallParams": {
                 "type": "object",
                 "properties": {
@@ -17587,191 +17797,6 @@
                     "base_mix",
                     "colors",
                     "gradient_angle"
-                ]
-            },
-            "RecommendedGuild": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "icon": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "banner": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "splash": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "description": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "preferred_locale": {
-                        "type": "string"
-                    },
-                    "premium_subscription_count": {
-                        "type": "integer"
-                    },
-                    "member_count": {
-                        "type": "integer"
-                    },
-                    "verification_level": {
-                        "type": "integer"
-                    },
-                    "default_message_notifications": {
-                        "type": "integer"
-                    },
-                    "explicit_content_filter": {
-                        "type": "integer"
-                    },
-                    "mfa_level": {
-                        "type": "integer"
-                    },
-                    "large": {
-                        "type": "boolean"
-                    },
-                    "max_members": {
-                        "type": "integer"
-                    },
-                    "max_presences": {
-                        "type": "integer"
-                    },
-                    "max_video_channel_users": {
-                        "type": "integer"
-                    },
-                    "max_stage_video_channel_users": {
-                        "type": "integer"
-                    },
-                    "owner_id": {
-                        "type": "string"
-                    },
-                    "premium_tier": {
-                        "type": "integer"
-                    },
-                    "region": {
-                        "type": "string"
-                    },
-                    "system_channel_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "rules_channel_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "public_updates_channel_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "afk_channel_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "afk_timeout": {
-                        "type": "integer"
-                    },
-                    "system_channel_flags": {
-                        "type": "integer"
-                    },
-                    "widget_channel_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "widget_enabled": {
-                        "type": "boolean"
-                    },
-                    "welcome_screen": {
-                        "$ref": "#/components/schemas/RecommendedGuildWelcomeScreen"
-                    },
-                    "nsfw_level": {
-                        "type": "integer"
-                    },
-                    "premium_progress_bar_enabled": {
-                        "type": "boolean"
-                    },
-                    "unavailable": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "features",
-                    "id",
-                    "name",
-                    "welcome_screen",
-                    "widget_enabled"
-                ]
-            },
-            "RecommendedGuildWelcomeScreen": {
-                "type": "object",
-                "properties": {
-                    "enabled": {
-                        "type": "boolean"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "welcome_channels": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "description": {
-                                    "type": "string"
-                                },
-                                "emoji_id": {
-                                    "type": "string"
-                                },
-                                "emoji_name": {
-                                    "type": "string"
-                                },
-                                "channel_id": {
-                                    "type": "string"
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "channel_id",
-                                "description"
-                            ]
-                        }
-                    }
-                },
-                "required": [
-                    "description",
-                    "enabled",
-                    "welcome_channels"
                 ]
             },
             "GuildScheduledEventPrivacyLevel": {
@@ -26425,6 +26450,9 @@
         },
         {
             "name": "gravity-custom-channel-scores"
+        },
+        {
+            "name": "gravity-recommended-guilds"
         },
         {
             "name": "guild-recommendations"
@@ -36918,6 +36946,40 @@
                 },
                 "tags": [
                     "guild-recommendations"
+                ]
+            }
+        },
+        "/gravity-recommended-guilds/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GravityRecommendedGuildsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gravity-recommended-guilds"
                 ]
             }
         },

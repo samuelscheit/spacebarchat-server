@@ -53,6 +53,7 @@ export * from "./GuildCreateResponse";
 export * from "./GuildDiscoveryMetadataResponse";
 export * from "./GuildDiscoveryRequirements";
 export * from "./GravityCustomChannelScoresResponse";
+export * from "./GravityRecommendedGuildsResponse";
 export * from "./GuildIntegrationResponse";
 export * from "./GuildMessagesSearchResponse";
 export * from "./GuildPruneResponse";
