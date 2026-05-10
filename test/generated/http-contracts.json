@@ -3,21 +3,21 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 461,
+        "totalContracts": 462,
         "byService": {
-            "api": 388,
+            "api": 389,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 333,
-        "runtimeMalformedAuthContracts": 333,
-        "runtimeRevokedSessionAuthContracts": 333,
-        "runtimeStaleTokenAuthContracts": 333,
+        "runtimeAuthBoundaryContracts": 334,
+        "runtimeMalformedAuthContracts": 334,
+        "runtimeRevokedSessionAuthContracts": 334,
+        "runtimeStaleTokenAuthContracts": 334,
         "runtimePublicAuthBoundaryContracts": 47,
         "runtimePublicInvalidBodyContracts": 15,
         "runtimeProtectedInvalidBodyContracts": 60,
         "runtimePublicResponseSchemaContracts": 9,
         "runtimeAuthenticatedResponseSchemaContracts": 20,
-        "runtimeRightOnlyDenialContracts": 10,
+        "runtimeRightOnlyDenialContracts": 11,
         "runtimePermissionOnlyDenialContracts": 84,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
@@ -3371,7 +3371,7 @@
             "path": "/channels/:channel_id/call/",
             "samplePath": "/channels/100000000000000002/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 125,
+            "line": 119,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -3441,7 +3441,7 @@
             "path": "/channels/:channel_id/call/",
             "samplePath": "/channels/100000000000000002/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 159,
+            "line": 153,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -3513,7 +3513,7 @@
             "path": "/channels/:channel_id/call/ring",
             "samplePath": "/channels/100000000000000002/call/ring",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 197,
+            "line": 191,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -3585,7 +3585,7 @@
             "path": "/channels/:channel_id/call/stop-ringing",
             "samplePath": "/channels/100000000000000002/call/stop-ringing",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 238,
+            "line": 232,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -16928,6 +16928,56 @@
                 {
                     "id": "response-shape",
                     "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:DELETE:/quests/:quest_id/preview/dismissibility/",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/quests/:quest_id/preview/dismissibility/",
+            "samplePath": "/quests/value/preview/dismissibility/",
+            "sourceFile": "src/api/routes/quests/#quest_id/preview/dismissibility.ts",
+            "line": 44,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "QuestUserStatusResponse"],
+                "responseStatuses": [200, 400, 401, 403],
+                "right": "OPERATOR"
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "right": "OPERATOR"
                 },
                 {
                     "id": "policy-auth-boundary",

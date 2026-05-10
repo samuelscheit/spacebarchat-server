@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 486,
+        "totalEntries": 487,
         "byService": {
-            "api": 389,
+            "api": 390,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 461,
+            "http-route": 462,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 79,
+            "contract": 80,
             "stateful-domain": 270,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 349,
+            "route-class": 350,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2662,7 +2662,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 125,
+            "line": 119,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2714,7 +2714,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 159,
+            "line": 153,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2767,7 +2767,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/call/ring",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 197,
+            "line": 191,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2820,7 +2820,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/call/stop-ringing",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 238,
+            "line": 232,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -12482,6 +12482,45 @@
                 ],
                 "responseStatuses": [
                     200,
+                    403
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/quests/:quest_id/preview/dismissibility/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/quests/:quest_id/preview/dismissibility/",
+            "sourceFile": "src/api/routes/quests/#quest_id/preview/dismissibility.ts",
+            "line": 44,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "right": "OPERATOR",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "QuestUserStatusResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
                     403
                 ],
                 "hasQuery": false

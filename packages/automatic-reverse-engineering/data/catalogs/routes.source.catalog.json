@@ -2555,6 +2555,16 @@
 			"APIErrorResponse",
 			"QuestUserStatusResponse"
 		],
+		"route": "/quests/{quest_id}/preview/dismissibility",
+		"route_name": "DELETE_QUESTS_QUEST_ID_PREVIEW_DISMISSIBILITY",
+		"source": "src/api/routes/quests/#quest_id/preview/dismissibility.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"QuestUserStatusResponse"
+		],
 		"route": "/quests/{quest_id}/preview/status",
 		"route_name": "DELETE_QUESTS_QUEST_ID_PREVIEW_STATUS",
 		"source": "src/api/routes/quests/#quest_id/preview/status.ts"

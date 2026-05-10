@@ -1,6 +1,6 @@
 {
-    "missing": 799,
-    "spacebar": 381,
+    "missing": 798,
+    "spacebar": 382,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -386,7 +386,6 @@
         "/quests/{param}/enroll",
         "/quests/{param}/heartbeat",
         "/quests/{param}/preview/complete",
-        "/quests/{param}/preview/dismissibility",
         "/quests/{param}/reward-code",
         "/quests/{param}/video-progress",
         "/referrals/{param}",
@@ -1071,14 +1070,6 @@
             "sources": ["userdoccers:resources/store.mdx"],
             "source_routes": ["/partner-sdk/applications/{application_id}/storefront"],
             "summaries": ["Delete Application Storefront"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/quests/{param}/preview/dismissibility",
-            "route_name": "DELETE_QUESTS_QUEST_ID_PREVIEW_DISMISSIBILITY",
-            "sources": ["userdoccers:resources/quests.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/quests/{quest_id}/preview/dismissibility"],
-            "summaries": ["Reset Quest Dismissibility"]
         },
         { "method": "DELETE", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         {
