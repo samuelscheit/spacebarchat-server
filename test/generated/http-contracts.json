@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 536,
+        "totalContracts": 537,
         "byService": {
-            "api": 463,
+            "api": 464,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 393,
-        "runtimeMalformedAuthContracts": 393,
-        "runtimeRevokedSessionAuthContracts": 393,
-        "runtimeStaleTokenAuthContracts": 393,
+        "runtimeAuthBoundaryContracts": 394,
+        "runtimeMalformedAuthContracts": 394,
+        "runtimeRevokedSessionAuthContracts": 394,
+        "runtimeStaleTokenAuthContracts": 394,
         "runtimePublicAuthBoundaryContracts": 62,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 69,
@@ -21238,7 +21238,7 @@
             "path": "/store/published-listings/skus/:sku_id",
             "samplePath": "/store/published-listings/skus/value",
             "sourceFile": "src/api/routes/store/published-listings/skus.ts",
-            "line": 24,
+            "line": 136,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -21247,6 +21247,50 @@
             "routeMetadata": {
                 "responses": [],
                 "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/store/published-listings/skus/",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/published-listings/skus/",
+            "samplePath": "/store/published-listings/skus/",
+            "sourceFile": "src/api/routes/store/published-listings/skus.ts",
+            "line": 94,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "StorePublishedListingsSkusResponse"],
+                "responseStatuses": [200, 400, 401]
             },
             "cases": [
                 {
@@ -25489,7 +25533,7 @@
             "path": "/voice-filters/catalog/",
             "samplePath": "/voice-filters/catalog/",
             "sourceFile": "src/api/routes/voice-filters/catalog.ts",
-            "line": 149,
+            "line": 147,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",

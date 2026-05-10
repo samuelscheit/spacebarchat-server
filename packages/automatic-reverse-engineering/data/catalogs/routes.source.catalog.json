@@ -3320,6 +3320,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"StorePublishedListingsSkusResponse"
+		],
+		"route": "/store/published-listings/skus",
+		"route_name": "GET_STORE_PUBLISHED_LISTINGS_SKUS",
+		"source": "src/api/routes/store/published-listings/skus.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/store/published-listings/skus/{sku_id}",
 		"route_name": "GET_STORE_PUBLISHED_LISTINGS_SKUS_SKU_ID",
