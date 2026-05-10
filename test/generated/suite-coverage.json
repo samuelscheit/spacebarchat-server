@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 427,
+        "totalCoveredManifestEntries": 428,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 405,
-                "totalCoveredManifestEntries": 405,
-                "totalCoveredRequiredManifestEntries": 405,
+                "totalRequiredManifestEntries": 406,
+                "totalCoveredManifestEntries": 406,
+                "totalCoveredRequiredManifestEntries": 406,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 278,
+            "stateful-domain": 279,
             "cdn-integration": 76,
             "integration": 13,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 405,
-                "totalCoveredManifestEntries": 405,
-                "totalCoveredRequiredManifestEntries": 405,
+                "totalRequiredManifestEntries": 406,
+                "totalCoveredManifestEntries": 406,
+                "totalCoveredRequiredManifestEntries": 406,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -146,6 +146,7 @@
                 "api:http:GET:/channels/:channel_id/linked-accounts/",
                 "api:http:GET:/channels/:channel_id/messages/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/",
+                "api:http:GET:/channels/:channel_id/messages/:message_id/interaction-data/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
                 "api:http:GET:/channels/:channel_id/messages/pins/",
@@ -553,6 +554,7 @@
                 "api:http:GET:/channels/:channel_id/linked-accounts/",
                 "api:http:GET:/channels/:channel_id/messages/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/",
+                "api:http:GET:/channels/:channel_id/messages/:message_id/interaction-data/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
                 "api:http:GET:/channels/:channel_id/messages/pins/",
@@ -1172,6 +1174,7 @@
                         "api:http:GET:/channels/:channel_id/linked-accounts/",
                         "api:http:GET:/channels/:channel_id/messages/",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/",
+                        "api:http:GET:/channels/:channel_id/messages/:message_id/interaction-data/",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
                         "api:http:GET:/channels/:channel_id/messages/pins/",

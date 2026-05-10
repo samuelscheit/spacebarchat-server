@@ -80,6 +80,8 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
         interactionData.data = body.data;
     }
 
+    const commandData = body.type === InteractionType.ApplicationCommand || body.type === InteractionType.ApplicationCommandAutocomplete ? body.data : undefined;
+
     if (body.type != InteractionType.Ping) {
         interactionData.locale = user?.settings?.locale;
     }
@@ -128,8 +130,11 @@ router.post("/", route({ requestBody: "InteractionSchema" }), async (req: Reques
         guildId: body.guild_id,
         channelId: body.channel_id,
         type: body.type,
+        applicationCommand: commandData?.application_command,
+        applicationCommandId: commandData?.id,
         commandType: hasInteractionData(body) && "type" in body.data ? body.data.type : undefined,
         commandName: hasInteractionData(body) && "name" in body.data ? body.data.name : undefined,
+        commandOptions: commandData?.options,
         messageId: body.message_id,
     };
 

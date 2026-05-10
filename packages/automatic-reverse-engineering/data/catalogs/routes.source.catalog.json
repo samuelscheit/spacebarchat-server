@@ -861,6 +861,16 @@
 		"source": "src/api/routes/channels/#channel_id/messages/#message_id/crosspost.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"MessageInteractionDataResponse"
+		],
+		"route": "/channels/{channel_id}/messages/{message_id}/interaction-data",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_INTERACTION_DATA",
+		"source": "src/api/routes/channels/#channel_id/messages/#message_id/interaction-data.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"

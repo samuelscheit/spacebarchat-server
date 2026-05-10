@@ -81,6 +81,7 @@ export * from "./InstanceStatsResponse";
 export * from "./InviteResponse";
 export * from "./LocationMetadataResponse";
 export * from "./MemberJoinGuildResponse";
+export * from "./MessageInteractionDataResponse";
 export * from "./MfaRequiredResponse";
 export * from "./NativeModuleVersionsResponse";
 export * from "./NotificationCenterItemsResponse";

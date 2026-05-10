@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { ApplicationCommandType, InteractionType } from "@spacebar/schemas";
+import type { ApplicationCommandType, InteractionType, SendableApplicationCommandDataSchema } from "@spacebar/schemas";
 import { DiscordApiErrors } from "../util/Constants";
 
 export interface PendingInteraction {
@@ -29,8 +29,11 @@ export interface PendingInteraction {
     nonce?: string;
     messageId?: string;
     type: InteractionType;
+    applicationCommand?: object;
+    applicationCommandId?: string;
     commandType?: ApplicationCommandType;
     commandName?: string;
+    commandOptions?: SendableApplicationCommandDataSchema["options"];
 }
 
 export const pendingInteractions = new Map<string, PendingInteraction>();

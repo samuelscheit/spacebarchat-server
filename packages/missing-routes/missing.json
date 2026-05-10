@@ -1,6 +1,6 @@
 {
-    "missing": 770,
-    "spacebar": 410,
+    "missing": 769,
+    "spacebar": 411,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -105,7 +105,6 @@
         "/channels/{param}/messages/search",
         "/channels/{param}/messages/search/tabs",
         "/channels/{param}/messages/{param}/hide-guild-feed",
-        "/channels/{param}/messages/{param}/interaction-data",
         "/channels/{param}/pins/ack",
         "/channels/{param}/polls/{param}/answers/@me",
         "/channels/{param}/polls/{param}/answers/{param}",
@@ -1516,14 +1515,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/media-post-preview"],
             "summaries": ["Get Channel Media Preview"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/messages/{param}/interaction-data",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_INTERACTION_DATA",
-            "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/messages/{message_id}/interaction-data"],
-            "summaries": ["Get Message Interaction Data"]
         },
         {
             "method": "GET",

@@ -7177,6 +7177,36 @@
                     "stickers"
                 ]
             },
+            "MessageInteractionDataResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/InteractionType"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "application_command": {
+                        "$ref": "#/components/schemas/ApplicationCommandSchema"
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MessageInteractionDataOption"
+                        }
+                    }
+                },
+                "required": [
+                    "application_command",
+                    "id",
+                    "name",
+                    "type"
+                ]
+            },
             "MfaRequiredResponse": {
                 "type": "object",
                 "properties": {
@@ -25562,6 +25592,31 @@
                 "enum": [
                     1,
                     2
+                ]
+            },
+            "MessageInteractionDataOption": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {},
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/MessageInteractionDataOption"
+                        }
+                    },
+                    "focused": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type"
                 ]
             },
             "OAuthAuthorizeInfoGuild": {
@@ -44184,6 +44239,77 @@
                             "type": "string"
                         },
                         "description": "user_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/messages/{message_id}/interaction-data/": {
+            "get": {
+                "x-permission-required": "VIEW_CHANNEL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageInteractionDataResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "message_id"
                     }
                 ],
                 "tags": [

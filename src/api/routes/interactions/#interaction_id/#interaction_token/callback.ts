@@ -128,9 +128,12 @@ router.post(
                     reactions: [],
                     // webhook_id: interaction.applicationId, // This one requires a webhook to be created first
                     ...createApplicationCommandInteractionMessageData({
+                        applicationCommand: interaction.applicationCommand,
+                        applicationCommandId: interaction.applicationCommandId,
                         commandName: interaction.commandName,
                         commandType: interaction.commandType,
                         interactionId,
+                        options: interaction.commandOptions,
                         userId: interaction.userId,
                         user: interactionUser,
                     }),
