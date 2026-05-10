@@ -2805,6 +2805,12 @@
                     "assets"
                 ]
             },
+            "ApplicationActivityStatisticsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationActivityStatistics"
+                }
+            },
             "ApplicationCanDeleteResponse": {
                 "type": "object",
                 "properties": {
@@ -16305,6 +16311,26 @@
                     "id",
                     "name",
                     "type"
+                ]
+            },
+            "ApplicationActivityStatistics": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "last_played_at": {
+                        "type": "string"
+                    },
+                    "total_duration": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "last_played_at",
+                    "total_duration",
+                    "user_id"
                 ]
             },
             "ApplicationDirectoryCategory": {
@@ -52340,6 +52366,52 @@
                 },
                 "tags": [
                     "age-verification"
+                ]
+            }
+        },
+        "/activities/statistics/applications/{application_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Application Activity Statistics",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationActivityStatisticsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "activities"
                 ]
             }
         },

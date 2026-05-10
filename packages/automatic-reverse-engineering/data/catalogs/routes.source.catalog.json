@@ -34,6 +34,16 @@
 		"source": "src/api/routes/activities/shelf.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationActivityStatisticsResponse"
+		],
+		"route": "/activities/statistics/applications/{application_id}",
+		"route_name": "GET_ACTIVITIES_STATISTICS_APPLICATIONS_APPLICATION_ID",
+		"source": "src/api/routes/activities/statistics/applications/#application_id.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "AgeVerificationVerifySchema",
 		"response_schema_refs": [

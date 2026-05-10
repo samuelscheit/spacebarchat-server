@@ -1,10 +1,9 @@
 {
-    "missing": 735,
-    "spacebar": 445,
+    "missing": 734,
+    "spacebar": 446,
     "discord": 1128,
     "routes": [
         "/activities",
-        "/activities/statistics/applications/{param}",
         "/activities/{param}/test-mode",
         "/activities/{param}/{param}",
         "/age-verification/test",
@@ -1127,14 +1126,6 @@
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/activities/{application_id}/test-mode"],
             "summaries": ["Query Application Test Mode"]
-        },
-        {
-            "method": "GET",
-            "route": "/activities/statistics/applications/{param}",
-            "route_name": "GET_ACTIVITIES_STATISTICS_APPLICATIONS_APPLICATION_ID",
-            "sources": ["userdoccers:resources/presence.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/activities/statistics/applications/{application_id}"],
-            "summaries": ["Get Application Activity Statistics"]
         },
         { "method": "GET", "route": "/app-recommendations", "route_name": "APP_RECOMMENDATIONS", "sources": ["xhyrom:data/client/routes.json"] },
         {

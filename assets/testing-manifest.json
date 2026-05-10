@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 550,
+        "totalEntries": 551,
         "byService": {
-            "api": 453,
+            "api": 454,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 525,
+            "http-route": 526,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 109,
+            "contract": 110,
             "stateful-domain": 297,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 408,
+            "route-class": 409,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -337,6 +337,42 @@
                     401
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/activities/statistics/applications/:application_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/activities/statistics/applications/:application_id/",
+            "sourceFile": "src/api/routes/activities/statistics/applications/#application_id.ts",
+            "line": 36,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationActivityStatisticsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-public-contract",
@@ -15389,7 +15425,7 @@
             "method": "GET",
             "path": "/store/price-tiers/",
             "sourceFile": "src/api/routes/store/price-tiers.ts",
-            "line": 66,
+            "line": 63,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
