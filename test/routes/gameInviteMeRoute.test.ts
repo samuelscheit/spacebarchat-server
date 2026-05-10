@@ -27,15 +27,16 @@ import express from "express";
 import gameInviteMeRouter, {
     GAME_INVITES_UNSUPPORTED_MESSAGE,
     XBOX_GAME_INVITE_APPLICATION_ID,
+    assertValidGameInviteInviteId,
     assertXboxGameInviteOAuthToken,
     getGameInviteApplicationId,
 } from "../../src/api/routes/game-invite/@me";
 
-const coveredManifestIds = ["api:http:DELETE:/game-invite/@me/", "api:http:POST:/game-invite/@me/"];
+const coveredManifestIds = ["api:http:DELETE:/game-invite/@me/", "api:http:DELETE:/game-invite/@me/:game_invite_invite_id", "api:http:POST:/game-invite/@me/"];
 
 describe("/game-invite/@me", () => {
-    test("declares only the assigned manifest route ids", () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:DELETE:/game-invite/@me/", "api:http:POST:/game-invite/@me/"]);
+    test("declares the game invite manifest route ids covered by this suite", () => {
+        assert.deepEqual(coveredManifestIds, ["api:http:DELETE:/game-invite/@me/", "api:http:DELETE:/game-invite/@me/:game_invite_invite_id", "api:http:POST:/game-invite/@me/"]);
     });
 
     test("extracts the Xbox OAuth application id from supported token shapes", () => {
@@ -103,18 +104,46 @@ describe("/game-invite/@me", () => {
         });
     });
 
-    test("documents route metadata without claiming adjacent invite-id ownership", () => {
+    test("rejects malformed game invite IDs before unsupported invite deletion", async () => {
+        const app = setupGameInviteRoute();
+        const response = await requestJson(app, "/game-invite/@me/not-a-snowflake", { method: "DELETE" });
+
+        assert.equal(response.status, 400);
+        assert.equal(response.body.code, DiscordApiErrors.INVALID_FORM_BODY.code);
+    });
+
+    test("rejects non-Xbox OAuth applications before single invite unsupported behavior", async () => {
+        const app = setupGameInviteRoute({ token: { application_id: "not-the-xbox-app" } });
+        const response = await requestJson(app, "/game-invite/@me/1387169389857607774", { method: "DELETE" });
+
+        assert.equal(response.status, 400);
+        assert.equal(response.body.code, DiscordApiErrors.INVALID_OAUTH_TOKEN.code);
+        assert.equal(response.body.message, DiscordApiErrors.INVALID_OAUTH_TOKEN.message);
+    });
+
+    test("fails closed for Xbox single invite delete requests because persisted invites are unsupported", async () => {
+        const app = setupGameInviteRoute();
+        const response = await requestJson(app, "/game-invite/@me/1387169389857607774", { method: "DELETE" });
+
+        assert.equal(response.status, 501);
+        assert.deepEqual(response.body, {
+            code: 0,
+            message: GAME_INVITES_UNSUPPORTED_MESSAGE,
+        });
+    });
+
+    test("documents route metadata for collection and single-invite compatibility handlers", () => {
         const routeSource = readFileSync(path.join(process.cwd(), "src", "api", "routes", "game-invite", "@me.ts"), "utf-8");
 
         assert.match(routeSource, /summary:\s*"Create Game Invite"/);
         assert.match(routeSource, /summary:\s*"Delete Game Invites"/);
+        assert.match(routeSource, /summary:\s*"Delete Game Invite"/);
         assert.match(routeSource, /requestBody:\s*"GameInviteCreateSchema"/);
         assert.match(routeSource, /400:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.doesNotMatch(routeSource, /204:\s*\{/);
-        assert.doesNotMatch(routeSource, /invite_id/);
-        assert.doesNotMatch(routeSource, /:game_invite_invite_id/);
+        assert.match(routeSource, /\/:game_invite_invite_id/);
     });
 
     test("uses the shared Discord API error for non-Xbox OAuth tokens", () => {
@@ -122,6 +151,16 @@ describe("/game-invite/@me", () => {
             code: DiscordApiErrors.INVALID_OAUTH_TOKEN.code,
         });
         assert.doesNotThrow(() => assertXboxGameInviteOAuthToken({ application_id: XBOX_GAME_INVITE_APPLICATION_ID }));
+    });
+
+    test("validates game invite route IDs as documented snowflakes", () => {
+        assert.doesNotThrow(() => assertValidGameInviteInviteId("1387169389857607774"));
+        assert.throws(() => assertValidGameInviteInviteId("not-a-snowflake"), {
+            code: DiscordApiErrors.INVALID_FORM_BODY.code,
+        });
+        assert.throws(() => assertValidGameInviteInviteId("123"), {
+            code: DiscordApiErrors.INVALID_FORM_BODY.code,
+        });
     });
 });
 

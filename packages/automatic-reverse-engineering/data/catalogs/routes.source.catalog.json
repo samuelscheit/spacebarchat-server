@@ -1283,6 +1283,15 @@
 		"source": "src/api/routes/game-invite/@me.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/game-invite/@me/{game_invite_invite_id}",
+		"route_name": "DELETE_GAME_INVITE__ME_GAME_INVITE_INVITE_ID",
+		"source": "src/api/routes/game-invite/@me.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"ApplicationDetectableResponse"

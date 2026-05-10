@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 467,
+        "totalEntries": 468,
         "byService": {
-            "api": 370,
+            "api": 371,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 442,
+            "http-route": 443,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 73,
+            "contract": 74,
             "stateful-domain": 259,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 330,
+            "route-class": 331,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -6333,13 +6333,49 @@
             }
         },
         {
+            "id": "api:http:DELETE:/game-invite/@me/:game_invite_invite_id",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/game-invite/@me/:game_invite_invite_id",
+            "sourceFile": "src/api/routes/game-invite/@me.ts",
+            "line": 102,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:DELETE:/game-invite/@me/",
             "type": "http-route",
             "service": "api",
             "method": "DELETE",
             "path": "/game-invite/@me/",
             "sourceFile": "src/api/routes/game-invite/@me.ts",
-            "line": 75,
+            "line": 81,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -6375,7 +6411,7 @@
             "method": "POST",
             "path": "/game-invite/@me/",
             "sourceFile": "src/api/routes/game-invite/@me.ts",
-            "line": 96,
+            "line": 124,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

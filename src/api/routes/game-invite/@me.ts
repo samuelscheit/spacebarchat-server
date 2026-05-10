@@ -25,6 +25,8 @@ const router: Router = Router({ mergeParams: true });
 export const XBOX_GAME_INVITE_APPLICATION_ID = "622174530214821906";
 export const GAME_INVITES_UNSUPPORTED_MESSAGE = "Game invites are not supported on this Spacebar instance.";
 
+const gameInviteInviteIdPattern = /^\d{17,20}$/;
+
 type OAuthApplicationToken = {
     application_id?: unknown;
     client_id?: unknown;
@@ -59,6 +61,10 @@ export function assertXboxGameInviteOAuthToken(token: unknown): void {
     if (getGameInviteApplicationId(token) !== XBOX_GAME_INVITE_APPLICATION_ID) throw DiscordApiErrors.INVALID_OAUTH_TOKEN;
 }
 
+export function assertValidGameInviteInviteId(value: unknown): asserts value is string {
+    if (typeof value !== "string" || !gameInviteInviteIdPattern.test(value)) throw DiscordApiErrors.INVALID_FORM_BODY;
+}
+
 export function createGameInvitesUnsupportedError(): ApiError {
     return new ApiError(GAME_INVITES_UNSUPPORTED_MESSAGE, 0, 501);
 }
@@ -89,6 +95,28 @@ router.delete(
         },
     }),
     (req: Request, _res: Response) => {
+        throwUnsupportedGameInvite(req.token);
+    },
+);
+
+router.delete(
+    "/:game_invite_invite_id",
+    route({
+        summary: "Delete Game Invite",
+        responses: {
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (req: Request, _res: Response) => {
+        assertValidGameInviteInviteId(req.params.game_invite_invite_id);
         throwUnsupportedGameInvite(req.token);
     },
 );

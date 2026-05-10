@@ -1,6 +1,6 @@
 {
-    "missing": 818,
-    "spacebar": 362,
+    "missing": 817,
+    "spacebar": 363,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -171,7 +171,6 @@
         "/friend-finder/find-friends",
         "/friend-suggestions",
         "/friend-suggestions/{param}",
-        "/game-invite/@me/{param}",
         "/games",
         "/games/detectable/exclusions",
         "/games/{param}",
@@ -868,14 +867,6 @@
             "sources": ["userdoccers:resources/relationships.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/friend-suggestions/{user_id}"],
             "summaries": ["Remove Friend Suggestion"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/game-invite/@me/{param}",
-            "route_name": "DELETE_GAME_INVITE__ME_GAME_INVITE_INVITE_ID",
-            "sources": ["userdoccers:resources/game-invite.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/game-invite/@me/{game_invite_invite_id}"],
-            "summaries": ["Delete Game Invite"]
         },
         {
             "method": "DELETE",

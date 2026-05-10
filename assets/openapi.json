@@ -36911,6 +36911,62 @@
                 ]
             }
         },
+        "/game-invite/@me/{game_invite_invite_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Delete Game Invite",
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "game_invite_invite_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "game_invite_invite_id"
+                    }
+                ],
+                "tags": [
+                    "game-invite"
+                ]
+            }
+        },
         "/family-center/@me/": {
             "get": {
                 "security": [
