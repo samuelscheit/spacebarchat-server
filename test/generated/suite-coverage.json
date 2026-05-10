@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 433,
+        "totalCoveredManifestEntries": 435,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 411,
-                "totalCoveredManifestEntries": 411,
-                "totalCoveredRequiredManifestEntries": 411,
+                "totalRequiredManifestEntries": 413,
+                "totalCoveredManifestEntries": 413,
+                "totalCoveredRequiredManifestEntries": 413,
                 "totalSuites": 12
             },
             "protocol": {
@@ -29,7 +29,7 @@
         },
         "byCoveredTestTier": {
             "stateful-domain": 284,
-            "cdn-integration": 76,
+            "cdn-integration": 78,
             "integration": 13,
             "contract": 20,
             "auth-scenario": 17,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 411,
-                "totalCoveredManifestEntries": 411,
-                "totalCoveredRequiredManifestEntries": 411,
+                "totalRequiredManifestEntries": 413,
+                "totalCoveredManifestEntries": 413,
+                "totalCoveredRequiredManifestEntries": 413,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -76,6 +76,7 @@
                 "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:DELETE:/attachments/report-false-positive/",
+                "api:http:DELETE:/attachments/sender-report-false-positive/",
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
@@ -317,6 +318,7 @@
                 "api:http:POST:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:POST:/attachments/refresh-urls/",
                 "api:http:POST:/attachments/report-false-positive/",
+                "api:http:POST:/attachments/sender-report-false-positive/",
                 "api:http:POST:/auth/fingerprint/",
                 "api:http:POST:/auth/forgot/",
                 "api:http:POST:/auth/login/",
@@ -489,6 +491,7 @@
                 "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:DELETE:/attachments/report-false-positive/",
+                "api:http:DELETE:/attachments/sender-report-false-positive/",
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
@@ -730,6 +733,7 @@
                 "api:http:POST:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:POST:/attachments/refresh-urls/",
                 "api:http:POST:/attachments/report-false-positive/",
+                "api:http:POST:/attachments/sender-report-false-positive/",
                 "api:http:POST:/auth/fingerprint/",
                 "api:http:POST:/auth/forgot/",
                 "api:http:POST:/auth/login/",
@@ -1424,8 +1428,10 @@
                     ],
                     "manifestIds": [
                         "api:http:DELETE:/attachments/report-false-positive/",
+                        "api:http:DELETE:/attachments/sender-report-false-positive/",
                         "api:http:POST:/attachments/refresh-urls/",
                         "api:http:POST:/attachments/report-false-positive/",
+                        "api:http:POST:/attachments/sender-report-false-positive/",
                         "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
                         "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:message_id/:filename",
                         "cdn:http:DELETE:/app-assets/:guild_id/:id",

@@ -638,6 +638,46 @@
                     "message_id"
                 ]
             },
+            "AttachmentSenderFalsePositiveReportSchema": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "pattern": "^\\d{1,20}$",
+                        "type": "string"
+                    },
+                    "message_id": {
+                        "description": "A locally-generated ID representing the message.",
+                        "pattern": "^\\d{1,20}$",
+                        "type": "string"
+                    },
+                    "attachment_ids": {
+                        "maxItems": 100,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 20,
+                            "pattern": "^\\d{1,20}$"
+                        },
+                        "type": "array"
+                    },
+                    "filenames": {
+                        "maxItems": 100,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 1024
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "attachment_ids",
+                    "channel_id",
+                    "filenames",
+                    "message_id"
+                ]
+            },
             "AutomodMentionSpamRuleSchema": {
                 "type": "object",
                 "properties": {
@@ -47483,6 +47523,142 @@
                 },
                 "tags": [
                     "auth"
+                ]
+            }
+        },
+        "/attachments/sender-report-false-positive/": {
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Deletes a sent explicit content false-positive report when explicit-media feedback persistence is available.",
+                "summary": "Delete Sent Explicit Content False Positive Report",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachmentSenderFalsePositiveReportSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "attachments"
+                ]
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Reports an explicit content false positive for uploaded attachments after a send failure.",
+                "summary": "Report Sent Explicit Content False Positive",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AttachmentSenderFalsePositiveReportSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "attachments"
                 ]
             }
         },

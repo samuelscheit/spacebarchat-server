@@ -21,6 +21,7 @@ export * from "./ApplicationEmojiModifySchema";
 export * from "./ApplicationIdentitiesSchema";
 export * from "./ApplicationAuthorizeSchema";
 export * from "./AttachmentFalsePositiveReportSchema";
+export * from "./AttachmentSenderFalsePositiveReportSchema";
 export * from "./AutomodRuleSchema";
 export * from "./BackupCodesChallengeSchema";
 export * from "./BanCreateSchema";

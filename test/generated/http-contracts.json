@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 501,
+        "totalContracts": 503,
         "byService": {
-            "api": 428,
+            "api": 430,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 366,
-        "runtimeMalformedAuthContracts": 366,
-        "runtimeRevokedSessionAuthContracts": 366,
-        "runtimeStaleTokenAuthContracts": 366,
+        "runtimeAuthBoundaryContracts": 368,
+        "runtimeMalformedAuthContracts": 368,
+        "runtimeRevokedSessionAuthContracts": 368,
+        "runtimeStaleTokenAuthContracts": 368,
         "runtimePublicAuthBoundaryContracts": 54,
         "runtimePublicInvalidBodyContracts": 16,
-        "runtimeProtectedInvalidBodyContracts": 63,
+        "runtimeProtectedInvalidBodyContracts": 65,
         "runtimePublicResponseSchemaContracts": 13,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
         "runtimeRightOnlyDenialContracts": 12,
@@ -2378,6 +2378,98 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "AttachmentFalsePositiveReportSchema"
+                },
+                {
+                    "id": "policy-signed-url-state",
+                    "checks": ["signed-url-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:DELETE:/attachments/sender-report-false-positive/",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/attachments/sender-report-false-positive/",
+            "samplePath": "/attachments/sender-report-false-positive/",
+            "sourceFile": "src/api/routes/attachments/sender-report-false-positive.ts",
+            "line": 139,
+            "authMode": "bearer",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["users", "channels", "messages", "attachments"],
+            "contractChecks": ["authenticated", "schema-validation", "signed-url-state"],
+            "routeMetadata": {
+                "requestBody": "AttachmentSenderFalsePositiveReportSchema",
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "AttachmentSenderFalsePositiveReportSchema"
+                },
+                {
+                    "id": "policy-signed-url-state",
+                    "checks": ["signed-url-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/attachments/sender-report-false-positive/",
+            "service": "api",
+            "method": "POST",
+            "path": "/attachments/sender-report-false-positive/",
+            "samplePath": "/attachments/sender-report-false-positive/",
+            "sourceFile": "src/api/routes/attachments/sender-report-false-positive.ts",
+            "line": 151,
+            "authMode": "bearer",
+            "testTier": "cdn-integration",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["users", "channels", "messages", "attachments"],
+            "contractChecks": ["authenticated", "schema-validation", "signed-url-state"],
+            "routeMetadata": {
+                "requestBody": "AttachmentSenderFalsePositiveReportSchema",
+                "responses": [],
+                "responseStatuses": []
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "AttachmentSenderFalsePositiveReportSchema"
                 },
                 {
                     "id": "policy-signed-url-state",

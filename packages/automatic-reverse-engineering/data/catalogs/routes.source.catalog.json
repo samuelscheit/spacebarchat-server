@@ -410,6 +410,22 @@
 		"source": "src/api/routes/attachments/report-false-positive.ts"
 	},
 	{
+		"method": "DELETE",
+		"request_schema_ref": "AttachmentSenderFalsePositiveReportSchema",
+		"response_schema_refs": [],
+		"route": "/attachments/sender-report-false-positive",
+		"route_name": "DELETE_ATTACHMENTS_SENDER_REPORT_FALSE_POSITIVE",
+		"source": "src/api/routes/attachments/sender-report-false-positive.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "AttachmentSenderFalsePositiveReportSchema",
+		"response_schema_refs": [],
+		"route": "/attachments/sender-report-false-positive",
+		"route_name": "POST_ATTACHMENTS_SENDER_REPORT_FALSE_POSITIVE",
+		"source": "src/api/routes/attachments/sender-report-false-positive.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"CreateFingerprintResponse"
