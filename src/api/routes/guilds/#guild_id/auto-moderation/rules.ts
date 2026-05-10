@@ -95,6 +95,32 @@ router.post(
     },
 );
 
+router.get(
+    "/:rule_id",
+    route({
+        permission: ["MANAGE_GUILD"],
+        responses: {
+            200: {
+                body: "AutomodRuleResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id, rule_id } = req.params as { [key: string]: string };
+        const rule = await AutomodRule.findOneOrFail({
+            where: { guild_id, id: rule_id },
+        });
+
+        return res.json(rule);
+    },
+);
+
 router.patch(
     "/:rule_id",
     route({

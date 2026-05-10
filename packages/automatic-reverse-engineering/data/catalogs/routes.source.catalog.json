@@ -1227,6 +1227,16 @@
 		"source": "src/api/routes/guilds/#guild_id/auto-moderation/rules.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"AutomodRuleResponse"
+		],
+		"route": "/guilds/{guild_id}/auto-moderation/rules/{rule_id}",
+		"route_name": "GET_GUILDS_GUILD_ID_AUTO_MODERATION_RULES_RULE_ID",
+		"source": "src/api/routes/guilds/#guild_id/auto-moderation/rules.ts"
+	},
+	{
 		"method": "PATCH",
 		"request_schema_ref": "AutomodRuleModifySchema",
 		"response_schema_refs": [
