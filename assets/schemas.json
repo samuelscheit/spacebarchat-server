@@ -9269,6 +9269,50 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PremiumReferralResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "trial_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "subscription_trial": {
+                "$ref": "#/definitions/PremiumReferralSubscriptionTrial"
+            },
+            "expires_at": {
+                "type": "string"
+            },
+            "referrer_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "referrer": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "redeemed_at": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "expires_at",
+            "id",
+            "referrer",
+            "referrer_id",
+            "subscription_trial",
+            "trial_id",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PublicApplicationResponse": {
         "type": "object",
         "properties": {
@@ -29365,6 +29409,33 @@
             4,
             5,
             6
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PremiumReferralSubscriptionTrial": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "interval": {
+                "type": "integer"
+            },
+            "interval_count": {
+                "type": "integer"
+            },
+            "sku_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "interval",
+            "interval_count",
+            "sku_id"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -1,6 +1,6 @@
 {
-    "missing": 723,
-    "spacebar": 457,
+    "missing": 722,
+    "spacebar": 458,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -339,7 +339,6 @@
         "/quests/{param}/preview/complete",
         "/quests/{param}/reward-code",
         "/quests/{param}/video-progress",
-        "/referrals/{param}",
         "/report",
         "/report/options",
         "/reporting/menu/{param}",
@@ -2173,14 +2172,6 @@
             "route_name": "QUEST_FETCH_QUEST_TO_DELIVER",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/quests/decision?placement=:param&client_heartbeat_session_id=:param"]
-        },
-        {
-            "method": "GET",
-            "route": "/referrals/{param}",
-            "route_name": "GET_REFERRALS_REFERRAL_ID",
-            "sources": ["userdoccers:resources/premium-referral.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/referrals/{referral_id}"],
-            "summaries": ["Get Premium Referral"]
         },
         { "method": "GET", "route": "/report", "route_name": "GET_REPORT", "sources": ["userdoccers:topics/reports.mdx"], "summaries": ["Get Report Reasons"] },
         {

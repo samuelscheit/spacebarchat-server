@@ -3125,6 +3125,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"PremiumReferralResponse"
+		],
+		"route": "/referrals/{referral_id}",
+		"route_name": "GET_REFERRALS_REFERRAL_ID",
+		"source": "src/api/routes/referrals/#referral_id.ts"
+	},
+	{
+		"method": "GET",
 		"request_schema_ref": "CreateReportSchema",
 		"response_schema_refs": [
 			"ReportingMenuResponse",

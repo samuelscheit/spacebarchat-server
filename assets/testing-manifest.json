@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 562,
+        "totalEntries": 563,
         "byService": {
-            "api": 465,
+            "api": 466,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 537,
+            "http-route": 538,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 117,
+            "contract": 118,
             "stateful-domain": 301,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 420,
+            "route-class": 421,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15065,6 +15065,43 @@
                 ],
                 "allowMissingRouteMetadata": true,
                 "notes": "Root, well-known, image proxy, health, and static asset routes are registered outside src/api/routes."
+            }
+        },
+        {
+            "id": "api:http:GET:/referrals/:referral_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/referrals/:referral_id/",
+            "sourceFile": "src/api/routes/referrals/#referral_id.ts",
+            "line": 36,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PremiumReferralResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
             }
         },
         {

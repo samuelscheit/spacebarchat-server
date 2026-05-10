@@ -8857,6 +8857,48 @@
                     "$ref": "#/components/schemas/BogoPromotionResponse"
                 }
             },
+            "PremiumReferralResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "trial_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "subscription_trial": {
+                        "$ref": "#/components/schemas/PremiumReferralSubscriptionTrial"
+                    },
+                    "expires_at": {
+                        "type": "string"
+                    },
+                    "referrer_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "referrer": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "redeemed_at": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "expires_at",
+                    "id",
+                    "referrer",
+                    "referrer_id",
+                    "subscription_trial",
+                    "trial_id",
+                    "user_id"
+                ]
+            },
             "PublicApplicationResponse": {
                 "type": "object",
                 "properties": {
@@ -27991,6 +28033,31 @@
                     6
                 ]
             },
+            "PremiumReferralSubscriptionTrial": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "interval": {
+                        "type": "integer"
+                    },
+                    "interval_count": {
+                        "type": "integer"
+                    },
+                    "sku_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "interval",
+                    "interval_count",
+                    "sku_id"
+                ]
+            },
             "QuestTaskProgressMap": {
                 "type": "object",
                 "additionalProperties": {
@@ -30647,6 +30714,9 @@
         },
         {
             "name": "read-states"
+        },
+        {
+            "name": "referrals"
         },
         {
             "name": "reporting"
@@ -36311,6 +36381,63 @@
                 },
                 "tags": [
                     "reporting"
+                ]
+            }
+        },
+        "/referrals/{referral_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a premium referral object for the given referral ID.",
+                "summary": "Get Premium Referral",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PremiumReferralResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "referral_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "referral_id"
+                    }
+                ],
+                "tags": [
+                    "referrals"
                 ]
             }
         },
