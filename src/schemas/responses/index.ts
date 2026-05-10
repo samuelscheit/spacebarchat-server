@@ -75,6 +75,7 @@ export * from "./GuildBansResponse";
 export * from "./GuildCreateResponse";
 export * from "./GuildDiscoveryMetadataResponse";
 export * from "./GuildDiscoveryRequirements";
+export * from "./GuildPreviewResponse";
 export * from "./GravityCustomChannelScoresResponse";
 export * from "./GravityRecommendedGuildsResponse";
 export * from "./GuildIntegrationResponse";

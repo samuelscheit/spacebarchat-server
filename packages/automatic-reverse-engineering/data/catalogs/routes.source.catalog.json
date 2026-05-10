@@ -2391,6 +2391,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildPreviewResponse"
+		],
+		"route": "/guilds/{guild_id}/preview",
+		"route_name": "GET_GUILDS_GUILD_ID_PREVIEW",
+		"source": "src/api/routes/guilds/#guild_id/preview.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"GuildProfileResponse"
 		],
 		"route": "/guilds/{guild_id}/profile",

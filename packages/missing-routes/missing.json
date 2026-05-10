@@ -1,6 +1,6 @@
 {
-    "missing": 731,
-    "spacebar": 449,
+    "missing": 730,
+    "spacebar": 450,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -220,7 +220,6 @@
         "/guilds/{param}/powerups",
         "/guilds/{param}/premium/subscriptions",
         "/guilds/{param}/premium/subscriptions/{param}",
-        "/guilds/{param}/preview",
         "/guilds/{param}/products",
         "/guilds/{param}/products/attachments",
         "/guilds/{param}/products/listings/{param}",
@@ -1807,14 +1806,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/powerups"],
             "summaries": ["Get Guild Powerups"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/preview",
-            "route_name": "GET_GUILDS_GUILD_ID_PREVIEW",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/preview"],
-            "summaries": ["Get Guild Preview"]
         },
         {
             "method": "GET",

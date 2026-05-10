@@ -6251,6 +6251,79 @@
                     "valid_rules_channel"
                 ]
             },
+            "GuildPreviewResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "discovery_splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "emojis": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmojiResponse"
+                        }
+                    },
+                    "stickers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StickerResponse"
+                        }
+                    },
+                    "approximate_member_count": {
+                        "type": "integer"
+                    },
+                    "approximate_presence_count": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "approximate_member_count",
+                    "approximate_presence_count",
+                    "description",
+                    "discovery_splash",
+                    "emojis",
+                    "features",
+                    "icon",
+                    "id",
+                    "name",
+                    "splash",
+                    "stickers"
+                ]
+            },
             "GravityCustomChannelScoresResponse": {
                 "type": "array",
                 "items": {
@@ -39323,6 +39396,62 @@
                             "type": "string"
                         },
                         "description": "member_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/preview/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Guild Preview",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildPreviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
                     }
                 ],
                 "tags": [
