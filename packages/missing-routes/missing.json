@@ -1,6 +1,6 @@
 {
-    "missing": 849,
-    "spacebar": 331,
+    "missing": 848,
+    "spacebar": 332,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -514,7 +514,6 @@
         "/users/@me",
         "/users/@me/account",
         "/users/@me/activities/subscribe",
-        "/users/@me/affinities/channels",
         "/users/@me/affinities/v2/users",
         "/users/@me/agreements",
         "/users/@me/application-command-index",
@@ -3243,13 +3242,6 @@
             "sources": ["userdoccers:resources/presence.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/users/{user_id}/sessions/{session_id}/activities/{application_id}/metadata", "/users/{user_id}/sessions/{param}/activities/{param}/metadata"],
             "summaries": ["Get Activity Metadata"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/affinities/channels",
-            "route_name": "GET_USERS__ME_AFFINITIES_CHANNELS",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Channel Affinities"]
         },
         {
             "method": "GET",

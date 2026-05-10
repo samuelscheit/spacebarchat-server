@@ -2409,6 +2409,13 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [],
+		"route": "/users/@me/affinities/channels",
+		"route_name": "GET_USERS__ME_AFFINITIES_CHANNELS",
+		"source": "src/api/routes/users/@me/affinities/channels.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [],
 		"route": "/users/@me/affinities/guilds",
 		"route_name": "GET_USERS__ME_AFFINITIES_GUILDS",
 		"source": "src/api/routes/users/@me/affinities/guilds.ts"
