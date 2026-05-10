@@ -32,6 +32,7 @@ const coveredManifestIds = [
     "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
     "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
     "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+    "api:http:GET:/applications/:application_id/rpc/",
     "api:http:GET:/applications/:application_id/entitlements/",
     "api:http:GET:/applications/:application_id/skus/",
     "api:http:GET:/applications/@me/",
@@ -72,6 +73,7 @@ test(
             "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
             "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
             "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+            "api:http:GET:/applications/:application_id/rpc/",
             "api:http:GET:/applications/:application_id/entitlements/",
             "api:http:GET:/applications/:application_id/skus/",
             "api:http:GET:/applications/@me/",
@@ -192,6 +194,24 @@ test(
             assert.equal(patchedApplicationBody.name, "scenario-app-updated");
             assert.equal(patchedApplicationBody.guild_id, guildId);
             assert.equal((await Application.findOneByOrFail({ id: applicationId })).bot_public, false);
+
+            const rpcApplication = await getJson(`${api.apiBaseUrl}/applications/${applicationId}/rpc`, ownerToken);
+            await assertStatus(rpcApplication, 200);
+            const rpcApplicationBody = await assertJsonObject(rpcApplication);
+            assert.equal(rpcApplicationBody.id, applicationId);
+            assert.equal(rpcApplicationBody.name, "scenario-app-updated");
+            assert.equal(rpcApplicationBody.icon, null);
+            assert.equal(rpcApplicationBody.description, "Application scenario description");
+            assert.equal(rpcApplicationBody.summary, "");
+            assert.equal(rpcApplicationBody.type, null);
+            assert.equal(rpcApplicationBody.hook, true);
+            assert.equal(rpcApplicationBody.bot_public, false);
+            assert.equal(rpcApplicationBody.bot_require_code_grant, false);
+            assert.equal(rpcApplicationBody.flags, 0);
+            assert.equal(typeof rpcApplicationBody.verify_key, "string");
+            assert.equal("owner" in rpcApplicationBody, false);
+            assert.equal("team" in rpcApplicationBody, false);
+            assert.equal("redirect_uris" in rpcApplicationBody, false);
 
             const createdBot = await postJson(`${api.apiBaseUrl}/applications/${applicationId}/bot`, {}, ownerToken);
             await assertStatus(createdBot, 200);

@@ -2927,6 +2927,105 @@
                     "manifests"
                 ]
             },
+            "ApplicationRpcResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "cover_image": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "hook": {
+                        "type": "boolean"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "terms_of_service_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "privacy_policy_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "verify_key": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "description",
+                    "flags",
+                    "hook",
+                    "icon",
+                    "id",
+                    "name",
+                    "type",
+                    "verify_key"
+                ]
+            },
             "ApplicationAssetResponse": {
                 "type": "object",
                 "properties": {
@@ -50205,6 +50304,47 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ApplicationSkusResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
+        "/applications/{application_id}/rpc/": {
+            "get": {
+                "summary": "Get RPC Application",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationRpcResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

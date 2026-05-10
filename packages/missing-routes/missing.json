@@ -1,6 +1,6 @@
 {
-    "missing": 738,
-    "spacebar": 442,
+    "missing": 737,
+    "spacebar": 443,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -50,7 +50,6 @@
         "/applications/{param}/quick-links/{param}",
         "/applications/{param}/request-additional-intents",
         "/applications/{param}/reset",
-        "/applications/{param}/rpc",
         "/applications/{param}/set-embedded",
         "/applications/{param}/social-sdk/enable",
         "/applications/{param}/store-layout",
@@ -1308,14 +1307,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/applications/{application_id}/quick-links/{activity_link_id}"],
             "summaries": ["Get Application Quick Link"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/rpc",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_RPC",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/rpc"],
-            "summaries": ["Get RPC Application"]
         },
         {
             "method": "GET",

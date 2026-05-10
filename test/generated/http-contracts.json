@@ -3,16 +3,16 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 522,
+        "totalContracts": 523,
         "byService": {
-            "api": 449,
+            "api": 450,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 384,
         "runtimeMalformedAuthContracts": 384,
         "runtimeRevokedSessionAuthContracts": 384,
         "runtimeStaleTokenAuthContracts": 384,
-        "runtimePublicAuthBoundaryContracts": 57,
+        "runtimePublicAuthBoundaryContracts": 58,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 69,
         "runtimePublicResponseSchemaContracts": 15,
@@ -2054,6 +2054,54 @@
                 {
                     "id": "malformed-auth",
                     "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/applications/:application_id/rpc/",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/:application_id/rpc/",
+            "samplePath": "/applications/100000000000000007/rpc/",
+            "sourceFile": "src/api/routes/applications/#application_id/rpc.ts",
+            "line": 118,
+            "authMode": "public",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "guilds", "commands"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "ApplicationRpcResponse"],
+                "responseStatuses": [200, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-authenticated",
+                    "checks": ["authenticated"]
                 },
                 {
                     "id": "policy-ownership-boundary",

@@ -374,6 +374,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationRpcResponse"
+		],
+		"route": "/applications/{application_id}/rpc",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_RPC",
+		"source": "src/api/routes/applications/#application_id/rpc.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApplicationSkusResponse"
 		],
 		"route": "/applications/{application_id}/skus",

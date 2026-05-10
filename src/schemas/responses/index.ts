@@ -27,6 +27,7 @@ export * from "./ApplicationDirectoryCollectionsResponse";
 export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";
+export * from "./ApplicationRpcResponse";
 export * from "./ApplicationsWithAssetsResponse";
 export * from "./ArchivedThreadsResponse";
 export * from "./BackupCodesChallengeResponse";

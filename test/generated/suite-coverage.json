@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 449,
+        "totalCoveredManifestEntries": 450,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 427,
-                "totalCoveredManifestEntries": 427,
-                "totalCoveredRequiredManifestEntries": 427,
+                "totalRequiredManifestEntries": 428,
+                "totalCoveredManifestEntries": 428,
+                "totalCoveredRequiredManifestEntries": 428,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 296,
+            "stateful-domain": 297,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 427,
-                "totalCoveredManifestEntries": 427,
-                "totalCoveredRequiredManifestEntries": 427,
+                "totalRequiredManifestEntries": 428,
+                "totalCoveredManifestEntries": 428,
+                "totalCoveredRequiredManifestEntries": 428,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -134,6 +134,7 @@
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
                 "api:http:GET:/applications/:application_id/public/",
+                "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -563,6 +564,7 @@
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
                 "api:http:GET:/applications/:application_id/public/",
+                "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -1344,6 +1346,7 @@
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
                         "api:http:GET:/applications/:application_id/public/",
+                        "api:http:GET:/applications/:application_id/rpc/",
                         "api:http:GET:/applications/:application_id/skus/",
                         "api:http:GET:/applications/@me/",
                         "api:http:GET:/applications/detectable/",
