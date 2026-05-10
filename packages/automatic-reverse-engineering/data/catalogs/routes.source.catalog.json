@@ -1101,6 +1101,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ConsoleDevicesResponse"
+		],
+		"route": "/consoles/{connection_type}/devices",
+		"route_name": "GET_CONSOLES_CONNECTION_TYPE_DEVICES",
+		"source": "src/api/routes/consoles/#connection_type/devices.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"DiscoverableGuildsResponse"
 		],
 		"route": "/discoverable-guilds",

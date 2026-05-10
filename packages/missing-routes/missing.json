@@ -1,6 +1,6 @@
 {
-    "missing": 832,
-    "spacebar": 348,
+    "missing": 831,
+    "spacebar": 349,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -154,7 +154,6 @@
         "/consoles/connect-request/{param}",
         "/consoles/xbox-handoff",
         "/consoles/xbox/presences",
-        "/consoles/{param}/devices",
         "/consoles/{param}/devices/{param}/commands",
         "/consoles/{param}/devices/{param}/commands/{param}",
         "/content-inventory/users/@me/applications/{param}",
@@ -1813,14 +1812,6 @@
         },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback/session-handoff", "route_name": "CONNECTIONS_SESSION_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/consoles/{param}/devices",
-            "route_name": "GET_CONSOLES_CONNECTION_TYPE_DEVICES",
-            "sources": ["userdoccers:resources/connected-accounts.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/consoles/{connection_type}/devices"],
-            "summaries": ["Get Console Devices"]
-        },
         { "method": "GET", "route": "/consoles/xbox-handoff", "route_name": "XBOX_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",

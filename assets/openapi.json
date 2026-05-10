@@ -2464,6 +2464,40 @@
                 "type": "array",
                 "items": {}
             },
+            "ConsoleDeviceResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "platform": {
+                        "$ref": "#/components/schemas/ConsoleDevicePlatform"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "platform"
+                ]
+            },
+            "ConsoleDevicesResponse": {
+                "type": "object",
+                "properties": {
+                    "devices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ConsoleDeviceResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "devices"
+                ]
+            },
             "DiscoverableGuildsResponse": {
                 "type": "object",
                 "properties": {
@@ -13978,6 +14012,13 @@
                     "type"
                 ]
             },
+            "ConsoleDevicePlatform": {
+                "enum": [
+                    "playstation",
+                    "playstation-stg"
+                ],
+                "type": "string"
+            },
             "DiscoverableGuild": {
                 "type": "object",
                 "properties": {
@@ -25420,6 +25461,9 @@
             "name": "connections"
         },
         {
+            "name": "consoles"
+        },
+        {
             "name": "discoverable-guilds"
         },
         {
@@ -36210,6 +36254,62 @@
                 ],
                 "tags": [
                     "discoverable-guilds"
+                ]
+            }
+        },
+        "/consoles/{connection_type}/devices/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Console Devices",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsoleDevicesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "connection_type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "connection_type"
+                    }
+                ],
+                "tags": [
+                    "consoles"
                 ]
             }
         },

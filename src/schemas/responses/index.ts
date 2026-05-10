@@ -32,6 +32,7 @@ export * from "./ChannelLinkedAccountsResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";
+export * from "./ConsoleDevicesResponse";
 export * from "./DiscoverableGuildsResponse";
 export * from "./DmMessagesResponseSchema";
 export * from "./EmailDomainLookupResponse";

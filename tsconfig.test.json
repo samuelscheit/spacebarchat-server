@@ -5,6 +5,7 @@
         "src/admin/config.test.ts",
         "src/admin/dto.test.ts",
         "src/api/routes/discovery.test.ts",
+        "src/api/routes/consoles/#connection_type/devices.test.ts",
         "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.test.ts",
         "src/api/routes/warp/license.test.ts",
         "src/api/routes/guild-recommendations.test.ts",
