@@ -1646,6 +1646,48 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GameInviteCreateSchema": {
+        "type": "object",
+        "properties": {
+            "recipient_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "launch_parameters": {
+                "maxLength": 8192,
+                "type": "string"
+            },
+            "application_asset": {
+                "format": "uri",
+                "type": "string"
+            },
+            "application_name": {
+                "minLength": 2,
+                "maxLength": 128,
+                "type": "string"
+            },
+            "fallback_url": {
+                "format": "uri",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "ttl": {
+                "minimum": 300,
+                "maximum": 86400,
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_asset",
+            "application_name",
+            "launch_parameters",
+            "recipient_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GreetRequestSchema": {
         "type": "object",
         "properties": {

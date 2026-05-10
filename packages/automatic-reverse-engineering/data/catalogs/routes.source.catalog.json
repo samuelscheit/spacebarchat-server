@@ -1264,6 +1264,25 @@
 		"source": "src/api/routes/family-center/@me.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/game-invite/@me",
+		"route_name": "DELETE_GAME_INVITE__ME",
+		"source": "src/api/routes/game-invite/@me.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "GameInviteCreateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/game-invite/@me",
+		"route_name": "POST_GAME_INVITE__ME",
+		"source": "src/api/routes/game-invite/@me.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"ApplicationDetectableResponse"

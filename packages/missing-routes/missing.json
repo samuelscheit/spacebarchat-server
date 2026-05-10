@@ -1,6 +1,6 @@
 {
-    "missing": 821,
-    "spacebar": 359,
+    "missing": 819,
+    "spacebar": 361,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -171,7 +171,6 @@
         "/friend-finder/find-friends",
         "/friend-suggestions",
         "/friend-suggestions/{param}",
-        "/game-invite/@me",
         "/game-invite/@me/{param}",
         "/games",
         "/games/detectable/exclusions",
@@ -870,13 +869,6 @@
             "sources": ["userdoccers:resources/relationships.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/friend-suggestions/{user_id}"],
             "summaries": ["Remove Friend Suggestion"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/game-invite/@me",
-            "route_name": "DELETE_GAME_INVITE__ME",
-            "sources": ["userdoccers:resources/game-invite.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Delete Game Invites"]
         },
         {
             "method": "DELETE",
@@ -4443,13 +4435,6 @@
         },
         { "method": "POST", "route": "/entitlements/partner-promotions/{param}", "route_name": "PARTNER_PROMOTIONS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/friend-finder/find-friends", "route_name": "FRIEND_FINDER", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/game-invite/@me",
-            "route_name": "POST_GAME_INVITE__ME",
-            "sources": ["userdoccers:resources/game-invite.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Create Game Invite"]
-        },
         {
             "method": "POST",
             "route": "/gifs/select",
