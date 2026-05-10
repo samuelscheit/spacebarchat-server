@@ -4842,6 +4842,12 @@
                     "valid_rules_channel"
                 ]
             },
+            "GravityCustomChannelScoresResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GravityCustomChannelScore"
+                }
+            },
             "ApplicationModifySchema": {
                 "type": "object",
                 "properties": {
@@ -15458,6 +15464,31 @@
                 "required": [
                     "primary_color"
                 ]
+            },
+            "GravityCustomChannelScore": {
+                "type": "object",
+                "properties": {
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "guild_score": {
+                        "type": "integer"
+                    },
+                    "custom_channel_scores": {
+                        "$ref": "#/components/schemas/GravityCustomChannelScoreMap"
+                    }
+                },
+                "required": [
+                    "custom_channel_scores",
+                    "guild_id",
+                    "guild_score"
+                ]
+            },
+            "GravityCustomChannelScoreMap": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
             },
             "ApplicationInstallParams": {
                 "type": "object",
@@ -26168,6 +26199,9 @@
             "name": "gifs"
         },
         {
+            "name": "gravity-custom-channel-scores"
+        },
+        {
             "name": "guild-recommendations"
         },
         {
@@ -36487,6 +36521,40 @@
                 },
                 "tags": [
                     "guild-recommendations"
+                ]
+            }
+        },
+        "/gravity-custom-channel-scores/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GravityCustomChannelScoresResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "gravity-custom-channel-scores"
                 ]
             }
         },

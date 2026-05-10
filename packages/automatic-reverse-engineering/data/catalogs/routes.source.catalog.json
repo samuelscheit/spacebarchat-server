@@ -1349,6 +1349,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GravityCustomChannelScoresResponse"
+		],
+		"route": "/gravity-custom-channel-scores",
+		"route_name": "GET_GRAVITY_CUSTOM_CHANNEL_SCORES",
+		"source": "src/api/routes/gravity-custom-channel-scores.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"GuildRecommendationsResponse"
 		],
 		"route": "/guild-recommendations",

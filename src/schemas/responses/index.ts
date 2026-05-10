@@ -50,6 +50,7 @@ export * from "./GuildBansResponse";
 export * from "./GuildCreateResponse";
 export * from "./GuildDiscoveryMetadataResponse";
 export * from "./GuildDiscoveryRequirements";
+export * from "./GravityCustomChannelScoresResponse";
 export * from "./GuildIntegrationResponse";
 export * from "./GuildMessagesSearchResponse";
 export * from "./GuildPruneResponse";

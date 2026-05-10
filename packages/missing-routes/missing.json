@@ -1,6 +1,6 @@
 {
-    "missing": 819,
-    "spacebar": 361,
+    "missing": 818,
+    "spacebar": 362,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -182,7 +182,6 @@
         "/google-play/validate-purchase",
         "/google-play/verify-purchase-token",
         "/gravity-content",
-        "/gravity-custom-channel-scores",
         "/gravity-custom-guild-score",
         "/gravity-recommended-guilds",
         "/gravity-topic-guilds",
@@ -1860,7 +1859,6 @@
             "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Suggested GIF Search Terms"]
         },
-        { "method": "GET", "route": "/gravity-custom-channel-scores", "route_name": "GRAVITY_CUSTOM_SCORES", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/gravity-recommended-guilds", "route_name": "GRAVITY_RECOMMENDED_GUILDS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
