@@ -79,6 +79,7 @@ export * from "./ThreadSearchResponse";
 export * from "./TokenResponse";
 export * from "./UpdatesResponse";
 export * from "./UploadAttachmentResponseSchema";
+export * from "./UniqueUsernameSuggestionResponse";
 export * from "./UserNoteResponse";
 export * from "./UserProfileResponse";
 export * from "./UserInviteResponse";

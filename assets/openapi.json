@@ -6981,6 +6981,17 @@
                     "upload_url"
                 ]
             },
+            "UniqueUsernameSuggestionResponse": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "username"
+                ]
+            },
             "UserNoteResponse": {
                 "type": "object",
                 "properties": {
@@ -25222,6 +25233,9 @@
             "name": "track"
         },
         {
+            "name": "unique-username"
+        },
+        {
             "name": "updates"
         },
         {
@@ -28608,6 +28622,36 @@
                 },
                 "tags": [
                     "updates"
+                ]
+            }
+        },
+        "/unique-username/username-suggestions-unauthed/": {
+            "get": {
+                "summary": "Get Unique Username Suggestions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UniqueUsernameSuggestionResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "global_name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The display name to base the username suggestion on."
+                    }
+                ],
+                "tags": [
+                    "unique-username"
                 ]
             }
         },

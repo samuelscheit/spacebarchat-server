@@ -7286,6 +7286,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UniqueUsernameSuggestionResponse": {
+        "type": "object",
+        "properties": {
+            "username": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserNoteResponse": {
         "type": "object",
         "properties": {

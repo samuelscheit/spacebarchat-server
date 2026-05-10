@@ -1,6 +1,6 @@
 {
-    "missing": 842,
-    "spacebar": 338,
+    "missing": 841,
+    "spacebar": 339,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -502,7 +502,6 @@
         "/unfurler/embed-urls",
         "/unfurler/unfurl",
         "/unique-username/username-attempt-unauthed",
-        "/unique-username/username-suggestions-unauthed",
         "/unverified-applications",
         "/unverified-applications/icons",
         "/updates/distributions/app/manifests/latest",
@@ -3131,13 +3130,6 @@
             "summaries": ["Get Team Payout Onboarding"]
         },
         { "method": "GET", "route": "/tutorial", "route_name": "GET_TUTORIAL", "sources": ["userdoccers:resources/user.mdx"], "summaries": ["Get Tutorial"] },
-        {
-            "method": "GET",
-            "route": "/unique-username/username-suggestions-unauthed",
-            "route_name": "GET_UNIQUE_USERNAME_USERNAME_SUGGESTIONS_UNAUTHED",
-            "sources": ["userdoccers:authentication.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Unique Username Suggestions"]
-        },
         {
             "method": "GET",
             "route": "/updates/{param}",

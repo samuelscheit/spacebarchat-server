@@ -20,6 +20,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     // Authentication routes
     "POST /auth/login",
     "POST /auth/register",
+    "GET /unique-username/username-suggestions-unauthed",
     "GET /auth/location-metadata",
     "POST /auth/mfa/",
     /^POST \/mfa\/finish\/?$/,

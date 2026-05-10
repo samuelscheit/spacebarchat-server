@@ -64,6 +64,13 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/ping/"), true);
     });
 
+    test("allows unauthenticated unique username registration suggestions", () => {
+        assert.equal(isNoAuthorizationRoute("GET", "/unique-username/username-suggestions-unauthed"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/unique-username/username-suggestions-unauthed?global_name=Gnarp"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v9/unique-username/username-suggestions-unauthed/"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/unique-username/username-suggestions-unauthed"), false);
+    });
+
     test("allows client analytics sink routes without authorization", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/beaker/"), true);

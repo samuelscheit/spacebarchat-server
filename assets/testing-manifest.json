@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 443,
+        "totalEntries": 444,
         "byService": {
-            "api": 346,
+            "api": 347,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 418,
+            "http-route": 419,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 53,
+            "contract": 54,
             "stateful-domain": 255,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 306,
+            "route-class": 307,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -11581,6 +11581,40 @@
                     204
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/unique-username/username-suggestions-unauthed/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/unique-username/username-suggestions-unauthed/",
+            "sourceFile": "src/api/routes/unique-username/username-suggestions-unauthed.ts",
+            "line": 117,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "UniqueUsernameSuggestionResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

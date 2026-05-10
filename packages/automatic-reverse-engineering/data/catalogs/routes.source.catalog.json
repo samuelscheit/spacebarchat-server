@@ -2357,6 +2357,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"UniqueUsernameSuggestionResponse"
+		],
+		"route": "/unique-username/username-suggestions-unauthed",
+		"route_name": "GET_UNIQUE_USERNAME_USERNAME_SUGGESTIONS_UNAUTHED",
+		"source": "src/api/routes/unique-username/username-suggestions-unauthed.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"UpdatesResponse"
 		],
