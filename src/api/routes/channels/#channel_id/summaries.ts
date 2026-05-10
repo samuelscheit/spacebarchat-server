@@ -18,10 +18,27 @@
 
 import { route } from "@spacebar/api";
 import { isTextChannel, type ConversationSummariesResponse, type ConversationSummaryResponse } from "@spacebar/schemas";
-import { Channel, ConversationSummary, getPermission } from "@spacebar/util";
+import { ApiError, Channel, ConversationSummary, DiscordApiErrors, emitEvent, getPermission, type ConversationSummaryUpdateEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
+const snowflakePattern = /^\d{1,20}$/;
+
+function unknownChannelError() {
+    return new ApiError(DiscordApiErrors.UNKNOWN_CHANNEL.message, DiscordApiErrors.UNKNOWN_CHANNEL.code, 404);
+}
+
+function assertValidChannelId(channelId: string) {
+    if (!snowflakePattern.test(channelId)) throw unknownChannelError();
+}
+
+function unknownConversationSummaryError() {
+    return new ApiError("Unknown conversation summary", 404, 404);
+}
+
+function assertValidSummaryId(summaryId: string) {
+    if (!snowflakePattern.test(summaryId)) throw unknownConversationSummaryError();
+}
 
 export function toConversationSummaryResponse(summary: ConversationSummary): ConversationSummaryResponse {
     return {
@@ -61,6 +78,43 @@ export async function getChannelConversationSummaries(userId: string, channelId:
     };
 }
 
+export async function deleteChannelConversationSummary(userId: string, channelId: string, summaryId: string): Promise<void> {
+    assertValidChannelId(channelId);
+    assertValidSummaryId(summaryId);
+
+    const channel = await Channel.findOne({
+        where: { id: channelId },
+        select: {
+            id: true,
+            guild_id: true,
+            type: true,
+        },
+    });
+    if (!channel) throw unknownChannelError();
+
+    isTextChannel(channel.type);
+
+    const permissions = await getPermission(userId, channel.guild_id, channelId);
+    permissions.hasThrow("MANAGE_MESSAGES");
+
+    const deletion = await ConversationSummary.delete({
+        id: summaryId,
+        channel_id: channelId,
+    });
+    if (!deletion.affected) throw unknownConversationSummaryError();
+
+    await emitEvent({
+        event: "CONVERSATION_SUMMARY_UPDATE",
+        guild_id: channel.guild_id,
+        channel_id: channelId,
+        data: {
+            guild_id: channel.guild_id,
+            channel_id: channelId,
+            summaries: [],
+        },
+    } satisfies ConversationSummaryUpdateEvent);
+}
+
 router.get(
     "/",
     route({
@@ -87,6 +141,36 @@ router.get(
         const response = await getChannelConversationSummaries(req.user_id, channel_id);
 
         return res.json(response);
+    },
+);
+
+router.delete(
+    "/:summary_id",
+    route({
+        summary: "Delete Conversation Summary",
+        description: "Deletes a persisted conversation summary. Summary generation is not implemented by Spacebar.",
+        event: "CONVERSATION_SUMMARY_UPDATE",
+        responses: {
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id, summary_id } = req.params as { [key: string]: string };
+        await deleteChannelConversationSummary(req.user_id, channel_id, summary_id);
+
+        return res.sendStatus(204);
     },
 );
 

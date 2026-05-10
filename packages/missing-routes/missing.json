@@ -1,6 +1,6 @@
 {
-    "missing": 797,
-    "spacebar": 383,
+    "missing": 796,
+    "spacebar": 384,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -123,7 +123,6 @@
         "/channels/{param}/store-listing",
         "/channels/{param}/store-listing/entitlement-grant",
         "/channels/{param}/store-listings/{param}",
-        "/channels/{param}/summaries/{param}",
         "/channels/{param}/thread-members/@me",
         "/channels/{param}/voice-channel-effects",
         "/channels/{param}/voice-status",
@@ -788,14 +787,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/recipients/@me"],
             "summaries": ["Reject Message Request"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/channels/{param}/summaries/{param}",
-            "route_name": "DELETE_CHANNELS_CHANNEL_ID_SUMMARIES_SUMMARY_ID",
-            "sources": ["userdoccers:resources/message.mdx"],
-            "source_routes": ["/channels/{channel_id}/summaries/{summary_id}"],
-            "summaries": ["Delete Conversation Summary"]
         },
         {
             "method": "DELETE",

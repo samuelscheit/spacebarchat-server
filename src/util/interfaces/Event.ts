@@ -51,6 +51,7 @@ import {
     StageInstanceResponse,
     UserPrivate,
     ChannelType,
+    ConversationSummaryResponse,
 } from "@spacebar/schemas";
 import type { VoiceStateMember } from "../entities/MemberPublic";
 import type { ReadyUserGuildSettingsEntries } from "./ReadyUserGuildSettingsEntries";
@@ -250,6 +251,15 @@ export interface ChannelRecipientRemoveEvent extends Event {
     data: {
         channel_id: string;
         user: PublicUser;
+    };
+}
+
+export interface ConversationSummaryUpdateEvent extends Event {
+    event: "CONVERSATION_SUMMARY_UPDATE";
+    data: {
+        guild_id?: string;
+        channel_id: string;
+        summaries: ConversationSummaryResponse[];
     };
 }
 
@@ -776,6 +786,7 @@ export type EventData =
     | ChannelPinsUpdateEvent
     | ChannelRecipientAddEvent
     | ChannelRecipientRemoveEvent
+    | ConversationSummaryUpdateEvent
     | GuildCreateEvent
     | GuildUpdateEvent
     | GuildDeleteEvent
@@ -841,6 +852,7 @@ export enum EVENTEnum {
     ChannelPinsUpdate = "CHANNEL_PINS_UPDATE",
     ChannelRecipientAdd = "CHANNEL_RECIPIENT_ADD",
     ChannelRecipientRemove = "CHANNEL_RECIPIENT_REMOVE",
+    ConversationSummaryUpdate = "CONVERSATION_SUMMARY_UPDATE",
     GuildCreate = "GUILD_CREATE",
     GuildUpdate = "GUILD_UPDATE",
     GuildDelete = "GUILD_DELETE",
@@ -906,6 +918,7 @@ export const EVENT_NAMES = [
     "CHANNEL_PINS_UPDATE",
     "CHANNEL_RECIPIENT_ADD",
     "CHANNEL_RECIPIENT_REMOVE",
+    "CONVERSATION_SUMMARY_UPDATE",
     "GUILD_CREATE",
     "GUILD_UPDATE",
     "GUILD_DELETE",

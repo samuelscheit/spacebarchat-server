@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 488,
+        "totalEntries": 489,
         "byService": {
-            "api": 391,
+            "api": 392,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 463,
+            "http-route": 464,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 80,
-            "stateful-domain": 271,
+            "stateful-domain": 272,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 351,
+            "route-class": 352,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -5300,13 +5300,68 @@
             }
         },
         {
+            "id": "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/channels/:channel_id/summaries/:summary_id",
+            "sourceFile": "src/api/routes/channels/#channel_id/summaries.ts",
+            "line": 147,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "event": "CONVERSATION_SUMMARY_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CONVERSATION_SUMMARY_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/channels/:channel_id/summaries/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/channels/:channel_id/summaries/",
             "sourceFile": "src/api/routes/channels/#channel_id/summaries.ts",
-            "line": 64,
+            "line": 118,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
