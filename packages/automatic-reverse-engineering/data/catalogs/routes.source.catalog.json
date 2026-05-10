@@ -195,6 +195,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationCanDeleteResponse"
+		],
+		"route": "/applications/{application_id}/can-delete",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_CAN_DELETE",
+		"source": "src/api/routes/applications/#application_id/can-delete.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/applications/{application_id}/commands",
 		"route_name": "GET_APPLICATIONS_APPLICATION_ID_COMMANDS",

@@ -1,6 +1,6 @@
 {
-    "missing": 741,
-    "spacebar": 439,
+    "missing": 740,
+    "spacebar": 440,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -28,7 +28,6 @@
         "/applications/{param}/auto-verification",
         "/applications/{param}/branches",
         "/applications/{param}/branches/{param}/builds/{param}/size",
-        "/applications/{param}/can-delete",
         "/applications/{param}/disclosures",
         "/applications/{param}/discoverability-state",
         "/applications/{param}/embedded-activity-config",
@@ -1189,14 +1188,6 @@
             "sources": ["userdoccers:interactions/application-commands.mdx"],
             "source_routes": ["/applications/{application_id}/application-command-index"],
             "summaries": ["Get Application Command Index"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/can-delete",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_CAN_DELETE",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/can-delete"],
-            "summaries": ["Get Application Undeletable Reason"]
         },
         {
             "method": "GET",

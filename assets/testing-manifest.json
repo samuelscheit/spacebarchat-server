@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 544,
+        "totalEntries": 545,
         "byService": {
-            "api": 447,
+            "api": 448,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 519,
+            "http-route": 520,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 107,
-            "stateful-domain": 293,
+            "stateful-domain": 294,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 15,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 402,
+            "route-class": 403,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -867,6 +867,48 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "ApplicationBranchesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications/:application_id/can-delete/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/:application_id/can-delete/",
+            "sourceFile": "src/api/routes/applications/#application_id/can-delete.ts",
+            "line": 89,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationCanDeleteResponse"
                 ],
                 "responseStatuses": [
                     200,

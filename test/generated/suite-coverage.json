@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 446,
+        "totalCoveredManifestEntries": 447,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 424,
-                "totalCoveredManifestEntries": 424,
-                "totalCoveredRequiredManifestEntries": 424,
+                "totalRequiredManifestEntries": 425,
+                "totalCoveredManifestEntries": 425,
+                "totalCoveredRequiredManifestEntries": 425,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 293,
+            "stateful-domain": 294,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 424,
-                "totalCoveredManifestEntries": 424,
-                "totalCoveredRequiredManifestEntries": 424,
+                "totalRequiredManifestEntries": 425,
+                "totalCoveredManifestEntries": 425,
+                "totalCoveredRequiredManifestEntries": 425,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -124,6 +124,7 @@
                 "api:http:GET:/applications/:application_id/",
                 "api:http:GET:/applications/:application_id/branches/",
                 "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
+                "api:http:GET:/applications/:application_id/can-delete/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
@@ -550,6 +551,7 @@
                 "api:http:GET:/applications/:application_id/",
                 "api:http:GET:/applications/:application_id/branches/",
                 "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
+                "api:http:GET:/applications/:application_id/can-delete/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
@@ -1326,6 +1328,7 @@
                         "api:http:GET:/applications/:application_id/",
                         "api:http:GET:/applications/:application_id/branches/",
                         "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
+                        "api:http:GET:/applications/:application_id/can-delete/",
                         "api:http:GET:/applications/:application_id/commands/",
                         "api:http:GET:/applications/:application_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/emojis/:emoji_id/",

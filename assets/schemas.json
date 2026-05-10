@@ -2913,6 +2913,35 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationCanDeleteResponse": {
+        "type": "object",
+        "properties": {
+            "deletable": {
+                "type": [
+                    "null",
+                    "boolean"
+                ]
+            },
+            "reason": {
+                "anyOf": [
+                    {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3
+                        ],
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationDirectoryCategoriesResponse": {
         "type": "array",
         "items": {
