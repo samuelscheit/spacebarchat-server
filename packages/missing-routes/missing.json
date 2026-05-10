@@ -1,6 +1,6 @@
 {
-    "missing": 835,
-    "spacebar": 345,
+    "missing": 834,
+    "spacebar": 346,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -176,7 +176,6 @@
         "/entitlements/gift-codes/{param}",
         "/entitlements/gift-codes/{param}/redeem",
         "/entitlements/partner-promotions/{param}",
-        "/family-center/@me",
         "/family-center/@me/link-code",
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
         "/family-center/{param}/activity",
@@ -1908,13 +1907,6 @@
             "summaries": ["Get Gift Code"]
         },
         { "method": "GET", "route": "/family-center/{param}/activity", "route_name": "FAMILY_CENTER_TEEN_ACTIVITY", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/family-center/@me",
-            "route_name": "GET_FAMILY_CENTER__ME",
-            "sources": ["userdoccers:resources/family-center.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Family Center Overview"]
-        },
         {
             "method": "GET",
             "route": "/family-center/@me/link-code",

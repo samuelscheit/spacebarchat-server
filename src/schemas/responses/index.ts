@@ -38,6 +38,7 @@ export * from "./EmailDomainLookupResponse";
 export * from "./EmailDomainLookupVerifyCodeResponse";
 export * from "./EmojiSourceResponse";
 export * from "./ExperimentsResponse";
+export * from "./FamilyCenterResponse";
 export * from "./GatewayResponse";
 export * from "./GenerateRegistrationTokensResponse";
 export * from "./GuildBansResponse";

@@ -2984,6 +2984,201 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserGuildResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "afk_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "afk_timeout": {
+                "type": "integer"
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "default_message_notifications": {
+                "type": "integer"
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "discovery_splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "explicit_content_filter": {
+                "type": "integer"
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "large": {
+                "type": "boolean"
+            },
+            "max_members": {
+                "type": "integer"
+            },
+            "max_presences": {
+                "type": "integer"
+            },
+            "max_video_channel_users": {
+                "type": "integer"
+            },
+            "member_count": {
+                "type": "integer"
+            },
+            "mfa_level": {
+                "type": "integer"
+            },
+            "owner_id": {
+                "type": "string"
+            },
+            "preferred_locale": {
+                "type": "string"
+            },
+            "premium_progress_bar_enabled": {
+                "type": "boolean"
+            },
+            "premium_subscription_count": {
+                "type": "integer"
+            },
+            "premium_tier": {
+                "type": "integer"
+            },
+            "public_updates_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "region": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "rules_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "system_channel_flags": {
+                "type": "integer"
+            },
+            "system_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "unavailable": {
+                "type": "boolean"
+            },
+            "verification_level": {
+                "type": "integer"
+            },
+            "welcome_screen": {
+                "$ref": "#/definitions/GuildWelcomeScreen"
+            },
+            "widget_channel_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "widget_enabled": {
+                "type": "boolean"
+            },
+            "nsfw_level": {
+                "type": "integer"
+            },
+            "nsfw": {
+                "type": "boolean"
+            },
+            "approximate_member_count": {
+                "type": "integer"
+            },
+            "approximate_presence_count": {
+                "type": "integer"
+            },
+            "permissions": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserGuildsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/UserGuildResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterResponse": {
+        "type": "object",
+        "properties": {
+            "linked_users": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/FamilyCenterLinkedUser"
+                }
+            },
+            "teen_audit_log": {
+                "$ref": "#/definitions/FamilyCenterTeenAuditLog"
+            },
+            "users": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialUser"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "linked_users",
+            "teen_audit_log",
+            "users"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GatewayResponse": {
         "type": "object",
         "properties": {
@@ -7502,174 +7697,6 @@
             "user",
             "user_profile"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "UserGuildResponse": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "type": "string"
-            },
-            "name": {
-                "type": "string"
-            },
-            "afk_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "afk_timeout": {
-                "type": "integer"
-            },
-            "banner": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "default_message_notifications": {
-                "type": "integer"
-            },
-            "description": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "discovery_splash": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "explicit_content_filter": {
-                "type": "integer"
-            },
-            "features": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "icon": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "large": {
-                "type": "boolean"
-            },
-            "max_members": {
-                "type": "integer"
-            },
-            "max_presences": {
-                "type": "integer"
-            },
-            "max_video_channel_users": {
-                "type": "integer"
-            },
-            "member_count": {
-                "type": "integer"
-            },
-            "mfa_level": {
-                "type": "integer"
-            },
-            "owner_id": {
-                "type": "string"
-            },
-            "preferred_locale": {
-                "type": "string"
-            },
-            "premium_progress_bar_enabled": {
-                "type": "boolean"
-            },
-            "premium_subscription_count": {
-                "type": "integer"
-            },
-            "premium_tier": {
-                "type": "integer"
-            },
-            "public_updates_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "region": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "rules_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "splash": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "system_channel_flags": {
-                "type": "integer"
-            },
-            "system_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "unavailable": {
-                "type": "boolean"
-            },
-            "verification_level": {
-                "type": "integer"
-            },
-            "welcome_screen": {
-                "$ref": "#/definitions/GuildWelcomeScreen"
-            },
-            "widget_channel_id": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "widget_enabled": {
-                "type": "boolean"
-            },
-            "nsfw_level": {
-                "type": "integer"
-            },
-            "nsfw": {
-                "type": "boolean"
-            },
-            "approximate_member_count": {
-                "type": "integer"
-            },
-            "approximate_presence_count": {
-                "type": "integer"
-            },
-            "permissions": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "id",
-            "name"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "UserGuildsResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/UserGuildResponse"
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "UserRelationResponse": {
@@ -15174,6 +15201,196 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildWelcomeScreen": {
+        "type": "object",
+        "properties": {
+            "enabled": {
+                "type": "boolean"
+            },
+            "description": {
+                "type": "string"
+            },
+            "welcome_channels": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "emoji_id": {
+                            "type": "string"
+                        },
+                        "emoji_name": {
+                            "type": "string"
+                        },
+                        "channel_id": {
+                            "type": "string"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                        "channel_id",
+                        "description"
+                    ]
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "enabled",
+            "welcome_channels"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterLinkedUser": {
+        "type": "object",
+        "properties": {
+            "created_at": {
+                "type": "string"
+            },
+            "updated_at": {
+                "type": "string"
+            },
+            "link_status": {
+                "$ref": "#/definitions/FamilyCenterLinkStatus"
+            },
+            "link_type": {
+                "$ref": "#/definitions/FamilyCenterLinkType"
+            },
+            "requestor_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "created_at",
+            "link_status",
+            "link_type",
+            "requestor_id",
+            "updated_at",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterLinkStatus": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterLinkType": {
+        "type": "number",
+        "enum": [
+            1,
+            2
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterTeenAuditLog": {
+        "type": "object",
+        "properties": {
+            "teen_user_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "range_start_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "actions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/FamilyCenterTeenAuditLogAction"
+                }
+            },
+            "users": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialUser"
+                }
+            },
+            "guilds": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/UserGuildResponse"
+                }
+            },
+            "totals": {
+                "$ref": "#/definitions/FamilyCenterActionTotals"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "actions",
+            "guilds",
+            "range_start_id",
+            "teen_user_id",
+            "totals",
+            "users"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterTeenAuditLogAction": {
+        "type": "object",
+        "properties": {
+            "event_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "entity_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "display_type": {
+                "$ref": "#/definitions/FamilyCenterActionType"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "display_type",
+            "entity_id",
+            "event_id",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterActionType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FamilyCenterActionTotals": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "integer"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PublicMember": {
         "type": "object",
         "properties": {
@@ -15424,49 +15641,6 @@
         "additionalProperties": false,
         "required": [
             "primary_color"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "GuildWelcomeScreen": {
-        "type": "object",
-        "properties": {
-            "enabled": {
-                "type": "boolean"
-            },
-            "description": {
-                "type": "string"
-            },
-            "welcome_channels": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "description": {
-                            "type": "string"
-                        },
-                        "emoji_id": {
-                            "type": "string"
-                        },
-                        "emoji_name": {
-                            "type": "string"
-                        },
-                        "channel_id": {
-                            "type": "string"
-                        }
-                    },
-                    "additionalProperties": false,
-                    "required": [
-                        "channel_id",
-                        "description"
-                    ]
-                }
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "description",
-            "enabled",
-            "welcome_channels"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
