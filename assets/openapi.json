@@ -5718,6 +5718,203 @@
                     "mfa"
                 ]
             },
+            "NotificationCenterItemResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "bundle_id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "item_enum": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    0,
+                                    1,
+                                    2,
+                                    3
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "acked": {
+                        "type": "boolean"
+                    },
+                    "deeplink": {
+                        "type": "string"
+                    },
+                    "icon_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "icon_name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "other_user": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PartialUser"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "message": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicMessage"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "completed": {
+                        "type": "boolean"
+                    },
+                    "guild_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "message_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "message_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "guild_scheduled_event_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "disable_action": {
+                        "type": "boolean"
+                    },
+                    "callout": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "application": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/IntegrationApplication"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "emoji_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "emoji_name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "message_content": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "message_embed_count": {
+                        "type": "integer"
+                    },
+                    "message_attachment_count": {
+                        "type": "integer"
+                    },
+                    "message_sticker_count": {
+                        "type": "integer"
+                    },
+                    "is_voice_message": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "acked",
+                    "application",
+                    "body",
+                    "bundle_id",
+                    "callout",
+                    "completed",
+                    "deeplink",
+                    "disable_action",
+                    "guild_id",
+                    "guild_scheduled_event_id",
+                    "id",
+                    "is_voice_message",
+                    "item_enum",
+                    "message",
+                    "message_channel_id",
+                    "message_id",
+                    "other_user",
+                    "type"
+                ]
+            },
+            "NotificationCenterItemsResponse": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "type": "integer"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationCenterItemResponse"
+                        }
+                    },
+                    "cursor": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "has_more": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "cursor",
+                    "has_more",
+                    "items",
+                    "limit"
+                ]
+            },
             "OAuthAuthorizeInfoResponse": {
                 "type": "object",
                 "properties": {
@@ -26329,6 +26526,83 @@
                             "type": "string"
                         },
                         "description": "user_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/notification-center/items/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Notification Center Items",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationCenterItemsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "after",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Get notification center items after this notification center item ID."
+                    },
+                    {
+                        "name": "with_mentions",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include recent mention notifications."
+                    },
+                    {
+                        "name": "roles_filter",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include role mentions."
+                    },
+                    {
+                        "name": "everyone_filter",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include @everyone and @here mentions."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Max number of notification center items to return, from 1 to 100."
                     }
                 ],
                 "tags": [

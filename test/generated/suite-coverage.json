@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 393,
+        "totalCoveredManifestEntries": 394,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 371,
-                "totalCoveredManifestEntries": 371,
-                "totalCoveredRequiredManifestEntries": 371,
+                "totalRequiredManifestEntries": 372,
+                "totalCoveredManifestEntries": 372,
+                "totalCoveredRequiredManifestEntries": 372,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 252,
+            "stateful-domain": 253,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 371,
-                "totalCoveredManifestEntries": 371,
-                "totalCoveredRequiredManifestEntries": 371,
+                "totalRequiredManifestEntries": 372,
+                "totalCoveredManifestEntries": 372,
+                "totalCoveredRequiredManifestEntries": 372,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -228,6 +228,7 @@
                 "api:http:GET:/users/@me/library/",
                 "api:http:GET:/users/@me/mfa/webauthn/credentials/",
                 "api:http:GET:/users/@me/notes/:user_id",
+                "api:http:GET:/users/@me/notification-center/items/",
                 "api:http:GET:/users/@me/relationships/",
                 "api:http:GET:/users/@me/settings-proto/1/",
                 "api:http:GET:/users/@me/settings-proto/1/json",
@@ -601,6 +602,7 @@
                 "api:http:GET:/users/@me/library/",
                 "api:http:GET:/users/@me/mfa/webauthn/credentials/",
                 "api:http:GET:/users/@me/notes/:user_id",
+                "api:http:GET:/users/@me/notification-center/items/",
                 "api:http:GET:/users/@me/relationships/",
                 "api:http:GET:/users/@me/settings-proto/1/",
                 "api:http:GET:/users/@me/settings-proto/1/json",
@@ -907,6 +909,7 @@
                         "api:http:GET:/users/@me/library/",
                         "api:http:GET:/users/@me/mfa/webauthn/credentials/",
                         "api:http:GET:/users/@me/notes/:user_id",
+                        "api:http:GET:/users/@me/notification-center/items/",
                         "api:http:GET:/users/@me/relationships/",
                         "api:http:GET:/users/@me/settings-proto/1/",
                         "api:http:GET:/users/@me/settings-proto/1/json",

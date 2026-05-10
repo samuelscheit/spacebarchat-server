@@ -1,6 +1,6 @@
 {
-    "missing": 845,
-    "spacebar": 335,
+    "missing": 844,
+    "spacebar": 336,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -609,7 +609,6 @@
         "/users/@me/mfa/sms/enable",
         "/users/@me/mfa/webauthn/credentials/{param}",
         "/users/@me/notes",
-        "/users/@me/notification-center/items",
         "/users/@me/notification-center/items/bulk-ack",
         "/users/@me/notification-center/items/{param}",
         "/users/@me/notification-center/items/{param}/ack",
@@ -3515,13 +3514,6 @@
             "route_name": "GET_USERS__ME_NOTES",
             "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Notes"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/notification-center/items",
-            "route_name": "GET_USERS__ME_NOTIFICATION_CENTER_ITEMS",
-            "sources": ["userdoccers:resources/notification-center.mdx"],
-            "summaries": ["Get Notification Center Items"]
         },
         {
             "method": "GET",

@@ -2827,6 +2827,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"NotificationCenterItemsResponse"
+		],
+		"route": "/users/@me/notification-center/items",
+		"route_name": "GET_USERS__ME_NOTIFICATION_CENTER_ITEMS",
+		"source": "src/api/routes/users/@me/notification-center/items.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserRelationshipsResponse"
 		],
 		"route": "/users/@me/relationships",
