@@ -1,6 +1,6 @@
 {
-    "missing": 793,
-    "spacebar": 387,
+    "missing": 792,
+    "spacebar": 388,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -159,7 +159,6 @@
         "/friend-suggestions",
         "/friend-suggestions/{param}",
         "/games",
-        "/games/{param}",
         "/gifs/select",
         "/google-play/downgrade-subscription",
         "/google-play/validate-purchase",
@@ -1712,14 +1711,6 @@
             "summaries": ["Get Friend Suggestions"]
         },
         { "method": "GET", "route": "/games", "route_name": "GET_GAMES", "sources": ["userdoccers:resources/game.mdx"], "summaries": ["Get Games"] },
-        {
-            "method": "GET",
-            "route": "/games/{param}",
-            "route_name": "GET_GAMES_GAME_ID",
-            "sources": ["userdoccers:resources/game.mdx"],
-            "source_routes": ["/games/{game_id}"],
-            "summaries": ["Get Game"]
-        },
         {
             "method": "GET",
             "route": "/guilds/{param}/active-channels",

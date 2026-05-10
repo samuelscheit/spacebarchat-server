@@ -48,6 +48,7 @@ export * from "./EmojiSourceResponse";
 export * from "./ExperimentsResponse";
 export * from "./FamilyCenterResponse";
 export * from "./GameAnnouncementsResponse";
+export * from "./GameResponse";
 export * from "./GatewayResponse";
 export * from "./GenerateRegistrationTokensResponse";
 export * from "./GiftCodeResponse";

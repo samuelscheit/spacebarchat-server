@@ -3458,6 +3458,133 @@
                     "messages"
                 ]
             },
+            "GameResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon_hash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "cover_image_hash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "aliases": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "executables": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameExecutable"
+                        }
+                    },
+                    "themes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "hook": {
+                        "type": "boolean"
+                    },
+                    "overlay": {
+                        "type": "boolean"
+                    },
+                    "overlay_methods": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "overlay_warn": {
+                        "type": "boolean"
+                    },
+                    "overlay_compatibility_hook": {
+                        "type": "boolean"
+                    },
+                    "linked_applications": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameLinkedApplication"
+                        }
+                    },
+                    "supplemental_game_data": {
+                        "$ref": "#/components/schemas/GameSupplementalData"
+                    },
+                    "genres": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "platforms": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "websites": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameWebsite"
+                        }
+                    },
+                    "companies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameCompany"
+                        }
+                    },
+                    "screenshot_hashes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "screenshot_urls": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "trailers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameStoreAsset"
+                        }
+                    },
+                    "l30_rank": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "aliases",
+                    "companies",
+                    "executables",
+                    "hook",
+                    "id",
+                    "name",
+                    "overlay",
+                    "overlay_compatibility_hook",
+                    "overlay_methods",
+                    "overlay_warn",
+                    "themes"
+                ]
+            },
             "GatewayResponse": {
                 "type": "object",
                 "properties": {
@@ -17713,6 +17840,295 @@
                     "base_mix",
                     "colors",
                     "gradient_angle"
+                ]
+            },
+            "GameExecutable": {
+                "type": "object",
+                "properties": {
+                    "os": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "is_launcher": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "is_launcher",
+                    "name",
+                    "os"
+                ]
+            },
+            "GameLinkedApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "type"
+                ]
+            },
+            "GameSupplementalData": {
+                "type": "object",
+                "properties": {
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "igdb_game_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "summary_localized": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "websites": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameWebsite"
+                        }
+                    },
+                    "themes": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "genres": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "platforms": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "artwork_urls": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "screenshot_urls": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "icon_hash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "cover_image_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "first_release_date": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "publisher_names": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "developer_names": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "trailers": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameStoreAsset"
+                        }
+                    },
+                    "shop_collection_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "steam_release_status": {
+                        "type": "integer"
+                    },
+                    "reviews": {
+                        "$ref": "#/components/schemas/GameDataReviews"
+                    },
+                    "opencritic_url": {
+                        "type": "string"
+                    },
+                    "steam_id": {
+                        "type": "string"
+                    },
+                    "announcements_channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "l30_rank": {
+                        "type": "integer"
+                    },
+                    "game_flags": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "name"
+                ]
+            },
+            "GameWebsite": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "category",
+                    "url"
+                ]
+            },
+            "GameStoreAsset": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "mime_type": {
+                        "type": "string"
+                    },
+                    "width": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "integer"
+                    },
+                    "size": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "proxy_url": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GameDataReviews": {
+                "type": "object",
+                "properties": {
+                    "steam": {
+                        "$ref": "#/components/schemas/GameDataSteamReviews"
+                    },
+                    "opencritic": {
+                        "$ref": "#/components/schemas/GameDataOpenCriticReviews"
+                    }
+                }
+            },
+            "GameDataSteamReviews": {
+                "type": "object",
+                "properties": {
+                    "rating": {
+                        "type": "integer"
+                    },
+                    "rating_count": {
+                        "type": "integer"
+                    },
+                    "recent_rating": {
+                        "type": "integer"
+                    },
+                    "recent_rating_count": {
+                        "type": "integer"
+                    },
+                    "localized_rating": {
+                        "type": "integer"
+                    },
+                    "localized_rating_count": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "GameDataOpenCriticReviews": {
+                "type": "object",
+                "properties": {
+                    "top_critic_rating": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "top_critic_rating_count": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "tier": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    }
+                }
+            },
+            "GameCompany": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "roles"
                 ]
             },
             "JsonObject": {
@@ -37839,6 +38255,70 @@
                         }
                     }
                 },
+                "tags": [
+                    "games"
+                ]
+            }
+        },
+        "/games/{game_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Game",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "game_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "game_id"
+                    },
+                    {
+                        "name": "with_supplemental_data",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include supplemental game data (default true)."
+                    }
+                ],
                 "tags": [
                     "games"
                 ]
