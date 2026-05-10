@@ -1481,6 +1481,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GamesResponse"
+		],
+		"route": "/games",
+		"route_name": "GET_GAMES",
+		"source": "src/api/routes/games/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GameResponse"
 		],
 		"route": "/games/{game_id}",

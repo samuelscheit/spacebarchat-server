@@ -122,3 +122,5 @@ export interface GameResponse {
     trailers?: GameStoreAsset[];
     l30_rank?: number;
 }
+
+export type GamesResponse = GameResponse[];

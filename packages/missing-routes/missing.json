@@ -1,6 +1,6 @@
 {
-    "missing": 787,
-    "spacebar": 393,
+    "missing": 786,
+    "spacebar": 394,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -155,7 +155,6 @@
         "/friend-finder/find-friends",
         "/friend-suggestions",
         "/friend-suggestions/{param}",
-        "/games",
         "/gifs/select",
         "/google-play/downgrade-subscription",
         "/google-play/validate-purchase",
@@ -1690,7 +1689,6 @@
             "sources": ["userdoccers:resources/relationships.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Friend Suggestions"]
         },
-        { "method": "GET", "route": "/games", "route_name": "GET_GAMES", "sources": ["userdoccers:resources/game.mdx"], "summaries": ["Get Games"] },
         {
             "method": "GET",
             "route": "/guilds/{param}/active-channels",

@@ -17,62 +17,13 @@
 */
 
 import { route } from "@spacebar/api";
-import type { GameResponse, GameSupplementalData } from "@spacebar/schemas";
 import { Application, DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { serializeApplicationGame, shouldIncludeGameSupplementalData, type GameApplication } from "../../../util/utility/GameResponse";
 
 const router: Router = Router({ mergeParams: true });
 
-export type GameApplication = Pick<Application, "id" | "name" | "icon" | "cover_image" | "summary" | "hook" | "announcements_channel_id">;
-
-export function shouldIncludeGameSupplementalData(value: unknown): boolean {
-    if (Array.isArray(value)) return shouldIncludeGameSupplementalData(value[0]);
-    if (typeof value === "boolean") return value;
-    if (typeof value !== "string") return true;
-
-    return value.toLowerCase() !== "false";
-}
-
-function nonEmptyString(value: string | null | undefined): string | undefined {
-    const trimmed = value?.trim();
-    return trimmed ? trimmed : undefined;
-}
-
-function createGameSupplementalData(application: GameApplication): GameSupplementalData {
-    const supplemental: GameSupplementalData = {
-        application_id: application.id,
-        name: application.name,
-    };
-    const summary = nonEmptyString(application.summary);
-
-    if (summary) supplemental.summary = summary;
-    if (application.icon !== undefined) supplemental.icon_hash = application.icon ?? null;
-    if (application.announcements_channel_id) supplemental.announcements_channel_id = application.announcements_channel_id;
-
-    return supplemental;
-}
-
-export function serializeApplicationGame(application: GameApplication, includeSupplementalData = true): GameResponse {
-    const response: GameResponse = {
-        id: application.id,
-        name: application.name,
-        icon_hash: application.icon ?? null,
-        cover_image_hash: application.cover_image ?? null,
-        aliases: [],
-        executables: [],
-        themes: [],
-        hook: application.hook ?? true,
-        overlay: false,
-        overlay_methods: null,
-        overlay_warn: false,
-        overlay_compatibility_hook: false,
-        companies: [],
-    };
-
-    if (includeSupplementalData) response.supplemental_game_data = createGameSupplementalData(application);
-
-    return response;
-}
+export { serializeApplicationGame, shouldIncludeGameSupplementalData, type GameApplication } from "../../../util/utility/GameResponse";
 
 router.get(
     "/",

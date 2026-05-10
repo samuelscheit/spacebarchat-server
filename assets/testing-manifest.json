@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 498,
+        "totalEntries": 499,
         "byService": {
-            "api": 401,
+            "api": 402,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 473,
+            "http-route": 474,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 88,
+            "contract": 89,
             "stateful-domain": 273,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 361,
+            "route-class": 362,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7337,7 +7337,7 @@
             "method": "GET",
             "path": "/games/:game_id/",
             "sourceFile": "src/api/routes/games/#game_id/index.ts",
-            "line": 77,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7388,6 +7388,43 @@
                     403,
                     404,
                     422
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/games/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/games/",
+            "sourceFile": "src/api/routes/games/index.ts",
+            "line": 83,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GamesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
                 ],
                 "hasQuery": true
             },
