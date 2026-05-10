@@ -1,6 +1,6 @@
 {
-    "missing": 771,
-    "spacebar": 409,
+    "missing": 770,
+    "spacebar": 410,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -93,7 +93,6 @@
         "/channels/{param}/add-safety-warning",
         "/channels/{param}/application-command-index",
         "/channels/{param}/application-commands/search",
-        "/channels/{param}/custom-call-sounds",
         "/channels/{param}/directory-entries/counts",
         "/channels/{param}/directory-entries/list",
         "/channels/{param}/directory-entries/search",
@@ -3964,13 +3963,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/add-safety-warning"],
             "summaries": ["Add Safety Warning"]
-        },
-        {
-            "method": "POST",
-            "route": "/channels/{param}/custom-call-sounds",
-            "route_name": "CUSTOM_CALL_SOUNDS",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/custom-call-sounds"]
         },
         {
             "method": "POST",

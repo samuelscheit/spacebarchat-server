@@ -677,6 +677,15 @@
 		"source": "src/api/routes/channels/#channel_id/call.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/custom-call-sounds",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_CUSTOM_CALL_SOUNDS",
+		"source": "src/api/routes/channels/#channel_id/custom-call-sounds.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

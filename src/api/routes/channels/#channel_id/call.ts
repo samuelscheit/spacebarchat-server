@@ -17,33 +17,13 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, DiscordApiErrors, VoiceState, type Recipient } from "@spacebar/util";
-import { ChannelType, type ChannelCallEligibilityResponse, type ChannelCallModifySchema, type ChannelCallRingSchema, type ChannelCallStopRingingSchema } from "@spacebar/schemas";
+import { Channel, DiscordApiErrors, VoiceState } from "@spacebar/util";
+import { type ChannelCallModifySchema, type ChannelCallRingSchema, type ChannelCallStopRingingSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { resolveChannelCallEligibility, type CallEligibilityChannel } from "../../../util/handlers/ChannelPrivateCall";
 
 const router: Router = Router({ mergeParams: true });
-
-type CallEligibilityRecipient = Pick<Recipient, "closed" | "user_id">;
-type CallEligibilityChannel = Pick<Channel, "id" | "type"> & {
-    recipients?: CallEligibilityRecipient[] | null;
-};
-
-function isPrivateCallChannel(channel: CallEligibilityChannel) {
-    return channel.type === ChannelType.DM || channel.type === ChannelType.GROUP_DM;
-}
-
-export function resolveChannelCallEligibility(channel: CallEligibilityChannel, requesterId: string): ChannelCallEligibilityResponse {
-    if (!isPrivateCallChannel(channel)) throw DiscordApiErrors.CANNOT_EXECUTE_ON_THIS_CHANNEL_TYPE;
-
-    const recipients = channel.recipients ?? [];
-    const requester = recipients.find((recipient) => recipient.user_id === requesterId);
-    if (!requester || requester.closed !== false) throw DiscordApiErrors.MISSING_PERMISSIONS;
-
-    return {
-        ringable: recipients.some((recipient) => recipient.user_id !== requesterId),
-    };
-}
 
 async function modifyChannelCall(channel: CallEligibilityChannel, requesterId: string, payload: ChannelCallModifySchema): Promise<void> {
     resolveChannelCallEligibility(channel, requesterId);
