@@ -35,6 +35,7 @@ export * from "./CloudAttachment";
 export * from "./Config";
 export * from "./ConnectedAccount";
 export * from "./ConnectionConfigEntity";
+export * from "./ConversationSummary";
 export * from "./EmbedCache";
 export * from "./Emoji";
 export * from "./Encryption";

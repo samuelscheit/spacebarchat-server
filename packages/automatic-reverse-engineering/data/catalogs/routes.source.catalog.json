@@ -992,6 +992,16 @@
 		"source": "src/api/routes/channels/#channel_id/safety-warnings.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ConversationSummariesResponse"
+		],
+		"route": "/channels/{channel_id}/summaries",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_SUMMARIES",
+		"source": "src/api/routes/channels/#channel_id/summaries.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "TagCreateSchema",
 		"response_schema_refs": [

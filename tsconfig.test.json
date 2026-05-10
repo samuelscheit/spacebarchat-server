@@ -58,6 +58,7 @@
         "src/api/util/utility/UserInvites.test.ts",
         "src/api/util/utility/ActiveThreads.test.ts",
         "src/api/routes/channels/#channel_id/purge.test.ts",
+        "src/api/routes/channels/#channel_id/summaries.test.ts",
         "src/api/routes/channels/#channel_id/call.test.ts",
         "src/api/routes/channels/#channel_id/follower-stats.test.ts",
         "src/api/routes/channels/#channel_id/follower-message-stats.test.ts",

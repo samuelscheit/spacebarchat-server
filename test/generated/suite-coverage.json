@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 410,
+        "totalCoveredManifestEntries": 411,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 388,
-                "totalCoveredManifestEntries": 388,
-                "totalCoveredRequiredManifestEntries": 388,
+                "totalRequiredManifestEntries": 389,
+                "totalCoveredManifestEntries": 389,
+                "totalCoveredRequiredManifestEntries": 389,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 265,
+            "stateful-domain": 266,
             "integration": 13,
             "contract": 19,
             "auth-scenario": 16,
@@ -65,9 +65,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 388,
-                "totalCoveredManifestEntries": 388,
-                "totalCoveredRequiredManifestEntries": 388,
+                "totalRequiredManifestEntries": 389,
+                "totalCoveredManifestEntries": 389,
+                "totalCoveredRequiredManifestEntries": 389,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -144,6 +144,7 @@
                 "api:http:GET:/channels/:channel_id/messages/pins/",
                 "api:http:GET:/channels/:channel_id/messages/search/",
                 "api:http:GET:/channels/:channel_id/pins/",
+                "api:http:GET:/channels/:channel_id/summaries/",
                 "api:http:GET:/channels/:channel_id/thread-members/",
                 "api:http:GET:/channels/:channel_id/thread-members/:user_id",
                 "api:http:GET:/channels/:channel_id/threads/active",
@@ -534,6 +535,7 @@
                 "api:http:GET:/channels/:channel_id/messages/pins/",
                 "api:http:GET:/channels/:channel_id/messages/search/",
                 "api:http:GET:/channels/:channel_id/pins/",
+                "api:http:GET:/channels/:channel_id/summaries/",
                 "api:http:GET:/channels/:channel_id/thread-members/",
                 "api:http:GET:/channels/:channel_id/thread-members/:user_id",
                 "api:http:GET:/channels/:channel_id/threads/active",
@@ -1137,6 +1139,7 @@
                         "api:http:GET:/channels/:channel_id/messages/pins/",
                         "api:http:GET:/channels/:channel_id/messages/search/",
                         "api:http:GET:/channels/:channel_id/pins/",
+                        "api:http:GET:/channels/:channel_id/summaries/",
                         "api:http:GET:/channels/:channel_id/thread-members/",
                         "api:http:GET:/channels/:channel_id/thread-members/:user_id",
                         "api:http:GET:/channels/:channel_id/threads/active",

@@ -1,6 +1,6 @@
 {
-    "missing": 805,
-    "spacebar": 375,
+    "missing": 804,
+    "spacebar": 376,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -128,7 +128,6 @@
         "/channels/{param}/store-listing",
         "/channels/{param}/store-listing/entitlement-grant",
         "/channels/{param}/store-listings/{param}",
-        "/channels/{param}/summaries",
         "/channels/{param}/summaries/{param}",
         "/channels/{param}/thread-members/@me",
         "/channels/{param}/voice-channel-effects",
@@ -1668,14 +1667,6 @@
             "route_name": "CHANNEL_STORE_LISTING_SKU",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/store-listings/{param}"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/summaries",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_SUMMARIES",
-            "sources": ["userdoccers:resources/message.mdx"],
-            "source_routes": ["/channels/{channel_id}/summaries"],
-            "summaries": ["Get Conversation Summaries"]
         },
         { "method": "GET", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/checkpoint", "route_name": "GET_CHECKPOINT", "sources": ["userdoccers:resources/checkpoint.mdx"], "summaries": ["Get Checkpoint"] },
