@@ -1161,6 +1161,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/consoles/xbox-handoff",
+		"route_name": "GET_CONSOLES_XBOX_HANDOFF",
+		"source": "src/api/routes/consoles/xbox-handoff.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"XboxPresencesResponse"
 		],

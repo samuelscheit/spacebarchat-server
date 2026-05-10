@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 461,
+        "totalEntries": 462,
         "byService": {
-            "api": 364,
+            "api": 365,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 436,
+            "http-route": 437,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 68,
+            "contract": 69,
             "stateful-domain": 258,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 324,
+            "route-class": 325,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -5629,7 +5629,7 @@
             "method": "GET",
             "path": "/collectibles-categories/v2/",
             "sourceFile": "src/api/routes/collectibles-categories/v2.ts",
-            "line": 87,
+            "line": 86,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5912,6 +5912,42 @@
                     200,
                     400,
                     401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/consoles/xbox-handoff/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/consoles/xbox-handoff/",
+            "sourceFile": "src/api/routes/consoles/xbox-handoff.ts",
+            "line": 55,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },

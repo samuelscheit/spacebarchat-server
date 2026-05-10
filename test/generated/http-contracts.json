@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 436,
+        "totalContracts": 437,
         "byService": {
-            "api": 363,
+            "api": 364,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 309,
-        "runtimeMalformedAuthContracts": 309,
-        "runtimeRevokedSessionAuthContracts": 309,
-        "runtimeStaleTokenAuthContracts": 309,
+        "runtimeAuthBoundaryContracts": 310,
+        "runtimeMalformedAuthContracts": 310,
+        "runtimeRevokedSessionAuthContracts": 310,
+        "runtimeStaleTokenAuthContracts": 310,
         "runtimePublicAuthBoundaryContracts": 46,
         "runtimePublicInvalidBodyContracts": 15,
         "runtimeProtectedInvalidBodyContracts": 52,
@@ -7578,7 +7578,7 @@
             "path": "/collectibles-categories/v2/",
             "samplePath": "/collectibles-categories/v2/",
             "sourceFile": "src/api/routes/collectibles-categories/v2.ts",
-            "line": 87,
+            "line": 86,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -7959,6 +7959,50 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "ConsoleDevicesResponse"],
                 "responseStatuses": [200, 400, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/consoles/xbox-handoff/",
+            "service": "api",
+            "method": "GET",
+            "path": "/consoles/xbox-handoff/",
+            "samplePath": "/consoles/xbox-handoff/",
+            "sourceFile": "src/api/routes/consoles/xbox-handoff.ts",
+            "line": 55,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [400, 401, 501]
             },
             "cases": [
                 {
