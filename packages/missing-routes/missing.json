@@ -1,6 +1,6 @@
 {
-    "missing": 774,
-    "spacebar": 406,
+    "missing": 773,
+    "spacebar": 407,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -375,7 +375,6 @@
         "/report/options",
         "/reporting/menu/{param}",
         "/reporting/review",
-        "/reporting/unauthenticated/capabilities",
         "/reporting/unauthenticated/experiment",
         "/reporting/unauthenticated/menu/{param}",
         "/reporting/unauthenticated/{param}",
@@ -2467,13 +2466,6 @@
             "sources": ["userdoccers:topics/reports.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/reporting/menu/{type}"],
             "summaries": ["Get Report Menu"]
-        },
-        {
-            "method": "GET",
-            "route": "/reporting/unauthenticated/capabilities",
-            "route_name": "GET_REPORTING_UNAUTHENTICATED_CAPABILITIES",
-            "sources": ["userdoccers:topics/reports.mdx"],
-            "summaries": ["Get Unauthenticated Report Capabilities"]
         },
         {
             "method": "GET",

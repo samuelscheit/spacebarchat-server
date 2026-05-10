@@ -8662,6 +8662,22 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UnauthenticatedReportCapabilitiesResponse": {
+        "type": "object",
+        "properties": {
+            "capabilities": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "capabilities"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ReportingMenuResponse": {
         "type": "object",
         "properties": {

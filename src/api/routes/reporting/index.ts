@@ -29,6 +29,7 @@ import {
     ReportingMenuResponse,
     ReportingMenuElement,
     ReportingMenuNode,
+    UnauthenticatedReportCapabilitiesResponse,
 } from "@spacebar/schemas";
 import { FieldErrors } from "@spacebar/util";
 
@@ -207,6 +208,30 @@ export function validateCreateReport(type: string, body: CreateReportSchema) {
     validateRequiredElements(body, breadcrumbNodes);
     assertRequiredFields(body, CreateReportRequiredFields[getReportMenuType(type)]);
 }
+
+export function getUnauthenticatedReportCapabilities(): UnauthenticatedReportCapabilitiesResponse {
+    // Spacebar does not yet implement the DSA email verification and unauthenticated submission flow.
+    return {
+        capabilities: [],
+    };
+}
+
+router.get(
+    "/unauthenticated/capabilities",
+    route({
+        summary: "Get Unauthenticated Report Capabilities",
+        description: "Get report menu types available for unauthenticated reporting.",
+        responses: {
+            200: {
+                body: "UnauthenticatedReportCapabilitiesResponse",
+            },
+        },
+        spacebarOnly: false,
+    }),
+    (_req: Request, res: Response) => {
+        res.json(getUnauthenticatedReportCapabilities());
+    },
+);
 
 router.get(
     "/",

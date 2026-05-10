@@ -8289,6 +8289,20 @@
                     "type": "string"
                 }
             },
+            "UnauthenticatedReportCapabilitiesResponse": {
+                "type": "object",
+                "properties": {
+                    "capabilities": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "capabilities"
+                ]
+            },
             "ReportingMenuResponse": {
                 "type": "object",
                 "properties": {
@@ -32750,6 +32764,27 @@
                 },
                 "tags": [
                     "safety-hub"
+                ]
+            }
+        },
+        "/reporting/unauthenticated/capabilities": {
+            "get": {
+                "description": "Get report menu types available for unauthenticated reporting.",
+                "summary": "Get Unauthenticated Report Capabilities",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthenticatedReportCapabilitiesResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "reporting"
                 ]
             }
         },

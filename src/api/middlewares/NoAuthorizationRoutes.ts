@@ -23,6 +23,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "POST /auth/password/validate",
     "POST /unique-username/username-attempt-unauthed",
     "GET /unique-username/username-suggestions-unauthed",
+    "GET /reporting/unauthenticated/capabilities",
     "GET /gifs/suggest",
     "GET /auth/location-metadata",
     "POST /auth/mfa/",

@@ -20,6 +20,10 @@ import { ReportButtonType } from "../api/reports/ReportMenu";
 
 export type ReportingMenuTypesResponse = string[];
 
+export interface UnauthenticatedReportCapabilitiesResponse {
+    capabilities: string[];
+}
+
 export type ReportingMenuElementData =
     | null
     | string[][]

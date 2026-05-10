@@ -2791,6 +2791,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"UnauthenticatedReportCapabilitiesResponse"
+		],
+		"route": "/reporting/unauthenticated/capabilities",
+		"route_name": "GET_REPORTING_UNAUTHENTICATED_CAPABILITIES",
+		"source": "src/api/routes/reporting/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"AccountStandingResponse"
 		],
