@@ -2390,6 +2390,23 @@
                     "users_seen_ever"
                 ]
             },
+            "ChannelLinkedAccountsResponse": {
+                "type": "object",
+                "properties": {
+                    "linked_accounts": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/ChannelLinkedAccount"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "linked_accounts"
+                ]
+            },
             "CollectiblesCategoriesResponse": {
                 "type": "array",
                 "items": {
@@ -13217,6 +13234,21 @@
                     "id",
                     "join_timestamp",
                     "user_id"
+                ]
+            },
+            "ChannelLinkedAccount": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
                 ]
             },
             "CollectiblesCategory": {
@@ -38674,6 +38706,89 @@
                             "type": "string"
                         },
                         "description": "message_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/linked-accounts/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChannelLinkedAccountsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    },
+                    {
+                        "name": "user_ids",
+                        "in": "query",
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "User IDs to get linked accounts for"
                     }
                 ],
                 "tags": [

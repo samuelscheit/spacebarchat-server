@@ -2485,6 +2485,25 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ChannelLinkedAccountsResponse": {
+        "type": "object",
+        "properties": {
+            "linked_accounts": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ChannelLinkedAccount"
+                    }
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "linked_accounts"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CollectiblesCategoriesResponse": {
         "type": "array",
         "items": {
@@ -13838,6 +13857,23 @@
             "id",
             "join_timestamp",
             "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ChannelLinkedAccount": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

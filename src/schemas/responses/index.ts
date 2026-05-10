@@ -28,6 +28,7 @@ export * from "./BillingSubscriptionsResponse";
 export * from "./CaptchaRequiredResponse";
 export * from "./ChannelFollowerMessageStatsResponse";
 export * from "./ChannelFollowerStatsResponse";
+export * from "./ChannelLinkedAccountsResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";

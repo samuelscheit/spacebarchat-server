@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 397,
+        "totalCoveredManifestEntries": 398,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 375,
-                "totalCoveredManifestEntries": 375,
-                "totalCoveredRequiredManifestEntries": 375,
+                "totalRequiredManifestEntries": 376,
+                "totalCoveredManifestEntries": 376,
+                "totalCoveredRequiredManifestEntries": 376,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 256,
+            "stateful-domain": 257,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 375,
-                "totalCoveredManifestEntries": 375,
-                "totalCoveredRequiredManifestEntries": 375,
+                "totalRequiredManifestEntries": 376,
+                "totalCoveredManifestEntries": 376,
+                "totalCoveredRequiredManifestEntries": 376,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -127,6 +127,7 @@
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
                 "api:http:GET:/channels/:channel_id/follower-stats/",
                 "api:http:GET:/channels/:channel_id/invites/",
+                "api:http:GET:/channels/:channel_id/linked-accounts/",
                 "api:http:GET:/channels/:channel_id/messages/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
@@ -504,6 +505,7 @@
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
                 "api:http:GET:/channels/:channel_id/follower-stats/",
                 "api:http:GET:/channels/:channel_id/invites/",
+                "api:http:GET:/channels/:channel_id/linked-accounts/",
                 "api:http:GET:/channels/:channel_id/messages/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
@@ -1099,6 +1101,7 @@
                         "api:http:GET:/channels/:channel_id/follower-message-stats/",
                         "api:http:GET:/channels/:channel_id/follower-stats/",
                         "api:http:GET:/channels/:channel_id/invites/",
+                        "api:http:GET:/channels/:channel_id/linked-accounts/",
                         "api:http:GET:/channels/:channel_id/messages/",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",

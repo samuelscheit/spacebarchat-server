@@ -565,6 +565,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ChannelLinkedAccountsResponse"
+		],
+		"route": "/channels/{channel_id}/linked-accounts",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_LINKED_ACCOUNTS",
+		"source": "src/api/routes/channels/#channel_id/linked-accounts.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"APIMessageArray"
 		],
 		"route": "/channels/{channel_id}/messages",

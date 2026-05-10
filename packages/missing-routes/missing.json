@@ -1,6 +1,6 @@
 {
-    "missing": 839,
-    "spacebar": 341,
+    "missing": 838,
+    "spacebar": 342,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -117,7 +117,6 @@
         "/channels/{param}/explicit-media",
         "/channels/{param}/integrations",
         "/channels/{param}/integrations/{param}",
-        "/channels/{param}/linked-accounts",
         "/channels/{param}/linked-lobby",
         "/channels/{param}/media-post-preview",
         "/channels/{param}/messages/ack",
@@ -1731,14 +1730,6 @@
             "sources": ["userdoccers:resources/integration.mdx"],
             "source_routes": ["/channels/{channel_id}/integrations"],
             "summaries": ["Get Channel Integrations"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/linked-accounts",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_LINKED_ACCOUNTS",
-            "sources": ["userdoccers:resources/channel.mdx"],
-            "source_routes": ["/channels/{channel_id}/linked-accounts"],
-            "summaries": ["Get Channel Linked Accounts"]
         },
         {
             "method": "GET",
