@@ -62,6 +62,7 @@
         "src/api/routes/channels/#channel_id/call.test.ts",
         "src/api/routes/channels/#channel_id/follower-stats.test.ts",
         "src/api/routes/channels/#channel_id/follower-message-stats.test.ts",
+        "src/api/routes/channels/#channel_id/integrations.test.ts",
         "src/api/routes/channels/#channel_id/safety-warnings.test.ts",
         "src/api/routes/channels/#channel_id/blocked-user-warning-dismissal.test.ts",
         "src/api/util/utility/Messages.test.ts",

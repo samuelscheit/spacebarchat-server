@@ -18,6 +18,7 @@
 
 import type { ApplicationInstallParams } from "../api/developers/ApplicationModifySchema";
 import type { ApplicationType } from "../api/developers/Application";
+import type { PartialUser } from "../api/users/User";
 
 export interface APIIntegrationApplication {
     id: string;
@@ -48,6 +49,31 @@ export interface APIIntegrationApplication {
     guild_id?: string;
     custom_install_url?: string;
 }
+
+export interface APIIntegration {
+    id: string;
+    name: string;
+    type: string;
+    enabled: boolean;
+    account: {
+        id: string;
+        name: string;
+    };
+    syncing?: boolean;
+    role_id?: string | null;
+    enable_emoticons?: boolean;
+    expire_behavior?: number;
+    expire_grace_period?: number;
+    synced_at?: string | null;
+    subscriber_count?: number;
+    revoked?: boolean;
+    application?: APIIntegrationApplication;
+    scopes?: string[];
+    role_connections_metadata?: object[];
+    user?: PartialUser | null;
+}
+
+export type APIIntegrationArray = APIIntegration[];
 
 export interface APIGuildIntegration {
     id: string;

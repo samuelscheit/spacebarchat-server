@@ -5297,6 +5297,109 @@
                     "verify_key"
                 ]
             },
+            "APIIntegration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "account": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "syncing": {
+                        "type": "boolean"
+                    },
+                    "role_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "enable_emoticons": {
+                        "type": "boolean"
+                    },
+                    "expire_behavior": {
+                        "type": "integer"
+                    },
+                    "expire_grace_period": {
+                        "type": "integer"
+                    },
+                    "synced_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "subscriber_count": {
+                        "type": "integer"
+                    },
+                    "revoked": {
+                        "type": "boolean"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/APIIntegrationApplication"
+                    },
+                    "scopes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "role_connections_metadata": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "user": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PartialUser"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "account",
+                    "enabled",
+                    "id",
+                    "name",
+                    "type"
+                ]
+            },
+            "APIIntegrationArray": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/APIIntegration"
+                }
+            },
             "APIGuildIntegration": {
                 "type": "object",
                 "properties": {
@@ -41888,6 +41991,83 @@
                     },
                     "404": {
                         "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/integrations/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a list of integration objects for the private channel.",
+                "summary": "Get Channel Integrations",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIIntegrationArray"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

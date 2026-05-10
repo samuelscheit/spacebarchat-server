@@ -672,6 +672,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"APIIntegrationArray"
+		],
+		"route": "/channels/{channel_id}/integrations",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_INTEGRATIONS",
+		"source": "src/api/routes/channels/#channel_id/integrations.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIInviteArray"
 		],
 		"route": "/channels/{channel_id}/invites",
