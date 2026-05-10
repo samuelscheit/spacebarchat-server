@@ -5,7 +5,7 @@ import { describe, test } from "node:test";
 import { ReadStateType } from "../../schemas/uncategorised/MessageAcknowledgeSchema";
 import { applyAckBulkReadStateUpdate, getReadyReadStateWhere, getReadStateIdentity, READY_READ_STATE_SELECT } from "./ReadState";
 import { ReadState } from "../entities/ReadState";
-import { advanceChannelReadStateNotificationCursor } from "./ReadStatePersistence";
+import { advanceChannelReadStateNotificationCursor, upsertChannelPinsReadState } from "./ReadStatePersistence";
 
 describe("read state helpers", () => {
     const OLDER_SNOWFLAKE = "1456516148545421312";
@@ -188,6 +188,43 @@ describe("read state helpers", () => {
         assert.equal("last_message_id" in setCalls[0], false);
         assert.equal("mention_count" in setCalls[0], false);
         assert.equal(parameters.get("notificationCursorMessageId"), "1001");
+        assert.deepEqual(insertCalls, []);
+    });
+
+    test("acknowledges channel pins without changing message read markers", async (t) => {
+        const lastPinTimestamp = new Date("2026-05-08T12:34:56.000Z");
+        const setCalls: Record<string, unknown>[] = [];
+        const queryBuilder = {
+            update(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            set(values: Record<string, unknown>) {
+                setCalls.push(values);
+                return queryBuilder;
+            },
+            where(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            andWhere(..._args: unknown[]) {
+                return queryBuilder;
+            },
+            async execute() {
+                return { affected: 1 };
+            },
+        };
+        const insertCalls: unknown[] = [];
+
+        t.mock.method(ReadState, "getRepository", () => ({
+            createQueryBuilder: () => queryBuilder,
+            insert: async (value: unknown) => insertCalls.push(value),
+        }));
+
+        await upsertChannelPinsReadState({ user_id: "user-id", channel_id: "channel-id" }, lastPinTimestamp);
+
+        assert.deepEqual(setCalls, [{ last_pin_timestamp: lastPinTimestamp }]);
+        assert.equal("last_message_id" in setCalls[0], false);
+        assert.equal("notifications_cursor" in setCalls[0], false);
+        assert.equal("mention_count" in setCalls[0], false);
         assert.deepEqual(insertCalls, []);
     });
 

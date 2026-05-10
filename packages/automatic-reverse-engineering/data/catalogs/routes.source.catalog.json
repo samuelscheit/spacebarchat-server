@@ -1074,6 +1074,27 @@
 		"source": "src/api/routes/channels/#channel_id/pins.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/pins/ack",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_PINS_ACK",
+		"source": "src/api/routes/channels/#channel_id/pins.ts"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/pins/ack",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_PINS_ACK",
+		"source": "src/api/routes/channels/#channel_id/pins.ts"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/pins/ack",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_PINS_ACK",
+		"source": "src/api/routes/channels/#channel_id/pins.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "PostDataSchema",
 		"response_schema_refs": [],

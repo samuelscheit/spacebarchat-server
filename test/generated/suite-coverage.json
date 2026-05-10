@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 428,
+        "totalCoveredManifestEntries": 431,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 406,
-                "totalCoveredManifestEntries": 406,
-                "totalCoveredRequiredManifestEntries": 406,
+                "totalRequiredManifestEntries": 409,
+                "totalCoveredManifestEntries": 409,
+                "totalCoveredRequiredManifestEntries": 409,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 279,
+            "stateful-domain": 282,
             "cdn-integration": 76,
             "integration": 13,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 406,
-                "totalCoveredManifestEntries": 406,
-                "totalCoveredRequiredManifestEntries": 406,
+                "totalRequiredManifestEntries": 409,
+                "totalCoveredManifestEntries": 409,
+                "totalCoveredRequiredManifestEntries": 409,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -89,6 +89,7 @@
                 "api:http:DELETE:/channels/:channel_id/messages/pins/:message_id",
                 "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
                 "api:http:DELETE:/channels/:channel_id/pins/:message_id",
+                "api:http:DELETE:/channels/:channel_id/pins/ack",
                 "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
                 "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                 "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
@@ -340,6 +341,7 @@
                 "api:http:POST:/channels/:channel_id/messages/:message_id/crosspost/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
                 "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
+                "api:http:POST:/channels/:channel_id/pins/ack",
                 "api:http:POST:/channels/:channel_id/post-data/",
                 "api:http:POST:/channels/:channel_id/purge/",
                 "api:http:POST:/channels/:channel_id/safety-warnings/ack",
@@ -392,6 +394,7 @@
                 "api:http:PUT:/channels/:channel_id/messages/pins/:message_id",
                 "api:http:PUT:/channels/:channel_id/permissions/:overwrite_id",
                 "api:http:PUT:/channels/:channel_id/pins/:message_id",
+                "api:http:PUT:/channels/:channel_id/pins/ack",
                 "api:http:PUT:/channels/:channel_id/recipients/:user_id",
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
@@ -497,6 +500,7 @@
                 "api:http:DELETE:/channels/:channel_id/messages/pins/:message_id",
                 "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
                 "api:http:DELETE:/channels/:channel_id/pins/:message_id",
+                "api:http:DELETE:/channels/:channel_id/pins/ack",
                 "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
                 "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                 "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
@@ -748,6 +752,7 @@
                 "api:http:POST:/channels/:channel_id/messages/:message_id/crosspost/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
                 "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
+                "api:http:POST:/channels/:channel_id/pins/ack",
                 "api:http:POST:/channels/:channel_id/post-data/",
                 "api:http:POST:/channels/:channel_id/purge/",
                 "api:http:POST:/channels/:channel_id/safety-warnings/ack",
@@ -800,6 +805,7 @@
                 "api:http:PUT:/channels/:channel_id/messages/pins/:message_id",
                 "api:http:PUT:/channels/:channel_id/permissions/:overwrite_id",
                 "api:http:PUT:/channels/:channel_id/pins/:message_id",
+                "api:http:PUT:/channels/:channel_id/pins/ack",
                 "api:http:PUT:/channels/:channel_id/recipients/:user_id",
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
@@ -1157,6 +1163,7 @@
                         "api:http:DELETE:/channels/:channel_id/messages/pins/:message_id",
                         "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
                         "api:http:DELETE:/channels/:channel_id/pins/:message_id",
+                        "api:http:DELETE:/channels/:channel_id/pins/ack",
                         "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
                         "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                         "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
@@ -1206,6 +1213,7 @@
                         "api:http:POST:/channels/:channel_id/messages/:message_id/crosspost/",
                         "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
                         "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
+                        "api:http:POST:/channels/:channel_id/pins/ack",
                         "api:http:POST:/channels/:channel_id/post-data/",
                         "api:http:POST:/channels/:channel_id/purge/",
                         "api:http:POST:/channels/:channel_id/safety-warnings/ack",
@@ -1221,6 +1229,7 @@
                         "api:http:PUT:/channels/:channel_id/messages/pins/:message_id",
                         "api:http:PUT:/channels/:channel_id/permissions/:overwrite_id",
                         "api:http:PUT:/channels/:channel_id/pins/:message_id",
+                        "api:http:PUT:/channels/:channel_id/pins/ack",
                         "api:http:PUT:/channels/:channel_id/recipients/:user_id",
                         "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                         "api:http:PUT:/channels/:channel_id/thread-members/:user_id",

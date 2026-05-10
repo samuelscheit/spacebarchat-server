@@ -1,6 +1,6 @@
 {
-    "missing": 769,
-    "spacebar": 411,
+    "missing": 766,
+    "spacebar": 414,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -105,7 +105,6 @@
         "/channels/{param}/messages/search",
         "/channels/{param}/messages/search/tabs",
         "/channels/{param}/messages/{param}/hide-guild-feed",
-        "/channels/{param}/pins/ack",
         "/channels/{param}/polls/{param}/answers/@me",
         "/channels/{param}/polls/{param}/answers/{param}",
         "/channels/{param}/polls/{param}/expire",
@@ -748,13 +747,6 @@
             "route_name": "SEARCH_CHANNEL",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/messages/search"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/channels/{param}/pins/ack",
-            "route_name": "PINS_ACK",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/pins/ack"]
         },
         {
             "method": "DELETE",
@@ -3981,14 +3973,6 @@
         },
         {
             "method": "POST",
-            "route": "/channels/{param}/pins/ack",
-            "route_name": "POST_CHANNELS_CHANNEL_ID_PINS_ACK",
-            "sources": ["userdoccers:topics/read-state.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/pins/ack"],
-            "summaries": ["Acknowledge Pinned Messages"]
-        },
-        {
-            "method": "POST",
             "route": "/channels/{param}/polls/{param}/expire",
             "route_name": "POST_CHANNELS_CHANNEL_ID_POLLS_MESSAGE_ID_EXPIRE",
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
@@ -5308,13 +5292,6 @@
         { "method": "PUT", "route": "/applications/public", "route_name": "APPLICATIONS_PUBLIC", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/applications/shelf", "route_name": "APPLICATIONS_SHELF", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/channels/{param}", "route_name": "CHANNEL", "sources": ["xhyrom:data/client/routes.json"], "source_routes": ["/channels/{channel_id}"] },
-        {
-            "method": "PUT",
-            "route": "/channels/{param}/pins/ack",
-            "route_name": "PINS_ACK",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/pins/ack"]
-        },
         {
             "method": "PUT",
             "route": "/channels/{param}/polls/{param}/answers/@me",

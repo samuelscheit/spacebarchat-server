@@ -3,6 +3,7 @@ import { describe, test } from "node:test";
 import {
     EVENTEnum,
     READY_SESSION_TYPE,
+    type ChannelPinsAckEvent,
     type ConversationSummaryUpdateEvent,
     type EVENT,
     type FriendSuggestionDeleteEvent,
@@ -74,6 +75,33 @@ describe("conversation summary gateway event declarations", () => {
             guild_id: "guild-id",
             channel_id: "channel-id",
             summaries: [],
+        });
+    });
+});
+
+describe("channel pins ack gateway event declarations", () => {
+    test("uses the documented channel pins ack event name", () => {
+        assert.equal(EVENTEnum.ChannelPinsAck, "CHANNEL_PINS_ACK");
+
+        const eventName: EVENT = "CHANNEL_PINS_ACK";
+        assert.equal(eventName, "CHANNEL_PINS_ACK");
+    });
+
+    test("types the user-scoped channel pins ack payload", () => {
+        const event: ChannelPinsAckEvent = {
+            event: "CHANNEL_PINS_ACK",
+            user_id: "user-id",
+            data: {
+                channel_id: "channel-id",
+                timestamp: "2026-05-08T12:34:56.000Z",
+                version: 232,
+            },
+        };
+
+        assert.deepEqual(event.data, {
+            channel_id: "channel-id",
+            timestamp: "2026-05-08T12:34:56.000Z",
+            version: 232,
         });
     });
 });

@@ -18,6 +18,7 @@
 
 import { route } from "@spacebar/api";
 import {
+    ChannelPinsAckEvent,
     ChannelPinsUpdateEvent,
     Config,
     DiscordApiErrors,
@@ -27,11 +28,73 @@ import {
     MessageUpdateEvent,
     User,
     messagePublicWithThreadRelations,
+    upsertChannelPinsReadState,
 } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
 
 const router: Router = Router({ mergeParams: true });
+const CHANNEL_PINS_ACK_VERSION = 232;
+const EMPTY_PIN_ACK_TIMESTAMP = new Date(0);
+
+async function getLatestPinnedTimestamp(channel_id: string) {
+    const latestPin = await Message.findOne({
+        where: { channel_id, pinned_at: Not(IsNull()) },
+        select: { pinned_at: true },
+        order: { pinned_at: "DESC" },
+    });
+
+    return latestPin?.pinned_at ?? EMPTY_PIN_ACK_TIMESTAMP;
+}
+
+async function acknowledgeChannelPins(req: Request, res: Response) {
+    const { channel_id } = req.params as { [key: string]: string };
+    const timestamp = await getLatestPinnedTimestamp(channel_id);
+
+    await upsertChannelPinsReadState(
+        {
+            user_id: req.user_id,
+            channel_id,
+        },
+        timestamp,
+    );
+    await emitEvent({
+        event: "CHANNEL_PINS_ACK",
+        user_id: req.user_id,
+        data: {
+            channel_id,
+            timestamp: timestamp.toISOString(),
+            version: CHANNEL_PINS_ACK_VERSION,
+        },
+    } satisfies ChannelPinsAckEvent);
+
+    res.sendStatus(204);
+}
+
+const pinsAckRouteOptions = {
+    permission: "VIEW_CHANNEL",
+    summary: "Acknowledge Pinned Messages",
+    description: "Acknowledges the current user's pinned-message read state for the channel.",
+    responses: {
+        204: {},
+        400: {
+            body: "APIErrorResponse",
+        },
+        401: {
+            body: "APIErrorResponse",
+        },
+        403: {
+            body: "APIErrorResponse",
+        },
+        404: {
+            body: "APIErrorResponse",
+        },
+    },
+} as const;
+
+router.delete("/ack", route(pinsAckRouteOptions), acknowledgeChannelPins);
+router.post("/ack", route(pinsAckRouteOptions), acknowledgeChannelPins);
+router.put("/ack", route(pinsAckRouteOptions), acknowledgeChannelPins);
 
 // This is the old endpoint
 router.put(

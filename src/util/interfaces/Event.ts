@@ -238,6 +238,19 @@ export interface ChannelPinsUpdateEvent extends Event {
     };
 }
 
+export interface ChannelPinsAckEvent extends Event {
+    event: "CHANNEL_PINS_ACK";
+    user_id: string;
+    data: {
+        channel_id: string;
+        /**
+         * @format ISO8601
+         */
+        timestamp: string;
+        version: number;
+    };
+}
+
 export interface ChannelRecipientAddEvent extends Event {
     event: "CHANNEL_RECIPIENT_ADD";
     data: {
@@ -791,6 +804,7 @@ export type EventData =
     | ChannelUpdateEvent
     | ChannelDeleteEvent
     | ChannelPinsUpdateEvent
+    | ChannelPinsAckEvent
     | ChannelRecipientAddEvent
     | ChannelRecipientRemoveEvent
     | ConversationSummaryUpdateEvent
@@ -858,6 +872,7 @@ export enum EVENTEnum {
     ChannelUpdate = "CHANNEL_UPDATE",
     ChannelDelete = "CHANNEL_DELETE",
     ChannelPinsUpdate = "CHANNEL_PINS_UPDATE",
+    ChannelPinsAck = "CHANNEL_PINS_ACK",
     ChannelRecipientAdd = "CHANNEL_RECIPIENT_ADD",
     ChannelRecipientRemove = "CHANNEL_RECIPIENT_REMOVE",
     ConversationSummaryUpdate = "CONVERSATION_SUMMARY_UPDATE",
@@ -925,6 +940,7 @@ export const EVENT_NAMES = [
     "CHANNEL_UPDATE",
     "CHANNEL_DELETE",
     "CHANNEL_PINS_UPDATE",
+    "CHANNEL_PINS_ACK",
     "CHANNEL_RECIPIENT_ADD",
     "CHANNEL_RECIPIENT_REMOVE",
     "CONVERSATION_SUMMARY_UPDATE",

@@ -9,6 +9,11 @@ export interface ChannelMessageReadStateIdentity {
     channel_id: string;
 }
 
+export interface ChannelPinsReadStateIdentity {
+    user_id: string;
+    channel_id: string;
+}
+
 type ChannelMessageReadStateOptions = Pick<MessageAcknowledgeSchema, "flags" | "last_viewed">;
 
 function isUniqueConstraintError(error: unknown) {
@@ -53,6 +58,17 @@ function channelNotificationCursorValues(identity: ChannelMessageReadStateIdenti
     return values;
 }
 
+function channelPinsReadStateValues(identity: ChannelPinsReadStateIdentity, lastPinTimestamp: Date) {
+    const values: QueryDeepPartialEntity<ReadState> = {
+        user_id: identity.user_id,
+        channel_id: identity.channel_id,
+        read_state_type: ReadStateType.CHANNEL,
+        last_pin_timestamp: lastPinTimestamp,
+    };
+
+    return values;
+}
+
 async function updateExistingChannelMessageReadState(identity: ChannelMessageReadStateIdentity, messageId: string, options: ChannelMessageReadStateOptions = {}) {
     const values = channelReadStateValues(identity, messageId, options);
     delete values.user_id;
@@ -85,6 +101,22 @@ async function updateExistingChannelNotificationCursor(identity: ChannelMessageR
         .execute();
 }
 
+async function updateExistingChannelPinsReadState(identity: ChannelPinsReadStateIdentity, lastPinTimestamp: Date) {
+    const values = channelPinsReadStateValues(identity, lastPinTimestamp);
+    delete values.user_id;
+    delete values.channel_id;
+    delete values.read_state_type;
+
+    return ReadState.getRepository()
+        .createQueryBuilder()
+        .update(ReadState)
+        .set(values)
+        .where('"user_id" = :userId', { userId: identity.user_id })
+        .andWhere('"channel_id" = :channelId', { channelId: identity.channel_id })
+        .andWhere('"read_state_type" = :readStateType', { readStateType: ReadStateType.CHANNEL })
+        .execute();
+}
+
 export async function upsertChannelMessageReadState(identity: ChannelMessageReadStateIdentity, messageId: string, options: ChannelMessageReadStateOptions = {}) {
     const updateResult = await updateExistingChannelMessageReadState(identity, messageId, options);
     if ((updateResult.affected ?? 0) > 0) return;
@@ -94,6 +126,18 @@ export async function upsertChannelMessageReadState(identity: ChannelMessageRead
     } catch (error) {
         if (!isUniqueConstraintError(error)) throw error;
         await updateExistingChannelMessageReadState(identity, messageId, options);
+    }
+}
+
+export async function upsertChannelPinsReadState(identity: ChannelPinsReadStateIdentity, lastPinTimestamp: Date) {
+    const updateResult = await updateExistingChannelPinsReadState(identity, lastPinTimestamp);
+    if ((updateResult.affected ?? 0) > 0) return;
+
+    try {
+        await ReadState.getRepository().insert(ReadState.create(channelPinsReadStateValues(identity, lastPinTimestamp) as Partial<ReadState>) as ReadState);
+    } catch (error) {
+        if (!isUniqueConstraintError(error)) throw error;
+        await updateExistingChannelPinsReadState(identity, lastPinTimestamp);
     }
 }
 
